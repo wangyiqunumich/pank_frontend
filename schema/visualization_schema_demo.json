@@ -1,0 +1,23 @@
+{
+    "triplet": "sequence_variant - eQTL_of - gene",
+    "template_questions": [
+        {
+            "question": "What {variants} influence the expression of {gene identifier} as {eQTLs}?",
+            "cypher_query": "MATCH (v:sequence_variant)-[r:eQTL_of]->(g:gene) WHERE v.id = $input RETURN v, g, r"
+        },
+        {
+            "question": "Which {genes} have {variant identifier} as their {eQTLs}?",
+            "cypher_query": "MATCH (g:gene)-[r:eQTL_of]->(v:sequence_variant) WHERE g.name = $input RETURN g, r, v"
+        }
+    ],
+    "visualizations": [
+        {
+            "name": "Gene-SNP p-value Genome Browser",
+            "tab": "Statistics"
+        },
+        {
+            "name": "Gene Association and Regulation Browser",
+            "tab": "Gene"
+        }
+    ]
+}
