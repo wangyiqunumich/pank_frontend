@@ -13,6 +13,7 @@ import NavBarWhite from '../Units/SearchBarKnowledge'
 import SearchBarKnowledge from "../Units/SearchBarKnowledge";
 import logo from "../../img/logo.svg";
 import umLogo from "../../img/um_logo.jpg";
+import {TestComponent} from "../Test/TestComponent";
 
 
 const { Search } = Input;
@@ -33,17 +34,20 @@ const HomePage = () => {
             {/*    setTags = {setTags}*/}
             {/*/>*/}
             {/* <NavBarWhite/> */}
-            <div className="content">
-                <img src={logo}  alt="Logo" />
-                <SearchBarKnowledge 
-                    chipData = {[]}
-                />
+            {/*<div className="content">*/}
+            {/*    <img src={logo}  alt="Logo" />*/}
+            {/*    <SearchBarKnowledge */}
+            {/*        chipData = {[]}*/}
+            {/*    />*/}
+            {/*</div>*/}
+            <div>
+                fdsa
+                <TestComponent/>
             </div>
-
-            <div className="footer">
-                <img src={umLogo} alt="Michigan Medicine Logo" className="footer-img" />
-                <p>© 2022 U-M Liu Lab, Department of Computational Medicine and Bioinformatics</p>
-            </div>
+            {/*<div className="footer">*/}
+            {/*    <img src={umLogo} alt="Michigan Medicine Logo" className="footer-img" />*/}
+            {/*    <p>© 2022 U-M Liu Lab, Department of Computational Medicine and Bioinformatics</p>*/}
+            {/*</div>*/}
         </div>
     )
 }
