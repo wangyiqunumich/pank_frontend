@@ -1,23 +1,28 @@
 {
-    "triplet": "sequence_variant - eQTL_of - gene",
-    "template_questions": [
-        {
-            "question": "What {variants} influence the expression of {gene identifier} as {eQTLs}?",
-            "cypher_query": "MATCH (v:sequence_variant)-[r:eQTL_of]->(g:gene) WHERE v.id = $input RETURN v, g, r"
-        },
-        {
-            "question": "Which {genes} have {variant identifier} as their {eQTLs}?",
-            "cypher_query": "MATCH (g:gene)-[r:eQTL_of]->(v:sequence_variant) WHERE g.name = $input RETURN g, r, v"
-        }
-    ],
-    "visualizations": [
-        {
-            "name": "Gene-SNP p-value Genome Browser",
-            "tab": "Statistics"
-        },
-        {
-            "name": "Gene Association and Regulation Browser",
-            "tab": "Gene"
-        }
-    ]
+    "specific_sequence_variant - eQTL_of - gene": {
+        "questions": [
+            "Which {genes} have {variant identifier} as their {eQTLs}?"
+        ],
+        "related_questions": [
+            "Which {function ontologies} are linked to {gene identifier}?",
+            "In which {disease/phenotype/ontology} is {gene identifier} {expressed}?"
+        ],
+        "visualizations": [
+            "Gene-SNP p-value Genome Browser - Statistics",
+            "Gene Association and Regulation Browser - Gene"
+        ]
+    },
+    "specific_gene - eQTL_of - sequence_variant": {
+        "questions": [
+            "Which {proteins} are encoded by {gene identifier}?"
+        ],
+        "related_questions": [
+            "Which {credible_set} does {variant identifier} belong to?",
+            "Which {genes} have {variant identifier} as their {credible eQTLs}?"
+        ],
+        "visualizations": [
+            "Gene-SNP p-value Genome Browser - Statistics",
+            "Gene Association and Regulation Browser - Gene"
+        ]
+    }
 }
