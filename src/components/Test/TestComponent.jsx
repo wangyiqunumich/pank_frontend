@@ -6,7 +6,7 @@ export const TestComponent = () => {
     let testClassInstance = new Test();
     return <div>
         <button onClick={() => {
-            const testReturnValue = testClassInstance.testConnection('string to test')
+            const testReturnValue = testClassInstance.testConnection('MATCH (n) RETURN n LIMIT 10')
             console.log(testReturnValue);
             setReturnedValue(testReturnValue);
         }}>Test</button>
