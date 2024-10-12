@@ -1,9 +1,6 @@
 import './App.css';
-import {useDispatch, useSelector} from "react-redux";
-import {queryViewSchema} from "./redux/viewSchemaSlice";
-import {queryQueryResult} from "./redux/queryResultSlice";
-import {queryCatalog} from "./redux/catalogSlice";
-import {queryAiAnswer} from "./redux/aiAnswerSlice";
+import NavBar from './NavBar';
+import SearchBar from './SearchBar';
 
 function App() {
   const {viewSchema, queryViewSchemaStatus, queryViewSchemaErrorMessage} = useSelector((state) => state.viewSchema);
@@ -26,23 +23,8 @@ function App() {
 
   return (
     <div className="App">
-        <button onClick={testViewSchemaOnClick}>test view schema connection</button>
-        <button onClick={testQueryResultOnClick}>test query result connection</button>
-        <button onClick={testCatalogOnClick}>test catalog connection</button>
-        <button onClick={testAiAnswerOnClick}>test ai answer connection</button>
-      <header className="App-header">
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <NavBar />
+      <SearchBar />
     </div>
   );
 }
