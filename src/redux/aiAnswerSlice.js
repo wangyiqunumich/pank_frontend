@@ -1,5 +1,5 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
-import {flaskBackendAxiosInstance} from "../axios/axios";
+import {flaskBackendAxiosInstance, glkbAxiosInstance} from "../axios/axios";
 import {QueryStatus} from "@reduxjs/toolkit/query";
 import axios from "axios";
 
