@@ -1,0 +1,44 @@
+/* SearchBar.css */
+.search-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.input-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.input-field {
+    border-radius: 4px;
+    border: 1px solid #d9d9d9;
+}
+
+.log-box {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #d9d9d9;
+    z-index: 1000;
+    padding: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.dropdown-field {
+    width: 120px;
+    border-radius: 4px;
+    border: 1px solid #d9d9d9;
+}
+
+.add-button {
+    background-color: #1890ff;
+    border-color: #1890ff;
+    color: white;
+    border-radius: 4px;
+}
+
+/* Add any additional styles you may need */
