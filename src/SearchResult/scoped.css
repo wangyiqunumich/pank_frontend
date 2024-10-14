@@ -1,0 +1,85 @@
+.search-result-container {
+  margin-top: 48px;
+  margin-bottom: 48px;
+}
+
+.search-result-content {
+  display: flex;
+  gap: 32px;
+}
+
+.left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 60%;
+}
+
+.right-column {
+  width: 40%;
+}
+
+.styled-paper {
+  position: relative;
+  padding: 32px;
+  padding-top: 48px;
+  border-radius: 20px;
+  height: 100%;
+  box-shadow: 0px 3px 3px -2px rgba(0,0,0,0.2), 0px 3px 4px 0px rgba(0,0,0,0.14), 0px 1px 8px 0px rgba(0,0,0,0.12);
+}
+
+.styled-paper::before {
+  content: attr(data-title);
+  position: absolute;
+  top: -15px;
+  left: 20px;
+  background-color: white;
+  padding: 0 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.knowledge-graph {
+  height: calc(100% - 30px);
+}
+
+.next-questions-list {
+  padding-left: 20px;
+  margin-top: 0;
+}
+
+.highlight-pink {
+  color: #FF69B4;
+}
+
+.highlight-orange {
+  color: #FFA500;
+}
+
+.highlight-green {
+  color: #90EE90;
+}
+
+.highlight-blue {
+  color: #ADD8E6;
+}
+
+/* 新添加的样式 */
+.answer-content {
+  text-align: left;
+  padding-left: 20px;
+}
+
+.answer-table {
+  margin-top: 16px;
+}
+
+.answer-table .MuiTableCell-root {
+  border: 1px solid #e0e0e0;
+  padding: 8px;
+}
+
+.answer-table .MuiTableHead-root .MuiTableCell-root {
+  font-weight: bold;
+  background-color: #f5f5f5;
+}

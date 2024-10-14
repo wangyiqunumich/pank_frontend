@@ -1,35 +1,23 @@
 import './App.css';
+import React, { useState } from 'react';
 import NavBar from './NavBar';
 import SearchBar from './SearchBar';
-import { useSelector, useDispatch } from 'react-redux';
-import { queryViewSchema } from './redux/viewSchemaSlice';
-import { queryQueryResult } from './redux/queryResultSlice';
-import { queryCatalog } from './redux/catalogSlice';
-import { queryAiAnswer } from './redux/aiAnswerSlice';
+import SearchResult from './SearchResult';
+import { useSelector } from 'react-redux';
 
 function App() {
-  const {viewSchema, queryViewSchemaStatus, queryViewSchemaErrorMessage} = useSelector((state) => state.viewSchema);
-  const dispatch = useDispatch();
+  const [showResult, setShowResult] = useState(false);
+  const { viewSchema } = useSelector((state) => state.viewSchema);
 
-  const testViewSchemaOnClick = () => {
-      dispatch(queryViewSchema({sourceTerm: 'fdsa', relationship: 'flld', targetTerm: 'fdkl'})).unwrap();
-  }
-    const testQueryResultOnClick = () => {
-        dispatch(queryQueryResult({query: 'MATCH (n1) RETURN (n1) LIMIT 2;'})).unwrap();
-    }
+  const handleSearch = () => {
+    setShowResult(true);
+  };
 
-    const testCatalogOnClick = () => {
-        dispatch(queryCatalog({imageType: 'testtype'})).unwrap();
-    }
-
-    const testAiAnswerOnClick = () => {
-        dispatch(queryAiAnswer("{question: 'testtype', graph: 'subgraph'}")).unwrap();
-    }
-    
   return (
     <div className="App">
       <NavBar />
-      <SearchBar />
+      <SearchBar onSearch={handleSearch} />
+      {showResult && <SearchResult />}
     </div>
   );
 }

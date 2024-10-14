@@ -1,66 +1,84 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Container, Box, FormControl, InputLabel, Select, MenuItem, Button, TextField } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
+import { useSelector, useDispatch } from 'react-redux';
+import { queryViewSchema } from '../redux/viewSchemaSlice';
+import { queryAiAnswer } from '../redux/aiAnswerSlice';
 
-function SearchBar() {
+function SearchBar({ onSearch }) {
     const [sourceTerm, setSourceTerm] = useState('');
     const [relationship, setRelationship] = useState('');
     const [targetTerm, setTargetTerm] = useState('');
-    const [currentQuestion, setCurrentQuestion] = useState('');
     const [sourceOptions, setSourceOptions] = useState(["gene", "sequence_variant"]);
     const [targetOptions, setTargetOptions] = useState(["gene", "sequence_variant"]);
     const [isRelationshipDisabled, setIsRelationshipDisabled] = useState(true);
     const [isTargetTermDisabled, setIsTargetTermDisabled] = useState(true);
 
+    const {viewSchema, queryViewSchemaStatus, queryViewSchemaErrorMessage} = useSelector((state) => state.viewSchema);
+    const {aiAnswer, queryAiAnswerStatus, queryAiAnswerErrorMessage} = useSelector((state) => state.aiAnswer);
+    const dispatch = useDispatch();
+  
+
     const relationTypes = ["eQTL_of"];
+
+    const sourceTimerRef = useRef(null);
+    const targetTimerRef = useRef(null);
 
     const updateSourceTerm = async (event, newValue) => {
         setSourceTerm(newValue || '');
-        if (newValue && sourceOptions.includes(newValue)) {
+        if (newValue) {
+            clearTimeout(sourceTimerRef.current);
+            sourceTimerRef.current = setTimeout(async () => {
+                const response = await fetchOptions(newValue, 'source');
+                setSourceOptions(response);
+            }, 1000);
             setIsRelationshipDisabled(false);
-            setTargetOptions([]);
-        } else if (newValue) {
-            const response = await fetchOptions(newValue, 'source');
-            setSourceOptions(response);
         } else {
             setSourceOptions(["gene", "sequence_variant"]);
             setIsRelationshipDisabled(true);
             setIsTargetTermDisabled(true);
         }
-        fetchCurrentQuestion(newValue || '', relationship, targetTerm);
     };
 
     const updateRelationship = (event) => {
         const value = event.target.value;
         setRelationship(value);
         setIsTargetTermDisabled(false);
-        fetchCurrentQuestion(sourceTerm, value, targetTerm);
     };
 
     const updateTargetTerm = async (event, newValue) => {
         setTargetTerm(newValue || '');
-        if (newValue && !sourceOptions.includes(sourceTerm)) {
-            const response = await fetchOptions(newValue, 'target');
-            setTargetOptions(response);
-        } else if (!newValue) {
+        if (newValue) {
+            clearTimeout(targetTimerRef.current);
+            targetTimerRef.current = setTimeout(async () => {
+                const response = await fetchOptions(newValue, 'target');
+                setTargetOptions(response);
+            }, 1000);
+        } else {
             setTargetOptions(["gene", "sequence_variant"]);
         }
-        fetchCurrentQuestion(sourceTerm, relationship, newValue || '');
     };
 
-    const fetchOptions = async (term, type) => {
-        // 这里应该是向后端发送请求获取选项的函数
-        // 返回一个选项数组
-        return ["option1", "option2", "option3"];
-    };
-
-    const fetchCurrentQuestion = (source, relation, target) => {
-        // 这里应该是向后端发送请求获取当前问题的函数
-        setCurrentQuestion(`${source} ${relation} ${target}`);
+    const fetchOptions = async (term, inputType) => {
+        console.log(`Fetching options for ${inputType}: ${term}`);
+        // 模拟API调用
+        // 在实际应用中，这里应该是一个真实的API调用
+        const mockResults = [
+            { type: 'gene', term: `${term}_gene1` },
+            { type: 'gene', term: `${term}_gene2` },
+            { type: 'sequence_variant', term: `${term}_variant1` },
+            { type: 'sequence_variant', term: `${term}_variant2` },
+        ];
+        
+        // 返回格式化的选项
+        return mockResults.map(result => `${result.type}:${result.term}`);
     };
 
     const handleSearch = () => {
-        // 处理搜索逻辑
+        dispatch(queryViewSchema({sourceTerm: sourceTerm, relationship: relationship, targetTerm: targetTerm})).unwrap();
+        dispatch(queryAiAnswer({})).unwrap();
+        console.log(aiAnswer);
+        onSearch(); // 触发父组件中的搜索结果显示
     };
 
     return (
@@ -71,7 +89,7 @@ function SearchBar() {
                         <Autocomplete
                             freeSolo
                             value={sourceTerm}
-                            onChange={updateSourceTerm}
+                            onInputChange={updateSourceTerm}
                             options={sourceOptions}
                             renderInput={(params) => <TextField {...params} label="Source Term" />}
                         />
@@ -97,7 +115,7 @@ function SearchBar() {
                         <Autocomplete
                             freeSolo
                             value={targetTerm}
-                            onChange={updateTargetTerm}
+                            onInputChange={updateTargetTerm}
                             options={targetOptions}
                             disabled={isTargetTermDisabled}
                             renderInput={(params) => <TextField {...params} label="Target Term" />}
@@ -109,9 +127,6 @@ function SearchBar() {
                         onClick={handleSearch}>
                         Search
                     </Button>
-                </Box>
-                <Box>
-                    Current Question: {currentQuestion}
                 </Box>
             </Box>
         </Container>
