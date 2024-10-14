@@ -3,7 +3,7 @@
         "questions": [
             "Which {genes} have {variant identifier} as their {eQTLs}?"
         ],
-        "related_questions": [
+        "next_questions": [
             "Which {function ontologies} are linked to {gene identifier}?",
             "In which {disease/phenotype/ontology} is {gene identifier} {expressed}?"
         ],
@@ -16,7 +16,7 @@
         "questions": [
             "Which {proteins} are encoded by {gene identifier}?"
         ],
-        "related_questions": [
+        "next_questions": [
             "Which {credible_set} does {variant identifier} belong to?",
             "Which {genes} have {variant identifier} as their {credible eQTLs}?"
         ],
