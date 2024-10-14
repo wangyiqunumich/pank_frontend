@@ -1,28 +1,40 @@
 {
-    "specific_sequence_variant - eQTL_of - gene": {
-        "questions": [
-            "Which {genes} have {variant identifier} as their {eQTLs}?"
+	"sequence_variant - eQTL_of - gene": {
+		"specific - relation - general": {
+         "questions": [
+        "Which {genes@gene} have {variant identifier@sequence_variant} as their {eQTLs@eqtl_of}?"
         ],
+        "open_cyper":[
+            MATCH (n1:sequence_variant)-[r:eQTL_of]->(n2:gene)
+            WHERE n1.id = '@sequence_variant'
+            RETURN n1, r, n2
+        ],  
         "next_questions": [
-            "Which {function ontologies} are linked to {gene identifier}?",
-            "In which {disease/phenotype/ontology} is {gene identifier} {expressed}?"
-        ],
+                "Which {function ontologies@ontology} are linked to {gene identifier@n1:gene}?",
+                "In which {disease/phenotype/ontology@ontology} is {gene identifier@n1:gene} {expressed@express_in}?"
+            ],
         "visualizations": [
             "Gene-SNP p-value Genome Browser - Statistics",
             "Gene Association and Regulation Browser - Gene"
         ]
     },
-    "specific_gene - eQTL_of - sequence_variant": {
+		"general - relationship - specific": {
         "questions": [
             "Which {proteins} are encoded by {gene identifier}?"
         ],
+        "open_cyper":[
+            MATCH (n1:sequence_variant)-[r:eQTL_of]->(n2:gene)
+            WHERE n2.id = '@gene'
+            RETURN n1, r, n2
+        ],  
         "next_questions": [
-            "Which {credible_set} does {variant identifier} belong to?",
-            "Which {genes} have {variant identifier} as their {credible eQTLs}?"
-        ],
+                "Which {function ontologies@ontology} are linked to {gene identifier@n1:gene}?",
+                "In which {disease/phenotype/ontology@ontology} is {gene identifier@n1:gene} {expressed@express_in}?"
+            ],
         "visualizations": [
             "Gene-SNP p-value Genome Browser - Statistics",
             "Gene Association and Regulation Browser - Gene"
         ]
+        }
     }
 }
