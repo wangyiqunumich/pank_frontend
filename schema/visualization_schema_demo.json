@@ -4,11 +4,9 @@
          "questions": [
         "Which {genes@gene} have {variant identifier@sequence_variant} as their {eQTLs@eqtl_of}?"
         ],
-        "open_cyper":[
-            "MATCH (n1:sequence_variant)-[r:eQTL_of]->(n2:gene)"
-            "WHERE n1.id = '@sequence_variant'"
-            "RETURN n1, r, n2"
-        ],  
+        "open_cyper":
+            "MATCH (n1:sequence_variant)-[r:eQTL_of]->(n2:gene) WHERE n1.id = '@sequence_variant' RETURN n1, r, n2"
+	,
         "next_questions": [
                 "Which {function ontologies@ontology} are linked to {gene identifier@n1:gene}?",
                 "In which {disease/phenotype/ontology@ontology} is {gene identifier@n1:gene} {expressed@express_in}?"
@@ -22,11 +20,8 @@
         "questions": [
             "Which {proteins} are encoded by {gene identifier}?"
         ],
-        "open_cyper":[
-            "MATCH (n1:sequence_variant)-[r:eQTL_of]->(n2:gene)"
-            "WHERE n2.id = '@gene'"
-            "RETURN n1, r, n2"
-        ],  
+        "open_cyper":"MATCH (n1:sequence_variant)-[r:eQTL_of]->(n2:gene) WHERE n2.id = '@gene' RETURN n1, r, n2"
+        ,  
         "next_questions": [
                 "Which {function ontologies@ontology} are linked to {gene identifier@n1:gene}?",
                 "In which {disease/phenotype/ontology@ontology} is {gene identifier@n1:gene} {expressed@express_in}?"
