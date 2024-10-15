@@ -1,0 +1,24 @@
+{
+  "results": [
+    {
+      "r": {
+        "~id": "d2d12eb7-a277-4bb1-8254-ef66743190d0",
+        "~entityType": "relationship",
+        "~start": "rs73920612",
+        "~end": "ENSG00000138092",
+        "~type": "eQTL_of",
+        "~properties": {
+          "beta": -0.180316,
+          "se": 0.033548,
+          "data_version": "2024-07-02",
+          "data_source": "Data_source",
+          "tissue_name": "pancreatic_islet",
+          "tissue_id": "BTO_0000991",
+          "p_nominal": 1.32336e-07,
+          "lead": 1.0,
+          "t_stat": -5.374923
+        }
+      }
+    }
+  ]
+}
