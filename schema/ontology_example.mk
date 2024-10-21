@@ -1,0 +1,21 @@
+- PanKgraph Root
+  - [Cell Line](https://www.ebi.ac.uk/ols/ontologies/cl)
+    - NOD Beta Cells: INS, GAD2
+    - Human Islet Cells: PTPN22, IL2RA
+  - [Disease Ontology](https://disease-ontology.org/)
+    - Type 1 Diabetes (DOID:9744)
+      - Immune Response: HLA-DQA1, HLA-DQB1, IL2RA
+      - Beta Cell Apoptosis: INS, BACH2
+  - [Pathway Ontology](https://www.ebi.ac.uk/ols/ontologies/reactome)
+    - Immune Response Pathways
+      - Cytokine Signaling: IL2, IFIH1
+      - Regulatory T Cell Pathway: CTLA4, FOXP3
+    - Insulin Secretion Pathway: INS, GAD2
+  - [Gene Ontology](http://geneontology.org/)
+    - Biological Process
+      - T Cell Differentiation: AIRE, PTPN2
+    - Molecular Function
+      - Tyrosine Phosphatase Activity: PTPN2, PTPN22
+    - Cellular Component
+      - Plasma Membrane: CD3E, HLA-DQA1
+      - Secretory Granule: INS, GAD1
