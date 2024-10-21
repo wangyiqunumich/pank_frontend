@@ -3,6 +3,7 @@ import viewSchemaReducer from './viewSchemaSlice'
 import queryResultReducer from './queryResultSlice'
 import catalogReducer from './catalogSlice'
 import aiAnswerReducer from './aiAnswerSlice'
+import typeToImageReducer from './typeToImageSlice'
 
 const store = configureStore({
     reducer: {
@@ -10,7 +11,8 @@ const store = configureStore({
         viewSchema: viewSchemaReducer,
         catalog: catalogReducer,
         queryResult: queryResultReducer,
-        aiAnswer: aiAnswerReducer
+        aiAnswer: aiAnswerReducer,
+        typeToImage: typeToImageReducer,
         // [apiSlice.reducerPath]: apiSlice.reducer,
     },
     // middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(apiSlice.middleware)
