@@ -1,5 +1,5 @@
 <details>
-  <summary><a href="https://example.com/pankgraph_root">PanKgraph Root</a></summary>
+  <summary>PanKgraph Root</summary>
   <ul>
     <li>
       <details>
