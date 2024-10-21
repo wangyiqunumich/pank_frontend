@@ -22,7 +22,7 @@
     },
 		"general - relationship - specific": {
         "questions": [
-            "Which {SNP@sequence_variant} has {gene} as its {eQTL@eqtl_of}?"
+            "Which {SNP@sequence_variant} has {gene@gene} as its {eQTL@eqtl_of}?"
         ],
         "open_cyper":"MATCH (n1:sequence_variant)-[r:eQTL_of]->(n2:gene) WHERE n2.id = '@gene' RETURN n1, r, n2"
 	,
