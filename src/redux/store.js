@@ -3,18 +3,16 @@ import viewSchemaReducer from './viewSchemaSlice'
 import queryResultReducer from './queryResultSlice'
 import catalogReducer from './catalogSlice'
 import aiAnswerReducer from './aiAnswerSlice'
+import processedQuestionReducer from './processedQuestionSlice'
 
 const store = configureStore({
     reducer: {
-        // ui: uiReducer,
         viewSchema: viewSchemaReducer,
         catalog: catalogReducer,
         queryResult: queryResultReducer,
-        aiAnswer: aiAnswerReducer
-        // [apiSlice.reducerPath]: apiSlice.reducer,
+        aiAnswer: aiAnswerReducer,
+        processedQuestion: processedQuestionReducer
     },
-    // middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(apiSlice.middleware)
 });
 
 export { store };
-

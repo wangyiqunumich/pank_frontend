@@ -2,6 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import { useSelector } from 'react-redux';
 import './scoped.css';
+import KnowledgeGraph from '../components/KnowledgeGraph';
+import exactData from '../exact.json';
+import extendData from '../extend.json';
+import ImageModal from '../components/ImageModal';
+import sampleVisImage from '../image/sample_vis.jpg';
+
+const colorMap = {
+    gene: '#43978F',
+    sequence_variant: '#E56F5E',
+    eQTL_of: '#FBE8D5',
+    default: '#DCE9F4'
+};
 
 function TypewriterEffect({ text, speed = 10, onComplete }) {
     const [displayedText, setDisplayedText] = useState('');
@@ -24,8 +36,10 @@ function TypewriterEffect({ text, speed = 10, onComplete }) {
 }
 
 function SearchResult() {
-    const { viewSchema } = useSelector((state) => state.viewSchema);
+    const { question, nextQuestions } = useSelector((state) => state.processedQuestion);
+    const {queryResult} = useSelector((state) => state.queryResult);
     const [showTable, setShowTable] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
 
     const answerText = `Currently <span style="color: #FFA500;">SNP rs73920612</span> is the eQTL of one gene: <span style="color: #FF69B4;">CENPO</span>
 
@@ -41,14 +55,15 @@ This answer refers to the following resources in PanKbase:`;
         setShowTable(true);
     };
 
+    const handleOpenModal = () => setModalOpen(true);
+    const handleCloseModal = () => setModalOpen(false);
+
     return (
         <Container maxWidth="xl" className="search-result-container">
             <div className="search-result-content">
                 <div className="left-column">
                     <div className="styled-paper" data-title="Question">
-                        <Typography variant="h6">
-                            {viewSchema.template_question?.question || 'No question available'}
-                        </Typography>
+                        <Typography variant="h6" dangerouslySetInnerHTML={{ __html: question || 'No question available' }} />
                     </div>
 
                     <div className="styled-paper" data-title="Answer">
@@ -64,26 +79,29 @@ This answer refers to the following resources in PanKbase:`;
                                     <Table size="small">
                                         <TableHead>
                                             <TableRow>
-                                                <TableCell>Gene name</TableCell>
-                                                <TableCell>Analytical lib</TableCell>
+                                                <TableCell>eQTL</TableCell>
+                                                <TableCell>Analytical pipeline</TableCell>
                                                 <TableCell>Dataset</TableCell>
-                                                <TableCell>Donor</TableCell>
+                                                <TableCell>Donors</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
                                             <TableRow>
                                                 <TableCell>
-                                                    <span style={{ color: '#FF69B4' }}>CENPO</span>
+                                                    <span 
+                                                        style={{ color: '#0000FF', cursor: 'pointer', textDecoration: 'underline' }} 
+                                                        onClick={handleOpenModal}
+                                                    >
+                                                        SNP p-values Plot (Manhattan plot)
+                                                    </span>
                                                 </TableCell>
                                                 <TableCell>
-                                                    <a href="#" style={{ color: '#FF0000' }}>External link</a>
+                                                    <a href="#" style={{ color: '#0000FF' }}>Link to PanKbase Analytical Pipeline</a>
                                                 </TableCell>
                                                 <TableCell>
-                                                    <a href="#" style={{ color: '#008000' }}>Dataset ref link</a>
+                                                    <a href="#" style={{ color: '#0000FF' }}>Link to PanKbase Data Catalog</a>
                                                 </TableCell>
-                                                <TableCell>
-                                                    <a href="#" style={{ color: '#4682B4' }}>Donors</a>
-                                                </TableCell>
+                                                <TableCell>(50) HPAP 024, HPAP 027, ..</TableCell>
                                             </TableRow>
                                         </TableBody>
                                     </Table>
@@ -94,9 +112,9 @@ This answer refers to the following resources in PanKbase:`;
 
                     <div className="styled-paper" data-title="Next Questions">
                         <ul className="next-questions-list">
-                            {viewSchema.next_questions?.map((question, index) => (
+                            {nextQuestions.map((question, index) => (
                                 <li key={index}>
-                                    <Typography>{question}</Typography>
+                                    <Typography dangerouslySetInnerHTML={{ __html: question }} />
                                 </li>
                             )) || <Typography>No next questions available</Typography>}
                         </ul>
@@ -105,10 +123,17 @@ This answer refers to the following resources in PanKbase:`;
 
                 <div className="right-column">
                     <div className="styled-paper knowledge-graph" data-title="Knowledge Graph">
-                        <Typography>Knowledge graph will be displayed here</Typography>
+                        <div className="knowledge-graph-container">
+                            <KnowledgeGraph exactData={{}} extendData={{}} />
+                        </div>
                     </div>
                 </div>
             </div>
+            <ImageModal
+                open={modalOpen}
+                handleClose={handleCloseModal}
+                imageSrc={sampleVisImage}
+            />
         </Container>
     );
 }

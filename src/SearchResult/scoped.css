@@ -46,6 +46,7 @@
 .next-questions-list {
   padding-left: 20px;
   margin-top: 0;
+  text-align: left;
 }
 
 .highlight-pink {
@@ -82,4 +83,18 @@
 .answer-table .MuiTableHead-root .MuiTableCell-root {
   font-weight: bold;
   background-color: #f5f5f5;
+}
+
+.knowledge-graph-container {
+  margin-left: -500px;
+  height: 100%;
+}
+
+.styled-paper[data-title="Question"] .MuiTypography-root,
+.styled-paper[data-title="Next Questions"] .MuiTypography-root {
+    text-align: left;
+}
+
+.next-questions-list {
+    text-align: left;
 }

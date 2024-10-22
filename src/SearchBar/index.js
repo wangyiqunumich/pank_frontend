@@ -1,11 +1,15 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Container, Box, FormControl, InputLabel, Select, MenuItem, Button, TextField } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
 import { useSelector, useDispatch } from 'react-redux';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import { queryAiAnswer } from '../redux/aiAnswerSlice';
+import { queryQueryResult } from '../redux/queryResultSlice';
+import { setProcessedQuestion, setProcessedNextQuestions } from '../redux/processedQuestionSlice';
 
 function SearchBar({ onSearch }) {
+    const dispatch = useDispatch();
+    const {viewSchema, queryViewSchemaStatus} = useSelector((state) => state.viewSchema);
     const [sourceTerm, setSourceTerm] = useState('');
     const [relationship, setRelationship] = useState('');
     const [targetTerm, setTargetTerm] = useState('');
@@ -14,10 +18,16 @@ function SearchBar({ onSearch }) {
     const [isRelationshipDisabled, setIsRelationshipDisabled] = useState(true);
     const [isTargetTermDisabled, setIsTargetTermDisabled] = useState(true);
 
-    const {viewSchema, queryViewSchemaStatus, queryViewSchemaErrorMessage} = useSelector((state) => state.viewSchema);
     const {aiAnswer, queryAiAnswerStatus, queryAiAnswerErrorMessage} = useSelector((state) => state.aiAnswer);
-    const dispatch = useDispatch();
-  
+    const {queryResult, queryResultStatus, queryResultErrorMessage} = useSelector((state) => state.queryResult);
+
+    const colorMap = {
+        gene: '#43978F',
+        sequence_variant: '#E56F5E',
+        eQTL_of: '#FBE8D5',
+        default: '#DCE9F4'
+    };
+
 
     const relationTypes = ["eQTL_of"];
 
@@ -74,12 +84,61 @@ function SearchBar({ onSearch }) {
         return mockResults.map(result => `${result.type}:${result.term}`);
     };
 
-    const handleSearch = () => {
-        dispatch(queryViewSchema({sourceTerm: sourceTerm, relationship: relationship, targetTerm: targetTerm})).unwrap();
-        dispatch(queryAiAnswer({})).unwrap();
-        console.log(aiAnswer);
-        onSearch(); // 触发父组件中的搜索结果显示
+    function replaceTerms(question, sourceTerm, relationship, targetTerm, isNextQuestion = false) {
+        const sourceType = sourceTerm.split(':')[0];
+        const sourceValue = sourceTerm.split(':')[1] || sourceType;
+        const targetType = targetTerm.split(':')[0];
+        const targetValue = targetTerm.split(':')[1] || targetType;
+
+        return question.replace(/\{([^@]+)@([^}]+)\}/g, (match, term, type) => {
+            let replacedTerm;
+            if (isNextQuestion) {
+                replacedTerm = term;
+            } else {
+                if (type === sourceType) {
+                    replacedTerm = sourceValue;
+                } else if (type === targetType) {
+                    replacedTerm = targetValue;
+                } else if (type.toLowerCase() === relationship.toLowerCase()) {
+                    replacedTerm = term;
+                } else {
+                    return match;
+                }
+            }
+            const color = colorMap[type] || colorMap.default;
+            return `<span style="color: ${color}">${replacedTerm}</span>`;
+        });
+    }
+
+    const handleSearch = async () => {
+        // 首先dispatch viewSchema查询
+        await dispatch(queryViewSchema({ sourceTerm, relationship, targetTerm }));
+        // 不要在这里调用onSearch，我们会在useEffect中处理
     };
+
+    useEffect(() => {
+        if (queryViewSchemaStatus === 'fulfilled' && viewSchema.questions && viewSchema.questions[0]) {
+            const processedQuestion = replaceTerms(viewSchema.questions[0], sourceTerm, relationship, targetTerm);
+            dispatch(setProcessedQuestion(processedQuestion));
+
+            if (viewSchema.next_questions) {
+                const processedNextQuestions = viewSchema.next_questions.map(question => 
+                    replaceTerms(question, sourceTerm, relationship, targetTerm, true)
+                );
+                dispatch(setProcessedNextQuestions(processedNextQuestions));
+            }
+
+            if (viewSchema.open_cyper) {
+                console.log(viewSchema.open_cyper);
+                dispatch(queryQueryResult({query: "MATCH (n1:sequence_variant)-[r:eQTL_of]->(n2:gene) WHERE n1.id = 'rs73920612' RETURN n1, r, n2;"})).unwrap();
+            }
+
+            dispatch(queryAiAnswer({question: 'testtype', graph: 'subgraph'})).unwrap();
+            console.log(aiAnswer);
+
+            onSearch(); // 现在我们可以安全地调用onSearch
+        }
+    }, [queryViewSchemaStatus, viewSchema, sourceTerm, relationship, targetTerm]);
 
     return (
         <Container maxWidth="md">
@@ -104,6 +163,7 @@ function SearchBar({ onSearch }) {
                             label="Relationship"
                             onChange={updateRelationship}
                             disabled={isRelationshipDisabled}
+                            sx={{ textAlign: 'left' }}
                         >
                             {relationTypes.map((type) => (
                                 <MenuItem key={type} value={type}>{type}</MenuItem>
