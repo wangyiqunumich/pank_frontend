@@ -3,11 +3,14 @@ import React, { useState } from 'react';
 import NavBar from './NavBar';
 import SearchBar from './SearchBar';
 import SearchResult from './SearchResult';
-import { useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
+import {queryImage} from "./redux/typeToImageSlice";
+import {queryCatalog} from "./redux/catalogSlice";
 
 function App() {
   const [showResult, setShowResult] = useState(false);
-  const { viewSchema } = useSelector((state) => state.viewSchema);
+  // const image = useSelector((state) => state.typeToImage.typeToImage);
+  const dispatch = useDispatch();
 
   const handleSearch = () => {
     setShowResult(true);
@@ -18,6 +21,8 @@ function App() {
       <NavBar />
       <SearchBar onSearch={handleSearch} />
       {showResult && <SearchResult />}
+      {/*<button onClick={() => dispatch(queryImage({imageType: 'test'})).unwrap()}>test connection</button>*/}
+      {/*<img src={`data:image/jpeg;base64,${image}`}/>*/}
     </div>
   );
 }
