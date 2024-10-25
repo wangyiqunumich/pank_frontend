@@ -133,10 +133,10 @@ function SearchBar({ onSearch }) {
                 dispatch(queryQueryResult({query: "MATCH (n1:sequence_variant)-[r:eQTL_of]->(n2:gene) WHERE n1.id = 'rs73920612' RETURN n1, r, n2;"})).unwrap();
             }
 
-            dispatch(queryAiAnswer({question: 'testtype', graph: 'subgraph'})).unwrap();
+            dispatch(queryAiAnswer('{"question": "a test question", "graph": "unknown format subgraph"}')).unwrap();
             console.log(aiAnswer);
 
-            onSearch(); // 现在我们可以安全地调用onSearch
+            onSearch();
         }
     }, [queryViewSchemaStatus, viewSchema, sourceTerm, relationship, targetTerm]);
 

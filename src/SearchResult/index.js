@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
-import { useSelector } from 'react-redux';
+import React, { useState, useEffect, useRef } from 'react';
+import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Box } from '@mui/material';
+import { useSelector, useDispatch } from 'react-redux';
 import './scoped.css';
 import KnowledgeGraph from '../components/KnowledgeGraph';
 import exactData from '../exact.json';
 import extendData from '../extend.json';
 import ImageModal from '../components/ImageModal';
-import sampleVisImage from '../image/sample_vis.jpg';
+import { queryImage } from "../redux/typeToImageSlice";
 
 const colorMap = {
     gene: '#43978F',
@@ -35,11 +35,41 @@ function TypewriterEffect({ text, speed = 10, onComplete }) {
     return <span dangerouslySetInnerHTML={{ __html: displayedText }} />;
 }
 
+const SNPPlotImage = ({ imageSrc }) => {
+  if (!imageSrc) return null;
+
+  return (
+    <div style={{ 
+      position: 'relative', 
+      width: '100%', 
+      height: '100%', 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      overflow: 'hidden'
+    }}>
+      <img 
+        src={`data:image/jpeg;base64,${imageSrc}`} 
+        alt="SNP p-values Plot" 
+        style={{ 
+          maxWidth: '100%',
+          maxHeight: '100%',
+          objectFit: 'contain'
+        }}
+      />
+    </div>
+  );
+};
+
 function SearchResult() {
     const { question, nextQuestions } = useSelector((state) => state.processedQuestion);
     const {queryResult} = useSelector((state) => state.queryResult);
     const [showTable, setShowTable] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
+    const [imageLoading, setImageLoading] = useState(true);
+    const dispatch = useDispatch();
+    const snpPlotImage = useSelector((state) => state.typeToImage.typeToImage);
+    const queryTypeToImageStatus = useSelector((state) => state.typeToImage.queryTypeToImageStatus);
 
     const answerText = `Currently <span style="color: #FFA500;">SNP rs73920612</span> is the eQTL of one gene: <span style="color: #FF69B4;">CENPO</span>
 
@@ -55,8 +85,19 @@ This answer refers to the following resources in PanKbase:`;
         setShowTable(true);
     };
 
-    const handleOpenModal = () => setModalOpen(true);
+    const handleOpenModal = () => {
+        setModalOpen(true);
+        setImageLoading(true);
+        dispatch(queryImage({imageType: 'snp_p_values_plot'}));
+    };
+    
     const handleCloseModal = () => setModalOpen(false);
+
+    useEffect(() => {
+        if (queryTypeToImageStatus === 'fulfilled') {
+            setImageLoading(false);
+        }
+    }, [queryTypeToImageStatus]);
 
     return (
         <Container maxWidth="xl" className="search-result-container">
@@ -132,8 +173,10 @@ This answer refers to the following resources in PanKbase:`;
             <ImageModal
                 open={modalOpen}
                 handleClose={handleCloseModal}
-                imageSrc={sampleVisImage}
-            />
+                loading={imageLoading}
+            >
+                <SNPPlotImage imageSrc={snpPlotImage} />
+            </ImageModal>
         </Container>
     );
 }

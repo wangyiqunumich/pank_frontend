@@ -35,3 +35,15 @@
 .navigation-bar .nav-links a:hover {
     color: #555; /* Change for hover effect */
 }
+
+.MuiMenu-paper {
+  background-color: #f5f5f5; /* 浅灰色背景 */
+}
+
+.MuiMenuItem-root {
+  color: #333; /* 深灰色文字，确保在浅灰色背景上可读 */
+}
+
+.MuiMenuItem-root:hover {
+  background-color: #e0e0e0; /* 鼠标悬停时的颜色 */
+}
