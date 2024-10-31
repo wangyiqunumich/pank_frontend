@@ -4,11 +4,11 @@
          "questions": [
         "Which {genes@gene} have {variant identifier@sequence_variant} as their {eQTLs@eqtl_of}?"
         ],
-        "open_cyper":
-            "MATCH (n1:sequence_variant)-[r:eQTL_of]->(n2:gene) WHERE n1.id = '@sequence_variant' RETURN n1, r, n2"
+        "cyper_for_inter":
+            "MATCH (snp_node:sequence_variant)-[r:fine_mapped_eQTL_of]->(gene_node:gene) WHERE snp_node.id = '@sequence_variant' RETURN snp_node, r, gene_node"
 	,
-	"extend_cyper":[
-            "MATCH (g:gene {id: "@n1:gene"})-[r]-(neighbor) RETURN g.id AS GeneID, type(r) AS RelationshipType, collect(neighbor.id) AS NeighborIDs"
+	"cyper_for_exact":[
+            "?MATCH (g:gene {id: "@n1:gene"})-[r]-(neighbor) RETURN g.id AS GeneID, type(r) AS RelationshipType, collect(neighbor.id) AS NeighborIDs"
 	]
 	,
         "next_questions": [
