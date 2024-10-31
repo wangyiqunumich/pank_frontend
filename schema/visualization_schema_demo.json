@@ -14,10 +14,13 @@
                 "Which {function ontologies@ontology} are linked to {gene identifier@n1:gene}?",
                 "In which {disease/phenotype/ontology@ontology} is {gene identifier@n1:gene} {expressed@express_in}?"
             ],
-        "visualizations": [
-            "Gene-SNP p-value Genome Browser - Statistics",
-            "Gene Association and Regulation Browser - Gene"
-        ]
+        "visualizations": {
+		"manhattan_plot" : {
+			"gene_id" : "@gene@"
+			
+		}
+		
+	}
     },
 		"general - relationship - specific": {
         "questions": [
