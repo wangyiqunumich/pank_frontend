@@ -16,8 +16,8 @@
             ],
         "visualizations": {
 		"manhattan_plot" : {
-			"gene_id" : "@gene@"
-			
+			"gene_id" : "@gene_node_id@",
+			"credible_set_id" : "@credible_set_id@"
 		}
 		
 	}
