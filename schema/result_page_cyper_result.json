@@ -1,0 +1,88 @@
+{
+  "results": [
+    {
+      "snp_node": {
+        "~id": "rs10156530",
+        "~entityType": "node",
+        "~labels": [
+          "variants",
+          "sequence_variant",
+          "snp"
+        ],
+        "~properties": {
+          "id": "rs10156530",
+          "chr": "9",
+          "start_loc": 92261257,
+          "end_loc": 92261258,
+          "type": "snp",
+          "link": "https://www.ncbi.nlm.nih.gov/snp/rs10156530/",
+          "data_version": "2021-05-13",
+          "data_source": "dbSNP",
+          "ref": "C",
+          "alt": "A,T",
+          "variant_allele_origin": ".",
+          "variant_suspect_reason": "unspecified",
+          "freq": "1000Genomes:0.8199,.,0.1801|ALSPAC:0.8448,.,0.1552|Estonian:0.8388,.,0.1612|GENOME_DK:0.85,.,0.15|GnomAD:0.7766,.,0.2234|GoNL:0.8206,.,0.1794|KOREAN:0.9843,.,0.01574|NorthernSweden:0.85,.,0.15|Qatari:0.6898,.,0.3102|SGDP_PRJ:0.4444,.,0.5556|Siberian:0.5,.,0.5|TOMMO:0.9897,.,0.01026|TOPMED:0.7756,.,0.2244|TWINSUK:0.8395,.,0.1605|dbGaP_PopFreq:0.8147,0,0.1853",
+          "HGVS_name": ".",
+          "non_synonymous_frameshift": "False",
+          "non_synonymous_missense": "False",
+          "non_synonymous_nonsense": "False",
+          "in_3prime_UTR": "False",
+          "in_5prime_UTR": "False",
+          "in_acceptor_splice_site": "False",
+          "in_donor_splice_site": "False",
+          "in_intron": "True",
+          "in_3prime_gene_region": "False",
+          "in_5prime_gene_region": "False",
+          "common_SNP": "True"
+        }
+      },
+      "r": {
+        "~id": "c711373a-9bc0-4fe3-8167-db6f4097c6f5",
+        "~entityType": "relationship",
+        "~start": "rs10156530",
+        "~end": "ENSG00000188312",
+        "~type": "fine_mapped_eQTL",
+        "~properties": {
+          "effect_allele": "T",
+          "slope": "0.988130688667297",
+          "other_allele": "C",
+          "data_version": "2024-10-25",
+          "data_source": "GTEx; SusieR",
+          "pip": "0.0300932771017709",
+          "tissue_name": "Pancreas",
+          "tissue_id": "UBERON_0001264",
+          "nominal_p": "6.76940532887946e-22",
+          "lbf": "59.9303957699002"
+        }
+      },
+      "gene_node": {
+        "~id": "ENSG00000188312",
+        "~entityType": "node",
+        "~labels": [
+          "coding_elements",
+          "gene"
+        ],
+        "~properties": {
+          "id": "ENSG00000188312",
+          "id_version": 15,
+          "name": "CENPP",
+          "HGNC_id": "HGNC:32933",
+          "HGNC_symbol": "CENPP",
+          "description": "centromere protein P [Source:HGNC Symbol;Acc:HGNC:32933]",
+          "chr": "9",
+          "start_loc": 92325953,
+          "end_loc": 92620529,
+          "strand": "1",
+          "GC_percentage": 40.0,
+          "type": "protein_coding",
+          "link": "https://www.ensembl.org/id/ENSG00000188312",
+          "gencode_annotation": "GENCODE basic",
+          "synonym": "RP11-19J3.3;CENP-P",
+          "data_version": "GRCh38.p14",
+          "data_source": "Ensembl"
+        }
+      }
+    }
+  ]
+}
