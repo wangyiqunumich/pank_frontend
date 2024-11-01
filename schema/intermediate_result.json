@@ -1,0 +1,52 @@
+ue"
+        }
+      },
+      "r": {
+        "~id": "04e983d6-8b31-46ea-8544-3237d4556ed5",
+        "~entityType": "relationship",
+        "~start": "rs10992314",
+        "~end": "ENSG00000188312",
+        "~type": "fine_mapped_eQTL",
+        "~properties": {
+          "effect_allele": "T",
+          "slope": "0.998018682003021",
+          "other_allele": "C",
+          "data_version": "2024-10-25",
+          "data_source": "GTEx; SusieR",
+          "pip": "0.407417538031968",
+          "tissue_name": "Pancreas",
+          "tissue_id": "UBERON_0001264",
+          "nominal_p": "1.19998510140014e-22",
+          "lbf": "62.7001385029728"
+        }
+      },
+      "gene_node": {
+        "~id": "ENSG00000188312",
+        "~entityType": "node",
+        "~labels": [
+          "coding_elements",
+          "gene"
+        ],
+        "~properties": {
+          "id": "ENSG00000188312",
+          "id_version": 15,
+          "name": "CENPP",
+          "HGNC_id": "HGNC:32933",
+          "HGNC_symbol": "CENPP",
+          "description": "centromere protein P [Source:HGNC Symbol;Acc:HGNC:32933]",
+          "chr": "9",
+          "start_loc": 92325953,
+          "end_loc": 92620529,
+          "strand": "1",
+          "GC_percentage": 40.0,
+          "type": "protein_coding",
+          "link": "https://www.ensembl.org/id/ENSG00000188312",
+          "gencode_annotation": "GENCODE basic",
+          "synonym": "RP11-19J3.3;CENP-P",
+          "data_version": "GRCh38.p14",
+          "data_source": "Ensembl"
+        }
+      }
+    }
+  ]
+}
