@@ -5,12 +5,13 @@
         "Which {genes} have {@sequence_variant@} as their {eQTLs}?"
         ],
         "cyper_for_intermediate_page":
-            "MATCH (snp_node:sequence_variant:snp)-[r:fine_mapped_eQTL_of]->(gene_node:gene) WHERE snp_node.id = '@sequence_variant@' RETURN snp_node, r, gene_node
-			MATCH (snp_node:variants)-[r:fine_mapped_eQTL]-(gene_node:coding_elements {id:'ENSG00000188312'})
-RETURN snp_node,r,gene_node"
+            "MATCH (snp_node:variants)-[r:fine_mapped_eQTL]-(gene_node:coding_elements {id:'@gene@'}) RETURN snp_node,r,gene_node"
 	,
 	"cyper_for_result_page_all_nodes_specific":
-            "?MATCH (g:gene {id:@gene_node@})-[r]-(neighbor) RETURN g.id AS GeneID, type(r) AS RelationshipType, collect(neighbor.id) AS NeighborIDs"
+            "MATCH (snp_node:variants {id: '@sequence_variant@'})-[r:fine_mapped_eQTL]-(gene_node:coding_elements {id: '@gene@'})
+OPTIONAL MATCH (snp_node)-[r1]-(extend_node_snp)
+OPTIONAL MATCH (gene_node)-[r2]-(extend_node_gene)
+RETURN snp_node, r, gene_node, r1, extend_node_snp, r2, extend_node_gene"
 	,
         "next_questions": [
                 "Which {function ontologies@ontology} are linked to {gene identifier@n1:gene}?",
