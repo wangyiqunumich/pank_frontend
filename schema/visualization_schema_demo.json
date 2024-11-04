@@ -1,5 +1,5 @@
 {
-    "sequence_variant - eQLTL_of - gene": {
+    "sequence_variant - fine_mapped_eQTL - gene: sequence variant - eQTL of - gene": {
         "specific - relation - general": {
             "questions": [
                 "Which {genes} have {@sequence_variant@} as their {eQTLs}?"
