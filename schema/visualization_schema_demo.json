@@ -1,5 +1,9 @@
-{
-    "sequence_variant - fine_mapped_eQTL - gene: sequence variant - eQTL of - gene": {
+{ "query_vocab_conversion_table": {"frontend_vocab": "KG_vocab",
+                                    "sequence variant": "sequence_variant",
+                                    "gene": "gene",
+                                    "eQTL of": "fine_mapped_eQTL"
+    },
+    "sequence_variant - fine_mapped_eQTL - gene": {
         "specific - relation - general": {
             "questions": [
                 "Which {genes} have {@sequence_variant@} as their {eQTLs}?"
