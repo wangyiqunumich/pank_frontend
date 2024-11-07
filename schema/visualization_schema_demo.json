@@ -1,21 +1,32 @@
 {"Conversion_table": {
-      "query_vocab_conversion_table": {
-      "frontend_vocab": "KG_vocab",
-      "sequence variant": "sequence_variant",
-      "gene": "gene",
-      "eQTL of": "fine_mapped_eQTL"
+      "query_vocab_frontend_KG": {
+          "sequence variant": "sequence_variant",
+          "gene": "gene",
+          "eQTL of": "fine_mapped_eQTL"
       },
-  "data_source_conversion_table": {
-    "KG_vocab": "frontend_vocab",
-    "GTEx; SusieR": "eQTL GTEx",
-    "INSPIRE; SusieR": "eQTL Gene-level InsPIRE",
-    "splicing QTL GTEx": "splicing QTL GTEx"
-    },
-  "Tissue_conversion_table": {
-    "KG_vocab": "frontend_vocab",
-    "GTEx; SusieR": "pancreatic tissue",
-    "INSPIRE; SusieR": "islet tissue"
-    },
+      "query_vocab_KG_frontend": {
+          "sequence_variant": "sequence variant",
+          "gene": "gene",
+          "fine_mapped_eQTL": "eQTL of"
+      }
+  "data_source_KG_frontend": {
+          "GTEx; SusieR": "eQTL GTEx",
+          "INSPIRE; SusieR": "eQTL Gene-level InsPIRE",
+          "splicing QTL GTEx": "splicing QTL GTEx"
+      },
+      "data_source_frontend_KG": {
+          "eQTL GTEx": "GTEx; SusieR",
+          "eQTL Gene-level InsPIRE": "INSPIRE; SusieR",
+          "splicing QTL GTEx": "splicing QTL GTEx"
+      },
+  "Tissue_KG_frontend": {
+          "GTEx; SusieR": "pancreatic tissue",
+          "INSPIRE; SusieR": "islet tissue"
+      },
+      "Tissue_frontend_KG": {
+          "pancreatic tissue": "GTEx; SusieR",
+          "islet tissue": "INSPIRE; SusieR"
+      },
 },
     "sequence_variant - fine_mapped_eQTL - gene": {
         "general - relationship - specific": {
