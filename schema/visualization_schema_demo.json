@@ -1,7 +1,13 @@
-{ "query_vocab_conversion_table": {"frontend_vocab": "KG_vocab",
-                                    "sequence variant": "sequence_variant",
-                                    "gene": "gene",
-                                    "eQTL of": "fine_mapped_eQTL"
+{ "query_vocab_conversion_table": {
+      "frontend_vocab": "KG_vocab",
+      "sequence variant": "sequence_variant",
+      "gene": "gene",
+      "eQTL of": "fine_mapped_eQTL"
+      },
+  "data_source_conversion_table": {
+    "KG_vocab": "frontend_vocab",
+    "GTEx; SusieR": "eQTL GTEx",
+    "INSPIRE; SusieR":
     },
     "sequence_variant - fine_mapped_eQTL - gene": {
         "specific - relation - general": {
