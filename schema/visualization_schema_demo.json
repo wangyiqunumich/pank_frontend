@@ -1,4 +1,5 @@
-{ "query_vocab_conversion_table": {
+{"Conversion_table": {
+      "query_vocab_conversion_table": {
       "frontend_vocab": "KG_vocab",
       "sequence variant": "sequence_variant",
       "gene": "gene",
@@ -7,12 +8,14 @@
   "data_source_conversion_table": {
     "KG_vocab": "frontend_vocab",
     "GTEx; SusieR": "eQTL GTEx",
-    "INSPIRE; SusieR": "eQTL Gene-level InsPIRE"
+    "INSPIRE; SusieR": "eQTL Gene-level InsPIRE",
+    "splicing QTL GTEx": "splicing QTL GTEx"
     },
-"Tissue_conversion_table": {
+  "Tissue_conversion_table": {
     "KG_vocab": "frontend_vocab",
     "GTEx; SusieR": "pancreatic tissue",
     "INSPIRE; SusieR": "islet tissue"
+    },
 },
     "sequence_variant - fine_mapped_eQTL - gene": {
         "general - relationship - specific": {
