@@ -42,7 +42,7 @@
             ],
             "cyper_for_intermediate_page": "MATCH (snp_node:variants:sequence_variant)-[eQTL_of:fine_mapped_eQTL]-(gene_node:coding_elements {id:'@gene@'}) MATCH (snp_node)-[belong_to_credible_set:belong_to_credible_set]->(credible_set_node:credible_set) RETURN snp_node, eQTL_of, gene_node, belong_to_credible_set, credible_set_node",
             "selection_result" : "snp_node, eQTL_of, gene_node, belong_to_credible_set, credible_set_node, data_source, tissue",
-            "question_for_result": "What is the SNP driving the @gene_node@ eQTL in @tissue@ tissue according to @data_source@ data?",
+            "question_for_result": "How does SNP @snp_node@ contribute to the regulation of @gene_node@ eQTL in @tissue@ tissue, according to @data_source@",
             "cyper_for_result_page_all_nodes_specific": "MATCH (snp_node:variants:sequence_variant {id: '@sequence_variant@'})-[r:fine_mapped_eQTL]-(gene_node:coding_elements {id: '@gene@'}) OPTIONAL MATCH (snp_node)-[r1]-(extend_node_snp) OPTIONAL MATCH (gene_node)-[r2]-(extend_node_gene) RETURN snp_node, r, gene_node, r1, extend_node_snp, r2, extend_node_gene",
             "next_questions": [
                 "Which {function ontologies@ontology} are linked to {gene identifier@n1:gene}?",
