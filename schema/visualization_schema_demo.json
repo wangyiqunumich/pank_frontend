@@ -26,13 +26,9 @@
           "eQTL Gene-level InsPIRE": "INSPIRE; SusieR",
           "splicing QTL GTEx": "splicing QTL GTEx"
       },
-  "Tissue_KG_frontend": {
+        "Tissue_conversion_table": {
           "GTEx; SusieR": "pancreatic tissue",
           "INSPIRE; SusieR": "islet tissue"
-      },
-      "Tissue_frontend_KG": {
-          "pancreatic tissue": "GTEx; SusieR",
-          "islet tissue": "INSPIRE; SusieR"
       },
 },
     "sequence_variant - fine_mapped_eQTL - gene": {
