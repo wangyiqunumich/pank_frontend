@@ -7,8 +7,13 @@
   "data_source_conversion_table": {
     "KG_vocab": "frontend_vocab",
     "GTEx; SusieR": "eQTL GTEx",
-    "INSPIRE; SusieR": "eQTL Gene-level InsPIRE",
+    "INSPIRE; SusieR": "eQTL Gene-level InsPIRE"
     },
+"Tissue_conversion_table": {
+    "KG_vocab": "frontend_vocab",
+    "GTEx; SusieR": "pancreatic tissue",
+    "INSPIRE; SusieR": "islet tissue"
+},
     "sequence_variant - fine_mapped_eQTL - gene": {
         "general - relationship - specific": {
             "question": [
