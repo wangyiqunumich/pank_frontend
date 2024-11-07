@@ -22,8 +22,8 @@
           "exon-QTL Exon-level InsPIRE": "exon; InsPIRE"
       },
         "Tissue_KG_tissue_name": {
-          "GTEx; SusieR": "pancreatic tissue",
-          "INSPIRE; SusieR": "islet tissue"
+          "GTEx; SusieR": "pancreatic",
+          "INSPIRE; SusieR": "islet"
       },
 },
     "sequence_variant - fine_mapped_eQTL - gene": {
