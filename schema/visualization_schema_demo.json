@@ -7,7 +7,7 @@
   "data_source_conversion_table": {
     "KG_vocab": "frontend_vocab",
     "GTEx; SusieR": "eQTL GTEx",
-    "INSPIRE; SusieR":
+    "INSPIRE; SusieR": "eQTL Gene-level InsPIRE",
     },
     "sequence_variant - fine_mapped_eQTL - gene": {
         "specific - relation - general": {
