@@ -1,0 +1,2049 @@
+{
+    "results": [{
+        "snp_node": {
+          "~id": "9:95214406_TC_T",
+          "~entityType": "node",
+          "~labels": ["variants", "sequence_variant", "non_core_snp"],
+          "~properties": {
+            "id": "9:95214406_TC_T",
+            "chr": "9",
+            "start_loc": 95214406,
+            "end_loc": 95214407,
+            "type": "snp",
+            "data_version": "GRCh38",
+            "data_source": "95214407",
+            "ref": "T",
+            "alt": "TC"
+          }
+        },
+        "r": {
+          "~id": "e1c22818-c60b-4c13-8a37-d7ec739248a6",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "ENSG00000188312",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.8415611522288403e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "gene_node": {
+          "~id": "ENSG00000188312",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000188312",
+            "id_version": 15,
+            "name": "CENPP",
+            "HGNC_id": "HGNC:32933",
+            "HGNC_symbol": "CENPP",
+            "description": "centromere protein P [Source:HGNC Symbol;Acc:HGNC:32933]",
+            "chr": "9",
+            "start_loc": 92325953,
+            "end_loc": 92620529,
+            "strand": "1",
+            "GC_percentage": 40.0,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000188312",
+            "gencode_annotation": "GENCODE basic",
+            "synonym": "RP11-19J3.3;CENP-P",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        },
+        "r1": {
+          "~id": "c4300e60-874e-4130-a5e3-dbf054882543",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "GTEx_CENPP_credibleSet1",
+          "~type": "belong_to_credible_set",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.84156115222884e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "extend_node_snp": {
+          "~id": "GTEx_CENPP_credibleSet1",
+          "~entityType": "node",
+          "~labels": ["variants", "credible_set"],
+          "~properties": {
+            "id": "GTEx_CENPP_credibleSet1",
+            "lead_SNP": "9:95214406_TC_T",
+            "pip": 0.9999985,
+            "nominal_p": 3.841561E-10,
+            "lbf": 19.58975,
+            "effect_allele": "T",
+            "noneffect_allele": "TC",
+            "slope": 0.5195109,
+            "n_snp": 1,
+            "purity": 1.0,
+            "data_version": "2024-10-25",
+            "tissue_name": "Pancreas",
+            "data_source": "GTEx; SusieR",
+            "tissue_id": "UBERON_0001264"
+          }
+        },
+        "r2": {
+          "~id": "0dc42fe9-ca72-431b-a32c-3e1ab4b36c27",
+          "~entityType": "relationship",
+          "~start": "ENSG00000188312",
+          "~end": "ENSG00000159352",
+          "~type": "regulation",
+          "~properties": {
+            "biogrid_interaction_id": "2456645",
+            "pubmed_id": "30033366.0",
+            "cDSD_distance": -1.833257E-10,
+            "data_version": "BTO:0000661|HP:0001507 (JURKAT cell|Growth abnormality) (cell type|phenotype) (-|-) (-|-) (-|-)",
+            "data_source": "BioGRID"
+          }
+        },
+        "extend_node_gene": {
+          "~id": "ENSG00000159352",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000159352",
+            "id_version": 16,
+            "name": "PSMD4",
+            "HGNC_id": "HGNC:9561",
+            "HGNC_symbol": "PSMD4",
+            "description": "proteasome 26S subunit ubiquitin receptor, non-ATPase 4 [Source:HGNC Symbol;Acc:HGNC:9561]",
+            "chr": "1",
+            "start_loc": 151254709,
+            "end_loc": 151267479,
+            "strand": "1",
+            "GC_percentage": 47.67,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000159352",
+            "gencode_annotation": "GENCODE basic",
+            "synonym": "S5A;AF-1;RPN10;AF",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        }
+      }, {
+        "snp_node": {
+          "~id": "9:95214406_TC_T",
+          "~entityType": "node",
+          "~labels": ["variants", "sequence_variant", "non_core_snp"],
+          "~properties": {
+            "id": "9:95214406_TC_T",
+            "chr": "9",
+            "start_loc": 95214406,
+            "end_loc": 95214407,
+            "type": "snp",
+            "data_version": "GRCh38",
+            "data_source": "95214407",
+            "ref": "T",
+            "alt": "TC"
+          }
+        },
+        "r": {
+          "~id": "e1c22818-c60b-4c13-8a37-d7ec739248a6",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "ENSG00000188312",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.8415611522288403e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "gene_node": {
+          "~id": "ENSG00000188312",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000188312",
+            "id_version": 15,
+            "name": "CENPP",
+            "HGNC_id": "HGNC:32933",
+            "HGNC_symbol": "CENPP",
+            "description": "centromere protein P [Source:HGNC Symbol;Acc:HGNC:32933]",
+            "chr": "9",
+            "start_loc": 92325953,
+            "end_loc": 92620529,
+            "strand": "1",
+            "GC_percentage": 40.0,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000188312",
+            "gencode_annotation": "GENCODE basic",
+            "synonym": "RP11-19J3.3;CENP-P",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        },
+        "r1": {
+          "~id": "c4300e60-874e-4130-a5e3-dbf054882543",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "GTEx_CENPP_credibleSet1",
+          "~type": "belong_to_credible_set",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.84156115222884e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "extend_node_snp": {
+          "~id": "GTEx_CENPP_credibleSet1",
+          "~entityType": "node",
+          "~labels": ["variants", "credible_set"],
+          "~properties": {
+            "id": "GTEx_CENPP_credibleSet1",
+            "lead_SNP": "9:95214406_TC_T",
+            "pip": 0.9999985,
+            "nominal_p": 3.841561E-10,
+            "lbf": 19.58975,
+            "effect_allele": "T",
+            "noneffect_allele": "TC",
+            "slope": 0.5195109,
+            "n_snp": 1,
+            "purity": 1.0,
+            "data_version": "2024-10-25",
+            "tissue_name": "Pancreas",
+            "data_source": "GTEx; SusieR",
+            "tissue_id": "UBERON_0001264"
+          }
+        },
+        "r2": {
+          "~id": "b944e054-7cf6-4dc7-802d-e314bddb9b72",
+          "~entityType": "relationship",
+          "~start": "ENSG00000188312",
+          "~end": "ENSG00000148798",
+          "~type": "regulation",
+          "~properties": {
+            "biogrid_interaction_id": "1180507",
+            "pubmed_id": "26186194.0",
+            "cDSD_distance": -3.45922E-11,
+            "data_version": "- (-) (-) (-) (-) (-)",
+            "data_source": "BioGRID"
+          }
+        },
+        "extend_node_gene": {
+          "~id": "ENSG00000148798",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000148798",
+            "id_version": 11,
+            "name": "INA",
+            "HGNC_id": "HGNC:6057",
+            "HGNC_symbol": "INA",
+            "description": "internexin neuronal intermediate filament protein alpha [Source:HGNC Symbol;Acc:HGNC:6057]",
+            "chr": "10",
+            "start_loc": 103277138,
+            "end_loc": 103290346,
+            "strand": "1",
+            "GC_percentage": 45.93,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000148798",
+            "gencode_annotation": "GENCODE basic",
+            "synonym": "NEF5",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        }
+      }, {
+        "snp_node": {
+          "~id": "9:95214406_TC_T",
+          "~entityType": "node",
+          "~labels": ["variants", "sequence_variant", "non_core_snp"],
+          "~properties": {
+            "id": "9:95214406_TC_T",
+            "chr": "9",
+            "start_loc": 95214406,
+            "end_loc": 95214407,
+            "type": "snp",
+            "data_version": "GRCh38",
+            "data_source": "95214407",
+            "ref": "T",
+            "alt": "TC"
+          }
+        },
+        "r": {
+          "~id": "e1c22818-c60b-4c13-8a37-d7ec739248a6",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "ENSG00000188312",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.8415611522288403e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "gene_node": {
+          "~id": "ENSG00000188312",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000188312",
+            "id_version": 15,
+            "name": "CENPP",
+            "HGNC_id": "HGNC:32933",
+            "HGNC_symbol": "CENPP",
+            "description": "centromere protein P [Source:HGNC Symbol;Acc:HGNC:32933]",
+            "chr": "9",
+            "start_loc": 92325953,
+            "end_loc": 92620529,
+            "strand": "1",
+            "GC_percentage": 40.0,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000188312",
+            "gencode_annotation": "GENCODE basic",
+            "synonym": "RP11-19J3.3;CENP-P",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        },
+        "r1": {
+          "~id": "c4300e60-874e-4130-a5e3-dbf054882543",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "GTEx_CENPP_credibleSet1",
+          "~type": "belong_to_credible_set",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.84156115222884e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "extend_node_snp": {
+          "~id": "GTEx_CENPP_credibleSet1",
+          "~entityType": "node",
+          "~labels": ["variants", "credible_set"],
+          "~properties": {
+            "id": "GTEx_CENPP_credibleSet1",
+            "lead_SNP": "9:95214406_TC_T",
+            "pip": 0.9999985,
+            "nominal_p": 3.841561E-10,
+            "lbf": 19.58975,
+            "effect_allele": "T",
+            "noneffect_allele": "TC",
+            "slope": 0.5195109,
+            "n_snp": 1,
+            "purity": 1.0,
+            "data_version": "2024-10-25",
+            "tissue_name": "Pancreas",
+            "data_source": "GTEx; SusieR",
+            "tissue_id": "UBERON_0001264"
+          }
+        },
+        "r2": {
+          "~id": "519f1f8a-787b-4a58-8386-c54da0b28268",
+          "~entityType": "relationship",
+          "~start": "ENSG00000188312",
+          "~end": "ENSG00000110321",
+          "~type": "regulation",
+          "~properties": {
+            "biogrid_interaction_id": "2456642",
+            "pubmed_id": "30033366.0",
+            "cDSD_distance": -4.311275E-11,
+            "data_version": "HP:0001507|BTO:0000661 (Growth abnormality|JURKAT cell) (phenotype|cell type) (-|-) (-|-) (-|-)",
+            "data_source": "BioGRID"
+          }
+        },
+        "extend_node_gene": {
+          "~id": "ENSG00000110321",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000110321",
+            "id_version": 19,
+            "name": "EIF4G2",
+            "HGNC_id": "HGNC:3297",
+            "HGNC_symbol": "EIF4G2",
+            "description": "eukaryotic translation initiation factor 4 gamma 2 [Source:HGNC Symbol;Acc:HGNC:3297]",
+            "chr": "11",
+            "start_loc": 10797050,
+            "end_loc": 10808940,
+            "strand": "-1",
+            "GC_percentage": 41.39,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000110321",
+            "gencode_annotation": "GENCODE basic",
+            "synonym": "P97;NAT1;DAP5",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        }
+      }, {
+        "snp_node": {
+          "~id": "9:95214406_TC_T",
+          "~entityType": "node",
+          "~labels": ["variants", "sequence_variant", "non_core_snp"],
+          "~properties": {
+            "id": "9:95214406_TC_T",
+            "chr": "9",
+            "start_loc": 95214406,
+            "end_loc": 95214407,
+            "type": "snp",
+            "data_version": "GRCh38",
+            "data_source": "95214407",
+            "ref": "T",
+            "alt": "TC"
+          }
+        },
+        "r": {
+          "~id": "e1c22818-c60b-4c13-8a37-d7ec739248a6",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "ENSG00000188312",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.8415611522288403e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "gene_node": {
+          "~id": "ENSG00000188312",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000188312",
+            "id_version": 15,
+            "name": "CENPP",
+            "HGNC_id": "HGNC:32933",
+            "HGNC_symbol": "CENPP",
+            "description": "centromere protein P [Source:HGNC Symbol;Acc:HGNC:32933]",
+            "chr": "9",
+            "start_loc": 92325953,
+            "end_loc": 92620529,
+            "strand": "1",
+            "GC_percentage": 40.0,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000188312",
+            "gencode_annotation": "GENCODE basic",
+            "synonym": "RP11-19J3.3;CENP-P",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        },
+        "r1": {
+          "~id": "c4300e60-874e-4130-a5e3-dbf054882543",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "GTEx_CENPP_credibleSet1",
+          "~type": "belong_to_credible_set",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.84156115222884e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "extend_node_snp": {
+          "~id": "GTEx_CENPP_credibleSet1",
+          "~entityType": "node",
+          "~labels": ["variants", "credible_set"],
+          "~properties": {
+            "id": "GTEx_CENPP_credibleSet1",
+            "lead_SNP": "9:95214406_TC_T",
+            "pip": 0.9999985,
+            "nominal_p": 3.841561E-10,
+            "lbf": 19.58975,
+            "effect_allele": "T",
+            "noneffect_allele": "TC",
+            "slope": 0.5195109,
+            "n_snp": 1,
+            "purity": 1.0,
+            "data_version": "2024-10-25",
+            "tissue_name": "Pancreas",
+            "data_source": "GTEx; SusieR",
+            "tissue_id": "UBERON_0001264"
+          }
+        },
+        "r2": {
+          "~id": "da5df394-0bd7-447c-8562-6c88cfbb0d26",
+          "~entityType": "relationship",
+          "~start": "ENSG00000188312",
+          "~end": "ENSG00000142856",
+          "~type": "regulation",
+          "~properties": {
+            "biogrid_interaction_id": "658429",
+            "pubmed_id": "16622420.0",
+            "cDSD_distance": -1.589646E-10,
+            "data_version": "- (-) (-) (-) (-) (-)",
+            "data_source": "BioGRID"
+          }
+        },
+        "extend_node_gene": {
+          "~id": "ENSG00000142856",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000142856",
+            "id_version": 17,
+            "name": "ITGB3BP",
+            "HGNC_id": "HGNC:6157",
+            "HGNC_symbol": "ITGB3BP",
+            "description": "integrin subunit beta 3 binding protein [Source:HGNC Symbol;Acc:HGNC:6157]",
+            "chr": "1",
+            "start_loc": 63440770,
+            "end_loc": 63593721,
+            "strand": "-1",
+            "GC_percentage": 36.68,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000142856",
+            "gencode_annotation": "nan",
+            "synonym": "NRIF3;CENPR;TAP20;HSU37139",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        }
+      }, {
+        "snp_node": {
+          "~id": "9:95214406_TC_T",
+          "~entityType": "node",
+          "~labels": ["variants", "sequence_variant", "non_core_snp"],
+          "~properties": {
+            "id": "9:95214406_TC_T",
+            "chr": "9",
+            "start_loc": 95214406,
+            "end_loc": 95214407,
+            "type": "snp",
+            "data_version": "GRCh38",
+            "data_source": "95214407",
+            "ref": "T",
+            "alt": "TC"
+          }
+        },
+        "r": {
+          "~id": "e1c22818-c60b-4c13-8a37-d7ec739248a6",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "ENSG00000188312",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.8415611522288403e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "gene_node": {
+          "~id": "ENSG00000188312",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000188312",
+            "id_version": 15,
+            "name": "CENPP",
+            "HGNC_id": "HGNC:32933",
+            "HGNC_symbol": "CENPP",
+            "description": "centromere protein P [Source:HGNC Symbol;Acc:HGNC:32933]",
+            "chr": "9",
+            "start_loc": 92325953,
+            "end_loc": 92620529,
+            "strand": "1",
+            "GC_percentage": 40.0,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000188312",
+            "gencode_annotation": "GENCODE basic",
+            "synonym": "RP11-19J3.3;CENP-P",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        },
+        "r1": {
+          "~id": "c4300e60-874e-4130-a5e3-dbf054882543",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "GTEx_CENPP_credibleSet1",
+          "~type": "belong_to_credible_set",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.84156115222884e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "extend_node_snp": {
+          "~id": "GTEx_CENPP_credibleSet1",
+          "~entityType": "node",
+          "~labels": ["variants", "credible_set"],
+          "~properties": {
+            "id": "GTEx_CENPP_credibleSet1",
+            "lead_SNP": "9:95214406_TC_T",
+            "pip": 0.9999985,
+            "nominal_p": 3.841561E-10,
+            "lbf": 19.58975,
+            "effect_allele": "T",
+            "noneffect_allele": "TC",
+            "slope": 0.5195109,
+            "n_snp": 1,
+            "purity": 1.0,
+            "data_version": "2024-10-25",
+            "tissue_name": "Pancreas",
+            "data_source": "GTEx; SusieR",
+            "tissue_id": "UBERON_0001264"
+          }
+        },
+        "r2": {
+          "~id": "bd5f179a-0df6-40bd-834c-ea85e2542271",
+          "~entityType": "relationship",
+          "~start": "ENSG00000188312",
+          "~end": "ENSG00000142856",
+          "~type": "regulation",
+          "~properties": {
+            "biogrid_interaction_id": "1180510",
+            "pubmed_id": "26186194.0",
+            "cDSD_distance": -1.589646E-10,
+            "data_version": "- (-) (-) (-) (-) (-)",
+            "data_source": "BioGRID"
+          }
+        },
+        "extend_node_gene": {
+          "~id": "ENSG00000142856",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000142856",
+            "id_version": 17,
+            "name": "ITGB3BP",
+            "HGNC_id": "HGNC:6157",
+            "HGNC_symbol": "ITGB3BP",
+            "description": "integrin subunit beta 3 binding protein [Source:HGNC Symbol;Acc:HGNC:6157]",
+            "chr": "1",
+            "start_loc": 63440770,
+            "end_loc": 63593721,
+            "strand": "-1",
+            "GC_percentage": 36.68,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000142856",
+            "gencode_annotation": "nan",
+            "synonym": "NRIF3;CENPR;TAP20;HSU37139",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        }
+      }, {
+        "snp_node": {
+          "~id": "9:95214406_TC_T",
+          "~entityType": "node",
+          "~labels": ["variants", "sequence_variant", "non_core_snp"],
+          "~properties": {
+            "id": "9:95214406_TC_T",
+            "chr": "9",
+            "start_loc": 95214406,
+            "end_loc": 95214407,
+            "type": "snp",
+            "data_version": "GRCh38",
+            "data_source": "95214407",
+            "ref": "T",
+            "alt": "TC"
+          }
+        },
+        "r": {
+          "~id": "e1c22818-c60b-4c13-8a37-d7ec739248a6",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "ENSG00000188312",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.8415611522288403e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "gene_node": {
+          "~id": "ENSG00000188312",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000188312",
+            "id_version": 15,
+            "name": "CENPP",
+            "HGNC_id": "HGNC:32933",
+            "HGNC_symbol": "CENPP",
+            "description": "centromere protein P [Source:HGNC Symbol;Acc:HGNC:32933]",
+            "chr": "9",
+            "start_loc": 92325953,
+            "end_loc": 92620529,
+            "strand": "1",
+            "GC_percentage": 40.0,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000188312",
+            "gencode_annotation": "GENCODE basic",
+            "synonym": "RP11-19J3.3;CENP-P",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        },
+        "r1": {
+          "~id": "c4300e60-874e-4130-a5e3-dbf054882543",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "GTEx_CENPP_credibleSet1",
+          "~type": "belong_to_credible_set",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.84156115222884e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "extend_node_snp": {
+          "~id": "GTEx_CENPP_credibleSet1",
+          "~entityType": "node",
+          "~labels": ["variants", "credible_set"],
+          "~properties": {
+            "id": "GTEx_CENPP_credibleSet1",
+            "lead_SNP": "9:95214406_TC_T",
+            "pip": 0.9999985,
+            "nominal_p": 3.841561E-10,
+            "lbf": 19.58975,
+            "effect_allele": "T",
+            "noneffect_allele": "TC",
+            "slope": 0.5195109,
+            "n_snp": 1,
+            "purity": 1.0,
+            "data_version": "2024-10-25",
+            "tissue_name": "Pancreas",
+            "data_source": "GTEx; SusieR",
+            "tissue_id": "UBERON_0001264"
+          }
+        },
+        "r2": {
+          "~id": "e204c9bf-0f15-4d67-ab26-1b4dc0931acb",
+          "~entityType": "relationship",
+          "~start": "ENSG00000188312",
+          "~end": "ENSG00000142856",
+          "~type": "regulation",
+          "~properties": {
+            "biogrid_interaction_id": "2216845",
+            "pubmed_id": "28514442.0",
+            "cDSD_distance": -1.589646E-10,
+            "data_version": "- (-) (-) (-) (-) (-)",
+            "data_source": "BioGRID"
+          }
+        },
+        "extend_node_gene": {
+          "~id": "ENSG00000142856",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000142856",
+            "id_version": 17,
+            "name": "ITGB3BP",
+            "HGNC_id": "HGNC:6157",
+            "HGNC_symbol": "ITGB3BP",
+            "description": "integrin subunit beta 3 binding protein [Source:HGNC Symbol;Acc:HGNC:6157]",
+            "chr": "1",
+            "start_loc": 63440770,
+            "end_loc": 63593721,
+            "strand": "-1",
+            "GC_percentage": 36.68,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000142856",
+            "gencode_annotation": "nan",
+            "synonym": "NRIF3;CENPR;TAP20;HSU37139",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        }
+      }, {
+        "snp_node": {
+          "~id": "9:95214406_TC_T",
+          "~entityType": "node",
+          "~labels": ["variants", "sequence_variant", "non_core_snp"],
+          "~properties": {
+            "id": "9:95214406_TC_T",
+            "chr": "9",
+            "start_loc": 95214406,
+            "end_loc": 95214407,
+            "type": "snp",
+            "data_version": "GRCh38",
+            "data_source": "95214407",
+            "ref": "T",
+            "alt": "TC"
+          }
+        },
+        "r": {
+          "~id": "e1c22818-c60b-4c13-8a37-d7ec739248a6",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "ENSG00000188312",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.8415611522288403e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "gene_node": {
+          "~id": "ENSG00000188312",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000188312",
+            "id_version": 15,
+            "name": "CENPP",
+            "HGNC_id": "HGNC:32933",
+            "HGNC_symbol": "CENPP",
+            "description": "centromere protein P [Source:HGNC Symbol;Acc:HGNC:32933]",
+            "chr": "9",
+            "start_loc": 92325953,
+            "end_loc": 92620529,
+            "strand": "1",
+            "GC_percentage": 40.0,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000188312",
+            "gencode_annotation": "GENCODE basic",
+            "synonym": "RP11-19J3.3;CENP-P",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        },
+        "r1": {
+          "~id": "c4300e60-874e-4130-a5e3-dbf054882543",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "GTEx_CENPP_credibleSet1",
+          "~type": "belong_to_credible_set",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.84156115222884e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "extend_node_snp": {
+          "~id": "GTEx_CENPP_credibleSet1",
+          "~entityType": "node",
+          "~labels": ["variants", "credible_set"],
+          "~properties": {
+            "id": "GTEx_CENPP_credibleSet1",
+            "lead_SNP": "9:95214406_TC_T",
+            "pip": 0.9999985,
+            "nominal_p": 3.841561E-10,
+            "lbf": 19.58975,
+            "effect_allele": "T",
+            "noneffect_allele": "TC",
+            "slope": 0.5195109,
+            "n_snp": 1,
+            "purity": 1.0,
+            "data_version": "2024-10-25",
+            "tissue_name": "Pancreas",
+            "data_source": "GTEx; SusieR",
+            "tissue_id": "UBERON_0001264"
+          }
+        },
+        "r2": {
+          "~id": "b2cfd369-fe48-4c30-a3ae-9f06befc9c95",
+          "~entityType": "relationship",
+          "~start": "ENSG00000188312",
+          "~end": "ENSG00000142856",
+          "~type": "regulation",
+          "~properties": {
+            "biogrid_interaction_id": "3084401",
+            "pubmed_id": "33961781.0",
+            "cDSD_distance": -1.589646E-10,
+            "data_version": "- (-) (-) (-) (-) (-)",
+            "data_source": "BioGRID"
+          }
+        },
+        "extend_node_gene": {
+          "~id": "ENSG00000142856",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000142856",
+            "id_version": 17,
+            "name": "ITGB3BP",
+            "HGNC_id": "HGNC:6157",
+            "HGNC_symbol": "ITGB3BP",
+            "description": "integrin subunit beta 3 binding protein [Source:HGNC Symbol;Acc:HGNC:6157]",
+            "chr": "1",
+            "start_loc": 63440770,
+            "end_loc": 63593721,
+            "strand": "-1",
+            "GC_percentage": 36.68,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000142856",
+            "gencode_annotation": "nan",
+            "synonym": "NRIF3;CENPR;TAP20;HSU37139",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        }
+      }, {
+        "snp_node": {
+          "~id": "9:95214406_TC_T",
+          "~entityType": "node",
+          "~labels": ["variants", "sequence_variant", "non_core_snp"],
+          "~properties": {
+            "id": "9:95214406_TC_T",
+            "chr": "9",
+            "start_loc": 95214406,
+            "end_loc": 95214407,
+            "type": "snp",
+            "data_version": "GRCh38",
+            "data_source": "95214407",
+            "ref": "T",
+            "alt": "TC"
+          }
+        },
+        "r": {
+          "~id": "e1c22818-c60b-4c13-8a37-d7ec739248a6",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "ENSG00000188312",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.8415611522288403e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "gene_node": {
+          "~id": "ENSG00000188312",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000188312",
+            "id_version": 15,
+            "name": "CENPP",
+            "HGNC_id": "HGNC:32933",
+            "HGNC_symbol": "CENPP",
+            "description": "centromere protein P [Source:HGNC Symbol;Acc:HGNC:32933]",
+            "chr": "9",
+            "start_loc": 92325953,
+            "end_loc": 92620529,
+            "strand": "1",
+            "GC_percentage": 40.0,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000188312",
+            "gencode_annotation": "GENCODE basic",
+            "synonym": "RP11-19J3.3;CENP-P",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        },
+        "r1": {
+          "~id": "c4300e60-874e-4130-a5e3-dbf054882543",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "GTEx_CENPP_credibleSet1",
+          "~type": "belong_to_credible_set",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.84156115222884e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "extend_node_snp": {
+          "~id": "GTEx_CENPP_credibleSet1",
+          "~entityType": "node",
+          "~labels": ["variants", "credible_set"],
+          "~properties": {
+            "id": "GTEx_CENPP_credibleSet1",
+            "lead_SNP": "9:95214406_TC_T",
+            "pip": 0.9999985,
+            "nominal_p": 3.841561E-10,
+            "lbf": 19.58975,
+            "effect_allele": "T",
+            "noneffect_allele": "TC",
+            "slope": 0.5195109,
+            "n_snp": 1,
+            "purity": 1.0,
+            "data_version": "2024-10-25",
+            "tissue_name": "Pancreas",
+            "data_source": "GTEx; SusieR",
+            "tissue_id": "UBERON_0001264"
+          }
+        },
+        "r2": {
+          "~id": "bcc1390d-f258-44ef-8996-ebc6f48f85a5",
+          "~entityType": "relationship",
+          "~start": "ENSG00000188312",
+          "~end": "ENSG00000205078",
+          "~type": "regulation",
+          "~properties": {
+            "biogrid_interaction_id": "2744330",
+            "pubmed_id": "32296183.0",
+            "cDSD_distance": -9.192371E-12,
+            "data_version": "- (-) (-) (-) (-) (-)",
+            "data_source": "BioGRID"
+          }
+        },
+        "extend_node_gene": {
+          "~id": "ENSG00000205078",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000205078",
+            "id_version": 6,
+            "name": "SYCE1L",
+            "HGNC_id": "HGNC:37236",
+            "HGNC_symbol": "SYCE1L",
+            "description": "synaptonemal complex central element protein 1 like [Source:HGNC Symbol;Acc:HGNC:37236]",
+            "chr": "16",
+            "start_loc": 77199408,
+            "end_loc": 77213215,
+            "strand": "1",
+            "GC_percentage": 46.13,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000205078",
+            "gencode_annotation": "GENCODE basic",
+            "synonym": "MRP2",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        }
+      }, {
+        "snp_node": {
+          "~id": "9:95214406_TC_T",
+          "~entityType": "node",
+          "~labels": ["variants", "sequence_variant", "non_core_snp"],
+          "~properties": {
+            "id": "9:95214406_TC_T",
+            "chr": "9",
+            "start_loc": 95214406,
+            "end_loc": 95214407,
+            "type": "snp",
+            "data_version": "GRCh38",
+            "data_source": "95214407",
+            "ref": "T",
+            "alt": "TC"
+          }
+        },
+        "r": {
+          "~id": "e1c22818-c60b-4c13-8a37-d7ec739248a6",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "ENSG00000188312",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.8415611522288403e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "gene_node": {
+          "~id": "ENSG00000188312",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000188312",
+            "id_version": 15,
+            "name": "CENPP",
+            "HGNC_id": "HGNC:32933",
+            "HGNC_symbol": "CENPP",
+            "description": "centromere protein P [Source:HGNC Symbol;Acc:HGNC:32933]",
+            "chr": "9",
+            "start_loc": 92325953,
+            "end_loc": 92620529,
+            "strand": "1",
+            "GC_percentage": 40.0,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000188312",
+            "gencode_annotation": "GENCODE basic",
+            "synonym": "RP11-19J3.3;CENP-P",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        },
+        "r1": {
+          "~id": "c4300e60-874e-4130-a5e3-dbf054882543",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "GTEx_CENPP_credibleSet1",
+          "~type": "belong_to_credible_set",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.84156115222884e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "extend_node_snp": {
+          "~id": "GTEx_CENPP_credibleSet1",
+          "~entityType": "node",
+          "~labels": ["variants", "credible_set"],
+          "~properties": {
+            "id": "GTEx_CENPP_credibleSet1",
+            "lead_SNP": "9:95214406_TC_T",
+            "pip": 0.9999985,
+            "nominal_p": 3.841561E-10,
+            "lbf": 19.58975,
+            "effect_allele": "T",
+            "noneffect_allele": "TC",
+            "slope": 0.5195109,
+            "n_snp": 1,
+            "purity": 1.0,
+            "data_version": "2024-10-25",
+            "tissue_name": "Pancreas",
+            "data_source": "GTEx; SusieR",
+            "tissue_id": "UBERON_0001264"
+          }
+        },
+        "r2": {
+          "~id": "1193acb1-2eaf-4ed5-924d-87685ea68205",
+          "~entityType": "relationship",
+          "~start": "ENSG00000188312",
+          "~end": "ENSG00000153044",
+          "~type": "regulation",
+          "~properties": {
+            "biogrid_interaction_id": "658425",
+            "pubmed_id": "16622420.0",
+            "cDSD_distance": -9.528064E-11,
+            "data_version": "- (-) (-) (-) (-) (-)",
+            "data_source": "BioGRID"
+          }
+        },
+        "extend_node_gene": {
+          "~id": "ENSG00000153044",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000153044",
+            "id_version": 10,
+            "name": "CENPH",
+            "HGNC_id": "HGNC:17268",
+            "HGNC_symbol": "CENPH",
+            "description": "centromere protein H [Source:HGNC Symbol;Acc:HGNC:17268]",
+            "chr": "5",
+            "start_loc": 69189574,
+            "end_loc": 69210357,
+            "strand": "1",
+            "GC_percentage": 42.62,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000153044",
+            "gencode_annotation": "GENCODE basic",
+            "synonym": "nan",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        }
+      }, {
+        "snp_node": {
+          "~id": "9:95214406_TC_T",
+          "~entityType": "node",
+          "~labels": ["variants", "sequence_variant", "non_core_snp"],
+          "~properties": {
+            "id": "9:95214406_TC_T",
+            "chr": "9",
+            "start_loc": 95214406,
+            "end_loc": 95214407,
+            "type": "snp",
+            "data_version": "GRCh38",
+            "data_source": "95214407",
+            "ref": "T",
+            "alt": "TC"
+          }
+        },
+        "r": {
+          "~id": "e1c22818-c60b-4c13-8a37-d7ec739248a6",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "ENSG00000188312",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.8415611522288403e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "gene_node": {
+          "~id": "ENSG00000188312",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000188312",
+            "id_version": 15,
+            "name": "CENPP",
+            "HGNC_id": "HGNC:32933",
+            "HGNC_symbol": "CENPP",
+            "description": "centromere protein P [Source:HGNC Symbol;Acc:HGNC:32933]",
+            "chr": "9",
+            "start_loc": 92325953,
+            "end_loc": 92620529,
+            "strand": "1",
+            "GC_percentage": 40.0,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000188312",
+            "gencode_annotation": "GENCODE basic",
+            "synonym": "RP11-19J3.3;CENP-P",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        },
+        "r1": {
+          "~id": "c4300e60-874e-4130-a5e3-dbf054882543",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "GTEx_CENPP_credibleSet1",
+          "~type": "belong_to_credible_set",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.84156115222884e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "extend_node_snp": {
+          "~id": "GTEx_CENPP_credibleSet1",
+          "~entityType": "node",
+          "~labels": ["variants", "credible_set"],
+          "~properties": {
+            "id": "GTEx_CENPP_credibleSet1",
+            "lead_SNP": "9:95214406_TC_T",
+            "pip": 0.9999985,
+            "nominal_p": 3.841561E-10,
+            "lbf": 19.58975,
+            "effect_allele": "T",
+            "noneffect_allele": "TC",
+            "slope": 0.5195109,
+            "n_snp": 1,
+            "purity": 1.0,
+            "data_version": "2024-10-25",
+            "tissue_name": "Pancreas",
+            "data_source": "GTEx; SusieR",
+            "tissue_id": "UBERON_0001264"
+          }
+        },
+        "r2": {
+          "~id": "93879d8f-c44c-48e1-bf24-73dff0e6be30",
+          "~entityType": "relationship",
+          "~start": "ENSG00000188312",
+          "~end": "ENSG00000138092",
+          "~type": "regulation",
+          "~properties": {
+            "biogrid_interaction_id": "658427",
+            "pubmed_id": "16622420.0",
+            "cDSD_distance": -2.899016E-10,
+            "data_version": "- (-) (-) (-) (-) (-)",
+            "data_source": "BioGRID"
+          }
+        },
+        "extend_node_gene": {
+          "~id": "ENSG00000138092",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000138092",
+            "id_version": 11,
+            "name": "CENPO",
+            "HGNC_id": "HGNC:28152",
+            "HGNC_symbol": "CENPO",
+            "description": "centromere protein O [Source:HGNC Symbol;Acc:HGNC:28152]",
+            "chr": "2",
+            "start_loc": 24793136,
+            "end_loc": 24822376,
+            "strand": "1",
+            "GC_percentage": 43.93,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000138092",
+            "gencode_annotation": "nan",
+            "synonym": "MGC11266;CENP-O",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        }
+      }, {
+        "snp_node": {
+          "~id": "9:95214406_TC_T",
+          "~entityType": "node",
+          "~labels": ["variants", "sequence_variant", "non_core_snp"],
+          "~properties": {
+            "id": "9:95214406_TC_T",
+            "chr": "9",
+            "start_loc": 95214406,
+            "end_loc": 95214407,
+            "type": "snp",
+            "data_version": "GRCh38",
+            "data_source": "95214407",
+            "ref": "T",
+            "alt": "TC"
+          }
+        },
+        "r": {
+          "~id": "e1c22818-c60b-4c13-8a37-d7ec739248a6",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "ENSG00000188312",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.8415611522288403e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "gene_node": {
+          "~id": "ENSG00000188312",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000188312",
+            "id_version": 15,
+            "name": "CENPP",
+            "HGNC_id": "HGNC:32933",
+            "HGNC_symbol": "CENPP",
+            "description": "centromere protein P [Source:HGNC Symbol;Acc:HGNC:32933]",
+            "chr": "9",
+            "start_loc": 92325953,
+            "end_loc": 92620529,
+            "strand": "1",
+            "GC_percentage": 40.0,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000188312",
+            "gencode_annotation": "GENCODE basic",
+            "synonym": "RP11-19J3.3;CENP-P",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        },
+        "r1": {
+          "~id": "c4300e60-874e-4130-a5e3-dbf054882543",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "GTEx_CENPP_credibleSet1",
+          "~type": "belong_to_credible_set",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.84156115222884e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "extend_node_snp": {
+          "~id": "GTEx_CENPP_credibleSet1",
+          "~entityType": "node",
+          "~labels": ["variants", "credible_set"],
+          "~properties": {
+            "id": "GTEx_CENPP_credibleSet1",
+            "lead_SNP": "9:95214406_TC_T",
+            "pip": 0.9999985,
+            "nominal_p": 3.841561E-10,
+            "lbf": 19.58975,
+            "effect_allele": "T",
+            "noneffect_allele": "TC",
+            "slope": 0.5195109,
+            "n_snp": 1,
+            "purity": 1.0,
+            "data_version": "2024-10-25",
+            "tissue_name": "Pancreas",
+            "data_source": "GTEx; SusieR",
+            "tissue_id": "UBERON_0001264"
+          }
+        },
+        "r2": {
+          "~id": "4cca6fb0-30a5-4516-9051-a9bb8bd275a7",
+          "~entityType": "relationship",
+          "~start": "ENSG00000188312",
+          "~end": "ENSG00000138092",
+          "~type": "regulation",
+          "~properties": {
+            "biogrid_interaction_id": "1180508",
+            "pubmed_id": "26186194.0",
+            "cDSD_distance": -2.899016E-10,
+            "data_version": "- (-) (-) (-) (-) (-)",
+            "data_source": "BioGRID"
+          }
+        },
+        "extend_node_gene": {
+          "~id": "ENSG00000138092",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000138092",
+            "id_version": 11,
+            "name": "CENPO",
+            "HGNC_id": "HGNC:28152",
+            "HGNC_symbol": "CENPO",
+            "description": "centromere protein O [Source:HGNC Symbol;Acc:HGNC:28152]",
+            "chr": "2",
+            "start_loc": 24793136,
+            "end_loc": 24822376,
+            "strand": "1",
+            "GC_percentage": 43.93,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000138092",
+            "gencode_annotation": "nan",
+            "synonym": "MGC11266;CENP-O",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        }
+      }, {
+        "snp_node": {
+          "~id": "9:95214406_TC_T",
+          "~entityType": "node",
+          "~labels": ["variants", "sequence_variant", "non_core_snp"],
+          "~properties": {
+            "id": "9:95214406_TC_T",
+            "chr": "9",
+            "start_loc": 95214406,
+            "end_loc": 95214407,
+            "type": "snp",
+            "data_version": "GRCh38",
+            "data_source": "95214407",
+            "ref": "T",
+            "alt": "TC"
+          }
+        },
+        "r": {
+          "~id": "e1c22818-c60b-4c13-8a37-d7ec739248a6",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "ENSG00000188312",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.8415611522288403e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "gene_node": {
+          "~id": "ENSG00000188312",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000188312",
+            "id_version": 15,
+            "name": "CENPP",
+            "HGNC_id": "HGNC:32933",
+            "HGNC_symbol": "CENPP",
+            "description": "centromere protein P [Source:HGNC Symbol;Acc:HGNC:32933]",
+            "chr": "9",
+            "start_loc": 92325953,
+            "end_loc": 92620529,
+            "strand": "1",
+            "GC_percentage": 40.0,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000188312",
+            "gencode_annotation": "GENCODE basic",
+            "synonym": "RP11-19J3.3;CENP-P",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        },
+        "r1": {
+          "~id": "c4300e60-874e-4130-a5e3-dbf054882543",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "GTEx_CENPP_credibleSet1",
+          "~type": "belong_to_credible_set",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.84156115222884e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "extend_node_snp": {
+          "~id": "GTEx_CENPP_credibleSet1",
+          "~entityType": "node",
+          "~labels": ["variants", "credible_set"],
+          "~properties": {
+            "id": "GTEx_CENPP_credibleSet1",
+            "lead_SNP": "9:95214406_TC_T",
+            "pip": 0.9999985,
+            "nominal_p": 3.841561E-10,
+            "lbf": 19.58975,
+            "effect_allele": "T",
+            "noneffect_allele": "TC",
+            "slope": 0.5195109,
+            "n_snp": 1,
+            "purity": 1.0,
+            "data_version": "2024-10-25",
+            "tissue_name": "Pancreas",
+            "data_source": "GTEx; SusieR",
+            "tissue_id": "UBERON_0001264"
+          }
+        },
+        "r2": {
+          "~id": "07448f5c-8207-429c-994d-29a63877cbe0",
+          "~entityType": "relationship",
+          "~start": "ENSG00000188312",
+          "~end": "ENSG00000138092",
+          "~type": "regulation",
+          "~properties": {
+            "biogrid_interaction_id": "2216495",
+            "pubmed_id": "28514442.0",
+            "cDSD_distance": -2.899016E-10,
+            "data_version": "- (-) (-) (-) (-) (-)",
+            "data_source": "BioGRID"
+          }
+        },
+        "extend_node_gene": {
+          "~id": "ENSG00000138092",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000138092",
+            "id_version": 11,
+            "name": "CENPO",
+            "HGNC_id": "HGNC:28152",
+            "HGNC_symbol": "CENPO",
+            "description": "centromere protein O [Source:HGNC Symbol;Acc:HGNC:28152]",
+            "chr": "2",
+            "start_loc": 24793136,
+            "end_loc": 24822376,
+            "strand": "1",
+            "GC_percentage": 43.93,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000138092",
+            "gencode_annotation": "nan",
+            "synonym": "MGC11266;CENP-O",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        }
+      }, {
+        "snp_node": {
+          "~id": "9:95214406_TC_T",
+          "~entityType": "node",
+          "~labels": ["variants", "sequence_variant", "non_core_snp"],
+          "~properties": {
+            "id": "9:95214406_TC_T",
+            "chr": "9",
+            "start_loc": 95214406,
+            "end_loc": 95214407,
+            "type": "snp",
+            "data_version": "GRCh38",
+            "data_source": "95214407",
+            "ref": "T",
+            "alt": "TC"
+          }
+        },
+        "r": {
+          "~id": "e1c22818-c60b-4c13-8a37-d7ec739248a6",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "ENSG00000188312",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.8415611522288403e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "gene_node": {
+          "~id": "ENSG00000188312",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000188312",
+            "id_version": 15,
+            "name": "CENPP",
+            "HGNC_id": "HGNC:32933",
+            "HGNC_symbol": "CENPP",
+            "description": "centromere protein P [Source:HGNC Symbol;Acc:HGNC:32933]",
+            "chr": "9",
+            "start_loc": 92325953,
+            "end_loc": 92620529,
+            "strand": "1",
+            "GC_percentage": 40.0,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000188312",
+            "gencode_annotation": "GENCODE basic",
+            "synonym": "RP11-19J3.3;CENP-P",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        },
+        "r1": {
+          "~id": "c4300e60-874e-4130-a5e3-dbf054882543",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "GTEx_CENPP_credibleSet1",
+          "~type": "belong_to_credible_set",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.84156115222884e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "extend_node_snp": {
+          "~id": "GTEx_CENPP_credibleSet1",
+          "~entityType": "node",
+          "~labels": ["variants", "credible_set"],
+          "~properties": {
+            "id": "GTEx_CENPP_credibleSet1",
+            "lead_SNP": "9:95214406_TC_T",
+            "pip": 0.9999985,
+            "nominal_p": 3.841561E-10,
+            "lbf": 19.58975,
+            "effect_allele": "T",
+            "noneffect_allele": "TC",
+            "slope": 0.5195109,
+            "n_snp": 1,
+            "purity": 1.0,
+            "data_version": "2024-10-25",
+            "tissue_name": "Pancreas",
+            "data_source": "GTEx; SusieR",
+            "tissue_id": "UBERON_0001264"
+          }
+        },
+        "r2": {
+          "~id": "c3bb4788-8626-4365-9342-a8f9727ece74",
+          "~entityType": "relationship",
+          "~start": "ENSG00000188312",
+          "~end": "ENSG00000138092",
+          "~type": "regulation",
+          "~properties": {
+            "biogrid_interaction_id": "3090357",
+            "pubmed_id": "33961781.0",
+            "cDSD_distance": -2.899016E-10,
+            "data_version": "- (-) (-) (-) (-) (-)",
+            "data_source": "BioGRID"
+          }
+        },
+        "extend_node_gene": {
+          "~id": "ENSG00000138092",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000138092",
+            "id_version": 11,
+            "name": "CENPO",
+            "HGNC_id": "HGNC:28152",
+            "HGNC_symbol": "CENPO",
+            "description": "centromere protein O [Source:HGNC Symbol;Acc:HGNC:28152]",
+            "chr": "2",
+            "start_loc": 24793136,
+            "end_loc": 24822376,
+            "strand": "1",
+            "GC_percentage": 43.93,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000138092",
+            "gencode_annotation": "nan",
+            "synonym": "MGC11266;CENP-O",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        }
+      }, {
+        "snp_node": {
+          "~id": "9:95214406_TC_T",
+          "~entityType": "node",
+          "~labels": ["variants", "sequence_variant", "non_core_snp"],
+          "~properties": {
+            "id": "9:95214406_TC_T",
+            "chr": "9",
+            "start_loc": 95214406,
+            "end_loc": 95214407,
+            "type": "snp",
+            "data_version": "GRCh38",
+            "data_source": "95214407",
+            "ref": "T",
+            "alt": "TC"
+          }
+        },
+        "r": {
+          "~id": "e1c22818-c60b-4c13-8a37-d7ec739248a6",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "ENSG00000188312",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.8415611522288403e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "gene_node": {
+          "~id": "ENSG00000188312",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000188312",
+            "id_version": 15,
+            "name": "CENPP",
+            "HGNC_id": "HGNC:32933",
+            "HGNC_symbol": "CENPP",
+            "description": "centromere protein P [Source:HGNC Symbol;Acc:HGNC:32933]",
+            "chr": "9",
+            "start_loc": 92325953,
+            "end_loc": 92620529,
+            "strand": "1",
+            "GC_percentage": 40.0,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000188312",
+            "gencode_annotation": "GENCODE basic",
+            "synonym": "RP11-19J3.3;CENP-P",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        },
+        "r1": {
+          "~id": "c4300e60-874e-4130-a5e3-dbf054882543",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "GTEx_CENPP_credibleSet1",
+          "~type": "belong_to_credible_set",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.84156115222884e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "extend_node_snp": {
+          "~id": "GTEx_CENPP_credibleSet1",
+          "~entityType": "node",
+          "~labels": ["variants", "credible_set"],
+          "~properties": {
+            "id": "GTEx_CENPP_credibleSet1",
+            "lead_SNP": "9:95214406_TC_T",
+            "pip": 0.9999985,
+            "nominal_p": 3.841561E-10,
+            "lbf": 19.58975,
+            "effect_allele": "T",
+            "noneffect_allele": "TC",
+            "slope": 0.5195109,
+            "n_snp": 1,
+            "purity": 1.0,
+            "data_version": "2024-10-25",
+            "tissue_name": "Pancreas",
+            "data_source": "GTEx; SusieR",
+            "tissue_id": "UBERON_0001264"
+          }
+        },
+        "r2": {
+          "~id": "dfcaa1cf-982a-46c7-94d5-d5815d790cd5",
+          "~entityType": "relationship",
+          "~start": "OCR_151998",
+          "~end": "ENSG00000188312",
+          "~type": "locate_on_ocr",
+          "~properties": {
+            "data_version": "10/10/2024",
+            "data_source": "PMID_30181159"
+          }
+        },
+        "extend_node_gene": {
+          "~id": "OCR_151998",
+          "~entityType": "node",
+          "~labels": ["open_chromatin_region"],
+          "~properties": {
+            "id": "OCR_151998",
+            "average_ATAC_ND": 6.357143,
+            "average_ATAC_T2D": 11.0,
+            "chr": "9",
+            "start_loc": 92509698,
+            "end_loc": 92509904,
+            "data_version": "2024-10-07",
+            "data_source": "PMID_30181159"
+          }
+        }
+      }, {
+        "snp_node": {
+          "~id": "9:95214406_TC_T",
+          "~entityType": "node",
+          "~labels": ["variants", "sequence_variant", "non_core_snp"],
+          "~properties": {
+            "id": "9:95214406_TC_T",
+            "chr": "9",
+            "start_loc": 95214406,
+            "end_loc": 95214407,
+            "type": "snp",
+            "data_version": "GRCh38",
+            "data_source": "95214407",
+            "ref": "T",
+            "alt": "TC"
+          }
+        },
+        "r": {
+          "~id": "e1c22818-c60b-4c13-8a37-d7ec739248a6",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "ENSG00000188312",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.8415611522288403e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "gene_node": {
+          "~id": "ENSG00000188312",
+          "~entityType": "node",
+          "~labels": ["coding_elements", "gene"],
+          "~properties": {
+            "id": "ENSG00000188312",
+            "id_version": 15,
+            "name": "CENPP",
+            "HGNC_id": "HGNC:32933",
+            "HGNC_symbol": "CENPP",
+            "description": "centromere protein P [Source:HGNC Symbol;Acc:HGNC:32933]",
+            "chr": "9",
+            "start_loc": 92325953,
+            "end_loc": 92620529,
+            "strand": "1",
+            "GC_percentage": 40.0,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000188312",
+            "gencode_annotation": "GENCODE basic",
+            "synonym": "RP11-19J3.3;CENP-P",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        },
+        "r1": {
+          "~id": "c4300e60-874e-4130-a5e3-dbf054882543",
+          "~entityType": "relationship",
+          "~start": "9:95214406_TC_T",
+          "~end": "GTEx_CENPP_credibleSet1",
+          "~type": "belong_to_credible_set",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.519510924816132",
+            "other_allele": "TC",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.999998508523859",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "3.84156115222884e-10",
+            "lbf": "19.5897505162569"
+          }
+        },
+        "extend_node_snp": {
+          "~id": "GTEx_CENPP_credibleSet1",
+          "~entityType": "node",
+          "~labels": ["variants", "credible_set"],
+          "~properties": {
+            "id": "GTEx_CENPP_credibleSet1",
+            "lead_SNP": "9:95214406_TC_T",
+            "pip": 0.9999985,
+            "nominal_p": 3.841561E-10,
+            "lbf": 19.58975,
+            "effect_allele": "T",
+            "noneffect_allele": "TC",
+            "slope": 0.5195109,
+            "n_snp": 1,
+            "purity": 1.0,
+            "data_version": "2024-10-25",
+            "tissue_name": "Pancreas",
+            "data_source": "GTEx; SusieR",
+            "tissue_id": "UBERON_0001264"
+          }
+        },
+        "r2": {
+          "~id": "aa8e0f98-8fb6-499a-aae0-8f8317e4f00f",
+          "~entityType": "relationship",
+          "~start": "OCR_151994",
+          "~end": "ENSG00000188312",
+          "~type": "locate_on_ocr",
+          "~properties": {
+            "data_version": "10/10/2024",
+            "data_source": "PMID_30181159"
+          }
+        },
+        "extend_node_gene": {
+          "~id": "OCR_151994",
+          "~entityType": "node",
+          "~labels": ["open_chromatin_region"],
+          "~properties": {
+            "id": "OCR_151994",
+            "average_ATAC_ND": 23.0,
+            "average_ATAC_T2D": 44.4,
+            "chr": "9",
+            "start_loc": 92451682,
+            "end_loc": 92452024,
+            "data_version": "2024-10-07",
+            "data_source": "PMID_30181159"
+          }
+        }
+      }]
+  }

@@ -62,7 +62,7 @@ const SNPPlotImage = ({ imageSrc }) => {
 };
 
 function SearchResult() {
-    const { question, nextQuestions } = useSelector((state) => state.processedQuestion);
+    const { currentQuestion, nextQuestions } = useSelector((state) => state.processedQuestion);
     const {queryResult} = useSelector((state) => state.queryResult);
     const [showTable, setShowTable] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
@@ -104,7 +104,7 @@ This answer refers to the following resources in PanKbase:`;
             <div className="search-result-content">
                 <div className="left-column">
                     <div className="styled-paper" data-title="Question">
-                        <Typography variant="h6" dangerouslySetInnerHTML={{ __html: question || 'No question available' }} />
+                        <Typography variant="h6" dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }} />
                     </div>
 
                     <div className="styled-paper" data-title="Answer">
@@ -153,11 +153,15 @@ This answer refers to the following resources in PanKbase:`;
 
                     <div className="styled-paper" data-title="Next Questions">
                         <ul className="next-questions-list">
-                            {nextQuestions.map((question, index) => (
-                                <li key={index}>
-                                    <Typography dangerouslySetInnerHTML={{ __html: question }} />
-                                </li>
-                            )) || <Typography>No next questions available</Typography>}
+                            {nextQuestions.length > 0 ? (
+                                nextQuestions.map((question, index) => (
+                                    <li key={index}>
+                                        <Typography dangerouslySetInnerHTML={{ __html: question }} />
+                                    </li>
+                                ))
+                            ) : (
+                                <Typography>No next questions available</Typography>
+                            )}
                         </ul>
                     </div>
                 </div>
@@ -165,7 +169,7 @@ This answer refers to the following resources in PanKbase:`;
                 <div className="right-column">
                     <div className="styled-paper knowledge-graph" data-title="Knowledge Graph">
                         <div className="knowledge-graph-container">
-                            <KnowledgeGraph exactData={{}} extendData={{}} />
+                            <KnowledgeGraph />
                         </div>
                     </div>
                 </div>

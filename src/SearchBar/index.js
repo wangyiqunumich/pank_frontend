@@ -5,9 +5,11 @@ import { useSelector, useDispatch } from 'react-redux';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import { queryAiAnswer } from '../redux/aiAnswerSlice';
 import { queryQueryResult } from '../redux/queryResultSlice';
-import { setProcessedQuestion, setProcessedNextQuestions } from '../redux/processedQuestionSlice';
+import { setProcessedQuestion } from '../redux/processedQuestionSlice';
+import { setSearchTerms } from '../redux/searchSlice';
+import conversionTable from '../utils/conversion_table.json';
 
-function SearchBar({ onSearch }) {
+function SearchBar({ onSearch, disabled }) {
     const dispatch = useDispatch();
     const {viewSchema, queryViewSchemaStatus} = useSelector((state) => state.viewSchema);
     const [sourceTerm, setSourceTerm] = useState('');
@@ -29,7 +31,7 @@ function SearchBar({ onSearch }) {
     };
 
 
-    const relationTypes = ["eQTL_of"];
+    const relationTypes = ["eQTL of"];
 
     const sourceTimerRef = useRef(null);
     const targetTimerRef = useRef(null);
@@ -44,7 +46,7 @@ function SearchBar({ onSearch }) {
             }, 1000);
             setIsRelationshipDisabled(false);
         } else {
-            setSourceOptions(["gene", "sequence_variant"]);
+            setSourceOptions(["gene", "sequence variant"]);
             setIsRelationshipDisabled(true);
             setIsTargetTermDisabled(true);
         }
@@ -65,19 +67,17 @@ function SearchBar({ onSearch }) {
                 setTargetOptions(response);
             }, 1000);
         } else {
-            setTargetOptions(["gene", "sequence_variant"]);
+            setTargetOptions(["gene", "sequence variant"]);
         }
     };
 
     const fetchOptions = async (term, inputType) => {
         console.log(`Fetching options for ${inputType}: ${term}`);
         // 模拟API调用
-        // 在实际应用中，这里应该是一个真实的API调用
+        // 在实际应用，这里应该是一个真实的API调用
         const mockResults = [
-            { type: 'gene', term: `${term}_gene1` },
-            { type: 'gene', term: `${term}_gene2` },
-            { type: 'sequence_variant', term: `${term}_variant1` },
-            { type: 'sequence_variant', term: `${term}_variant2` },
+            { type: 'gene', term: `${term}` },
+            { type: 'sequence variant', term: `${term}` },
         ];
         
         // 返回格式化的选项
@@ -110,27 +110,59 @@ function SearchBar({ onSearch }) {
         });
     }
 
+    function replaceCypherTerms(cypher, sourceTerm, targetTerm) {
+        const sourceType = sourceTerm.split(':')[0];
+        const sourceValue = sourceTerm.split(':')[1] || sourceType;
+        const targetType = targetTerm.split(':')[0];
+        const targetValue = targetTerm.split(':')[1] || targetType;
+
+        return cypher.replace(/@([^@]+)@/g, (match, term) => {
+            if (term === sourceType) {
+                return sourceValue;
+            } else if (term === targetType) {
+                return targetValue;
+            }
+            return match;
+        });
+    }
+
+    function convertTerms(sourceTerm, relationship, targetTerm) {
+        const frontendToKG = conversionTable.Conversion_table.query_vocab_frontend_KG;
+        
+        const [sourceType, sourceValue] = sourceTerm.split(':').map(s => s.trim());
+        const [targetType, targetValue] = targetTerm.split(':').map(s => s.trim());
+
+        const convertedSourceType = frontendToKG[sourceType] || sourceType;
+        const convertedTargetType = frontendToKG[targetType] || targetType;
+        const convertedRelationship = frontendToKG[relationship] || relationship;
+
+        return {
+            sourceTerm: sourceValue ? `${convertedSourceType}:${sourceValue}` : convertedSourceType,
+            relationship: convertedRelationship,
+            targetTerm: targetValue ? `${convertedTargetType}:${targetValue}` : convertedTargetType
+        };
+    }
+
     const handleSearch = async () => {
-        // 首先dispatch viewSchema查询
-        await dispatch(queryViewSchema({ sourceTerm, relationship, targetTerm }));
-        // 不要在这里调用onSearch，我们会在useEffect中处理
+        const convertedTerms = convertTerms(sourceTerm, relationship, targetTerm);
+        dispatch(setSearchTerms(convertedTerms));
+        await dispatch(queryViewSchema(convertedTerms));
+        onSearch();
     };
 
     useEffect(() => {
-        if (queryViewSchemaStatus === 'fulfilled' && viewSchema.questions && viewSchema.questions[0]) {
-            const processedQuestion = replaceTerms(viewSchema.questions[0], sourceTerm, relationship, targetTerm);
+        if (queryViewSchemaStatus === 'fulfilled' && viewSchema.question && viewSchema.question[0]) {
+            const processedQuestion = replaceTerms(viewSchema.question[0], sourceTerm, relationship, targetTerm);
             dispatch(setProcessedQuestion(processedQuestion));
 
-            if (viewSchema.next_questions) {
-                const processedNextQuestions = viewSchema.next_questions.map(question => 
-                    replaceTerms(question, sourceTerm, relationship, targetTerm, true)
+            if (viewSchema.cyper_for_intermediate_page) {
+                const processedCypher = replaceCypherTerms(
+                    viewSchema.cyper_for_intermediate_page,
+                    sourceTerm,
+                    targetTerm
                 );
-                dispatch(setProcessedNextQuestions(processedNextQuestions));
-            }
-
-            if (viewSchema.open_cyper) {
-                console.log(viewSchema.open_cyper);
-                dispatch(queryQueryResult({query: "MATCH (n1:sequence_variant)-[r:eQTL_of]->(n2:gene) WHERE n1.id = 'rs73920612' RETURN n1, r, n2;"})).unwrap();
+                console.log(processedCypher);
+                dispatch(queryQueryResult({query: processedCypher})).unwrap();
             }
 
             dispatch(queryAiAnswer('{"question": "a test question", "graph": "unknown format subgraph"}')).unwrap();
@@ -139,6 +171,10 @@ function SearchBar({ onSearch }) {
             onSearch();
         }
     }, [queryViewSchemaStatus, viewSchema, sourceTerm, relationship, targetTerm]);
+
+    const isValid = () => {
+        return sourceTerm && relationship && targetTerm;
+    };
 
     return (
         <Container maxWidth="md">
@@ -184,7 +220,9 @@ function SearchBar({ onSearch }) {
 
                     <Button variant="contained" color="primary"
                         sx={{ minWidth:'120px', backgroundColor: '#8BB5D1', color: 'black', '&:hover': { backgroundColor: '#4A7298' } }}
-                        onClick={handleSearch}>
+                        onClick={handleSearch}
+                        disabled={disabled || !isValid()}
+                    >
                         Search
                     </Button>
                 </Box>

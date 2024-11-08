@@ -1,56 +1,83 @@
 import React, { useEffect, useRef } from 'react';
 import Cytoscape from 'cytoscape';
 import coseBilkent from 'cytoscape-cose-bilkent';
+import cola from 'cytoscape-cola';
+import { useSelector } from 'react-redux';
 
 Cytoscape.use(coseBilkent);
+Cytoscape.use(cola);
 
-function KnowledgeGraph({ exactData, extendData }) {
+function KnowledgeGraph() {
   const containerRef = useRef(null);
   const cyRef = useRef(null);
 
+  const queryResult = useSelector((state) => state.queryResult.queryResult);
+  console.log(queryResult);
+
   useEffect(() => {
-    if (containerRef.current) {
-      const mainNodes = [
-        { data: { id: 'rs73920612', label: 'rs73920612', type: 'main' } },
-        { data: { id: 'ENSG00000138092', label: 'ENSG00000138092', type: 'main' } }
-      ];
+    if (containerRef.current && queryResult?.results) {
+      const nodes = new Set();
+      const edges = [];
 
-      const mainEdge = {
-        data: {
-          id: 'main-edge',
-          source: 'rs73920612',
-          target: 'ENSG00000138092',
-          label: 'eQTL_of',
-          type: 'main'
+      queryResult.results.forEach(result => {
+        if (result.snp_node) {
+          nodes.add({
+            data: {
+              id: result.snp_node['~id'],
+              label: result.snp_node['~id'],
+              type: 'main'
+            }
+          });
         }
-      };
 
-      const extendNodes = [
-        { data: { id: 'ENSG00000138031', label: 'ENSG00000138031', type: 'extend' } }
-      ];
-
-      const extendEdges = [
-        {
-          data: {
-            id: 'extend-edge-1',
-            source: 'rs73920612',
-            target: 'ENSG00000138031',
-            label: 'eQTL_of',
-            type: 'extend'
-          }
-        },
-        {
-          data: {
-            id: 'extend-edge-2',
-            source: 'rs73920612',
-            target: 'ENSG00000138031',
-            label: 'eQTL_credible_set',
-            type: 'extend'
-          }
+        if (result.gene_node) {
+          nodes.add({
+            data: {
+              id: result.gene_node['~id'],
+              label: result.gene_node['~id'],
+              type: 'main'
+            }
+          });
         }
-      ];
 
-      const elements = [...mainNodes, mainEdge, ...extendNodes, ...extendEdges];
+        if (result.extend_node_snp) {
+          nodes.add({
+            data: {
+              id: result.extend_node_snp['~id'],
+              label: result.extend_node_snp['~id'],
+              type: 'extend',
+              nodeType: 'snp'
+            }
+          });
+        }
+
+        if (result.extend_node_gene) {
+          nodes.add({
+            data: {
+              id: result.extend_node_gene['~id'],
+              label: result.extend_node_gene['~id'],
+              type: 'extend',
+              nodeType: 'gene'
+            }
+          });
+        }
+
+        Object.entries(result).forEach(([key, value]) => {
+          if (key.startsWith('r') && value['~type']) {
+            edges.push({
+              data: {
+                id: `edge-${value['~start']}-${value['~end']}`,
+                source: value['~start'],
+                target: value['~end'],
+                label: value['~type'],
+                type: key === 'r' ? 'main' : 'extend'
+              }
+            });
+          }
+        });
+      });
+
+      const elements = [...Array.from(nodes), ...edges];
 
       cyRef.current = Cytoscape({
         container: containerRef.current,
@@ -102,20 +129,16 @@ function KnowledgeGraph({ exactData, extendData }) {
           }
         ],
         layout: {
-          name: 'cose-bilkent',
+          name: 'cola',
           animate: false,
-          randomize: false,
-          idealEdgeLength: 100,
-          edgeElasticity: 0.45,
-          nodeRepulsion: 4500,
-          nestingFactor: 0.1,
-          gravity: 0.25,
-          numIter: 2500,
-          tile: true,
-          tilingPaddingVertical: 10,
-          tilingPaddingHorizontal: 10,
-          fit: true,
-          padding: 30,
+          refresh: 1,
+          maxSimulationTime: 1000,
+          nodeSpacing: function(node) {
+            return node.data('type') === 'main' ? 100 : 50;
+          },
+          edgeLength: function(edge) {
+            return edge.data('type') === 'main' ? 100 : 150;
+          }
         }
       });
 
@@ -146,7 +169,6 @@ function KnowledgeGraph({ exactData, extendData }) {
         link.click();
       };
 
-      // Add toolbox buttons
       const toolbox = document.createElement('div');
       toolbox.style.position = 'absolute';
       toolbox.style.top = '10px';
@@ -185,7 +207,7 @@ function KnowledgeGraph({ exactData, extendData }) {
         }
       };
     }
-  }, [exactData, extendData]);
+  }, [queryResult]);
 
   return <div ref={containerRef} style={{ width: '1000px', height: '600px', position: 'relative' }} />;
 }

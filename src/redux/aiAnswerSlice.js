@@ -9,7 +9,6 @@ export const queryAiAnswer = createAsyncThunk('/queryResultToAiAnswer',
             .post('https://glkb.dcmb.med.umich.edu/api/search/PKG_LLM_QA', payload, {
                 headers: {
                     "Content-Type": "application/json",
-                    'Access-Control-Allow-Origin': '*'
                 }
             })
             .then((response) => response.data)

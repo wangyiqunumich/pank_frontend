@@ -1,21 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-export const processedQuestionSlice = createSlice({
+const processedQuestionSlice = createSlice({
   name: 'processedQuestion',
   initialState: {
-    question: '',
-    nextQuestions: [],
+    currentQuestion: '',
+    nextQuestions: []
   },
   reducers: {
     setProcessedQuestion: (state, action) => {
-      state.question = action.payload;
-    },
-    setProcessedNextQuestions: (state, action) => {
-      state.nextQuestions = action.payload;
+      state.currentQuestion = action.payload.currentQuestion;
+      state.nextQuestions = action.payload.nextQuestions;
     },
   },
 });
 
-export const { setProcessedQuestion, setProcessedNextQuestions } = processedQuestionSlice.actions;
-
+export const { setProcessedQuestion } = processedQuestionSlice.actions;
 export default processedQuestionSlice.reducer;
