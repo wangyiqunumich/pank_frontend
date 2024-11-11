@@ -5,7 +5,7 @@
     padding: 0.5rem 1rem;
     /*background-color: #fff; !* Change this as per your color scheme *!*/
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: for a slight shadow under the nav bar */
-    background-color: #FFFFFF; /* Change this as per your color scheme */
+    background-color: #C5D9B1; /* Change this as per your color scheme */
 
 }
 
@@ -46,4 +46,32 @@
 
 .MuiMenuItem-root:hover {
   background-color: #e0e0e0; /* 鼠标悬停时的颜色 */
+}
+
+.logo {
+  color: #000000;
+  text-decoration: none;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+}
+
+.nav-links a {
+  color: #000000;
+  text-decoration: none;
+  margin: 0 10px;
+  font-size: 16px;
+}
+
+.nav-links button {
+  text-transform: none;
+  color: #000000;
+}
+
+.nav-links button:hover {
+  background-color: rgba(0, 0, 0, 0.1);
 }

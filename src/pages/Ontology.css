@@ -1,0 +1,22 @@
+details {
+  margin-bottom: 8px;
+}
+
+details summary {
+  cursor: pointer;
+  padding: 5px 0;
+}
+
+details summary:hover {
+  color: #3D739C;
+}
+
+details a {
+  color: #000;
+  text-decoration: none;
+}
+
+details a:hover {
+  color: #3D739C;
+  text-decoration: underline;
+}

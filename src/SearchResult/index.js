@@ -15,7 +15,7 @@ const colorMap = {
     default: '#DCE9F4'
 };
 
-function TypewriterEffect({ text, speed = 10, onComplete }) {
+function TypewriterEffect({ text, speed = 5, onComplete }) {
     const [displayedText, setDisplayedText] = useState('');
     const [currentIndex, setCurrentIndex] = useState(0);
 
