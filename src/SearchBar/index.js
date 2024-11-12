@@ -7,16 +7,19 @@ import { queryAiAnswer } from '../redux/aiAnswerSlice';
 import { queryQueryResult } from '../redux/queryResultSlice';
 import { setProcessedQuestion } from '../redux/processedQuestionSlice';
 import { setSearchTerms } from '../redux/searchSlice';
+import { queryVocab } from '../redux/inputToVocabSlice';
 import conversionTable from '../utils/conversion_table.json';
+import catalog from '../utils/Catalog.json';
 
 function SearchBar({ onSearch, disabled }) {
     const dispatch = useDispatch();
     const {viewSchema, queryViewSchemaStatus} = useSelector((state) => state.viewSchema);
+    const {vocab, queryVocabStatus} = useSelector((state) => state.inputToVocab);
     const [sourceTerm, setSourceTerm] = useState('');
     const [relationship, setRelationship] = useState('');
     const [targetTerm, setTargetTerm] = useState('');
-    const [sourceOptions, setSourceOptions] = useState(["gene", "sequence_variant"]);
-    const [targetOptions, setTargetOptions] = useState(["gene", "sequence_variant"]);
+    const [sourceOptions, setSourceOptions] = useState(["gene", "sequence variant"]);
+    const [targetOptions, setTargetOptions] = useState([]);
     const [isRelationshipDisabled, setIsRelationshipDisabled] = useState(true);
     const [isTargetTermDisabled, setIsTargetTermDisabled] = useState(true);
 
@@ -36,26 +39,97 @@ function SearchBar({ onSearch, disabled }) {
     const sourceTimerRef = useRef(null);
     const targetTimerRef = useRef(null);
 
+    const [relationshipOptions, setRelationshipOptions] = useState([]);
+
+    const [isCustomSource, setIsCustomSource] = useState(false);
+
     const updateSourceTerm = async (event, newValue) => {
         setSourceTerm(newValue || '');
         if (newValue) {
+            const sourceType = newValue.split(':')[0];
+            const predefinedTypes = ["gene", "sequence variant"];
+            const isCustomInput = !predefinedTypes.includes(sourceType);
+            setIsCustomSource(isCustomInput);
+            
             clearTimeout(sourceTimerRef.current);
             sourceTimerRef.current = setTimeout(async () => {
-                const response = await fetchOptions(newValue, 'source');
-                setSourceOptions(response);
+                const result = await dispatch(queryVocab({input: newValue})).unwrap();
+                if (result) {
+                    console.log(result);
+                    const formattedOption = `${result}:${newValue}`;
+                    setSourceOptions([formattedOption]);
+                }
             }, 1000);
             setIsRelationshipDisabled(false);
+            
+            if (!isCustomInput) {
+                setTargetOptions([]);
+            }
         } else {
             setSourceOptions(["gene", "sequence variant"]);
             setIsRelationshipDisabled(true);
             setIsTargetTermDisabled(true);
+            setIsCustomSource(false);
+            setTargetOptions([]);
         }
     };
 
+    const handleRelationshipOpen = () => {
+        const sourceType = sourceTerm.split(':')[0];
+        
+        const frontendToKG = conversionTable.Conversion_table.query_vocab_frontend_KG;
+        const KGToFrontend = conversionTable.Conversion_table.query_vocab_KG_frontend;
+        
+        const kgSourceType = frontendToKG[sourceType] || sourceType;
+        
+        const possiblePatterns = catalog.filter(pattern => {
+            const parts = pattern.split(" - ");
+            return parts[0] === kgSourceType;
+        });
+        
+        const uniqueRelationships = new Set(
+            possiblePatterns.map(pattern => {
+                const parts = pattern.split(" - ");
+                const relationship = parts[1];
+                return KGToFrontend[relationship] || relationship;
+            })
+        );
+        
+        setRelationshipOptions([...uniqueRelationships]);
+    };
+
+    const updateTargetOptions = (currentRelationship) => {
+        const sourceType = sourceTerm.split(':')[0];
+        const frontendToKG = conversionTable.Conversion_table.query_vocab_frontend_KG;
+        const KGToFrontend = conversionTable.Conversion_table.query_vocab_KG_frontend;
+        
+        const kgSourceType = frontendToKG[sourceType] || sourceType;
+        const kgRelationship = frontendToKG[currentRelationship] || currentRelationship;
+        
+        const possiblePatterns = catalog.filter(pattern => {
+            const parts = pattern.split(" - ");
+            return parts[0] === kgSourceType && parts[1] === kgRelationship;
+        });
+        
+        const uniqueTargetTypes = new Set(
+            possiblePatterns.map(pattern => {
+                const parts = pattern.split(" - ");
+                const targetType = parts[2];
+                return KGToFrontend[targetType] || targetType;
+            })
+        );
+        
+        return [...uniqueTargetTypes];
+    };
+
     const updateRelationship = (event) => {
-        const value = event.target.value;
-        setRelationship(value);
+        const newRelationship = event.target.value;
+        setRelationship(newRelationship);
         setIsTargetTermDisabled(false);
+        const targetOptions = updateTargetOptions(newRelationship);
+        if (isCustomSource) {  
+            setTargetOptions(targetOptions);
+        }
     };
 
     const updateTargetTerm = async (event, newValue) => {
@@ -63,11 +137,14 @@ function SearchBar({ onSearch, disabled }) {
         if (newValue) {
             clearTimeout(targetTimerRef.current);
             targetTimerRef.current = setTimeout(async () => {
-                const response = await fetchOptions(newValue, 'target');
-                setTargetOptions(response);
+                const result = await dispatch(queryVocab({input: newValue})).unwrap();
+                if (result) {
+                    const formattedOption = `${result}:${newValue}`;
+                    setTargetOptions([formattedOption]);
+                }
             }, 1000);
         } else {
-            setTargetOptions(["gene", "sequence variant"]);
+            setTargetOptions([]);
         }
     };
 
@@ -198,24 +275,43 @@ function SearchBar({ onSearch, disabled }) {
                             value={relationship}
                             label="Relationship"
                             onChange={updateRelationship}
+                            onOpen={handleRelationshipOpen}
                             disabled={isRelationshipDisabled}
                             sx={{ textAlign: 'left' }}
                         >
-                            {relationTypes.map((type) => (
+                            {relationshipOptions.map((type) => (
                                 <MenuItem key={type} value={type}>{type}</MenuItem>
                             ))}
                         </Select>
                     </FormControl>
 
                     <FormControl fullWidth>
-                        <Autocomplete
-                            freeSolo
-                            value={targetTerm}
-                            onInputChange={updateTargetTerm}
-                            options={targetOptions}
-                            disabled={isTargetTermDisabled}
-                            renderInput={(params) => <TextField {...params} label="Target Term" />}
-                        />
+                        {!isCustomSource ? (
+                            <Autocomplete
+                                freeSolo
+                                value={targetTerm}
+                                onInputChange={updateTargetTerm}
+                                options={targetOptions}
+                                disabled={isTargetTermDisabled}
+                                renderInput={(params) => <TextField {...params} label="Target Term" />}
+                            />
+                        ) : (
+                            <>
+                                <InputLabel id="target-label">Target Term</InputLabel>
+                                <Select
+                                    labelId="target-label"
+                                    value={targetTerm}
+                                    label="Target Term"
+                                    onChange={(event) => setTargetTerm(event.target.value)}
+                                    disabled={isTargetTermDisabled}
+                                    sx={{ textAlign: 'left' }}
+                                >
+                                    {targetOptions.map((type) => (
+                                        <MenuItem key={type} value={type}>{type}</MenuItem>
+                                    ))}
+                                </Select>
+                            </>
+                        )}
                     </FormControl>
 
                     <Button variant="contained" color="primary"

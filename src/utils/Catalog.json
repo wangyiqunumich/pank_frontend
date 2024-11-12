@@ -1,4 +1,5 @@
 [
   "sequence_variant - fine_mapped_eQTL - gene",
+  "sequence_variant - abcd - gene",
   "gene - fine_mapped_eQTL - sequence_variant"
 ]
