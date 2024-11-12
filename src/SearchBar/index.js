@@ -47,6 +47,7 @@ function SearchBar({ onSearch, disabled }) {
         setSourceTerm(newValue || '');
         setRelationship('');
         setTargetTerm('');
+        dispatch(queryQueryResult({ query: '' }));
         
         if (newValue) {
             const sourceType = newValue.split(':')[0];
@@ -128,6 +129,7 @@ function SearchBar({ onSearch, disabled }) {
         const newRelationship = event.target.value;
         setRelationship(newRelationship);
         setTargetTerm('');
+        dispatch(queryQueryResult({ query: '' }));
         setIsTargetTermDisabled(false);
         const targetOptions = updateTargetOptions(newRelationship);
         if (isCustomSource) {  
@@ -137,6 +139,7 @@ function SearchBar({ onSearch, disabled }) {
 
     const updateTargetTerm = async (event, newValue) => {
         setTargetTerm(newValue || '');
+        dispatch(queryQueryResult({ query: '' }));
         if (newValue) {
             clearTimeout(targetTimerRef.current);
             targetTimerRef.current = setTimeout(async () => {
@@ -227,7 +230,6 @@ function SearchBar({ onSearch, disabled }) {
         const convertedTerms = convertTerms(sourceTerm, relationship, targetTerm);
         dispatch(setSearchTerms(convertedTerms));
         await dispatch(queryViewSchema(convertedTerms));
-        // onSearch();
     };
 
     useEffect(() => {
@@ -257,7 +259,9 @@ function SearchBar({ onSearch, disabled }) {
     }, [queryViewSchemaStatus, viewSchema, sourceTerm, relationship, targetTerm]);
 
     const isValid = () => {
-        return sourceTerm && relationship && targetTerm;
+        // 检查 targetTerm 是否在 targetOptions 中
+        const isTargetValid = targetOptions.includes(targetTerm);
+        return sourceTerm && relationship && targetTerm && isTargetValid;   
     };
 
     return (
@@ -270,6 +274,7 @@ function SearchBar({ onSearch, disabled }) {
                             value={sourceTerm}
                             onInputChange={updateSourceTerm}
                             options={sourceOptions}
+                            disabled={disabled}
                             renderInput={(params) => <TextField {...params} label="1. Source Term" />}
                         />
                     </FormControl>
@@ -278,7 +283,7 @@ function SearchBar({ onSearch, disabled }) {
                         <InputLabel 
                             id="relationship-label"
                             sx={{
-                                color: isRelationshipDisabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)'
+                                color: (isRelationshipDisabled || disabled) ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)'
                             }}
                         >
                             2. Relationship
@@ -290,7 +295,7 @@ function SearchBar({ onSearch, disabled }) {
                             label="2. Relationship"
                             onChange={updateRelationship}
                             onOpen={handleRelationshipOpen}
-                            disabled={isRelationshipDisabled}
+                            disabled={isRelationshipDisabled || disabled}
                             sx={{ textAlign: 'left' }}
                         >
                             {relationshipOptions.map((type) => (
@@ -306,7 +311,7 @@ function SearchBar({ onSearch, disabled }) {
                                 value={targetTerm}
                                 onInputChange={updateTargetTerm}
                                 options={targetOptions}
-                                disabled={isTargetTermDisabled}
+                                disabled={isTargetTermDisabled || disabled}
                                 renderInput={(params) => <TextField {...params} label="3. Target Term" />}
                             />
                         ) : (
@@ -317,7 +322,7 @@ function SearchBar({ onSearch, disabled }) {
                                     value={targetTerm}
                                     label="3. Target Term"
                                     onChange={(event) => setTargetTerm(event.target.value)}
-                                    disabled={isTargetTermDisabled}
+                                    disabled={isTargetTermDisabled || disabled}
                                     sx={{ textAlign: 'left' }}
                                 >
                                     {targetOptions.map((type) => (
