@@ -24,8 +24,7 @@
         "Tissue_KG_tissue_name": {
           "GTEx; SusieR": "pancreatic",
           "INSPIRE; SusieR": "islet"
-      },
-      "Catelog" : ["sequence_variant - fine_mapped_eQTL - gene"]
+      }
 
 },
     "sequence_variant - fine_mapped_eQTL - gene": {
