@@ -23,7 +23,7 @@ function App() {
       <NavBar />
       <SearchBar 
         onSearch={handleSearch} 
-        disabled={showIntermediate} 
+        disabled={showIntermediate || showResult} 
       />
       {showIntermediate && <IntermediatePage onContinue={handleContinue} />}
       {showResult && <SearchResult />}
