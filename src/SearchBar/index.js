@@ -45,6 +45,9 @@ function SearchBar({ onSearch, disabled }) {
 
     const updateSourceTerm = async (event, newValue) => {
         setSourceTerm(newValue || '');
+        setRelationship('');
+        setTargetTerm('');
+        
         if (newValue) {
             const sourceType = newValue.split(':')[0];
             const predefinedTypes = ["gene", "sequence variant"];
@@ -124,6 +127,7 @@ function SearchBar({ onSearch, disabled }) {
     const updateRelationship = (event) => {
         const newRelationship = event.target.value;
         setRelationship(newRelationship);
+        setTargetTerm('');
         setIsTargetTermDisabled(false);
         const targetOptions = updateTargetOptions(newRelationship);
         if (isCustomSource) {  
