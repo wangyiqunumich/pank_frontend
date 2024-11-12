@@ -72,6 +72,11 @@
   color: #000000;
 }
 
+.nav-links button:disabled {
+  color: grey !important;
+  opacity: 0.6;
+}
+
 .nav-links button:hover {
   background-color: rgba(0, 0, 0, 0.1);
 }

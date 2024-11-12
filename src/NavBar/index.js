@@ -24,15 +24,16 @@ function NavBar() {
         
         <div className="nav-links">
           <Button color="inherit" component={Link} to="/">Query</Button>
-          <Button color="inherit" component={Link} to="/api">API</Button>
-          <Button color="inherit" component={Link} to="/llm">LLM</Button>
-          <Button color="inherit" component={Link} to="/data-dump">Data Dump</Button>
+          <Button color="inherit" disabled sx={{ color: 'grey !important' }}>API</Button>
+          <Button color="inherit" disabled sx={{ color: 'grey !important' }}>LLM</Button>
+          <Button color="inherit" disabled sx={{ color: 'grey !important' }}>Data Dump</Button>
           <Button 
             color="inherit"
             aria-controls={open ? 'about-menu' : undefined}
             aria-haspopup="true"
             aria-expanded={open ? 'true' : undefined}
             onClick={handleClick}
+            sx={{ fontSize: '1rem' }}
           >
             About
           </Button>
@@ -56,17 +57,16 @@ function NavBar() {
               },
             }}
           >
-            <MenuItem onClick={handleClose} component={Link} to="/docs">Docs</MenuItem>
+            <MenuItem onClick={handleClose} disabled sx={{ color: 'grey !important' }}>Docs</MenuItem>
             <MenuItem onClick={handleClose} component={Link} to="/ontology">Ontology</MenuItem>
-            <MenuItem onClick={handleClose} component={Link} to="/open-kg">Open KG</MenuItem>
+            <MenuItem onClick={handleClose} disabled sx={{ color: 'grey !important' }}>Open KG</MenuItem>
           </Menu>
           <Button 
             variant="contained"
-            component={Link} 
-            to="/pankbase"
+            disabled
             sx={{
               backgroundColor: '#FFFFFF',
-              color: '#000000',
+              color: 'grey !important',
               borderRadius: '20px',
               marginLeft: '20px',
               '&:hover': {
