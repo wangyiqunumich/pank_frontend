@@ -15,6 +15,7 @@ function IntermediatePage({ onContinue }) {
   const conversionTable = require('../utils/conversion_table.json');
 
   const processDataSources = () => {
+    console.log(queryResult);
     if (!queryResult?.results) return {};
     
     const counts = {

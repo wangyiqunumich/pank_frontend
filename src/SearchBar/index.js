@@ -55,7 +55,6 @@ function SearchBar({ onSearch, disabled }) {
             sourceTimerRef.current = setTimeout(async () => {
                 const result = await dispatch(queryVocab({input: newValue})).unwrap();
                 if (result) {
-                    console.log(result);
                     const formattedOption = `${result}:${newValue}`;
                     setSourceOptions([formattedOption]);
                 }
@@ -224,29 +223,33 @@ function SearchBar({ onSearch, disabled }) {
         const convertedTerms = convertTerms(sourceTerm, relationship, targetTerm);
         dispatch(setSearchTerms(convertedTerms));
         await dispatch(queryViewSchema(convertedTerms));
-        onSearch();
+        // onSearch();
     };
 
     useEffect(() => {
-        if (queryViewSchemaStatus === 'fulfilled' && viewSchema.question && viewSchema.question[0]) {
-            const processedQuestion = replaceTerms(viewSchema.question[0], sourceTerm, relationship, targetTerm);
-            dispatch(setProcessedQuestion(processedQuestion));
+        const fetchData = async () => {
+            if (queryViewSchemaStatus === 'fulfilled' && viewSchema.question && viewSchema.question[0]) {
+                const processedQuestion = replaceTerms(viewSchema.question[0], sourceTerm, relationship, targetTerm);
+                dispatch(setProcessedQuestion(processedQuestion));
 
-            if (viewSchema.cyper_for_intermediate_page) {
-                const processedCypher = replaceCypherTerms(
-                    viewSchema.cyper_for_intermediate_page,
-                    sourceTerm,
-                    targetTerm
-                );
-                console.log(processedCypher);
-                dispatch(queryQueryResult({query: processedCypher})).unwrap();
+                if (viewSchema.cyper_for_intermediate_page) {
+                    const processedCypher = replaceCypherTerms(
+                        viewSchema.cyper_for_intermediate_page,
+                        sourceTerm,
+                        targetTerm
+                    );
+                    console.log(processedCypher);
+                    try {
+                        await dispatch(queryQueryResult({query: processedCypher})).unwrap();
+                        onSearch();
+                    } catch (error) {
+                        console.error('Error executing query:', error);
+                    }
+                }
             }
+        };
 
-            dispatch(queryAiAnswer('{"question": "a test question", "graph": "unknown format subgraph"}')).unwrap();
-            console.log(aiAnswer);
-
-            onSearch();
-        }
+        fetchData();
     }, [queryViewSchemaStatus, viewSchema, sourceTerm, relationship, targetTerm]);
 
     const isValid = () => {
@@ -263,17 +266,24 @@ function SearchBar({ onSearch, disabled }) {
                             value={sourceTerm}
                             onInputChange={updateSourceTerm}
                             options={sourceOptions}
-                            renderInput={(params) => <TextField {...params} label="Source Term" />}
+                            renderInput={(params) => <TextField {...params} label="1. Source Term" />}
                         />
                     </FormControl>
 
                     <FormControl fullWidth>
-                        <InputLabel id="relationship-label">Relationship</InputLabel>
+                        <InputLabel 
+                            id="relationship-label"
+                            sx={{
+                                color: isRelationshipDisabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)'
+                            }}
+                        >
+                            2. Relationship
+                        </InputLabel>
                         <Select
                             labelId="relationship-label"
-                            id="relationship"
+                            id="2. relationship"
                             value={relationship}
-                            label="Relationship"
+                            label="2. Relationship"
                             onChange={updateRelationship}
                             onOpen={handleRelationshipOpen}
                             disabled={isRelationshipDisabled}
@@ -293,15 +303,15 @@ function SearchBar({ onSearch, disabled }) {
                                 onInputChange={updateTargetTerm}
                                 options={targetOptions}
                                 disabled={isTargetTermDisabled}
-                                renderInput={(params) => <TextField {...params} label="Target Term" />}
+                                renderInput={(params) => <TextField {...params} label="3. Target Term" />}
                             />
                         ) : (
                             <>
-                                <InputLabel id="target-label">Target Term</InputLabel>
+                                <InputLabel id="target-label">3. Target Term</InputLabel>
                                 <Select
                                     labelId="target-label"
                                     value={targetTerm}
-                                    label="Target Term"
+                                    label="3. Target Term"
                                     onChange={(event) => setTargetTerm(event.target.value)}
                                     disabled={isTargetTermDisabled}
                                     sx={{ textAlign: 'left' }}
