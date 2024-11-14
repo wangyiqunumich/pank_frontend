@@ -39,7 +39,7 @@
               "snp_node, eQTL_of, gene_node, belong_to_credible_set, credible_set_node, data_source, tissue"
               ,
             "question_for_result": 
-              "How does SNP @snp_node@ contribute to the regulation of @gene_node@ eQTL in @tissue@ tissue, according to @data_source@"
+              "How does the SNP @snp_node@ influence the expression quantitative trait locus (eQTL) of @gene_node@ in @tissue@ tissue, as reported by @data_source@?"
               ,
             "cyper_for_result_page_all_nodes_specific": 
               "MATCH (snp_node:variants:sequence_variant {id: '@sequence_variant@'})-[r:fine_mapped_eQTL]-(gene_node:coding_elements {id: '@gene@'}) OPTIONAL MATCH (snp_node)-[r1]-(extend_node_snp) OPTIONAL MATCH (gene_node)-[r2]-(extend_node_gene) RETURN snp_node, r, gene_node, r1, extend_node_snp, r2, extend_node_gene LIMIT 15"
