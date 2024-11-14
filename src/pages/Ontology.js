@@ -7,85 +7,86 @@ const ontologyTreeHtml = `
 <details style="margin-left: 0px;">
   <summary><a href="#">PanKgraph Root</a></summary>
   <details style="margin-left: 20px;">
-    <summary><a href="http://purl.obolibrary.org/obo/PR_000050567">protein-containing material entity</a></summary>
+    <summary><a href="http://purl.obolibrary.org/obo/GO_0009987">cellular process</a></summary>
     <details style="margin-left: 40px;">
-      <summary><a href="http://purl.obolibrary.org/obo/CL_0000542">lymphocyte</a></summary>
-      <div style="margin-left: 60px;">&#8226; <a href="http://purl.obolibrary.org/obo/CL_0000084">T cell</a></div>
-    </details>
-    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/CL_0000451">dendritic cell</a></div>
-    <details style="margin-left: 40px;">
-      <summary><a href="http://purl.obolibrary.org/obo/CL_0000094">granulocyte</a></summary>
-      <div style="margin-left: 60px;">&#8226; <a href="http://purl.obolibrary.org/obo/CL_0000775">neutrophil</a></div>
+      <summary><a href="http://purl.obolibrary.org/obo/GO_0007165">signal transduction</a></summary>
+      <div style="margin-left: 60px;">&#8226; <a href="http://purl.obolibrary.org/obo/GO_0007186">G protein-coupled receptor signaling pathway</a></div>
     </details>
   </details>
   <details style="margin-left: 20px;">
-    <summary><a href="http://purl.obolibrary.org/obo/CL_0002320">connective tissue cell</a></summary>
-    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/CL_0000136">fat cell</a></div>
+    <summary><a href="http://purl.obolibrary.org/obo/GO_0004888">transmembrane signaling receptor activity</a></summary>
+    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/GO_0004930">G protein-coupled receptor activity</a></div>
+    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/GO_0004984">olfactory receptor activity</a></div>
+  </details>
+  <details style="margin-left: 20px;">
+    <summary><a href="http://purl.obolibrary.org/obo/GO_0110165">cellular anatomical entity</a></summary>
     <details style="margin-left: 40px;">
-      <summary><a href="http://purl.obolibrary.org/obo/CL_0000057">fibroblast</a></summary>
-      <div style="margin-left: 60px;">&#8226; <a href="http://purl.obolibrary.org/obo/CL_0002410">pancreatic stellate cell</a></div>
+      <summary><a href="http://purl.obolibrary.org/obo/GO_0016020">membrane</a></summary>
+      <div style="margin-left: 60px;">&#8226; <a href="http://purl.obolibrary.org/obo/GO_0005886">plasma membrane</a></div>
+    </details>
+    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/GO_0009986">cell surface</a></div>
+  </details>
+  <details style="margin-left: 20px;">
+    <summary><a href="http://purl.obolibrary.org/obo/GO_0005488">binding</a></summary>
+    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/GO_0005515">protein binding</a></div>
+  </details>
+  <details style="margin-left: 20px;">
+    <summary><a href="http://purl.obolibrary.org/obo/GO_0007606">sensory perception of chemical stimulus</a></summary>
+    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/GO_0007608">sensory perception of smell</a></div>
+  </details>
+  <details style="margin-left: 20px;">
+    <summary><a href="http://purl.obolibrary.org/obo/GO_0050907">detection of chemical stimulus involved in sensory perception</a></summary>
+    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/GO_0050911">detection of chemical stimulus involved in sensory perception of smell</a></div>
+  </details>
+  <details style="margin-left: 20px;">
+    <summary><a href="http://purl.obolibrary.org/obo/GO_0006952">defense response</a></summary>
+    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/GO_0006954">inflammatory response</a></div>
+  </details>
+  <details style="margin-left: 20px;">
+    <summary><a href="http://purl.obolibrary.org/obo/GO_0005035">death receptor activity</a></summary>
+    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/GO_0005031">tumor necrosis factor receptor activity</a></div>
+  </details>
+  <details style="margin-left: 20px;">
+    <summary><a href="http://purl.obolibrary.org/obo/GO_0044092">negative regulation of molecular function</a></summary>
+    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/GO_0043433">negative regulation of DNA-binding transcription factor activity</a></div>
+  </details>
+  <details style="margin-left: 20px;">
+    <summary><a href="http://purl.obolibrary.org/obo/GO_0008150">biological_process</a></summary>
+    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/GO_0016032">viral process</a></div>
+    <details style="margin-left: 40px;">
+      <summary><a href="http://purl.obolibrary.org/obo/GO_0050896">response to stimulus</a></summary>
+      <div style="margin-left: 60px;">&#8226; <a href="http://purl.obolibrary.org/obo/GO_0006955">immune response</a></div>
     </details>
   </details>
   <details style="margin-left: 20px;">
-    <summary><a href="http://purl.obolibrary.org/obo/CL_0000066">epithelial cell</a></summary>
-    <details style="margin-left: 40px;">
-      <summary><a href="http://purl.obolibrary.org/obo/CL_0000075">columnar/cuboidal epithelial cell</a></summary>
-      <div style="margin-left: 60px;">&#8226; <a href="http://purl.obolibrary.org/obo/CL_0000146">simple columnar epithelial cell</a></div>
-    </details>
+    <summary><a href="http://purl.obolibrary.org/obo/GO_0044409">symbiont entry into host</a></summary>
+    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/GO_0046718">symbiont entry into host cell</a></div>
   </details>
   <details style="margin-left: 20px;">
-    <summary><a href="http://purl.obolibrary.org/obo/CL_0000168">insulin secreting cell</a></summary>
-    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/CL_0000169">type B pancreatic cell</a></div>
+    <summary><a href="http://purl.obolibrary.org/obo/GO_0098552">side of membrane</a></summary>
+    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/GO_0009897">external side of plasma membrane</a></div>
   </details>
   <details style="margin-left: 20px;">
-    <summary><a href="http://purl.obolibrary.org/obo/CL_0000083">epithelial cell of pancreas</a></summary>
-    <details style="margin-left: 40px;">
-      <summary><a href="http://purl.obolibrary.org/obo/CL_0008024">pancreatic endocrine cell</a></summary>
-      <div style="margin-left: 60px;">&#8226; <a href="http://purl.obolibrary.org/obo/CL_0000171">pancreatic A cell</a></div>
-      <div style="margin-left: 60px;">&#8226; <a href="http://purl.obolibrary.org/obo/CL_0000173">pancreatic D cell</a></div>
-      <div style="margin-left: 60px;">&#8226; <a href="http://purl.obolibrary.org/obo/CL_0002275">pancreatic PP cell</a></div>
-      <div style="margin-left: 60px;">&#8226; <a href="http://purl.obolibrary.org/obo/CL_0005019">pancreatic epsilon cell</a></div>
-    </details>
-    <details style="margin-left: 40px;">
-      <summary><a href="http://purl.obolibrary.org/obo/CL_1001433">epithelial cell of exocrine pancreas</a></summary>
-      <div style="margin-left: 60px;">&#8226; <a href="http://purl.obolibrary.org/obo/CL_0002080">pancreatic centro-acinar cell</a></div>
-    </details>
+    <summary><a href="http://purl.obolibrary.org/obo/GO_0019221">cytokine-mediated signaling pathway</a></summary>
+    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/GO_0033209">tumor necrosis factor-mediated signaling pathway</a></div>
   </details>
   <details style="margin-left: 20px;">
-    <summary><a href="http://purl.obolibrary.org/obo/CL_0008000">non-striated muscle cell</a></summary>
-    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/CL_0000192">smooth muscle cell</a></div>
+    <summary><a href="http://purl.obolibrary.org/obo/GO_0006355">regulation of DNA-templated transcription</a></summary>
+    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/GO_0045892">negative regulation of DNA-templated transcription</a></div>
   </details>
   <details style="margin-left: 20px;">
-    <summary><a href="http://purl.obolibrary.org/obo/CL_0000145">professional antigen presenting cell</a></summary>
-    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/CL_0000235">macrophage</a></div>
+    <summary><a href="http://purl.obolibrary.org/obo/GO_0140272">exogenous protein binding</a></summary>
+    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/GO_0001618">virus receptor activity</a></div>
   </details>
   <details style="margin-left: 20px;">
-    <summary><a href="http://purl.obolibrary.org/obo/CL_0000945">lymphocyte of B lineage</a></summary>
-    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/CL_0000236">B cell</a></div>
+    <summary><a href="http://purl.obolibrary.org/obo/GO_0002702">positive regulation of production of molecular mediator of immune response</a></summary>
+    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/GO_0002639">positive regulation of immunoglobulin production</a></div>
   </details>
   <details style="margin-left: 20px;">
-    <summary><a href="http://purl.obolibrary.org/obo/CL_0000167">peptide hormone secreting cell</a></summary>
-    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/CL_0000509">gastrin secreting cell</a></div>
+    <summary><a href="http://purl.obolibrary.org/obo/GO_0030888">regulation of B cell proliferation</a></summary>
+    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/GO_0030890">positive regulation of B cell proliferation</a></div>
   </details>
-  <details style="margin-left: 20px;">
-    <summary><a href="http://purl.obolibrary.org/obo/CL_0000164">enteroendocrine cell</a></summary>
-    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/CL_0000577">type EC enteroendocrine cell</a></div>
-  </details>
-  <details style="margin-left: 20px;">
-    <summary><a href="http://purl.obolibrary.org/obo/CL_0000622">acinar cell</a></summary>
-    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/CL_0002064">pancreatic acinar cell</a></div>
-  </details>
-  <details style="margin-left: 20px;">
-    <summary><a href="http://purl.obolibrary.org/obo/CL_0000069">branched duct epithelial cell</a></summary>
-    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/CL_0002079">pancreatic ductal cell</a></div>
-    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/CL_1000322">pancreatic goblet cell</a></div>
-  </details>
-  <details style="margin-left: 20px;">
-    <summary><a href="http://purl.obolibrary.org/obo/CL_0000499">stromal cell</a></summary>
-    <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/CL_0002574">stromal cell of pancreas</a></div>
-  </details>
-</details>
-`;
+</details>`;
 
 function Ontology() {
   return (

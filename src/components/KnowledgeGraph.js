@@ -184,8 +184,8 @@ function KnowledgeGraph() {
         return button;
       };
 
-      toolbox.appendChild(createButton('Zoom In', handleZoomIn));
-      toolbox.appendChild(createButton('Zoom Out', handleZoomOut));
+      toolbox.appendChild(createButton('+', handleZoomIn));
+      toolbox.appendChild(createButton('-', handleZoomOut));
       toolbox.appendChild(createButton('Reset', handleReset));
       toolbox.appendChild(createButton('Save', handleSave));
 

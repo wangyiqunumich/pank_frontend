@@ -6,6 +6,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import {store} from './redux/store';
 import Ontology from './pages/Ontology';
+import AIAnswer from './pages/AIAnswer';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -15,6 +16,7 @@ root.render(
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="/ontology" element={<Ontology />} />
+          <Route path="/ai-answer" element={<AIAnswer />} />
         </Routes>
       </BrowserRouter>
     </Provider>

@@ -59,8 +59,16 @@ function SearchBar({ onSearch, disabled }) {
             sourceTimerRef.current = setTimeout(async () => {
                 const result = await dispatch(queryVocab({input: newValue})).unwrap();
                 if (result) {
-                    const formattedOption = `${result}:${newValue}`;
-                    setSourceOptions([formattedOption]);
+                    let formattedOption;
+                    if (result.includes('@')) {
+                        const [type, value] = result.split('@');
+                        formattedOption = `${type}:${value}`;
+                        setSourceOptions([formattedOption]);
+                        setSourceTerm(formattedOption);
+                    } else {
+                        formattedOption = `${result}:${newValue}`;
+                        setSourceOptions([formattedOption]);
+                    }
                 }
             }, 1000);
             setIsRelationshipDisabled(false);
@@ -140,13 +148,60 @@ function SearchBar({ onSearch, disabled }) {
     const updateTargetTerm = async (event, newValue) => {
         setTargetTerm(newValue || '');
         dispatch(queryQueryResult({ query: '' }));
+        
         if (newValue) {
             clearTimeout(targetTimerRef.current);
             targetTimerRef.current = setTimeout(async () => {
                 const result = await dispatch(queryVocab({input: newValue})).unwrap();
                 if (result) {
-                    const formattedOption = `${result}:${newValue}`;
-                    setTargetOptions([formattedOption]);
+                    let inputType;
+                    if (result.includes('@')) {
+                        const [type, value] = result.split('@');
+                        inputType = type;
+                    } else {
+                        inputType = result;
+                    }
+                    
+                    // 获取当前的 sourceTerm 和 relationship
+                    const sourceType = sourceTerm.split(':')[0];
+                    const frontendToKG = conversionTable.Conversion_table.query_vocab_frontend_KG;
+                    const KGToFrontend = conversionTable.Conversion_table.query_vocab_KG_frontend;
+                    
+                    // 转换为 KG 格式
+                    const kgSourceType = frontendToKG[sourceType] || sourceType;
+                    const kgRelationship = frontendToKG[relationship] || relationship;
+                    
+                    // 在 catalog 中查找可能的目标类型
+                    const possiblePatterns = catalog.filter(pattern => {
+                        const parts = pattern.split(" - ");
+                        return parts[0] === kgSourceType && parts[1] === kgRelationship;
+                    });
+                    
+                    const validTargetTypes = new Set(
+                        possiblePatterns.map(pattern => {
+                            const parts = pattern.split(" - ");
+                            const targetType = parts[2];
+                            return KGToFrontend[targetType] || targetType;
+                        })
+                    );
+
+                    // 检查API返回的类型是否有效
+                    if (!validTargetTypes.has(inputType)) {
+                        setTargetOptions([]);
+                        return;
+                    }
+                    
+                    // 如果类型有效，设置选项
+                    let formattedOption;
+                    if (result.includes('@')) {
+                        const [type, value] = result.split('@');
+                        formattedOption = `${type}:${value}`;
+                        setTargetOptions([formattedOption]);
+                        setTargetTerm(formattedOption); // 立即设置选中值
+                    } else {
+                        formattedOption = `${result}:${newValue}`;
+                        setTargetOptions([formattedOption]);
+                    }
                 }
             }, 1000);
         } else {

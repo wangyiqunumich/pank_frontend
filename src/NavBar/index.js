@@ -25,7 +25,7 @@ function NavBar() {
         <div className="nav-links">
           <Button color="inherit" component={Link} to="/">Query</Button>
           <Button color="inherit" disabled sx={{ color: 'grey !important' }}>API</Button>
-          <Button color="inherit" disabled sx={{ color: 'grey !important' }}>LLM</Button>
+          <Button color="inherit" component={Link} to="/ai-answer">AI ANSWER</Button>
           <Button color="inherit" disabled sx={{ color: 'grey !important' }}>Data Dump</Button>
           <Button 
             color="inherit"
