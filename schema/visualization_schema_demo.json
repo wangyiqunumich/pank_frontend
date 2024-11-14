@@ -30,18 +30,25 @@
     "sequence_variant - fine_mapped_eQTL - gene": {
         "general - relationship - specific": {
             "question": [
-                "Which {SNP} has {gene@gene@} as its {eQTL}?"
+                "Which {SNP} serves as the {eQTL} for {gene@gene@}?"
             ],
-            "cyper_for_intermediate_page": "MATCH (snp_node:variants:sequence_variant)-[eQTL_of:fine_mapped_eQTL]-(gene_node:coding_elements {id:'@gene@'}) MATCH (snp_node)-[belong_to_credible_set:belong_to_credible_set]->(credible_set_node:credible_set) RETURN snp_node, eQTL_of, gene_node, belong_to_credible_set, credible_set_node",
-            "selection_result" : "snp_node, eQTL_of, gene_node, belong_to_credible_set, credible_set_node, data_source, tissue",
-            "question_for_result": "How does SNP @snp_node@ contribute to the regulation of @gene_node@ eQTL in @tissue@ tissue, according to @data_source@",
-            "cyper_for_result_page_all_nodes_specific": "MATCH (snp_node:variants:sequence_variant {id: '@sequence_variant@'})-[r:fine_mapped_eQTL]-(gene_node:coding_elements {id: '@gene@'}) OPTIONAL MATCH (snp_node)-[r1]-(extend_node_snp) OPTIONAL MATCH (gene_node)-[r2]-(extend_node_gene) RETURN snp_node, r, gene_node, r1, extend_node_snp, r2, extend_node_gene LIMIT 15"
+            "cyper_for_intermediate_page": 
+              "MATCH (snp_node:variants:sequence_variant)-[eQTL_of:fine_mapped_eQTL]-(gene_node:coding_elements {id:'@gene@'}) MATCH (snp_node)-[belong_to_credible_set:belong_to_credible_set]->(credible_set_node:credible_set) RETURN snp_node, eQTL_of, gene_node, belong_to_credible_set, credible_set_node"
+              ,
+            "selection_result" : 
+              "snp_node, eQTL_of, gene_node, belong_to_credible_set, credible_set_node, data_source, tissue"
+              ,
+            "question_for_result": 
+              "How does SNP @snp_node@ contribute to the regulation of @gene_node@ eQTL in @tissue@ tissue, according to @data_source@"
+              ,
+            "cyper_for_result_page_all_nodes_specific": 
+              "MATCH (snp_node:variants:sequence_variant {id: '@sequence_variant@'})-[r:fine_mapped_eQTL]-(gene_node:coding_elements {id: '@gene@'}) OPTIONAL MATCH (snp_node)-[r1]-(extend_node_snp) OPTIONAL MATCH (gene_node)-[r2]-(extend_node_gene) RETURN snp_node, r, gene_node, r1, extend_node_snp, r2, extend_node_gene LIMIT 15"
+              ,
             "next_questions": [
                 "What regulatory impact does the lead SNP @lead_snp_node@ from the credible set have on @gene_node@ eQTL within @tissue@ tissue, according to @data_source@ evidence?",
             ],
             "visualizations": {
                 "manhattan_plot": {
-                    "gene_id": "@gene_node@",
                     "credible_set_id": "@credible_set@"
                 }
             }
