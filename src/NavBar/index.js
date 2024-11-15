@@ -25,8 +25,8 @@ function NavBar() {
         <div className="nav-links">
           <Button color="inherit" component={Link} to="/">Query</Button>
           <Button color="inherit" disabled sx={{ color: 'grey !important' }}>API</Button>
-          <Button color="inherit" component={Link} to="/ai-answer">AI ANSWER</Button>
-          <Button color="inherit" disabled sx={{ color: 'grey !important' }}>Data Dump</Button>
+          {/*<Button color="inherit" component={Link} to="/ai-answer">AI ANSWER</Button>*/}
+          {/*<Button color="inherit" disabled sx={{ color: 'grey !important' }}>Data Dump</Button>*/}
           <Button 
             color="inherit"
             aria-controls={open ? 'about-menu' : undefined}
@@ -58,7 +58,7 @@ function NavBar() {
             }}
           >
             <MenuItem onClick={handleClose} disabled sx={{ color: 'grey !important' }}>Docs</MenuItem>
-            <MenuItem onClick={handleClose} component={Link} to="/ontology">Ontology</MenuItem>
+            <MenuItem onClick={handleClose} disabled component={Link} to="/ontology">Ontology</MenuItem>
             <MenuItem onClick={handleClose} disabled sx={{ color: 'grey !important' }}>Open KG</MenuItem>
           </Menu>
           <Button 
