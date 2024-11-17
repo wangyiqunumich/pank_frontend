@@ -1,6 +1,8 @@
 import React from 'react';
 import { Container, Typography, Paper, Box } from '@mui/material';
 import NavBar from '../NavBar';
+import Markdown from 'react-markdown'
+import llm from '../mdFiles/llm.md'
 
 function AIAnswer() {
   return (

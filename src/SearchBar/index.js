@@ -29,7 +29,7 @@ function SearchBar({ onSearch, disabled }) {
     const colorMap = {
         gene: '#43978F',
         sequence_variant: '#E56F5E',
-        eQTL_of: '#FBE8D5',
+        eQTL: '#FBE8D5',
         default: '#DCE9F4'
     };
 
@@ -70,7 +70,7 @@ function SearchBar({ onSearch, disabled }) {
                         setSourceOptions([formattedOption]);
                     }
                 }
-            }, 1000);
+            }, 500);
             setIsRelationshipDisabled(false);
             
             if (!isCustomInput) {
@@ -203,7 +203,7 @@ function SearchBar({ onSearch, disabled }) {
                         setTargetOptions([formattedOption]);
                     }
                 }
-            }, 1000);
+            }, 500);
         } else {
             setTargetOptions([]);
         }
@@ -227,8 +227,10 @@ function SearchBar({ onSearch, disabled }) {
         const sourceValue = sourceTerm.split(':')[1] || sourceType;
         const targetType = targetTerm.split(':')[0];
         const targetValue = targetTerm.split(':')[1] || targetType;
-
+        console.log(question);
         return question.replace(/\{([^@]+)@([^}]+)\}/g, (match, term, type) => {
+            console.log(term);
+            console.log(type);
             let replacedTerm;
             if (isNextQuestion) {
                 replacedTerm = term;
@@ -244,6 +246,7 @@ function SearchBar({ onSearch, disabled }) {
                 }
             }
             const color = colorMap[type] || colorMap.default;
+            console.log(type);
             return `<span style="color: ${color}">${replacedTerm}</span>`;
         });
     }

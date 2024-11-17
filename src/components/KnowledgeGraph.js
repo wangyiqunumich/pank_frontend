@@ -171,16 +171,37 @@ function KnowledgeGraph() {
 
       const toolbox = document.createElement('div');
       toolbox.style.position = 'absolute';
-      toolbox.style.top = '10px';
-      toolbox.style.right = '10px';
+      toolbox.style.top = '20px';
+      toolbox.style.right = '20px';
       toolbox.style.display = 'flex';
       toolbox.style.flexDirection = 'column';
+      toolbox.style.gap = '8px';
+      toolbox.style.zIndex = '1000';
+      toolbox.style.backgroundColor = 'white';
+      toolbox.style.padding = '8px';
+      toolbox.style.borderRadius = '4px';
+      toolbox.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
 
       const createButton = (text, onClick) => {
         const button = document.createElement('button');
         button.textContent = text;
         button.onclick = onClick;
-        button.style.marginBottom = '5px';
+        button.style.padding = '6px 12px';
+        button.style.minWidth = '80px';
+        button.style.backgroundColor = 'white';
+        button.style.border = '1px solid #ddd';
+        button.style.borderRadius = '4px';
+        button.style.cursor = 'pointer';
+        button.style.transition = 'all 0.2s';
+        button.style.fontSize = '14px';
+        
+        button.onmouseover = () => {
+          button.style.backgroundColor = '#f5f5f5';
+        };
+        button.onmouseout = () => {
+          button.style.backgroundColor = 'white';
+        };
+        
         return button;
       };
 
@@ -209,7 +230,12 @@ function KnowledgeGraph() {
     }
   }, [queryResult]);
 
-  return <div ref={containerRef} style={{ width: '1000px', height: '600px', position: 'relative' }} />;
+  return <div ref={containerRef} style={{ 
+    width: '100%', 
+    height: '100%', 
+    position: 'relative',
+    overflow: 'hidden'
+  }} />;
 }
 
 export default KnowledgeGraph;

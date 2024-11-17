@@ -4,6 +4,7 @@ import NavBar from './NavBar';
 import SearchBar from './SearchBar';
 import SearchResult from './SearchResult';
 import IntermediatePage from './components/IntermediatePage';
+import { Box, Container } from '@mui/material';
 
 function App() {
   const [showIntermediate, setShowIntermediate] = useState(false);
@@ -21,12 +22,21 @@ function App() {
   return (
     <div className="App">
       <NavBar />
-      <SearchBar 
-        onSearch={handleSearch} 
-        disabled={showIntermediate || showResult} 
-      />
-      {showIntermediate && <IntermediatePage onContinue={handleContinue} />}
-      {showResult && <SearchResult />}
+      <Container maxWidth="xl">
+        <Box sx={{ 
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          mb: 3,
+          mt: 2
+        }}>
+          <Box sx={{ width: '60%', display: 'flex', gap: 2 }}>
+            <SearchBar onSearch={handleSearch} disabled={showIntermediate || showResult} />
+          </Box>
+        </Box>
+        {showIntermediate && <IntermediatePage onContinue={handleContinue} />}
+        {showResult && <SearchResult />}
+      </Container>
     </div>
   );
 }

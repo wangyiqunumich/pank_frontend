@@ -6,6 +6,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { queryQueryResult } from '../redux/queryResultSlice';
 import { replaceTerms } from '../utils/textProcessing';
 import { setProcessedQuestion } from '../redux/processedQuestionSlice';
+import SearchBar from '../SearchBar';
+import KnowledgeGraph from './KnowledgeGraph';
 
 function IntermediatePage({ onContinue }) {
   const dispatch = useDispatch();
@@ -151,77 +153,133 @@ function IntermediatePage({ onContinue }) {
   };
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Box sx={{ bgcolor: '#f5f5f5', p: 3, borderRadius: 2 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6" component="span" sx={{ mr: 1 }}>
-            Search Result For:
-          </Typography>
-          <Typography variant="h6" component="span" dangerouslySetInnerHTML={{ 
-            __html: processedQuestion
-          }} />
+    <Container maxWidth="xl">
+      {/* 问题显示区域 */}
+      <Box sx={{ 
+        display: 'flex',
+        alignItems: 'center',
+        gap: 2,
+        mb: 3,
+        mt: 2,
+        position: 'absolute',
+        top: '130px',
+        width: '100%'
+      }}>
+        <Box sx={{ width: '60%', visibility: 'hidden' }}>
+          {/* 占位，保持与 SearchBar 相同宽度 */}
         </Box>
-        
+        <Typography 
+          variant="body1" 
+          sx={{ 
+            flex: 1,
+            textAlign: 'left'
+          }}
+          dangerouslySetInnerHTML={{ __html: processedQuestion }}
+        />
+      </Box>
+
+      {/* 主要内容区域 */}
+      <Box sx={{ 
+        display: 'flex', 
+        gap: 3,
+        minHeight: '600px',
+        mt: '60px'  // 为上方的绝对定位元素留出空间
+      }}>
+        {/* 左侧知识图谱 */}
         <Box sx={{ 
-          borderBottom: '2px solid #bdbdbd',
-          width: '100%', 
-          my: 2 
-        }} />
-        
-        <Typography variant="body2" sx={{ mb: 3 }}>
-          Displayed here are four types of QTL (quantitative trait loci) data, utilizing pancreatic or islet tissue samples to target gene/exon expression or splicing.
-        </Typography>
-        
-        <List>
-          {Object.entries(items).map(([key, item]) => (
-            <ListItem 
-              key={key}
-              sx={{ 
-                bgcolor: 'white',
-                mb: 1,
-                borderRadius: 1,
-                flexDirection: 'column',
-                alignItems: 'flex-start'
-              }}
-            >
-              <Box 
-                sx={{ 
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  cursor: 'pointer'
-                }}
-                onClick={() => handleExpand(key)}
-              >
-                <ListItemText primary={item.title} />
-                {expandedItems[key] ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-              </Box>
+          width: '40%',
+          position: 'relative',
+          borderRadius: '20px',  // 改为圆角
+          minHeight: '100px',
+          boxShadow: '0px 3px 3px -2px rgba(0,0,0,0.2), 0px 3px 4px 0px rgba(0,0,0,0.14), 0px 1px 8px 0px rgba(0,0,0,0.12)',  // 添加阴影
+          padding: '32px',
+          paddingTop: '48px',
+          '&::before': {  // 添加标题样式
+            content: '"KG viewer"',
+            position: 'absolute',
+            top: '-15px',
+            left: '20px',
+            backgroundColor: 'white',
+            padding: '0 10px',
+            fontSize: '1.2rem',
+            fontWeight: 'bold'
+          }
+        }}>
+          <Box sx={{ 
+            width: '100%', 
+            height: 'calc(100% - 40px)'
+          }}>
+            <KnowledgeGraph />
+          </Box>
+        </Box>
+
+        {/* 右侧搜索结果 */}
+        <Box sx={{ 
+          width: '60%',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2
+        }}>
+          <div className="styled-paper" data-title="Answer">
+            <div className="answer-content">
+              <Typography variant="body2" sx={{ mb: 2 }}>
+                Displayed here are four types of QTL (quantitative trait loci) data, utilizing pancreatic or islet tissue samples to target gene/exon expression or splicing.
+              </Typography>
               
-              {expandedItems[key] && (
-                <Box sx={{ mt: 1, mb: 1, width: '100%' }}>
-                  <Typography variant="body2" color="text.secondary">
-                    {item.description}
-                  </Typography>
-                  {item.results.map((result, index) => (
-                    <Typography 
-                      key={index}
-                      variant="body2" 
+              <List sx={{ width: '100%' }}>
+                {Object.entries(items).map(([key, item]) => (
+                  <ListItem 
+                    key={key}
+                    sx={{ 
+                      bgcolor: 'white',
+                      mb: 1,
+                      borderRadius: 1,
+                      flexDirection: 'column',
+                      alignItems: 'flex-start',
+                      border: '1px solid #e0e0e0'
+                    }}
+                  >
+                    <Box 
                       sx={{ 
-                        mt: 1,
-                        color: '#0000FF',
-                        textDecoration: 'underline',
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
                         cursor: 'pointer'
                       }}
-                      onClick={() => handleSNPClick(result.snpId, result.geneId, key, result.leadSnp)}
+                      onClick={() => handleExpand(key)}
                     >
-                      SNP {result.snpId} with PIP = {result.pip} in a credible set of {result.nSnp} SNP purity = {result.purity}
-                    </Typography>
-                  ))}
-                </Box>
-              )}
-            </ListItem>
-          ))}
-        </List>
+                      <ListItemText primary={item.title} />
+                      {expandedItems[key] ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                    </Box>
+                    
+                    {expandedItems[key] && (
+                      <Box sx={{ mt: 1, mb: 1, width: '100%' }}>
+                        <Typography variant="body2" color="text.secondary">
+                          {item.description}
+                        </Typography>
+                        {item.results.map((result, index) => (
+                          <Typography 
+                            key={index}
+                            variant="body2" 
+                            sx={{ 
+                              mt: 1,
+                              color: '#0000FF',
+                              textDecoration: 'underline',
+                              cursor: 'pointer'
+                            }}
+                            onClick={() => handleSNPClick(result.snpId, result.geneId, key, result.leadSnp)}
+                          >
+                            SNP {result.snpId} with PIP = {result.pip} in a credible set of {result.nSnp} SNP purity = {result.purity}
+                          </Typography>
+                        ))}
+                      </Box>
+                    )}
+                  </ListItem>
+                ))}
+              </List>
+            </div>
+          </div>
+        </Box>
       </Box>
     </Container>
   );

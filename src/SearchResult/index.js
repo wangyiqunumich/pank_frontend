@@ -100,13 +100,43 @@ This answer refers to the following resources in PanKbase:`;
     }, [queryTypeToImageStatus]);
 
     return (
-        <Container maxWidth="xl" className="search-result-container">
-            <div className="search-result-content">
-                <div className="left-column">
-                    <div className="styled-paper" data-title="Question">
-                        <Typography variant="h6" dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }} />
-                    </div>
+        <Container maxWidth={false} sx={{ maxWidth: '98vw' }} className="search-result-container">
+            <Box sx={{ 
+                display: 'flex',
+                alignItems: 'center',
+                gap: 2,
+                mb: 3,
+                mt: 2,
+                position: 'absolute',
+                top: '120px',
+                width: '98%',
+                pl: 2
+            }}>
+                <Box sx={{ width: '60%', visibility: 'hidden' }} />
+                <Typography 
+                    variant="body1" 
+                    sx={{ 
+                        flex: 1, 
+                        textAlign: 'left',
+                        pr: 10,
+                        wordWrap: 'break-word',
+                        whiteSpace: 'normal',
+                        lineHeight: 1.5
+                    }}
+                    dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }}
+                />
+            </Box>
 
+            <div className="search-result-content" style={{ marginTop: '60px' }}>
+                <div className="right-column">
+                    <div className="styled-paper knowledge-graph" data-title="KG viewer">
+                        <div className="knowledge-graph-container">
+                            <KnowledgeGraph />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="left-column">
                     <div className="styled-paper" data-title="Answer">
                         <div className="answer-content">
                             <Typography component="div">
@@ -151,7 +181,7 @@ This answer refers to the following resources in PanKbase:`;
                         </div>
                     </div>
 
-                    <div className="styled-paper" data-title="Next Questions">
+                    <div className="styled-paper" data-title="You May Also Ask">
                         <ul className="next-questions-list">
                             {nextQuestions.length > 0 ? (
                                 nextQuestions.map((question, index) => (
@@ -163,14 +193,6 @@ This answer refers to the following resources in PanKbase:`;
                                 <Typography>No next questions available</Typography>
                             )}
                         </ul>
-                    </div>
-                </div>
-
-                <div className="right-column">
-                    <div className="styled-paper knowledge-graph" data-title="Knowledge Graph">
-                        <div className="knowledge-graph-container">
-                            <KnowledgeGraph />
-                        </div>
                     </div>
                 </div>
             </div>

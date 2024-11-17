@@ -24,7 +24,7 @@
   padding: 32px;
   padding-top: 48px;
   border-radius: 20px;
-  height: 100%;
+  min-height: 100px;
   box-shadow: 0px 3px 3px -2px rgba(0,0,0,0.2), 0px 3px 4px 0px rgba(0,0,0,0.14), 0px 1px 8px 0px rgba(0,0,0,0.12);
 }
 
@@ -40,7 +40,7 @@
 }
 
 .knowledge-graph {
-  height: calc(100% - 30px);
+  height: 600px;
 }
 
 .next-questions-list {
@@ -86,8 +86,8 @@
 }
 
 .knowledge-graph-container {
-  margin-left: -500px;
   height: 100%;
+  margin-left: -500px;
 }
 
 .styled-paper[data-title="Question"] .MuiTypography-root,
