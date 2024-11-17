@@ -47,7 +47,7 @@
             "next_questions": [
                 "What regulatory impact does the lead SNP @lead_snp_node@ from the credible set have on @gene_node@ eQTL within @tissue@ tissue, according to @data_source@ evidence?":
                   {
-                  "@lead_snp_node@":”sequence_variant",
+                  "@lead_snp_node@":"sequence_variant",
                   "relationship": "fine_mapped_eQTL",
                   "@gene_node@": "gene"
                   }
