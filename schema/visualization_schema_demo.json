@@ -57,6 +57,27 @@
                     "credible_set_id": "@credible_set@"
                 }
             }
+        },
+      "specific - relationship - specific": {
+            "question_for_result": 
+              "What regulatory impact does the lead SNP @lead_snp_node@ from the credible set have on @gene_node@ eQTL within @gene_node@ tissue, according to @data_source@ evidence?"
+              ,
+            "cyper_for_result_page_all_nodes_specific": 
+              "MATCH (snp_node:variants:sequence_variant {id: '@lead_snp_node@'})-[r:fine_mapped_eQTL]-(gene_node:coding_elements {id: '@gene_node@'}) OPTIONAL MATCH (snp_node)-[r1]-(extend_node_snp) OPTIONAL MATCH (gene_node)-[r2]-(extend_node_gene) RETURN snp_node, r, gene_node, r1, extend_node_snp, r2, extend_node_gene LIMIT 15"
+              ,
+            "next_questions": [
+                "What regulatory impact does the lead SNP @lead_snp_node@ from the credible set have on @gene_node@ eQTL within @tissue@ tissue, according to @data_source@ evidence?":
+                  {
+                  "@lead_snp_node@":"sequence_variant",
+                  "relationship": "fine_mapped_eQTL",
+                  "@gene_node@": "gene"
+                  }
+            ],
+            "visualizations": {
+                "manhattan_plot": {
+                    "credible_set_id": "@credible_set@"
+                }
+            }
         }
     }
 }
