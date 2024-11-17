@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Box } from '@mui/material';
+import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Box, List, ListItem, Link } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import './scoped.css';
 import KnowledgeGraph from '../components/KnowledgeGraph';
@@ -146,37 +146,83 @@ This answer refers to the following resources in PanKbase:`;
                                 />
                             </Typography>
                             {showTable && (
-                                <TableContainer component={Paper} className="answer-table">
-                                    <Table size="small">
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell>eQTL</TableCell>
-                                                <TableCell>Analytical pipeline</TableCell>
-                                                <TableCell>Dataset</TableCell>
-                                                <TableCell>Donors</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            <TableRow>
-                                                <TableCell>
-                                                    <span 
-                                                        style={{ color: '#0000FF', cursor: 'pointer', textDecoration: 'underline' }} 
-                                                        onClick={handleOpenModal}
-                                                    >
-                                                        SNP p-values Plot (Manhattan plot)
-                                                    </span>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <a href="#" style={{ color: '#0000FF' }}>Link to PanKbase Analytical Pipeline</a>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <a href="#" style={{ color: '#0000FF' }}>Link to PanKbase Data Catalog</a>
-                                                </TableCell>
-                                                <TableCell>(50) HPAP 024, HPAP 027, ..</TableCell>
-                                            </TableRow>
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
+                                <List sx={{ width: '100%', mt: 2 }}>
+                                    <ListItem sx={{ 
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        gap: 2
+                                    }}>
+                                        <Typography variant="body1" sx={{ 
+                                            fontWeight: 'bold',
+                                            minWidth: '120px'
+                                        }}>
+                                            • eQTL:
+                                        </Typography>
+                                        <Typography 
+                                            component="span"
+                                            sx={{ 
+                                                color: '#0000FF', 
+                                                cursor: 'pointer', 
+                                                textDecoration: 'underline'
+                                            }}
+                                            onClick={handleOpenModal}
+                                        >
+                                            SNP p-values Plot (Manhattan plot)
+                                        </Typography>
+                                    </ListItem>
+
+                                    <ListItem sx={{ 
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        gap: 2
+                                    }}>
+                                        <Typography variant="body1" sx={{ 
+                                            fontWeight: 'bold',
+                                            minWidth: '120px'
+                                        }}>
+                                            • Analytical pipeline:
+                                        </Typography>
+                                        <Link href="#" sx={{ color: '#0000FF' }}>
+                                            Link to PanKbase Analytical Pipeline
+                                        </Link>
+                                    </ListItem>
+
+                                    <ListItem sx={{ 
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        gap: 2
+                                    }}>
+                                        <Typography variant="body1" sx={{ 
+                                            fontWeight: 'bold',
+                                            minWidth: '120px'
+                                        }}>
+                                            • Dataset:
+                                        </Typography>
+                                        <Link href="#" sx={{ color: '#0000FF' }}>
+                                            Link to PanKbase Data Catalog
+                                        </Link>
+                                    </ListItem>
+
+                                    <ListItem sx={{ 
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        gap: 2
+                                    }}>
+                                        <Typography variant="body1" sx={{ 
+                                            fontWeight: 'bold',
+                                            minWidth: '120px'
+                                        }}>
+                                            • Donors:
+                                        </Typography>
+                                        <Typography>
+                                            (50) HPAP 024, HPAP 027, ..
+                                        </Typography>
+                                    </ListItem>
+                                </List>
                             )}
                         </div>
                     </div>
