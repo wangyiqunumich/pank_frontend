@@ -3,6 +3,37 @@
 ## Overview
 Our AI summary feature leverages Large Language Models (LLMs) to provide intelligent analysis and natural language summaries based on query result and HIRN literature. This tool bridges the gap between raw graph query results and meaningful scientific insights.
 
+## Usage
+
+### command line
+```
+curl -X 'POST' \
+  'https://glkb.dcmb.med.umich.edu/api/search/PKG_LLM_QA' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "graph": <PanKgraph result>,
+  "question": "What are the eQTLs associated with CENPP?",
+}'
+```
+
+### python
+```
+import json
+import requests
+
+with open('result_page_with_extend.json') as f:
+    graph = json.load(f),
+
+base_url = 'http://localhost:8000/search/PKG_LLM_QA'
+
+response = requests.post(base_url,
+json={'graph': graph,
+'question': 'summarize the variant rs10156530?'})
+
+print(response.json().get('answer'))
+```
+
 ## Key Features
 
 ### Dynamic Graph Summarization
@@ -22,10 +53,3 @@ Our AI summary feature leverages Large Language Models (LLMs) to provide intelli
   - Relationship analysis between entities
   - Statistical summaries of connections
   - Evidence-based explanations
-
-## How It Works
-
-1. **Query Processing**: The system receives a graph query and executes it against the database
-2. **Context Assembly**: Relevant literature and metadata are gathered
-3. **LLM Analysis**: The model processes the combined information
-4. **Response Generation**: A coherent summary or answer is generated based on the template
