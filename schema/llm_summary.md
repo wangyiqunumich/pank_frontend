@@ -25,7 +25,7 @@ import requests
 with open('result_page_with_extend.json') as f:
     graph = json.load(f),
 
-base_url = 'http://localhost:8000/search/PKG_LLM_QA'
+base_url = 'https://glkb.dcmb.med.umich.edu/api/search/PKG_LLM_QA'
 
 response = requests.post(base_url,
 json={'graph': graph,
