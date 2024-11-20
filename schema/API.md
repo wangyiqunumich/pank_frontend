@@ -51,32 +51,40 @@ PanKgraph Query API supports most openCypher query constructs.
 - To learn basic openCypher query syntax, refer to [this guide](https://neo4j.com/docs/cypher-manual/current/queries/basic/?utm_source=GSearch&utm_medium=PaidSearch&utm_campaign=Evergreen&utm_content=AMS-Search-SEMCE-DSA-None-SEM-SEM-NonABM&utm_term=&utm_adgroup=DSA&gad_source=1&gclid=CjwKCAiArva5BhBiEiwA-oTnXXVaj70Ck95TVwLXHnxpcTNpX0Vl_4xFUjGR7sQFMkm8mC3dFyfmWRoCNh0QAvD_BwE#find-nodes).
 - To learn openCypher grammar, please refer to [this page](https://opencypher.org/resources/).
 
+### Attention!!! (Very important)
+
+When you submit the query with command line, due to how quotation marks are interpreted in `JSON` strings, you need to replace `"` or `'` all with `\"`.
+This applies to all properties with string data type (e.g., gene names, disease names).
+Otherwise, there will be syntax error.
+
+This is also showed in the examples below.
+
 ### Example queries
 
 Below are some example queries to help you get started.
 
 - Get detailed information for gene `RFX6`
 ```cypher
-MATCH (n:gene {name:'RFX6'}) RETURN n
+MATCH (n:gene {name:\"RFX6\"}) RETURN n
 ```
 or
-```
-MATCH (n:gene) WHERE n.name='RFX6' RETURN n
+```cypher
+MATCH (n:gene) WHERE n.name=\"RFX6\" RETURN n
 ```
 
 - Count all genes on chromosome `X`
-```
-MATCH (n:gene {chr:'X'}) RETURN COUNT(n)
+```cypher
+MATCH (n:gene {chr:\"X\"}) RETURN COUNT(n)
 ```
 
 - Find all fine-mapped eQTLs for gene `ACTA2` and return rs IDs
-```
-MATCH (v)-[r:fine_mapped_eQTL]->(g:gene {name:'ACTA2'}) RETURN v.id
+```cypher
+MATCH (v)-[r:fine_mapped_eQTL]->(g:gene {name:\"ACTA2\"}) RETURN v.id
 ```
 
 - Find all effectors genes for `type 1 diabetes` and return gene names
-```
-MATCH (g)-[r:effector_gene]->(o:ontology {id:'MONDO_0005147'}) RETURN g.name
+```cypher
+MATCH (g)-[r:effector_gene]->(o:ontology {id:\"MONDO_0005147\"}) RETURN g.name
 ```
 
 ### References
@@ -128,5 +136,7 @@ E.g.,
       }
     }]
 ```
+
+
 
 
