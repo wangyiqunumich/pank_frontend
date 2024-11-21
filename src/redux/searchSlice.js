@@ -5,16 +5,25 @@ const searchSlice = createSlice({
   initialState: {
     sourceTerm: '',
     relationship: '',
-    targetTerm: ''
+    targetTerm: '',
+    nextQuestionClicked: false
   },
   reducers: {
     setSearchTerms: (state, action) => {
       state.sourceTerm = action.payload.sourceTerm;
       state.relationship = action.payload.relationship;
       state.targetTerm = action.payload.targetTerm;
+    },
+    setNextQuestionClicked: (state, action) => {
+      state.nextQuestionClicked = action.payload;
     }
   }
 });
 
-export const { setSearchTerms } = searchSlice.actions;
+export const { setSearchTerms, setNextQuestionClicked } = searchSlice.actions;
 export default searchSlice.reducer;
+
+export const setSearchState = (searchState) => ({
+  type: 'search/setSearchState',
+  payload: searchState
+});

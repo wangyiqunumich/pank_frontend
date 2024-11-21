@@ -9,6 +9,9 @@ import ImageModal from '../components/ImageModal';
 import { queryImage } from "../redux/typeToImageSlice";
 import { queryAiAnswer } from '../redux/aiAnswerSlice';
 import { Dialpad } from '@mui/icons-material';
+import { queryViewSchema } from '../redux/viewSchemaSlice';
+import { setNextQuestionClicked } from '../redux/searchSlice';
+import { queryQueryResult } from '../redux/queryResultSlice';
 
 const colorMap = {
     gene: '#43978F',
@@ -68,6 +71,7 @@ function SearchResult() {
     const { currentQuestion, nextQuestions } = useSelector((state) => state.processedQuestion);
     const queryResult = useSelector((state) => state.queryResult.queryResult);
     const { aiAnswer, queryAiAnswerStatus } = useSelector((state) => state.aiAnswer);
+    const searchState = useSelector((state) => state.search);
     const [showTable, setShowTable] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [imageLoading, setImageLoading] = useState(true);
@@ -110,6 +114,25 @@ This answer refers to the following resources in PanKbase:`;
             setImageLoading(false);
         }
     }, [queryTypeToImageStatus]);
+
+    const handleNextQuestionClick = (question) => {
+        if (searchState.sourceTerm && searchState.relationship && searchState.targetTerm) {
+            dispatch(setNextQuestionClicked(true));
+            dispatch(queryViewSchema({
+                sourceTerm: searchState.sourceTerm,
+                relationship: searchState.relationship,
+                targetTerm: searchState.targetTerm
+            })).then((response) => {
+                if (response.payload && response.payload.cyper_for_result_page_all_nodes_specific) {
+                    const query = response.payload.cyper_for_result_page_all_nodes_specific
+                        .replace(/@sourceTerm@/g, searchState.sourceTerm.split(':')[1])
+                        .replace(/@targetTerm@/g, searchState.targetTerm.split(':')[1]);
+                    
+                    dispatch(queryQueryResult({ query }));
+                }
+            });
+        }
+    };
 
     // 如果正在加载答案或答案为空，显示加载状态
     if (queryAiAnswerStatus === 'pending' || !aiAnswer?.answer) {
@@ -252,7 +275,9 @@ This answer refers to the following resources in PanKbase:`;
                         <ul className="next-questions-list">
                             {nextQuestions.length > 0 ? (
                                 nextQuestions.map((question, index) => (
-                                    <li key={index}>
+                                    <li key={index} 
+                                        onClick={() => handleNextQuestionClick(question)}
+                                        style={{ cursor: 'pointer' }}>
                                         <Typography dangerouslySetInnerHTML={{ __html: question }} />
                                     </li>
                                 ))

@@ -10,6 +10,8 @@ import { setSearchTerms } from '../redux/searchSlice';
 import { queryVocab } from '../redux/inputToVocabSlice';
 import conversionTable from '../utils/conversion_table.json';
 import catalog from '../utils/Catalog.json';
+import { store } from '../redux/store';
+import { setNextQuestionClicked } from '../redux/searchSlice';
 
 function SearchBar({ onSearch, disabled }) {
     const dispatch = useDispatch();
@@ -44,6 +46,10 @@ function SearchBar({ onSearch, disabled }) {
     const [isCustomSource, setIsCustomSource] = useState(false);
 
     const updateSourceTerm = async (event, newValue) => {
+        if (store.getState().search.nextQuestionClicked) {
+            return;
+        }
+        
         setSourceTerm(newValue || '');
         setRelationship('');
         setTargetTerm('');
@@ -86,6 +92,9 @@ function SearchBar({ onSearch, disabled }) {
     };
 
     const handleRelationshipOpen = () => {
+        if (store.getState().search.nextQuestionClicked) {
+            return;
+        }
         const sourceType = sourceTerm.split(':')[0];
         
         const frontendToKG = conversionTable.Conversion_table.query_vocab_frontend_KG;
@@ -134,6 +143,9 @@ function SearchBar({ onSearch, disabled }) {
     };
 
     const updateRelationship = (event) => {
+        if (store.getState().search.nextQuestionClicked) {
+            return;
+        }
         const newRelationship = event.target.value;
         setRelationship(newRelationship);
         setTargetTerm('');
@@ -146,6 +158,10 @@ function SearchBar({ onSearch, disabled }) {
     };
 
     const updateTargetTerm = async (event, newValue) => {
+        if (store.getState().search.nextQuestionClicked) {
+            dispatch(setNextQuestionClicked(false));
+            return;
+        }
         setTargetTerm(newValue || '');
         dispatch(queryQueryResult({ query: '' }));
         
@@ -321,6 +337,35 @@ function SearchBar({ onSearch, disabled }) {
         const isTargetValid = targetOptions.includes(targetTerm);
         return sourceTerm && relationship && targetTerm && isTargetValid;   
     };
+
+    // 添加对 nextQuestionClicked 的监听
+    const { nextQuestionClicked, sourceTerm: searchSourceTerm, relationship: searchRelationship, targetTerm: searchTargetTerm } = 
+        useSelector((state) => state.search);
+
+    useEffect(() => {
+        if (nextQuestionClicked && searchSourceTerm && searchRelationship && searchTargetTerm) {
+            // 解析 terms
+            const [sourceType, sourceValue] = searchSourceTerm.split(':');
+            const [targetType, targetValue] = searchTargetTerm.split(':');
+            
+            // 使用 conversionTable 转换
+            const KGToFrontend = conversionTable.Conversion_table.query_vocab_KG_frontend;
+            
+            // 转换并设置新值
+            const sourceDisplay = `${KGToFrontend[sourceType]}:${sourceValue}`;
+            const relationshipDisplay = KGToFrontend[searchRelationship] || searchRelationship;
+            const targetDisplay = `${KGToFrontend[targetType]}:${targetValue}`;
+            
+            setSourceTerm(sourceDisplay);
+            setIsRelationshipDisabled(false);
+            setRelationship(relationshipDisplay);
+            setIsTargetTermDisabled(false);
+            setTargetTerm(targetDisplay);
+            
+            // 重置点击状态
+            // dispatch(setNextQuestionClicked(false));
+        }
+    }, [nextQuestionClicked, searchSourceTerm, searchRelationship, searchTargetTerm]);
 
     return (
         <Container maxWidth="md">

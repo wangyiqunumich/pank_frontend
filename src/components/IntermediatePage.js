@@ -8,6 +8,7 @@ import { replaceTerms } from '../utils/textProcessing';
 import { setProcessedQuestion } from '../redux/processedQuestionSlice';
 import SearchBar from '../SearchBar';
 import KnowledgeGraph from './KnowledgeGraph';
+import { setSearchTerms } from '../redux/searchSlice';
 
 function IntermediatePage({ onContinue }) {
   const dispatch = useDispatch();
@@ -118,21 +119,61 @@ function IntermediatePage({ onContinue }) {
       tissue = tissueMap['INSPIRE; SusieR'] || 'islet tissue';
     }
 
-    // 替换问题中的占位符
-    const processedQuestion = question_for_result
-      .replace(/@snp_node@/g, snpId)
-      .replace(/@gene_node@/g, geneId)
-      .replace(/@tissue@/g, tissue)
-      .replace(/@data_source@/g, dataSourceFrontend);
-
     // 处理 next questions
-    const processedNextQuestions = next_questions?.map(question => 
-      question
+    const processedNextQuestions = next_questions?.map(item => {
+      const params = item.parameters || {};
+      
+      // 先处理问题文本替换
+      let processedQuestion = item.question
         .replace(/@lead_snp_node@/g, leadSnp)
         .replace(/@gene_node@/g, geneId)
         .replace(/@tissue@/g, tissue)
-        .replace(/@data_source@/g, dataSourceFrontend)
-    ) || [];
+        .replace(/@data_source@/g, dataSourceFrontend);
+
+      // 准备新的搜索条件
+      let newSearchState = {
+        sourceTerm: '',
+        relationship: '',
+        targetTerm: ''
+      };
+
+      // 遍历参数并设置搜索条件
+      let paramEntries = Object.entries(params);
+      if (paramEntries.length >= 3) {
+        // 第一个参数作为 source
+        const [sourceKey, sourceType] = paramEntries[0];
+        // 第二个参数作为 relationship
+        const [_, relationship] = paramEntries[1];
+        // 第三个参数作为 target
+        const [targetKey, targetType] = paramEntries[2];
+
+        // 处理 source term
+        if (sourceKey.startsWith('@') && sourceKey.endsWith('@')) {
+          const sourceTerm = sourceKey.slice(1, -1) === 'lead_snp_node' ? leadSnp :
+                            sourceKey.slice(1, -1) === 'gene_node' ? geneId :
+                            sourceKey.slice(1, -1) === 'tissue' ? tissue :
+                            sourceKey.slice(1, -1) === 'data_source' ? dataSourceFrontend : '';
+          newSearchState.sourceTerm = `${sourceType}:${sourceTerm}`;
+        }
+
+        // 设置 relationship
+        newSearchState.relationship = relationship;
+
+        // 处理 target term
+        if (targetKey.startsWith('@') && targetKey.endsWith('@')) {
+          const targetTerm = targetKey.slice(1, -1) === 'lead_snp_node' ? leadSnp :
+                            targetKey.slice(1, -1) === 'gene_node' ? geneId :
+                            targetKey.slice(1, -1) === 'tissue' ? tissue :
+                            targetKey.slice(1, -1) === 'data_source' ? dataSourceFrontend : '';
+          newSearchState.targetTerm = `${targetType}:${targetTerm}`;
+        }
+      }
+
+      // 分发更新搜索条件的 action
+      dispatch(setSearchTerms(newSearchState));
+
+      return processedQuestion;
+    }) || [];
 
     // 替换查询语句中的占位符
     const query = cyper_for_result_page_all_nodes_specific
