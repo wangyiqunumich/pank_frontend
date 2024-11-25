@@ -83,7 +83,7 @@ function SearchResult() {
     const snpPlotImage = useSelector((state) => state.typeToImage.typeToImage);
     const queryTypeToImageStatus = useSelector((state) => state.typeToImage.queryTypeToImageStatus);
     useEffect(() => {
-        if (queryResult) {
+        if (queryResult.results.length != 0) {
             dispatch(queryAiAnswer({
                 "question": currentQuestion, 
                 "graph": queryResult
@@ -200,90 +200,91 @@ This answer refers to the following resources in PanKbase:`;
                     <div className="styled-paper" data-title="Answer">
                         <div className="answer-content">
                             <Typography component="div">
-                                <TypewriterEffect 
-                                    text={aiAnswer.answer}  // 使用 aiAnswer.answer
+                                {/* 注释掉打字机效果，直接显示答案 */}
+                                {/* <TypewriterEffect 
+                                    text={aiAnswer.answer}
                                     onComplete={handleTypewriterComplete}
-                                />
+                                /> */}
+                                <span dangerouslySetInnerHTML={{ __html: aiAnswer.answer }} />
                             </Typography>
-                            {showTable && (
-                                <List sx={{ width: '100%', mt: 2 }}>
-                                    <ListItem sx={{ 
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        gap: 2
+                            {/* 修改这里，直接显示表格，不需要等待打字机效果完成 */}
+                            <List sx={{ width: '100%', mt: 2 }}>
+                                <ListItem sx={{ 
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    gap: 2
+                                }}>
+                                    <Typography variant="body1" sx={{ 
+                                        fontWeight: 'bold',
+                                        minWidth: '120px'
                                     }}>
-                                        <Typography variant="body1" sx={{ 
-                                            fontWeight: 'bold',
-                                            minWidth: '120px'
-                                        }}>
-                                            • eQTL:
-                                        </Typography>
-                                        <Typography 
-                                            component="span"
-                                            sx={{ 
-                                                color: '#0000FF', 
-                                                cursor: 'pointer', 
-                                                textDecoration: 'underline'
-                                            }}
-                                            onClick={handleOpenModal}
-                                        >
-                                            SNP p-values Plot (Manhattan plot)
-                                        </Typography>
-                                    </ListItem>
+                                        • eQTL:
+                                    </Typography>
+                                    <Typography 
+                                        component="span"
+                                        sx={{ 
+                                            color: '#0000FF', 
+                                            cursor: 'pointer', 
+                                            textDecoration: 'underline'
+                                        }}
+                                        onClick={handleOpenModal}
+                                    >
+                                        SNP p-values Plot (Manhattan plot)
+                                    </Typography>
+                                </ListItem>
 
-                                    <ListItem sx={{ 
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        gap: 2
+                                <ListItem sx={{ 
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    gap: 2
+                                }}>
+                                    <Typography variant="body1" sx={{ 
+                                        fontWeight: 'bold',
+                                        minWidth: '120px'
                                     }}>
-                                        <Typography variant="body1" sx={{ 
-                                            fontWeight: 'bold',
-                                            minWidth: '120px'
-                                        }}>
-                                            • Analytical pipeline:
-                                        </Typography>
-                                        <Link href="#" sx={{ color: '#0000FF' }}>
-                                            Link to PanKbase Analytical Pipeline
-                                        </Link>
-                                    </ListItem>
+                                        • Analytical pipeline:
+                                    </Typography>
+                                    <Link href="#" sx={{ color: '#0000FF' }}>
+                                        Link to PanKbase Analytical Pipeline
+                                    </Link>
+                                </ListItem>
 
-                                    <ListItem sx={{ 
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        gap: 2
+                                <ListItem sx={{ 
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    gap: 2
+                                }}>
+                                    <Typography variant="body1" sx={{ 
+                                        fontWeight: 'bold',
+                                        minWidth: '120px'
                                     }}>
-                                        <Typography variant="body1" sx={{ 
-                                            fontWeight: 'bold',
-                                            minWidth: '120px'
-                                        }}>
-                                            • Dataset:
-                                        </Typography>
-                                        <Link href="#" sx={{ color: '#0000FF' }}>
-                                            Link to PanKbase Data Catalog
-                                        </Link>
-                                    </ListItem>
+                                        • Dataset:
+                                    </Typography>
+                                    <Link href="#" sx={{ color: '#0000FF' }}>
+                                        Link to PanKbase Data Catalog
+                                    </Link>
+                                </ListItem>
 
-                                    <ListItem sx={{ 
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        gap: 2
+                                <ListItem sx={{ 
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    gap: 2
+                                }}>
+                                    <Typography variant="body1" sx={{ 
+                                        fontWeight: 'bold',
+                                        minWidth: '120px'
                                     }}>
-                                        <Typography variant="body1" sx={{ 
-                                            fontWeight: 'bold',
-                                            minWidth: '120px'
-                                        }}>
-                                            • Donors:
-                                        </Typography>
-                                        <Typography>
-                                            (50) HPAP 024, HPAP 027, ..
-                                        </Typography>
-                                    </ListItem>
-                                </List>
-                            )}
+                                        • Donors:
+                                    </Typography>
+                                    <Typography>
+                                        (50) HPAP 024, HPAP 027, ..
+                                    </Typography>
+                                </ListItem>
+                            </List>
                         </div>
                     </div>
 
