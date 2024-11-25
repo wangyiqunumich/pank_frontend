@@ -5,11 +5,12 @@ const colorMap = {
     default: '#DCE9F4'
   };
   
-  export function replaceTerms(question, sourceTerm, relationship, targetTerm, isNextQuestion = false) {
-    const sourceType = sourceTerm.split(':')[0];
-    const sourceValue = sourceTerm.split(':')[1] || sourceType;
-    const targetType = targetTerm.split(':')[0];
-    const targetValue = targetTerm.split(':')[1] || targetType;
+  export function replaceTerms(question, sourceTerm, relationship, targetTerm, isNextQuestion = false, addStyle = true) {
+    const [sourceType, ...sourceRest] = sourceTerm.split(':');
+    const sourceValue = sourceRest.join(':') || sourceType;
+    
+    const [targetType, ...targetRest] = targetTerm.split(':');
+    const targetValue = targetRest.join(':') || targetType;
 
     const replaceValue = sourceType !== sourceValue ? sourceValue : targetValue;
   
@@ -17,18 +18,28 @@ const colorMap = {
       let replacedTerm;
   
       if (isNextQuestion) {
-        // No replacement, just show the term as-is
         replacedTerm = term;
       } else if (fullType) {
-        // If the term is in {@...@} format, replace it with `replaceValue`
         replacedTerm = replaceValue;
       } else {
-        // If the term is just in {...} format, don't replace, only color it
         replacedTerm = term;
       }
   
-      const color = colorMap[type || term] || colorMap.default;  // Use color map based on `type` if available
-      return `<span style="color: ${color}">${replacedTerm}</span>`;
+      if (addStyle) {
+        const color = colorMap[type || term] || colorMap.default;
+        return `<span style="color: ${color}">${replacedTerm}</span>`;
+      } else {
+        return replacedTerm;
+      }
     });
+  }
+  
+  export function replaceVariables(text, variables) {
+    const { leadSnp, geneId, tissue, dataSource } = variables;
+    return text
+      .replace(/@lead_snp_node@/g, leadSnp)
+      .replace(/@gene_node@/g, geneId)
+      .replace(/@tissue@/g, tissue)
+      .replace(/@data_source@/g, dataSource);
   }
   

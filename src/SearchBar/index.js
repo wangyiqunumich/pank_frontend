@@ -56,7 +56,8 @@ function SearchBar({ onSearch, disabled }) {
         dispatch(queryQueryResult({ query: '' }));
         
         if (newValue) {
-            const sourceType = newValue.split(':')[0];
+            const [sourceType, ...rest] = newValue.split(':');
+            const sourceValue = rest.join(':');
             const predefinedTypes = ["gene", "sequence variant"];
             const isCustomInput = !predefinedTypes.includes(sourceType);
             setIsCustomSource(isCustomInput);
@@ -345,8 +346,10 @@ function SearchBar({ onSearch, disabled }) {
     useEffect(() => {
         if (nextQuestionClicked && searchSourceTerm && searchRelationship && searchTargetTerm) {
             // 解析 terms
-            const [sourceType, sourceValue] = searchSourceTerm.split(':');
-            const [targetType, targetValue] = searchTargetTerm.split(':');
+            const [sourceType, ...sourceRest] = searchSourceTerm.split(':');
+            const sourceValue = sourceRest.join(':');
+            const [targetType, ...targetRest] = searchTargetTerm.split(':');
+            const targetValue = targetRest.join(':');
             
             // 使用 conversionTable 转换
             const KGToFrontend = conversionTable.Conversion_table.query_vocab_KG_frontend;

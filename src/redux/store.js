@@ -7,6 +7,7 @@ import processedQuestionReducer from './processedQuestionSlice'
 import typeToImageReducer from './typeToImageSlice'
 import inputToVocabReducer from './inputToVocabSlice'
 import searchReducer from './searchSlice'
+import variablesReducer from './variablesSlice'
 
 const store = configureStore({
     reducer: {
@@ -18,7 +19,7 @@ const store = configureStore({
         typeToImage: typeToImageReducer,
         inputToVocab: inputToVocabReducer,
         search: searchReducer,
-        // [apiSlice.reducerPath]: apiSlice.reducer,
+        variables: variablesReducer,
     },
 });
 

@@ -9,6 +9,8 @@ import { setProcessedQuestion } from '../redux/processedQuestionSlice';
 import SearchBar from '../SearchBar';
 import KnowledgeGraph from './KnowledgeGraph';
 import { setSearchTerms } from '../redux/searchSlice';
+import { setVariables } from '../redux/variablesSlice';
+import { replaceVariables } from '../utils/textProcessing';
 
 function IntermediatePage({ onContinue }) {
   const dispatch = useDispatch();
@@ -87,7 +89,9 @@ function IntermediatePage({ onContinue }) {
         viewSchema.question[0], 
         searchState.sourceTerm, 
         searchState.relationship, 
-        searchState.targetTerm
+        searchState.targetTerm,
+        false,  // isNextQuestion
+        false   // addStyle
       )
     : 'Loading...';
 
@@ -119,16 +123,22 @@ function IntermediatePage({ onContinue }) {
       tissue = tissueMap['INSPIRE; SusieR'] || 'islet tissue';
     }
 
+    // 保存变量到 Redux store
+    const variables = {
+      leadSnp,
+      geneId,
+      tissue,
+      dataSource: dataSourceFrontend
+    };
+    
+    dispatch(setVariables(variables));
+
     // 处理 next questions
     const processedNextQuestions = next_questions?.map(item => {
       const params = item.parameters || {};
       
-      // 先处理问题文本替换
-      let processedQuestion = item.question
-        .replace(/@lead_snp_node@/g, leadSnp)
-        .replace(/@gene_node@/g, geneId)
-        .replace(/@tissue@/g, tissue)
-        .replace(/@data_source@/g, dataSourceFrontend);
+      // 使用 replaceVariables 处理问题文本
+      let processedQuestion = replaceVariables(item.question, variables);
 
       // 准备新的搜索条件
       let newSearchState = {
@@ -170,6 +180,7 @@ function IntermediatePage({ onContinue }) {
       }
 
       // 分发更新搜索条件的 action
+      console.log(newSearchState);
       dispatch(setSearchTerms(newSearchState));
 
       return processedQuestion;

@@ -12,6 +12,10 @@ import { Dialpad } from '@mui/icons-material';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import { setNextQuestionClicked } from '../redux/searchSlice';
 import { queryQueryResult } from '../redux/queryResultSlice';
+import { setProcessedQuestion } from '../redux/processedQuestionSlice';
+import { setVariables } from '../redux/variablesSlice';
+import { replaceVariables } from '../utils/textProcessing';
+import { store } from '../redux/store';
 
 const colorMap = {
     gene: '#43978F',
@@ -127,6 +131,18 @@ This answer refers to the following resources in PanKbase:`;
                     const query = response.payload.cyper_for_result_page_all_nodes_specific
                         .replace(/@sourceTerm@/g, searchState.sourceTerm.split(':')[1])
                         .replace(/@targetTerm@/g, searchState.targetTerm.split(':')[1]);
+                    
+                    const currentState = store.getState();
+                    const processedCurrentQuestion = replaceVariables(response.payload.question_for_result, currentState.variables);
+                    console.log(response.payload.next_questions);
+                    const processedNextQuestions = response.payload.next_questions.map(q => 
+                        replaceVariables(q.question, currentState.variables)
+                    );
+                    
+                    dispatch(setProcessedQuestion({
+                        currentQuestion: processedCurrentQuestion,
+                        nextQuestions: processedNextQuestions
+                    }));
                     
                     dispatch(queryQueryResult({ query }));
                 }
