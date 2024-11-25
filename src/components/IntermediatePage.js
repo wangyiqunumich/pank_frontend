@@ -133,7 +133,10 @@ function IntermediatePage({ onContinue }) {
     
     dispatch(setVariables(variables));
 
-    // 处理 next questions
+    // 处理当前问题
+    const processedCurrentQuestion = replaceVariables(question_for_result, variables);
+
+    // 处理下一步问题
     const processedNextQuestions = next_questions?.map(item => {
       const params = item.parameters || {};
       
@@ -194,7 +197,7 @@ function IntermediatePage({ onContinue }) {
     try {
       // 保存处理后的问题和下一步问题到 redux store
       dispatch(setProcessedQuestion({
-        currentQuestion: processedQuestion,
+        currentQuestion: processedCurrentQuestion,
         nextQuestions: processedNextQuestions
       }));
       onContinue();
