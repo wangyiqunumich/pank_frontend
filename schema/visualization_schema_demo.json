@@ -24,8 +24,14 @@
         "Tissue_KG_tissue_name": {
           "GTEx; SusieR": "pancreatic",
           "INSPIRE; SusieR": "islet"
+      },
+        "Color": {
+            "gene": "#ABD0F1",
+            "sequence_variant": "#FFB77F",
+            "pathway": "#F6C957",
+            "ontology" : "#8c564b",
+            "article":"#e377c2"
       }
-
 },
     "sequence_variant - fine_mapped_eQTL - gene": {
         "general - relationship - specific": {
