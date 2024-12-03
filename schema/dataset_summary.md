@@ -2,14 +2,15 @@
 
 ## Nodes Statistics
 
-| Entity Type | Entity Sub-type | Number of Nodes | Data Sources |
-|-------------|-----------------|-----------------|--------------|
-| coding element | gene | 44513 | Ensembl |
-| variants | sequence variant | 275933 | dbSNP |
-| credible set |  | 15014 | INSPIRE; SusieR |
-| open chromatin region |  | 154437 | PMID 3018115 |
-| ontology |  | 64 | NCBO |
-| pathway |  | 1242 | Gene Ontology |
+| Entity Type  | Number of Nodes | Data Sources |
+|-----------------|-----------------|--------------|
+| gene | 44513 | Ensembl |
+| sequence variant | 275933 | dbSNP |
+| credible set | 15014 | INSPIRE; SusieR |
+| open chromatin region | 154437 | PMID 3018115 |
+| ontology | 64 | NCBO |
+| pathway | 1242 | Gene Ontology |
+| literature | 1008 | HIRN |
 
 ## Edges Statistics
 
