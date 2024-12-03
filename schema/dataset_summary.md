@@ -16,7 +16,7 @@
 
 | Edge Type | Start Node | End Node | Number of Edges |
 |-----------|-----------|-----------|-----------------|
-| fine mapped eQTL | SNP | gene | 326696 |
+| fine mapped eQTL | sequence variant | gene | 326696 |
 | credible set for | credible set | gene | 24250 |
 | belong to credible set | sequence variant | credible set | 571165 |
 | effector gene | ontology | effector gene | 178 |
