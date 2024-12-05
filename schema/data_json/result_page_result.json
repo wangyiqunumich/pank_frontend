@@ -1,8 +1,207 @@
 {
   "results": [
     {
+      "r": {
+        "~id": "bd132de1-ff56-4a03-867a-1d2192d0862e",
+        "~entityType": "relationship",
+        "~start": "rs76163689",
+        "~end": "ENSG00000134242",
+        "~type": "fine_mapped_eQTL",
+        "~properties": {
+          "effect_allele": "A",
+          "slope": "0.506848573684692",
+          "other_allele": "G",
+          "data_version": "2024-10-25",
+          "data_source": "GTEx; SusieR",
+          "pip": "0.0049900889641358",
+          "tissue_name": "Pancreas",
+          "tissue_id": "UBERON_0001264",
+          "nominal_p": "3.82835823691162e-07",
+          "lbf": "9.33787575433181"
+        }
+      },
+      "gene_node": {
+        "~id": "ENSG00000134242",
+        "~entityType": "node",
+        "~labels": [
+          "coding_elements",
+          "gene"
+        ],
+        "~properties": {
+          "id": "ENSG00000134242",
+          "id_version": 16,
+          "name": "PTPN22",
+          "HGNC_id": "HGNC:9652",
+          "HGNC_symbol": "PTPN22",
+          "description": "protein tyrosine phosphatase non-receptor type 22 [Source:HGNC Symbol;Acc:HGNC:9652]",
+          "chr": "1",
+          "start_loc": 113813811,
+          "end_loc": 113871753,
+          "strand": "-1",
+          "GC_percentage": 38.85,
+          "type": "protein_coding",
+          "link": "https://www.ensembl.org/id/ENSG00000134242",
+          "gencode_annotation": "GENCODE basic",
+          "synonym": "PTPN8;LYP2;LYP1;LYP",
+          "data_version": "GRCh38.p14",
+          "data_source": "Ensembl"
+        }
+      },
+      "all_extend_rels": [
+        {
+          "~id": "0d10573f-e8a0-43ef-b4cf-856e934f43b2",
+          "~entityType": "relationship",
+          "~start": "ENSG00000134242",
+          "~end": "ENSG00000118231",
+          "~type": "regulation",
+          "~properties": {
+            "biogrid_interaction_id": "3173718",
+            "pubmed_id": "33961781.0",
+            "cDSD_distance": -5.881758e-12,
+            "data_version": "- (-) (-) (-) (-) (-)",
+            "data_source": "BioGRID"
+          }
+        },
+        {
+          "~id": "1d4d12bf-4bc7-4a1a-800d-783ce31ddc40",
+          "~entityType": "relationship",
+          "~start": "rs11584821",
+          "~end": "ENSG00000134242",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.449360877275467",
+            "other_allele": "C",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.016641573255698",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "6.50763991605173e-08",
+            "lbf": "10.5828722576503"
+          }
+        },
+        {
+          "~id": "fb6d49a4-01e9-4cc6-acac-162d61ef7abd",
+          "~entityType": "relationship",
+          "~start": "ENSG00000134242",
+          "~end": "GO:0070433",
+          "~type": "belong_to_pathway",
+          "~properties": {
+            "data_version": "10/3/24",
+            "data_source": "Biological Process (Gene Ontology)"
+          }
+        },
+        {
+          "~id": "45e26c2c-88c3-4877-9ef7-74c0d0a2a133",
+          "~entityType": "relationship",
+          "~start": "ENSG00000134242",
+          "~end": "MONDO_0005147",
+          "~type": "effector_gene",
+          "~properties": {
+            "evidence": "nan",
+            "reference": "PMID:35724677",
+            "related_variants": "rs2476601",
+            "related_publications": "PMID:26631741|PMID:23619366|PMID:28801357",
+            "data_version": "2024-11-14",
+            "data_source": "HuGeAMP"
+          }
+        }
+      ],
+      "all_extend_nodes": [
+        {
+          "~id": "ENSG00000118231",
+          "~entityType": "node",
+          "~labels": [
+            "coding_elements",
+            "gene"
+          ],
+          "~properties": {
+            "id": "ENSG00000118231",
+            "id_version": 5,
+            "name": "CRYGD",
+            "HGNC_id": "HGNC:2411",
+            "HGNC_symbol": "CRYGD",
+            "description": "crystallin gamma D [Source:HGNC Symbol;Acc:HGNC:2411]",
+            "chr": "2",
+            "start_loc": 208121607,
+            "end_loc": 208124524,
+            "strand": "-1",
+            "GC_percentage": 37.73,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000118231",
+            "gencode_annotation": "GENCODE basic",
+            "synonym": "CRYG4",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        },
+        {
+          "~id": "rs11584821",
+          "~entityType": "node",
+          "~labels": [
+            "variants",
+            "sequence_variant",
+            "snp"
+          ],
+          "~properties": {
+            "id": "rs11584821",
+            "chr": "1.0",
+            "start_loc": 113876867,
+            "end_loc": 113876868,
+            "type": "snp",
+            "link": "https://www.ncbi.nlm.nih.gov/snp/rs11584821/",
+            "data_version": "2021-05-13",
+            "data_source": "dbSNP",
+            "ref": "C",
+            "alt": "G,T",
+            "variant_allele_origin": ".",
+            "variant_suspect_reason": "unspecified",
+            "freq": "1000Genomes:0.8726,.,0.1274|ALSPAC:0.828,.,0.172|Estonian:0.8187,.,0.1812|GENOME_DK:0.825,.,0.175|GnomAD:0.8483,.,0.1517|GoNL:0.7966,.,0.2034|HapMap:0.8636,.,0.1364|KOREAN:0.801,.,0.199|Korea1K:0.7888,.,0.2112|NorthernSweden:0.7783,.,0.2217|Qatari:0.8935,.,0.1065|SGDP_PRJ:0.4176,.,0.5824|Siberian:0.5,.,0.5|TOMMO:0.8072,.,0.1928|TOPMED:0.852,.,0.148|TWINSUK:0.8217,.,0.1783|Vietnamese:0.7905,.,0.2095|dbGaP_PopFreq:0.837,0,0.163",
+            "HGVS_name": ".",
+            "non_synonymous_frameshift": "False",
+            "non_synonymous_missense": "False",
+            "non_synonymous_nonsense": "False",
+            "in_3prime_UTR": "True",
+            "in_5prime_UTR": "False",
+            "in_acceptor_splice_site": "False",
+            "in_donor_splice_site": "False",
+            "in_intron": "True",
+            "in_3prime_gene_region": "False",
+            "in_5prime_gene_region": "False",
+            "common_SNP": "True"
+          }
+        },
+        {
+          "~id": "GO:0070433",
+          "~entityType": "node",
+          "~labels": [
+            "pathway"
+          ],
+          "~properties": {
+            "data_source": "Biological Process (Gene Ontology)",
+            "id": "GO:0070433",
+            "description": "Negative regulation of nucleotide-binding oligomerization domain containing 2 signaling pathway"
+          }
+        },
+        {
+          "~id": "MONDO_0005147",
+          "~entityType": "node",
+          "~labels": [
+            "ontology"
+          ],
+          "~properties": {
+            "data_source": "NCBO",
+            "id": "MONDO_0005147",
+            "definition": "A chronic condition characterized by minimal or absent production of insulin by the pancreas.",
+            "synonyms": "type I diabetes mellitus|juvenile diabetes|insulin dependent diabetes|type 1 diabetes|immune mediated diabetes|IDDM|insulin-dependent diabetes mellitus|diabetes mellitis type I|diabetes mellitis type 1|type I diabetes",
+            "all_labels": "experimental_factor",
+            "data_version": "2024-2-20"
+          }
+        }
+      ],
       "snp_node": {
-        "~id": "rs10992308",
+        "~id": "rs76163689",
         "~entityType": "node",
         "~labels": [
           "variants",
@@ -10,19 +209,19 @@
           "snp"
         ],
         "~properties": {
-          "id": "rs10992308",
-          "chr": "9.0",
-          "start_loc": 92334529,
-          "end_loc": 92334530,
+          "id": "rs76163689",
+          "chr": "1.0",
+          "start_loc": 113628612,
+          "end_loc": 113628613,
           "type": "snp",
-          "link": "https://www.ncbi.nlm.nih.gov/snp/rs10992308/",
+          "link": "https://www.ncbi.nlm.nih.gov/snp/rs76163689/",
           "data_version": "2021-05-13",
           "data_source": "dbSNP",
-          "ref": "A",
-          "alt": "G",
+          "ref": "G",
+          "alt": "A",
           "variant_allele_origin": ".",
           "variant_suspect_reason": "unspecified",
-          "freq": "1000Genomes:0.7815,0.2185|ALSPAC:0.8448,0.1552|Estonian:0.8377,0.1623|GENOME_DK:0.85,0.15|GnomAD:0.7381,0.2619|GoNL:0.8196,0.1804|HGDP_Stanford:0.8276,0.1724|HapMap:0.722,0.278|KOREAN:0.9846,0.0154|NorthernSweden:0.8483,0.1517|PRJEB36033:0.7931,0.2069|Qatari:0.6759,0.3241|SGDP_PRJ:0.4194,0.5806|Siberian:0.5,0.5|TOMMO:0.9899,0.01014|TOPMED:0.7347,0.2653|TWINSUK:0.8395,0.1605|Vietnamese:0.9907,0.009259|dbGaP_PopFreq:0.8206,0.1794",
+          "freq": "1000Genomes:0.9018,0.09824|ALSPAC:0.8822,0.1178|Estonian:0.8828,0.1172|GENOME_DK:0.85,0.15|GnomAD:0.8993,0.1007|GoNL:0.8657,0.1343|KOREAN:0.8225,0.1775|Korea1K:0.8035,0.1965|NorthernSweden:0.8133,0.1867|Qatari:0.9167,0.08333|SGDP_PRJ:0.4529,0.5471|Siberian:0.5,0.5|TOMMO:0.8252,0.1748|TOPMED:0.8997,0.1003|TWINSUK:0.8741,0.1259|Vietnamese:0.8364,0.1636|dbGaP_PopFreq:0.8884,0.1116",
           "HGVS_name": ".",
           "non_synonymous_frameshift": "False",
           "non_synonymous_missense": "False",
@@ -33,320 +232,11 @@
           "in_donor_splice_site": "False",
           "in_intron": "True",
           "in_3prime_gene_region": "False",
-          "in_5prime_gene_region": "True",
+          "in_5prime_gene_region": "False",
           "common_SNP": "True"
         }
       },
-      "r": {
-        "~id": "bb9bae38-92af-437e-8717-8ce3d0ed141f",
-        "~entityType": "relationship",
-        "~start": "rs10992308",
-        "~end": "ENSG00000188312",
-        "~type": "fine_mapped_eQTL",
-        "~properties": {
-          "effect_allele": "G",
-          "slope": "0.991440296173096",
-          "other_allele": "A",
-          "data_version": "2024-10-25",
-          "data_source": "GTEx; SusieR",
-          "pip": "0.132177957123519",
-          "tissue_name": "Pancreas",
-          "tissue_id": "UBERON_0001264",
-          "nominal_p": "2.47648992277912e-22",
-          "lbf": "61.5490119633375"
-        }
-      },
-      "gene_node": {
-        "~id": "ENSG00000188312",
-        "~entityType": "node",
-        "~labels": [
-          "coding_elements",
-          "gene"
-        ],
-        "~properties": {
-          "id": "ENSG00000188312",
-          "id_version": 15,
-          "name": "CENPP",
-          "HGNC_id": "HGNC:32933",
-          "HGNC_symbol": "CENPP",
-          "description": "centromere protein P [Source:HGNC Symbol;Acc:HGNC:32933]",
-          "chr": "9",
-          "start_loc": 92325953,
-          "end_loc": 92620529,
-          "strand": "1",
-          "GC_percentage": 40.0,
-          "type": "protein_coding",
-          "link": "https://www.ensembl.org/id/ENSG00000188312",
-          "gencode_annotation": "GENCODE basic",
-          "synonym": "RP11-19J3.3;CENP-P",
-          "data_version": "GRCh38.p14",
-          "data_source": "Ensembl"
-        }
-      },
-      "extend_node_genes": [
-        {
-          "~id": "ENSG00000138092",
-          "~entityType": "node",
-          "~labels": [
-            "coding_elements",
-            "gene"
-          ],
-          "~properties": {
-            "id": "ENSG00000138092",
-            "id_version": 11,
-            "name": "CENPO",
-            "HGNC_id": "HGNC:28152",
-            "HGNC_symbol": "CENPO",
-            "description": "centromere protein O [Source:HGNC Symbol;Acc:HGNC:28152]",
-            "chr": "2",
-            "start_loc": 24793136,
-            "end_loc": 24822376,
-            "strand": "1",
-            "GC_percentage": 43.93,
-            "type": "protein_coding",
-            "link": "https://www.ensembl.org/id/ENSG00000138092",
-            "gencode_annotation": "nan",
-            "synonym": "MGC11266;CENP-O",
-            "data_version": "GRCh38.p14",
-            "data_source": "Ensembl"
-          }
-        },
-        {
-          "~id": "ENSG00000138092",
-          "~entityType": "node",
-          "~labels": [
-            "coding_elements",
-            "gene"
-          ],
-          "~properties": {
-            "id": "ENSG00000138092",
-            "id_version": 11,
-            "name": "CENPO",
-            "HGNC_id": "HGNC:28152",
-            "HGNC_symbol": "CENPO",
-            "description": "centromere protein O [Source:HGNC Symbol;Acc:HGNC:28152]",
-            "chr": "2",
-            "start_loc": 24793136,
-            "end_loc": 24822376,
-            "strand": "1",
-            "GC_percentage": 43.93,
-            "type": "protein_coding",
-            "link": "https://www.ensembl.org/id/ENSG00000138092",
-            "gencode_annotation": "nan",
-            "synonym": "MGC11266;CENP-O",
-            "data_version": "GRCh38.p14",
-            "data_source": "Ensembl"
-          }
-        }
-      ],
-      "r_extend_genes": [
-        {
-          "~id": "36769afa-6f9a-40ca-b1b4-2d5fcc27f203",
-          "~entityType": "relationship",
-          "~start": "ENSG00000188312",
-          "~end": "ENSG00000138092",
-          "~type": "regulation",
-          "~properties": {
-            "biogrid_interaction_id": "3090357",
-            "pubmed_id": "33961781.0",
-            "cDSD_distance": -2.899016e-10,
-            "data_version": "- (-) (-) (-) (-) (-)",
-            "data_source": "BioGRID"
-          }
-        },
-        {
-          "~id": "367e2b9e-2718-4da8-92a3-45ad87cdbb4e",
-          "~entityType": "relationship",
-          "~start": "ENSG00000188312",
-          "~end": "ENSG00000138092",
-          "~type": "regulation",
-          "~properties": {
-            "biogrid_interaction_id": "2216495",
-            "pubmed_id": "28514442.0",
-            "cDSD_distance": -2.899016e-10,
-            "data_version": "- (-) (-) (-) (-) (-)",
-            "data_source": "BioGRID"
-          }
-        }
-      ],
-      "extend_node_snps": [
-        {
-          "~id": "rs1960094",
-          "~entityType": "node",
-          "~labels": [
-            "variants",
-            "sequence_variant",
-            "snp"
-          ],
-          "~properties": {
-            "id": "rs1960094",
-            "chr": "9.0",
-            "start_loc": 92199110,
-            "end_loc": 92199111,
-            "type": "snp",
-            "link": "https://www.ncbi.nlm.nih.gov/snp/rs1960094/",
-            "data_version": "2021-05-13",
-            "data_source": "dbSNP",
-            "ref": "T",
-            "alt": "C,G",
-            "variant_allele_origin": ".",
-            "variant_suspect_reason": "unspecified",
-            "freq": "1000Genomes:0.4441,0.5559,.|ALSPAC:0.5106,0.4894,.|GENOME_DK:0.525,0.475,.|GoNL:0.504,0.496,.|KOREAN:0.7491,0.2509,.|Korea1K:0.738,0.262,.|NorthernSweden:0.5683,0.4317,.|Qatari:0.3704,0.6296,.|SGDP_PRJ:0.2735,0.7265,.|Siberian:0.375,0.625,.|TOMMO:0.6984,0.3016,.|TOPMED:0.3955,0.6045,.|TWINSUK:0.5051,0.4949,.|dbGaP_PopFreq:0.6367,0.3633,0",
-            "HGVS_name": ".",
-            "non_synonymous_frameshift": "False",
-            "non_synonymous_missense": "False",
-            "non_synonymous_nonsense": "False",
-            "in_3prime_UTR": "False",
-            "in_5prime_UTR": "False",
-            "in_acceptor_splice_site": "False",
-            "in_donor_splice_site": "False",
-            "in_intron": "False",
-            "in_3prime_gene_region": "False",
-            "in_5prime_gene_region": "False",
-            "common_SNP": "True"
-          }
-        },
-        {
-          "~id": "rs35365583",
-          "~entityType": "node",
-          "~labels": [
-            "variants",
-            "sequence_variant",
-            "snp"
-          ],
-          "~properties": {
-            "id": "rs35365583",
-            "chr": "9.0",
-            "start_loc": 92198851,
-            "end_loc": 92198852,
-            "type": "snp",
-            "link": "https://www.ncbi.nlm.nih.gov/snp/rs35365583/",
-            "data_version": "2021-05-13",
-            "data_source": "dbSNP",
-            "ref": "A",
-            "alt": "C,G,T",
-            "variant_allele_origin": ".",
-            "variant_suspect_reason": "unspecified",
-            "freq": "1000Genomes:0.4463,0.5537,.,.|GoNL:0.504,0.496,.,.|KOREAN:0.7519,0.2481,.,0|Korea1K:0.7402,0.2598,.,.|NorthernSweden:0.5683,0.4317,.,.|Qatari:0.3704,0.6296,.,.|SGDP_PRJ:0.2709,0.7291,.,.|TOMMO:0.6986,0.3014,.,.|TOPMED:0.3971,.,.,0.6029|dbGaP_PopFreq:0.696,0.304,0,0",
-            "HGVS_name": ".",
-            "non_synonymous_frameshift": "False",
-            "non_synonymous_missense": "False",
-            "non_synonymous_nonsense": "False",
-            "in_3prime_UTR": "False",
-            "in_5prime_UTR": "False",
-            "in_acceptor_splice_site": "False",
-            "in_donor_splice_site": "False",
-            "in_intron": "False",
-            "in_3prime_gene_region": "False",
-            "in_5prime_gene_region": "False",
-            "common_SNP": "True"
-          }
-        }
-      ],
-      "r_extend_snps": [
-        {
-          "~id": "53e483e5-06c6-4aaf-8375-f0a43dad05a8",
-          "~entityType": "relationship",
-          "~start": "rs1960094",
-          "~end": "ENSG00000188312",
-          "~type": "fine_mapped_eQTL",
-          "~properties": {
-            "effect_allele": "C",
-            "slope": "0.0688888",
-            "other_allele": "T",
-            "data_version": "2024-10-25",
-            "data_source": "INSPIRE; SusieR",
-            "pip": "1.0",
-            "tissue_name": "Pancreas",
-            "tissue_id": "UBERON_0001264",
-            "nominal_p": "0.00995344",
-            "lbf": "99287.2705391303"
-          }
-        },
-        {
-          "~id": "9bd48625-4725-4c4f-b571-fefcc648f8bb",
-          "~entityType": "relationship",
-          "~start": "rs35365583",
-          "~end": "ENSG00000188312",
-          "~type": "fine_mapped_eQTL",
-          "~properties": {
-            "effect_allele": "C",
-            "slope": "-0.0725097",
-            "other_allele": "A",
-            "data_version": "2024-10-25",
-            "data_source": "INSPIRE; SusieR",
-            "pip": "1.0",
-            "tissue_name": "Pancreas",
-            "tissue_id": "UBERON_0001264",
-            "nominal_p": "0.215428",
-            "lbf": "64169.2472576308"
-          }
-        }
-      ],
-      "extend_pathway_nodes": [],
-      "r_extend_pathways": [],
-      "extend_ocr_nodes": [
-        {
-          "~id": "OCR_151993",
-          "~entityType": "node",
-          "~labels": [
-            "open_chromatin_region"
-          ],
-          "~properties": {
-            "id": "OCR_151993",
-            "average_ATAC_ND": 13.85714,
-            "average_ATAC_T2D": 26.2,
-            "chr": "9",
-            "start_loc": 92445355,
-            "end_loc": 92445724,
-            "data_version": "2024-10-07",
-            "data_source": "PMID_30181159"
-          }
-        },
-        {
-          "~id": "OCR_151994",
-          "~entityType": "node",
-          "~labels": [
-            "open_chromatin_region"
-          ],
-          "~properties": {
-            "id": "OCR_151994",
-            "average_ATAC_ND": 23.0,
-            "average_ATAC_T2D": 44.4,
-            "chr": "9",
-            "start_loc": 92451682,
-            "end_loc": 92452024,
-            "data_version": "2024-10-07",
-            "data_source": "PMID_30181159"
-          }
-        }
-      ],
-      "r_extend_ocr": [
-        {
-          "~id": "0264342c-325b-4b9e-a0ff-fbb9448c34c0",
-          "~entityType": "relationship",
-          "~start": "OCR_151993",
-          "~end": "ENSG00000188312",
-          "~type": "locate_on_ocr",
-          "~properties": {
-            "data_version": "10/10/2024",
-            "data_source": "PMID_30181159"
-          }
-        },
-        {
-          "~id": "bf4afedc-2426-4a38-a1a4-b98add2246b1",
-          "~entityType": "relationship",
-          "~start": "OCR_151994",
-          "~end": "ENSG00000188312",
-          "~type": "locate_on_ocr",
-          "~properties": {
-            "data_version": "10/10/2024",
-            "data_source": "PMID_30181159"
-          }
-        }
-      ],
-      "extend_ontology_nodes": [],
-      "r_extend_ontology": []
+      "extend_node_count": 4
     }
   ]
 }
