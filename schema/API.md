@@ -1,5 +1,13 @@
 # PanKgraph Query API
 
+## Table of Contents
+1. [Overview](#overview)
+2. [Usage](#usage)
+3. [Writing a Valid Query](#writing-a-valid-query)
+4. [Interpreting query results](#interpreting-query-results)
+
+---
+
 ## Overview
 The PanKgraph Query API provides a portal for users to submit queries and download query results. 
 
@@ -51,7 +59,7 @@ WHERE movie.year < 2010
 RETURN movie
 ```
 
-#### Resources:
+Resources:
 - To learn basic openCypher query syntax, refer to [this guide](https://neo4j.com/docs/cypher-manual/current/queries/basic/?utm_source=GSearch&utm_medium=PaidSearch&utm_campaign=Evergreen&utm_content=AMS-Search-SEMCE-DSA-None-SEM-SEM-NonABM&utm_term=&utm_adgroup=DSA&gad_source=1&gclid=CjwKCAiArva5BhBiEiwA-oTnXXVaj70Ck95TVwLXHnxpcTNpX0Vl_4xFUjGR7sQFMkm8mC3dFyfmWRoCNh0QAvD_BwE#find-nodes).
 - To learn openCypher grammar, please refer to [this page](https://opencypher.org/resources/).
 
@@ -59,17 +67,20 @@ RETURN movie
 
 Due to how quotation marks are interpreted in `JSON` strings,
 when submitting queries via the command line,
-ensure all quotation marks (`"` or `'`) are replaced with `\"` to avoid syntax error.
+please ensure the query be within one line,
+and all quotation marks (`"` or `'`) replaced with `\"` to avoid syntax error.
+
+
 
 For example,
 ```cypher
-(n:gene {name: 'RFX6'})
+MATCH (n:gene {name: 'RFX6'})
+RETURN n
 ```
 should be written into 
 ```cypher
-(n:gene {name: \"RFX6\"})
+MATCH (n:gene {name: \"RFX6\"}) RETURN n
 ```
-This applies to many node/edge properties with string data type (e.g., gene names, disease names).
 
 ### Example queries
 
@@ -104,6 +115,15 @@ MATCH (g)-[r:effector_gene]->(o:ontology {id:\"MONDO_0005147\"}) RETURN g.name
 Note: similar to cell types, disease and phenotype names are also represented as ontology IDs.
 To get the list of supported diseases/phenotypes and corresponding ontology IDs, refer to [PanKgraph documentation (not finished)]().
 
+- Find 10 eQTL variants of genes in `hormone-mediated signaling pathway` (`GO:0009755`).
+```cypher
+MATCH (p:pathway {id: \"GO:0009755\"})<-[belong_to_pathway]-(g:gene)<-[fine_mapped_eQTL]-(v:sequence_variant) RETURN v LIMIT 10
+```
+Note: similar to cell types and disease names, pathway names are also represented as ontology IDs.
+To get the list of supported pathway names and corresponding ontology IDs, refer to [PanKgraph documentation (not finished)]().
+
+
+
 ### Graph Metadata
 To view nodes (entities) types, edges (relationships) types, and properties (attributes) in PanKgraph,
 you can refer to [PanKgraph documentation (not finished)]().
@@ -129,7 +149,7 @@ MATCH ()-[r:effector_gene]-() RETURN properties(r) LIMIT 1
 
 ---
 
-## How to interpret query results
+## Interpreting query results
 
 ### Output
 
@@ -170,6 +190,6 @@ e.g., [`json` package](https://docs.python.org/3/library/json.html) of Python.
 ### Error messages
 If the query fails, the response starts with `"Error"`.
 - Error 400: Query failed. Check your Cypher query syntax.
-- Error 404: Access denied. Contact the PanKgraph team for support.
+- Error 404: Access denied. Contact the PanKgraph team (`fan.feng@vumc.org`) for support.
 - Internal server error: Query took longer than 30 seconds and was terminated.
 
