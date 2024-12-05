@@ -1,0 +1,367 @@
+{
+  "results": [
+    {
+      "gene_node": {
+        "~id": "ENSG00000134242",
+        "~entityType": "node",
+        "~labels": [
+          "coding_elements",
+          "gene"
+        ],
+        "~properties": {
+          "id": "ENSG00000134242",
+          "id_version": 16,
+          "name": "PTPN22",
+          "HGNC_id": "HGNC:9652",
+          "HGNC_symbol": "PTPN22",
+          "description": "protein tyrosine phosphatase non-receptor type 22 [Source:HGNC Symbol;Acc:HGNC:9652]",
+          "chr": "1",
+          "start_loc": 113813811,
+          "end_loc": 113871753,
+          "strand": "-1",
+          "GC_percentage": 38.85,
+          "type": "protein_coding",
+          "link": "https://www.ensembl.org/id/ENSG00000134242",
+          "gencode_annotation": "GENCODE basic",
+          "synonym": "PTPN8;LYP2;LYP1;LYP",
+          "data_version": "GRCh38.p14",
+          "data_source": "Ensembl"
+        }
+      },
+      "extend_node_snps": [
+        {
+          "~id": "rs17510162",
+          "~entityType": "node",
+          "~labels": [
+            "variants",
+            "sequence_variant",
+            "snp"
+          ],
+          "~properties": {
+            "id": "rs17510162",
+            "chr": "1.0",
+            "start_loc": 113871109,
+            "end_loc": 113871110,
+            "type": "snp",
+            "link": "https://www.ncbi.nlm.nih.gov/snp/rs17510162/",
+            "data_version": "2021-05-13",
+            "data_source": "dbSNP",
+            "ref": "C",
+            "alt": "A",
+            "variant_allele_origin": ".",
+            "variant_suspect_reason": "unspecified",
+            "freq": "1000Genomes:0.8702,0.1298|ALSPAC:0.8269,0.1731|Daghestan:0.8448,0.1552|Estonian:0.8165,0.1835|GENOME_DK:0.825,0.175|GnomAD:0.8473,0.1527|GoNL:0.7956,0.2044|HapMap:0.865,0.135|KOREAN:0.798,0.202|Korea1K:0.7767,0.2233|NorthernSweden:0.7767,0.2233|Qatari:0.8935,0.1065|SGDP_PRJ:0.433,0.567|Siberian:0.5,0.5|TOMMO:0.802,0.198|TOPMED:0.8511,0.1489|TWINSUK:0.8204,0.1796|Vietnamese:0.8037,0.1963|dbGaP_PopFreq:0.8395,0.1605",
+            "HGVS_name": ".",
+            "non_synonymous_frameshift": "False",
+            "non_synonymous_missense": "False",
+            "non_synonymous_nonsense": "False",
+            "in_3prime_UTR": "False",
+            "in_5prime_UTR": "False",
+            "in_acceptor_splice_site": "False",
+            "in_donor_splice_site": "False",
+            "in_intron": "True",
+            "in_3prime_gene_region": "False",
+            "in_5prime_gene_region": "True",
+            "common_SNP": "True"
+          }
+        },
+        {
+          "~id": "rs75511728",
+          "~entityType": "node",
+          "~labels": [
+            "variants",
+            "sequence_variant",
+            "snp"
+          ],
+          "~properties": {
+            "id": "rs75511728",
+            "chr": "1.0",
+            "start_loc": 113869487,
+            "end_loc": 113869488,
+            "type": "snp",
+            "link": "https://www.ncbi.nlm.nih.gov/snp/rs75511728/",
+            "data_version": "2021-05-13",
+            "data_source": "dbSNP",
+            "ref": "C",
+            "alt": "T",
+            "variant_allele_origin": ".",
+            "variant_suspect_reason": "unspecified",
+            "freq": "1000Genomes:0.8702,0.1298|ALSPAC:0.8272,0.1728|Estonian:0.8184,0.1816|GENOME_DK:0.825,0.175|GnomAD:0.8475,0.1525|GoNL:0.7946,0.2054|KOREAN:0.7986,0.2014|Korea1K:0.7767,0.2233|NorthernSweden:0.7767,0.2233|Qatari:0.8935,0.1065|SGDP_PRJ:0.433,0.567|Siberian:0.5,0.5|TOMMO:0.802,0.198|TOPMED:0.8513,0.1487|TWINSUK:0.8204,0.1796|Vietnamese:0.8048,0.1952|dbGaP_PopFreq:0.8392,0.1608",
+            "HGVS_name": ".",
+            "non_synonymous_frameshift": "False",
+            "non_synonymous_missense": "False",
+            "non_synonymous_nonsense": "False",
+            "in_3prime_UTR": "False",
+            "in_5prime_UTR": "False",
+            "in_acceptor_splice_site": "False",
+            "in_donor_splice_site": "False",
+            "in_intron": "True",
+            "in_3prime_gene_region": "False",
+            "in_5prime_gene_region": "True",
+            "common_SNP": "True"
+          }
+        },
+        {
+          "~id": "rs4839346",
+          "~entityType": "node",
+          "~labels": [
+            "variants",
+            "sequence_variant",
+            "snp"
+          ],
+          "~properties": {
+            "id": "rs4839346",
+            "chr": "1.0",
+            "start_loc": 113853007,
+            "end_loc": 113853008,
+            "type": "snp",
+            "link": "https://www.ncbi.nlm.nih.gov/snp/rs4839346/",
+            "data_version": "2021-05-13",
+            "data_source": "dbSNP",
+            "ref": "C",
+            "alt": "T",
+            "variant_allele_origin": ".",
+            "variant_suspect_reason": "unspecified",
+            "freq": "1000Genomes:0.8658,0.1342|ALSPAC:0.8207,0.1793|Estonian:0.8154,0.1846|GENOME_DK:0.825,0.175|GnomAD:0.8449,0.1551|GoNL:0.7946,0.2054|KOREAN:0.7969,0.2031|Korea1K:0.7724,0.2276|NorthernSweden:0.775,0.225|Qatari:0.8981,0.1019|SGDP_PRJ:0.4444,0.5556|Siberian:0.5,0.5|TOMMO:0.8019,0.1981|TOPMED:0.8478,0.1522|TWINSUK:0.815,0.185|Vietnamese:0.7972,0.2028|dbGaP_PopFreq:0.8355,0.1645",
+            "HGVS_name": ".",
+            "non_synonymous_frameshift": "False",
+            "non_synonymous_missense": "False",
+            "non_synonymous_nonsense": "False",
+            "in_3prime_UTR": "False",
+            "in_5prime_UTR": "False",
+            "in_acceptor_splice_site": "False",
+            "in_donor_splice_site": "False",
+            "in_intron": "True",
+            "in_3prime_gene_region": "False",
+            "in_5prime_gene_region": "True",
+            "common_SNP": "True"
+          }
+        },
+        {
+          "~id": "rs55646484",
+          "~entityType": "node",
+          "~labels": [
+            "variants",
+            "sequence_variant",
+            "snp"
+          ],
+          "~properties": {
+            "id": "rs55646484",
+            "chr": "1.0",
+            "start_loc": 113856152,
+            "end_loc": 113856153,
+            "type": "snp",
+            "link": "https://www.ncbi.nlm.nih.gov/snp/rs55646484/",
+            "data_version": "2021-05-13",
+            "data_source": "dbSNP",
+            "ref": "C",
+            "alt": "A",
+            "variant_allele_origin": ".",
+            "variant_suspect_reason": "unspecified",
+            "freq": "1000Genomes:0.8658,0.1342|ALSPAC:0.8202,0.1798|Estonian:0.8156,0.1844|GENOME_DK:0.825,0.175|GnomAD:0.8444,0.1556|GoNL:0.7936,0.2064|KOREAN:0.7969,0.2031|Korea1K:0.7724,0.2276|MGP:0.9794,0.0206|NorthernSweden:0.775,0.225|Qatari:0.8981,0.1019|SGDP_PRJ:0.445,0.555|Siberian:0.5,0.5|TOMMO:0.8019,0.1981|TOPMED:0.8474,0.1526|TWINSUK:0.8142,0.1858|Vietnamese:0.7944,0.2056|dbGaP_PopFreq:0.837,0.163",
+            "HGVS_name": ".",
+            "non_synonymous_frameshift": "False",
+            "non_synonymous_missense": "False",
+            "non_synonymous_nonsense": "False",
+            "in_3prime_UTR": "False",
+            "in_5prime_UTR": "False",
+            "in_acceptor_splice_site": "False",
+            "in_donor_splice_site": "False",
+            "in_intron": "True",
+            "in_3prime_gene_region": "False",
+            "in_5prime_gene_region": "True",
+            "common_SNP": "True"
+          }
+        },
+        {
+          "~id": "rs11582409",
+          "~entityType": "node",
+          "~labels": [
+            "variants",
+            "sequence_variant",
+            "snp"
+          ],
+          "~properties": {
+            "id": "rs11582409",
+            "chr": "1.0",
+            "start_loc": 113856811,
+            "end_loc": 113856812,
+            "type": "snp",
+            "link": "https://www.ncbi.nlm.nih.gov/snp/rs11582409/",
+            "data_version": "2021-05-13",
+            "data_source": "dbSNP",
+            "ref": "C",
+            "alt": "T",
+            "variant_allele_origin": ".",
+            "variant_suspect_reason": "unspecified",
+            "freq": "1000Genomes:0.8656,0.1344|ALSPAC:0.8207,0.1793|Estonian:0.8154,0.1846|GENOME_DK:0.825,0.175|GnomAD:0.8445,0.1555|GoNL:0.7946,0.2054|HapMap:0.8726,0.1274|KOREAN:0.7969,0.2031|Korea1K:0.7724,0.2276|NorthernSweden:0.775,0.225|Qatari:0.8981,0.1019|SGDP_PRJ:0.445,0.555|Siberian:0.5,0.5|TOMMO:0.8018,0.1982|TOPMED:0.8475,0.1525|TWINSUK:0.815,0.185|Vietnamese:0.7963,0.2037|dbGaP_PopFreq:0.8396,0.1604",
+            "HGVS_name": ".",
+            "non_synonymous_frameshift": "False",
+            "non_synonymous_missense": "False",
+            "non_synonymous_nonsense": "False",
+            "in_3prime_UTR": "False",
+            "in_5prime_UTR": "False",
+            "in_acceptor_splice_site": "False",
+            "in_donor_splice_site": "False",
+            "in_intron": "True",
+            "in_3prime_gene_region": "False",
+            "in_5prime_gene_region": "False",
+            "common_SNP": "True"
+          }
+        },
+        {
+          "~id": "rs35173468",
+          "~entityType": "node",
+          "~labels": [
+            "variants",
+            "sequence_variant",
+            "snp"
+          ],
+          "~properties": {
+            "id": "rs35173468",
+            "chr": "1.0",
+            "start_loc": 113856199,
+            "end_loc": 113856200,
+            "type": "snp",
+            "link": "https://www.ncbi.nlm.nih.gov/snp/rs35173468/",
+            "data_version": "2021-05-13",
+            "data_source": "dbSNP",
+            "ref": "G",
+            "alt": "A,C",
+            "variant_allele_origin": ".",
+            "variant_suspect_reason": "unspecified",
+            "freq": "1000Genomes:0.8658,.,0.1342|ALSPAC:0.8202,.,0.1798|Estonian:0.815,.,0.185|GENOME_DK:0.825,.,0.175|GnomAD:0.8444,.,0.1556|GoNL:0.7936,.,0.2064|KOREAN:0.7969,.,0.2031|Korea1K:0.7724,.,0.2276|MGP:0.8296,.,0.1704|NorthernSweden:0.775,.,0.225|Qatari:0.8981,.,0.1019|SGDP_PRJ:0.445,.,0.555|Siberian:0.5,.,0.5|TOMMO:0.8018,.,0.1982|TOPMED:0.8473,.,0.1527|TWINSUK:0.8142,.,0.1858|Vietnamese:0.8019,.,0.1981|dbGaP_PopFreq:0.9175,0,0.08249",
+            "HGVS_name": ".",
+            "non_synonymous_frameshift": "False",
+            "non_synonymous_missense": "False",
+            "non_synonymous_nonsense": "False",
+            "in_3prime_UTR": "False",
+            "in_5prime_UTR": "False",
+            "in_acceptor_splice_site": "False",
+            "in_donor_splice_site": "False",
+            "in_intron": "True",
+            "in_3prime_gene_region": "False",
+            "in_5prime_gene_region": "True",
+            "common_SNP": "True"
+          }
+        }
+      ],
+      "r_extend_snps": [
+        {
+          "~id": "b61ec93d-1840-4c2b-adaf-d4601cb00354",
+          "~entityType": "relationship",
+          "~start": "rs17510162",
+          "~end": "ENSG00000134242",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "A",
+            "slope": "0.467621028423309",
+            "other_allele": "C",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.0592948801837591",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "1.79409066294292e-08",
+            "lbf": "11.8612295325194"
+          }
+        },
+        {
+          "~id": "7cc9ed8f-d392-4868-8444-c479bfff0615",
+          "~entityType": "relationship",
+          "~start": "rs75511728",
+          "~end": "ENSG00000134242",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.467621028423309",
+            "other_allele": "C",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.0574867401560141",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "1.79409066294292e-08",
+            "lbf": "11.8301701865883"
+          }
+        },
+        {
+          "~id": "bc265b49-f9ec-4378-bc01-56a307e0151e",
+          "~entityType": "relationship",
+          "~start": "rs4839346",
+          "~end": "ENSG00000134242",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.457945317029953",
+            "other_allele": "C",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.0345244897502731",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "2.79548037121563e-08",
+            "lbf": "11.3185779603012"
+          }
+        },
+        {
+          "~id": "3adc387f-7c96-4073-9359-6b6f93ffa5ae",
+          "~entityType": "relationship",
+          "~start": "rs55646484",
+          "~end": "ENSG00000134242",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "A",
+            "slope": "0.457945317029953",
+            "other_allele": "C",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.0345058768082813",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "2.79548037121563e-08",
+            "lbf": "11.3180200690257"
+          }
+        },
+        {
+          "~id": "d0c81236-4eb7-4a4d-9496-dad4a0b586d5",
+          "~entityType": "relationship",
+          "~start": "rs11582409",
+          "~end": "ENSG00000134242",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "T",
+            "slope": "0.457945317029953",
+            "other_allele": "C",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.0344835866570991",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "2.79548037121563e-08",
+            "lbf": "11.3173829125324"
+          }
+        },
+        {
+          "~id": "53491c91-e690-42d7-89e0-6b075291b2a2",
+          "~entityType": "relationship",
+          "~start": "rs35173468",
+          "~end": "ENSG00000134242",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "C",
+            "slope": "0.457945317029953",
+            "other_allele": "G",
+            "data_version": "2024-10-25",
+            "data_source": "GTEx; SusieR",
+            "pip": "0.0344827025951476",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "2.79548037121563e-08",
+            "lbf": "11.317344291786"
+          }
+        }
+      ]
+    }
+  ]
+}
