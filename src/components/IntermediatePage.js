@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { queryQueryResult } from '../redux/queryResultSlice';
 import { replaceTerms } from '../utils/textProcessing';
 import { setProcessedQuestion } from '../redux/processedQuestionSlice';
+import { queryQueryVisResult } from '../redux/queryVisResultSlice';
 import SearchBar from '../SearchBar';
 import KnowledgeGraph from './KnowledgeGraph';
 import { setSearchTerms } from '../redux/searchSlice';
@@ -125,6 +126,7 @@ function IntermediatePage({ onContinue }) {
 
     // 保存变量到 Redux store
     const variables = {
+      snpId,
       leadSnp,
       geneId,
       tissue,
@@ -135,6 +137,7 @@ function IntermediatePage({ onContinue }) {
 
     // 处理当前问题
     const processedCurrentQuestion = replaceVariables(question_for_result, variables);
+    console.log(processedCurrentQuestion);
 
     // 处理下一步问题
     const processedNextQuestions = next_questions?.map(item => {
@@ -191,16 +194,29 @@ function IntermediatePage({ onContinue }) {
 
     // 替换查询语句中的占位符
     const query = cyper_for_result_page_all_nodes_specific
-      .replace(/@sequence_variant@/g, snpId)
-      .replace(/@gene@/g, geneId);
+      .replace(/@snp_node@/g, snpId)
+      .replace(/@gene_node@/g, geneId);
+
+    // 处理 AI 问题数组
+    const processedAiQuestions = viewSchema?.ai_question_for_result?.map(question => {
+      let processedQuestion = question;
+      // 替换所有可能的占位符
+      if (snpId) processedQuestion = processedQuestion.replace(/@snp_node@/g, snpId);
+      if (geneId) processedQuestion = processedQuestion.replace(/@gene_node@/g, geneId);
+      if (tissue) processedQuestion = processedQuestion.replace(/@tissue@/g, tissue);
+      if (dataSourceFrontend) processedQuestion = processedQuestion.replace(/@data_source@/g, dataSourceFrontend);
+      return processedQuestion;
+    }) || [];
 
     try {
       // 保存处理后的问题和下一步问题到 redux store
       dispatch(setProcessedQuestion({
         currentQuestion: processedCurrentQuestion,
-        nextQuestions: processedNextQuestions
+        nextQuestions: processedNextQuestions,
+        aiQuestions: processedAiQuestions
       }));
       onContinue();
+      await dispatch(queryQueryVisResult({query: query})).unwrap();
       await dispatch(queryQueryResult({query: query})).unwrap();
     } catch (error) {
       console.error('Error executing query:', error);
@@ -220,9 +236,7 @@ function IntermediatePage({ onContinue }) {
         top: '130px',
         width: '100%'
       }}>
-        <Box sx={{ width: '60%', visibility: 'hidden' }}>
-          {/* 占位，保持与 SearchBar 相同宽度 */}
-        </Box>
+        <Box sx={{ width: '60%', visibility: 'hidden' }} />
         <Typography 
           variant="body1" 
           sx={{ 
@@ -238,33 +252,106 @@ function IntermediatePage({ onContinue }) {
         display: 'flex', 
         gap: 3,
         minHeight: '600px',
-        mt: '60px'  // 为上方的绝对定位元素留出空间
+        mt: '60px'
       }}>
-        {/* 左侧知识图谱 */}
+        {/* 左侧知识图谱区域 */}
         <Box sx={{ 
           width: '40%',
-          position: 'relative',
-          borderRadius: '20px',  // 改为圆角
-          minHeight: '100px',
-          boxShadow: '0px 3px 3px -2px rgba(0,0,0,0.2), 0px 3px 4px 0px rgba(0,0,0,0.14), 0px 1px 8px 0px rgba(0,0,0,0.12)',  // 添加阴影
-          padding: '32px',
-          paddingTop: '48px',
-          '&::before': {  // 添加标题样式
-            content: '"KG viewer"',
-            position: 'absolute',
-            top: '-15px',
-            left: '20px',
-            backgroundColor: 'white',
-            padding: '0 10px',
-            fontSize: '1.2rem',
-            fontWeight: 'bold'
-          }
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 3
         }}>
+          {/* KG Viewer */}
           <Box sx={{ 
-            width: '100%', 
-            height: 'calc(100% - 40px)'
+            position: 'relative',
+            borderRadius: '20px',
+            minHeight: '500px',
+            boxShadow: '0px 3px 3px -2px rgba(0,0,0,0.2), 0px 3px 4px 0px rgba(0,0,0,0.14), 0px 1px 8px 0px rgba(0,0,0,0.12)',
+            padding: '32px',
+            paddingTop: '48px',
+            '&::before': {
+              content: '"KG viewer"',
+              position: 'absolute',
+              top: '-15px',
+              left: '20px',
+              backgroundColor: 'white',
+              padding: '0 10px',
+              fontSize: '1.2rem',
+              fontWeight: 'bold'
+            }
           }}>
-            <KnowledgeGraph />
+            <Box sx={{ 
+              marginLeft: '-115%',
+              width: '220%',
+              height: '100%'
+            }}>
+              <KnowledgeGraph />
+            </Box>
+          </Box>
+
+          {/* Legend */}
+          <Box sx={{
+            position: 'relative',
+            borderRadius: '20px',
+            padding: '32px',
+            paddingTop: '48px',
+            backgroundColor: 'white',
+            boxShadow: '0px 3px 3px -2px rgba(0,0,0,0.2), 0px 3px 4px 0px rgba(0,0,0,0.14), 0px 1px 8px 0px rgba(0,0,0,0.12)',
+            '&::before': {
+              content: '"Legend"',
+              position: 'absolute',
+              top: '-15px',
+              left: '20px',
+              backgroundColor: 'white',
+              padding: '0 10px',
+              fontSize: '1.2rem',
+              fontWeight: 'bold'
+            }
+          }}>
+            <Box sx={{ 
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2
+            }}>
+              {/* 第一行 */}
+              <Box sx={{ 
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: 2
+              }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ width: 20, height: 20, backgroundColor: '#ABD0F1', borderRadius: '4px' }} />
+                  <Typography variant="body2">Gene</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ width: 20, height: 20, backgroundColor: '#FFB77F', borderRadius: '4px' }} />
+                  <Typography variant="body2">Sequence Variant</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ width: 20, height: 20, backgroundColor: '#F6C957', borderRadius: '4px' }} />
+                  <Typography variant="body2">Pathway</Typography>
+                </Box>
+              </Box>
+              {/* 第二行 */}
+              <Box sx={{ 
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: 2
+              }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ width: 20, height: 20, backgroundColor: '#8c561b', borderRadius: '4px' }} />
+                  <Typography variant="body2">Ontology</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ width: 20, height: 20, backgroundColor: '#e377c2', borderRadius: '4px' }} />
+                  <Typography variant="body2">Article</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ width: 20, height: 20, backgroundColor: '#8c564b', borderRadius: '4px' }} />
+                  <Typography variant="body2">Open Chromatin Region</Typography>
+                </Box>
+              </Box>
+            </Box>
           </Box>
         </Box>
 

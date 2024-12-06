@@ -40,7 +40,7 @@
 }
 
 .knowledge-graph {
-  height: 600px;
+  height: 500px;
 }
 
 .next-questions-list {
@@ -97,4 +97,14 @@
 
 .next-questions-list {
     text-align: left;
+}
+
+.styled-paper[data-title="Legend"] {
+  margin-top: 20px;
+  padding: 24px;
+  min-height: 60px;
+}
+
+.styled-paper[data-title="Legend"]::before {
+  font-size: 1.5rem;
 }

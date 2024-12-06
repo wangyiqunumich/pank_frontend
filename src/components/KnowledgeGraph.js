@@ -7,235 +7,387 @@ import { useSelector } from 'react-redux';
 Cytoscape.use(coseBilkent);
 Cytoscape.use(cola);
 
+const colorMap = {
+  gene: "#ABD0F1",
+  sequence_variant: "#FFB77F",
+  pathway: "#F6C957",
+  ontology : "#8c561b",
+  article:"#e377c2",
+  open_chromatin_region: "#8c564b",
+};
+
 function KnowledgeGraph() {
+  const queryVisResult = useSelector((state) => state.queryVisResult?.queryVisResult) || {};
+  const { aiAnswer, queryAiAnswerStatus } = useSelector((state) => state.aiAnswer);
   const containerRef = useRef(null);
   const cyRef = useRef(null);
 
-  const queryResult = useSelector((state) => state.queryResult.queryResult);
-  console.log(queryResult);
-
   useEffect(() => {
-    if (containerRef.current && queryResult?.results) {
-      const nodes = new Set();
+    if (containerRef.current && queryVisResult?.results?.[0]) {
+      const result = queryVisResult.results[0];
+      const geneNode = result.gene_node;
+      
+      // 处理两种可能的数据格式
+      let extendNodes = [];
+      if (result.all_extend_nodes) {
+        // 第一种格式：使用 all_extend_nodes
+        extendNodes = Array.isArray(result.all_extend_nodes) ? result.all_extend_nodes : [];
+      } else {
+        // 第二种格式：合并各种类型的 extend nodes
+        const extendNodeArrays = [
+          result.extend_node_snps,
+          result.extend_node_genes,
+          result.extend_node_pathways,
+          result.extend_node_ontologies,
+          result.extend_node_articles,
+          result.extend_node_ocrs
+        ].filter(Array.isArray);
+        
+        extendNodes = extendNodeArrays.flat();
+      }
+      
+      // 处理两种可能的关系数据格式
+      let relationships = [];
+      if (result.all_extend_rels) {
+        // 第一种格式：使用 all_extend_rels
+        relationships = Array.isArray(result.all_extend_rels) ? result.all_extend_rels : [];
+      } else {
+        // 第二种格式：合并各种类型的关系
+        const relationshipArrays = [
+          result.r_extend_snps,
+          result.r_extend_genes,
+          result.r_extend_pathways,
+          result.r_extend_ontologies,
+          result.r_extend_articles,
+          result.r_extend_ocrs
+        ].filter(Array.isArray);
+        
+        relationships = relationshipArrays.flat();
+      }
+
+      // 计算周围有效节点的总数
+      const surroundingNodes = [
+        result.snp_node,
+        ...extendNodes
+      ].filter(node => node && node['~id']);
+
+      // 添加文章节点到总数计算中
+      const totalNodes = surroundingNodes.length + (aiAnswer?.article?.[0] ? 1 : 0);
+
+      // 根据节点数量调整节点大小和布局参数
+      const nodeWidth = totalNodes <= 3 ? 180 : 120;
+      const nodeHeight = totalNodes <= 3 ? 40 : 40;
+      const fontSize = totalNodes <= 3 ? '16px' : '14px';
+      const radius = totalNodes <= 3 ? 300 : 240;
+
+      // 创建所有节点数据
+      const nodes = [
+        // 中心基因节点
+        {
+          data: {
+            id: geneNode['~id'],
+            label: geneNode['~properties']?.HGNC_symbol === 'nan' ? geneNode['~id'] : (geneNode['~properties']?.HGNC_symbol || geneNode['~id']),
+            color: colorMap.gene,
+            width: nodeWidth,
+            height: nodeHeight,
+            fontSize: fontSize,
+            isMainNode: true
+          },
+          position: { x: 500, y: 250 }
+        }
+      ];
+
+      // 创建边的数据
       const edges = [];
 
-      queryResult.results.forEach(result => {
-        if (result.snp_node) {
-          nodes.add({
-            data: {
-              id: result.snp_node['~id'],
-              label: result.snp_node['~id'],
-              type: 'main'
-            }
-          });
-        }
+      // 添加其他节点并计算它们的位置
+      let currentIndex = 0;
 
-        if (result.gene_node) {
-          nodes.add({
-            data: {
-              id: result.gene_node['~id'],
-              label: result.gene_node['~id'],
-              type: 'main'
-            }
-          });
-        }
-
-        if (result.extend_node_snp) {
-          nodes.add({
-            data: {
-              id: result.extend_node_snp['~id'],
-              label: result.extend_node_snp['~id'],
-              type: 'extend',
-              nodeType: 'snp'
-            }
-          });
-        }
-
-        if (result.extend_node_gene) {
-          nodes.add({
-            data: {
-              id: result.extend_node_gene['~id'],
-              label: result.extend_node_gene['~id'],
-              type: 'extend',
-              nodeType: 'gene'
-            }
-          });
-        }
-
-        Object.entries(result).forEach(([key, value]) => {
-          if (key.startsWith('r') && value['~type']) {
-            edges.push({
-              data: {
-                id: `edge-${value['~start']}-${value['~end']}`,
-                source: value['~start'],
-                target: value['~end'],
-                label: value['~type'],
-                type: key === 'r' ? 'main' : 'extend'
-              }
-            });
+      // 如果存在 SNP 节点，添加它
+      if (result.snp_node) {
+        const angle = (2 * Math.PI * currentIndex) / totalNodes;
+        nodes.push({
+          data: {
+            id: result.snp_node['~id'],
+            label: result.snp_node['~id'],
+            color: colorMap.sequence_variant,
+            width: nodeWidth,
+            height: nodeHeight,
+            fontSize: fontSize
+          },
+          position: {
+            x: 500 + radius * Math.cos(angle),
+            y: 250 + radius * Math.sin(angle)
           }
         });
+        currentIndex++;
+      }
+
+      // 如果存在文章，添加文章节点和边
+      if (aiAnswer?.article?.[0]) {
+        const angle = (2 * Math.PI * currentIndex) / totalNodes;
+        nodes.push({
+          data: {
+            id: 'article_node',
+            label: 'pmid: ' + aiAnswer.article[0],
+            color: colorMap.article,
+            width: nodeWidth,
+            height: nodeHeight,
+            fontSize: fontSize
+          },
+          position: {
+            x: 500 + radius * Math.cos(angle),
+            y: 250 + radius * Math.sin(angle)
+          }
+        });
+
+        // 添加文章和中心基因之间的边
+        edges.push({
+          data: {
+            id: `article_to_gene`,
+            source: 'article_node',
+            target: geneNode['~id'],
+            label: 'mentioned'
+          }
+        });
+        
+        currentIndex++;
+      }
+
+      // 添加其他扩展节点
+      surroundingNodes.forEach((node, index) => {
+        if (node && node['~id'] && node['~id'] !== result.snp_node?.['~id']) {
+          const angle = (2 * Math.PI * currentIndex) / totalNodes;
+          nodes.push({
+            data: {
+              id: node['~id'],
+              label: node['~properties']?.HGNC_symbol || node['~id'],
+              color: getNodeColor(getNodeType(node)),
+              width: nodeWidth,
+              height: nodeHeight,
+              fontSize: fontSize
+            },
+            position: {
+              x: 500 + radius * Math.cos(angle),
+              y: 250 + radius * Math.sin(angle)
+            }
+          });
+          currentIndex++;
+        }
       });
 
-      const elements = [...Array.from(nodes), ...edges];
+      // 处理主要边
+      if (result.snp_node && result.r) {
+        edges.push({
+          data: {
+            source: result.snp_node['~id'],
+            target: geneNode['~id'],
+            label: getEdgeLabel(result.snp_node, geneNode)
+          }
+        });
+      }
+
+      // 处理扩展边
+      if (Array.isArray(relationships)) {
+        edges.push(...relationships
+          .filter(edge => edge && edge['~start'] && edge['~end'])
+          .map(edge => {
+            const sourceNode = [...surroundingNodes, geneNode]
+              .find(node => node['~id'] === edge['~start']);
+            const targetNode = [...surroundingNodes, geneNode]
+              .find(node => node['~id'] === edge['~end']);
+            
+            return {
+              data: {
+                source: edge['~start'],
+                target: edge['~end'],
+                label: sourceNode && targetNode ? getEdgeLabel(sourceNode, targetNode) : ''
+              }
+            };
+          }));
+      }
 
       cyRef.current = Cytoscape({
         container: containerRef.current,
-        elements: elements,
+        elements: [...nodes, ...edges],
         style: [
           {
             selector: 'node',
             style: {
-              'background-color': '#4a56a6',
+              'shape': 'round-rectangle',
+              'width': 'data(width)',
+              'height': 'data(height)',
+              'background-color': 'data(color)',
               'label': 'data(label)',
-              'width': 20,
-              'height': 20,
-              'font-size': 6,
               'text-valign': 'center',
               'text-halign': 'center',
-              'text-outline-color': '#fff',
-              'text-outline-width': 2,
-              'color': '#000'
+              'font-size': 'data(fontSize)',
+              'font-weight': 'bold',
+              'color': '#ffffff',
+              'border-width': 0,
+              'border-color': '#888',
+              'border-opacity': 0.8,
+              'padding': '10px',
+              'text-wrap': 'wrap',
             }
           },
           {
-            selector: 'node[type="extend"]',
+            selector: 'node[isMainNode]',
             style: {
-              'background-color': '#a6564a',
-              'opacity': 0.7
+              'border-width': '10px',
+              'border-color': '#EBF3FA',
+              'border-opacity': 1,
+              'border-style': 'solid'
             }
           },
           {
             selector: 'edge',
             style: {
               'width': 2,
-              'line-color': '#ccc',
-              'target-arrow-color': '#ccc',
+              'line-color': '#666',
+              'target-arrow-color': '#666',
               'target-arrow-shape': 'triangle',
-              'curve-style': 'bezier',
+              'arrow-scale': 1.5,
+              'curve-style': 'straight',
               'label': 'data(label)',
-              'font-size': 5,
+              'font-size': '10px',
               'text-rotation': 'autorotate',
-              'text-margin-y': -10
+              'text-margin-y': -5,
+              'text-background-color': '#fff',
+              'text-background-opacity': 1,
+              'text-background-padding': '2px'
             }
           },
           {
-            selector: 'edge[type="extend"]',
+            selector: 'edge[label = "interact"]',
             style: {
-              'line-style': 'dashed',
-              'opacity': 0.7,
-              'line-color': '#a6564a'
+              'width': 2,
+              'line-color': '#666',
+              'target-arrow-color': '#666',
+              'source-arrow-color': '#666',
+              'target-arrow-shape': 'triangle',
+              'source-arrow-shape': 'triangle',
+              'arrow-scale': 1.5,
+              'curve-style': 'straight',
+              'label': 'data(label)',
+              'font-size': '10px',
+              'text-rotation': 'autorotate',
+              'text-margin-y': -5,
+              'text-background-color': '#fff',
+              'text-background-opacity': 1,
+              'text-background-padding': '2px'
             }
           }
         ],
         layout: {
-          name: 'cola',
-          animate: false,
-          refresh: 1,
-          maxSimulationTime: 1000,
-          nodeSpacing: function(node) {
-            return node.data('type') === 'main' ? 100 : 50;
-          },
-          edgeLength: function(edge) {
-            return edge.data('type') === 'main' ? 100 : 150;
+          name: 'preset',
+          fit: false,
+          padding: 100,
+          zoom: 0.8,
+          pan: { x: 0, y: 0 }
+        },
+        userZoomingEnabled: false,
+        userPanningEnabled: true,
+      });
+
+      // 添加点击事件处理
+      cyRef.current.on('tap', 'node', function(evt) {
+        const node = evt.target;
+        if (node.id() === 'article_node') {
+          const articleId = node.data('label');
+          if (articleId) {
+            window.open(`https://pubmed.ncbi.nlm.nih.gov/${articleId}`, '_blank');
           }
         }
       });
 
-      const handleZoomIn = () => {
-        cyRef.current.zoom({
-          level: cyRef.current.zoom() * 1.2,
-          renderedPosition: { x: containerRef.current.offsetWidth / 2, y: containerRef.current.offsetHeight / 2 }
-        });
-      };
-
-      const handleZoomOut = () => {
-        cyRef.current.zoom({
-          level: cyRef.current.zoom() / 1.2,
-          renderedPosition: { x: containerRef.current.offsetWidth / 2, y: containerRef.current.offsetHeight / 2 }
-        });
-      };
-
-      const handleReset = () => {
-        cyRef.current.fit();
-        cyRef.current.center();
-      };
-
-      const handleSave = () => {
-        const png = cyRef.current.png();
-        const link = document.createElement('a');
-        link.href = png;
-        link.download = 'knowledge-graph.png';
-        link.click();
-      };
-
-      const toolbox = document.createElement('div');
-      toolbox.style.position = 'absolute';
-      toolbox.style.top = '20px';
-      toolbox.style.right = '20px';
-      toolbox.style.display = 'flex';
-      toolbox.style.flexDirection = 'column';
-      toolbox.style.gap = '8px';
-      toolbox.style.zIndex = '1000';
-      toolbox.style.backgroundColor = 'white';
-      toolbox.style.padding = '8px';
-      toolbox.style.borderRadius = '4px';
-      toolbox.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
-
-      const createButton = (text, onClick) => {
-        const button = document.createElement('button');
-        button.textContent = text;
-        button.onclick = onClick;
-        button.style.padding = '6px 12px';
-        button.style.minWidth = '80px';
-        button.style.backgroundColor = 'white';
-        button.style.border = '1px solid #ddd';
-        button.style.borderRadius = '4px';
-        button.style.cursor = 'pointer';
-        button.style.transition = 'all 0.2s';
-        button.style.fontSize = '14px';
-        
-        button.onmouseover = () => {
-          button.style.backgroundColor = '#f5f5f5';
-        };
-        button.onmouseout = () => {
-          button.style.backgroundColor = 'white';
-        };
-        
-        return button;
-      };
-
-      toolbox.appendChild(createButton('+', handleZoomIn));
-      toolbox.appendChild(createButton('-', handleZoomOut));
-      toolbox.appendChild(createButton('Reset', handleReset));
-      toolbox.appendChild(createButton('Save', handleSave));
-
-      containerRef.current.appendChild(toolbox);
-
-      const resizeGraph = () => {
-        if (cyRef.current) {
-          cyRef.current.resize();
-          cyRef.current.fit();
-        }
-      };
-
-      window.addEventListener('resize', resizeGraph);
-
       return () => {
-        window.removeEventListener('resize', resizeGraph);
         if (cyRef.current) {
           cyRef.current.destroy();
         }
       };
     }
-  }, [queryResult]);
+  }, [queryVisResult, aiAnswer]);
 
-  return <div ref={containerRef} style={{ 
-    width: '100%', 
-    height: '100%', 
-    position: 'relative',
-    overflow: 'hidden'
-  }} />;
+  // 根据节点类型返回颜色
+  const getNodeColor = (nodeType) => {
+    switch (nodeType) {
+      case 'gene':
+        return colorMap.gene;
+      case 'sequence_variant':
+        return colorMap.sequence_variant;
+      case 'pathway':
+        return colorMap.pathway;
+      case 'ontology':
+        return colorMap.ontology;
+      case 'open_chromatin_region':
+        return colorMap.open_chromatin_region;
+      default:
+        return colorMap.sequence_variant;
+    }
+  };
+
+  // 添加一个新的辅助函数来获取节点类型
+  const getNodeType = (node) => {
+    const labels = node['~labels'];
+    if (!labels) return null;
+    
+    // 尝试从labels中找到匹配colorMap中的类型
+    for (const label of labels) {
+      if (label in colorMap) {
+        return label;
+      }
+    }
+    return labels[0]; // 如果没有匹配的，返回第一个label
+  };
+
+  // 添加一个新的辅助函数来确定边的标签
+  const getEdgeLabel = (sourceNode, targetNode) => {
+    const sourceType = getNodeType(sourceNode);
+    const targetType = getNodeType(targetNode);
+    
+    if ((sourceType === 'gene' && targetType === 'sequence_variant') ||
+        (sourceType === 'sequence_variant' && targetType === 'gene')) {
+      return 'eQTL of';
+    }
+    
+    if (sourceType === 'gene' && targetType === 'gene') {
+      return 'interact';
+    }
+
+    if ((sourceType === 'open_chromatin_region' && targetType === 'gene') ||
+        (sourceType === 'gene' && targetType === 'open_chromatin_region')) {
+      return 'locate in';
+    }
+
+    if ((sourceType === 'pathway' && targetType === 'gene') ||
+        (sourceType === 'gene' && targetType === 'pathway')) {
+      return 'belong to';
+    }
+
+    if ((sourceType === 'ontology' && targetType === 'gene') ||
+        (sourceType === 'gene' && targetType === 'ontology')) {
+      return 'annotated by';
+    }
+
+    if ((sourceType === 'article' && targetType === 'gene') ||
+        (sourceType === 'gene' && targetType === 'article')) {
+      return 'mentioned';
+    }
+    
+    return ''; // 默认返回空字符串
+  };
+
+  return (
+    <div ref={containerRef} style={{ 
+      width: '100%', 
+      height: '100%', 
+      position: 'relative',
+      backgroundColor: '#ffffff',
+      borderRadius: '10px',
+      overflow: 'hidden'
+    }} />
+  );
 }
 
 export default KnowledgeGraph;

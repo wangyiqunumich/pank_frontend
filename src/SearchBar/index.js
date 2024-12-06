@@ -12,11 +12,13 @@ import conversionTable from '../utils/conversion_table.json';
 import catalog from '../utils/Catalog.json';
 import { store } from '../redux/store';
 import { setNextQuestionClicked } from '../redux/searchSlice';
+import { queryQueryVisResult } from '../redux/queryVisResultSlice';
 
 function SearchBar({ onSearch, disabled }) {
     const dispatch = useDispatch();
     const {viewSchema, queryViewSchemaStatus} = useSelector((state) => state.viewSchema);
     const {vocab, queryVocabStatus} = useSelector((state) => state.inputToVocab);
+    const {queryVisResult, queryQueryVisResultStatus} = useSelector((state) => state.queryVisResult);
     const [sourceTerm, setSourceTerm] = useState('');
     const [relationship, setRelationship] = useState('');
     const [targetTerm, setTargetTerm] = useState('');
@@ -313,15 +315,22 @@ function SearchBar({ onSearch, disabled }) {
                 const processedQuestion = replaceTerms(viewSchema.question[0], sourceTerm, relationship, targetTerm);
                 dispatch(setProcessedQuestion(processedQuestion));
 
-                if (viewSchema.cyper_for_intermediate_page) {
+                if (viewSchema.cyper_for_intermediate_page && viewSchema.cyper_for_intermediate_KG_viewer) {
                     const processedCypher = replaceCypherTerms(
                         viewSchema.cyper_for_intermediate_page,
                         sourceTerm,
                         targetTerm
                     );
+                    const processedCypherForKGViewer = replaceCypherTerms(
+                        viewSchema.cyper_for_intermediate_KG_viewer,
+                        sourceTerm,
+                        targetTerm
+                    );
                     console.log(processedCypher);
+                    console.log(processedCypherForKGViewer);
                     try {
                         await dispatch(queryQueryResult({query: processedCypher})).unwrap();
+                        await dispatch(queryQueryVisResult({query: processedCypherForKGViewer})).unwrap();
                         onSearch();
                     } catch (error) {
                         console.error('Error executing query:', error);

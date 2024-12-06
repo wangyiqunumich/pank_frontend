@@ -35,11 +35,12 @@ const colorMap = {
   }
   
   export function replaceVariables(text, variables) {
-    const { leadSnp, geneId, tissue, dataSource } = variables;
+    const { leadSnp, geneId, tissue, dataSource, snpId } = variables;
     return text
       .replace(/@lead_snp_node@/g, leadSnp)
       .replace(/@gene_node@/g, geneId)
       .replace(/@tissue@/g, tissue)
-      .replace(/@data_source@/g, dataSource);
+      .replace(/@data_source@/g, dataSource)
+      .replace(/@snp_node@/g, snpId);
   }
   

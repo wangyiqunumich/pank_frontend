@@ -8,7 +8,7 @@ import typeToImageReducer from './typeToImageSlice'
 import inputToVocabReducer from './inputToVocabSlice'
 import searchReducer from './searchSlice'
 import variablesReducer from './variablesSlice'
-
+import queryVisResultReducer from './queryVisResultSlice'
 const store = configureStore({
     reducer: {
         viewSchema: viewSchemaReducer,
@@ -20,6 +20,7 @@ const store = configureStore({
         inputToVocab: inputToVocabReducer,
         search: searchReducer,
         variables: variablesReducer,
+        queryVisResult: queryVisResultReducer,
     },
 });
 

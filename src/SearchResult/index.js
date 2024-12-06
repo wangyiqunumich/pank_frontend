@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Box, List, ListItem, Link, CircularProgress } from '@mui/material';
+import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Box, List, ListItem, Link, CircularProgress, Divider } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import './scoped.css';
 import KnowledgeGraph from '../components/KnowledgeGraph';
@@ -18,11 +18,13 @@ import { replaceVariables } from '../utils/textProcessing';
 import { store } from '../redux/store';
 
 const colorMap = {
-    gene: '#43978F',
-    sequence_variant: '#E56F5E',
-    eQTL_of: '#FBE8D5',
-    default: '#DCE9F4'
-};
+    gene: "#ABD0F1",
+    sequence_variant: "#FFB77F",
+    pathway: "#F6C957",
+    ontology : "#8c561b",
+    article:"#e377c2",
+    open_chromatin_region: "#8c564b",
+  };
 
 function TypewriterEffect({ text, speed = 5, onComplete }) {
     const [displayedText, setDisplayedText] = useState('');
@@ -70,9 +72,57 @@ const SNPPlotImage = ({ imageSrc }) => {
   );
 };
 
+const Legend = () => (
+  <div className="styled-paper" data-title="Legend">
+    <Box sx={{ 
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 2
+    }}>
+      {/* 第一行 */}
+      <Box sx={{ 
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: 2
+      }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ width: 20, height: 20, backgroundColor: '#ABD0F1', borderRadius: '4px' }} />
+          <Typography variant="body2">Gene</Typography>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ width: 20, height: 20, backgroundColor: '#FFB77F', borderRadius: '4px' }} />
+          <Typography variant="body2">Sequence Variant</Typography>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ width: 20, height: 20, backgroundColor: '#F6C957', borderRadius: '4px' }} />
+          <Typography variant="body2">Pathway</Typography>
+        </Box>
+      </Box>
+      {/* 第二行 */}
+      <Box sx={{ 
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: 2
+      }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ width: 20, height: 20, backgroundColor: '#8c561b', borderRadius: '4px' }} />
+          <Typography variant="body2">Ontology</Typography>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ width: 20, height: 20, backgroundColor: '#e377c2', borderRadius: '4px' }} />
+          <Typography variant="body2">Article</Typography>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ width: 20, height: 20, backgroundColor: '#8c564b', borderRadius: '4px' }} />
+          <Typography variant="body2">Open Chromatin Region</Typography>
+        </Box>
+      </Box>
+    </Box>
+  </div>
+);
 
 function SearchResult() {
-    const { currentQuestion, nextQuestions } = useSelector((state) => state.processedQuestion);
+    const { currentQuestion, nextQuestions, aiQuestions } = useSelector((state) => state.processedQuestion);
     const queryResult = useSelector((state) => state.queryResult.queryResult);
     const { aiAnswer, queryAiAnswerStatus } = useSelector((state) => state.aiAnswer);
     const searchState = useSelector((state) => state.search);
@@ -84,8 +134,9 @@ function SearchResult() {
     const queryTypeToImageStatus = useSelector((state) => state.typeToImage.queryTypeToImageStatus);
     useEffect(() => {
         if (queryResult.results.length != 0) {
+            console.log(aiQuestions);
             dispatch(queryAiAnswer({
-                "question": currentQuestion, 
+                "question": aiQuestions, 
                 "graph": queryResult
             })).unwrap();
         }
@@ -151,7 +202,7 @@ This answer refers to the following resources in PanKbase:`;
     };
 
     // 如果正在加载答案或答案为空，显示加载状态
-    if (queryAiAnswerStatus === 'pending' || !aiAnswer?.answer) {
+    if (queryAiAnswerStatus === 'pending' || !aiAnswer?.answers) {
         return (
             <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
                 <CircularProgress />
@@ -194,97 +245,20 @@ This answer refers to the following resources in PanKbase:`;
                             <KnowledgeGraph />
                         </div>
                     </div>
+                    <Legend />
                 </div>
 
                 <div className="left-column">
                     <div className="styled-paper" data-title="Answer">
                         <div className="answer-content">
                             <Typography component="div">
-                                {/* 注释掉打字机效果，直接显示答案 */}
-                                {/* <TypewriterEffect 
-                                    text={aiAnswer.answer}
-                                    onComplete={handleTypewriterComplete}
-                                /> */}
-                                <span dangerouslySetInnerHTML={{ __html: aiAnswer.answer }} />
+                                {Array.isArray(aiAnswer?.answers) && aiAnswer.answers.map((answer, index) => (
+                                    <div key={index} style={{ marginBottom: index < aiAnswer.answers.length - 1 ? '20px' : '0' }}>
+                                        <span dangerouslySetInnerHTML={{ __html: answer }} />
+                                        {index < aiAnswer.answers.length - 1 && <Divider sx={{ my: 2 }} />}
+                                    </div>
+                                ))}
                             </Typography>
-                            {/* 修改这里，直接显示表格，不需要等待打字机效果完成 */}
-                            <List sx={{ width: '100%', mt: 2 }}>
-                                <ListItem sx={{ 
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    gap: 2
-                                }}>
-                                    <Typography variant="body1" sx={{ 
-                                        fontWeight: 'bold',
-                                        minWidth: '120px'
-                                    }}>
-                                        • eQTL:
-                                    </Typography>
-                                    <Typography 
-                                        component="span"
-                                        sx={{ 
-                                            color: '#0000FF', 
-                                            cursor: 'pointer', 
-                                            textDecoration: 'underline'
-                                        }}
-                                        onClick={handleOpenModal}
-                                    >
-                                        SNP p-values Plot (Manhattan plot)
-                                    </Typography>
-                                </ListItem>
-
-                                <ListItem sx={{ 
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    gap: 2
-                                }}>
-                                    <Typography variant="body1" sx={{ 
-                                        fontWeight: 'bold',
-                                        minWidth: '120px'
-                                    }}>
-                                        • Analytical pipeline:
-                                    </Typography>
-                                    <Link href="#" sx={{ color: '#0000FF' }}>
-                                        Link to PanKbase Analytical Pipeline
-                                    </Link>
-                                </ListItem>
-
-                                <ListItem sx={{ 
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    gap: 2
-                                }}>
-                                    <Typography variant="body1" sx={{ 
-                                        fontWeight: 'bold',
-                                        minWidth: '120px'
-                                    }}>
-                                        • Dataset:
-                                    </Typography>
-                                    <Link href="#" sx={{ color: '#0000FF' }}>
-                                        Link to PanKbase Data Catalog
-                                    </Link>
-                                </ListItem>
-
-                                <ListItem sx={{ 
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    gap: 2
-                                }}>
-                                    <Typography variant="body1" sx={{ 
-                                        fontWeight: 'bold',
-                                        minWidth: '120px'
-                                    }}>
-                                        • Donors:
-                                    </Typography>
-                                    <Typography>
-                                        (50) HPAP 024, HPAP 027, ..
-                                    </Typography>
-                                </ListItem>
-                            </List>
                         </div>
                     </div>
 
