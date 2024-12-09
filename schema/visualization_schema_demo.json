@@ -11,15 +11,15 @@
       }
         "data_source_KG_frontend": {
           "GTEx; SusieR": "eQTL GTEx",
-          "InsPIRE; SusieR": "eQTL Gene-level InsPIRE",
+          "INSPIRE; SusieR": "eQTL Gene-level InsPIRE",
           "splicing; GTEx": "splicing QTL GTEx",
-          "exon; InsPIRE": "exon-QTL Exon-level InsPIRE"
+          "exon; INSPIRE": "exon-QTL Exon-level InsPIRE"
       },
       "data_source_frontend_KG": {
           "eQTL GTEx": "GTEx; SusieR",
-          "eQTL Gene-level InsPIRE": "InsPIRE; SusieR",
+          "eQTL Gene-level InsPIRE": "INSPIRE; SusieR",
           "splicing QTL GTEx": "splicing; GTEx; SusieR",
-          "exon-QTL Exon-level InsPIRE": "exon; InsPIRE"
+          "exon-QTL Exon-level InsPIRE": "exon; INSPIRE"
       },
         "Tissue_KG_tissue_name": {
           "GTEx; SusieR": "pancreatic",
