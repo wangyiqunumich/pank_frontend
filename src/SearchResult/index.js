@@ -16,6 +16,7 @@ import { setProcessedQuestion } from '../redux/processedQuestionSlice';
 import { setVariables } from '../redux/variablesSlice';
 import { replaceVariables } from '../utils/textProcessing';
 import { store } from '../redux/store';
+import { queryQueryVisResult } from '../redux/queryVisResultSlice';
 
 const colorMap = {
     gene: "#ABD0F1",
@@ -122,7 +123,7 @@ const Legend = () => (
 );
 
 function SearchResult() {
-    const { currentQuestion, nextQuestions, aiQuestions } = useSelector((state) => state.processedQuestion);
+    const { currentQuestion, nextQuestions, aiQuestions, aiAnswerTitle, aiAnswerSubtitle } = useSelector((state) => state.processedQuestion);
     const queryResult = useSelector((state) => state.queryResult.queryResult);
     const { aiAnswer, queryAiAnswerStatus } = useSelector((state) => state.aiAnswer);
     const searchState = useSelector((state) => state.search);
@@ -132,11 +133,17 @@ function SearchResult() {
     const dispatch = useDispatch();
     const snpPlotImage = useSelector((state) => state.typeToImage.typeToImage);
     const queryTypeToImageStatus = useSelector((state) => state.typeToImage.queryTypeToImageStatus);
+    const removeConsecutiveAsterisks = (text) => {
+        return text.replace(/\*\*/g, '');
+    };
     useEffect(() => {
         if (queryResult.results.length != 0) {
-            console.log(aiQuestions);
+            const processedQuestions = aiQuestions.map(question => 
+                `${question} (answer the question in 50 words)`
+            );
+            console.log(processedQuestions);
             dispatch(queryAiAnswer({
-                "question": aiQuestions, 
+                "question": processedQuestions, 
                 "graph": queryResult
             })).unwrap();
         }
@@ -196,6 +203,7 @@ This answer refers to the following resources in PanKbase:`;
                     }));
                     
                     dispatch(queryQueryResult({ query }));
+                    dispatch(queryQueryVisResult({ query }));
                 }
             });
         }
@@ -251,10 +259,25 @@ This answer refers to the following resources in PanKbase:`;
                 <div className="left-column">
                     <div className="styled-paper" data-title="Answer">
                         <div className="answer-content">
+                            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+                                {aiAnswerTitle}
+                            </Typography>
                             <Typography component="div">
                                 {Array.isArray(aiAnswer?.answers) && aiAnswer.answers.map((answer, index) => (
                                     <div key={index} style={{ marginBottom: index < aiAnswer.answers.length - 1 ? '20px' : '0' }}>
-                                        <span dangerouslySetInnerHTML={{ __html: answer }} />
+                                        {aiAnswerSubtitle && aiAnswerSubtitle[index] && (
+                                            <Typography variant="subtitle1" sx={{ 
+                                                mt: 2, 
+                                                mb: 1,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 1
+                                            }}>
+                                                <span style={{ color: '#FFD700' }}>✨</span> 
+                                                {aiAnswerSubtitle[index]}
+                                            </Typography>
+                                        )}
+                                        <span dangerouslySetInnerHTML={{ __html: removeConsecutiveAsterisks(answer) }} />
                                         {index < aiAnswer.answers.length - 1 && <Divider sx={{ my: 2 }} />}
                                     </div>
                                 ))}

@@ -3,7 +3,9 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   currentQuestion: '',
   nextQuestions: [],
-  aiQuestions: []
+  aiQuestions: [],
+  aiAnswerTitle: '',
+  aiAnswerSubtitle: ''
 };
 
 export const processedQuestionSlice = createSlice({
@@ -14,11 +16,15 @@ export const processedQuestionSlice = createSlice({
       state.currentQuestion = action.payload.currentQuestion;
       state.nextQuestions = action.payload.nextQuestions;
       state.aiQuestions = action.payload.aiQuestions || [];
+      state.aiAnswerTitle = action.payload.aiAnswerTitle || '';
+      state.aiAnswerSubtitle = action.payload.aiAnswerSubtitle || '';
     },
     clearProcessedQuestion: (state) => {
       state.currentQuestion = '';
       state.nextQuestions = [];
       state.aiQuestions = [];
+      state.aiAnswerTitle = '';
+      state.aiAnswerSubtitle = '';
     }
   }
 });

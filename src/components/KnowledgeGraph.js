@@ -113,7 +113,8 @@ function KnowledgeGraph() {
             color: colorMap.sequence_variant,
             width: nodeWidth,
             height: nodeHeight,
-            fontSize: fontSize
+            fontSize: fontSize,
+            isMainNode: true
           },
           position: {
             x: 500 + radius * Math.cos(angle),
@@ -129,7 +130,7 @@ function KnowledgeGraph() {
         nodes.push({
           data: {
             id: 'article_node',
-            label: 'pmid: ' + aiAnswer.article[0],
+            label: 'PMID: ' + aiAnswer.article[0],
             color: colorMap.article,
             width: nodeWidth,
             height: nodeHeight,
@@ -291,8 +292,9 @@ function KnowledgeGraph() {
       });
 
       // 添加点击事件处理
-      cyRef.current.on('tap', 'node', function(evt) {
+      cyRef.current.on('click', 'node', function(evt) {
         const node = evt.target;
+        console.log(node.id());
         if (node.id() === 'article_node') {
           const articleId = node.data('label');
           if (articleId) {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Typography, List, ListItem, ListItemText, Box } from '@mui/material';
+import { Container, Typography, List, ListItem, ListItemText, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { useSelector, useDispatch } from 'react-redux';
@@ -208,12 +208,16 @@ function IntermediatePage({ onContinue }) {
       return processedQuestion;
     }) || [];
 
+    const processedAiAnswerTitle = viewSchema?.ai_answer_title.replace(/@snp_node@/g, snpId).replace(/@gene_id@/g, geneId);
+
     try {
       // 保存处理后的问题和下一步问题到 redux store
       dispatch(setProcessedQuestion({
         currentQuestion: processedCurrentQuestion,
         nextQuestions: processedNextQuestions,
-        aiQuestions: processedAiQuestions
+        aiQuestions: processedAiQuestions,
+        aiAnswerTitle: processedAiAnswerTitle,
+        aiAnswerSubtitle: viewSchema?.ai_answer_sub_title
       }));
       onContinue();
       await dispatch(queryQueryVisResult({query: query})).unwrap();
@@ -399,21 +403,45 @@ function IntermediatePage({ onContinue }) {
                         <Typography variant="body2" color="text.secondary">
                           {item.description}
                         </Typography>
-                        {item.results.map((result, index) => (
-                          <Typography 
-                            key={index}
-                            variant="body2" 
-                            sx={{ 
-                              mt: 1,
-                              color: '#0000FF',
-                              textDecoration: 'underline',
-                              cursor: 'pointer'
-                            }}
-                            onClick={() => handleSNPClick(result.snpId, result.geneId, key, result.leadSnp)}
-                          >
-                            SNP {result.snpId} with PIP = {result.pip} in a credible set of {result.nSnp} SNP purity = {result.purity}
-                          </Typography>
-                        ))}
+                        <TableContainer component={Paper} sx={{ 
+                          mt: 1, 
+                          mb: 1,
+                          '& .MuiTableHead-root': {
+                            backgroundColor: '#f5f5f5'
+                          },
+                          '& .MuiTableCell-head': {
+                            fontWeight: 'bold'
+                          },
+                          '& .MuiTableRow-root:hover': {
+                            backgroundColor: '#f5f5f5'
+                          }
+                        }}>
+                          <Table size="small">
+                            <TableHead>
+                              <TableRow>
+                                <TableCell>SNP</TableCell>
+                                <TableCell align="right">PIP</TableCell>
+                                <TableCell align="right">Credible set size</TableCell>
+                                <TableCell align="right">Purity</TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {item.results.map((result, index) => (
+                                <TableRow 
+                                  key={index}
+                                  hover
+                                  onClick={() => handleSNPClick(result.snpId, result.geneId, key, result.leadSnp)}
+                                  sx={{ cursor: 'pointer' }}
+                                >
+                                  <TableCell component="th" scope="row">{result.snpId}</TableCell>
+                                  <TableCell align="right">{result.pip}</TableCell>
+                                  <TableCell align="right">{result.nSnp}</TableCell>
+                                  <TableCell align="right">{result.purity}</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
                       </Box>
                     )}
                   </ListItem>
