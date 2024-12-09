@@ -29,9 +29,9 @@
             "gene": "#ABD0F1",
             "sequence_variant": "#FFB77F",
             "pathway": "#F6C957",
-            "ontology" : "#8c561b",
-            "article":"#e377c2",
-            "open chromatin region": "#8c564b",
+            "ontology" : "#B57E47",
+            "article":"#87C8BC",
+            "open chromatin region": "#E39ECE",
       }
 },
     "sequence_variant - fine_mapped_eQTL - gene": {
