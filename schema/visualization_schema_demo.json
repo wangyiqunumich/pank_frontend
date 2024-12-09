@@ -12,7 +12,7 @@
         "data_source_KG_frontend": {
           "GTEx; SusieR": "eQTL GTEx",
           "InsPIRE; SusieR": "eQTL Gene-level InsPIRE",
-          "splicing; GTEx; SusieR": "splicing QTL GTEx",
+          "splicing; GTEx": "splicing QTL GTEx",
           "exon; InsPIRE": "exon-QTL Exon-level InsPIRE"
       },
       "data_source_frontend_KG": {
