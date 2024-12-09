@@ -67,7 +67,7 @@
                     "Specific relation to Type 1 Diabetes:"
               ],
             "ai_answer_title":
-                  "Currently SNP @sno_node@ is the eQTL of an gene: @gene_node@(@gene_id@)"
+                  "Currently SNP @sno_node@ is the eQTL of the gene: @gene_node@(@gene_id@)"
             ,
             "next_questions": [
                 "What regulatory impact does the lead SNP @lead_snp_node@ from the credible set have on @gene_node@ eQTL within @tissue@ tissue, according to @data_source@ evidence?":
