@@ -63,13 +63,14 @@ Resources:
 - To learn basic openCypher query syntax, refer to [this guide](https://neo4j.com/docs/cypher-manual/current/queries/basic/?utm_source=GSearch&utm_medium=PaidSearch&utm_campaign=Evergreen&utm_content=AMS-Search-SEMCE-DSA-None-SEM-SEM-NonABM&utm_term=&utm_adgroup=DSA&gad_source=1&gclid=CjwKCAiArva5BhBiEiwA-oTnXXVaj70Ck95TVwLXHnxpcTNpX0Vl_4xFUjGR7sQFMkm8mC3dFyfmWRoCNh0QAvD_BwE#find-nodes).
 - To learn openCypher grammar, please refer to [this page](https://opencypher.org/resources/).
 
-### Attention!!! [Important]
+### Attention [Important]
+
+(To web team: please highlight this section)
 
 Due to how quotation marks are interpreted in `JSON` strings,
 when submitting queries via the command line,
 please ensure the query be within one line,
 and all quotation marks (`"` or `'`) replaced with `\"` to avoid syntax error.
-
 
 
 For example,
