@@ -13,17 +13,20 @@
           "GTEx; SusieR": "eQTL GTEx",
           "INSPIRE; SusieR": "eQTL Gene-level InsPIRE",
           "splicing; GTEx": "splicing QTL GTEx",
-          "exon; INSPIRE": "exon-QTL Exon-level InsPIRE"
+          "exon; INSPIRE": "exon QTL InsPIRE"
       },
       "data_source_frontend_KG": {
           "eQTL GTEx": "GTEx; SusieR",
           "eQTL Gene-level InsPIRE": "INSPIRE; SusieR",
           "splicing QTL GTEx": "splicing; GTEx; SusieR",
-          "exon-QTL Exon-level InsPIRE": "exon; INSPIRE"
+          "exon QTL InsPIRE": "exon; INSPIRE"
       },
         "Tissue_KG_tissue_name": {
           "GTEx; SusieR": "pancreatic",
-          "INSPIRE; SusieR": "islet"
+          "INSPIRE; SusieR": "islet",
+          "splicing; GTEx": "pancreatic",,
+          "exon; INSPIRE": "islet",
+              
       },
         "Color": {
             "gene": "#ABD0F1",
