@@ -143,7 +143,7 @@ function SearchResult() {
             );
             console.log(processedQuestions);
             dispatch(queryAiAnswer({
-                "question": processedQuestions, 
+                "questions": processedQuestions, 
                 "graph": queryResult
             })).unwrap();
         }

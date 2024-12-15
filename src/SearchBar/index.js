@@ -26,6 +26,7 @@ function SearchBar({ onSearch, disabled }) {
     const [targetOptions, setTargetOptions] = useState([]);
     const [isRelationshipDisabled, setIsRelationshipDisabled] = useState(true);
     const [isTargetTermDisabled, setIsTargetTermDisabled] = useState(true);
+    const [displayToActualMap, setDisplayToActualMap] = useState({});
 
     const {aiAnswer, queryAiAnswerStatus, queryAiAnswerErrorMessage} = useSelector((state) => state.aiAnswer);
     const {queryResult, queryResultStatus, queryResultErrorMessage} = useSelector((state) => state.queryResult);
@@ -160,71 +161,55 @@ function SearchBar({ onSearch, disabled }) {
         }
     };
 
+    const [targetDisplayTerm, setTargetDisplayTerm] = useState('');
+
     const updateTargetTerm = async (event, newValue) => {
+        console.log(newValue);
         if (store.getState().search.nextQuestionClicked) {
-            dispatch(setNextQuestionClicked(false));
             return;
         }
-        setTargetTerm(newValue || '');
-        dispatch(queryQueryResult({ query: '' }));
+        
+        setTargetDisplayTerm(newValue || '');
         
         if (newValue) {
             clearTimeout(targetTimerRef.current);
             targetTimerRef.current = setTimeout(async () => {
-                const result = await dispatch(queryVocab({input: newValue})).unwrap();
-                if (result) {
-                    let inputType;
-                    if (result.includes('@')) {
-                        const [type, value] = result.split('@');
-                        inputType = type;
-                    } else {
-                        inputType = result;
+                try {
+                    console.log(newValue);
+                    const result = await dispatch(queryVocab({input: newValue})).unwrap();
+                    if (result) {
+                        let formattedOption;
+                        if (result.includes('@')) {
+                            const [type, value] = result.split('@');
+                            formattedOption = `${type}:${value}`;
+                            setTargetOptions([formattedOption]);
+                            setTargetTerm(formattedOption);
+                            dispatch(setSearchTerms({
+                                ...store.getState().search,
+                                targetTerm: formattedOption
+                            }));
+                        } else {
+                            formattedOption = `${result}:${newValue}`;
+                            setTargetOptions([formattedOption]);
+                            setTargetTerm(formattedOption);
+                            dispatch(setSearchTerms({
+                                ...store.getState().search,
+                                targetTerm: formattedOption
+                            }));
+                        }
                     }
-                    
-                    // 获取当前的 sourceTerm 和 relationship
-                    const sourceType = sourceTerm.split(':')[0];
-                    const frontendToKG = conversionTable.Conversion_table.query_vocab_frontend_KG;
-                    const KGToFrontend = conversionTable.Conversion_table.query_vocab_KG_frontend;
-                    
-                    // 转换为 KG 格式
-                    const kgSourceType = frontendToKG[sourceType] || sourceType;
-                    const kgRelationship = frontendToKG[relationship] || relationship;
-                    
-                    // 在 catalog 中查找可能的目标类型
-                    const possiblePatterns = catalog.filter(pattern => {
-                        const parts = pattern.split(" - ");
-                        return parts[0] === kgSourceType && parts[1] === kgRelationship;
-                    });
-                    
-                    const validTargetTypes = new Set(
-                        possiblePatterns.map(pattern => {
-                            const parts = pattern.split(" - ");
-                            const targetType = parts[2];
-                            return KGToFrontend[targetType] || targetType;
-                        })
-                    );
-
-                    // 检查API返回的类型是否有效
-                    if (!validTargetTypes.has(inputType)) {
-                        setTargetOptions([]);
-                        return;
-                    }
-                    
-                    // 如果类型有效，设置选项
-                    let formattedOption;
-                    if (result.includes('@')) {
-                        const [type, value] = result.split('@');
-                        formattedOption = `${type}:${value}`;
-                        setTargetOptions([formattedOption]);
-                        setTargetTerm(formattedOption); // 立即设置选中值
-                    } else {
-                        formattedOption = `${result}:${newValue}`;
-                        setTargetOptions([formattedOption]);
-                    }
+                } catch (error) {
+                    console.error('Error querying vocab:', error);
                 }
             }, 500);
         } else {
+            setTargetTerm('');
+            setTargetDisplayTerm('');
             setTargetOptions([]);
+            dispatch(setSearchTerms({
+                ...store.getState().search,
+                targetTerm: ''
+            }));
         }
     };
 
@@ -422,12 +407,27 @@ function SearchBar({ onSearch, disabled }) {
                     <FormControl fullWidth>
                         {!isCustomSource ? (
                             <Autocomplete
-                                freeSolo
-                                value={targetTerm}
-                                onInputChange={updateTargetTerm}
+                                value={targetTerm ? targetOptions.find(option => displayToActualMap[option] === targetTerm) || '' : ''}
+                                onChange={updateTargetTerm}
+                                onInputChange={(event, newInputValue) => {
+                                    // 直接调用 updateTargetTerm
+                                    updateTargetTerm(event, newInputValue);
+                                }}
                                 options={targetOptions}
-                                disabled={isTargetTermDisabled || disabled}
-                                renderInput={(params) => <TextField {...params} label="3. Target Term" />}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        label="Target Term"
+                                        variant="outlined"
+                                        onChange={(event) => {
+                                            // 当输入框值改变时也触发更新
+                                            updateTargetTerm(event, event.target.value);
+                                        }}
+                                    />
+                                )}
+                                disabled={isTargetTermDisabled}
+                                freeSolo
+                                filterOptions={(options) => options} // 保持选项不被过滤
                             />
                         ) : (
                             <>
