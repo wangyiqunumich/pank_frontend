@@ -22,7 +22,7 @@ function SearchBar({ onSearch, disabled }) {
     const [sourceTerm, setSourceTerm] = useState('');
     const [relationship, setRelationship] = useState('');
     const [targetTerm, setTargetTerm] = useState('');
-    const [sourceOptions, setSourceOptions] = useState(["gene", "sequence variant"]);
+    const [sourceOptions, setSourceOptions] = useState(["sequence variant"]);
     const [targetOptions, setTargetOptions] = useState([]);
     const [isRelationshipDisabled, setIsRelationshipDisabled] = useState(true);
     const [isTargetTermDisabled, setIsTargetTermDisabled] = useState(true);
@@ -233,7 +233,7 @@ function SearchBar({ onSearch, disabled }) {
         // 模拟API调用
         // 在实际应用，这里应该是一个真实的API调用
         const mockResults = [
-            { type: 'gene', term: `${term}` },
+            // { type: 'gene', term: `${term}` },
             { type: 'sequence variant', term: `${term}` },
         ];
         

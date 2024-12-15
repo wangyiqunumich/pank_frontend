@@ -44,3 +44,28 @@ const colorMap = {
       .replace(/@snp_node@/g, snpId);
   }
   
+  // 从conversion table中获取数据源对应的前端显示和组织信息
+  export const getDataSourceInfo = (dataSource, conversionTable) => {
+    if (!dataSource || !conversionTable?.Conversion_table) {
+      return {
+        tissue: '',
+        frontendKG: ''
+      };
+    }
+
+    const tissueMap = conversionTable.Conversion_table.Tissue_KG_tissue_name || {};
+    const frontendMap = conversionTable.Conversion_table.data_source_KG_frontend || {};
+    return {
+      tissue: tissueMap[dataSource] || '',
+      frontendKG: frontendMap[dataSource] || dataSource
+    };
+  };
+
+  // 生成边的标签
+  export const generateEdgeLabel = (dataSource, conversionTable) => {
+    const { tissue, frontendKG } = getDataSourceInfo(dataSource, conversionTable);
+    if (!tissue || !frontendKG) return 'eQTL';
+    
+    return `${tissue} ${frontendKG}`;
+  };
+  

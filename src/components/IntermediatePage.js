@@ -1,5 +1,17 @@
 import React from 'react';
-import { Container, Typography, List, ListItem, ListItemText, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import { 
+  Container, 
+  Typography, 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow, 
+  Paper, 
+  Box,
+  Link 
+} from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { useSelector, useDispatch } from 'react-redux';
@@ -12,6 +24,8 @@ import KnowledgeGraph from './KnowledgeGraph';
 import { setSearchTerms } from '../redux/searchSlice';
 import { setVariables } from '../redux/variablesSlice';
 import { replaceVariables } from '../utils/textProcessing';
+import IntermediateKG from './IntermediateKG';
+import { getDataSourceInfo } from '../utils/textProcessing';
 
 function IntermediatePage({ onContinue }) {
   const dispatch = useDispatch();
@@ -21,50 +35,57 @@ function IntermediatePage({ onContinue }) {
   const conversionTable = require('../utils/conversion_table.json');
 
   const processDataSources = () => {
-    console.log(queryResult);
-    if (!queryResult?.results) return {};
-    
+    if (!queryResult?.results?.[0]) return {
+      'Pancreatic': {
+        'eQTL GTEx': 0,
+        'eQTL InsPIRE': 0,
+        'Splicing QTL GTEx': 0,
+        'Exon QTL InsPIRE': 0
+      },
+      'Islet': {
+        'eQTL GTEx': 0,
+        'eQTL InsPIRE': 0,
+        'Splicing QTL GTEx': 0,
+        'Exon QTL InsPIRE': 0
+      }
+    };
+
+    // 初始化计数对象
     const counts = {
-      'GTEx; SusieR': 0,
-      'INSPIRE; SusieR': 0,
-      'splicing QTL GTEx': 0
+      'Pancreatic': {
+        'eQTL GTEx': 0,
+        'eQTL InsPIRE': 0,
+        'Splicing QTL GTEx': 0,
+        'Exon QTL InsPIRE': 0
+      },
+      'Islet': {
+        'eQTL GTEx': 0,
+        'eQTL InsPIRE': 0,
+        'Splicing QTL GTEx': 0,
+        'Exon QTL InsPIRE': 0
+      }
     };
+
+    // 处理每个组的数据
+    const results = queryResult.results;
     
-    // 按数据源分组的结果
-    const groupedResults = {
-      'GTEx; SusieR': [],
-      'INSPIRE; SusieR': [],
-      'splicing QTL GTEx': []
-    };
+    results.forEach(result => {
+      // 使用Set去重credible sets
+      const uniqueCredibleSets = Array.from(
+        new Map(result.credible_sets.map(item => [item.id, item])).values()
+      );
 
-    queryResult.results.forEach(result => {
-      const dataSource = result.belong_to_credible_set["~properties"].data_source;
-      if (dataSource && counts.hasOwnProperty(dataSource)) {
-        counts[dataSource]++;
-        groupedResults[dataSource].push(result);
-      }
+      uniqueCredibleSets.forEach(cs => {
+        const { tissue, frontendKG } = getDataSourceInfo(cs.data_source, conversionTable);
+        console.log(frontendKG);
+        if (tissue && frontendKG) {
+          const tissueKey = tissue === 'pancreatic' ? 'Pancreatic' : 'Islet';
+          counts[tissueKey][frontendKG] = (counts[tissueKey][frontendKG] || 0) + 1;
+        }
+      });
     });
-
-    const items = {};
-    Object.entries(counts).forEach(([kg_name, count]) => {
-      const frontend_name = conversionTable.Conversion_table.data_source_KG_frontend[kg_name];
-      if (frontend_name) {
-        items[frontend_name] = {
-          title: `${frontend_name} (${count})`,
-          description: getDescription(frontend_name),
-          results: groupedResults[kg_name].map(result => ({
-            snpId: result.snp_node["~id"],
-            geneId: result.gene_node["~id"],
-            pip: result.belong_to_credible_set["~properties"].pip,
-            nSnp: result.credible_set_node["~properties"].n_snp,
-            purity: result.credible_set_node["~properties"].purity,
-            leadSnp: result.credible_set_node["~properties"].lead_SNP
-          }))
-        };
-      }
-    });
-
-    return items;
+    console.log(counts);
+    return counts;
   };
 
   const getDescription = (name) => {
@@ -78,7 +99,6 @@ function IntermediatePage({ onContinue }) {
 
   const items = processDataSources();
 
-  console.log(queryResult);
   const searchState = useSelector((state) => state.search) || { 
     sourceTerm: '', 
     relationship: '', 
@@ -96,22 +116,23 @@ function IntermediatePage({ onContinue }) {
       )
     : 'Loading...';
 
-  const [expandedItems, setExpandedItems] = React.useState({
-    eQTL: true,
-    splicing: false,
-    exon: false
-  });
-
-  const handleExpand = (item) => {
-    setExpandedItems(prev => ({
-      ...prev,
-      [item]: !prev[item]
-    }));
-  };
-
-  const handleSNPClick = async (snpId, geneId, dataSource, leadSnp) => {
+  const handleSNPClick = async (snpId, dataSource, leadSnp) => {
     const { cyper_for_result_page_all_nodes_specific, question_for_result, next_questions } = viewSchema;
     if (!cyper_for_result_page_all_nodes_specific || !question_for_result) return;
+
+    // 从 searchTerms 中获取 geneId
+    let geneId = '';
+    console.log(searchState);
+    if (searchState.sourceTerm.startsWith('gene:')) {
+      geneId = searchState.sourceTerm.split(':')[1];
+    } else if (searchState.targetTerm.startsWith('gene:')) {
+      geneId = searchState.targetTerm.split(':')[1];
+    }
+
+    if (!geneId) {
+      console.error('No gene ID found in search terms');
+      return;
+    }
 
     // 获取组织名称和数据源前端显示名称
     const tissueMap = conversionTable.Conversion_table.Tissue_KG_tissue_name;
@@ -263,21 +284,23 @@ function IntermediatePage({ onContinue }) {
           width: '40%',
           display: 'flex',
           flexDirection: 'column',
-          gap: 3
+          gap: 3,
+          position: 'relative'
         }}>
           {/* KG Viewer */}
           <Box sx={{ 
             position: 'relative',
             borderRadius: '20px',
             minHeight: '500px',
-            boxShadow: '0px 3px 3px -2px rgba(0,0,0,0.2), 0px 3px 4px 0px rgba(0,0,0,0.14), 0px 1px 8px 0px rgba(0,0,0,0.12)',
+            boxShadow: '0px 3px 3px -2px rgba(0,0,0,0.2)',
             padding: '32px',
             paddingTop: '48px',
+            overflow: 'visible',
             '&::before': {
               content: '"KG viewer"',
               position: 'absolute',
-              top: '-15px',
-              left: '20px',
+              top: '16px',
+              left: '32px',
               backgroundColor: 'white',
               padding: '0 10px',
               fontSize: '1.2rem',
@@ -285,11 +308,12 @@ function IntermediatePage({ onContinue }) {
             }
           }}>
             <Box sx={{ 
-              marginLeft: '-115%',
-              width: '220%',
-              height: '100%'
+              marginLeft: '-100%',
+              width: '200%',
+              height: '100%',
+              position: 'relative'
             }}>
-              <KnowledgeGraph />
+              <IntermediateKG />
             </Box>
           </Box>
 
@@ -369,84 +393,105 @@ function IntermediatePage({ onContinue }) {
           <div className="styled-paper" data-title="Answer">
             <div className="answer-content">
               <Typography variant="body2" sx={{ mb: 2 }}>
-                Displayed here are four types of QTL (quantitative trait loci) data, utilizing pancreatic or islet tissue samples to target gene/exon expression or splicing.
+                Found four categories of Quantitative Trait Loci (QTL) data, derived from pancreatic and islet tissue samples. GENE-CS-SNP
               </Typography>
               
-              <List sx={{ width: '100%' }}>
-                {Object.entries(items).map(([key, item]) => (
-                  <ListItem 
-                    key={key}
-                    sx={{ 
-                      bgcolor: 'white',
-                      mb: 1,
-                      borderRadius: 1,
-                      flexDirection: 'column',
-                      alignItems: 'flex-start',
-                      border: '1px solid #e0e0e0'
-                    }}
-                  >
-                    <Box 
-                      sx={{ 
-                        width: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        cursor: 'pointer'
-                      }}
-                      onClick={() => handleExpand(key)}
-                    >
-                      <ListItemText primary={item.title} />
-                      {expandedItems[key] ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                    </Box>
-                    
-                    {expandedItems[key] && (
-                      <Box sx={{ mt: 1, mb: 1, width: '100%' }}>
-                        <Typography variant="body2" color="text.secondary">
-                          {item.description}
-                        </Typography>
-                        <TableContainer component={Paper} sx={{ 
-                          mt: 1, 
-                          mb: 1,
-                          '& .MuiTableHead-root': {
-                            backgroundColor: '#f5f5f5'
-                          },
-                          '& .MuiTableCell-head': {
-                            fontWeight: 'bold'
-                          },
-                          '& .MuiTableRow-root:hover': {
-                            backgroundColor: '#f5f5f5'
-                          }
-                        }}>
-                          <Table size="small">
-                            <TableHead>
-                              <TableRow>
-                                <TableCell>SNP</TableCell>
-                                <TableCell align="right">PIP</TableCell>
-                                <TableCell align="right">Credible set size</TableCell>
-                                <TableCell align="right">Purity</TableCell>
-                              </TableRow>
-                            </TableHead>
-                            <TableBody>
-                              {item.results.map((result, index) => (
-                                <TableRow 
-                                  key={index}
-                                  hover
-                                  onClick={() => handleSNPClick(result.snpId, result.geneId, key, result.leadSnp)}
-                                  sx={{ cursor: 'pointer' }}
-                                >
-                                  <TableCell component="th" scope="row">{result.snpId}</TableCell>
-                                  <TableCell align="right">{result.pip}</TableCell>
-                                  <TableCell align="right">{result.nSnp}</TableCell>
-                                  <TableCell align="right">{result.purity}</TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        </TableContainer>
-                      </Box>
-                    )}
-                  </ListItem>
-                ))}
-              </List>
+              {/* 概览表格 */}
+              <TableContainer component={Paper}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Download</TableCell>
+                      <TableCell>Islet</TableCell>
+                      <TableCell>Pancreatic</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {['eQTL GTEx', 'eQTL InsPIRE', 'Splicing QTL GTEx', 'Exon QTL InsPIRE'].map((qtlType) => (
+                      <TableRow key={qtlType}>
+                        <TableCell>{qtlType}</TableCell>
+                        <TableCell>
+                          {items['Islet'][qtlType] > 0 ? `${items['Islet'][qtlType]} SNPs` : '0'}
+                        </TableCell>
+                        <TableCell>
+                          {items['Pancreatic'][qtlType] > 0 ? `${items['Pancreatic'][qtlType]} SNPs` : '0'}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+
+              {/* 详细结果表格 */}
+              <TableContainer component={Paper} sx={{ 
+                mt: 2,  // 添加上边距
+                '& .MuiTable-root': {
+                  border: '1px solid rgba(224, 224, 224, 1)',
+                },
+                '& .MuiTableCell-root': {
+                  border: '1px solid rgba(224, 224, 224, 1)',
+                  padding: '12px',
+                },
+                '& .MuiTableHead-root .MuiTableCell-root': {
+                  backgroundColor: '#fafafa',
+                  fontWeight: 'bold'
+                }
+              }}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Credible set</TableCell>
+                      <TableCell>Purity</TableCell>
+                      <TableCell>Lead SNP</TableCell>
+                      <TableCell>PIP</TableCell>
+                      <TableCell>#</TableCell>
+                      <TableCell>Download</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {(() => {
+                      const credibleSets = queryResult?.results?.[0]?.credible_sets || [];
+                      const uniqueCredibleSets = Array.from(
+                        new Map(credibleSets.map(item => [item.id, item])).values()
+                      );
+
+                      return uniqueCredibleSets.map((item, index) => (
+                        <TableRow 
+                          key={`credible-set-${index}`}
+                          onClick={() => handleSNPClick(
+                            item.lead_SNP,
+                            item.data_source,
+                            item.lead_SNP
+                          )}
+                          sx={{ 
+                            cursor: 'pointer',
+                            '&:hover': {
+                              backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                            }
+                          }}
+                        >
+                          <TableCell>{`Credible set ${index + 1}`}</TableCell>
+                          <TableCell>{item.purity?.toFixed(2) || '-'}</TableCell>
+                          <TableCell>{item.lead_SNP || '-'}</TableCell>
+                          <TableCell>{item.pip?.toFixed(2) || '-'}</TableCell>
+                          <TableCell>{item.n_snp || '-'}</TableCell>
+                          <TableCell>
+                            <Link 
+                              component="button"
+                              onClick={(e) => {
+                                e.stopPropagation();  // 防止触发行点击事件
+                                // TODO: 实现下载功能
+                              }}
+                            >
+                              Link
+                            </Link>
+                          </TableCell>
+                        </TableRow>
+                      ));
+                    })()}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </div>
           </div>
         </Box>

@@ -24,7 +24,9 @@
       },
       "Tissue_KG_tissue_name": {
           "GTEx; SusieR": "pancreatic",
-          "INSPIRE; SusieR": "islet"
+          "INSPIRE; SusieR": "islet",
+          "splicing; GTEx": "pancreatic",
+          "exon; INSPIRE": "islet"
       }
     }
 }
