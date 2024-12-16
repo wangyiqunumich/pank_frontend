@@ -285,7 +285,7 @@ function KnowledgeGraph() {
           fit: false,
           padding: 100,
           zoom: 0.8,
-          pan: { x: 0, y: 0 }
+          pan: { x: -150, y: 0 }
         },
         userZoomingEnabled: false,
         userPanningEnabled: true,

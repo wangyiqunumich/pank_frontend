@@ -102,14 +102,15 @@ function IntermediateKG() {
         nestingFactor: 0.1,
         gravity: 0.25,
         numIter: 2500,
-        fit: true
+        fit: false,
       },
       zoom: 0.8,
-      minZoom: 0.8,
-      maxZoom: 0.8,
-      userZoomingEnabled: false,
+      minZoom: 0.5,
+      maxZoom: 2,
+      pan: { x: 250, y: 250 },
+      userZoomingEnabled: true,
       userPanningEnabled: true,
-      wheelSensitivity: 0.1
+      wheelSensitivity: 0.1,
     });
 
     cyRef.current = cy;
