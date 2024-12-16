@@ -29,10 +29,11 @@ function App() {
         // Landing Page 布局
         <>
           <LandingPage />
-          <Container maxWidth="xl" sx={{ position: 'absolute', top: '50%', left: '70%', transform: 'translate(-50%, -50%)' }}>
+          <Container maxWidth="xl" disableGutters sx={{ position: 'absolute', top: 410, left: window.innerWidth * 0.5 + 44, width: 672 }}>
             <Box sx={{ 
-              width: '50%',
-              margin: '0 auto'
+              width: 672,
+              margin: '0 auto',
+              padding: 0
             }}>
               <SearchBar onSearch={handleSearch} disabled={showIntermediate || showResult} />
             </Box>

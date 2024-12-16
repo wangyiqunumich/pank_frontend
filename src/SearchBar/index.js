@@ -365,9 +365,9 @@ function SearchBar({ onSearch, disabled }) {
     }, [nextQuestionClicked, searchSourceTerm, searchRelationship, searchTargetTerm]);
 
     return (
-        <Container maxWidth="md">
-            <Box sx={{ marginTop: 4 }}>
-                <Box display="flex" alignItems="center" gap={2} p={2}>
+        <Container maxWidth="md" disableGutters sx={{ padding: 0 }}>
+            <Box sx={{ marginTop: 4, padding: 0 }}>
+                <Box display="flex" alignItems="center" gap={2} p={2} sx={{ padding: 0 }}>
                     <FormControl fullWidth>
                         <Autocomplete
                             freeSolo
