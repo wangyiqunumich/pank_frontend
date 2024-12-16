@@ -10,7 +10,9 @@ import {
   TableRow, 
   Paper, 
   Box,
-  Link 
+  Link,
+  Tabs,
+  Tab
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -26,6 +28,7 @@ import { setVariables } from '../redux/variablesSlice';
 import { replaceVariables } from '../utils/textProcessing';
 import IntermediateKG from './IntermediateKG';
 import { getDataSourceInfo } from '../utils/textProcessing';
+import { useState } from 'react';
 
 function IntermediatePage({ onContinue }) {
   const dispatch = useDispatch();
@@ -33,6 +36,19 @@ function IntermediatePage({ onContinue }) {
   const { viewSchema } = useSelector((state) => state.viewSchema);
   const { queryResult } = useSelector((state) => state.queryResult);
   const conversionTable = require('../utils/conversion_table.json');
+
+  const [selectedTab, setSelectedTab] = useState('Pancreatic eQTL');
+  
+  const tabOptions = [
+    'Pancreatic eQTL',
+    'Islet eQTL',
+    'Pancreatic splicing QTL',
+    'Islet Exon QTL'
+  ];
+
+  const handleTabChange = (event, newValue) => {
+    setSelectedTab(newValue);
+  };
 
   const processDataSources = () => {
     if (!queryResult?.results?.[0]) return {
@@ -250,6 +266,27 @@ function IntermediatePage({ onContinue }) {
     }
   };
 
+  const getFilteredCredibleSets = () => {
+    const allCredibleSets = queryResult?.results?.flatMap(result => 
+      result?.credible_sets || []
+    ) || [];
+
+    return allCredibleSets.filter(cs => {
+      switch(selectedTab) {
+        case 'Pancreatic eQTL':
+          return cs.data_source === 'GTEx; SusieR';
+        case 'Islet eQTL':
+          return cs.data_source === 'INSPIRE; SusieR';
+        case 'Pancreatic splicing QTL':
+          return cs.data_source === 'GTEx; Splicing';
+        case 'Islet Exon QTL':
+          return cs.data_source === 'exon; INSPIRE';
+        default:
+          return true;
+      }
+    });
+  };
+
   return (
     <Container sx={{ padding: 0 }} disableGutters>
       {/* 问题显示区域 */}
@@ -434,51 +471,41 @@ function IntermediatePage({ onContinue }) {
           <div className="styled-paper">
             <div className="answer-content">
               <Typography sx={{ mb: 2, fontSize: 16 }}>
-                Found four categories of Quantitative Trait Loci (QTL) data, derived from pancreatic and islet tissue samples. GENE-CS-SNP
+                Found four categories of Quantitative Trait Loci (QTL) data, derived from pancreatic and islet tissue samples.
               </Typography>
               
-              {/* 概览表格 */}
-              <TableContainer component={Paper} sx={{ border: '1px solid #727272', boxShadow: '0px 0px 0px 0px rgba(0,0,0,0.2)' }}>
-                <Table>
-                  <TableHead sx={{ backgroundColor: '#B0CFD04D'}}>
-                    <TableRow>
-                      <TableCell sx={{ width: '33%', fontWeight: '600', border: '1px solid #727272', padding: '8px' }}>Download</TableCell>
-                      <TableCell sx={{ flex: '33%', fontWeight: '600', border: '1px solid #727272', padding: '8px' }}>Islet</TableCell>
-                      <TableCell sx={{ flex: '33%', fontWeight: '600', border: '1px solid #727272', padding: '8px' }}>Pancreatic</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {['eQTL GTEx', 'eQTL InsPIRE', 'Splicing QTL GTEx', 'Exon QTL InsPIRE'].map((qtlType) => (
-                      <TableRow key={qtlType}>
-                        <TableCell sx={{ backgroundColor: '#B0CFD04D', border: '1px solid #727272', padding: '8px' }}>{qtlType}</TableCell>
-                        <TableCell sx={{ border: '1px solid #727272', padding: '8px' }}>
-                          {items['Islet'][qtlType] > 0 ? `${items['Islet'][qtlType]} SNPs` : '0'}
-                        </TableCell>
-                        <TableCell sx={{ border: '1px solid #727272', padding: '8px' }}>
-                          {items['Pancreatic'][qtlType] > 0 ? `${items['Pancreatic'][qtlType]} SNPs` : '0'}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+              {/* 添加 Tabs */}
+              <Tabs
+                value={selectedTab}
+                onChange={handleTabChange}
+                sx={{
+                  mb: 2,
+                  '& .MuiTab-root': {
+                    textTransform: 'none',
+                    fontSize: '14px',
+                    minHeight: '40px'
+                  }
+                }}
+              >
+                {tabOptions.map((tab) => (
+                  <Tab 
+                    key={tab}
+                    label={tab}
+                    value={tab}
+                    sx={{
+                      borderRadius: '4px 4px 0 0',
+                      '&.Mui-selected': {
+                        backgroundColor: '#B0CFD04D'
+                      }
+                    }}
+                  />
+                ))}
+              </Tabs>
 
               {/* 详细结果表格 */}
               <TableContainer component={Paper} sx={{ 
-                mt: 2,  // 添加上边距
                 border: '1px solid #727272',
-                boxShadow: '0px 0px 0px 0px rgba(0,0,0,0.2)',
-                '& .MuiTable-root': {
-                  border: '1px solid #727272',
-                },
-                '& .MuiTableCell-root': {
-                  border: '1px solid #727272',
-                  padding: '8px',
-                },
-                '& .MuiTableHead-root .MuiTableCell-root': {
-                  backgroundColor: '#B0CFD04D',
-                  fontWeight: 'bold'
-                }
+                boxShadow: '0px 0px 0px 0px rgba(0,0,0,0.2)'
               }}>
                 <Table>
                   <TableHead>
@@ -492,51 +519,40 @@ function IntermediatePage({ onContinue }) {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {(() => {
-                      // 获取所有 results 中的 credible_sets
-                      const credibleSets = queryResult?.results?.flatMap(result => 
-                        result?.credible_sets || []
-                      ) || [];
-                      
-                      const uniqueCredibleSets = Array.from(
-                        new Map(credibleSets.map(item => [item.id, item])).values()
-                      );
-                      
-                      return uniqueCredibleSets.map((item, index) => (
-                        <TableRow 
-                          key={`credible-set-${index}`}
-                          onClick={() => handleSNPClick(
-                            item.lead_SNP,
-                            item.data_source,
-                            item.lead_SNP
-                          )}
-                          sx={{ 
-                            cursor: 'pointer',
-                            '&:hover': {
-                              backgroundColor: 'rgba(0, 0, 0, 0.04)'
-                            }
-                          }}
-                        >
-                          <TableCell sx={{ textDecoration: 'underline', color: 'blue' }}>
-                            {`Credible set ${index + 1}`}
-                          </TableCell>
-                          <TableCell>{item.purity?.toFixed(2) || '-'}</TableCell>
-                          <TableCell>{item.lead_SNP || '-'}</TableCell>
-                          <TableCell>{item.pip?.toFixed(2) || '-'}</TableCell>
-                          <TableCell>{item.n_snp || '-'}</TableCell>
-                          <TableCell>
-                            <Link 
-                              component="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                              }}
-                            >
-                              Link
-                            </Link>
-                          </TableCell>
-                        </TableRow>
-                      ));
-                    })()}
+                    {getFilteredCredibleSets().map((item, index) => (
+                      <TableRow 
+                        key={`credible-set-${index}`}
+                        onClick={() => handleSNPClick(
+                          item.lead_SNP,
+                          item.data_source,
+                          item.lead_SNP
+                        )}
+                        sx={{ 
+                          cursor: 'pointer',
+                          '&:hover': {
+                            backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                          }
+                        }}
+                      >
+                        <TableCell sx={{ textDecoration: 'underline', color: 'blue' }}>
+                          {`Credible set ${index + 1}`}
+                        </TableCell>
+                        <TableCell>{item.purity?.toFixed(2) || '-'}</TableCell>
+                        <TableCell>{item.lead_SNP || '-'}</TableCell>
+                        <TableCell>{item.pip?.toFixed(2) || '-'}</TableCell>
+                        <TableCell>{item.n_snp || '-'}</TableCell>
+                        <TableCell>
+                          <Link 
+                            component="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                            }}
+                          >
+                            Link
+                          </Link>
+                        </TableCell>
+                      </TableRow>
+                    ))}
                   </TableBody>
                 </Table>
               </TableContainer>
