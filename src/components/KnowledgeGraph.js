@@ -21,7 +21,7 @@ function KnowledgeGraph() {
   const { aiAnswer, queryAiAnswerStatus } = useSelector((state) => state.aiAnswer);
   const containerRef = useRef(null);
   const cyRef = useRef(null);
-
+  console.log(queryVisResult);
   useEffect(() => {
     if (containerRef.current && queryVisResult?.results?.[0]) {
       const result = queryVisResult.results[0];

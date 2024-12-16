@@ -13,8 +13,10 @@ function App() {
   const [showLanding, setShowLanding] = useState(true);
 
   const handleSearch = () => {
-    setShowLanding(false);
-    setShowIntermediate(true);
+    if (!showResult) {
+      setShowLanding(false);
+      setShowIntermediate(true); 
+    }
   };
 
   const handleContinue = () => {

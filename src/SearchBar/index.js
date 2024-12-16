@@ -296,7 +296,7 @@ function SearchBar({ onSearch, disabled, style }) {
 
     useEffect(() => {
         const fetchData = async () => {
-            if (queryViewSchemaStatus === 'fulfilled' && viewSchema.question && viewSchema.question[0]) {
+            if (queryViewSchemaStatus === 'fulfilled' && viewSchema.question && viewSchema.question[0] && !sourceTerm.includes(':')) {
                 const processedQuestion = replaceTerms(viewSchema.question[0], sourceTerm, relationship, targetTerm);
                 dispatch(setProcessedQuestion(processedQuestion));
 
@@ -311,8 +311,6 @@ function SearchBar({ onSearch, disabled, style }) {
                         sourceTerm,
                         targetTerm
                     );
-                    console.log(processedCypher);
-                    console.log(processedCypherForKGViewer);
                     try {
                         await dispatch(queryQueryResult({query: processedCypher})).unwrap();
                         await dispatch(queryQueryVisResult({query: processedCypherForKGViewer})).unwrap();

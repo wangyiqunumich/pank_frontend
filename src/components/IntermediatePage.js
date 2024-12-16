@@ -50,7 +50,6 @@ function IntermediatePage({ onContinue }) {
       }
     };
 
-    // 初始化计数对象
     const counts = {
       'Pancreatic': {
         'eQTL GTEx': 0,
@@ -66,25 +65,26 @@ function IntermediatePage({ onContinue }) {
       }
     };
 
-    // 处理每个组的数据
     const results = queryResult.results;
     
     results.forEach(result => {
-      // 使用Set去重credible sets
+      if (!result?.credible_sets) return;
+      
       const uniqueCredibleSets = Array.from(
         new Map(result.credible_sets.map(item => [item.id, item])).values()
       );
 
       uniqueCredibleSets.forEach(cs => {
+        if (!cs?.data_source) return;
+        
         const { tissue, frontendKG } = getDataSourceInfo(cs.data_source, conversionTable);
-        console.log(frontendKG);
         if (tissue && frontendKG) {
           const tissueKey = tissue === 'pancreatic' ? 'Pancreatic' : 'Islet';
           counts[tissueKey][frontendKG] = (counts[tissueKey][frontendKG] || 0) + 1;
         }
       });
     });
-    console.log(counts);
+
     return counts;
   };
 

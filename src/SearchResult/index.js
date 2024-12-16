@@ -187,8 +187,8 @@ This answer refers to the following resources in PanKbase:`;
             })).then((response) => {
                 if (response.payload && response.payload.cyper_for_result_page_all_nodes_specific) {
                     const query = response.payload.cyper_for_result_page_all_nodes_specific
-                        .replace(/@sourceTerm@/g, searchState.sourceTerm.split(':')[1])
-                        .replace(/@targetTerm@/g, searchState.targetTerm.split(':')[1]);
+                        .replace(/@snp_node@/g, searchState.sourceTerm.split(':')[1])
+                        .replace(/@gene_node@/g, searchState.targetTerm.split(':')[1]);
                     
                     const currentState = store.getState();
                     const processedCurrentQuestion = replaceVariables(response.payload.question_for_result, currentState.variables);
@@ -196,10 +196,23 @@ This answer refers to the following resources in PanKbase:`;
                     const processedNextQuestions = response.payload.next_questions.map(q => 
                         replaceVariables(q.question, currentState.variables)
                     );
+
+                    const processedAiQuestions = response.payload?.ai_question_for_result?.map(question => {
+                        let processedQuestion = question;
+                        // 替换所有可能的占位符
+                        if (searchState.sourceTerm.split(':')[1]) processedQuestion = processedQuestion.replace(/@snp_node@/g, searchState.sourceTerm.split(':')[1]);
+                        if (searchState.targetTerm.split(':')[1]) processedQuestion = processedQuestion.replace(/@gene_node@/g, searchState.targetTerm.split(':')[1]);
+                        return processedQuestion;
+                      }) || [];
+                  
+                      const processedAiAnswerTitle = response.payload?.ai_answer_title.replace(/@snp_node@/g, searchState.sourceTerm.split(':')[1]).replace(/@gene_id@/g, searchState.targetTerm.split(':')[1]);
                     
                     dispatch(setProcessedQuestion({
                         currentQuestion: processedCurrentQuestion,
-                        nextQuestions: processedNextQuestions
+                        nextQuestions: processedNextQuestions,
+                        aiQuestions: processedAiQuestions,
+                        aiAnswerTitle: processedAiAnswerTitle,
+                        aiAnswerSubtitle: response.payload?.ai_answer_sub_title
                     }));
                     
                     dispatch(queryQueryResult({ query }));
@@ -287,7 +300,7 @@ This answer refers to the following resources in PanKbase:`;
 
                     <div className="styled-paper" data-title="You May Also Ask">
                         <ul className="next-questions-list">
-                            {nextQuestions.length > 0 ? (
+                            {nextQuestions?.length > 0 ? (
                                 nextQuestions.map((question, index) => (
                                     <li key={index} 
                                         onClick={() => handleNextQuestionClick(question)}
