@@ -25,22 +25,19 @@ function App() {
   return (
     <div className="App">
       <NavBar />
+      <SearchBar 
+        onSearch={handleSearch} 
+        disabled={showIntermediate || showResult}
+        style={{
+          position: showLanding ? 'absolute' : 'relative',
+          top: showLanding ? 410 : 'auto',
+          left: showLanding ? `${window.innerWidth * 0.5 + 44}px` : 'auto',
+          width: showLanding ? 672 : '60%'
+        }}
+      />
       {showLanding ? (
-        // Landing Page 布局
-        <>
-          <LandingPage />
-          <Container maxWidth="xl" disableGutters sx={{ position: 'absolute', top: 410, left: window.innerWidth * 0.5 + 44, width: 672 }}>
-            <Box sx={{ 
-              width: 672,
-              margin: '0 auto',
-              padding: 0
-            }}>
-              <SearchBar onSearch={handleSearch} disabled={showIntermediate || showResult} />
-            </Box>
-          </Container>
-        </>
+        <LandingPage />
       ) : (
-        // 其他页面布局
         <Container maxWidth="xl">
           <Box sx={{ 
             display: 'flex',
@@ -49,9 +46,7 @@ function App() {
             mb: 3,
             mt: 2
           }}>
-            <Box sx={{ width: '60%', display: 'flex', gap: 2 }}>
-              <SearchBar onSearch={handleSearch} disabled={showIntermediate || showResult} />
-            </Box>
+            <Box sx={{ width: '60%', visibility: 'hidden' }} />
           </Box>
           {showIntermediate && <IntermediatePage onContinue={handleContinue} />}
           {showResult && <SearchResult />}

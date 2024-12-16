@@ -14,7 +14,7 @@ import { store } from '../redux/store';
 import { setNextQuestionClicked } from '../redux/searchSlice';
 import { queryQueryVisResult } from '../redux/queryVisResultSlice';
 
-function SearchBar({ onSearch, disabled }) {
+function SearchBar({ onSearch, disabled, style }) {
     const dispatch = useDispatch();
     const {viewSchema, queryViewSchemaStatus} = useSelector((state) => state.viewSchema);
     const {vocab, queryVocabStatus} = useSelector((state) => state.inputToVocab);
@@ -365,7 +365,7 @@ function SearchBar({ onSearch, disabled }) {
     }, [nextQuestionClicked, searchSourceTerm, searchRelationship, searchTargetTerm]);
 
     return (
-        <Container maxWidth="md" disableGutters sx={{ padding: 0 }}>
+        <Container maxWidth="md" disableGutters sx={{ padding: 0, ...style }}>
             <Box sx={{ marginTop: 4, padding: 0 }}>
                 <Box display="flex" alignItems="center" gap={2} p={2} sx={{ padding: 0 }}>
                     <FormControl fullWidth>
