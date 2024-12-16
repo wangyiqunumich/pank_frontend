@@ -13,8 +13,8 @@
       "data_source_KG_frontend": {
           "GTEx; SusieR": "eQTL GTEx",
           "INSPIRE; SusieR": "eQTL InsPIRE",
-          "splicing; GTEx": "splicing QTL GTEx",
-          "exon; INSPIRE": "exon QTL InsPIRE"
+          "splicing; GTEx": "Splicing QTL GTEx",
+          "exon; INSPIRE": "Exon QTL InsPIRE"
       },
       "data_source_frontend_KG": {
           "eQTL GTEx": "GTEx; SusieR",

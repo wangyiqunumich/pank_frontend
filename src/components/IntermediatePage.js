@@ -78,11 +78,13 @@ function IntermediatePage({ onContinue }) {
         if (!cs?.data_source) return;
         
         const { tissue, frontendKG } = getDataSourceInfo(cs.data_source, conversionTable);
+        console.log(frontendKG);
         if (tissue && frontendKG) {
           const tissueKey = tissue === 'pancreatic' ? 'Pancreatic' : 'Islet';
           counts[tissueKey][frontendKG] = (counts[tissueKey][frontendKG] || 0) + 1;
         }
       });
+      console.log(counts['Pancreatic']['Exon QTL InsPIRE']);
     });
 
     return counts;
