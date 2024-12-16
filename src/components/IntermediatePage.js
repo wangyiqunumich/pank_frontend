@@ -279,7 +279,7 @@ function IntermediatePage({ onContinue }) {
       {/* 主要内容区域 */}
       <Box sx={{ 
         display: 'flex',
-        minHeight: '600px',
+        minHeight: '950px',
       }}>
         {/* 左侧知识图谱区域 */}
         <Box sx={{ 
