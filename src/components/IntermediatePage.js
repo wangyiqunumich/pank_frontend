@@ -491,11 +491,15 @@ function IntermediatePage({ onContinue }) {
                   </TableHead>
                   <TableBody>
                     {(() => {
-                      const credibleSets = queryResult?.results?.[0]?.credible_sets || [];
+                      // 获取所有 results 中的 credible_sets
+                      const credibleSets = queryResult?.results?.flatMap(result => 
+                        result?.credible_sets || []
+                      ) || [];
+                      
                       const uniqueCredibleSets = Array.from(
                         new Map(credibleSets.map(item => [item.id, item])).values()
                       );
-
+                      
                       return uniqueCredibleSets.map((item, index) => (
                         <TableRow 
                           key={`credible-set-${index}`}
@@ -511,7 +515,9 @@ function IntermediatePage({ onContinue }) {
                             }
                           }}
                         >
-                          <TableCell sx={{ textDecoration: 'underline', color: 'blue' }}>{`Credible set ${index + 1}`}</TableCell>
+                          <TableCell sx={{ textDecoration: 'underline', color: 'blue' }}>
+                            {`Credible set ${index + 1}`}
+                          </TableCell>
                           <TableCell>{item.purity?.toFixed(2) || '-'}</TableCell>
                           <TableCell>{item.lead_SNP || '-'}</TableCell>
                           <TableCell>{item.pip?.toFixed(2) || '-'}</TableCell>
@@ -520,8 +526,7 @@ function IntermediatePage({ onContinue }) {
                             <Link 
                               component="button"
                               onClick={(e) => {
-                                e.stopPropagation();  // 防止触发行点击事件
-                                // TODO: 实现下载功能
+                                e.stopPropagation();
                               }}
                             >
                               Link
