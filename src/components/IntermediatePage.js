@@ -249,24 +249,28 @@ function IntermediatePage({ onContinue }) {
   };
 
   return (
-    <Container maxWidth="xl">
+    <Container sx={{ padding: 0 }} disableGutters>
       {/* 问题显示区域 */}
-      <Box sx={{ 
-        display: 'flex',
+      <Box
+          flexDirection="column"
+          sx={{
+        // display: 'flex',
         alignItems: 'center',
-        gap: 2,
-        mb: 3,
-        mt: 2,
+        gap: 0,
         position: 'absolute',
-        top: '130px',
-        width: '100%'
+        top: '162px',
+        right: window.innerWidth * 0.5 + 44,
+        width: 685
       }}>
-        <Box sx={{ width: '60%', visibility: 'hidden' }} />
-        <Typography 
-          variant="body1" 
+        {/*<Box sx={{ width: '60%', visibility: 'hidden' }} />*/}
+        <Typography sx={{ fontSize: 24, width: 685, textAlign: 'left', fontWeight: 'bold' }}>
+          Current question
+        </Typography>
+        <Typography
           sx={{ 
-            flex: 1,
-            textAlign: 'left'
+            width: 685,
+            textAlign: 'left',
+            fontSize: 20,
           }}
           dangerouslySetInnerHTML={{ __html: processedQuestion }}
         />
@@ -274,47 +278,59 @@ function IntermediatePage({ onContinue }) {
 
       {/* 主要内容区域 */}
       <Box sx={{ 
-        display: 'flex', 
-        gap: 3,
-        minHeight: '600px',
-        mt: '60px'
+        display: 'flex',
+        minHeight: '600px'
       }}>
         {/* 左侧知识图谱区域 */}
         <Box sx={{ 
-          width: '40%',
+          width: 685,
           display: 'flex',
           flexDirection: 'column',
           gap: 3,
-          position: 'relative'
+          position: 'absolute',
+          top: 354,
+          right: window.innerWidth * 0.5 + 44
         }}>
+          <Typography sx={{
+            fontWeight: 'bold',
+            fontSize: 24,
+            position: 'absolute',
+            top: -20,
+            left: 20,
+            zIndex: 1
+          }}>
+            Graph viewer
+          </Typography>
           {/* KG Viewer */}
           <Box sx={{ 
             position: 'relative',
-            borderRadius: '20px',
-            minHeight: '500px',
-            boxShadow: '0px 3px 3px -2px rgba(0,0,0,0.2)',
-            padding: '32px',
-            paddingTop: '48px',
+            borderRadius: '16px',
+            minHeight: '472px',
+            boxShadow: '0px 4px 4px 0px rgba(0,0,0,0.25)',
+            // padding: '32px',
+            // paddingTop: '48px',
             overflow: 'visible',
-            '&::before': {
-              content: '"KG viewer"',
-              position: 'absolute',
-              top: '16px',
-              left: '32px',
-              backgroundColor: 'white',
-              padding: '0 10px',
-              fontSize: '1.2rem',
-              fontWeight: 'bold'
-            }
+            backgroundColor: '#F7F7F7'
+          //   '&::before': {
+          //     content: '"KG viewer"',
+          //     position: 'absolute',
+          //     top: '16px',
+          //     left: '32px',
+          //     backgroundColor: '#F7F7F7',
+          //     padding: '0 10px',
+          //     fontSize: '24px',
+          //     fontWeight: 'bold'
+          //   }
           }}>
-            <Box sx={{ 
-              marginLeft: '-100%',
-              width: '200%',
-              height: '100%',
-              position: 'relative'
-            }}>
+            {/*<Box sx={{ */}
+            {/*  // marginLeft: '%',*/}
+            {/*  width: '200%',*/}
+            {/*  height: '100%',*/}
+            {/*  position: 'relative',*/}
+            {/*  zIndex: 10*/}
+            {/*}}>*/}
               <IntermediateKG />
-            </Box>
+            {/*</Box>*/}
           </Box>
 
           {/* Legend */}
@@ -385,35 +401,49 @@ function IntermediatePage({ onContinue }) {
 
         {/* 右侧搜索结果 */}
         <Box sx={{ 
-          width: '60%',
+          width: 672,
           display: 'flex',
           flexDirection: 'column',
-          gap: 2
+          gap: 2,
+          position: 'absolute',
+          left: window.innerWidth * 0.5 + 44,
+          top: 354,
+          backgroundColor: '#F7F7F799'
         }}>
-          <div className="styled-paper" data-title="Answer">
+          <Typography sx={{
+            fontWeight: 'bold',
+            fontSize: 24,
+            position: 'absolute',
+            top: -20,
+            left: 20,
+            zIndex: 1
+          }}>
+            Result
+          </Typography>
+          <div className="styled-paper">
             <div className="answer-content">
-              <Typography variant="body2" sx={{ mb: 2 }}>
+              <Typography sx={{ mb: 2, fontSize: 16 }}>
                 Found four categories of Quantitative Trait Loci (QTL) data, derived from pancreatic and islet tissue samples. GENE-CS-SNP
               </Typography>
               
               {/* 概览表格 */}
-              <TableContainer component={Paper}>
+              <TableContainer component={Paper} sx={{ border: '1px solid #727272', boxShadow: '0px 0px 0px 0px rgba(0,0,0,0.2)' }}>
                 <Table>
-                  <TableHead>
+                  <TableHead sx={{ backgroundColor: '#B0CFD04D'}}>
                     <TableRow>
-                      <TableCell>Download</TableCell>
-                      <TableCell>Islet</TableCell>
-                      <TableCell>Pancreatic</TableCell>
+                      <TableCell sx={{ width: '33%', fontWeight: '600', border: '1px solid #727272', padding: '8px' }}>Download</TableCell>
+                      <TableCell sx={{ flex: '33%', fontWeight: '600', border: '1px solid #727272', padding: '8px' }}>Islet</TableCell>
+                      <TableCell sx={{ flex: '33%', fontWeight: '600', border: '1px solid #727272', padding: '8px' }}>Pancreatic</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {['eQTL GTEx', 'eQTL InsPIRE', 'Splicing QTL GTEx', 'Exon QTL InsPIRE'].map((qtlType) => (
                       <TableRow key={qtlType}>
-                        <TableCell>{qtlType}</TableCell>
-                        <TableCell>
+                        <TableCell sx={{ backgroundColor: '#B0CFD04D', border: '1px solid #727272', padding: '8px' }}>{qtlType}</TableCell>
+                        <TableCell sx={{ border: '1px solid #727272', padding: '8px' }}>
                           {items['Islet'][qtlType] > 0 ? `${items['Islet'][qtlType]} SNPs` : '0'}
                         </TableCell>
-                        <TableCell>
+                        <TableCell sx={{ border: '1px solid #727272', padding: '8px' }}>
                           {items['Pancreatic'][qtlType] > 0 ? `${items['Pancreatic'][qtlType]} SNPs` : '0'}
                         </TableCell>
                       </TableRow>
@@ -425,15 +455,17 @@ function IntermediatePage({ onContinue }) {
               {/* 详细结果表格 */}
               <TableContainer component={Paper} sx={{ 
                 mt: 2,  // 添加上边距
+                border: '1px solid #727272',
+                boxShadow: '0px 0px 0px 0px rgba(0,0,0,0.2)',
                 '& .MuiTable-root': {
-                  border: '1px solid rgba(224, 224, 224, 1)',
+                  border: '1px solid #727272',
                 },
                 '& .MuiTableCell-root': {
-                  border: '1px solid rgba(224, 224, 224, 1)',
-                  padding: '12px',
+                  border: '1px solid #727272',
+                  padding: '8px',
                 },
                 '& .MuiTableHead-root .MuiTableCell-root': {
-                  backgroundColor: '#fafafa',
+                  backgroundColor: '#B0CFD04D',
                   fontWeight: 'bold'
                 }
               }}>
@@ -470,7 +502,7 @@ function IntermediatePage({ onContinue }) {
                             }
                           }}
                         >
-                          <TableCell>{`Credible set ${index + 1}`}</TableCell>
+                          <TableCell sx={{ textDecoration: 'underline', color: 'blue' }}>{`Credible set ${index + 1}`}</TableCell>
                           <TableCell>{item.purity?.toFixed(2) || '-'}</TableCell>
                           <TableCell>{item.lead_SNP || '-'}</TableCell>
                           <TableCell>{item.pip?.toFixed(2) || '-'}</TableCell>

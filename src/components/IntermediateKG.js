@@ -97,7 +97,7 @@ function IntermediateKG() {
         randomize: false,
         idealEdgeLength: 200,
         nodeRepulsion: 6000,
-        padding: 50,
+        padding: 0,
         edgeElasticity: 0.45,
         nestingFactor: 0.1,
         gravity: 0.25,
@@ -107,9 +107,9 @@ function IntermediateKG() {
       zoom: 0.8,
       minZoom: 0.5,
       maxZoom: 2,
-      pan: { x: 250, y: 250 },
-      userZoomingEnabled: true,
-      userPanningEnabled: true,
+      pan: { x: 270, y: 230 },
+      userZoomingEnabled: false,
+      userPanningEnabled: false,
       wheelSensitivity: 0.1,
     });
 
@@ -131,11 +131,12 @@ function IntermediateKG() {
   return (
     <div 
       ref={containerRef} 
-      style={{ 
-        width: '100%', 
-        height: '100%',
-        backgroundColor: 'white',
-        borderRadius: '8px'
+      style={{
+        width: 685,
+        height: 472,
+        backgroundColor: '#F7F7F7',
+        borderRadius: '8px',
+        textAlign: 'left'
       }} 
     />
   );

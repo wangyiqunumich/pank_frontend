@@ -31,25 +31,25 @@ function App() {
         onSearch={handleSearch} 
         disabled={showIntermediate || showResult}
         style={{
-          position: showLanding ? 'absolute' : 'relative',
-          top: showLanding ? 410 : 'auto',
-          left: showLanding ? `${window.innerWidth * 0.5 + 44}px` : 'auto',
-          width: showLanding ? 672 : '60%'
+          position: 'absolute',
+          top: showLanding ? 410 : 162,
+          left: `${window.innerWidth * 0.5 + 44}px`,
+          width: 672
         }}
       />
       {showLanding ? (
         <LandingPage />
       ) : (
-        <Container maxWidth="xl">
-          <Box sx={{ 
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-            mb: 3,
-            mt: 2
-          }}>
-            <Box sx={{ width: '60%', visibility: 'hidden' }} />
-          </Box>
+        <Container sx={{ padding: 0 }} disableGutters>
+          {/*<Box sx={{ */}
+          {/*  display: 'flex',*/}
+          {/*  alignItems: 'center',*/}
+          {/*  gap: 2,*/}
+          {/*  mb: 3,*/}
+          {/*  mt: 2*/}
+          {/*}}>*/}
+            {/*<Box sx={{ width: '60%', backgroundColor: 'red' }} />*/}
+          {/*</Box>*/}
           {showIntermediate && <IntermediatePage onContinue={handleContinue} />}
           {showResult && <SearchResult />}
         </Container>

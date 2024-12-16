@@ -22,10 +22,9 @@
 .styled-paper {
   position: relative;
   padding: 32px;
-  padding-top: 48px;
-  border-radius: 20px;
+  border-radius: 16px;
   min-height: 100px;
-  box-shadow: 0px 3px 3px -2px rgba(0,0,0,0.2), 0px 3px 4px 0px rgba(0,0,0,0.14), 0px 1px 8px 0px rgba(0,0,0,0.12);
+  box-shadow: 0px 4px 4px 0px rgba(0,0,0,0.2)
 }
 
 .styled-paper::before {
@@ -68,7 +67,6 @@
 /* 新添加的样式 */
 .answer-content {
   text-align: left;
-  padding-left: 20px;
 }
 
 .answer-table {
@@ -77,7 +75,7 @@
 
 .answer-table .MuiTableCell-root {
   border: 1px solid #e0e0e0;
-  padding: 8px;
+  padding: 4px;
 }
 
 .answer-table .MuiTableHead-root .MuiTableCell-root {
