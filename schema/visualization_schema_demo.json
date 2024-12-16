@@ -73,11 +73,15 @@
                   "Currently SNP @sno_node@ is the eQTL of the gene: @gene_node@(@gene_id@)"
             ,
             "next_questions": [
-                "What regulatory impact does the lead SNP @lead_snp_node@ from the credible set have on @gene_node@ eQTL within @tissue@ tissue, according to @data_source@ evidence?":
+                "How does the lead SNP @snp_node1@ influence the quantitative trait locus of @gene_node1@ in @tissue1@ tissue, as reported by @data_source1@?"
                   {
-                  "@lead_snp_node@":"sequence_variant",
+                  "source_term":"sequence_variant",
                   "relationship": "fine_mapped_eQTL",
-                  "@gene_node@": "gene"
+                  "target_term": "gene",
+                  "@snp_node1@":"another snp from json",
+                  "@gene_node1@": "gene_node",
+                  "@tissue1@":"another tissue from json",
+                  "@data_source1@":"another data_source from json",
                   }
             ],
             "visualizations": {
