@@ -375,7 +375,9 @@ function SearchBar({ onSearch, disabled }) {
                             onInputChange={updateSourceTerm}
                             options={sourceOptions}
                             disabled={disabled}
-                            renderInput={(params) => <TextField {...params} label="1. Source Term" />}
+                            renderInput={(params) => <TextField sx={{
+                                backgroundColor: '#2191971A'
+                            }} {...params} label="1. Source Term" />}
                         />
                     </FormControl>
 
@@ -396,7 +398,9 @@ function SearchBar({ onSearch, disabled }) {
                             onChange={updateRelationship}
                             onOpen={handleRelationshipOpen}
                             disabled={isRelationshipDisabled || disabled}
-                            sx={{ textAlign: 'left' }}
+                            sx={{ textAlign: 'left',
+                                backgroundColor: '#2191971A'
+                            }}
                         >
                             {relationshipOptions.map((type) => (
                                 <MenuItem key={type} value={type}>{type}</MenuItem>
@@ -416,8 +420,11 @@ function SearchBar({ onSearch, disabled }) {
                                 options={targetOptions}
                                 renderInput={(params) => (
                                     <TextField
+                                        sx={{
+                                            backgroundColor: '#2191971A'
+                                        }}
                                         {...params}
-                                        label="Target Term"
+                                        label="3. Target Term"
                                         variant="outlined"
                                         onChange={(event) => {
                                             // 当输入框值改变时也触发更新
@@ -449,7 +456,13 @@ function SearchBar({ onSearch, disabled }) {
                     </FormControl>
 
                     <Button variant="contained" color="primary"
-                        sx={{ minWidth:'120px', backgroundColor: '#8BB5D1', color: 'black', '&:hover': { backgroundColor: '#4A7298' } }}
+                        sx={{
+                            minWidth:'120px',
+                            backgroundColor: '#219197',
+                            color: 'white',
+                            '&:hover': { backgroundColor: '#4A7298' },
+                            // '&:disabled': {
+                        }}
                         onClick={handleSearch}
                         disabled={disabled || !isValid()}
                     >
