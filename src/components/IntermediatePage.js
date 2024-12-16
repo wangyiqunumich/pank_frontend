@@ -279,14 +279,14 @@ function IntermediatePage({ onContinue }) {
       {/* 主要内容区域 */}
       <Box sx={{ 
         display: 'flex',
-        minHeight: '600px'
+        minHeight: '600px',
       }}>
         {/* 左侧知识图谱区域 */}
         <Box sx={{ 
           width: 685,
           display: 'flex',
           flexDirection: 'column',
-          gap: 3,
+          gap: 5,
           position: 'absolute',
           top: 354,
           right: window.innerWidth * 0.5 + 44
@@ -336,22 +336,31 @@ function IntermediatePage({ onContinue }) {
           {/* Legend */}
           <Box sx={{
             position: 'relative',
-            borderRadius: '20px',
+            borderRadius: '16px',
             padding: '32px',
-            paddingTop: '48px',
-            backgroundColor: 'white',
+            backgroundColor: '#F7F7F74D',
             boxShadow: '0px 3px 3px -2px rgba(0,0,0,0.2), 0px 3px 4px 0px rgba(0,0,0,0.14), 0px 1px 8px 0px rgba(0,0,0,0.12)',
-            '&::before': {
-              content: '"Legend"',
-              position: 'absolute',
-              top: '-15px',
-              left: '20px',
-              backgroundColor: 'white',
-              padding: '0 10px',
-              fontSize: '1.2rem',
-              fontWeight: 'bold'
-            }
+            // '&::before': {
+            //   content: '"Legend"',
+            //   position: 'absolute',
+            //   top: '-15px',
+            //   left: '20px',
+            //   backgroundColor: 'white',
+            //   padding: '0 10px',
+            //   fontSize: '1.2rem',
+            //   fontWeight: 'bold'
+            // }
           }}>
+            <Typography sx={{
+              fontWeight: 'bold',
+              fontSize: 24,
+              position: 'absolute',
+              top: -20,
+              left: 20,
+              zIndex: 1
+            }}>
+              Legend
+            </Typography>
             <Box sx={{ 
               display: 'flex',
               flexDirection: 'column',
