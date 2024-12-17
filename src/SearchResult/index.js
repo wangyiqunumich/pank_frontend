@@ -139,7 +139,7 @@ const Legend = () => (
 );
 
 function SearchResult() {
-    const { currentQuestion, nextQuestions, aiQuestions, aiAnswerTitle, aiAnswerSubtitle } = useSelector((state) => state.processedQuestion);
+    const { currentQuestion, nextQuestions, aiQuestions, aiAnswerTitle, aiAnswerSubtitle, currentQuestionType } = useSelector((state) => state.processedQuestion);
     const queryResult = useSelector((state) => state.queryResult.queryResult);
     const { aiAnswer, queryAiAnswerStatus } = useSelector((state) => state.aiAnswer);
     const searchState = useSelector((state) => state.search);
@@ -259,9 +259,11 @@ This answer refers to the following resources in PanKbase:`;
                 width: 685,
                 minHeight: '950px'
             }}>
-                <Typography sx={{ fontSize: 24, width: 685, textAlign: 'left', fontWeight: 'bold' }}>
-                    Current question
-                </Typography>
+                    {currentQuestionType && (
+                        <Typography sx={{ fontSize: 24, width: 685, textAlign: 'left', fontWeight: 'bold', fontStyle: 'italic' }}>
+                            {currentQuestionType}
+                        </Typography>
+                    )}
                 <Typography
                     sx={{ 
                         flex: 1, 
@@ -336,7 +338,7 @@ This answer refers to the following resources in PanKbase:`;
                         left: 20,
                         zIndex: 1
                     }}>
-                        AI's overview
+                        {aiAnswerTitle}
                     </Typography>
                     <Typography component="div">
                         {Array.isArray(aiAnswer?.answers) && aiAnswer.answers.map((answer, index) => (
@@ -362,8 +364,46 @@ This answer refers to the following resources in PanKbase:`;
                             </div>
                         ))}
                     </Typography>
+                    <Box sx={{ mt: 3 }}>
+                        <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                            Resources
+                        </Typography>
+                        <List>
+                            <ListItem>
+                                <Link
+                                    href="https://pankbase.org"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    sx={{
+                                        color: '#1976d2',
+                                        textDecoration: 'none',
+                                        '&:hover': {
+                                            textDecoration: 'underline'
+                                        }
+                                    }}
+                                >
+                                    • In Pankbase
+                                </Link>
+                            </ListItem>
+                            <ListItem>
+                                <Link
+                                    href={`https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${searchState.targetTerm.split(':')[1]}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    sx={{
+                                        color: '#1976d2',
+                                        textDecoration: 'none',
+                                        '&:hover': {
+                                            textDecoration: 'underline'
+                                        }
+                                    }}
+                                >
+                                    • Link to ensembl: {searchState.targetTerm.split(':')[1]}
+                                </Link>
+                            </ListItem>
+                        </List>
+                    </Box>
                 </Box>
-
                 {/*    <div className="styled-paper" data-title="You May Also Ask">*/}
                 <Box sx={{
                     display: 'flex',
@@ -409,9 +449,6 @@ This answer refers to the following resources in PanKbase:`;
                     </ul>
                 </Box>
             </Box>
-
-
-            {/*</div>*/}
             <ImageModal
                 open={modalOpen}
                 handleClose={handleCloseModal}
