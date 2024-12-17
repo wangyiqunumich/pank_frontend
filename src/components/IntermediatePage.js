@@ -156,19 +156,19 @@ function IntermediatePage({ onContinue }) {
     const tissueMap = conversionTable.Conversion_table.Tissue_KG_tissue_name;
     const dataSourceFrontend = dataSource;
     
-    let tissue = '';
+    let tissueKey = '';
     if (dataSource === 'eQTL GTEx') {
-      tissue = tissueMap['GTEx; SusieR'] || 'pancreatic tissue';
+      tissueKey = tissueMap['GTEx; SusieR'] || 'pancreatic tissue';
     } else if (dataSource === 'INSPIRE; SusieR') {
-      tissue = tissueMap['INSPIRE; SusieR'] || 'islet tissue';
+      tissueKey = tissueMap['INSPIRE; SusieR'] || 'islet tissue';
     }
-
+    
     // 保存变量到 Redux store
     const variables = {
       snpId,
       leadSnp,
       geneId,
-      tissue,
+      tissueKey,
       dataSource: dataSourceFrontend
     };
     
@@ -206,7 +206,7 @@ function IntermediatePage({ onContinue }) {
         if (sourceKey.startsWith('@') && sourceKey.endsWith('@')) {
           const sourceTerm = sourceKey.slice(1, -1) === 'lead_snp_node' ? leadSnp :
                             sourceKey.slice(1, -1) === 'gene_node' ? geneId :
-                            sourceKey.slice(1, -1) === 'tissue' ? tissue :
+                            sourceKey.slice(1, -1) === 'tissue' ? tissueKey :
                             sourceKey.slice(1, -1) === 'data_source' ? dataSourceFrontend : '';
           newSearchState.sourceTerm = `${sourceType}:${sourceTerm}`;
         }
@@ -218,7 +218,7 @@ function IntermediatePage({ onContinue }) {
         if (targetKey.startsWith('@') && targetKey.endsWith('@')) {
           const targetTerm = targetKey.slice(1, -1) === 'lead_snp_node' ? leadSnp :
                             targetKey.slice(1, -1) === 'gene_node' ? geneId :
-                            targetKey.slice(1, -1) === 'tissue' ? tissue :
+                            targetKey.slice(1, -1) === 'tissue' ? tissueKey :
                             targetKey.slice(1, -1) === 'data_source' ? dataSourceFrontend : '';
           newSearchState.targetTerm = `${targetType}:${targetTerm}`;
         }
@@ -242,13 +242,15 @@ function IntermediatePage({ onContinue }) {
       // 替换所有可能的占位符
       if (snpId) processedQuestion = processedQuestion.replace(/@snp_node@/g, snpId);
       if (geneId) processedQuestion = processedQuestion.replace(/@gene_node@/g, geneId);
-      if (tissue) processedQuestion = processedQuestion.replace(/@tissue@/g, tissue);
+      if (tissueKey) processedQuestion = processedQuestion.replace(/@tissue@/g, tissueKey);
       if (dataSourceFrontend) processedQuestion = processedQuestion.replace(/@data_source@/g, dataSourceFrontend);
       return processedQuestion;
     }) || [];
 
     const processedAiAnswerTitle = viewSchema?.ai_answer_title.replace(/@snp_node@/g, snpId).replace(/@gene_id@/g, geneId);
-
+    const { tissue, frontendKG } = getDataSourceInfo(dataSource, conversionTable);
+    console.log(dataSource, tissue);
+    const currentQuestionType = `${frontendKG} ${tissue}` + ' Tissue';
     try {
       // 保存处理后的问题和下一步问题到 redux store
       dispatch(setProcessedQuestion({
@@ -256,7 +258,8 @@ function IntermediatePage({ onContinue }) {
         nextQuestions: processedNextQuestions,
         aiQuestions: processedAiQuestions,
         aiAnswerTitle: processedAiAnswerTitle,
-        aiAnswerSubtitle: viewSchema?.ai_answer_sub_title
+        aiAnswerSubtitle: viewSchema?.ai_answer_sub_title,
+        currentQuestionType: currentQuestionType
       }));
       onContinue();
       await dispatch(queryQueryVisResult({query: query})).unwrap();
@@ -271,7 +274,13 @@ function IntermediatePage({ onContinue }) {
       result?.credible_sets || []
     ) || [];
 
-    return allCredibleSets.filter(cs => {
+    // 首先根据 id 去重
+    const uniqueCredibleSets = Array.from(
+      new Map(allCredibleSets.map(item => [item.id, item])).values()
+    );
+
+    // 然后根据选中的 tab 进行筛选
+    return uniqueCredibleSets.filter(cs => {
       switch(selectedTab) {
         case 'Pancreatic eQTL':
           return cs.data_source === 'GTEx; SusieR';

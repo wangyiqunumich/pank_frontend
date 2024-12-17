@@ -5,7 +5,8 @@ const initialState = {
   nextQuestions: [],
   aiQuestions: [],
   aiAnswerTitle: '',
-  aiAnswerSubtitle: ''
+  aiAnswerSubtitle: '',
+  currentQuestionType: ''
 };
 
 export const processedQuestionSlice = createSlice({
@@ -18,6 +19,7 @@ export const processedQuestionSlice = createSlice({
       state.aiQuestions = action.payload.aiQuestions || [];
       state.aiAnswerTitle = action.payload.aiAnswerTitle || '';
       state.aiAnswerSubtitle = action.payload.aiAnswerSubtitle || '';
+      state.currentQuestionType = action.payload.currentQuestionType || '';
     },
     clearProcessedQuestion: (state) => {
       state.currentQuestion = '';
@@ -25,6 +27,7 @@ export const processedQuestionSlice = createSlice({
       state.aiQuestions = [];
       state.aiAnswerTitle = '';
       state.aiAnswerSubtitle = '';
+      state.currentQuestionType = '';
     }
   }
 });

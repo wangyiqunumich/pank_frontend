@@ -123,7 +123,7 @@ const Legend = () => (
 );
 
 function SearchResult() {
-    const { currentQuestion, nextQuestions, aiQuestions, aiAnswerTitle, aiAnswerSubtitle } = useSelector((state) => state.processedQuestion);
+    const { currentQuestion, nextQuestions, aiQuestions, aiAnswerTitle, aiAnswerSubtitle, currentQuestionType } = useSelector((state) => state.processedQuestion);
     const queryResult = useSelector((state) => state.queryResult.queryResult);
     const { aiAnswer, queryAiAnswerStatus } = useSelector((state) => state.aiAnswer);
     const searchState = useSelector((state) => state.search);
@@ -245,18 +245,31 @@ This answer refers to the following resources in PanKbase:`;
                 pl: 2
             }}>
                 <Box sx={{ width: '60%', visibility: 'hidden' }} />
-                <Typography 
-                    variant="body1" 
-                    sx={{ 
-                        flex: 1, 
-                        textAlign: 'left',
-                        pr: 10,
-                        wordWrap: 'break-word',
-                        whiteSpace: 'normal',
-                        lineHeight: 1.5
-                    }}
-                    dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }}
-                />
+                <Box sx={{ flex: 1, pr: 10 }}>
+                    {currentQuestionType && (
+                        <Typography 
+                            variant="subtitle1" 
+                            sx={{ 
+                                mb: 1,
+                                color: '#666',
+                                fontSize: 16,
+                                fontStyle: 'italic'
+                            }}
+                        >
+                            {currentQuestionType}
+                        </Typography>
+                    )}
+                    <Typography 
+                        variant="body1" 
+                        sx={{ 
+                            textAlign: 'left',
+                            wordWrap: 'break-word',
+                            whiteSpace: 'normal',
+                            lineHeight: 1.5
+                        }}
+                        dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }}
+                    />
+                </Box>
             </Box>
 
             <div className="search-result-content" style={{ marginTop: '60px' }}>
@@ -295,6 +308,45 @@ This answer refers to the following resources in PanKbase:`;
                                     </div>
                                 ))}
                             </Typography>
+                            <Box sx={{ mt: 3 }}>
+                                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                                    Resources
+                                </Typography>
+                                <List>
+                                    <ListItem>
+                                        <Link 
+                                            href="https://pankbase.org"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            sx={{ 
+                                                color: '#1976d2',
+                                                textDecoration: 'none',
+                                                '&:hover': {
+                                                    textDecoration: 'underline'
+                                                }
+                                            }}
+                                        >
+                                            • In Pankbase
+                                        </Link>
+                                    </ListItem>
+                                    <ListItem>
+                                        <Link 
+                                            href={`https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${searchState.targetTerm.split(':')[1]}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            sx={{ 
+                                                color: '#1976d2',
+                                                textDecoration: 'none',
+                                                '&:hover': {
+                                                    textDecoration: 'underline'
+                                                }
+                                            }}
+                                        >
+                                            • Link to ensembl: {searchState.targetTerm.split(':')[1]}
+                                        </Link>
+                                    </ListItem>
+                                </List>
+                            </Box>
                         </div>
                     </div>
 
