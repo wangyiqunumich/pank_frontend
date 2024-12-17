@@ -338,7 +338,7 @@ This answer refers to the following resources in PanKbase:`;
                         left: 20,
                         zIndex: 1
                     }}>
-                        {aiAnswerTitle}
+                        AI' overview
                     </Typography>
                     <Typography component="div">
                         {Array.isArray(aiAnswer?.answers) && aiAnswer.answers.map((answer, index) => (
@@ -364,12 +364,12 @@ This answer refers to the following resources in PanKbase:`;
                             </div>
                         ))}
                     </Typography>
-                    <Box sx={{ mt: 3 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
-                            Resources
+                    <Box>
+                        <Typography sx={{ fontWeight: 500, fontSize: 20, textAlign: 'left' }}>
+                            <span>📎</span> Resources
                         </Typography>
-                        <List>
-                            <ListItem>
+                        <List sx={{ padding: '0px' }}>
+                            <ListItem sx={{ paddingY: '0px' }}>
                                 <Link
                                     href="https://pankbase.org"
                                     target="_blank"
@@ -377,6 +377,7 @@ This answer refers to the following resources in PanKbase:`;
                                     sx={{
                                         color: '#1976d2',
                                         textDecoration: 'none',
+                                        textSize: '16px',
                                         '&:hover': {
                                             textDecoration: 'underline'
                                         }
@@ -385,7 +386,7 @@ This answer refers to the following resources in PanKbase:`;
                                     • In Pankbase
                                 </Link>
                             </ListItem>
-                            <ListItem>
+                            <ListItem sx={{ paddingY: '0px' }}>
                                 <Link
                                     href={`https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${searchState.targetTerm.split(':')[1]}`}
                                     target="_blank"
@@ -393,6 +394,7 @@ This answer refers to the following resources in PanKbase:`;
                                     sx={{
                                         color: '#1976d2',
                                         textDecoration: 'none',
+                                        textSize: '16px',
                                         '&:hover': {
                                             textDecoration: 'underline'
                                         }
