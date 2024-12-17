@@ -77,7 +77,7 @@ function KnowledgeGraph() {
       // 根据节点数量调整节点大小和布局参数
       const nodeWidth = totalNodes <= 3 ? 180 : 120;
       const nodeHeight = totalNodes <= 3 ? 40 : 40;
-      const fontSize = totalNodes <= 3 ? '16px' : '14px';
+      const fontSize = totalNodes <= 3 ? '20px' : '16px';
       const radius = totalNodes <= 3 ? 300 : 240;
 
       // 创建所有节点数据
@@ -88,6 +88,8 @@ function KnowledgeGraph() {
             id: geneNode['~id'],
             label: geneNode['~properties']?.HGNC_symbol === 'nan' ? geneNode['~id'] : (geneNode['~properties']?.HGNC_symbol || geneNode['~id']),
             color: colorMap.gene,
+            borderWidth: 2,
+            borderColor: colorMap.gene,
             width: nodeWidth,
             height: nodeHeight,
             fontSize: fontSize,
@@ -218,15 +220,15 @@ function KnowledgeGraph() {
               'shape': 'round-rectangle',
               'width': 'data(width)',
               'height': 'data(height)',
-              'background-color': 'data(color)',
+              'background-color': 'white',
               'label': 'data(label)',
               'text-valign': 'center',
               'text-halign': 'center',
               'font-size': 'data(fontSize)',
               'font-weight': 'bold',
-              'color': '#ffffff',
-              'border-width': 0,
-              'border-color': '#888',
+              'color': '#000000',
+              'border-width': '2px',
+              'border-color': 'data(color)',
               'border-opacity': 0.8,
               'padding': '10px',
               'text-wrap': 'wrap',
@@ -235,10 +237,7 @@ function KnowledgeGraph() {
           {
             selector: 'node[isMainNode]',
             style: {
-              'border-width': '10px',
-              'border-color': '#EBF3FA',
-              'border-opacity': 1,
-              'border-style': 'solid'
+              'background-color': 'data(color)'
             }
           },
           {
@@ -251,7 +250,7 @@ function KnowledgeGraph() {
               'arrow-scale': 1.5,
               'curve-style': 'straight',
               'label': 'data(label)',
-              'font-size': '10px',
+              'font-size': '16px',
               'text-rotation': 'autorotate',
               'text-margin-y': -5,
               'text-background-color': '#fff',
@@ -285,10 +284,10 @@ function KnowledgeGraph() {
           fit: false,
           padding: 100,
           zoom: 0.8,
-          pan: { x: -150, y: 0 }
+          pan: { x: -100, y: 50 }
         },
         userZoomingEnabled: false,
-        userPanningEnabled: true,
+        userPanningEnabled: false,
       });
 
       // 添加点击事件处理
@@ -381,13 +380,11 @@ function KnowledgeGraph() {
   };
 
   return (
-    <div ref={containerRef} style={{ 
-      width: '100%', 
-      height: '100%', 
-      position: 'relative',
-      backgroundColor: '#ffffff',
+    <div ref={containerRef} style={{
+      width: 685,
+      height: 472,
+      backgroundColor: '#F7F7F7',
       borderRadius: '10px',
-      overflow: 'hidden'
     }} />
   );
 }

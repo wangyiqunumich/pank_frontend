@@ -346,30 +346,10 @@ function IntermediatePage({ onContinue }) {
             borderRadius: '16px',
             minHeight: '472px',
             boxShadow: '0px 4px 4px 0px rgba(0,0,0,0.25)',
-            // padding: '32px',
-            // paddingTop: '48px',
             overflow: 'visible',
             backgroundColor: '#F7F7F7'
-          //   '&::before': {
-          //     content: '"KG viewer"',
-          //     position: 'absolute',
-          //     top: '16px',
-          //     left: '32px',
-          //     backgroundColor: '#F7F7F7',
-          //     padding: '0 10px',
-          //     fontSize: '24px',
-          //     fontWeight: 'bold'
-          //   }
           }}>
-            {/*<Box sx={{ */}
-            {/*  // marginLeft: '%',*/}
-            {/*  width: '200%',*/}
-            {/*  height: '100%',*/}
-            {/*  position: 'relative',*/}
-            {/*  zIndex: 10*/}
-            {/*}}>*/}
               <IntermediateKG />
-            {/*</Box>*/}
           </Box>
 
           {/* Legend */}
@@ -379,16 +359,6 @@ function IntermediatePage({ onContinue }) {
             padding: '32px',
             backgroundColor: '#F7F7F74D',
             boxShadow: '0px 3px 3px -2px rgba(0,0,0,0.2), 0px 3px 4px 0px rgba(0,0,0,0.14), 0px 1px 8px 0px rgba(0,0,0,0.12)',
-            // '&::before': {
-            //   content: '"Legend"',
-            //   position: 'absolute',
-            //   top: '-15px',
-            //   left: '20px',
-            //   backgroundColor: 'white',
-            //   padding: '0 10px',
-            //   fontSize: '1.2rem',
-            //   fontWeight: 'bold'
-            // }
           }}>
             <Typography sx={{
               fontWeight: 'bold',

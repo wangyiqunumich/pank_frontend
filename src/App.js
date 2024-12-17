@@ -40,7 +40,7 @@ function App() {
       {showLanding ? (
         <LandingPage />
       ) : (
-        <Container sx={{ padding: 0 }} disableGutters>
+        <Container sx={{ padding: 0 }} disableGutters maxWidth={false}>
           {/*<Box sx={{ */}
           {/*  display: 'flex',*/}
           {/*  alignItems: 'center',*/}

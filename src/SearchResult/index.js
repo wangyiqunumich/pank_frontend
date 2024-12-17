@@ -17,6 +17,7 @@ import { setVariables } from '../redux/variablesSlice';
 import { replaceVariables } from '../utils/textProcessing';
 import { store } from '../redux/store';
 import { queryQueryVisResult } from '../redux/queryVisResultSlice';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 const colorMap = {
     gene: "#ABD0F1",
@@ -74,12 +75,27 @@ const SNPPlotImage = ({ imageSrc }) => {
 };
 
 const Legend = () => (
-  <div className="styled-paper" data-title="Legend">
+  // <div className="styled-paper" data-title="Legend">
     <Box sx={{ 
       display: 'flex',
       flexDirection: 'column',
-      gap: 2
+      gap: 2,
+        position: 'relative',
+        borderRadius: '16px',
+        padding: '32px',
+        backgroundColor: '#F7F7F74D',
+        boxShadow: '0px 3px 3px -2px rgba(0,0,0,0.2), 0px 3px 4px 0px rgba(0,0,0,0.14), 0px 1px 8px 0px rgba(0,0,0,0.12)',
     }}>
+        <Typography sx={{
+            fontWeight: 'bold',
+            fontSize: 24,
+            position: 'absolute',
+            top: -20,
+            left: 20,
+            zIndex: 1
+        }}>
+            Legend
+        </Typography>
       {/* 第一行 */}
       <Box sx={{ 
         display: 'grid',
@@ -119,7 +135,7 @@ const Legend = () => (
         </Box>
       </Box>
     </Box>
-  </div>
+  // </div>
 );
 
 function SearchResult() {
@@ -232,89 +248,170 @@ This answer refers to the following resources in PanKbase:`;
     }
 
     return (
-        <Container maxWidth={false} sx={{ maxWidth: '98vw' }} className="search-result-container">
-            <Box sx={{ 
-                display: 'flex',
+        <Container disableGutters maxWidth={false}>
+            <Box sx={{
+                // display: 'flex',
                 alignItems: 'center',
-                gap: 2,
-                mb: 3,
-                mt: 2,
+                gap: 0,
                 position: 'absolute',
-                top: '120px',
-                width: '98%',
-                pl: 2
+                top: '162px',
+                right: window.innerWidth * 0.5 + 44,
+                width: 685,
+                minHeight: '950px'
             }}>
-                <Box sx={{ width: '60%', visibility: 'hidden' }} />
-                <Typography 
-                    variant="body1" 
+                <Typography sx={{ fontSize: 24, width: 685, textAlign: 'left', fontWeight: 'bold' }}>
+                    Current question
+                </Typography>
+                <Typography
                     sx={{ 
                         flex: 1, 
                         textAlign: 'left',
-                        pr: 10,
                         wordWrap: 'break-word',
                         whiteSpace: 'normal',
-                        lineHeight: 1.5
+                        fontSize: 20
                     }}
                     dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }}
                 />
             </Box>
+            <Box sx={{
+                width: 685,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 5,
+                position: 'absolute',
+                top: 354,
+                right: window.innerWidth * 0.5 + 44
+            }}>
+                <Typography sx={{
+                    fontWeight: 'bold',
+                    fontSize: 24,
+                    position: 'absolute',
+                    top: -20,
+                    left: 20,
+                    zIndex: 1
+                }}>
+                    Graph viewer
+                </Typography>
+                <Box sx={{
+                    position: 'relative',
+                    borderRadius: '16px',
+                    minHeight: '472px',
+                    boxShadow: '0px 4px 4px 0px rgba(0,0,0,0.25)',
+                    overflow: 'visible',
+                    backgroundColor: '#F7F7F7',
+                    textAlign: 'left'
+                }}>
+                    <KnowledgeGraph />
+                </Box>
+                <Legend />
+            </Box>
 
-            <div className="search-result-content" style={{ marginTop: '60px' }}>
-                <div className="right-column">
-                    <div className="styled-paper knowledge-graph" data-title="KG viewer">
-                        <div className="knowledge-graph-container">
-                            <KnowledgeGraph />
-                        </div>
-                    </div>
-                    <Legend />
-                </div>
+            <Box sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '32px',
+                padding: '0px',
+                margin: '0px',
+                width: 672,
+                position: 'absolute',
+                left: window.innerWidth * 0.5 + 44,
+                top: 354
+            }}>
+                <Box sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '32px',
+                    width: 672 - 32 - 32,
+                    borderRadius: '16px',
+                    boxShadow: '0px 4px 4px 0px rgba(0,0,0,0.25)',
+                    backgroundColor: '#F7F7F7',
+                    padding: '32px',
+                    position: 'relative'
+                }}>
+                    <Typography sx={{
+                        fontWeight: 'bold',
+                        fontSize: 24,
+                        position: 'absolute',
+                        top: -20,
+                        left: 20,
+                        zIndex: 1
+                    }}>
+                        AI's overview
+                    </Typography>
+                    <Typography component="div">
+                        {Array.isArray(aiAnswer?.answers) && aiAnswer.answers.map((answer, index) => (
+                            <div key={index} style={{ marginBottom: index < aiAnswer.answers.length - 1 ? '20px' : '0' }}>
+                                {aiAnswerSubtitle && aiAnswerSubtitle[index] && (
+                                    <Typography sx={{
+                                        textAlign: 'left',
+                                        gap: 1,
+                                        fontSize: '20px'
+                                    }}>
+                                        <span style={{ color: '#FFD700' }}>✨</span>
+                                        {aiAnswerSubtitle[index]}
+                                    </Typography>
+                                )}
+                                <Typography sx={{
+                                    textAlign: 'justify',
+                                    fontSize: '16px',
+                                    fontWeight: 300
+                                }}>
+                                    <span dangerouslySetInnerHTML={{ __html: removeConsecutiveAsterisks(answer) }} />
+                                </Typography>
+                                {/*{index < aiAnswer.answers.length - 1 && <Divider sx={{ my: 2 }} />}*/}
+                            </div>
+                        ))}
+                    </Typography>
+                </Box>
 
-                <div className="left-column">
-                    <div className="styled-paper" data-title="Answer">
-                        <div className="answer-content">
-                            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
-                                {aiAnswerTitle}
-                            </Typography>
-                            <Typography component="div">
-                                {Array.isArray(aiAnswer?.answers) && aiAnswer.answers.map((answer, index) => (
-                                    <div key={index} style={{ marginBottom: index < aiAnswer.answers.length - 1 ? '20px' : '0' }}>
-                                        {aiAnswerSubtitle && aiAnswerSubtitle[index] && (
-                                            <Typography variant="subtitle1" sx={{ 
-                                                mt: 2, 
-                                                mb: 1,
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: 1
-                                            }}>
-                                                <span style={{ color: '#FFD700' }}>✨</span> 
-                                                {aiAnswerSubtitle[index]}
-                                            </Typography>
-                                        )}
-                                        <span dangerouslySetInnerHTML={{ __html: removeConsecutiveAsterisks(answer) }} />
-                                        {index < aiAnswer.answers.length - 1 && <Divider sx={{ my: 2 }} />}
-                                    </div>
-                                ))}
-                            </Typography>
-                        </div>
-                    </div>
+                {/*    <div className="styled-paper" data-title="You May Also Ask">*/}
+                <Box sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '32px',
+                    width: 672 - 32 - 32,
+                    borderRadius: '16px',
+                    boxShadow: '0px 4px 4px 0px rgba(0,0,0,0.25)',
+                    backgroundColor: '#F7F7F7',
+                    padding: '32px',
+                    position: 'relative'
+                }}>
+                    <Typography sx={{
+                        fontWeight: 'bold',
+                        fontSize: 24,
+                        position: 'absolute',
+                        top: -20,
+                        left: 20,
+                        zIndex: 1
+                    }}>
+                        You may also ask
+                    </Typography>
+                    <ul className="next-questions-list">
+                        {nextQuestions?.length > 0 ? (
+                            nextQuestions.map((question, index) => (
+                                <li key={index}
+                                    onClick={() => handleNextQuestionClick(question)}
+                                    style={{ cursor: 'pointer' }}>
+                                    <Box sx={{
+                                        display: 'flex',
+                                    }}>
+                                        <Typography sx={{
+                                            fontSize: 16,
+                                            fontFamily: 'Open Sans'
+                                        }} dangerouslySetInnerHTML={{ __html: question }} />
+                                        <span style={{ alignContent: 'center' }}><ChevronRightIcon /></span>
+                                    </Box>
+                                </li>
+                            ))
+                        ) : (
+                            <Typography sx={{ fontSize: 16 }}>No next questions available</Typography>
+                        )}
+                    </ul>
+                </Box>
+            </Box>
 
-                    <div className="styled-paper" data-title="You May Also Ask">
-                        <ul className="next-questions-list">
-                            {nextQuestions?.length > 0 ? (
-                                nextQuestions.map((question, index) => (
-                                    <li key={index} 
-                                        onClick={() => handleNextQuestionClick(question)}
-                                        style={{ cursor: 'pointer' }}>
-                                        <Typography dangerouslySetInnerHTML={{ __html: question }} />
-                                    </li>
-                                ))
-                            ) : (
-                                <Typography>No next questions available</Typography>
-                            )}
-                        </ul>
-                    </div>
-                </div>
-            </div>
+
+            {/*</div>*/}
             <ImageModal
                 open={modalOpen}
                 handleClose={handleCloseModal}
