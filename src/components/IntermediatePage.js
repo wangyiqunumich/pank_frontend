@@ -336,7 +336,7 @@ function IntermediatePage({ onContinue }) {
           flexDirection: 'column',
           gap: 5,
           position: 'absolute',
-          top: 354,
+          top: 390,
           right: window.innerWidth * 0.5 + 44
         }}>
           <Typography sx={{
@@ -356,7 +356,7 @@ function IntermediatePage({ onContinue }) {
             minHeight: '472px',
             boxShadow: '0px 4px 4px 0px rgba(0,0,0,0.25)',
             overflow: 'visible',
-            backgroundColor: '#F7F7F7'
+            backgroundColor: '#F7F7F74D'
           }}>
               <IntermediateKG />
           </Box>
@@ -434,8 +434,8 @@ function IntermediatePage({ onContinue }) {
           gap: 2,
           position: 'absolute',
           left: window.innerWidth * 0.5 + 44,
-          top: 354,
-          backgroundColor: '#F7F7F799'
+          top: 390,
+          backgroundColor: '#F7F7F74D'
         }}>
           <Typography sx={{
             fontWeight: 'bold',

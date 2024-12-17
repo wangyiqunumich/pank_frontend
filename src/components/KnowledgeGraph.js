@@ -253,7 +253,7 @@ function KnowledgeGraph() {
               'font-size': '16px',
               'text-rotation': 'autorotate',
               'text-margin-y': -5,
-              'text-background-color': '#fff',
+              'text-background-color': '#F7F7F7',
               'text-background-opacity': 1,
               'text-background-padding': '2px'
             }
@@ -383,7 +383,7 @@ function KnowledgeGraph() {
     <div ref={containerRef} style={{
       width: 685,
       height: 472,
-      backgroundColor: '#F7F7F7',
+      backgroundColor: '#F7F7F74D',
       borderRadius: '10px',
     }} />
   );

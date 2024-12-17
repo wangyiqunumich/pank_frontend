@@ -87,7 +87,8 @@ function IntermediateKG() {
             'label': 'data(label)',
             'font-size': '12px',
             'text-rotation': 'autorotate',
-            'text-margin-y': -10
+            'text-margin-y': -10,
+            'text-background-color': '#F7F7F74D'
           }
         }
       ],
@@ -134,7 +135,7 @@ function IntermediateKG() {
       style={{
         width: 685,
         height: 472,
-        backgroundColor: '#F7F7F7',
+        backgroundColor: '#F7F7F74D',
         borderRadius: '8px',
         textAlign: 'left'
       }} 

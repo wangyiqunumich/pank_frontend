@@ -259,18 +259,22 @@ This answer refers to the following resources in PanKbase:`;
                 width: 685,
                 minHeight: '950px'
             }}>
-                    {currentQuestionType && (
-                        <Typography sx={{ fontSize: 24, width: 685, textAlign: 'left', fontWeight: 'bold', fontStyle: 'italic' }}>
-                            {currentQuestionType}
-                        </Typography>
-                    )}
+                <Typography sx={{ fontSize: 20, width: 685, textAlign: 'left' }}>
+                    Current question
+                </Typography>
+                {currentQuestionType && (
+                    <Typography sx={{ fontSize: 24, width: 685, textAlign: 'left', fontWeight: 'bold', fontStyle: 'italic' }}>
+                        {currentQuestionType}
+                    </Typography>
+                )}
                 <Typography
                     sx={{ 
                         flex: 1, 
                         textAlign: 'left',
                         wordWrap: 'break-word',
                         whiteSpace: 'normal',
-                        fontSize: 20
+                        fontSize: 20,
+                        fontWeight: 300
                     }}
                     dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }}
                 />
@@ -281,7 +285,7 @@ This answer refers to the following resources in PanKbase:`;
                 flexDirection: 'column',
                 gap: 5,
                 position: 'absolute',
-                top: 354,
+                top: 390,
                 right: window.innerWidth * 0.5 + 44
             }}>
                 <Typography sx={{
@@ -300,7 +304,7 @@ This answer refers to the following resources in PanKbase:`;
                     minHeight: '472px',
                     boxShadow: '0px 4px 4px 0px rgba(0,0,0,0.25)',
                     overflow: 'visible',
-                    backgroundColor: '#F7F7F7',
+                    backgroundColor: '#F7F7F74D',
                     textAlign: 'left'
                 }}>
                     <KnowledgeGraph />
@@ -317,7 +321,7 @@ This answer refers to the following resources in PanKbase:`;
                 width: 672,
                 position: 'absolute',
                 left: window.innerWidth * 0.5 + 44,
-                top: 354
+                top: 390
             }}>
                 <Box sx={{
                     display: 'flex',
@@ -326,7 +330,7 @@ This answer refers to the following resources in PanKbase:`;
                     width: 672 - 32 - 32,
                     borderRadius: '16px',
                     boxShadow: '0px 4px 4px 0px rgba(0,0,0,0.25)',
-                    backgroundColor: '#F7F7F7',
+                    backgroundColor: '#F7F7F74D',
                     padding: '32px',
                     position: 'relative'
                 }}>
@@ -414,7 +418,7 @@ This answer refers to the following resources in PanKbase:`;
                     width: 672 - 32 - 32,
                     borderRadius: '16px',
                     boxShadow: '0px 4px 4px 0px rgba(0,0,0,0.25)',
-                    backgroundColor: '#F7F7F7',
+                    backgroundColor: '#F7F7F74D',
                     padding: '32px',
                     position: 'relative'
                 }}>
