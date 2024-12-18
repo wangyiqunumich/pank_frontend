@@ -47,12 +47,37 @@ function IntermediateKG() {
       variant: 0
     };
 
+    const getCredibleSetLabel = (nodeId, dataSource) => {
+      let prefix = '';
+      switch (dataSource) {
+        case 'GTEx; SusieR':
+          prefix = 'A';
+          break;
+        case 'INSPIRE; SusieR':
+          prefix = 'B';
+          break;
+        case 'splicing; GTEx':
+          prefix = 'C';
+          break;
+        case 'exon; INSPIRE':
+          prefix = 'D';
+          break;
+        default:
+          return nodeId;
+      }
+      
+      const setNumber = nodeId.split('_').pop();
+      return `${prefix}_${setNumber}`;
+    };
+
     const cyNodes = nodes.map(node => {
       const baseNodeConfig = {
         group: 'nodes',
         data: {
           id: node.id,
-          label: node.symbol || node.id,
+          label: node.type.includes('credible_set') ? 
+                 getCredibleSetLabel(node.id, node.data_source) : 
+                 (node.symbol || node.id),
           color: node.type.includes('gene') ? colorMap.gene : 
                  node.type.includes('credible_set') ? '#43978F' :
                  colorMap.sequence_variant,

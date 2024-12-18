@@ -270,9 +270,36 @@ function IntermediatePage({ onContinue }) {
     }
   };
 
+  // 添加一个新的辅助函数来获取 credibleSet 的显示标签
+  const getCredibleSetLabel = (credibleSet) => {
+    let prefix = '';
+    switch (credibleSet.data_source) {
+      case 'GTEx; SusieR':
+        prefix = 'A';
+        break;
+      case 'INSPIRE; SusieR':
+        prefix = 'B';
+        break;
+      case 'splicing; GTEx':
+        prefix = 'C';
+        break;
+      case 'exon; INSPIRE':
+        prefix = 'D';
+        break;
+      default:
+        return credibleSet.id;
+    }
+    
+    const setNumber = credibleSet.id.split('_').pop();
+    return `${prefix} Credible set ${setNumber}`;
+  };
+
   const getFilteredCredibleSets = () => {
     const allCredibleSets = queryResult?.results?.flatMap(result => 
-      result?.credible_sets || []
+      (result?.credible_sets || []).map(cs => ({
+        ...cs,
+        displayLabel: getCredibleSetLabel(cs)  // 添加显示标签
+      }))
     ) || [];
 
     // 首先根据 id 去重
@@ -295,6 +322,14 @@ function IntermediatePage({ onContinue }) {
           return true;
       }
     });
+  };
+
+  const handleCredibleSetClick = (credibleSet) => {
+    console.log(credibleSet);
+  };
+
+  const handleDownload = (credibleSet) => {
+    console.log(credibleSet);
   };
 
   return (
@@ -471,12 +506,12 @@ function IntermediatePage({ onContinue }) {
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell>Credible set</TableCell>
-                      <TableCell>Purity</TableCell>
-                      <TableCell>Lead SNP</TableCell>
-                      <TableCell>PIP</TableCell>
-                      <TableCell>#</TableCell>
-                      <TableCell>Download</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>Credible set</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>Purity</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>Lead SNP</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>PIP</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>#</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>Download</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -488,25 +523,32 @@ function IntermediatePage({ onContinue }) {
                           item.data_source,
                           item.lead_SNP
                         )}
-                        sx={{ 
-                          cursor: 'pointer',
-                          '&:hover': {
-                            backgroundColor: 'rgba(0, 0, 0, 0.04)'
-                          }
-                        }}
+                        sx={{ cursor: 'pointer' }}
                       >
-                        <TableCell sx={{ textDecoration: 'underline', color: 'blue' }}>
-                          {`Credible set ${index + 1}`}
-                        </TableCell>
-                        <TableCell>{item.purity?.toFixed(2) || '-'}</TableCell>
-                        <TableCell>{item.lead_SNP || '-'}</TableCell>
-                        <TableCell>{item.pip?.toFixed(2) || '-'}</TableCell>
-                        <TableCell>{item.n_snp || '-'}</TableCell>
-                        <TableCell>
+                        <TableCell sx={{ verticalAlign: 'middle' }}>
                           <Link 
-                            component="button"
+                            component="button" 
+                            variant="body2" 
                             onClick={(e) => {
                               e.stopPropagation();
+                              handleCredibleSetClick(item);
+                            }}
+                            sx={{ textAlign: 'left', display: 'block' }}
+                          >
+                            {item.displayLabel}
+                          </Link>
+                        </TableCell>
+                        <TableCell sx={{ verticalAlign: 'middle' }}>{item.purity?.toFixed(2) || '-'}</TableCell>
+                        <TableCell sx={{ verticalAlign: 'middle' }}>{item.lead_SNP}</TableCell>
+                        <TableCell sx={{ verticalAlign: 'middle' }}>{item.pip?.toFixed(2) || '-'}</TableCell>
+                        <TableCell sx={{ verticalAlign: 'middle' }}>{item.n_snp || '-'}</TableCell>
+                        <TableCell sx={{ verticalAlign: 'middle' }}>
+                          <Link 
+                            component="button" 
+                            variant="body2" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDownload(item);
                             }}
                           >
                             Link
