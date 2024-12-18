@@ -212,7 +212,8 @@ This answer refers to the following resources in PanKbase:`;
                         nextQuestions: processedNextQuestions,
                         aiQuestions: processedAiQuestions,
                         aiAnswerTitle: processedAiAnswerTitle,
-                        aiAnswerSubtitle: response.payload?.ai_answer_sub_title
+                        aiAnswerSubtitle: response.payload?.ai_answer_sub_title,
+                        currentQuestionType: currentQuestionType
                     }));
                     
                     dispatch(queryQueryResult({ query }));

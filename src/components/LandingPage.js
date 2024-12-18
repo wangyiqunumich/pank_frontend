@@ -3,6 +3,7 @@ import { Box, Typography, Container, Link } from '@mui/material';
 import landingPageLogo from '../image/landingPageLogo.png';
 import relatedResources from '../image/relatedResources.png';
 import apiIcon from '../image/apiIcon.png';
+import { Link as RouterLink } from 'react-router-dom';
 
 function LandingPage() {
   return (
@@ -74,7 +75,7 @@ function LandingPage() {
           }}>
             <img src={apiIcon} alt="API" style={{ width: '32px', height: '32px' }} />
             <Typography sx={{ fontSize: 24}}>
-              Access PanKgraph with <Link href="/api" sx={{ textDecoration: 'none' }}>API</Link>
+              Access PanKgraph with <Link component={RouterLink} to="/api" sx={{ textDecoration: 'none' }}>API</Link>
             </Typography>
           </Box>
 
