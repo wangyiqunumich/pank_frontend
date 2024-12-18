@@ -153,7 +153,7 @@ function SearchResult() {
         return text.replace(/\*\*/g, '');
     };
     useEffect(() => {
-        if (queryResult.results.length != 0) {
+        if (queryResult.results.length != 0 && queryResult.results[0].gene_node) {
             const processedQuestions = aiQuestions.map(question => 
                 `${question} (answer the question in 50 words)`
             );

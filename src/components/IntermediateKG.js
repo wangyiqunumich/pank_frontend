@@ -28,29 +28,102 @@ function IntermediateKG() {
 
     const { nodes, relationships } = queryVisResult.results[0];
     
+    // 计算每种类型节点的数量
+    const typeCounts = nodes.reduce((acc, node) => {
+      if (node.type.includes('gene')) acc.gene++;
+      else if (node.type.includes('credible_set')) acc.credible_set++;
+      else if (node.type.includes('sequence_variant')) acc.variant++;
+      return acc;
+    }, { gene: 0, credible_set: 0, variant: 0 });
+
+    // 计算总高度和起始位置
+    const totalHeight = Math.max(typeCounts.credible_set, typeCounts.variant) * 100;
+    const startY = 250 - (totalHeight / 2);
+
     // 创建节点数据
-    const cyNodes = nodes.map(node => ({
-      group: 'nodes',
-      data: {
-        id: node.id,
-        label: node.symbol || node.id,
-        color: node.type.includes('gene') ? colorMap.gene : colorMap.sequence_variant,
-        width: 120,
-        height: 40,
-        fontSize: '14px'
+    const typeCount = {
+      gene: 0,
+      credible_set: 0,
+      variant: 0
+    };
+
+    const cyNodes = nodes.map(node => {
+      const baseNodeConfig = {
+        group: 'nodes',
+        data: {
+          id: node.id,
+          label: node.symbol || node.id,
+          color: node.type.includes('gene') ? colorMap.gene : 
+                 node.type.includes('credible_set') ? '#43978F' :
+                 colorMap.sequence_variant,
+          width: 120,
+          height: 40,
+          fontSize: '14px'
+        }
+      };
+
+      let yOffset;
+      if (node.type.includes('gene')) {
+        // 基因节点居中
+        return {
+          ...baseNodeConfig,
+          position: { x: 100, y: 250 }
+        };
+      } else if (node.type.includes('credible_set')) {
+        yOffset = startY + (typeCount.credible_set++ * 100);
+        return {
+          ...baseNodeConfig,
+          position: { x: 400, y: yOffset }
+        };
+      } else if (node.type.includes('sequence_variant')) {
+        // 找到对应的 credible_set 节点的位置
+        const relatedEdge = relationships.find(rel => 
+          (rel.start === node.id || rel.end === node.id) && 
+          nodes.find(n => (n.id === rel.start || n.id === rel.end) && n.type.includes('credible_set'))
+        );
+        
+        if (relatedEdge) {
+          const credibleSetNode = nodes.find(n => 
+            n.type.includes('credible_set') && 
+            (n.id === relatedEdge.start || n.id === relatedEdge.end)
+          );
+          const credibleSetIndex = nodes
+            .filter(n => n.type.includes('credible_set'))
+            .findIndex(n => n.id === credibleSetNode.id);
+          yOffset = startY + (credibleSetIndex * 100);
+        } else {
+          yOffset = startY + (typeCount.variant++ * 100);
+        }
+        
+        return {
+          ...baseNodeConfig,
+          position: { x: 700, y: yOffset }
+        };
       }
-    }));
+    });
 
     // 创建边的数据
-    const cyEdges = relationships.map((rel, index) => ({
-      group: 'edges',
-      data: {
-        id: `e${index}`,
-        source: rel.start,
-        target: rel.end,
-        label: generateEdgeLabel(rel.data_source, conversionTable)
+    const cyEdges = relationships.map((rel, index) => {
+      const sourceNode = nodes.find(node => node.id === rel.start);
+      const targetNode = nodes.find(node => node.id === rel.end);
+      
+      let label = generateEdgeLabel(rel.data_source, conversionTable);
+      
+      // 如果是从 credible_set 到 snp 的边，修改标签为 "lead SNP"
+      if (targetNode?.type.includes('credible_set') && sourceNode?.type.includes('sequence_variant')) {
+        label = 'lead SNP';
       }
-    }));
+      
+      return {
+        group: 'edges',
+        data: {
+          id: `e${index}`,
+          source: rel.end,  // 保持反转的方向
+          target: rel.start,
+          label: label
+        }
+      };
+    });
 
     // 确保在创建新实例前销毁旧实例
     if (cyRef.current) {
@@ -93,25 +166,12 @@ function IntermediateKG() {
         }
       ],
       layout: {
-        name: 'cose-bilkent',
-        animate: false,
-        randomize: false,
-        idealEdgeLength: 200,
-        nodeRepulsion: 6000,
-        padding: 0,
-        edgeElasticity: 0.45,
-        nestingFactor: 0.1,
-        gravity: 0.25,
-        numIter: 2500,
-        fit: false,
+        name: 'preset',  // 使用preset布局以保持固定位置
+        fit: true,
+        padding: 50
       },
-      zoom: 0.8,
-      minZoom: 0.5,
-      maxZoom: 2,
-      pan: { x: 270, y: 230 },
       userZoomingEnabled: false,
       userPanningEnabled: false,
-      wheelSensitivity: 0.1,
     });
 
     cyRef.current = cy;

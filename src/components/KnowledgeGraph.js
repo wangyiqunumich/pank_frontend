@@ -106,7 +106,7 @@ function KnowledgeGraph() {
       let currentIndex = 0;
 
       // 如果存在 SNP 节点，添加它
-      if (result.snp_node) {
+      if (result.snp_node) { 
         const angle = (2 * Math.PI * currentIndex) / totalNodes;
         nodes.push({
           data: {
@@ -150,7 +150,7 @@ function KnowledgeGraph() {
             id: `article_to_gene`,
             source: 'article_node',
             target: geneNode['~id'],
-            label: 'mentioned'
+            label: 'mentioned in'
           }
         });
         
@@ -183,9 +183,9 @@ function KnowledgeGraph() {
       if (result.snp_node && result.r) {
         edges.push({
           data: {
-            source: result.snp_node['~id'],
-            target: geneNode['~id'],
-            label: getEdgeLabel(result.snp_node, geneNode)
+            source: geneNode['~id'],
+            target: result.snp_node['~id'],
+            label: getEdgeLabel(geneNode, result.snp_node)
           }
         });
       }
@@ -200,14 +200,26 @@ function KnowledgeGraph() {
             const targetNode = [...surroundingNodes, geneNode]
               .find(node => node['~id'] === edge['~end']);
             
-            return {
-              data: {
-                source: edge['~start'],
-                target: edge['~end'],
-                label: sourceNode && targetNode ? getEdgeLabel(sourceNode, targetNode) : ''
+            if (sourceNode && targetNode) {
+              if (getNodeType(sourceNode) === 'sequence_variant' && getNodeType(targetNode) === 'gene') {
+                return {
+                  data: {
+                    source: targetNode['~id'],
+                    target: sourceNode['~id'],
+                    label: getEdgeLabel(targetNode, sourceNode)
+                  }
+                };
               }
-            };
-          }));
+              
+              return {
+                data: {
+                  source: edge['~start'],
+                  target: edge['~end'],
+                  label: getEdgeLabel(sourceNode, targetNode)
+                }
+              };
+            }
+          }).filter(Boolean));
       }
 
       cyRef.current = Cytoscape({
@@ -346,14 +358,14 @@ function KnowledgeGraph() {
   const getEdgeLabel = (sourceNode, targetNode) => {
     const sourceType = getNodeType(sourceNode);
     const targetType = getNodeType(targetNode);
-    
+
     if ((sourceType === 'gene' && targetType === 'sequence_variant') ||
         (sourceType === 'sequence_variant' && targetType === 'gene')) {
-      return 'eQTL of';
+      return 'has lead QTL';
     }
     
     if (sourceType === 'gene' && targetType === 'gene') {
-      return 'interact';
+      return 'interact with';
     }
 
     if ((sourceType === 'open_chromatin_region' && targetType === 'gene') ||
@@ -373,7 +385,7 @@ function KnowledgeGraph() {
 
     if ((sourceType === 'article' && targetType === 'gene') ||
         (sourceType === 'gene' && targetType === 'article')) {
-      return 'mentioned';
+      return 'mentioned in';
     }
     
     return ''; // 默认返回空字符串

@@ -157,12 +157,12 @@ function IntermediatePage({ onContinue }) {
     const dataSourceFrontend = dataSource;
     
     let tissueKey = '';
-    if (dataSource === 'eQTL GTEx') {
+    if (dataSource === 'GTEx; SusieR') {
       tissueKey = tissueMap['GTEx; SusieR'] || 'pancreatic tissue';
     } else if (dataSource === 'INSPIRE; SusieR') {
       tissueKey = tissueMap['INSPIRE; SusieR'] || 'islet tissue';
     }
-    
+
     // 保存变量到 Redux store
     const variables = {
       snpId,
@@ -184,7 +184,8 @@ function IntermediatePage({ onContinue }) {
       
       // 使用 replaceVariables 处理问题文本
       let processedQuestion = replaceVariables(item.question, variables);
-
+      
+      console.log(processedQuestion);
       // 准备新的搜索条件
       let newSearchState = {
         sourceTerm: '',
@@ -399,27 +400,8 @@ function IntermediatePage({ onContinue }) {
                   <Typography variant="body2">Sequence Variant</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Box sx={{ width: 20, height: 20, backgroundColor: '#F6C957', borderRadius: '4px' }} />
-                  <Typography variant="body2">Pathway</Typography>
-                </Box>
-              </Box>
-              {/* 第二行 */}
-              <Box sx={{ 
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: 2
-              }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Box sx={{ width: 20, height: 20, backgroundColor: '#8c561b', borderRadius: '4px' }} />
-                  <Typography variant="body2">Ontology</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Box sx={{ width: 20, height: 20, backgroundColor: '#e377c2', borderRadius: '4px' }} />
-                  <Typography variant="body2">Article</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Box sx={{ width: 20, height: 20, backgroundColor: '#8c564b', borderRadius: '4px' }} />
-                  <Typography variant="body2">Open Chromatin Region</Typography>
+                  <Box sx={{ width: 20, height: 20, backgroundColor: '#43978F', borderRadius: '4px' }} />
+                  <Typography variant="body2">Credible set</Typography>
                 </Box>
               </Box>
             </Box>
