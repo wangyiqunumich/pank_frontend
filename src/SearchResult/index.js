@@ -17,6 +17,7 @@ import { setVariables } from '../redux/variablesSlice';
 import { replaceVariables } from '../utils/textProcessing';
 import { store } from '../redux/store';
 import { queryQueryVisResult } from '../redux/queryVisResultSlice';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 const colorMap = {
     gene: "#ABD0F1",
@@ -74,12 +75,27 @@ const SNPPlotImage = ({ imageSrc }) => {
 };
 
 const Legend = () => (
-  <div className="styled-paper" data-title="Legend">
+  // <div className="styled-paper" data-title="Legend">
     <Box sx={{ 
       display: 'flex',
       flexDirection: 'column',
-      gap: 2
+      gap: 2,
+        position: 'relative',
+        borderRadius: '16px',
+        padding: '32px',
+        backgroundColor: '#F7F7F74D',
+        boxShadow: '0px 3px 3px -2px rgba(0,0,0,0.2), 0px 3px 4px 0px rgba(0,0,0,0.14), 0px 1px 8px 0px rgba(0,0,0,0.12)',
     }}>
+        <Typography sx={{
+            fontWeight: 'bold',
+            fontSize: 24,
+            position: 'absolute',
+            top: -20,
+            left: 20,
+            zIndex: 1
+        }}>
+            Legend
+        </Typography>
       {/* 第一行 */}
       <Box sx={{ 
         display: 'grid',
@@ -119,7 +135,7 @@ const Legend = () => (
         </Box>
       </Box>
     </Box>
-  </div>
+  // </div>
 );
 
 function SearchResult() {
@@ -233,141 +249,213 @@ This answer refers to the following resources in PanKbase:`;
     }
 
     return (
-        <Container maxWidth={false} sx={{ maxWidth: '98vw' }} className="search-result-container">
-            <Box sx={{ 
-                display: 'flex',
+        <Container disableGutters maxWidth={false}>
+            <Box sx={{
+                // display: 'flex',
                 alignItems: 'center',
-                gap: 2,
-                mb: 3,
-                mt: 2,
+                gap: 0,
                 position: 'absolute',
-                top: '120px',
-                width: '98%',
-                pl: 2
+                top: '162px',
+                right: window.innerWidth * 0.5 + 44,
+                width: 685,
+                minHeight: '950px'
             }}>
-                <Box sx={{ width: '60%', visibility: 'hidden' }} />
-                <Box sx={{ flex: 1, pr: 10 }}>
-                    {currentQuestionType && (
-                        <Typography 
-                            variant="subtitle1" 
-                            sx={{ 
-                                mb: 1,
-                                color: '#666',
-                                fontSize: 16,
-                                fontStyle: 'italic'
-                            }}
-                        >
-                            {currentQuestionType}
-                        </Typography>
-                    )}
-                    <Typography 
-                        variant="body1" 
-                        sx={{ 
-                            textAlign: 'left',
-                            wordWrap: 'break-word',
-                            whiteSpace: 'normal',
-                            lineHeight: 1.5
-                        }}
-                        dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }}
-                    />
+                <Typography sx={{ fontSize: 20, width: 685, textAlign: 'left' }}>
+                    Current question
+                </Typography>
+                {currentQuestionType && (
+                    <Typography sx={{ fontSize: 24, width: 685, textAlign: 'left', fontWeight: 'bold', fontStyle: 'italic' }}>
+                        {currentQuestionType}
+                    </Typography>
+                )}
+                <Typography
+                    sx={{ 
+                        flex: 1, 
+                        textAlign: 'left',
+                        wordWrap: 'break-word',
+                        whiteSpace: 'normal',
+                        fontSize: 20,
+                        fontWeight: 300
+                    }}
+                    dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }}
+                />
+            </Box>
+            <Box sx={{
+                width: 685,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 5,
+                position: 'absolute',
+                top: 390,
+                right: window.innerWidth * 0.5 + 44
+            }}>
+                <Typography sx={{
+                    fontWeight: 'bold',
+                    fontSize: 24,
+                    position: 'absolute',
+                    top: -20,
+                    left: 20,
+                    zIndex: 1
+                }}>
+                    Graph viewer
+                </Typography>
+                <Box sx={{
+                    position: 'relative',
+                    borderRadius: '16px',
+                    minHeight: '472px',
+                    boxShadow: '0px 4px 4px 0px rgba(0,0,0,0.25)',
+                    overflow: 'visible',
+                    backgroundColor: '#F7F7F74D',
+                    textAlign: 'left'
+                }}>
+                    <KnowledgeGraph />
                 </Box>
+                <Legend />
             </Box>
 
-            <div className="search-result-content" style={{ marginTop: '60px' }}>
-                <div className="right-column">
-                    <div className="styled-paper knowledge-graph" data-title="KG viewer">
-                        <div className="knowledge-graph-container">
-                            <KnowledgeGraph />
-                        </div>
-                    </div>
-                    <Legend />
-                </div>
-
-                <div className="left-column">
-                    <div className="styled-paper" data-title="Answer">
-                        <div className="answer-content">
-                            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
-                                {aiAnswerTitle}
-                            </Typography>
-                            <Typography component="div">
-                                {Array.isArray(aiAnswer?.answers) && aiAnswer.answers.map((answer, index) => (
-                                    <div key={index} style={{ marginBottom: index < aiAnswer.answers.length - 1 ? '20px' : '0' }}>
-                                        {aiAnswerSubtitle && aiAnswerSubtitle[index] && (
-                                            <Typography variant="subtitle1" sx={{ 
-                                                mt: 2, 
-                                                mb: 1,
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: 1
-                                            }}>
-                                                <span style={{ color: '#FFD700' }}>✨</span> 
-                                                {aiAnswerSubtitle[index]}
-                                            </Typography>
-                                        )}
-                                        <span dangerouslySetInnerHTML={{ __html: removeConsecutiveAsterisks(answer) }} />
-                                        {index < aiAnswer.answers.length - 1 && <Divider sx={{ my: 2 }} />}
-                                    </div>
-                                ))}
-                            </Typography>
-                            <Box sx={{ mt: 3 }}>
-                                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
-                                    Resources
+            <Box sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '32px',
+                padding: '0px',
+                margin: '0px',
+                width: 672,
+                position: 'absolute',
+                left: window.innerWidth * 0.5 + 44,
+                top: 390
+            }}>
+                <Box sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '32px',
+                    width: 672 - 32 - 32,
+                    borderRadius: '16px',
+                    boxShadow: '0px 4px 4px 0px rgba(0,0,0,0.25)',
+                    backgroundColor: '#F7F7F74D',
+                    padding: '32px',
+                    position: 'relative'
+                }}>
+                    <Typography sx={{
+                        fontWeight: 'bold',
+                        fontSize: 24,
+                        position: 'absolute',
+                        top: -20,
+                        left: 20,
+                        zIndex: 1
+                    }}>
+                        AI' overview
+                    </Typography>
+                    <Typography component="div">
+                        {Array.isArray(aiAnswer?.answers) && aiAnswer.answers.map((answer, index) => (
+                            <div key={index} style={{ marginBottom: index < aiAnswer.answers.length - 1 ? '20px' : '0' }}>
+                                {aiAnswerSubtitle && aiAnswerSubtitle[index] && (
+                                    <Typography sx={{
+                                        textAlign: 'left',
+                                        gap: 1,
+                                        fontSize: '20px'
+                                    }}>
+                                        <span style={{ color: '#FFD700' }}>✨</span>
+                                        {aiAnswerSubtitle[index]}
+                                    </Typography>
+                                )}
+                                <Typography sx={{
+                                    textAlign: 'justify',
+                                    fontSize: '16px',
+                                    fontWeight: 300
+                                }}>
+                                    <span dangerouslySetInnerHTML={{ __html: removeConsecutiveAsterisks(answer) }} />
                                 </Typography>
-                                <List>
-                                    <ListItem>
-                                        <Link 
-                                            href="https://pankbase.org"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            sx={{ 
-                                                color: '#1976d2',
-                                                textDecoration: 'none',
-                                                '&:hover': {
-                                                    textDecoration: 'underline'
-                                                }
-                                            }}
-                                        >
-                                            • In Pankbase
-                                        </Link>
-                                    </ListItem>
-                                    <ListItem>
-                                        <Link 
-                                            href={`https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${searchState.targetTerm.split(':')[1]}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            sx={{ 
-                                                color: '#1976d2',
-                                                textDecoration: 'none',
-                                                '&:hover': {
-                                                    textDecoration: 'underline'
-                                                }
-                                            }}
-                                        >
-                                            • Link to ensembl: {searchState.targetTerm.split(':')[1]}
-                                        </Link>
-                                    </ListItem>
-                                </List>
-                            </Box>
-                        </div>
-                    </div>
-
-                    <div className="styled-paper" data-title="You May Also Ask">
-                        <ul className="next-questions-list">
-                            {nextQuestions?.length > 0 ? (
-                                nextQuestions.map((question, index) => (
-                                    <li key={index} 
-                                        onClick={() => handleNextQuestionClick(question)}
-                                        style={{ cursor: 'pointer' }}>
-                                        <Typography dangerouslySetInnerHTML={{ __html: question }} />
-                                    </li>
-                                ))
-                            ) : (
-                                <Typography>No next questions available</Typography>
-                            )}
-                        </ul>
-                    </div>
-                </div>
-            </div>
+                                {/*{index < aiAnswer.answers.length - 1 && <Divider sx={{ my: 2 }} />}*/}
+                            </div>
+                        ))}
+                    </Typography>
+                    <Box>
+                        <Typography sx={{ fontWeight: 500, fontSize: 20, textAlign: 'left' }}>
+                            <span>📎</span> Resources
+                        </Typography>
+                        <List sx={{ padding: '0px' }}>
+                            <ListItem sx={{ paddingY: '0px' }}>
+                                <Link
+                                    href="https://pankbase.org"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    sx={{
+                                        color: '#1976d2',
+                                        textDecoration: 'none',
+                                        textSize: '16px',
+                                        '&:hover': {
+                                            textDecoration: 'underline'
+                                        }
+                                    }}
+                                >
+                                    • In Pankbase
+                                </Link>
+                            </ListItem>
+                            <ListItem sx={{ paddingY: '0px' }}>
+                                <Link
+                                    href={`https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${searchState.targetTerm.split(':')[1]}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    sx={{
+                                        color: '#1976d2',
+                                        textDecoration: 'none',
+                                        textSize: '16px',
+                                        '&:hover': {
+                                            textDecoration: 'underline'
+                                        }
+                                    }}
+                                >
+                                    • Link to ensembl: {searchState.targetTerm.split(':')[1]}
+                                </Link>
+                            </ListItem>
+                        </List>
+                    </Box>
+                </Box>
+                {/*    <div className="styled-paper" data-title="You May Also Ask">*/}
+                <Box sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '32px',
+                    width: 672 - 32 - 32,
+                    borderRadius: '16px',
+                    boxShadow: '0px 4px 4px 0px rgba(0,0,0,0.25)',
+                    backgroundColor: '#F7F7F74D',
+                    padding: '32px',
+                    position: 'relative'
+                }}>
+                    <Typography sx={{
+                        fontWeight: 'bold',
+                        fontSize: 24,
+                        position: 'absolute',
+                        top: -20,
+                        left: 20,
+                        zIndex: 1
+                    }}>
+                        You may also ask
+                    </Typography>
+                    <ul className="next-questions-list">
+                        {nextQuestions?.length > 0 ? (
+                            nextQuestions.map((question, index) => (
+                                <li key={index}
+                                    onClick={() => handleNextQuestionClick(question)}
+                                    style={{ cursor: 'pointer' }}>
+                                    <Box sx={{
+                                        display: 'flex',
+                                    }}>
+                                        <Typography sx={{
+                                            fontSize: 16,
+                                            fontFamily: 'Open Sans'
+                                        }} dangerouslySetInnerHTML={{ __html: question }} />
+                                        <span style={{ alignContent: 'center' }}><ChevronRightIcon /></span>
+                                    </Box>
+                                </li>
+                            ))
+                        ) : (
+                            <Typography sx={{ fontSize: 16 }}>No next questions available</Typography>
+                        )}
+                    </ul>
+                </Box>
+            </Box>
             <ImageModal
                 open={modalOpen}
                 handleClose={handleCloseModal}

@@ -5,7 +5,8 @@ import SearchBar from './SearchBar';
 import SearchResult from './SearchResult';
 import IntermediatePage from './components/IntermediatePage';
 import LandingPage from './components/LandingPage';
-import { Box, Container } from '@mui/material';
+import {Box, Container, CssBaseline, StyledEngineProvider, ThemeProvider} from '@mui/material';
+import theme from './theme/theme';
 
 function App() {
   const [showIntermediate, setShowIntermediate] = useState(false);
@@ -26,34 +27,30 @@ function App() {
 
   return (
     <div className="App">
-      <NavBar />
-      <SearchBar 
-        onSearch={handleSearch} 
-        disabled={showIntermediate || showResult}
-        style={{
-          position: 'absolute',
-          top: showLanding ? 410 : 162,
-          left: `${window.innerWidth * 0.5 + 44}px`,
-          width: 672
-        }}
-      />
-      {showLanding ? (
-        <LandingPage />
-      ) : (
-        <Container sx={{ padding: 0 }} disableGutters>
-          {/*<Box sx={{ */}
-          {/*  display: 'flex',*/}
-          {/*  alignItems: 'center',*/}
-          {/*  gap: 2,*/}
-          {/*  mb: 3,*/}
-          {/*  mt: 2*/}
-          {/*}}>*/}
-            {/*<Box sx={{ width: '60%', backgroundColor: 'red' }} />*/}
-          {/*</Box>*/}
-          {showIntermediate && <IntermediatePage onContinue={handleContinue} />}
-          {showResult && <SearchResult />}
-        </Container>
-      )}
+        <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={theme()}>
+                <CssBaseline />
+                  <NavBar />
+                  <SearchBar
+                    onSearch={handleSearch}
+                    disabled={showIntermediate || showResult}
+                    style={{
+                      position: 'absolute',
+                      top: showLanding ? 410 : 162,
+                      left: `${window.innerWidth * 0.5 + 44}px`,
+                      width: 672
+                    }}
+                  />
+                  {showLanding ? (
+                    <LandingPage />
+                  ) : (
+                    <Container sx={{ padding: 0 }} disableGutters maxWidth={false}>
+                      {showIntermediate && <IntermediatePage onContinue={handleContinue} />}
+                      {showResult && <SearchResult />}
+                    </Container>
+                  )}
+            </ThemeProvider>
+        </StyledEngineProvider>
     </div>
   );
 }
