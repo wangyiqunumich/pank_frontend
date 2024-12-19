@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Container, 
   Typography, 
@@ -12,7 +12,8 @@ import {
   Box,
   Link,
   Tabs,
-  Tab
+  Tab,
+  Button
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -28,9 +29,9 @@ import { setVariables } from '../redux/variablesSlice';
 import { replaceVariables } from '../utils/textProcessing';
 import IntermediateKG from './IntermediateKG';
 import { getDataSourceInfo } from '../utils/textProcessing';
-import { useState } from 'react';
 
 function IntermediatePage({ onContinue }) {
+  const [error, setError] = useState(false);
   const dispatch = useDispatch();
 
   const { viewSchema } = useSelector((state) => state.viewSchema);
@@ -51,20 +52,22 @@ function IntermediatePage({ onContinue }) {
   };
 
   const processDataSources = () => {
-    if (!queryResult?.results?.[0]) return {
-      'Pancreatic': {
-        'eQTL GTEx': 0,
-        'eQTL InsPIRE': 0,
-        'Splicing QTL GTEx': 0,
-        'Exon QTL InsPIRE': 0
-      },
-      'Islet': {
-        'eQTL GTEx': 0,
-        'eQTL InsPIRE': 0,
-        'Splicing QTL GTEx': 0,
-        'Exon QTL InsPIRE': 0
-      }
-    };
+    if (!queryResult?.results || queryResult.results.length === 0) {
+      return {
+        'Pancreatic': {
+          'eQTL GTEx': 0,
+          'eQTL InsPIRE': 0,
+          'Splicing QTL GTEx': 0,
+          'Exon QTL InsPIRE': 0
+        },
+        'Islet': {
+          'eQTL GTEx': 0,
+          'eQTL InsPIRE': 0,
+          'Splicing QTL GTEx': 0,
+          'Exon QTL InsPIRE': 0
+        }
+      };
+    }
 
     const counts = {
       'Pancreatic': {
@@ -105,6 +108,14 @@ function IntermediatePage({ onContinue }) {
 
     return counts;
   };
+
+  useEffect(() => {
+    if (!queryResult?.results || queryResult.results.length === 0) {
+      setError(true);
+    } else {
+      setError(false);
+    }
+  }, [queryResult]);
 
   const getDescription = (name) => {
     const descriptions = {
@@ -332,8 +343,62 @@ function IntermediatePage({ onContinue }) {
     console.log(credibleSet);
   };
 
+  const getTabOptions = () => {
+    const counts = processDataSources();
+    return [
+      {
+        label: 'Pancreatic eQTL',
+        count: counts.Pancreatic['eQTL GTEx']
+      },
+      {
+        label: 'Islet eQTL',
+        count: counts.Islet['eQTL InsPIRE']
+      },
+      {
+        label: 'Pancreatic splicing QTL',
+        count: counts.Pancreatic['Splicing QTL GTEx']
+      },
+      {
+        label: 'Islet Exon QTL',
+        count: counts.Islet['Exon QTL InsPIRE']
+      }
+    ];
+  };
+
   return (
     <Container sx={{ padding: 0 }} disableGutters>
+      {error && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            textAlign: 'center',
+            backgroundColor: '#FFF3F3',
+            padding: '20px',
+            borderRadius: '8px',
+            border: '1px solid #FFB6B6',
+            zIndex: 1000
+          }}
+        >
+          <Typography sx={{ color: '#D32F2F', marginBottom: 2 }}>
+            No data found. Please refresh the page and try again.
+          </Typography>
+          <Button 
+            variant="contained"
+            onClick={() => window.location.reload()}
+            sx={{
+              backgroundColor: '#D32F2F',
+              '&:hover': {
+                backgroundColor: '#B71C1C'
+              }
+            }}
+          >
+            Refresh Page
+          </Button>
+        </Box>
+      )}
       {/* 问题显示区域 */}
       <Box
           flexDirection="column"
@@ -483,11 +548,25 @@ function IntermediatePage({ onContinue }) {
                   }
                 }}
               >
-                {tabOptions.map((tab) => (
+                {getTabOptions().map((tab) => (
                   <Tab 
-                    key={tab}
-                    label={tab}
-                    value={tab}
+                    key={tab.label}
+                    label={
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <span>{tab.label}</span>
+                        {tab.count > 0 && (
+                          <span style={{ 
+                            backgroundColor: '#E0E0E0',
+                            borderRadius: '12px',
+                            padding: '2px 8px',
+                            fontSize: '12px'
+                          }}>
+                            ({tab.count})
+                          </span>
+                        )}
+                      </Box>
+                    }
+                    value={tab.label}
                     sx={{
                       borderRadius: '4px 4px 0 0',
                       '&.Mui-selected': {
@@ -531,7 +610,11 @@ function IntermediatePage({ onContinue }) {
                             variant="body2" 
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleCredibleSetClick(item);
+                              handleSNPClick(
+                                item.lead_SNP,
+                                item.data_source,
+                                item.lead_SNP
+                              );
                             }}
                             sx={{ textAlign: 'left', display: 'block' }}
                           >

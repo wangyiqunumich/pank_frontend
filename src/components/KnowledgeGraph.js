@@ -150,7 +150,7 @@ function KnowledgeGraph() {
             id: `article_to_gene`,
             source: 'article_node',
             target: geneNode['~id'],
-            label: 'mentioned in'
+            label: 'mentioned'
           }
         });
         
@@ -164,7 +164,7 @@ function KnowledgeGraph() {
           nodes.push({
             data: {
               id: node['~id'],
-              label: node['~properties']?.HGNC_symbol || node['~id'],
+              label: node['~id'] === 'MONDO_0005147' ? 'type 1 diabetes' : node['~properties']?.HGNC_symbol || node['~id'],
               color: getNodeColor(getNodeType(node)),
               width: nodeWidth,
               height: nodeHeight,
