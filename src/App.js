@@ -1,5 +1,5 @@
 import './App.css';
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import NavBar from './NavBar';
 import SearchBar from './SearchBar';
 import SearchResult from './SearchResult';
@@ -12,6 +12,18 @@ function App() {
   const [showIntermediate, setShowIntermediate] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [showLanding, setShowLanding] = useState(true);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+    useEffect(() => {
+        function handleResize() {
+            setWindowWidth(window.innerWidth)
+            console.log(window.innerWidth)
+        }
+        window.addEventListener('resize', handleResize);
+        return (_) => {
+            window.removeEventListener('resize', handleResize);
+        };
+    });
 
   const handleSearch = () => {
     if (!showResult) {
@@ -37,7 +49,7 @@ function App() {
                     style={{
                       position: 'absolute',
                       top: showLanding ? 410 : 162,
-                      left: `${window.innerWidth * 0.5 + 44}px`,
+                      left: `${windowWidth * 0.5 + 44}px`,
                       width: 672
                     }}
                   />
