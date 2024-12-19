@@ -8,7 +8,6 @@
     "@mui/icons-material": "^5.15.12",
     "@mui/material": "^5.15.12",
     "@reduxjs/toolkit": "^2.2.8",
-    "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.7",
@@ -25,6 +24,7 @@
     "react-router-dom": "^6.27.0",
     "react-scripts": "5.0.1",
     "react-syntax-highlighter": "^15.6.1",
+    "remark-gfm": "^4.0.0",
     "styled-components": "^6.1.13",
     "web-vitals": "^2.1.4"
   },
