@@ -87,7 +87,7 @@ function NavBar() {
               justifyContent: 'flex-end',
               paddingRight: '48px'
             }}>
-              {['Search', 'Use cases', 'Ontology', 'Open KG', 'API', 'Doc', 'About'].map((item) => (
+              {['Search', 'API', 'Ontology', 'Use cases', 'Tutorial', 'Statistics'].map((item) => (
                 <Typography
                   key={item}
                   component={Link}
