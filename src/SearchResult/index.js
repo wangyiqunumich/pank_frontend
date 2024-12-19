@@ -372,7 +372,7 @@ This answer refers to the following resources in PanKbase:`;
                                 <Typography sx={{
                                     textAlign: 'justify',
                                     fontSize: '16px',
-                                    fontWeight: 300
+                                    fontWeight: 100
                                 }}>
                                     <span dangerouslySetInnerHTML={{ __html: removeConsecutiveAsterisks(answer) }} />
                                 </Typography>
