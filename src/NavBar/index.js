@@ -91,7 +91,7 @@ function NavBar() {
                 <Typography
                   key={item}
                   component={Link}
-                  to={`/${item.toLowerCase().replace(' ', '-')}`}
+                  to={item === 'Search' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`}
                   sx={{
                     color: '#000',
                     textDecoration: 'none',
