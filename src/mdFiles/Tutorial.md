@@ -1,8 +1,16 @@
-#### Landing Page Overview
+# Tutorial
+
+## Table of Contents
+1. [Landing Page Overview](#landing-page-overview)
+2. [Key Features](#key-features)
+3. [Intermediate Page Overview](#intermediate-page-overview)
+4. [Result Page Overview](#result-page-overview)
+
+## Landing Page Overview
 
 The landing page serves as your entry point into the PanKgraph environment—an integrated knowledge portal focused on Type 1 Diabetes (T1D) research. This page is designed to help you efficiently navigate and uncover insights within a rich knowledge graph that merges data from diverse sources.
 
-##### Key Features
+## Key Features
 - **Intuitive Input Fields:**  
   Use the three-step menu to define your query:
   1. **Source Term:** Specify the starting point of your search (e.g., sequence variant).
@@ -16,18 +24,18 @@ The landing page serves as your entry point into the PanKgraph environment—an 
 - **Search Button (Action Trigger):**  
   After choosing your parameters, click **Search** to proceed. The system then retrieves and structures relevant data, leading you to an intermediate results page where you can review and refine findings before diving deeper.
 
-#### Intermediate Page Overview
+## Intermediate Page Overview
 
 This intermediate page is displayed once you have specified your “triplets,” such as selecting a Source Term (e.g., *SNP*), a Relationship (e.g., *eQTL of*), and a Target Term (e.g., *Gene*). It provides a dynamic, high-level summary of your configured query before you proceed to the detailed Result Page.
 
-##### Current Question (Top Section)
+### Current Question (Top Section)
 - **Displayed Question:** Once you configure your triplets, the system automatically formulates a guiding question. For example: *“Which SNP is the lead variant for the QTL signal associated with CENPP?”*
 
-##### Description & Guidance Section
+### Description & Guidance Section
 - **Contextual Information:** This section clarifies the types of QTL data (e.g., gene, exon, or splicing eQTLs) and the relevant tissues (e.g., pancreas or islet) associated with the current query.
 - **Purpose:** By reviewing this information, you gain insights into the scope and nature of the results you are about to explore.
 
-##### Results Display Section
+### Results Display Section
 Here, you will find the main findings organized into collapsible panels, each representing a particular QTL data subtype (e.g., *eQTL GTEx*, *Splicing QTL*, *Exon QTL*).
 
 - **Collapsible Data Panels:**
@@ -37,22 +45,22 @@ Here, you will find the main findings organized into collapsible panels, each re
 - **Detailed SNP Listings:**
   - **Interactive Links:** By clicking on a SNP entry, you are directed to the comprehensive Result Page, where you can examine the data in greater detail.
 
-##### How to Use This Page
+### How to Use This Page
 Leverage this intermediate page to:
 1. Verify that the question aligns with your intended query.
 2. Examine the overview of available QTL data types before committing to a full analysis.
 3. Quickly identify and compare SNPs of interest, guiding you toward more in-depth evaluation on the Result Page.
 
-#### Result Page Overview
+## Result Page Overview
 
 The Result Page presents the finalized question and provides both a visual and textual exploration of the query’s outcome. This page helps you understand the biological relationships uncovered by the knowledge graph and AI-driven analysis.
 
-##### Current Question
+### Current Question
 - **Locked Question:** The question that was previously dynamic on the Intermediate Page now becomes fixed and is prominently displayed. For example:  
   *“How does the lead SNP rs75511728 influence the eQTL of PTPN22 in pancreatic tissue?”*  
   This ensures you have a clear reference point as you review the results.
 
-##### Knowledge Graph Viewer
+### Knowledge Graph Viewer
 - **Visual Representation of Results:**  
   The KG Viewer places your primary query node (e.g., the SNP or gene of interest) at the center and visually maps its relationships to relevant entities—other genes, SNPs, pathways, and more.
 - **Consistent Color Coding:**  
@@ -60,7 +68,7 @@ The Result Page presents the finalized question and provides both a visual and t
 - **Extended Connections:**  
   Lightly colored, semi-transparent nodes indicate associated concepts not directly requested in your initial query. These offer leads for further exploration, hinting at new questions you might pose.
 
-##### AI’s Overview
+### AI’s Overview
 - **Summarized Insight:**  
   An AI-generated summary articulates the significance of the discovered relationships. For example, it may describe how a particular SNP modulates gene expression in the pancreatic tissue and its implications for understanding T1D.
 - **Emphasis on Key Entities:**  
@@ -68,6 +76,6 @@ The Result Page presents the finalized question and provides both a visual and t
 - **Data-Driven Details:**  
   The overview may include statistical values (e.g., **p-values**, **Posterior Inclusion Probabilities (PIPs)**), references to literature (via **PMIDs**), and external resource links (e.g., **Ensembl**, **PanKbase**) for deeper investigation.
 
-##### You May Also Ask
+### You May Also Ask
 - **Suggested Follow-Up Queries:**  
   Based on the extended knowledge graph and identified relationships, this section proposes additional lines of inquiry. These recommendations help you delve further into related variants, genes, diseases, or regulatory mechanisms, guiding your ongoing exploration within the platform.

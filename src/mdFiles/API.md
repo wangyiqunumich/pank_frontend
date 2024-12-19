@@ -6,14 +6,12 @@
 3. [Writing a Valid Query](#writing-a-valid-query)
 4. [Interpreting query results](#interpreting-query-results)
 
----
 
 ## Overview
 The PanKgraph Query API provides a portal for users to submit queries and download query results. 
 
 It is built on a robust and secure AWS infrastructure, leveraging API Gateway, Lambda, and Neptune for secure and efficient operations.
 
----
 
 ## Usage
 

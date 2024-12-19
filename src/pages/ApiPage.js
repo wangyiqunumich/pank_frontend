@@ -5,6 +5,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { materialLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import apiContent from '../mdFiles/API.md';
 import NavBar from '../NavBar';
+import 'github-markdown-css';
 
 function ApiPage() {
   const [content, setContent] = useState('');
@@ -20,7 +21,7 @@ function ApiPage() {
     <div className="App">
       <NavBar />
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-        <Box sx={{ p: 4 }}>
+        <Box sx={{ p: 4, textAlign: 'left' }} className={'markdown-body'}>
           <ReactMarkdown
             components={{
               code({node, inline, className, children, ...props}) {
@@ -39,7 +40,11 @@ function ApiPage() {
                     {children}
                   </code>
                 );
-              }
+              },
+                h2(node) {
+                    // console.log('here', children)
+                    return <h2 id={node.children.toLowerCase().replaceAll(' ', '-')}>{node.children}</h2>
+                }
             }}
           >
             {content}
