@@ -39,7 +39,19 @@ function IntermediatePage({ onContinue }) {
   const conversionTable = require('../utils/conversion_table.json');
 
   const [selectedTab, setSelectedTab] = useState('Pancreatic eQTL');
-  
+
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowWidth(window.innerWidth)
+    }
+    window.addEventListener('resize', handleResize);
+    return (_) => {
+      window.removeEventListener('resize', handleResize);
+    };
+  });
+
   const tabOptions = [
     'Pancreatic eQTL',
     'Islet eQTL',
@@ -408,7 +420,7 @@ function IntermediatePage({ onContinue }) {
         gap: 0,
         position: 'absolute',
         top: '162px',
-        right: window.innerWidth * 0.5 + 44,
+        right: windowWidth * 0.5 + 44,
         width: 685
       }}>
         {/*<Box sx={{ width: '60%', visibility: 'hidden' }} />*/}
@@ -438,7 +450,7 @@ function IntermediatePage({ onContinue }) {
           gap: 5,
           position: 'absolute',
           top: 390,
-          right: window.innerWidth * 0.5 + 44
+          right: windowWidth * 0.5 + 44
         }}>
           <Typography sx={{
             fontWeight: 'bold',
@@ -515,7 +527,7 @@ function IntermediatePage({ onContinue }) {
           flexDirection: 'column',
           gap: 2,
           position: 'absolute',
-          left: window.innerWidth * 0.5 + 44,
+          left: windowWidth * 0.5 + 44,
           top: 390,
           backgroundColor: '#F7F7F74D'
         }}>

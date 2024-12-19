@@ -152,6 +152,17 @@ function SearchResult() {
     const removeConsecutiveAsterisks = (text) => {
         return text.replace(/\*\*/g, '');
     };
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+    useEffect(() => {
+        function handleResize() {
+            setWindowWidth(window.innerWidth)
+        }
+        window.addEventListener('resize', handleResize);
+        return (_) => {
+            window.removeEventListener('resize', handleResize);
+        };
+    });
     useEffect(() => {
         if (queryResult.results.length != 0 && queryResult.results[0].gene_node) {
             const processedQuestions = aiQuestions.map(question => 
@@ -256,7 +267,7 @@ This answer refers to the following resources in PanKbase:`;
                 gap: 0,
                 position: 'absolute',
                 top: '162px',
-                right: window.innerWidth * 0.5 + 44,
+                right: windowWidth * 0.5 + 44,
                 width: 685,
                 minHeight: '950px'
             }}>
@@ -287,7 +298,7 @@ This answer refers to the following resources in PanKbase:`;
                 gap: 5,
                 position: 'absolute',
                 top: 390,
-                right: window.innerWidth * 0.5 + 44
+                right: windowWidth * 0.5 + 44
             }}>
                 <Typography sx={{
                     fontWeight: 'bold',
@@ -321,7 +332,7 @@ This answer refers to the following resources in PanKbase:`;
                 margin: '0px',
                 width: 672,
                 position: 'absolute',
-                left: window.innerWidth * 0.5 + 44,
+                left: windowWidth * 0.5 + 44,
                 top: 390
             }}>
                 <Box sx={{
