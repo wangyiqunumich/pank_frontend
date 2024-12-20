@@ -40,22 +40,22 @@ function NavBar() {
               justifyContent: 'flex-end',
               paddingRight: '48px'
             }}>
-              {['Resources', 'Data', 'Analysis', 'Knowledge', 'About', 'Help', 'News'].map((item) => (
+              {['Resources', 'Data', 'Analysis', 'PanKgraph', 'About', 'Help', 'News'].map((item) => (
                 <Typography
                   key={item}
                   component={Link}
                   to={`/${item.toLowerCase()}`}
                   sx={{
-                    color: item === 'Knowledge' ? '#000' : 'white',
+                    color: item === 'PanKgraph' ? '#000' : 'white',
                     textDecoration: 'none',
                     padding: '20px 15px',
-                    backgroundColor: item === 'Knowledge' ? '#f5f5f5' : 'transparent',
+                    backgroundColor: item === 'PanKgraph' ? '#f5f5f5' : 'transparent',
                     fontFamily: 'Open Sans',
-                    fontWeight: item === 'Knowledge' ? 700 : 400,
+                    fontWeight: item === 'PanKgraph' ? 700 : 400,
                     fontSize: '24px',
                     lineHeight: '32.68px',
-                    borderTopLeftRadius: item === 'Knowledge' ? '16px' : '0',
-                    borderTopRightRadius: item === 'Knowledge' ? '16px' : '0',
+                    borderTopLeftRadius: item === 'PanKgraph' ? '16px' : '0',
+                    borderTopRightRadius: item === 'PanKgraph' ? '16px' : '0',
                   }}
                 >
                   {item}
