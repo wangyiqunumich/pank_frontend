@@ -5,15 +5,17 @@ const variablesSlice = createSlice({
   initialState: {
     leadSnp: '',
     geneId: '',
-    tissue: '',
-    dataSource: ''
+    tissueKey: '',
+    dataSource: '',
+    snpId: ''
   },
   reducers: {
     setVariables: (state, action) => {
       state.leadSnp = action.payload.leadSnp;
       state.geneId = action.payload.geneId;
-      state.tissue = action.payload.tissue;
+      state.tissueKey = action.payload.tissueKey;
       state.dataSource = action.payload.dataSource;
+      state.snpId = action.payload.snpId;
     }
   }
 });

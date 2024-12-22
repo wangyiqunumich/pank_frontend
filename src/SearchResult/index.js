@@ -13,6 +13,7 @@ import { queryViewSchema } from '../redux/viewSchemaSlice';
 import { setNextQuestionClicked } from '../redux/searchSlice';
 import { queryQueryResult } from '../redux/queryResultSlice';
 import { setProcessedQuestion } from '../redux/processedQuestionSlice';
+import { setUsingFallback } from '../redux/searchSlice';
 import { setVariables } from '../redux/variablesSlice';
 import { replaceVariables } from '../utils/textProcessing';
 import { store } from '../redux/store';
@@ -207,32 +208,92 @@ This answer refers to the following resources in PanKbase:`;
     const handleNextQuestionClick = (question) => {
         if (searchState.sourceTerm && searchState.relationship && searchState.targetTerm) {
             dispatch(setNextQuestionClicked(true));
-            dispatch(queryViewSchema({
+            
+            const currentState = store.getState();
+            const isUsingFallback = currentState.search.usingFallback;
+            
+            let queryParams = {
                 sourceTerm: searchState.sourceTerm,
                 relationship: searchState.relationship,
                 targetTerm: searchState.targetTerm
-            })).then((response) => {
+            };
+
+            if (isUsingFallback) {
+                dispatch(setUsingFallback(false));
+            } else {
+                dispatch(setUsingFallback(true));
+                queryParams = {
+                    sourceTerm: 'sequence_variant:rs17510162',
+                    relationship: 'fine_mapped_eQTL',
+                    targetTerm: 'gene:ENSG00000134242'
+                };
+            }
+
+            const processNextQuestion = async () => {
+                // 使用正则表达式来分割 sourceTerm 和 targetTerm
+                const getIdFromTerm = (term) => {
+                    const match = term.match(/^[^:]+:(.+)$/);
+                    return match ? match[1] : term;
+                };
+
+                dispatch(setVariables({
+                    snpId: getIdFromTerm(queryParams.sourceTerm),
+                    leadSnp: getIdFromTerm(queryParams.sourceTerm),
+                    geneId: getIdFromTerm(queryParams.targetTerm),
+                    dataSource: 'GTEx; SusieR',
+                    tissueKey: 'pancreatic'
+                }));
+
+                await Promise.resolve();
+                const response = await dispatch(queryViewSchema(queryParams));
+                
                 if (response.payload && response.payload.cyper_for_result_page_all_nodes_specific) {
                     const query = response.payload.cyper_for_result_page_all_nodes_specific
-                        .replace(/@snp_node@/g, searchState.sourceTerm.split(':')[1])
-                        .replace(/@gene_node@/g, searchState.targetTerm.split(':')[1]);
+                        .replace(/@snp_node@/g, getIdFromTerm(queryParams.sourceTerm))
+                        .replace(/@gene_node@/g, getIdFromTerm(queryParams.targetTerm));
                     
-                    const currentState = store.getState();
-                    const processedCurrentQuestion = replaceVariables(response.payload.question_for_result, currentState.variables);
-                    console.log(response.payload.next_questions);
+                    const updatedState = store.getState();
+                    console.log('Variables after update:', updatedState.variables);
+                    
+                    const processedCurrentQuestion = replaceVariables(
+                        response.payload.question_for_result, 
+                        updatedState.variables
+                    );
+
+                    console.log(response.payload.question_for_result);
+
+                    const variables = {
+                        snpId: isUsingFallback ? 'rs17510162' : getIdFromTerm(searchState.sourceTerm),
+                        leadSnp: isUsingFallback ? 'rs17510162' : getIdFromTerm(searchState.sourceTerm),
+                        geneId: isUsingFallback ? 'ENSG00000134242' : getIdFromTerm(searchState.targetTerm),
+                        dataSource: 'GTEx; SusieR',
+                        tissueKey: 'pancreatic'
+                    };  
+
                     const processedNextQuestions = response.payload.next_questions.map(q => 
-                        replaceVariables(q.question, currentState.variables)
+                        replaceVariables(q.question, variables)
                     );
 
                     const processedAiQuestions = response.payload?.ai_question_for_result?.map(question => {
                         let processedQuestion = question;
-                        // 替换所有可能的占位符
-                        if (searchState.sourceTerm.split(':')[1]) processedQuestion = processedQuestion.replace(/@snp_node@/g, searchState.sourceTerm.split(':')[1]);
-                        if (searchState.targetTerm.split(':')[1]) processedQuestion = processedQuestion.replace(/@gene_node@/g, searchState.targetTerm.split(':')[1]);
+                        if (queryParams.sourceTerm.split(':')[1]) {
+                            processedQuestion = processedQuestion.replace(
+                                /@snp_node@/g, 
+                                queryParams.sourceTerm.split(':')[1]
+                            );
+                        }
+                        if (queryParams.targetTerm.split(':')[1]) {
+                            processedQuestion = processedQuestion.replace(
+                                /@gene_node@/g, 
+                                queryParams.targetTerm.split(':')[1]
+                            );
+                        }
                         return processedQuestion;
-                      }) || [];
-                  
-                      const processedAiAnswerTitle = response.payload?.ai_answer_title.replace(/@snp_node@/g, searchState.sourceTerm.split(':')[1]).replace(/@gene_id@/g, searchState.targetTerm.split(':')[1]);
+                    }) || [];
+
+                    const processedAiAnswerTitle = response.payload?.ai_answer_title
+                        .replace(/@snp_node@/g, queryParams.sourceTerm.split(':')[1])
+                        .replace(/@gene_id@/g, queryParams.targetTerm.split(':')[1]);
                     
                     dispatch(setProcessedQuestion({
                         currentQuestion: processedCurrentQuestion,
@@ -246,7 +307,9 @@ This answer refers to the following resources in PanKbase:`;
                     dispatch(queryQueryResult({ query }));
                     dispatch(queryQueryVisResult({ query }));
                 }
-            });
+            };
+
+            processNextQuestion();
         }
     };
 

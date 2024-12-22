@@ -24,7 +24,7 @@ import { setProcessedQuestion } from '../redux/processedQuestionSlice';
 import { queryQueryVisResult } from '../redux/queryVisResultSlice';
 import SearchBar from '../SearchBar';
 import KnowledgeGraph from './KnowledgeGraph';
-import { setSearchTerms } from '../redux/searchSlice';
+import { setSearchTerms, setUsingFallback } from '../redux/searchSlice';
 import { setVariables } from '../redux/variablesSlice';
 import { replaceVariables } from '../utils/textProcessing';
 import IntermediateKG from './IntermediateKG';
@@ -205,8 +205,15 @@ function IntermediatePage({ onContinue }) {
     const processedNextQuestions = next_questions?.map(item => {
       const params = item.parameters || {};
       
-      // 使用 replaceVariables 处理问题文本
-      let processedQuestion = replaceVariables(item.question, variables);
+      const questionVariables = {
+        ...variables,
+        snpId: 'rs17510162',
+        leadSnp: 'rs17510162',
+        geneId: 'ENSG00000134242'
+      };
+      
+      // 使用更新后的变量对象进行替换
+      let processedQuestion = replaceVariables(item.question, questionVariables);
       
       console.log(processedQuestion);
       // 准备新的搜索条件

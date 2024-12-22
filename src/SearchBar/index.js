@@ -164,54 +164,52 @@ function SearchBar({ onSearch, disabled, style }) {
     const [targetDisplayTerm, setTargetDisplayTerm] = useState('');
 
     const updateTargetTerm = async (event, newValue) => {
-        console.log(newValue);
         if (store.getState().search.nextQuestionClicked) {
             return;
         }
-        
+    
+        // 设置用户显示值
         setTargetDisplayTerm(newValue || '');
-        
-        if (newValue) {
-            clearTimeout(targetTimerRef.current);
-            targetTimerRef.current = setTimeout(async () => {
-                try {
-                    console.log(newValue);
-                    const result = await dispatch(queryVocab({input: newValue})).unwrap();
-                    if (result) {
-                        let formattedOption;
-                        if (result.includes('@')) {
-                            const [type, value] = result.split('@');
-                            formattedOption = `${type}:${value}`;
-                            setTargetOptions([formattedOption]);
-                            setTargetTerm(formattedOption);
-                            dispatch(setSearchTerms({
-                                ...store.getState().search,
-                                targetTerm: formattedOption
-                            }));
-                        } else {
-                            formattedOption = `${result}:${newValue}`;
-                            setTargetOptions([formattedOption]);
-                            setTargetTerm(formattedOption);
-                            dispatch(setSearchTerms({
-                                ...store.getState().search,
-                                targetTerm: formattedOption
-                            }));
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error querying vocab:', error);
-                }
-            }, 500);
-        } else {
-            setTargetTerm('');
-            setTargetDisplayTerm('');
-            setTargetOptions([]);
+    
+        if (newValue && (newValue.includes('gene:') || newValue.includes('sequence variant:'))) {
+            setTargetTerm(newValue); // 设置后台实际值
             dispatch(setSearchTerms({
                 ...store.getState().search,
-                targetTerm: ''
+                targetTerm: newValue
             }));
+        } else {
+            if (newValue) {
+                clearTimeout(targetTimerRef.current);
+                targetTimerRef.current = setTimeout(async () => {
+                    try {
+                        const result = await dispatch(queryVocab({ input: newValue })).unwrap();
+                        if (result) {
+                            let formattedOption;
+                            let formattedTerm;
+                            if (result.includes('@')) {
+                                const [type, value] = result.split('@');
+                                formattedTerm = `${type}:${value}`;
+                                formattedOption = `${newValue}`;
+                                setTargetOptions([formattedOption]);
+                                setTargetTerm(formattedTerm); // 设置后台实际值
+                            } else {
+                                formattedOption = `${result}:${newValue}`;
+                                formattedTerm = `${result}:${newValue}`;
+                                setTargetOptions([formattedOption]);
+                                setTargetTerm(formattedTerm); // 设置后台实际值
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error querying vocab:', error);
+                    }
+                }, 500);
+            } else {
+                setTargetTerm('');
+                setTargetOptions([]);
+            }
         }
     };
+    
 
     const fetchOptions = async (term, inputType) => {
         console.log(`Fetching options for ${inputType}: ${term}`);
@@ -327,8 +325,8 @@ function SearchBar({ onSearch, disabled, style }) {
 
     const isValid = () => {
         // 检查 targetTerm 是否在 targetOptions 中
-        const isTargetValid = targetOptions.includes(targetTerm);
-        return sourceTerm && relationship && targetTerm && isTargetValid;   
+        // const isTargetValid = targetOptions.includes(targetTerm);
+        return sourceTerm && relationship && targetTerm;   
     };
 
     // 添加对 nextQuestionClicked 的监听
@@ -409,31 +407,37 @@ function SearchBar({ onSearch, disabled, style }) {
                     <FormControl fullWidth>
                         {!isCustomSource ? (
                             <Autocomplete
-                                value={targetTerm ? targetOptions.find(option => displayToActualMap[option] === targetTerm) || '' : ''}
-                                onChange={updateTargetTerm}
+                                freeSolo
+                                value={targetDisplayTerm} // 使用显示值
+                                onChange={(event, newValue) => {
+                                    if (newValue && targetOptions.includes(newValue)) {
+                                        const parts = newValue.split(':');
+                                        setTargetDisplayTerm(parts[2]);
+                                        setTargetTerm(newValue); // 后台逻辑值
+                                    }
+                                }}
                                 onInputChange={(event, newInputValue) => {
-                                    // 直接调用 updateTargetTerm
-                                    updateTargetTerm(event, newInputValue);
+                                    const parts = newInputValue.split(':');
+                                    setTargetDisplayTerm(parts[parts.length - 1]);
+                                    if (!event || event.type === 'change') {
+                                        updateTargetTerm(event, newInputValue);
+                                    }
                                 }}
                                 options={targetOptions}
                                 renderInput={(params) => (
                                     <TextField
-                                        sx={{
-                                            backgroundColor: '#2191971A'
-                                        }}
                                         {...params}
                                         label="3. Target Term"
                                         variant="outlined"
                                         onChange={(event) => {
-                                            // 当输入框值改变时也触发更新
                                             updateTargetTerm(event, event.target.value);
                                         }}
                                     />
                                 )}
                                 disabled={isTargetTermDisabled}
-                                freeSolo
-                                filterOptions={(options) => options} // 保持选项不被过滤
+                                filterOptions={(options) => options}
                             />
+
                         ) : (
                             <>
                                 <InputLabel id="target-label">3. Target Term</InputLabel>
