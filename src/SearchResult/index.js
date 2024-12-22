@@ -130,10 +130,10 @@ const Legend = () => (
           <Box sx={{ width: 20, height: 20, backgroundColor: '#e377c2', borderRadius: '4px' }} />
           <Typography variant="body2">Article</Typography>
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Box sx={{ width: 20, height: 20, backgroundColor: '#8c564b', borderRadius: '4px' }} />
           <Typography variant="body2">Open Chromatin Region</Typography>
-        </Box>
+        </Box> */}
       </Box>
     </Box>
   // </div>

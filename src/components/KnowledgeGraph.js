@@ -150,7 +150,7 @@ function KnowledgeGraph() {
             id: `article_to_gene`,
             source: 'article_node',
             target: geneNode['~id'],
-            label: 'mentioned'
+            label: 'mentions'
           }
         });
         
@@ -365,27 +365,27 @@ function KnowledgeGraph() {
     }
     
     if (sourceType === 'gene' && targetType === 'gene') {
-      return 'interact with';
+      return 'interacts with';
     }
 
     if ((sourceType === 'open_chromatin_region' && targetType === 'gene') ||
         (sourceType === 'gene' && targetType === 'open_chromatin_region')) {
-      return 'locate in';
+      return 'locates in';
     }
 
     if ((sourceType === 'pathway' && targetType === 'gene') ||
         (sourceType === 'gene' && targetType === 'pathway')) {
-      return 'belong to';
+      return 'belongs to';
     }
 
     if ((sourceType === 'ontology' && targetType === 'gene') ||
         (sourceType === 'gene' && targetType === 'ontology')) {
-      return 'annotated by';
+      return 'annotats by';
     }
 
     if ((sourceType === 'article' && targetType === 'gene') ||
         (sourceType === 'gene' && targetType === 'article')) {
-      return 'mentioned in';
+      return 'mentions in';
     }
     
     return ''; // 默认返回空字符串

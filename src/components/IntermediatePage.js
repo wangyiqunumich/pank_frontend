@@ -321,7 +321,7 @@ function IntermediatePage({ onContinue }) {
     }
     
     const setNumber = credibleSet.id.split('_').pop();
-    return `${prefix} Credible set ${setNumber}`;
+    return `${prefix}_${setNumber}`;
   };
 
   const getFilteredCredibleSets = () => {
@@ -558,40 +558,67 @@ function IntermediatePage({ onContinue }) {
               <Tabs
                 value={selectedTab}
                 onChange={handleTabChange}
+                variant="scrollable"
+                scrollButtons={false}
                 sx={{
-                  mb: 2,
                   '& .MuiTab-root': {
+                    minHeight: '60px',
                     textTransform: 'none',
-                    fontSize: '14px',
-                    minHeight: '40px'
+                    fontSize: '16px',
+                    padding: '8px',
+                    whiteSpace: 'normal',
+                    lineHeight: '1.2',
+                    width: '120px',
+                    minWidth: '120px',
+                    maxWidth: '120px',
+                    '& .MuiTab-wrapper': {
+                      flexDirection: 'row',
+                      justifyContent: 'flex-start',
+                      alignItems: 'flex-start'
+                    }
+                  },
+                  '& .MuiTabs-flexContainer': {
+                    gap: '8px',
+                    justifyContent: 'space-between'
                   }
                 }}
               >
-                {getTabOptions().map((tab) => (
-                  <Tab 
-                    key={tab.label}
+                {getTabOptions().map((option) => (
+                  <Tab
+                    key={option.label}
                     label={
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <span>{tab.label}</span>
-                        {tab.count > 0 && (
-                          <span style={{ 
+                      <Box sx={{ 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        alignItems: 'center',
+                        width: '100%'
+                      }}>
+                        <Typography 
+                          component="span" 
+                          sx={{ 
+                            textAlign: 'center',
+                            fontSize: '14px',
+                            lineHeight: 1.2,
+                            mb: 0.5,
+                            wordWrap: 'break-word'
+                          }}
+                        >
+                          {option.label}
+                        </Typography>
+                        <Typography 
+                          component="span" 
+                          sx={{ 
                             backgroundColor: '#E0E0E0',
                             borderRadius: '12px',
                             padding: '2px 8px',
-                            fontSize: '12px'
-                          }}>
-                            ({tab.count})
-                          </span>
-                        )}
+                            fontSize: '14px'
+                          }}
+                        >
+                          ({option.count})
+                        </Typography>
                       </Box>
                     }
-                    value={tab.label}
-                    sx={{
-                      borderRadius: '4px 4px 0 0',
-                      '&.Mui-selected': {
-                        backgroundColor: '#B0CFD04D'
-                      }
-                    }}
+                    value={option.label}
                   />
                 ))}
               </Tabs>
@@ -601,15 +628,33 @@ function IntermediatePage({ onContinue }) {
                 border: '1px solid #727272',
                 boxShadow: '0px 0px 0px 0px rgba(0,0,0,0.2)'
               }}>
-                <Table>
+                <Table size={getFilteredCredibleSets().length > 8 ? "small" : "medium"}>
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 'bold' }}>Credible set</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold' }}>Purity</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold' }}>Lead SNP</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold' }}>PIP</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold' }}>#</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold' }}>Download</TableCell>
+                      <TableCell sx={{ 
+                        fontWeight: 'bold',
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
+                      }}>Credible set</TableCell>
+                      <TableCell sx={{ 
+                        fontWeight: 'bold',
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
+                      }}>Purity</TableCell>
+                      <TableCell sx={{ 
+                        fontWeight: 'bold',
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
+                      }}>Lead SNP</TableCell>
+                      <TableCell sx={{ 
+                        fontWeight: 'bold',
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
+                      }}>PIP</TableCell>
+                      <TableCell sx={{ 
+                        fontWeight: 'bold',
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
+                      }}>#</TableCell>
+                      <TableCell sx={{ 
+                        fontWeight: 'bold',
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
+                      }}>Download</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -621,7 +666,12 @@ function IntermediatePage({ onContinue }) {
                           item.data_source,
                           item.lead_SNP
                         )}
-                        sx={{ cursor: 'pointer' }}
+                        sx={{ 
+                          cursor: 'pointer',
+                          '& .MuiTableCell-root': {
+                            padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
+                          }
+                        }}
                       >
                         <TableCell sx={{ verticalAlign: 'middle' }}>
                           <Link 

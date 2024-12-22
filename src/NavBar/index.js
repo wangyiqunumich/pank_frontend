@@ -92,6 +92,16 @@ function NavBar() {
                   key={item}
                   component={Link}
                   to={item === 'Search' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`}
+                  onClick={(e) => {
+                    if (item === 'Search') {
+                      e.preventDefault();
+                      if (window.location.pathname === '/') {
+                        window.location.reload();
+                      } else {
+                        window.location.href = '/';
+                      }
+                    }
+                  }}
                   sx={{
                     color: '#000',
                     textDecoration: 'none',
