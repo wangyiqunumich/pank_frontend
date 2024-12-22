@@ -1,0 +1,24 @@
+# Documentation
+
+## Nodes Statistics
+
+| Entity Type  | Number of Nodes | Data Sources |
+|-----------------|-----------------|--------------|
+| gene | 44513 | Ensembl(http://useast.ensembl.org/index.html) |
+| sequence variant | 278214 | dbSNP (https://www.ncbi.nlm.nih.gov/snp/) |
+| credible set | 24879 | Steve Lab (Link) |
+| open chromatin region | 154437 | (https://pmc.ncbi.nlm.nih.gov/articles/PMC3018115/) |
+| ontology | 64 | NCBO (https://bioportal.bioontology.org) |
+| pathway | 1242 | STRING(https://string-db.org) |
+| literature | 1008 | HIRN (https://hirnetwork.org/all-hirn-publications) |
+
+## Edges Statistics
+
+| Edge Type | Start Node | End Node | Number of Edges |
+|-----------|-----------|-----------|-----------------|
+| fine mapped eQTL | sequence variant | gene | 411442 |
+| credible set for | credible set | gene | 34115 |
+| belong to credible set | sequence variant | credible set | 724113 |
+| effector gene | ontology | effector gene | 178 |
+| belong to pathway | gene | pathway | 28170 |
+| regulation | gene | gene | 391462 |
