@@ -48,6 +48,8 @@ function SearchBar({ onSearch, disabled, style }) {
 
     const [isCustomSource, setIsCustomSource] = useState(false);
 
+    const [searchClicked, setSearchClicked] = useState(false);
+
     const updateSourceTerm = async (event, newValue) => {
         if (store.getState().search.nextQuestionClicked) {
             return;
@@ -287,6 +289,7 @@ function SearchBar({ onSearch, disabled, style }) {
     }
 
     const handleSearch = async () => {
+        setSearchClicked(true);
         const convertedTerms = convertTerms(sourceTerm, relationship, targetTerm);
         dispatch(setSearchTerms(convertedTerms));
         await dispatch(queryViewSchema(convertedTerms));
@@ -437,7 +440,7 @@ function SearchBar({ onSearch, disabled, style }) {
                                         }}
                                     />
                                 )}
-                                disabled={isTargetTermDisabled}
+                                disabled={isTargetTermDisabled || disabled || searchClicked}
                                 filterOptions={(options) => options}
                             />
 
@@ -449,7 +452,7 @@ function SearchBar({ onSearch, disabled, style }) {
                                     value={targetTerm}
                                     label="3. Target Term"
                                     onChange={(event) => setTargetTerm(event.target.value)}
-                                    disabled={isTargetTermDisabled || disabled}
+                                    disabled={isTargetTermDisabled || disabled || searchClicked}
                                     sx={{ textAlign: 'left' }}
                                 >
                                     {targetOptions.map((type) => (
