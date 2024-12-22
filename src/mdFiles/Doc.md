@@ -2,8 +2,8 @@
 
 ## Nodes Statistics
 
-| Entity Type | Number of Nodes | Data Sources |
-|------------|----------------|--------------|
+| Entity Type  | Number of Nodes | Data Sources |
+|-----------------|-----------------|--------------|
 | gene | 44513 | Ensembl |
 | sequence variant | 275933 | dbSNP |
 | credible set | 15014 | INSPIRE; SusieR |
@@ -15,7 +15,7 @@
 ## Edges Statistics
 
 | Edge Type | Start Node | End Node | Number of Edges |
-|-----------|------------|----------|----------------|
+|-----------|-----------|-----------|-----------------|
 | fine mapped eQTL | sequence variant | gene | 326696 |
 | credible set for | credible set | gene | 24250 |
 | belong to credible set | sequence variant | credible set | 571165 |

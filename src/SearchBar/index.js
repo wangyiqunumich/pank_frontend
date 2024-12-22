@@ -408,12 +408,12 @@ function SearchBar({ onSearch, disabled, style }) {
                         {!isCustomSource ? (
                             <Autocomplete
                                 freeSolo
-                                value={targetDisplayTerm} // 使用显示值
+                                value={targetDisplayTerm}
                                 onChange={(event, newValue) => {
                                     if (newValue && targetOptions.includes(newValue)) {
                                         const parts = newValue.split(':');
                                         setTargetDisplayTerm(parts[2]);
-                                        setTargetTerm(newValue); // 后台逻辑值
+                                        setTargetTerm(newValue);
                                     }
                                 }}
                                 onInputChange={(event, newInputValue) => {
@@ -429,6 +429,9 @@ function SearchBar({ onSearch, disabled, style }) {
                                         {...params}
                                         label="3. Target Term"
                                         variant="outlined"
+                                        sx={{
+                                            backgroundColor: '#2191971A'
+                                        }}
                                         onChange={(event) => {
                                             updateTargetTerm(event, event.target.value);
                                         }}
