@@ -2,15 +2,15 @@
 
 ## Nodes Statistics
 
-| Entity Type  | Number of Nodes | Data Sources |
-|-----------------|-----------------|--------------|
-| gene | 44513 | Ensembl(http://useast.ensembl.org/index.html) |
-| sequence variant | 278214 | dbSNP (https://www.ncbi.nlm.nih.gov/snp/) |
-| credible set | 24879 | Steve Lab (Link) |
-| open chromatin region | 154437 | (https://pmc.ncbi.nlm.nih.gov/articles/PMC3018115/) |
-| ontology | 64 | NCBO (https://bioportal.bioontology.org) |
-| pathway | 1242 | STRING(https://string-db.org) |
-| literature | 1008 | HIRN (https://hirnetwork.org/all-hirn-publications) |
+| Entity Type            | Number of Nodes | Data Sources                                                                 |
+|-------------------------|-----------------|------------------------------------------------------------------------------|
+| gene                   | 44513          | [Ensembl](http://useast.ensembl.org/index.html)                              |
+| sequence variant       | 278214         | [dbSNP](https://www.ncbi.nlm.nih.gov/snp/)                                   |
+| credible set           | 24879          | [Steve Lab](#)                                                               |
+| open chromatin region  | 154437         | [PMC Article](https://pmc.ncbi.nlm.nih.gov/articles/PMC3018115/)             |
+| ontology               | 64             | [NCBO](https://bioportal.bioontology.org)                                    |
+| pathway                | 1242           | [STRING](https://string-db.org)                                              |
+| literature             | 1008           | [HIRN](https://hirnetwork.org/all-hirn-publications)                         |
 
 ## Edges Statistics
 
