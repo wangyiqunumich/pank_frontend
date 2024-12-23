@@ -1,9 +1,3 @@
-import React from 'react';
-import { Container, Typography } from '@mui/material';
-import NavBar from '../NavBar';
-import './Ontology.css';
-
-const ontologyTreeHtml = `
 <details style="margin-left: 0px;">
   <summary><a href="#">PanKgraph Root (#)</a></summary>
   <details style="margin-left: 20px;">
@@ -87,20 +81,3 @@ const ontologyTreeHtml = `
     <div style="margin-left: 40px;">&#8226; <a href="http://purl.obolibrary.org/obo/GO_0030890">positive regulation of B cell proliferation (GO_0030890)</a></div>
   </details>
 </details>
-`;
-
-function Ontology() {
-  return (
-    <div>
-      <NavBar />
-      <Container>
-        <Typography variant="h4" gutterBottom>
-          Ontology Tree
-        </Typography>
-        <div dangerouslySetInnerHTML={{ __html: ontologyTreeHtml }} />
-      </Container>
-    </div>
-  );
-}
-
-export default Ontology;

@@ -1,0 +1,94 @@
+{"Conversion_table": {
+      "query_vocab_frontend_KG": {
+          "sequence variant": "sequence_variant",
+          "gene": "gene",
+          "eQTL of": "fine_mapped_eQTL"
+      },
+      "query_vocab_KG_frontend": {
+          "sequence_variant": "sequence variant",
+          "gene": "gene",
+          "fine_mapped_eQTL": "eQTL of"
+      }
+        "data_source_KG_frontend": {
+          "GTEx; SusieR": "eQTL GTEx",
+          "INSPIRE; SusieR": "eQTL InsPIRE",
+          "splicing; GTEx": "splicing QTL GTEx",
+          "exon; INSPIRE": "exon QTL InsPIRE"
+      },
+      "data_source_frontend_KG": {
+          "eQTL GTEx": "GTEx; SusieR",
+          "eQTL InsPIRE": "INSPIRE; SusieR",
+          "splicing QTL GTEx": "splicing; GTEx; SusieR",
+          "exon QTL InsPIRE": "exon; INSPIRE"
+      },
+        "Tissue_KG_tissue_name": {
+          "GTEx; SusieR": "pancreatic",
+          "INSPIRE; SusieR": "islet",
+          "splicing; GTEx": "pancreatic",,
+          "exon; INSPIRE": "islet",
+              
+      },
+        "Color": {
+            "gene": "#ABD0F1",
+            "sequence_variant": "#FFB77F",
+            "pathway": "#F6C957",
+            "ontology" : "#B57E47",
+            "article":"#87C8BC",
+            "open chromatin region": "#E39ECE",
+      }
+},
+    "sequence_variant - fine_mapped_eQTL - gene": {
+        "general - relationship - specific": {
+            "question": [
+                "Which {SNP} serves as the lead {eQTL} for {gene@gene@}?"
+            ],
+            "cyper_for_intermediate_page": 
+              "MATCH (credible_set_node:credible_set)-[r1:credible_set_for]->(gene_node:coding_elements {id:'@gene@'}) WITH CASE WHEN credible_set_node.data_source = 'GTEx; SusieR' THEN 'GTEx; SusieR' WHEN credible_set_node.data_source = 'INSPIRE; SusieR' THEN 'INSPIRE; SusieR' WHEN credible_set_node.data_source = 'splicing; GTEx' THEN 'splicing; GTEx' WHEN credible_set_node.data_source = 'exon; INSPIRE' THEN 'exon; INSPIRE' ELSE 'Other' END AS group, credible_set_node WITH group, COLLECT({id: credible_set_node.id, type: labels(credible_set_node), data_source: credible_set_node.data_source, lead_SNP: credible_set_node.lead_SNP, pip: credible_set_node.pip, n_snp: credible_set_node.n_snp, purity: credible_set_node.purity, nominal_p: credible_set_node.nominal_p, lbf: credible_set_node.lbf, effect_allele: credible_set_node.effect_allele}) AS credible_sets RETURN group AS data_source, credible_sets ORDER BY data_source;"
+              ,
+            "cyper_for_intermediate_KG_viewer":
+            "MATCH (credible_set_node:credible_set)-[r1:credible_set_for]->(gene_node:coding_elements {id:'@gene@'}) WITH credible_set_node, gene_node, r1 LIMIT 7 MATCH (snp_node:sequence_variant {id: credible_set_node.lead_SNP})-[r2:fine_mapped_eQTL]->(gene_node:coding_elements {id: gene_node.id}) WITH credible_set_node, gene_node, snp_node, r1, r2 MATCH (snp_node:sequence_variant {id: credible_set_node.lead_SNP})-[r3:belong_to_credible_set]->(credible_set_node:credible_set {id: credible_set_node.id}) WITH credible_set_node, gene_node, snp_node, r1, r3 WITH DISTINCT COLLECT(DISTINCT {id: credible_set_node.id, type: labels(credible_set_node), symbol: NULL, data_source: credible_set_node.data_source}) + COLLECT(DISTINCT {id: gene_node.id, type: labels(gene_node), symbol: gene_node.HGNC_symbol, data_source: gene_node.data_source}) + COLLECT(DISTINCT {id: snp_node.id, type: labels(snp_node), symbol: NULL, data_source: snp_node.data_source}) AS nodes, COLLECT(DISTINCT {start: startNode(r1).id, end: endNode(r1).id, type: type(r1), data_source: r1.data_source}) + COLLECT(DISTINCT {start: startNode(r3).id, end: endNode(r3).id, type: type(r3), data_source: r3.data_source}) AS relationships RETURN nodes, relationships"
+            ,
+            "selection_result" : 
+              "snp_node, eQTL_of, gene_node, belong_to_credible_set, credible_set_node, data_source, tissue"
+              ,
+            "question_for_result": 
+              "How does the lead SNP @snp_node@ influence the quantitative trait locus of @gene_node@ in @tissue@ tissue, as reported by @data_source@?"
+              ,
+            "ai_question_for_result":
+              [
+                    "From the given JSON information, summarize the key characteristics and functions of the gene @gene_node@, including its involvement in immune regulation and associated pathways",
+                    "Based on the JSON data, describe the relationship between the SNP @snp_node@ and the eQTL of @gene_node@ in the pancreas, including details such as the effect allele, slope, posterior inclusion probability (PIP), and nominal p-value",
+                    "Considering the input JSON, discuss the association between the gene @gene_node@ and Type 1 diabetes, including any evidence linking genetic variants to the disease"
+              ],
+            "cypher_for_result_page_all_nodes_specific": 
+                  "MATCH (snp_node:variants:sequence_variant {id: '@snp_node@'})-[r:fine_mapped_eQTL]-(gene_node:coding_elements {id: '@gene_node@'}) WITH snp_node, r, gene_node OPTIONAL MATCH (gene_node)-[r_extend_gene]-(extend_node_gene:coding_elements) WITH snp_node, r, gene_node, r_extend_gene, extend_node_gene LIMIT 1 OPTIONAL MATCH (gene_node)-[r_extend_snp]-(extend_node_snp:variants:sequence_variant) WITH snp_node, r, gene_node, r_extend_gene, extend_node_gene, r_extend_snp, extend_node_snp LIMIT 1 OPTIONAL MATCH (gene_node)-[r_extend_pathway]-(extend_pathway_node:pathway) WITH snp_node, r, gene_node, r_extend_gene, extend_node_gene, r_extend_snp, extend_node_snp, r_extend_pathway, extend_pathway_node LIMIT 1 OPTIONAL MATCH (gene_node)-[r_extend_ontology]-(extend_ontology_node:ontology) WITH snp_node, r, gene_node, r_extend_gene, extend_node_gene, r_extend_snp, extend_node_snp, r_extend_pathway, extend_pathway_node, r_extend_ontology, extend_ontology_node LIMIT 1 WITH snp_node, r, gene_node, [node IN [extend_node_gene, extend_node_snp, extend_pathway_node, extend_ontology_node] WHERE node IS NOT NULL] AS all_extend_nodes, [rel IN [r_extend_gene, r_extend_snp, r_extend_pathway, r_extend_ontology] WHERE rel IS NOT NULL] AS all_extend_rels, SIZE([node IN [extend_node_gene, extend_node_snp, extend_pathway_node, extend_ontology_node] WHERE node IS NOT NULL]) AS extend_node_count WHERE extend_node_count = 4 RETURN snp_node, r, gene_node, all_extend_nodes, all_extend_rels, extend_node_count UNION MATCH (snp_node:variants:sequence_variant {id: '@snp_node@'})-[r:fine_mapped_eQTL]-(gene_node:coding_elements {id: '@gene_node@'}) WITH snp_node, r, gene_node OPTIONAL MATCH (gene_node)-[r_extend_gene]-(extend_node_gene:coding_elements) WITH snp_node, r, gene_node, r_extend_gene, extend_node_gene LIMIT 2 OPTIONAL MATCH (gene_node)-[r_extend_snp]-(extend_node_snp:variants:sequence_variant) WITH snp_node, r, gene_node, r_extend_gene, extend_node_gene, r_extend_snp, extend_node_snp LIMIT 1 OPTIONAL MATCH (gene_node)-[r_extend_pathway]-(extend_pathway_node:pathway) WITH snp_node, r, gene_node, r_extend_gene, extend_node_gene, r_extend_snp, extend_node_snp, r_extend_pathway, extend_pathway_node LIMIT 1 OPTIONAL MATCH (gene_node)-[r_extend_ontology]-(extend_ontology_node:ontology) WITH snp_node, r, gene_node, r_extend_gene, extend_node_gene, r_extend_snp, extend_node_snp, r_extend_pathway, extend_pathway_node, r_extend_ontology, extend_ontology_node LIMIT 1 WITH snp_node, r, gene_node, [node IN [extend_node_gene, extend_node_snp, extend_pathway_node, extend_ontology_node] WHERE node IS NOT NULL] AS all_extend_nodes, [rel IN [r_extend_gene, r_extend_snp, r_extend_pathway, r_extend_ontology] WHERE rel IS NOT NULL] AS all_extend_rels, SIZE([node IN [extend_node_gene, extend_node_snp, extend_pathway_node, extend_ontology_node] WHERE node IS NOT NULL]) AS extend_node_count WHERE extend_node_count = 4 RETURN snp_node, r, gene_node, all_extend_nodes, all_extend_rels, extend_node_count UNION MATCH (snp_node:variants:sequence_variant {id: '@snp_node@'})-[r:fine_mapped_eQTL]-(gene_node:coding_elements {id: '@gene_node@'}) WITH snp_node, r, gene_node OPTIONAL MATCH (gene_node)-[r_extend_gene]-(extend_node_gene:coding_elements) WITH snp_node, r, gene_node, r_extend_gene, extend_node_gene LIMIT 2 OPTIONAL MATCH (gene_node)-[r_extend_snp]-(extend_node_snp:variants:sequence_variant) WITH snp_node, r, gene_node, r_extend_gene, extend_node_gene, r_extend_snp, extend_node_snp LIMIT 1 OPTIONAL MATCH (gene_node)-[r_extend_pathway]-(extend_pathway_node:pathway) WITH snp_node, r, gene_node, r_extend_gene, extend_node_gene, r_extend_snp, extend_node_snp, r_extend_pathway, extend_pathway_node LIMIT 1 OPTIONAL MATCH (gene_node)-[r_extend_ontology]-(extend_ontology_node:ontology) WITH snp_node, r, gene_node, r_extend_gene, extend_node_gene, r_extend_snp, extend_node_snp, r_extend_pathway, extend_pathway_node, r_extend_ontology, extend_ontology_node LIMIT 1 WITH snp_node, r, gene_node, [node IN [extend_node_gene, extend_node_snp, extend_pathway_node, extend_ontology_node] WHERE node IS NOT NULL] AS all_extend_nodes, [rel IN [r_extend_gene, r_extend_snp, r_extend_pathway, r_extend_ontology] WHERE rel IS NOT NULL] AS all_extend_rels, SIZE([node IN [extend_node_gene, extend_node_snp, extend_pathway_node, extend_ontology_node] WHERE node IS NOT NULL]) AS extend_node_count WHERE extend_node_count < 4 RETURN snp_node, r, gene_node, all_extend_nodes, all_extend_rels, extend_node_count"
+            ,
+              "ai_answer_sub_title":
+              [
+                    "Gene overview:",
+                    "QTL overview:",
+                    "Specific relation to Type 1 Diabetes:"
+              ],
+            "ai_answer_title":
+                  "Currently SNP @sno_node@ is the eQTL of the gene: @gene_node@(@gene_id@)"
+            ,
+            "next_questions": [
+                "How does the lead SNP @snp_node1@ influence the quantitative trait locus of @gene_node1@ in @tissue1@ tissue, as reported by @data_source1@?"
+                  {
+                  "source_term":"sequence_variant",
+                  "relationship": "fine_mapped_eQTL",
+                  "target_term": "gene",
+                  "@snp_node1@":"another snp from json",
+                  "@gene_node1@": "gene_node",
+                  "@tissue1@":"another tissue from json",
+                  "@data_source1@":"another data_source from json",
+                  }
+            ],
+            "visualizations": {
+                "manhattan_plot": {
+                    "credible_set_id": "@credible_set@"
+                }
+            }
+        },
+    }
+}
