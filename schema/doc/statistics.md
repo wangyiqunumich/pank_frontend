@@ -1,4 +1,4 @@
-# Documentation
+# Statistics
 
 ## Nodes Statistics
 
