@@ -75,25 +75,25 @@ and all quotation marks (`"` or `'`) replaced with `\"` to avoid syntax error.
 
 For example,
 ```cypher
-MATCH (n:gene {name: 'RFX6'})
+MATCH (n:gene {name: 'LIG3'})
 RETURN n
 ```
 should be written into 
 ```cypher
-MATCH (n:gene {name: \"RFX6\"}) RETURN n
+MATCH (n:gene {name: \"LIG3\"}) RETURN n
 ```
 
 ### Example queries
 
 Below are some example queries to help you get started.
 
-- Get detailed information for gene `RFX6`
+- Get detailed information for gene `LIG3` (Ensembl ID = `ENSG00000005156`)
 ```cypher
-MATCH (n:gene {name:\"RFX6\"}) RETURN n
+MATCH (n:gene {id:\"ENSG00000005156\"}) RETURN n
 ```
 or
 ```cypher
-MATCH (n:gene) WHERE n.name=\"RFX6\" RETURN n
+MATCH (n:gene) WHERE n.id=\"ENSG00000005156\" RETURN n
 ```
 
 - Count all genes on chromosome `X`
@@ -159,31 +159,33 @@ The PanKgraph API returns results as a JSON string.
 Example output:
 ```json
 [{
+  "results": [{
       "n": {
-        "~id": "ENSG00000228037",
+        "~id": "ENSG00000005156",
         "~entityType": "node",
         "~labels": ["coding_elements", "gene"],
         "~properties": {
-          "id": "ENSG00000228037",
-          "id_version": 1,
-          "name": "nan",
-          "HGNC_id": "nan",
-          "HGNC_symbol": "nan",
-          "description": "novel transcript",
-          "chr": "1",
-          "start_loc": 2581560,
-          "end_loc": 2584533,
+          "id": "ENSG00000005156",
+          "id_version": 12,
+          "name": "LIG3",
+          "HGNC_id": "HGNC:6600",
+          "HGNC_symbol": "LIG3",
+          "description": "DNA ligase 3 [Source:HGNC Symbol;Acc:HGNC:6600]",
+          "chr": "17",
+          "start_loc": 34980512,
+          "end_loc": 35009743,
           "strand": "1",
-          "GC_percentage": 51.11,
-          "type": "lncRNA",
-          "link": "https://www.ensembl.org/id/ENSG00000228037",
+          "GC_percentage": 47.21,
+          "type": "protein_coding",
+          "link": "https://www.ensembl.org/id/ENSG00000005156",
           "gencode_annotation": "GENCODE basic",
-          "synonym": "nan",
+          "synonym": "LIG3ALPHA;LIG2",
           "data_version": "GRCh38.p14",
           "data_source": "Ensembl"
         }
       }
     }]
+}]
 ```
 Query results can be processed using programming libraries,
 e.g., [`json` package](https://docs.python.org/3/library/json.html) of Python.
