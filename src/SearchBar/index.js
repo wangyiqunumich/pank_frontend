@@ -19,15 +19,22 @@ function SearchBar({ onSearch, disabled, style }) {
     const {viewSchema, queryViewSchemaStatus} = useSelector((state) => state.viewSchema);
     const {vocab, queryVocabStatus} = useSelector((state) => state.inputToVocab);
     const {queryVisResult, queryQueryVisResultStatus} = useSelector((state) => state.queryVisResult);
-    const [sourceTerm, setSourceTerm] = useState('');
-    const [relationship, setRelationship] = useState('');
+    
+    // 初始状态设置
+    const [sourceTerm, setSourceTerm] = useState('sequence variant');
+    const [relationship, setRelationship] = useState('eQTL of');
     const [targetTerm, setTargetTerm] = useState('');
-    const [sourceOptions, setSourceOptions] = useState(["sequence variant"]);
+    const [sourceOptions, setSourceOptions] = useState(['sequence variant']);
     const [targetOptions, setTargetOptions] = useState([]);
-    const [isRelationshipDisabled, setIsRelationshipDisabled] = useState(true);
-    const [isTargetTermDisabled, setIsTargetTermDisabled] = useState(true);
-    const [displayToActualMap, setDisplayToActualMap] = useState({});
-
+    
+    // 修改这里：设置固定的 relationshipOptions
+    const [relationshipOptions, setRelationshipOptions] = useState(['eQTL of']);
+    
+    // 固定禁用状态
+    const isRelationshipDisabled = true;
+    const isSourceTermDisabled = true;
+    const [isTargetTermDisabled, setIsTargetTermDisabled] = useState(false);
+    
     const {aiAnswer, queryAiAnswerStatus, queryAiAnswerErrorMessage} = useSelector((state) => state.aiAnswer);
     const {queryResult, queryResultStatus, queryResultErrorMessage} = useSelector((state) => state.queryResult);
 
@@ -44,11 +51,22 @@ function SearchBar({ onSearch, disabled, style }) {
     const sourceTimerRef = useRef(null);
     const targetTimerRef = useRef(null);
 
-    const [relationshipOptions, setRelationshipOptions] = useState([]);
-
     const [isCustomSource, setIsCustomSource] = useState(false);
 
     const [searchClicked, setSearchClicked] = useState(false);
+
+    // 添加初始化 effect
+    useEffect(() => {
+        // 设置初始的 relationship options
+        setRelationship(['eQTL of']);
+        
+        // 设置初始搜索条件
+        dispatch(setSearchTerms({
+            sourceTerm: 'sequence_variant:',
+            relationship: 'eQTL_of',
+            targetTerm: ''
+        }));
+    }, []);
 
     const updateSourceTerm = async (event, newValue) => {
         if (store.getState().search.nextQuestionClicked) {
@@ -83,14 +101,12 @@ function SearchBar({ onSearch, disabled, style }) {
                     }
                 }
             }, 500);
-            setIsRelationshipDisabled(false);
             
             if (!isCustomInput) {
                 setTargetOptions([]);
             }
         } else {
             setSourceOptions(["gene", "sequence variant"]);
-            setIsRelationshipDisabled(true);
             setIsTargetTermDisabled(true);
             setIsCustomSource(false);
             setTargetOptions([]);
@@ -173,7 +189,7 @@ function SearchBar({ onSearch, disabled, style }) {
         // 设置用户显示值
         setTargetDisplayTerm(newValue || '');
     
-        if (newValue && (newValue.includes('gene:') || newValue.includes('sequence variant:'))) {
+        if (newValue && (newValue.includes('gene:') || newValue.includes('sequence variant'))) {
             setTargetTerm(newValue); // 设置后台实际值
             dispatch(setSearchTerms({
                 ...store.getState().search,
@@ -234,7 +250,7 @@ function SearchBar({ onSearch, disabled, style }) {
         console.log(question);
         return question.replace(/\{([^@]+)@([^}]+)\}/g, (match, term, type) => {
             console.log(term);
-            console.log(type);
+            console.log(relationship);
             let replacedTerm;
             if (isNextQuestion) {
                 replacedTerm = term;
@@ -243,7 +259,7 @@ function SearchBar({ onSearch, disabled, style }) {
                     replacedTerm = sourceValue;
                 } else if (type === targetType) {
                     replacedTerm = targetValue;
-                } else if (type.toLowerCase() === relationship.toLowerCase()) {
+                } else if (type.toLowerCase() === relationship[0].toLowerCase()) {
                     replacedTerm = term;
                 } else {
                     return match;
@@ -338,28 +354,21 @@ function SearchBar({ onSearch, disabled, style }) {
 
     useEffect(() => {
         if (nextQuestionClicked && searchSourceTerm && searchRelationship && searchTargetTerm) {
-            // 解析 terms
             const [sourceType, ...sourceRest] = searchSourceTerm.split(':');
             const sourceValue = sourceRest.join(':');
             const [targetType, ...targetRest] = searchTargetTerm.split(':');
             const targetValue = targetRest.join(':');
             
-            // 使用 conversionTable 转换
             const KGToFrontend = conversionTable.Conversion_table.query_vocab_KG_frontend;
             
-            // 转换并设置新值
             const sourceDisplay = `${KGToFrontend[sourceType]}:${sourceValue}`;
             const relationshipDisplay = KGToFrontend[searchRelationship] || searchRelationship;
             const targetDisplay = `${KGToFrontend[targetType]}:${targetValue}`;
             
             setSourceTerm(sourceDisplay);
-            setIsRelationshipDisabled(false);
             setRelationship(relationshipDisplay);
             setIsTargetTermDisabled(false);
             setTargetTerm(targetDisplay);
-            
-            // 重置点击状态
-            // dispatch(setNextQuestionClicked(false));
         }
     }, [nextQuestionClicked, searchSourceTerm, searchRelationship, searchTargetTerm]);
 
@@ -373,7 +382,7 @@ function SearchBar({ onSearch, disabled, style }) {
                             value={sourceTerm}
                             onInputChange={updateSourceTerm}
                             options={sourceOptions}
-                            disabled={disabled}
+                            disabled={true}
                             renderInput={(params) => <TextField sx={{
                                 backgroundColor: '#2191971A'
                             }} {...params} label="1. Source Term" />}
@@ -396,7 +405,7 @@ function SearchBar({ onSearch, disabled, style }) {
                             label="2. Relationship"
                             onChange={updateRelationship}
                             onOpen={handleRelationshipOpen}
-                            disabled={isRelationshipDisabled || disabled}
+                            disabled={true}
                             sx={{ textAlign: 'left',
                                 backgroundColor: '#2191971A'
                             }}

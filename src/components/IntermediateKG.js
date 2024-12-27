@@ -66,8 +66,8 @@ function IntermediateKG() {
           return nodeId;
       }
       
-      const setNumber = nodeId.split('_').pop();
-      return `${prefix}_${setNumber}`;
+      const setNumber = nodeId.split('_').pop().slice(11);
+      return `CredibleSet_${prefix}${setNumber}`;
     };
 
     const cyNodes = nodes.map(node => {

@@ -1,8 +1,23 @@
 import React from 'react';
 import { AppBar, Toolbar, Box, Typography, Container } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { setSearchTerms } from '../redux/searchSlice';
 
 function NavBar() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handlePanKgraphClick = () => {
+    // 预设搜索条件
+    dispatch(setSearchTerms({
+      sourceTerm: 'sequence_variant:',
+      relationship: 'QTL_of',
+      targetTerm: ''
+    }));
+    navigate('/pankgraph');
+  };
+
   return (
     <>
       {/* 主导航栏 */}
@@ -43,8 +58,9 @@ function NavBar() {
               {['Resources', 'Data', 'Analysis', 'PanKgraph', 'About', 'Help', 'News'].map((item) => (
                 <Typography
                   key={item}
-                  component={Link}
-                  to={`/${item.toLowerCase()}`}
+                  component={item === 'PanKgraph' ? 'button' : Link}
+                  onClick={item === 'PanKgraph' ? handlePanKgraphClick : undefined}
+                  to={item === 'PanKgraph' ? undefined : `/${item.toLowerCase()}`}
                   sx={{
                     color: item === 'PanKgraph' ? '#000' : 'white',
                     textDecoration: 'none',
@@ -56,6 +72,8 @@ function NavBar() {
                     lineHeight: '32.68px',
                     borderTopLeftRadius: item === 'PanKgraph' ? '16px' : '0',
                     borderTopRightRadius: item === 'PanKgraph' ? '16px' : '0',
+                    border: 'none',
+                    cursor: 'pointer'
                   }}
                 >
                   {item}

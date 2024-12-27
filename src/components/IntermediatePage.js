@@ -320,8 +320,8 @@ function IntermediatePage({ onContinue }) {
         return credibleSet.id;
     }
     
-    const setNumber = credibleSet.id.split('_').pop();
-    return `${prefix}_${setNumber}`;
+    const setNumber = credibleSet.id.split('_').pop().slice(11);
+    return `CredibleSet_${prefix}${setNumber}`;
   };
 
   const getFilteredCredibleSets = () => {
