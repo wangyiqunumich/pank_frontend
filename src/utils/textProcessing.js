@@ -5,12 +5,12 @@ const colorMap = {
     default: '#DCE9F4'
   };
   
-  export function replaceTerms(question, sourceTerm, relationship, targetTerm, isNextQuestion = false, addStyle = true) {
+  export function replaceTerms(question, sourceTerm, relationship, targetTerm, targetTermSymbol, isNextQuestion = false, addStyle = true) {
     const [sourceType, ...sourceRest] = sourceTerm.split(':');
     const sourceValue = sourceRest.join(':') || sourceType;
     
     const [targetType, ...targetRest] = targetTerm.split(':');
-    const targetValue = targetRest.join(':') || targetType;
+    const targetValue = targetTermSymbol ? targetTermSymbol + '(' + targetRest.join(':') + ')' : targetRest.join(':') || targetType;
 
     const replaceValue = sourceType !== sourceValue ? sourceValue : targetValue;
   

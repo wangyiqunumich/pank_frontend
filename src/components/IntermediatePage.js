@@ -143,8 +143,10 @@ function IntermediatePage({ onContinue }) {
   const searchState = useSelector((state) => state.search) || { 
     sourceTerm: '', 
     relationship: '', 
-    targetTerm: '' 
+    targetTerm: '',
+    targetTermSymbol: ''  
   };
+  console.log(searchState)
 
   const processedQuestion = viewSchema?.question?.[0]
     ? replaceTerms(
@@ -152,6 +154,7 @@ function IntermediatePage({ onContinue }) {
         searchState.sourceTerm, 
         searchState.relationship, 
         searchState.targetTerm,
+        searchState.targetTermSymbol,
         false,  // isNextQuestion
         false   // addStyle
       )

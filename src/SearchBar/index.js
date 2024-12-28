@@ -13,6 +13,7 @@ import catalog from '../utils/Catalog.json';
 import { store } from '../redux/store';
 import { setNextQuestionClicked } from '../redux/searchSlice';
 import { queryQueryVisResult } from '../redux/queryVisResultSlice';
+import { setTargetTermSymbol } from '../redux/searchSlice';
 
 function SearchBar({ onSearch, disabled, style }) {
     const dispatch = useDispatch();
@@ -26,6 +27,7 @@ function SearchBar({ onSearch, disabled, style }) {
     const [targetTerm, setTargetTerm] = useState('');
     const [sourceOptions, setSourceOptions] = useState(['sequence variant']);
     const [targetOptions, setTargetOptions] = useState([]);
+    const [targetTermSymbol, setTargetTermSymbol] = useState('');
     
     // 修改这里：设置固定的 relationshipOptions
     const [relationshipOptions, setRelationshipOptions] = useState(['eQTL of']);
@@ -63,7 +65,7 @@ function SearchBar({ onSearch, disabled, style }) {
         // 设置初始搜索条件
         dispatch(setSearchTerms({
             sourceTerm: 'sequence_variant:',
-            relationship: 'eQTL_of',
+            relationship: 'fine_mapped_eQTL',
             targetTerm: ''
         }));
     }, []);
@@ -204,17 +206,19 @@ function SearchBar({ onSearch, disabled, style }) {
                         if (result) {
                             let formattedOption;
                             let formattedTerm;
+                            console.log(result);
                             if (result.includes('@')) {
                                 const [type, value] = result.split('@');
                                 formattedTerm = `${type}:${value}`;
-                                formattedOption = `${newValue}`;
+                                formattedOption = `${type}:${newValue}`;
                                 setTargetOptions([formattedOption]);
                                 setTargetTerm(formattedTerm); // 设置后台实际值
+                                setTargetTermSymbol(newValue);
                             } else {
-                                formattedOption = `${result}:${newValue}`;
-                                formattedTerm = `${result}:${newValue}`;
-                                setTargetOptions([formattedOption]);
-                                setTargetTerm(formattedTerm); // 设置后台实际值
+                                // formattedOption = `${result}:${newValue}`;
+                                // formattedTerm = `${result}:${newValue}`;
+                                // setTargetOptions([formattedOption]);
+                                // setTargetTerm(formattedTerm); // 设置后台实际值
                             }
                         }
                     } catch (error) {
@@ -287,7 +291,7 @@ function SearchBar({ onSearch, disabled, style }) {
         });
     }
 
-    function convertTerms(sourceTerm, relationship, targetTerm) {
+    function convertTerms(sourceTerm, relationship, targetTerm, targetTermSymbol) {
         const frontendToKG = conversionTable.Conversion_table.query_vocab_frontend_KG;
         
         const [sourceType, sourceValue] = sourceTerm.split(':').map(s => s.trim());
@@ -300,13 +304,14 @@ function SearchBar({ onSearch, disabled, style }) {
         return {
             sourceTerm: sourceValue ? `${convertedSourceType}:${sourceValue}` : convertedSourceType,
             relationship: convertedRelationship,
-            targetTerm: targetValue ? `${convertedTargetType}:${targetValue}` : convertedTargetType
+            targetTerm: targetValue ? `${convertedTargetType}:${targetValue}` : convertedTargetType,
+            targetTermSymbol: targetTermSymbol.toUpperCase()
         };
     }
 
     const handleSearch = async () => {
         setSearchClicked(true);
-        const convertedTerms = convertTerms(sourceTerm, relationship, targetTerm);
+        const convertedTerms = convertTerms(sourceTerm, relationship, targetTerm, targetTermSymbol);
         dispatch(setSearchTerms(convertedTerms));
         await dispatch(queryViewSchema(convertedTerms));
     };
@@ -423,9 +428,10 @@ function SearchBar({ onSearch, disabled, style }) {
                                 value={targetDisplayTerm}
                                 onChange={(event, newValue) => {
                                     if (newValue && targetOptions.includes(newValue)) {
-                                        const parts = newValue.split(':');
-                                        setTargetDisplayTerm(parts[2]);
-                                        setTargetTerm(newValue);
+                                        // console.log(newValue);
+                                        // const parts = newValue.split(':');
+                                        // setTargetDisplayTerm(parts[2]);
+                                        // setTargetTerm(newValue);
                                     }
                                 }}
                                 onInputChange={(event, newInputValue) => {

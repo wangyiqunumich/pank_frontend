@@ -10,7 +10,8 @@ const searchSlice = createSlice({
     usingFallback: false,
     fallbackSourceTerm: 'sequence_variant:rs17510162',
     fallbackRelationship: 'fine_mapped_eQTL',
-    fallbackTargetTerm: 'gene:ENSG00000134242'
+    fallbackTargetTerm: 'gene:ENSG00000134242',
+    targetTermSymbol: ''
   },
   reducers: {
     setSearchTerms: (state, action) => {
@@ -18,6 +19,7 @@ const searchSlice = createSlice({
         state.sourceTerm = action.payload.sourceTerm;
         state.relationship = action.payload.relationship;
         state.targetTerm = action.payload.targetTerm;
+        state.targetTermSymbol = action.payload.targetTermSymbol;
       }
     },
     setNextQuestionClicked: (state, action) => {
@@ -25,11 +27,14 @@ const searchSlice = createSlice({
     },
     setUsingFallback: (state, action) => {
       state.usingFallback = action.payload;
-    }
+    },
+    setTargetTermSymbol: (state, action) => {
+      state.targetTermSymbol = action.payload;
+    } 
   }
 });
 
-export const { setSearchTerms, setNextQuestionClicked, setUsingFallback } = searchSlice.actions;
+export const { setSearchTerms, setNextQuestionClicked, setUsingFallback, setTargetTermSymbol } = searchSlice.actions;
 export default searchSlice.reducer;
 
 export const setSearchState = (searchState) => ({
