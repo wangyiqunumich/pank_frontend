@@ -7,7 +7,8 @@ const variablesSlice = createSlice({
     geneId: '',
     tissueKey: '',
     dataSource: '',
-    snpId: ''
+    snpId: '',
+    geneSymbol: ''
   },
   reducers: {
     setVariables: (state, action) => {
@@ -16,6 +17,7 @@ const variablesSlice = createSlice({
       state.tissueKey = action.payload.tissueKey;
       state.dataSource = action.payload.dataSource;
       state.snpId = action.payload.snpId;
+      state.geneSymbol = action.payload.geneSymbol;
     }
   }
 });

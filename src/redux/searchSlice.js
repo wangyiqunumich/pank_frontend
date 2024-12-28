@@ -11,6 +11,7 @@ const searchSlice = createSlice({
     fallbackSourceTerm: 'sequence_variant:rs17510162',
     fallbackRelationship: 'fine_mapped_eQTL',
     fallbackTargetTerm: 'gene:ENSG00000134242',
+    fallbackTargetTermSymbol: 'ptpn22',
     targetTermSymbol: ''
   },
   reducers: {

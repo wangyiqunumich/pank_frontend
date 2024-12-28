@@ -208,14 +208,14 @@ This answer refers to the following resources in PanKbase:`;
     const handleNextQuestionClick = (question) => {
         if (searchState.sourceTerm && searchState.relationship && searchState.targetTerm) {
             dispatch(setNextQuestionClicked(true));
-            
             const currentState = store.getState();
             const isUsingFallback = currentState.search.usingFallback;
             
             let queryParams = {
                 sourceTerm: searchState.sourceTerm,
                 relationship: searchState.relationship,
-                targetTerm: searchState.targetTerm
+                targetTerm: searchState.targetTerm,
+                targetTermSymbol: searchState.targetTermSymbol
             };
 
             if (isUsingFallback) {
@@ -225,7 +225,8 @@ This answer refers to the following resources in PanKbase:`;
                 queryParams = {
                     sourceTerm: 'sequence_variant:rs17510162',
                     relationship: 'fine_mapped_eQTL',
-                    targetTerm: 'gene:ENSG00000134242'
+                    targetTerm: 'gene:ENSG00000134242',
+                    targetTermSymbol: 'ptpn22'
                 };
             }
 
@@ -241,7 +242,8 @@ This answer refers to the following resources in PanKbase:`;
                     leadSnp: getIdFromTerm(queryParams.sourceTerm),
                     geneId: getIdFromTerm(queryParams.targetTerm),
                     dataSource: 'GTEx; SusieR',
-                    tissueKey: 'pancreatic'
+                    tissueKey: 'pancreatic',
+                    geneSymbol: queryParams.targetTermSymbol
                 }));
 
                 await Promise.resolve();
@@ -267,7 +269,8 @@ This answer refers to the following resources in PanKbase:`;
                         leadSnp: isUsingFallback ? 'rs17510162' : getIdFromTerm(searchState.sourceTerm),
                         geneId: isUsingFallback ? 'ENSG00000134242' : getIdFromTerm(searchState.targetTerm),
                         dataSource: 'GTEx; SusieR',
-                        tissueKey: 'pancreatic'
+                        tissueKey: 'pancreatic',
+                        geneSymbol: isUsingFallback ? 'ptpn22' : searchState.targetTermSymbol
                     };  
 
                     const processedNextQuestions = response.payload.next_questions.map(q => 

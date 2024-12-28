@@ -195,7 +195,8 @@ function IntermediatePage({ onContinue }) {
       leadSnp,
       geneId,
       tissueKey,
-      dataSource: dataSourceFrontend
+      dataSource: dataSourceFrontend,
+      geneSymbol: searchState.targetTermSymbol
     };
     
     dispatch(setVariables(variables));
@@ -212,7 +213,8 @@ function IntermediatePage({ onContinue }) {
         ...variables,
         snpId: 'rs17510162',
         leadSnp: 'rs17510162',
-        geneId: 'ENSG00000134242'
+        geneId: 'ENSG00000134242',
+        geneSymbol: 'ptpn22'
       };
       
       // 使用更新后的变量对象进行替换
@@ -223,7 +225,8 @@ function IntermediatePage({ onContinue }) {
       let newSearchState = {
         sourceTerm: '',
         relationship: '',
-        targetTerm: ''
+        targetTerm: '',
+        targetTermSymbol: searchState.targetTermSymbol
       };
 
       // 遍历参数并设置搜索条件
