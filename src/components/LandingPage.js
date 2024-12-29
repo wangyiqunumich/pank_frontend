@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { Box, Typography, Container, Link } from '@mui/material';
+import { Box, Typography, Container, Link, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import landingPageLogo from '../image/landingPageLogo.png';
 import relatedResources from '../image/relatedResources.png';
 import apiIcon from '../image/apiIcon.png';
@@ -7,6 +7,8 @@ import { Link as RouterLink } from 'react-router-dom';
 
 function LandingPage() {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [selectedQuestion, setSelectedQuestion] = useState('Which SNP serves as the expression quantitative trait locus (eQTL) for PTPN22?');
+  
   useEffect(() => {
     function handleResize() {
       setWindowWidth(window.innerWidth)
@@ -48,7 +50,7 @@ function LandingPage() {
             <img src={landingPageLogo} alt="PanKgraph" />
           </Box>
 
-          {/* 右侧标题和搜索框 */}
+          {/* 右侧内容区域 */}
           <Box sx={{ 
             width: 672,
             display: 'flex',
@@ -58,11 +60,55 @@ function LandingPage() {
             left: windowWidth * 0.5 + 44,
             top: 311
           }}>
+
             <Typography sx={{ fontSize: 32, textAlign: 'left' }}>
               Explore T1D knowledge and resources with the knowledge graph
             </Typography>
+
+            {/* <Box sx={{ marginBottom: 3 }}>
+              <FormControl fullWidth>
+                <InputLabel 
+                  id="question-select-label"
+                  sx={{
+                    color: 'rgba(0, 0, 0, 0.6)',
+                    backgroundColor: '#fff',
+                    padding: '0 5px'
+                  }}
+                >
+                  Question
+                </InputLabel>
+                <Select
+                  labelId="question-select-label"
+                  id="question-select"
+                  value={selectedQuestion}
+                  label="Question"
+                  onChange={(e) => setSelectedQuestion(e.target.value)}
+                  sx={{ 
+                    textAlign: 'left',
+                    fontSize: 20,
+                    backgroundColor: '#2191971A',
+                    '& .MuiSelect-select': {
+                      whiteSpace: 'normal',
+                      minHeight: '80px',
+                      alignItems: 'center',
+                      display: 'flex'
+                    }
+                  }}
+                >
+                  <MenuItem 
+                    value="Which SNP serves as the expression quantitative trait locus (eQTL) for PTPN22?"
+                    sx={{
+                      whiteSpace: 'normal',
+                      fontSize: 20,
+                    }}
+                  >
+                    Which SNP serves as the expression quantitative trait locus (eQTL) for PTPN22?
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            </Box> */}
             
-            {/* 搜索框部分可以根据需要添加 */}
+            {/* SearchBar 组件将在这里 */}
           </Box>
         </Box>
 

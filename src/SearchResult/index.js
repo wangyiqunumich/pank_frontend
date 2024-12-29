@@ -130,10 +130,14 @@ const Legend = () => (
           <Box sx={{ width: 20, height: 20, backgroundColor: '#e377c2', borderRadius: '4px' }} />
           <Typography variant="body2">Article</Typography>
         </Box>
-        {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ width: 20, height: 20, backgroundColor: '#8c564b', borderRadius: '4px' }} />
-          <Typography variant="body2">Open Chromatin Region</Typography>
-        </Box> */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ width: 20, height: 20, backgroundColor: '#FFB77F', borderRadius: '4px' }} />
+          <Typography variant="body2">Current Searched Node</Typography>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ width: 20, height: 20, backgroundColor: 'white', borderRadius: '4px', border: '2px solid #FFB77F' }} />
+          <Typography variant="body2">Extend Node</Typography>
+        </Box>
       </Box>
     </Box>
   // </div>

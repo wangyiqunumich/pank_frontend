@@ -3,12 +3,12 @@
       "query_vocab_frontend_KG": {
           "sequence variant": "sequence_variant",
           "gene": "gene",
-          "eQTL of": "fine_mapped_eQTL"
+          "QTL of": "fine_mapped_eQTL"
       },
       "query_vocab_KG_frontend": {
           "sequence_variant": "sequence variant",
           "gene": "gene",
-          "fine_mapped_eQTL": "eQTL of"
+          "fine_mapped_eQTL": "QTL of"
       },
       "data_source_KG_frontend": {
           "GTEx; SusieR": "eQTL GTEx",

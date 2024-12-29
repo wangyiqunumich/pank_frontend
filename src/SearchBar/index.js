@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { Container, Box, FormControl, InputLabel, Select, MenuItem, Button, TextField } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
 import { useSelector, useDispatch } from 'react-redux';
@@ -15,7 +15,7 @@ import { setNextQuestionClicked } from '../redux/searchSlice';
 import { queryQueryVisResult } from '../redux/queryVisResultSlice';
 import { setTargetTermSymbol } from '../redux/searchSlice';
 
-function SearchBar({ onSearch, disabled, style }) {
+const SearchBar = forwardRef(({ onSearch, disabled, style }, ref) => {
     const dispatch = useDispatch();
     const {viewSchema, queryViewSchemaStatus} = useSelector((state) => state.viewSchema);
     const {vocab, queryVocabStatus} = useSelector((state) => state.inputToVocab);
@@ -23,14 +23,14 @@ function SearchBar({ onSearch, disabled, style }) {
     
     // 初始状态设置
     const [sourceTerm, setSourceTerm] = useState('sequence variant');
-    const [relationship, setRelationship] = useState('eQTL of');
+    const [relationship, setRelationship] = useState('QTL of');
     const [targetTerm, setTargetTerm] = useState('');
     const [sourceOptions, setSourceOptions] = useState(['sequence variant']);
     const [targetOptions, setTargetOptions] = useState([]);
     const [targetTermSymbol, setTargetTermSymbol] = useState('');
     
     // 修改这里：设置固定的 relationshipOptions
-    const [relationshipOptions, setRelationshipOptions] = useState(['eQTL of']);
+    const [relationshipOptions, setRelationshipOptions] = useState(['QTL of']);
     
     // 固定禁用状态
     const isRelationshipDisabled = true;
@@ -48,7 +48,7 @@ function SearchBar({ onSearch, disabled, style }) {
     };
 
 
-    const relationTypes = ["eQTL of"];
+    const relationTypes = ["QTL of"];
 
     const sourceTimerRef = useRef(null);
     const targetTimerRef = useRef(null);
@@ -60,7 +60,7 @@ function SearchBar({ onSearch, disabled, style }) {
     // 添加初始化 effect
     useEffect(() => {
         // 设置初始的 relationship options
-        setRelationship(['eQTL of']);
+        setRelationship(['QTL of']);
         
         // 设置初始搜索条件
         dispatch(setSearchTerms({
@@ -377,6 +377,13 @@ function SearchBar({ onSearch, disabled, style }) {
         }
     }, [nextQuestionClicked, searchSourceTerm, searchRelationship, searchTargetTerm]);
 
+    // 暴露方法给父组件
+    useImperativeHandle(ref, () => ({
+        updateTargetTerm: (event, newValue) => {
+            updateTargetTerm(event, newValue);
+        }
+    }));
+
     return (
         <Container maxWidth="md" disableGutters sx={{ padding: 0, ...style }}>
             <Box sx={{ marginTop: 4, padding: 0 }}>
@@ -495,6 +502,6 @@ function SearchBar({ onSearch, disabled, style }) {
             </Box>
         </Container>
     );
-}
+});
 
 export default SearchBar;
