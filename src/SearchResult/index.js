@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Box, List, ListItem, Link, CircularProgress, Divider } from '@mui/material';
+import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Box, List, ListItem, Link, CircularProgress, Divider, Collapse } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import './scoped.css';
 import KnowledgeGraph from '../components/KnowledgeGraph';
@@ -19,6 +19,8 @@ import { replaceVariables } from '../utils/textProcessing';
 import { store } from '../redux/store';
 import { queryQueryVisResult } from '../redux/queryVisResultSlice';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { styled } from '@mui/material/styles';
 
 const colorMap = {
     gene: "#ABD0F1",
@@ -28,6 +30,18 @@ const colorMap = {
     article:"#e377c2",
     open_chromatin_region: "#8c564b",
   };
+
+// 添加一个带动画的展开按钮组件
+const ExpandMore = styled((props) => {
+  const { expand, ...other } = props;
+  return <IconButton {...other} />;
+})(({ theme, expand }) => ({
+  transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
+  marginLeft: 'auto',
+  transition: theme.transitions.create('transform', {
+    duration: theme.transitions.duration.shortest,
+  }),
+}));
 
 function TypewriterEffect({ text, speed = 5, onComplete }) {
     const [displayedText, setDisplayedText] = useState('');
@@ -122,20 +136,20 @@ const Legend = () => (
         gridTemplateColumns: 'repeat(3, 1fr)',
         gap: 2
       }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Box sx={{ width: 20, height: 20, backgroundColor: '#8c561b', borderRadius: '4px' }} />
           <Typography variant="body2">Ontology</Typography>
-        </Box>
+        </Box> */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Box sx={{ width: 20, height: 20, backgroundColor: '#e377c2', borderRadius: '4px' }} />
           <Typography variant="body2">Article</Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ width: 20, height: 20, backgroundColor: '#FFB77F', borderRadius: '4px' }} />
+          <Box sx={{ width: 20, height: 20, backgroundColor: '#C0C0C0', borderRadius: '4px' }} />
           <Typography variant="body2">Current Searched Node</Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ width: 20, height: 20, backgroundColor: 'white', borderRadius: '4px', border: '2px solid #FFB77F' }} />
+          <Box sx={{ width: 20, height: 20, backgroundColor: 'white', borderRadius: '4px', border: '2px solid #C0C0C0' }} />
           <Typography variant="body2">Extend Node</Typography>
         </Box>
       </Box>
@@ -158,6 +172,7 @@ function SearchResult() {
         return text.replace(/\*\*/g, '');
     };
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+    const [expanded, setExpanded] = useState(false);
 
     useEffect(() => {
         function handleResize() {
@@ -320,6 +335,10 @@ This answer refers to the following resources in PanKbase:`;
         }
     };
 
+    const handleExpandClick = () => {
+        setExpanded(!expanded);
+    };
+
     // 如果正在加载答案或答案为空，显示加载状态
     if (queryAiAnswerStatus === 'pending' || !aiAnswer?.answers) {
         return (
@@ -451,45 +470,61 @@ This answer refers to the following resources in PanKbase:`;
                         ))}
                     </Typography>
                     <Box>
-                        <Typography sx={{ fontWeight: 500, fontSize: 20, textAlign: 'left' }}>
-                            <span>📎</span> Resources
-                        </Typography>
-                        <List sx={{ padding: '0px' }}>
-                            <ListItem sx={{ paddingY: '0px' }}>
-                                <Link
-                                    href="https://pankbase.org"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    sx={{
-                                        color: '#1976d2',
-                                        textDecoration: 'none',
-                                        textSize: '16px',
-                                        '&:hover': {
-                                            textDecoration: 'underline'
-                                        }
-                                    }}
-                                >
-                                    • In Pankbase
-                                </Link>
-                            </ListItem>
-                            <ListItem sx={{ paddingY: '0px' }}>
-                                <Link
-                                    href={`https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${searchState.targetTerm.split(':')[1]}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    sx={{
-                                        color: '#1976d2',
-                                        textDecoration: 'none',
-                                        textSize: '16px',
-                                        '&:hover': {
-                                            textDecoration: 'underline'
-                                        }
-                                    }}
-                                >
-                                    • Link to ensembl: {searchState.targetTerm.split(':')[1]}
-                                </Link>
-                            </ListItem>
-                        </List>
+                        <Box sx={{ 
+                            display: 'flex', 
+                            alignItems: 'center',
+                            justifyContent: 'space-between'
+                        }}>
+                            <Typography sx={{ fontWeight: 500, fontSize: 20, textAlign: 'left' }}>
+                                <span>📎</span> Resources
+                            </Typography>
+                            <ExpandMore
+                                expand={expanded}
+                                onClick={handleExpandClick}
+                                aria-expanded={expanded}
+                                aria-label="show more"
+                            >
+                                <ExpandMoreIcon />
+                            </ExpandMore>
+                        </Box>
+                        <Collapse in={expanded} timeout="auto" unmountOnExit>
+                            <List sx={{ padding: '0px' }}>
+                                <ListItem sx={{ paddingY: '0px' }}>
+                                    <Link
+                                        href="https://pankbase.org"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        sx={{
+                                            color: '#1976d2',
+                                            textDecoration: 'none',
+                                            textSize: '16px',
+                                            '&:hover': {
+                                                textDecoration: 'underline'
+                                            }
+                                        }}
+                                    >
+                                        • In Pankbase
+                                    </Link>
+                                </ListItem>
+                                <ListItem sx={{ paddingY: '0px' }}>
+                                    <Link
+                                        href={`https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${searchState.targetTerm.split(':')[1]}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        sx={{
+                                            color: '#1976d2',
+                                            textDecoration: 'none',
+                                            textSize: '16px',
+                                            '&:hover': {
+                                                textDecoration: 'underline'
+                                            }
+                                        }}
+                                    >
+                                        • Link to ensembl: {searchState.targetTerm.split(':')[1]}
+                                    </Link>
+                                </ListItem>
+                            </List>
+                        </Collapse>
                     </Box>
                 </Box>
                 {/*    <div className="styled-paper" data-title="You May Also Ask">*/}
