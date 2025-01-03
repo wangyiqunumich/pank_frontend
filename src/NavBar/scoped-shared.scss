@@ -12,7 +12,7 @@
 
 a,
 a:visited {
-    color: black !important;
+    color: black;
     font-weight: 600;
 }
 a:hover{
@@ -51,7 +51,6 @@ a:hover{
     gap: 0px;
 }
 .topmenu-item {
-    color: #2d2e2f;
     padding: 5px 10px;
     display: flex;
     align-items: center;
@@ -62,10 +61,10 @@ a:hover{
     font-weight: 600;
 }
 .topmenu-item:hover {
-    color: #94c95e !important;
+    color: #d9d9d9;
 }
 .topmenu-item:hover svg * {
-    stroke: #94c95e !important;
+    stroke: #d9d9d9;
 }
 .menu {
     display: flex;

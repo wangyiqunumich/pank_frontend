@@ -57,28 +57,28 @@ function NavBar() {
             {/*}}>*/}
               <div className="pkb-nav">
                 <div className="logo">
-                  <a href="/">
+                  <a href="https://pankbase.org:8000/">
                     <img style={{height: '50px'}}
                          src="https://hugeampkpncms.org/sites/default/files/users/user32/pankbase/PanKbase_logo-black-tagline.svg"/>
                   </a>
                 </div>
                 <div className="menu-wrapper">
                   <div className="topmenu">
-                    <a className="topmenu-item" href="#">
+                    <a className="topmenu-item" href="#" style={{ color: '#d9d9d9' }}>
                       Search
                       <img
-                          style={{ height: '15px', width: '15px' }}
+                          style={{ height: '15px', width: '15px', color: '#d9d9d9' }}
                           src="https://hugeampkpncms.org/sites/default/files/users/user32/pankbase/search-icon.svg"
                           alt="Search Icon"
                       />
                     </a>
-                    <a className="topmenu-item" href="#">
+                    <a className="topmenu-item" href="#" style={{ color: '#d9d9d9' }}>
                       Analysis
                     </a>
-                    <a className="topmenu-item" href="#">
+                    <a className="topmenu-item" href="#" style={{ color: '#d9d9d9' }}>
                       Login
                       <img
-                          style={{ height: '15px', width: '15px' }}
+                          style={{ height: '15px', width: '15px', color: '#d9d9d9' }}
                           src="https://hugeampkpncms.org/sites/default/files/users/user32/pankbase/user-icon.svg"
                           alt="User Icon"
                       />
@@ -90,7 +90,7 @@ function NavBar() {
                         <a className="menu-item menu-item-main" href="https://dev.pankgraph.org/">PanKgraph</a>
                       </div>
                       <div className="menu-item-wrapper">
-                        <a className="menu-item menu-item-main" href="/single-cell.html">Integrated Cell Browser</a>
+                        <a className="menu-item menu-item-main" href="https://pankbase.org:8000/single-cell.html">Integrated Cell Browser</a>
                       </div>
                       <div className="menu-item-wrapper">
                         <a className="menu-item menu-item-main" href="http://tools.cmdga.org:3838/metadata_analysis/">Donor
@@ -100,37 +100,37 @@ function NavBar() {
                     <div className="menu-item-wrapper">
                       <a className="menu-item" href="/">Data</a>
                       <div className="submenu">
-                        <a className="submenu-item" href="/data-browser.html">Data Browser</a>
-                        <a className="submenu-item" href="/single-cell.html">Integrated Cell Browser</a>
+                        <a className="submenu-item" href="https://pankbase.org:8000/data-browser.html">Data Browser</a>
+                        <a className="submenu-item" href="https://pankbase.org:8000/single-cell.html">Integrated Cell Browser</a>
                         <a className="submenu-item" href="http://tools.cmdga.org:3838/metadata_analysis/">Donor Metadata</a>
-                        <a className="submenu-item" href="/apis.html">APIs</a>
+                        <a className="submenu-item" href="https://pankbase.org:8000/apis.html">APIs</a>
                       </div>
                     </div>
                     <div className="menu-item-wrapper">
                       <a className="menu-item" href="/">Resources</a>
                       <div className="submenu">
-                        <a className="submenu-item" href="/analytical-library.html">Analytical Library</a>
-                        <a className="submenu-item" href="/publications.html">Publications</a>
+                        <a className="submenu-item" href="https://pankbase.org:8000/single-cell.html">Analytical Library</a>
+                        <a className="submenu-item" href="https://pankbase.org:8000/publications.html">Publications</a>
                       </div>
                     </div>
                     <div className="menu-item-wrapper">
                       <a className="menu-item" href="/">About</a>
                       <div className="submenu">
-                        <a className="submenu-item" href="/projects.html">Project</a>
-                        <a className="submenu-item" href="/people.html">People</a>
-                        <a className="submenu-item" href="/policies.html">Policies</a>
-                        <a className="submenu-item" href="/programs.html">Programs</a>
-                        <a className="submenu-item" href="/collaborate.html">Collaborate</a>
+                        <a className="submenu-item" href="https://pankbase.org:8000/projects.html">Project</a>
+                        <a className="submenu-item" href="https://pankbase.org:8000/people.html">People</a>
+                        <a className="submenu-item" href="https://pankbase.org:8000/policies.html">Policies</a>
+                        <a className="submenu-item" href="https://pankbase.org:8000/programs.html">Programs</a>
+                        <a className="submenu-item" href="https://pankbase.org:8000/collaborate.html">Collaborate</a>
                       </div>
                     </div>
                     <div className="menu-item-wrapper">
                       <a className="menu-item" href="/">Help</a>
                       <div className="submenu">
-                        <a className="submenu-item" href="/contact.html">Contact</a>
-                        <a className="submenu-item" href="/metadata-data-standards.html">Metadata | Data Standards</a>
-                        <a className="submenu-item" href="/tools-pipelines.html">Tools | Pipelines</a>
-                        <a className="submenu-item" href="/tutorials.html">Tutorials</a>
-                        <a className="submenu-item" href="/news.html">News</a>
+                        <a className="submenu-item" href="https://pankbase.org:8000/contact.html">Contact</a>
+                        <a className="submenu-item" href="https://pankbase.org:8000/metadata-data-standards.html">Metadata | Data Standards</a>
+                        <a className="submenu-item" href="https://pankbase.org:8000/tools-pipelines.html">Tools | Pipelines</a>
+                        <a className="submenu-item" href="https://pankbase.org:8000/tutorials.html">Tutorials</a>
+                        <a className="submenu-item" href="https://pankbase.org:8000/news.html">News</a>
                       </div>
                     </div>
                   </div>
