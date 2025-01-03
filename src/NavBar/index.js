@@ -88,6 +88,14 @@ function NavBar() {
                     <div className="main-menu-items">
                       <div className="menu-item-wrapper">
                         <a className="menu-item menu-item-main" href="https://dev.pankgraph.org/">PanKgraph</a>
+                        <div className="submenu">
+                          <a className="submenu-item" href="#">Search</a>
+                          <a className="submenu-item" href="#">API</a>
+                          <a className="submenu-item" href="http://tools.cmdga.org:3838/metadata_analysis/">Ontology</a>
+                          <a className="submenu-item" href="https://pankbase.org:8000/apis.html">Use cases</a>
+                          <a className="submenu-item" href="https://pankbase.org:8000/apis.html">Tutorial</a>
+                          <a className="submenu-item" href="https://pankbase.org:8000/apis.html">Statistics</a>
+                        </div>
                       </div>
                       <div className="menu-item-wrapper">
                         <a className="menu-item menu-item-main" href="https://data.pankbase.org/">Data Library</a>
@@ -205,7 +213,7 @@ function NavBar() {
                     textDecoration: 'none',
                     fontFamily: 'Open Sans',
                     fontWeight: 400,
-                    fontSize: '20px',
+                    fontSize: '14px',
                     '&:hover': {
                       color: '#4A7298'
                     }
