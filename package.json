@@ -26,6 +26,7 @@
     "react-syntax-highlighter": "^15.6.1",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.0",
+    "sass": "^1.83.0",
     "styled-components": "^6.1.13",
     "web-vitals": "^2.1.4"
   },
