@@ -90,11 +90,10 @@ function NavBar() {
                         <a className="menu-item menu-item-main" href="https://dev.pankgraph.org/">PanKgraph</a>
                       </div>
                       <div className="menu-item-wrapper">
-                        <a className="menu-item menu-item-main" href="https://pankbase.org:8000/single-cell.html">Integrated Cell Browser</a>
+                        <a className="menu-item menu-item-main" href="https://data.pankbase.org/">Data Library</a>
                       </div>
                       <div className="menu-item-wrapper">
-                        <a className="menu-item menu-item-main" href="http://tools.cmdga.org:3838/metadata_analysis/">Donor
-                          Metadata</a>
+                        <a className="menu-item menu-item-main" href="https://pankbase.org:8000/single-cell.html">Integrated Cell Browser</a>
                       </div>
                     </div>
                     <div className="menu-item-wrapper">
