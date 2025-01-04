@@ -7,6 +7,7 @@ import IntermediatePage from './components/IntermediatePage';
 import LandingPage from './components/LandingPage';
 import {Box, Container, CssBaseline, StyledEngineProvider, ThemeProvider} from '@mui/material';
 import theme from './theme/theme';
+import PkbFooter from "./Footer/footer";
 
 function App() {
   const [showIntermediate, setShowIntermediate] = useState(false);
@@ -60,6 +61,7 @@ function App() {
                       {showResult && <SearchResult />}
                     </Container>
                   )}
+                <PkbFooter/>
             </ThemeProvider>
         </StyledEngineProvider>
     </div>

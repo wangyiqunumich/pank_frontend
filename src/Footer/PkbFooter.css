@@ -1,0 +1,48 @@
+.pkb-footer {
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    background: #fafafa;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 40px 20px;
+    border-top: 3px solid #219197;
+    box-shadow: 0px 2px 10px #219197;
+    min-height: 70px;
+    margin-top: auto;
+    flex-direction: column;
+    gap: 40px;
+    font-size: 14px;
+}
+
+.menu {
+    display: flex;
+    gap: 20px;
+    text-align: left;
+}
+
+.menu a,
+.menu a:visited {
+    color: black !important;
+    text-decoration: none;
+}
+
+.menu a:hover {
+    color: #94c95e !important;
+    text-decoration: none;
+}
+
+.menu-item-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.submenu {
+    display: flex;
+    flex-direction: column;
+}
+
+a.submenu-item {
+    font-weight: normal;
+}
