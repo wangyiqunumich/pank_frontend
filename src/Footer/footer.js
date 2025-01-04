@@ -1,5 +1,5 @@
 import React from "react";
-import "./PkbFooter.css"; // Import the CSS file for styles
+import "./PkbFooter.scss"; // Import the CSS file for styles
 
 export const pkbMenu = {
     highlightItems: [

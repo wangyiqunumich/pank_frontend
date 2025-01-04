@@ -100,6 +100,7 @@ a:hover{
 }
 .menu-item.menu-item-main {
     color: #219197 !important;
+    width: fit-content;
 }
 .menu-item.menu-item-selected {
     color: #219197;
@@ -129,7 +130,7 @@ a:hover{
 }
 .submenu-item {
     color: #2d2e2f;
-    //width: -webkit-fill-available;
+    width: fit-content;
     text-align: right;
     text-decoration: none;
     font-size: 14px;
