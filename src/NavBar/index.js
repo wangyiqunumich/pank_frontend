@@ -173,59 +173,59 @@ function NavBar() {
       {/*</AppBar>*/}
 
       {/* 子导航栏 */}
-      <Box sx={{ 
-        backgroundColor: '#f5f5f5',
-        borderBottom: '2px solid #1F8E91'
-      }}>
-        <Container maxWidth={false}>
-          <Box sx={{ 
-            display: 'flex',
-            padding: '8px 0',
-          }}>
-            {/* 左侧空白，与上面的 Logo 宽度相同 */}
-            <Box sx={{ width: '200px' }} />
-            
-            {/* 右侧导航项 */}
-            <Box sx={{ 
-              display: 'flex',
-              gap: 3,
-              width: 'calc(100% - 200px)',
-              justifyContent: 'flex-end',
-              paddingRight: '48px'
-            }}>
-              {['Search', 'API', 'Ontology', 'Use cases', 'Tutorial', 'Statistics'].map((item) => (
-                <Typography
-                  key={item}
-                  component={Link}
-                  to={item === 'Search' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`}
-                  onClick={(e) => {
-                    if (item === 'Search') {
-                      e.preventDefault();
-                      if (window.location.pathname === '/') {
-                        window.location.reload();
-                      } else {
-                        window.location.href = '/';
-                      }
-                    }
-                  }}
-                  sx={{
-                    color: '#000',
-                    textDecoration: 'none',
-                    fontFamily: 'Open Sans',
-                    fontWeight: 400,
-                    fontSize: '14px',
-                    '&:hover': {
-                      color: '#4A7298'
-                    }
-                  }}
-                >
-                  {item}
-                </Typography>
-              ))}
-            </Box>
-          </Box>
-        </Container>
-      </Box>
+      {/*<Box sx={{ */}
+      {/*  backgroundColor: '#f5f5f5',*/}
+      {/*  borderBottom: '2px solid #1F8E91'*/}
+      {/*}}>*/}
+      {/*  <Container maxWidth={false}>*/}
+      {/*    <Box sx={{ */}
+      {/*      display: 'flex',*/}
+      {/*      padding: '8px 0',*/}
+      {/*    }}>*/}
+      {/*      /!* 左侧空白，与上面的 Logo 宽度相同 *!/*/}
+      {/*      <Box sx={{ width: '200px' }} />*/}
+      {/*      */}
+      {/*      /!* 右侧导航项 *!/*/}
+      {/*      <Box sx={{ */}
+      {/*        display: 'flex',*/}
+      {/*        gap: 3,*/}
+      {/*        width: 'calc(100% - 200px)',*/}
+      {/*        justifyContent: 'flex-end',*/}
+      {/*        paddingRight: '48px'*/}
+      {/*      }}>*/}
+      {/*        {['Search', 'API', 'Ontology', 'Use cases', 'Tutorial', 'Statistics'].map((item) => (*/}
+      {/*          <Typography*/}
+      {/*            key={item}*/}
+      {/*            component={Link}*/}
+      {/*            to={item === 'Search' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`}*/}
+      {/*            onClick={(e) => {*/}
+      {/*              if (item === 'Search') {*/}
+      {/*                e.preventDefault();*/}
+      {/*                if (window.location.pathname === '/') {*/}
+      {/*                  window.location.reload();*/}
+      {/*                } else {*/}
+      {/*                  window.location.href = '/';*/}
+      {/*                }*/}
+      {/*              }*/}
+      {/*            }}*/}
+      {/*            sx={{*/}
+      {/*              color: '#000',*/}
+      {/*              textDecoration: 'none',*/}
+      {/*              fontFamily: 'Open Sans',*/}
+      {/*              fontWeight: 400,*/}
+      {/*              fontSize: '14px',*/}
+      {/*              '&:hover': {*/}
+      {/*                color: '#4A7298'*/}
+      {/*              }*/}
+      {/*            }}*/}
+      {/*          >*/}
+      {/*            {item}*/}
+      {/*          </Typography>*/}
+      {/*        ))}*/}
+      {/*      </Box>*/}
+      {/*    </Box>*/}
+      {/*  </Container>*/}
+      {/*</Box>*/}
     </>
   );
 }
