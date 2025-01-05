@@ -58,10 +58,10 @@ function LandingPage() {
             gap: 3,
             position: 'absolute',
             left: windowWidth * 0.5 + 44,
-            top: 220
+            top: 250
           }}>
 
-            <Typography sx={{ fontSize: 22, textAlign: 'left' }}>
+            <Typography sx={{ fontSize: 22, textAlign: 'left', zIndex: -1 }}>
               Explore T1D knowledge and resources with the knowledge graph
             </Typography>
 
