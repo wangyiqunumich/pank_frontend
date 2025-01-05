@@ -50,7 +50,8 @@ function App() {
                       position: 'absolute',
                       top: showLanding ? 370 : 100,
                       left: `${windowWidth * 0.5 + 44}px`,
-                      width: 672
+                      width: 672,
+                        zIndex: -10
                     }}
                   />
                   {showLanding ? (
