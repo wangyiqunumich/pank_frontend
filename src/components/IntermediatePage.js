@@ -653,7 +653,7 @@ function IntermediatePage({ onContinue }) {
                       <TableCell sx={{ 
                         fontWeight: 'bold',
                         padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
-                      }}>Download</TableCell>
+                      }}></TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -696,16 +696,17 @@ function IntermediatePage({ onContinue }) {
                         <TableCell sx={{ verticalAlign: 'middle' }}>{item.pip?.toFixed(2) || '-'}</TableCell>
                         <TableCell sx={{ verticalAlign: 'middle' }}>{item.n_snp || '-'}</TableCell>
                         <TableCell sx={{ verticalAlign: 'middle' }}>
-                          <Link 
-                            component="button" 
-                            variant="body2" 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDownload(item);
-                            }}
-                          >
-                            Link
-                          </Link>
+                          <Typography sx={{ fontSize: '14px', padding: '4px', backgroundColor: '#bfbfbf'}}>Click for more</Typography>
+                          {/*<Link */}
+                          {/*  component="button" */}
+                          {/*  variant="body2" */}
+                          {/*  onClick={(e) => {*/}
+                          {/*    e.stopPropagation();*/}
+                          {/*    handleDownload(item);*/}
+                          {/*  }}*/}
+                          {/*>*/}
+                          {/*  Link*/}
+                          {/*</Link>*/}
                         </TableCell>
                       </TableRow>
                     ))}
