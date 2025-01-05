@@ -184,7 +184,7 @@ function IntermediateKG() {
             'target-arrow-shape': 'triangle',
             'curve-style': 'bezier',
             'label': 'data(label)',
-            'font-size': '16px',
+            'font-size': '18px',
             'text-rotation': 'autorotate',
             'text-margin-y': -10
           }

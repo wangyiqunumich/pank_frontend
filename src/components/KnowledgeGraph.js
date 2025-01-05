@@ -75,9 +75,9 @@ function KnowledgeGraph() {
       const totalNodes = surroundingNodes.length + (aiAnswer?.article?.[0] ? 1 : 0);
 
       // 根据节点数量调整节点大小和布局参数
-      const nodeWidth = totalNodes <= 3 ? 180 : 120;
-      const nodeHeight = totalNodes <= 3 ? 40 : 40;
-      const fontSize = totalNodes <= 3 ? '20px' : '16px';
+      const nodeWidth = totalNodes <= 3 ? 180 : 150;
+      const nodeHeight = totalNodes <= 3 ? 30 : 30;
+      const fontSize = totalNodes <= 3 ? '20px' : '20px';
       const radius = totalNodes <= 3 ? 300 : 240;
 
       // 创建所有节点数据
@@ -95,7 +95,7 @@ function KnowledgeGraph() {
             fontSize: fontSize,
             isMainNode: true
           },
-          position: { x: 500, y: 250 }
+          position: { x: 550, y: 250 }
         }
       ];
 
@@ -119,7 +119,7 @@ function KnowledgeGraph() {
             isMainNode: true
           },
           position: {
-            x: 500 + radius * Math.cos(angle),
+            x: 625 + radius * Math.cos(angle),
             y: 250 + radius * Math.sin(angle)
           }
         });
@@ -139,7 +139,7 @@ function KnowledgeGraph() {
             fontSize: fontSize
           },
           position: {
-            x: 500 + radius * Math.cos(angle),
+            x: 650 + radius * Math.cos(angle),
             y: 250 + radius * Math.sin(angle)
           }
         });
@@ -150,7 +150,8 @@ function KnowledgeGraph() {
             id: `article_to_gene`,
             source: 'article_node',
             target: geneNode['~id'],
-            label: 'mentions'
+            label: 'mentions',
+            color:'#7F7D7D'
           }
         });
         
@@ -171,7 +172,7 @@ function KnowledgeGraph() {
               fontSize: fontSize
             },
             position: {
-              x: 500 + radius * Math.cos(angle),
+              x: 450 + radius * Math.cos(angle),
               y: 250 + radius * Math.sin(angle)
             }
           });
@@ -185,7 +186,8 @@ function KnowledgeGraph() {
           data: {
             source: geneNode['~id'],
             target: result.snp_node['~id'],
-            label: getEdgeLabel(geneNode, result.snp_node)
+            label: getEdgeLabel(geneNode, result.snp_node),
+            color: 'black'
           }
         });
       }
@@ -206,7 +208,8 @@ function KnowledgeGraph() {
                   data: {
                     source: targetNode['~id'],
                     target: sourceNode['~id'],
-                    label: getEdgeLabel(targetNode, sourceNode)
+                    label: getEdgeLabel(targetNode, sourceNode),
+                    color: '#7F7D7D'
                   }
                 };
               }
@@ -215,7 +218,8 @@ function KnowledgeGraph() {
                 data: {
                   source: edge['~start'],
                   target: edge['~end'],
-                  label: getEdgeLabel(sourceNode, targetNode)
+                  label: getEdgeLabel(sourceNode, targetNode),
+                  color: '#7F7D7D'
                 }
               };
             }
@@ -232,12 +236,11 @@ function KnowledgeGraph() {
               'shape': 'round-rectangle',
               'width': 'data(width)',
               'height': 'data(height)',
-              'background-color': 'white',
+              'background-color': '#FBFBFB',
               'label': 'data(label)',
               'text-valign': 'center',
               'text-halign': 'center',
               'font-size': 'data(fontSize)',
-              'font-weight': 'bold',
               'color': '#000000',
               'border-width': '2px',
               'border-color': 'data(color)',
@@ -249,6 +252,7 @@ function KnowledgeGraph() {
           {
             selector: 'node[isMainNode]',
             style: {
+              'font-weight': 800,
               'background-color': 'data(color)'
             }
           },
@@ -262,12 +266,13 @@ function KnowledgeGraph() {
               'arrow-scale': 1.5,
               'curve-style': 'straight',
               'label': 'data(label)',
-              'font-size': '16px',
+              'font-size': '18px',
               'text-rotation': 'autorotate',
               'text-margin-y': -5,
               'text-background-color': '#F7F7F7',
               'text-background-opacity': 1,
-              'text-background-padding': '2px'
+              'text-background-padding': '2px',
+              'color': 'data(color)'
             }
           },
           {
@@ -307,7 +312,8 @@ function KnowledgeGraph() {
         const node = evt.target;
         console.log(node.id());
         if (node.id() === 'article_node') {
-          const articleId = node.data('label');
+          const articleId = node.data('label').replace('PMID: ', '');
+          console.log('pmid', articleId);
           if (articleId) {
             window.open(`https://pubmed.ncbi.nlm.nih.gov/${articleId}`, '_blank');
           }
