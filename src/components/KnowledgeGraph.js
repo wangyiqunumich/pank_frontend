@@ -393,7 +393,7 @@ function KnowledgeGraph() {
 
   return (
     <div ref={containerRef} style={{
-      width: 685,
+      width: 672,
       height: 472,
       backgroundColor: '#F7F7F74D',
       borderRadius: '10px',

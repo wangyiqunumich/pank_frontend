@@ -96,17 +96,17 @@ const Legend = () => (
       flexDirection: 'column',
       gap: 2,
         position: 'relative',
-        borderRadius: '16px',
         padding: '32px',
-        backgroundColor: '#F7F7F74D',
-        boxShadow: '0px 3px 3px -2px rgba(0,0,0,0.2), 0px 3px 4px 0px rgba(0,0,0,0.14), 0px 1px 8px 0px rgba(0,0,0,0.12)',
+        backgroundColor: '#FBFBFB',
+        border: 1,
+        borderColor: '#EEEEEE',
     }}>
         <Typography sx={{
             fontWeight: 'bold',
-            fontSize: 24,
+            fontSize: 22,
             position: 'absolute',
-            top: -20,
-            left: 20,
+            top: -44,
+            left: 0,
             zIndex: 1
         }}>
             Legend
@@ -350,62 +350,67 @@ This answer refers to the following resources in PanKbase:`;
 
     return (
         <Container disableGutters maxWidth={false}>
+            {/*left*/}
             <Box sx={{
                 // display: 'flex',
                 alignItems: 'center',
                 gap: 0,
                 position: 'absolute',
-                top: '162px',
+                top: '130px',
                 right: windowWidth * 0.5 + 44,
                 width: 685,
                 minHeight: '950px'
             }}>
-                <Typography sx={{ fontSize: 20, width: 685, textAlign: 'left' }}>
-                    Current question
+                <Typography sx={{ fontSize: 22, width: 685, textAlign: 'left', marginBottom: '10px' }}>
+                    Question
                 </Typography>
-                {currentQuestionType && (
-                    <Typography sx={{ fontSize: 24, width: 685, textAlign: 'left', fontWeight: 'bold', fontStyle: 'italic' }}>
-                        {currentQuestionType}
-                    </Typography>
-                )}
-                <Typography
-                    sx={{ 
-                        flex: 1, 
-                        textAlign: 'left',
-                        wordWrap: 'break-word',
-                        whiteSpace: 'normal',
-                        fontSize: 20,
-                        fontWeight: 300
-                    }}
-                    dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }}
-                />
+                <Box sx={{ width: 685, padding: '20px', backgroundColor: '#E4F0F1'}}>
+                    {currentQuestionType && (
+                        <Typography sx={{ fontSize: 14, width: 685, textAlign: 'left' }}>
+                            (Your selection belongs to: {currentQuestionType})
+                        </Typography>
+                    )}
+                    <Typography
+                        sx={{
+                            flex: 1,
+                            textAlign: 'left',
+                            wordWrap: 'break-word',
+                            whiteSpace: 'normal',
+                            fontSize: 16,
+                            // fontWeight: 300
+                        }}
+                        dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }}
+                    />
+                </Box>
             </Box>
+
+            {/*graph viewer, right*/}
             <Box sx={{
-                width: 685,
+                width: 672,
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 5,
+                gap: 10,
                 position: 'absolute',
-                top: 390,
-                right: windowWidth * 0.5 + 44
+                top: 330,
+                left: windowWidth * 0.5 + 44
             }}>
                 <Typography sx={{
                     fontWeight: 'bold',
-                    fontSize: 24,
+                    fontSize: 22,
                     position: 'absolute',
-                    top: -20,
-                    left: 20,
+                    top: -44,
+                    left: 0,
                     zIndex: 1
                 }}>
                     Graph viewer
                 </Typography>
                 <Box sx={{
                     position: 'relative',
-                    borderRadius: '16px',
                     minHeight: '472px',
-                    boxShadow: '0px 4px 4px 0px rgba(0,0,0,0.25)',
                     overflow: 'visible',
-                    backgroundColor: '#F7F7F74D',
+                    backgroundColor: '#FBFBFB',
+                    border: 1,
+                    borderColor: '#EEEEEE',
                     textAlign: 'left'
                 }}>
                     <KnowledgeGraph />
@@ -413,34 +418,35 @@ This answer refers to the following resources in PanKbase:`;
                 <Legend />
             </Box>
 
+            {/*AI's overview, left*/}
             <Box sx={{
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '32px',
+                gap: 10,
                 padding: '0px',
                 margin: '0px',
-                width: 672,
+                width: 685,
                 position: 'absolute',
-                left: windowWidth * 0.5 + 44,
+                right: windowWidth * 0.5 + 44,
                 top: 390
             }}>
                 <Box sx={{
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '32px',
-                    width: 672 - 32 - 32,
-                    borderRadius: '16px',
-                    boxShadow: '0px 4px 4px 0px rgba(0,0,0,0.25)',
-                    backgroundColor: '#F7F7F74D',
-                    padding: '32px',
-                    position: 'relative'
+                    width: 685,
+                    backgroundColor: '#FBFBFB',
+                    border: 1,
+                    borderColor: '#EEEEEE',
+                    padding: '20px',
+                    position: 'relative',
                 }}>
                     <Typography sx={{
                         fontWeight: 'bold',
-                        fontSize: 24,
+                        fontSize: 22,
                         position: 'absolute',
-                        top: -20,
-                        left: 20,
+                        top: -44,
+                        left: 0,
                         zIndex: 1
                     }}>
                         AI' overview
@@ -460,7 +466,7 @@ This answer refers to the following resources in PanKbase:`;
                                 )}
                                 <Typography sx={{
                                     textAlign: 'justify',
-                                    fontSize: '16px',
+                                    fontSize: '14px',
                                     fontWeight: 100
                                 }}>
                                     <span dangerouslySetInnerHTML={{ __html: removeConsecutiveAsterisks(answer) }} />
@@ -503,7 +509,7 @@ This answer refers to the following resources in PanKbase:`;
                                             }
                                         }}
                                     >
-                                        • In Pankbase
+                                        • PanKbase resources
                                     </Link>
                                 </ListItem>
                                 <ListItem sx={{ paddingY: '0px' }}>
@@ -520,31 +526,31 @@ This answer refers to the following resources in PanKbase:`;
                                             }
                                         }}
                                     >
-                                        • Link to ensembl: {searchState.targetTerm.split(':')[1]}
+                                        • Link to Ensembl: {searchState.targetTerm.split(':')[1]}
                                     </Link>
                                 </ListItem>
                             </List>
                         </Collapse>
                     </Box>
                 </Box>
-                {/*    <div className="styled-paper" data-title="You May Also Ask">*/}
+                {/*you may also ask*/}
                 <Box sx={{
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '32px',
-                    width: 672 - 32 - 32,
-                    borderRadius: '16px',
-                    boxShadow: '0px 4px 4px 0px rgba(0,0,0,0.25)',
-                    backgroundColor: '#F7F7F74D',
-                    padding: '32px',
+                    width: 672,
+                    backgroundColor: '#FBFBFB',
+                    border: 1,
+                    borderColor: '#EEEEEE',
+                    padding: '20px',
                     position: 'relative'
                 }}>
                     <Typography sx={{
                         fontWeight: 'bold',
-                        fontSize: 24,
+                        fontSize: 22,
                         position: 'absolute',
-                        top: -20,
-                        left: 20,
+                        top: -44,
+                        left: 0,
                         zIndex: 1
                     }}>
                         You may also ask
@@ -559,7 +565,7 @@ This answer refers to the following resources in PanKbase:`;
                                         display: 'flex',
                                     }}>
                                         <Typography sx={{
-                                            fontSize: 16,
+                                            fontSize: 14,
                                             fontFamily: 'Open Sans'
                                         }} dangerouslySetInnerHTML={{ __html: question }} />
                                         <span style={{ alignContent: 'center' }}><ChevronRightIcon /></span>

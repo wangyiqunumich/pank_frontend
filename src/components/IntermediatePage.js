@@ -437,7 +437,7 @@ function IntermediatePage({ onContinue }) {
         width: 685
       }}>
         {/*<Box sx={{ width: '60%', visibility: 'hidden' }} />*/}
-        <Typography sx={{ fontSize: 20, width: 685, textAlign: 'left', fontWeight: 800, marginBottom: '10px' }}>
+        <Typography sx={{ fontSize: 20, width: 685, textAlign: 'left', marginBottom: '10px' }}>
           Question
         </Typography>
         <Box sx={{ width: 685, padding: '20px', backgroundColor: '#E4F0F1'}}>
