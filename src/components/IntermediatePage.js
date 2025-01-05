@@ -432,22 +432,24 @@ function IntermediatePage({ onContinue }) {
         alignItems: 'center',
         gap: 0,
         position: 'absolute',
-        top: '162px',
+        top: '130px',
         right: windowWidth * 0.5 + 44,
         width: 685
       }}>
         {/*<Box sx={{ width: '60%', visibility: 'hidden' }} />*/}
-        <Typography sx={{ fontSize: 24, width: 685, textAlign: 'left', fontWeight: 'bold' }}>
-          Current question
+        <Typography sx={{ fontSize: 20, width: 685, textAlign: 'left', fontWeight: 800, marginBottom: '10px' }}>
+          Question
         </Typography>
-        <Typography
-          sx={{ 
-            width: 685,
-            textAlign: 'left',
-            fontSize: 20,
-          }}
-          dangerouslySetInnerHTML={{ __html: processedQuestion }}
-        />
+        <Box sx={{ width: 685, padding: '20px', backgroundColor: '#E4F0F1'}}>
+          <Typography
+              sx={{
+                width: 685,
+                textAlign: 'left',
+                fontSize: 16,
+              }}
+              dangerouslySetInnerHTML={{ __html: processedQuestion }}
+          />
+        </Box>
       </Box>
 
       {/* 主要内容区域 */}
@@ -455,34 +457,33 @@ function IntermediatePage({ onContinue }) {
         display: 'flex',
         minHeight: '950px',
       }}>
-        {/* 左侧知识图谱区域 */}
-        <Box sx={{ 
-          width: 685,
+        {/* right侧知识图谱区域 */}
+        <Box sx={{
+          width: 672,
           display: 'flex',
           flexDirection: 'column',
-          gap: 5,
+          gap: 10,
           position: 'absolute',
-          top: 390,
-          right: windowWidth * 0.5 + 44
+          top: 350,
+          left: windowWidth * 0.5 + 44
         }}>
           <Typography sx={{
-            fontWeight: 'bold',
-            fontSize: 24,
+            fontWeight: 800,
+            fontSize: 20,
             position: 'absolute',
-            top: -20,
-            left: 20,
+            top: -44,
             zIndex: 1
           }}>
             Graph viewer
           </Typography>
           {/* KG Viewer */}
-          <Box sx={{ 
+          <Box sx={{
             position: 'relative',
-            borderRadius: '16px',
             minHeight: '472px',
-            boxShadow: '0px 4px 4px 0px rgba(0,0,0,0.25)',
             overflow: 'visible',
-            backgroundColor: '#F7F7F74D'
+            backgroundColor: '#FBFBFB',
+            border: 1,
+            borderColor: '#EEEEEE'
           }}>
               <IntermediateKG />
           </Box>
@@ -490,28 +491,29 @@ function IntermediatePage({ onContinue }) {
           {/* Legend */}
           <Box sx={{
             position: 'relative',
-            borderRadius: '16px',
             padding: '32px',
-            backgroundColor: '#F7F7F74D',
-            boxShadow: '0px 3px 3px -2px rgba(0,0,0,0.2), 0px 3px 4px 0px rgba(0,0,0,0.14), 0px 1px 8px 0px rgba(0,0,0,0.12)',
+            backgroundColor: '#FBFBFB',
+            border: 1,
+            borderColor: '#EEEEEE',
+            marginBottom: '40px'
           }}>
             <Typography sx={{
-              fontWeight: 'bold',
-              fontSize: 24,
+              fontWeight: 800,
+              fontSize: 20,
               position: 'absolute',
-              top: -20,
-              left: 20,
+              top: -44,
+              left: 0,
               zIndex: 1
             }}>
               Legend
             </Typography>
-            <Box sx={{ 
+            <Box sx={{
               display: 'flex',
               flexDirection: 'column',
               gap: 2
             }}>
               {/* 第一行 */}
-              <Box sx={{ 
+              <Box sx={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(3, 1fr)',
                 gap: 2
@@ -533,30 +535,33 @@ function IntermediatePage({ onContinue }) {
           </Box>
         </Box>
 
-        {/* 右侧搜索结果 */}
+        {/* left侧搜索结果 */}
         <Box sx={{ 
-          width: 672,
+          width: 685,
           display: 'flex',
           flexDirection: 'column',
           gap: 2,
           position: 'absolute',
-          left: windowWidth * 0.5 + 44,
-          top: 390,
-          backgroundColor: '#F7F7F74D'
+          right: windowWidth * 0.5 + 44,
+          top: 350,
+          backgroundColor: '#FBFBFB',
+          border: 1,
+          borderColor: '#EEEEEE',
+          marginBottom: '20px'
         }}>
           <Typography sx={{
-            fontWeight: 'bold',
-            fontSize: 24,
+            fontWeight: 800,
+            fontSize: 20,
             position: 'absolute',
-            top: -20,
-            left: 20,
+            top: -44,
+            left: 0,
             zIndex: 1
           }}>
             Result
           </Typography>
           <div className="styled-paper">
             <div className="answer-content">
-              <Typography sx={{ mb: 2, fontSize: 16 }}>
+              <Typography sx={{ mb: 2, fontSize: 14 }}>
                 Found four categories of Quantitative Trait Loci (QTL) data, derived from pancreatic and islet tissue samples.
               </Typography>
               
@@ -567,16 +572,19 @@ function IntermediatePage({ onContinue }) {
                 variant="scrollable"
                 scrollButtons={false}
                 sx={{
+                  '& .MuiButtonBase-root': {
+                    padding: '10px'
+                  },
                   '& .MuiTab-root': {
-                    minHeight: '60px',
+                    // minHeight: '60px',
                     textTransform: 'none',
                     fontSize: '16px',
-                    padding: '8px',
                     whiteSpace: 'normal',
-                    lineHeight: '1.2',
-                    width: '120px',
-                    minWidth: '120px',
-                    maxWidth: '120px',
+                    // lineHeight: '1.2',
+                    // width: '120px',
+                    // minWidth: '120px',
+                    // maxWidth: '120px',
+                    margin: '0px',
                     '& .MuiTab-wrapper': {
                       flexDirection: 'row',
                       justifyContent: 'flex-start',
@@ -584,45 +592,30 @@ function IntermediatePage({ onContinue }) {
                     }
                   },
                   '& .MuiTabs-flexContainer': {
-                    gap: '8px',
+                    gap: '0px',
                     justifyContent: 'space-between'
                   }
                 }}
               >
                 {getTabOptions().map((option) => (
                   <Tab
+                      sx={{
+                        backgroundColor: selectedTab === option.label ? '#E4F0F1' : 'none'
+                      }}
                     key={option.label}
                     label={
-                      <Box sx={{ 
-                        display: 'flex', 
-                        flexDirection: 'column', 
-                        alignItems: 'center',
-                        width: '100%'
-                      }}>
                         <Typography 
                           component="span" 
                           sx={{ 
-                            textAlign: 'center',
+                            textAlign: 'left',
                             fontSize: '14px',
-                            lineHeight: 1.2,
-                            mb: 0.5,
-                            wordWrap: 'break-word'
+                            color: 'black'
+                            // lineHeight: 1.2,
+                            // wordWrap: 'break-word'
                           }}
                         >
-                          {option.label}
+                          {option.label} ({option.count})
                         </Typography>
-                        <Typography 
-                          component="span" 
-                          sx={{ 
-                            backgroundColor: '#E0E0E0',
-                            borderRadius: '12px',
-                            padding: '2px 8px',
-                            fontSize: '14px'
-                          }}
-                        >
-                          ({option.count})
-                        </Typography>
-                      </Box>
                     }
                     value={option.label}
                   />

@@ -54,14 +54,16 @@ function App() {
                     }}
                   />
                   {showLanding ? (
-                    <LandingPage />
+                      <>
+                          <LandingPage />
+                          <PkbFooter/>
+                      </>
                   ) : (
                     <Container sx={{ padding: 0 }} disableGutters maxWidth={false}>
                       {showIntermediate && <IntermediatePage onContinue={handleContinue} />}
                       {showResult && <SearchResult />}
                     </Container>
                   )}
-                <PkbFooter/>
             </ThemeProvider>
         </StyledEngineProvider>
     </div>
