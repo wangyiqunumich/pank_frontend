@@ -48,7 +48,7 @@ function App() {
                     disabled={showIntermediate || showResult}
                     style={{
                       position: 'absolute',
-                      top: showLanding ? 410 : 162,
+                      top: showLanding ? 370 : 100,
                       left: `${windowWidth * 0.5 + 44}px`,
                       width: 672
                     }}

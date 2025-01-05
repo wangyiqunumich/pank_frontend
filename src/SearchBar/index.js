@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
-import { Container, Box, FormControl, InputLabel, Select, MenuItem, Button, TextField } from '@mui/material';
+import {Container, Box, FormControl, InputLabel, Select, MenuItem, Button, TextField, Typography} from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
 import { useSelector, useDispatch } from 'react-redux';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
@@ -389,6 +389,12 @@ const SearchBar = forwardRef(({ onSearch, disabled, style }, ref) => {
             <Box sx={{ marginTop: 4, padding: 0 }}>
                 <Box display="flex" alignItems="center" gap={2} p={2} sx={{ padding: 0 }}>
                     <FormControl fullWidth>
+                        <Typography sx={{
+                                marginBottom: '10px',
+                                fontSize: '20px',
+                                textAlign: 'left'
+                            }}
+                        >Source term</Typography>
                         <Autocomplete
                             freeSolo
                             value={sourceTerm}
@@ -396,30 +402,48 @@ const SearchBar = forwardRef(({ onSearch, disabled, style }, ref) => {
                             options={sourceOptions}
                             disabled={true}
                             renderInput={(params) => <TextField sx={{
-                                backgroundColor: '#2191971A'
-                            }} {...params} label="1. Source Term" />}
+                                backgroundColor: '#2191971A',
+                                '& .MuiOutlinedInput-root': {
+                                    '& fieldset': {
+                                        border: 'none', // Removes the border
+                                    },
+                                    '&:hover fieldset': {
+                                        border: 'none', // Removes the border on hover
+                                    },
+                                    '&.Mui-focused fieldset': {
+                                        border: 'none', // Removes the border when focused
+                                    },
+                                }
+                            }} {...params} label="" />}
                         />
                     </FormControl>
 
                     <FormControl fullWidth>
-                        <InputLabel 
-                            id="relationship-label"
-                            sx={{
-                                color: (isRelationshipDisabled || disabled) ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)'
-                            }}
-                        >
-                            2. Relationship
-                        </InputLabel>
+                        <Typography sx={{
+                            marginBottom: '10px',
+                            fontSize: '20px',
+                            textAlign: 'left'
+                        }}
+                        >Relationship</Typography>
                         <Select
                             labelId="relationship-label"
                             id="2. relationship"
                             value={relationship}
-                            label="2. Relationship"
+                            // label="2. Relationship"
                             onChange={updateRelationship}
                             onOpen={handleRelationshipOpen}
                             disabled={true}
                             sx={{ textAlign: 'left',
-                                backgroundColor: '#2191971A'
+                                backgroundColor: '#2191971A',
+                                '& fieldset': {
+                                    border: 'none', // Removes the border
+                                },
+                                '&:hover fieldset': {
+                                    border: 'none', // Removes the border on hover
+                                },
+                                '&.Mui-focused fieldset': {
+                                    border: 'none', // Removes the border when focused
+                                }
                             }}
                         >
                             {relationshipOptions.map((type) => (
@@ -429,6 +453,12 @@ const SearchBar = forwardRef(({ onSearch, disabled, style }, ref) => {
                     </FormControl>
 
                     <FormControl fullWidth>
+                        <Typography sx={{
+                            marginBottom: '10px',
+                            fontSize: '20px',
+                            textAlign: 'left'
+                        }}
+                        >Target term</Typography>
                         {!isCustomSource ? (
                             <Autocomplete
                                 freeSolo
@@ -452,10 +482,21 @@ const SearchBar = forwardRef(({ onSearch, disabled, style }, ref) => {
                                 renderInput={(params) => (
                                     <TextField
                                         {...params}
-                                        label="3. Target Term"
+                                        // label="3. Target Term"
                                         variant="outlined"
                                         sx={{
-                                            backgroundColor: '#2191971A'
+                                            backgroundColor: '#2191971A',
+                                            '& .MuiOutlinedInput-root': {
+                                                '& fieldset': {
+                                                    border: 'none', // Removes the border
+                                                },
+                                                '&:hover fieldset': {
+                                                    border: 'none', // Removes the border on hover
+                                                },
+                                                '&.Mui-focused fieldset': {
+                                                    border: 'none', // Removes the border when focused
+                                                },
+                                            }
                                         }}
                                         onChange={(event) => {
                                             updateTargetTerm(event, event.target.value);
@@ -468,11 +509,11 @@ const SearchBar = forwardRef(({ onSearch, disabled, style }, ref) => {
 
                         ) : (
                             <>
-                                <InputLabel id="target-label">3. Target Term</InputLabel>
+                                {/*<InputLabel id="target-label">3. Target Term</InputLabel>*/}
                                 <Select
                                     labelId="target-label"
                                     value={targetTerm}
-                                    label="3. Target Term"
+                                    // label="3. Target Term"
                                     onChange={(event) => setTargetTerm(event.target.value)}
                                     disabled={isTargetTermDisabled || disabled || searchClicked}
                                     sx={{ textAlign: 'left' }}
