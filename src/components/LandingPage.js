@@ -58,10 +58,10 @@ function LandingPage() {
             gap: 3,
             position: 'absolute',
             left: windowWidth * 0.5 + 44,
-            top: 311
+            top: 220
           }}>
 
-            <Typography sx={{ fontSize: 32, textAlign: 'left' }}>
+            <Typography sx={{ fontSize: 22, textAlign: 'left' }}>
               Explore T1D knowledge and resources with the knowledge graph
             </Typography>
 
@@ -112,54 +112,54 @@ function LandingPage() {
           </Box>
         </Box>
 
-        {/* 下半部分 */}
-        <Box sx={{ 
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 3,
-          mt: 4
-        }}>
-          {/* API 访问部分 */}
-          <Box sx={{ 
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-            position: 'absolute',
-            top: 540,
-            right: windowWidth * 0.5 + 200
-          }}>
-            <img src={apiIcon} alt="API" style={{ width: '32px', height: '32px' }} />
-            <Typography sx={{ fontSize: 24}}>
-              Access PanKgraph with <Link component={RouterLink} to="/api" sx={{ textDecoration: 'none' }}>API</Link>
-            </Typography>
-          </Box>
+        {/*/!* 下半部分 *!/*/}
+        {/*<Box sx={{ */}
+        {/*  width: '100%',*/}
+        {/*  display: 'flex',*/}
+        {/*  flexDirection: 'column',*/}
+        {/*  gap: 3,*/}
+        {/*  mt: 4*/}
+        {/*}}>*/}
+        {/*  /!* API 访问部分 *!/*/}
+        {/*  <Box sx={{ */}
+        {/*    display: 'flex',*/}
+        {/*    alignItems: 'center',*/}
+        {/*    gap: 2,*/}
+        {/*    position: 'absolute',*/}
+        {/*    top: 540,*/}
+        {/*    right: windowWidth * 0.5 + 200*/}
+        {/*  }}>*/}
+        {/*    <img src={apiIcon} alt="API" style={{ width: '32px', height: '32px' }} />*/}
+        {/*    <Typography sx={{ fontSize: 24}}>*/}
+        {/*      Access PanKgraph with <Link component={RouterLink} to="/api" sx={{ textDecoration: 'none' }}>API</Link>*/}
+        {/*    </Typography>*/}
+        {/*  </Box>*/}
 
-          {/* 关于项目部分 */}
-          <Box sx={{ position: 'absolute', bottom: 70, width: 633, right: windowWidth * 0.5 + 44 }}>
-            <Typography sx={{ fontSize: 32, textAlign: 'left' }}>About the Project</Typography>
-            <Typography sx={{ maxWidth: '800px', fontSize: 16, textAlign: 'left' }}>
-              PanKGraph combines Knowledge Graphs and LLMs to create a powerful T1D knowledge portal, 
-              integrating diverse data to uncover insights and accelerate research.
-            </Typography>
-            <Typography sx={{ fontSize: 16, textAlign: 'left' }}>
-              Supported by National Institutes of Health (NIH) grants U24 DK138515, U24 DK138512, and 
-              supplemental funds from the NIH Office of Data Science Strategies.
-            </Typography>
-          </Box>
+        {/*  /!* 关于项目部分 *!/*/}
+        {/*  <Box sx={{ position: 'absolute', bottom: 70, width: 633, right: windowWidth * 0.5 + 44 }}>*/}
+        {/*    <Typography sx={{ fontSize: 32, textAlign: 'left' }}>About the Project</Typography>*/}
+        {/*    <Typography sx={{ maxWidth: '800px', fontSize: 16, textAlign: 'left' }}>*/}
+        {/*      PanKGraph combines Knowledge Graphs and LLMs to create a powerful T1D knowledge portal, */}
+        {/*      integrating diverse data to uncover insights and accelerate research.*/}
+        {/*    </Typography>*/}
+        {/*    <Typography sx={{ fontSize: 16, textAlign: 'left' }}>*/}
+        {/*      Supported by National Institutes of Health (NIH) grants U24 DK138515, U24 DK138512, and */}
+        {/*      supplemental funds from the NIH Office of Data Science Strategies.*/}
+        {/*    </Typography>*/}
+        {/*  </Box>*/}
 
-          {/* NIH 标志 */}
-          <Box sx={{ 
-            display: 'flex',
-            gap: 4,
-            mt: 2,
-            position: 'absolute',
-            left: windowWidth * 0.5 + 44,
-            bottom: 70
-          }}>
-            <img src={relatedResources} alt="NIH NIDDK" style={{ height: '100px' }} />
-          </Box>
-        </Box>
+        {/*  /!* NIH 标志 *!/*/}
+        {/*  <Box sx={{ */}
+        {/*    display: 'flex',*/}
+        {/*    gap: 4,*/}
+        {/*    mt: 2,*/}
+        {/*    position: 'absolute',*/}
+        {/*    left: windowWidth * 0.5 + 44,*/}
+        {/*    bottom: 70*/}
+        {/*  }}>*/}
+        {/*    <img src={relatedResources} alt="NIH NIDDK" style={{ height: '100px' }} />*/}
+        {/*  </Box>*/}
+        {/*</Box>*/}
       </Box>
     </Container>
   );
