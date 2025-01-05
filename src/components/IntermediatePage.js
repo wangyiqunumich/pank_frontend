@@ -491,7 +491,7 @@ function IntermediatePage({ onContinue }) {
           {/* Legend */}
           <Box sx={{
             position: 'relative',
-            padding: '32px',
+            padding: '20px',
             backgroundColor: '#FBFBFB',
             border: 1,
             borderColor: '#EEEEEE',

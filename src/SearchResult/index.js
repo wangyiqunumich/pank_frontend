@@ -96,10 +96,11 @@ const Legend = () => (
       flexDirection: 'column',
       gap: 2,
         position: 'relative',
-        padding: '32px',
+        padding: '20px',
         backgroundColor: '#FBFBFB',
         border: 1,
         borderColor: '#EEEEEE',
+        marginBottom: '20px'
     }}>
         <Typography sx={{
             fontWeight: 'bold',
@@ -112,46 +113,52 @@ const Legend = () => (
             Legend
         </Typography>
       {/* 第一行 */}
+        <Box>
+            <Typography sx={{ textAlign: 'left' }}>Search result:</Typography>
+        </Box>
+        {/* 第2行 */}
       <Box sx={{ 
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
+        display: 'flex',
+        // gridTemplateColumns: 'repeat(4, 1fr)',
         gap: 2
       }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
           <Box sx={{ width: 20, height: 20, backgroundColor: '#ABD0F1', borderRadius: '4px' }} />
           <Typography variant="body2">Gene</Typography>
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
           <Box sx={{ width: 20, height: 20, backgroundColor: '#FFB77F', borderRadius: '4px' }} />
-          <Typography variant="body2">Sequence Variant</Typography>
+          <Typography variant="body2">Sequence variant</Typography>
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
           <Box sx={{ width: 20, height: 20, backgroundColor: '#F6C957', borderRadius: '4px' }} />
           <Typography variant="body2">Pathway</Typography>
         </Box>
+          <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box sx={{ width: 20, height: 20, backgroundColor: '#e377c2', borderRadius: '4px' }} />
+              <Typography variant="body2">Article</Typography>
+          </Box>
       </Box>
-      {/* 第二行 */}
+      {/* 第3行 */}
       <Box sx={{ 
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
+        display: 'flex',
+        // gridTemplateColumns: 'repeat(3, 1fr)',
         gap: 2
       }}>
+          <Typography>Concepts related to current search result presented in </Typography>
+          <Box sx={{ width: 20, height: 20, backgroundColor: 'white', borderRadius: '4px', border: '2px solid #C0C0C0' }} />
         {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Box sx={{ width: 20, height: 20, backgroundColor: '#8c561b', borderRadius: '4px' }} />
           <Typography variant="body2">Ontology</Typography>
         </Box> */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ width: 20, height: 20, backgroundColor: '#e377c2', borderRadius: '4px' }} />
-          <Typography variant="body2">Article</Typography>
-        </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ width: 20, height: 20, backgroundColor: '#C0C0C0', borderRadius: '4px' }} />
-          <Typography variant="body2">Current Searched Node</Typography>
-        </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ width: 20, height: 20, backgroundColor: 'white', borderRadius: '4px', border: '2px solid #C0C0C0' }} />
-          <Typography variant="body2">Extend Node</Typography>
-        </Box>
+        {/*<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>*/}
+        {/*  <Box sx={{ width: 20, height: 20, backgroundColor: '#C0C0C0', borderRadius: '4px' }} />*/}
+        {/*  <Typography variant="body2">Current Searched Node</Typography>*/}
+        {/*</Box>*/}
+        {/*<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>*/}
+        {/*  <Box sx={{ width: 20, height: 20, backgroundColor: 'white', borderRadius: '4px', border: '2px solid #C0C0C0' }} />*/}
+        {/*  <Typography variant="body2">Extend Node</Typography>*/}
+        {/*</Box>*/}
       </Box>
     </Box>
   // </div>
