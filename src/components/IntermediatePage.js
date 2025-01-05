@@ -675,7 +675,7 @@ function IntermediatePage({ onContinue }) {
                         <TableCell sx={{ verticalAlign: 'middle' }}>
                           <Link 
                             component="button" 
-                            variant="body2" 
+                            variant="body2"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleSNPClick(
@@ -684,7 +684,9 @@ function IntermediatePage({ onContinue }) {
                                 item.lead_SNP
                               );
                             }}
-                            sx={{ textAlign: 'left', display: 'block' }}
+                            sx={{ textAlign: 'left', display: 'block', padding: '4px', backgroundColor: '#43978F',
+                              borderRadius: '4px', color: 'white'
+                            }}
                           >
                             {item.displayLabel}
                           </Link>

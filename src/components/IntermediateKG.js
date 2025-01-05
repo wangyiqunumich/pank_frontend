@@ -81,10 +81,11 @@ function IntermediateKG() {
           color: node.type.includes('gene') ? colorMap.gene : 
                  node.type.includes('credible_set') ? '#43978F' :
                  colorMap.sequence_variant,
-          width: 120,
-          height: 40,
-          fontSize: '14px'
-        }
+          width: 170,
+          height: 46,
+          fontSize: '20px',
+        },
+        locked: true
       };
 
       let yOffset;
@@ -170,7 +171,7 @@ function IntermediateKG() {
             'text-valign': 'center',
             'text-halign': 'center',
             'font-size': 'data(fontSize)',
-            'color': '#000000',
+            'color': 'white',
             'text-wrap': 'wrap'
           }
         },
@@ -183,10 +184,9 @@ function IntermediateKG() {
             'target-arrow-shape': 'triangle',
             'curve-style': 'bezier',
             'label': 'data(label)',
-            'font-size': '12px',
+            'font-size': '16px',
             'text-rotation': 'autorotate',
-            'text-margin-y': -10,
-            'text-background-color': '#F7F7F74D'
+            'text-margin-y': -10
           }
         }
       ],
@@ -204,7 +204,7 @@ function IntermediateKG() {
     // 添加点击事件
     cy.on('tap', 'node', function(evt) {
       const node = evt.target;
-      console.log('Clicked node:', node.id());
+      // console.log('Clicked node:', node.id());
     });
 
     return () => {

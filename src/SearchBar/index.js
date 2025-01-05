@@ -181,7 +181,7 @@ const SearchBar = forwardRef(({ onSearch, disabled, style }, ref) => {
         }
     };
 
-    const [targetDisplayTerm, setTargetDisplayTerm] = useState('');
+    const [targetDisplayTerm, setTargetDisplayTerm] = useState('CENPP');
 
     const updateTargetTerm = async (event, newValue) => {
         if (store.getState().search.nextQuestionClicked) {
@@ -483,7 +483,7 @@ const SearchBar = forwardRef(({ onSearch, disabled, style }, ref) => {
                                     <TextField
                                         {...params}
                                         // label="3. Target Term"
-                                        variant="outlined"
+                                        // variant="outlined"
                                         sx={{
                                             backgroundColor: '#2191971A',
                                             '& .MuiOutlinedInput-root': {
