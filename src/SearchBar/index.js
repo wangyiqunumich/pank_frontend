@@ -182,7 +182,7 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
         }
     };
 
-    const [targetDisplayTerm, setTargetDisplayTerm] = useState(target?target:'CENPP');
+    const [targetDisplayTerm, setTargetDisplayTerm] = useState(target?target:'PTPN22');
     useEffect(() => {
         if (target) {
             setTargetDisplayTerm(target);
