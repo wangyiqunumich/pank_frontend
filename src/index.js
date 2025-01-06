@@ -13,12 +13,14 @@ import Tutorial from './pages/Tutorial';
 import LandingPage from './components/LandingPage';
 import IntermediatePage from './components/IntermediatePage';
 import ResultPage from './SearchResult';
+import NavBar from "./NavBar";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <Provider store={store}>
       <BrowserRouter>
+        <NavBar/>
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/intermediate" element={<IntermediatePage />} />

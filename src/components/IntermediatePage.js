@@ -503,7 +503,7 @@ function IntermediatePage({ onContinue }) {
         </Box>
       )}
       {/*NavBar*/}
-      <NavBar />
+      {/*<NavBar />*/}
       {/* 问题显示区域 */}
       <Box
           flexDirection="column"

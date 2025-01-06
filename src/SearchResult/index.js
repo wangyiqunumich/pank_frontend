@@ -23,6 +23,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { styled } from '@mui/material/styles';
 import { setSearchTerms } from '../redux/searchSlice';
 import SearchBar from '../SearchBar';
+import NavBar from "../NavBar";
 
 const colorMap = {
     gene: "#ABD0F1",
@@ -522,6 +523,8 @@ This answer refers to the following resources in PanKbase:`;
 
     return (
         <Container disableGutters maxWidth={false}>
+            {/*Navbar*/}
+            {/*<NavBar/>*/}
             {/*left*/}
             <Box sx={{
                 // display: 'flex',
@@ -555,29 +558,28 @@ This answer refers to the following resources in PanKbase:`;
                     />
                 </Box>
             </Box>
-            <SearchBar 
-                source={searchState.sourceTerm}
-                target={searchState.targetTermSymbol}
-                disabled={true}
-                resultPageShown={true}
-            />
             {/*graph viewer, right*/}
             <Box sx={{
                 width: 672,
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 10,
                 position: 'absolute',
-                top: 330,
+                top: 100,
                 left: windowWidth * 0.5 + 44
             }}>
+                <SearchBar
+                    source={searchState.sourceTerm}
+                    target={searchState.targetTermSymbol}
+                    disabled={true}
+                    resultPageShown={true}
+                />
                 <Typography sx={{
                     fontWeight: 'bold',
                     fontSize: 22,
-                    position: 'absolute',
-                    top: -44,
                     left: 0,
-                    zIndex: 1
+                    zIndex: 1,
+                    marginTop: '20px',
+                    marginBottom: '16px'
                 }}>
                     Graph viewer
                 </Typography>
@@ -588,7 +590,8 @@ This answer refers to the following resources in PanKbase:`;
                     backgroundColor: '#FBFBFB',
                     border: 1,
                     borderColor: '#EEEEEE',
-                    textAlign: 'left'
+                    textAlign: 'left',
+                    marginBottom: '60px'
                 }}>
                     <KnowledgeGraph />
                 </Box>

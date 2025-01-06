@@ -24,7 +24,7 @@ function LandingPage() {
   return (
     <Container maxWidth={false} disableGutters sx={{ padding: 0}}>
       {/*nav bar*/}
-      <NavBar/>
+      {/*<NavBar/>*/}
       {/* 主要内容区域 */}
       <Box sx={{ 
         display: 'flex',
