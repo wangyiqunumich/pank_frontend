@@ -24,7 +24,7 @@ root.render(
         <NavBar/>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/intermediate" element={<IntermediatePage />} />
+          <Route path="/intermediate/" element={<IntermediatePage />} />
           <Route path="/ontology" element={<Ontology />} />
           <Route path="/statistics" element={<DocPage />} />
           <Route path="/api" element={<ApiPage />} />

@@ -213,7 +213,7 @@ function IntermediatePage({ onContinue }) {
       geneSymbol: searchState.targetTermSymbol
     });
 
-    window.location.href = `result?${params.toString()}`;
+    window.location.href = `/result?${params.toString()}`;
     // dispatch(setVariables(variables));
 
     // 处理当前问题
