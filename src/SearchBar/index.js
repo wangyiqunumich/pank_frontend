@@ -15,14 +15,14 @@ import { setNextQuestionClicked } from '../redux/searchSlice';
 import { queryQueryVisResult } from '../redux/queryVisResultSlice';
 import { setTargetTermSymbol } from '../redux/searchSlice';
 
-const SearchBar = forwardRef(({ onSearch, disabled, style }, ref) => {
+const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, source, target }, ref) => {
     const dispatch = useDispatch();
     const {viewSchema, queryViewSchemaStatus} = useSelector((state) => state.viewSchema);
     const {vocab, queryVocabStatus} = useSelector((state) => state.inputToVocab);
     const {queryVisResult, queryQueryVisResultStatus} = useSelector((state) => state.queryVisResult);
     
     // 初始状态设置
-    const [sourceTerm, setSourceTerm] = useState('sequence variant');
+    const [sourceTerm, setSourceTerm] = useState(source?source:'sequence variant');
     const [relationship, setRelationship] = useState('QTL of');
     const [targetTerm, setTargetTerm] = useState('');
     const [sourceOptions, setSourceOptions] = useState(['sequence variant']);
@@ -74,44 +74,45 @@ const SearchBar = forwardRef(({ onSearch, disabled, style }, ref) => {
         if (store.getState().search.nextQuestionClicked) {
             return;
         }
-        
-        setSourceTerm(newValue || '');
-        setRelationship('');
-        setTargetTerm('');
-        dispatch(queryQueryResult({ query: '' }));
-        
-        if (newValue) {
-            const [sourceType, ...rest] = newValue.split(':');
-            const sourceValue = rest.join(':');
-            const predefinedTypes = ["gene", "sequence variant"];
-            const isCustomInput = !predefinedTypes.includes(sourceType);
-            setIsCustomSource(isCustomInput);
+        if (!disabled) {
+            setSourceTerm(newValue || '');
+            setRelationship('');
+            setTargetTerm('');
+            dispatch(queryQueryResult({ query: '' }));
             
-            clearTimeout(sourceTimerRef.current);
-            sourceTimerRef.current = setTimeout(async () => {
-                const result = await dispatch(queryVocab({input: newValue})).unwrap();
-                if (result) {
-                    let formattedOption;
-                    if (result.includes('@')) {
-                        const [type, value] = result.split('@');
-                        formattedOption = `${type}:${value}`;
-                        setSourceOptions([formattedOption]);
-                        setSourceTerm(formattedOption);
-                    } else {
-                        formattedOption = `${result}:${newValue}`;
-                        setSourceOptions([formattedOption]);
+            if (newValue) {
+                const [sourceType, ...rest] = newValue.split(':');
+                const sourceValue = rest.join(':');
+                const predefinedTypes = ["gene", "sequence variant"];
+                const isCustomInput = !predefinedTypes.includes(sourceType);
+                setIsCustomSource(isCustomInput);
+                
+                clearTimeout(sourceTimerRef.current);
+                sourceTimerRef.current = setTimeout(async () => {
+                    const result = await dispatch(queryVocab({input: newValue})).unwrap();
+                    if (result) {
+                        let formattedOption;
+                        if (result.includes('@')) {
+                            const [type, value] = result.split('@');
+                            formattedOption = `${type}:${value}`;
+                            setSourceOptions([formattedOption]);
+                            setSourceTerm(formattedOption);
+                        } else {
+                            formattedOption = `${result}:${newValue}`;
+                            setSourceOptions([formattedOption]);
+                        }
                     }
+                }, 500);
+                
+                if (!isCustomInput) {
+                    setTargetOptions([]);
                 }
-            }, 500);
-            
-            if (!isCustomInput) {
+            } else {
+                setSourceOptions(["gene", "sequence variant"]);
+                setIsTargetTermDisabled(true);
+                setIsCustomSource(false);
                 setTargetOptions([]);
             }
-        } else {
-            setSourceOptions(["gene", "sequence variant"]);
-            setIsTargetTermDisabled(true);
-            setIsCustomSource(false);
-            setTargetOptions([]);
         }
     };
 
@@ -181,7 +182,12 @@ const SearchBar = forwardRef(({ onSearch, disabled, style }, ref) => {
         }
     };
 
-    const [targetDisplayTerm, setTargetDisplayTerm] = useState('CENPP');
+    const [targetDisplayTerm, setTargetDisplayTerm] = useState(target?target:'CENPP');
+    useEffect(() => {
+        if (target) {
+            setTargetDisplayTerm(target);
+        }
+    }, [target]);
 
     const updateTargetTerm = async (event, newValue) => {
         if (store.getState().search.nextQuestionClicked) {
@@ -189,7 +195,9 @@ const SearchBar = forwardRef(({ onSearch, disabled, style }, ref) => {
         }
     
         // 设置用户显示值
-        setTargetDisplayTerm(newValue || '');
+        if (!disabled) {
+            setTargetDisplayTerm(newValue || '');
+        }
     
         if (newValue && (newValue.includes('gene:') || newValue.includes('sequence variant'))) {
             setTargetTerm(newValue); // 设置后台实际值
@@ -312,40 +320,48 @@ const SearchBar = forwardRef(({ onSearch, disabled, style }, ref) => {
     const handleSearch = async () => {
         setSearchClicked(true);
         const convertedTerms = convertTerms(sourceTerm, relationship, targetTerm, targetTermSymbol);
-        dispatch(setSearchTerms(convertedTerms));
-        await dispatch(queryViewSchema(convertedTerms));
+        //dispatch(setSearchTerms(convertedTerms));
+        //await dispatch(queryViewSchema(convertedTerms));
+        const params = new URLSearchParams({
+            sourceTerm: convertedTerms.sourceTerm,
+            relationship: convertedTerms.relationship,
+            targetTerm: convertedTerms.targetTerm,
+            targetSymbol: convertedTerms.targetTermSymbol
+        });
+        
+        window.location.href = `/intermediate?${params.toString()}`;
     };
 
-    useEffect(() => {
-        const fetchData = async () => {
-            if (queryViewSchemaStatus === 'fulfilled' && viewSchema.question && viewSchema.question[0] && !sourceTerm.includes(':')) {
-                const processedQuestion = replaceTerms(viewSchema.question[0], sourceTerm, relationship, targetTerm);
-                dispatch(setProcessedQuestion(processedQuestion));
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         if (queryViewSchemaStatus === 'fulfilled' && viewSchema.question && viewSchema.question[0] && !sourceTerm.includes(':') && !resultPageShown) {
+    //             const processedQuestion = replaceTerms(viewSchema.question[0], sourceTerm, relationship, targetTerm);
+    //             dispatch(setProcessedQuestion(processedQuestion));
 
-                if (viewSchema.cyper_for_intermediate_page && viewSchema.cyper_for_intermediate_KG_viewer) {
-                    const processedCypher = replaceCypherTerms(
-                        viewSchema.cyper_for_intermediate_page,
-                        sourceTerm,
-                        targetTerm
-                    );
-                    const processedCypherForKGViewer = replaceCypherTerms(
-                        viewSchema.cyper_for_intermediate_KG_viewer,
-                        sourceTerm,
-                        targetTerm
-                    );
-                    try {
-                        await dispatch(queryQueryResult({query: processedCypher})).unwrap();
-                        await dispatch(queryQueryVisResult({query: processedCypherForKGViewer})).unwrap();
-                        onSearch();
-                    } catch (error) {
-                        console.error('Error executing query:', error);
-                    }
-                }
-            }
-        };
+    //             if (viewSchema.cyper_for_intermediate_page && viewSchema.cyper_for_intermediate_KG_viewer) {
+    //                 const processedCypher = replaceCypherTerms(
+    //                     viewSchema.cyper_for_intermediate_page,
+    //                     sourceTerm,
+    //                     targetTerm
+    //                 );
+    //                 const processedCypherForKGViewer = replaceCypherTerms(
+    //                     viewSchema.cyper_for_intermediate_KG_viewer,
+    //                     sourceTerm,
+    //                     targetTerm
+    //                 );
+    //                 try {
+    //                     await dispatch(queryQueryResult({query: processedCypher})).unwrap();
+    //                     await dispatch(queryQueryVisResult({query: processedCypherForKGViewer})).unwrap();
+    //                     onSearch();
+    //                 } catch (error) {
+    //                     console.error('Error executing query:', error);
+    //                 }
+    //             }
+    //         }
+    //     };
 
-        fetchData();
-    }, [queryViewSchemaStatus, viewSchema, sourceTerm, relationship, targetTerm]);
+    //     fetchData();
+    // }, [queryViewSchemaStatus, viewSchema, sourceTerm, relationship, targetTerm]);
 
     const isValid = () => {
         // 检查 targetTerm 是否在 targetOptions 中
@@ -473,7 +489,9 @@ const SearchBar = forwardRef(({ onSearch, disabled, style }, ref) => {
                                 }}
                                 onInputChange={(event, newInputValue) => {
                                     const parts = newInputValue.split(':');
-                                    setTargetDisplayTerm(parts[parts.length - 1]);
+                                    if (!disabled) {
+                                        setTargetDisplayTerm(parts[parts.length - 1]);
+                                    }
                                     if (!event || event.type === 'change') {
                                         updateTargetTerm(event, newInputValue);
                                     }

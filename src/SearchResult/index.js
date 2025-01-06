@@ -21,6 +21,8 @@ import { queryQueryVisResult } from '../redux/queryVisResultSlice';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { styled } from '@mui/material/styles';
+import { setSearchTerms } from '../redux/searchSlice';
+import SearchBar from '../SearchBar';
 
 const colorMap = {
     gene: "#ABD0F1",
@@ -165,33 +167,172 @@ const Legend = () => (
 );
 
 function SearchResult() {
-    const { currentQuestion, nextQuestions, aiQuestions, aiAnswerTitle, aiAnswerSubtitle, currentQuestionType } = useSelector((state) => state.processedQuestion);
-    const queryResult = useSelector((state) => state.queryResult.queryResult);
-    const { aiAnswer, queryAiAnswerStatus } = useSelector((state) => state.aiAnswer);
-    const searchState = useSelector((state) => state.search);
     const [showTable, setShowTable] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [imageLoading, setImageLoading] = useState(true);
-    const dispatch = useDispatch();
-    const snpPlotImage = useSelector((state) => state.typeToImage.typeToImage);
-    const queryTypeToImageStatus = useSelector((state) => state.typeToImage.queryTypeToImageStatus);
-    const removeConsecutiveAsterisks = (text) => {
-        return text.replace(/\*\*/g, '');
-    };
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     const [expanded, setExpanded] = useState(false);
+    const dispatch = useDispatch();
 
+    // 从 viewSchema 中获取数据
+    const { viewSchema } = useSelector((state) => state.viewSchema);
+    const queryResult = useSelector((state) => state.queryResult.queryResult);
+    const { aiAnswer, queryAiAnswerStatus } = useSelector((state) => state.aiAnswer);
+    const searchState = useSelector((state) => state.search);
+    const snpPlotImage = useSelector((state) => state.typeToImage.typeToImage);
+    const queryTypeToImageStatus = useSelector((state) => state.typeToImage.queryTypeToImageStatus);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const sourceTerm = params.get('snpId');
+        const relationship = params.get('relationship');
+        const targetTerm = params.get('geneId');
+        const targetSymbol = params.get('geneSymbol');
+        const leadSnp = params.get('leadSnp');
+        const dataSource = params.get('dataSource');
+        const tissueKey = params.get('tissueKey');
+        
+        if (sourceTerm && relationship && targetTerm) {
+            dispatch(setSearchTerms({
+                sourceTerm,
+                relationship,
+                targetTerm,
+                targetTermSymbol: targetSymbol || ''
+            }));
+
+            const getIdFromTerm = (term) => {
+                return term;
+            };
+
+            dispatch(setVariables({
+                snpId: getIdFromTerm(sourceTerm),
+                leadSnp: leadSnp,
+                geneId: getIdFromTerm(targetTerm),
+                dataSource: dataSource,
+                tissueKey: tissueKey,
+                geneSymbol: targetSymbol || ''
+            }));
+
+            const fixedSourceTerm = 'sequence_variant';
+            const fixedTargetTerm = 'gene:' + getIdFromTerm(targetTerm);
+            
+            dispatch(queryViewSchema({
+                sourceTerm: fixedSourceTerm,
+                relationship,
+                targetTerm: fixedTargetTerm
+            })).then((response) => {
+                if (response.payload) {
+                    // 处理 schema 数据
+                    const { 
+                        question_for_result,
+                        next_questions,
+                        ai_question_for_result,
+                        ai_answer_title,
+                        ai_answer_sub_title,
+                        cyper_for_result_page_all_nodes_specific 
+                    } = response.payload;
+
+                    // 处理问题和变量替换
+                    const variables = {
+                        snpId: getIdFromTerm(sourceTerm),
+                        leadSnp: leadSnp,
+                        geneId: getIdFromTerm(targetTerm),
+                        dataSource: dataSource,
+                        tissueKey: tissueKey,
+                        geneSymbol: targetSymbol || ''
+                    };
+
+                    const processedCurrentQuestion = replaceVariables(
+                        question_for_result,
+                        variables
+                    );
+
+                    let nextVariables;
+                    if (leadSnp == 'rs17510162') {
+                        nextVariables = {
+                            snpId: '9:95214406_TC_T',
+                            leadSnp: '9:95214406_TC_T',
+                            geneId: 'ENSG00000188312',
+                            dataSource: 'GTEx; SusieR',
+                            tissueKey: 'pancreatic',
+                            geneSymbol: 'CENPP'
+                        };
+                    } else {
+                        nextVariables = {
+                            snpId: 'rs17510162',
+                            leadSnp: 'rs17510162',
+                            geneId: 'ENSG00000134242',
+                            dataSource: 'GTEx; SusieR',
+                            tissueKey: 'pancreatic',
+                            geneSymbol: 'ptpn22'
+                        };
+                    }
+
+                    const processedNextQuestions = next_questions?.map(q => 
+                        replaceVariables(q.question, nextVariables)
+                    ) || [];
+
+                    const processedAiQuestions = ai_question_for_result?.map(question => {
+                        let processedQuestion = question;
+                        if (sourceTerm) {
+                            processedQuestion = processedQuestion.replace(/@snp_node@/g, getIdFromTerm(sourceTerm));
+                        }
+                        if (targetTerm) {
+                            processedQuestion = processedQuestion.replace(/@gene_node@/g, getIdFromTerm(targetTerm));
+                        }
+                        return processedQuestion;
+                    }) || [];
+
+                    const processedAiAnswerTitle = ai_answer_title
+                        ?.replace(/@snp_node@/g, getIdFromTerm(sourceTerm))
+                        ?.replace(/@gene_id@/g, getIdFromTerm(targetTerm));
+
+                    // 更新 Redux store
+                    dispatch(setProcessedQuestion({
+                        currentQuestion: processedCurrentQuestion,
+                        nextQuestions: processedNextQuestions,
+                        aiQuestions: processedAiQuestions,
+                        aiAnswerTitle: processedAiAnswerTitle,
+                        aiAnswerSubtitle: ai_answer_sub_title,
+                        currentQuestionType: dataSource + '; ' + tissueKey + ' tissue'
+                    }));
+
+                    // 处理查询
+                    if (cyper_for_result_page_all_nodes_specific) {
+                        const query = cyper_for_result_page_all_nodes_specific
+                            .replace(/@snp_node@/g, sourceTerm)
+                            .replace(/@gene_node@/g, targetTerm);
+                        
+                        dispatch(queryQueryResult({ query }));
+                        dispatch(queryQueryVisResult({ query }));
+                    }
+                }
+            });
+        }
+    }, [dispatch]);
+
+    const { currentQuestion, nextQuestions, aiQuestions, aiAnswerTitle, aiAnswerSubtitle, currentQuestionType } = useSelector((state) => state.processedQuestion);
     useEffect(() => {
         function handleResize() {
             setWindowWidth(window.innerWidth)
         }
         window.addEventListener('resize', handleResize);
-        return (_) => {
+        return () => {
             window.removeEventListener('resize', handleResize);
         };
-    });
+    }, []);
+
     useEffect(() => {
-        if (queryResult.results.length != 0 && queryResult.results[0].gene_node) {
+        if (queryTypeToImageStatus === 'fulfilled') {
+            setImageLoading(false);
+        }
+    }, [queryTypeToImageStatus]);
+
+    const removeConsecutiveAsterisks = (text) => {
+        return text.replace(/\*\*/g, '');
+    };
+    useEffect(() => {
+        if (queryResult.results?.length != 0 && queryResult.results?.[0]?.gene_node) {
             const processedQuestions = aiQuestions.map(question => 
                 `${question} (answer the question in 50 words)`
             );
@@ -201,7 +342,7 @@ function SearchResult() {
                 "graph": queryResult
             })).unwrap();
         }
-    }, [queryResult, currentQuestion, dispatch]);
+    }, [queryResult, currentQuestion, aiQuestions, dispatch]);
     console.log(aiAnswer);
     const answerText = `Currently <span style="color: #FFA500;">SNP rs73920612</span> is the eQTL of one gene: <span style="color: #FF69B4;">CENPO</span>
 
@@ -225,121 +366,145 @@ This answer refers to the following resources in PanKbase:`;
     
     const handleCloseModal = () => setModalOpen(false);
 
-    useEffect(() => {
-        if (queryTypeToImageStatus === 'fulfilled') {
-            setImageLoading(false);
-        }
-    }, [queryTypeToImageStatus]);
-
     const handleNextQuestionClick = (question) => {
-        if (searchState.sourceTerm && searchState.relationship && searchState.targetTerm) {
-            dispatch(setNextQuestionClicked(true));
-            const currentState = store.getState();
-            const isUsingFallback = currentState.search.usingFallback;
+        // if (searchState.sourceTerm && searchState.relationship && searchState.targetTerm) {
+        //     dispatch(setNextQuestionClicked(true));
+        //     const currentState = store.getState();
+        //     const isUsingFallback = currentState.search.usingFallback;
             
-            let queryParams = {
-                sourceTerm: searchState.sourceTerm,
-                relationship: searchState.relationship,
-                targetTerm: searchState.targetTerm,
-                targetTermSymbol: searchState.targetTermSymbol
-            };
+        //     let queryParams = {
+        //         sourceTerm: searchState.sourceTerm,
+        //         relationship: searchState.relationship,
+        //         targetTerm: searchState.targetTerm,
+        //         targetTermSymbol: searchState.targetTermSymbol
+        //     };
 
-            if (isUsingFallback) {
-                dispatch(setUsingFallback(false));
-            } else {
-                dispatch(setUsingFallback(true));
-                queryParams = {
-                    sourceTerm: 'sequence_variant:rs17510162',
-                    relationship: 'fine_mapped_eQTL',
-                    targetTerm: 'gene:ENSG00000134242',
-                    targetTermSymbol: 'ptpn22'
-                };
-            }
+        //     if (isUsingFallback) {
+        //         dispatch(setUsingFallback(false));
+        //     } else {
+        //         dispatch(setUsingFallback(true));
+        //         queryParams = {
+        //             sourceTerm: 'sequence_variant:rs17510162',
+        //             relationship: 'fine_mapped_eQTL',
+        //             targetTerm: 'gene:ENSG00000134242',
+        //             targetTermSymbol: 'ptpn22'
+        //         };
+        //     }
 
-            const processNextQuestion = async () => {
-                // 使用正则表达式来分割 sourceTerm 和 targetTerm
-                const getIdFromTerm = (term) => {
-                    const match = term.match(/^[^:]+:(.+)$/);
-                    return match ? match[1] : term;
-                };
+        //     const processNextQuestion = async () => {
+        //         // 使用正则表达式来分割 sourceTerm 和 targetTerm
+        //         const getIdFromTerm = (term) => {
+        //             const match = term.match(/^[^:]+:(.+)$/);
+        //             return match ? match[1] : term;
+        //         };
 
-                dispatch(setVariables({
-                    snpId: getIdFromTerm(queryParams.sourceTerm),
-                    leadSnp: getIdFromTerm(queryParams.sourceTerm),
-                    geneId: getIdFromTerm(queryParams.targetTerm),
-                    dataSource: 'GTEx; SusieR',
-                    tissueKey: 'pancreatic',
-                    geneSymbol: queryParams.targetTermSymbol
-                }));
+        //         dispatch(setVariables({
+        //             snpId: getIdFromTerm(queryParams.sourceTerm),
+        //             leadSnp: getIdFromTerm(queryParams.sourceTerm),
+        //             geneId: getIdFromTerm(queryParams.targetTerm),
+        //             dataSource: 'GTEx; SusieR',
+        //             tissueKey: 'pancreatic',
+        //             geneSymbol: queryParams.targetTermSymbol
+        //         }));
 
-                await Promise.resolve();
-                const response = await dispatch(queryViewSchema(queryParams));
+        //         await Promise.resolve();
+        //         const response = await dispatch(queryViewSchema(queryParams));
                 
-                if (response.payload && response.payload.cyper_for_result_page_all_nodes_specific) {
-                    const query = response.payload.cyper_for_result_page_all_nodes_specific
-                        .replace(/@snp_node@/g, getIdFromTerm(queryParams.sourceTerm))
-                        .replace(/@gene_node@/g, getIdFromTerm(queryParams.targetTerm));
+        //         if (response.payload && response.payload.cyper_for_result_page_all_nodes_specific) {
+        //             const query = response.payload.cyper_for_result_page_all_nodes_specific
+        //                 .replace(/@snp_node@/g, getIdFromTerm(queryParams.sourceTerm))
+        //                 .replace(/@gene_node@/g, getIdFromTerm(queryParams.targetTerm));
                     
-                    const updatedState = store.getState();
-                    console.log('Variables after update:', updatedState.variables);
+        //             const updatedState = store.getState();
+        //             console.log('Variables after update:', updatedState.variables);
                     
-                    const processedCurrentQuestion = replaceVariables(
-                        response.payload.question_for_result, 
-                        updatedState.variables
-                    );
+        //             const processedCurrentQuestion = replaceVariables(
+        //                 response.payload.question_for_result, 
+        //                 updatedState.variables
+        //             );
 
-                    console.log(response.payload.question_for_result);
+        //             console.log(response.payload.question_for_result);
 
-                    const variables = {
-                        snpId: isUsingFallback ? 'rs17510162' : getIdFromTerm(searchState.sourceTerm),
-                        leadSnp: isUsingFallback ? 'rs17510162' : getIdFromTerm(searchState.sourceTerm),
-                        geneId: isUsingFallback ? 'ENSG00000134242' : getIdFromTerm(searchState.targetTerm),
-                        dataSource: 'GTEx; SusieR',
-                        tissueKey: 'pancreatic',
-                        geneSymbol: isUsingFallback ? 'ptpn22' : searchState.targetTermSymbol
-                    };  
+        //             const variables = {
+        //                 snpId: isUsingFallback ? 'rs17510162' : getIdFromTerm(searchState.sourceTerm),
+        //                 leadSnp: isUsingFallback ? 'rs17510162' : getIdFromTerm(searchState.sourceTerm),
+        //                 geneId: isUsingFallback ? 'ENSG00000134242' : getIdFromTerm(searchState.targetTerm),
+        //                 dataSource: 'GTEx; SusieR',
+        //                 tissueKey: 'pancreatic',
+        //                 geneSymbol: isUsingFallback ? 'ptpn22' : searchState.targetTermSymbol
+        //             };  
 
-                    const processedNextQuestions = response.payload.next_questions.map(q => 
-                        replaceVariables(q.question, variables)
-                    );
+        //             const processedNextQuestions = response.payload.next_questions.map(q => 
+        //                 replaceVariables(q.question, variables)
+        //             );
 
-                    const processedAiQuestions = response.payload?.ai_question_for_result?.map(question => {
-                        let processedQuestion = question;
-                        if (queryParams.sourceTerm.split(':')[1]) {
-                            processedQuestion = processedQuestion.replace(
-                                /@snp_node@/g, 
-                                queryParams.sourceTerm.split(':')[1]
-                            );
-                        }
-                        if (queryParams.targetTerm.split(':')[1]) {
-                            processedQuestion = processedQuestion.replace(
-                                /@gene_node@/g, 
-                                queryParams.targetTerm.split(':')[1]
-                            );
-                        }
-                        return processedQuestion;
-                    }) || [];
+        //             const processedAiQuestions = response.payload?.ai_question_for_result?.map(question => {
+        //                 let processedQuestion = question;
+        //                 if (queryParams.sourceTerm.split(':')[1]) {
+        //                     processedQuestion = processedQuestion.replace(
+        //                         /@snp_node@/g, 
+        //                         queryParams.sourceTerm.split(':')[1]
+        //                     );
+        //                 }
+        //                 if (queryParams.targetTerm.split(':')[1]) {
+        //                     processedQuestion = processedQuestion.replace(
+        //                         /@gene_node@/g, 
+        //                         queryParams.targetTerm.split(':')[1]
+        //                     );
+        //                 }
+        //                 return processedQuestion;
+        //             }) || [];
 
-                    const processedAiAnswerTitle = response.payload?.ai_answer_title
-                        .replace(/@snp_node@/g, queryParams.sourceTerm.split(':')[1])
-                        .replace(/@gene_id@/g, queryParams.targetTerm.split(':')[1]);
+        //             const processedAiAnswerTitle = response.payload?.ai_answer_title
+        //                 .replace(/@snp_node@/g, queryParams.sourceTerm.split(':')[1])
+        //                 .replace(/@gene_id@/g, queryParams.targetTerm.split(':')[1]);
                     
-                    dispatch(setProcessedQuestion({
-                        currentQuestion: processedCurrentQuestion,
-                        nextQuestions: processedNextQuestions,
-                        aiQuestions: processedAiQuestions,
-                        aiAnswerTitle: processedAiAnswerTitle,
-                        aiAnswerSubtitle: response.payload?.ai_answer_sub_title,
-                        currentQuestionType: currentQuestionType
-                    }));
+        //             dispatch(setProcessedQuestion({
+        //                 currentQuestion: processedCurrentQuestion,
+        //                 nextQuestions: processedNextQuestions,
+        //                 aiQuestions: processedAiQuestions,
+        //                 aiAnswerTitle: processedAiAnswerTitle,
+        //                 aiAnswerSubtitle: response.payload?.ai_answer_sub_title,
+        //                 currentQuestionType: currentQuestionType
+        //             }));
                     
-                    dispatch(queryQueryResult({ query }));
-                    dispatch(queryQueryVisResult({ query }));
-                }
+        //             dispatch(queryQueryResult({ query }));
+        //             dispatch(queryQueryVisResult({ query }));
+        //         }
+        //     };
+
+        //     processNextQuestion();
+        // }
+        let nextVariables;
+        if (searchState.sourceTerm == 'rs17510162') {
+            nextVariables = {
+                snpId: '9:95214406_TC_T',
+                leadSnp: '9:95214406_TC_T',
+                geneId: 'ENSG00000188312',
+                dataSource: 'GTEx; SusieR',
+                tissueKey: 'pancreatic',
+                geneSymbol: 'CENPP'
             };
-
-            processNextQuestion();
+        } else {
+            nextVariables = {
+                snpId: 'rs17510162',
+                leadSnp: 'rs17510162',
+                geneId: 'ENSG00000134242',
+                dataSource: 'GTEx; SusieR',
+                tissueKey: 'pancreatic',
+                geneSymbol: 'ptpn22'
+            };
         }
+        const params = new URLSearchParams({
+            snpId: nextVariables.snpId,
+            leadSnp: nextVariables.leadSnp,
+            geneId: nextVariables.geneId,
+            relationship: searchState.relationship,
+            tissueKey: nextVariables.tissueKey,
+            dataSource: nextVariables.dataSource,
+            geneSymbol: nextVariables.geneSymbol
+        });
+        window.location.href = `/result?${params.toString()}`;
     };
 
     const handleExpandClick = () => {
@@ -390,7 +555,12 @@ This answer refers to the following resources in PanKbase:`;
                     />
                 </Box>
             </Box>
-
+            <SearchBar 
+                source={searchState.sourceTerm}
+                target={searchState.targetTermSymbol}
+                disabled={true}
+                resultPageShown={true}
+            />
             {/*graph viewer, right*/}
             <Box sx={{
                 width: 672,

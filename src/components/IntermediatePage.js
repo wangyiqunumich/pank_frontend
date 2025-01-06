@@ -29,9 +29,11 @@ import { setVariables } from '../redux/variablesSlice';
 import { replaceVariables } from '../utils/textProcessing';
 import IntermediateKG from './IntermediateKG';
 import { getDataSourceInfo } from '../utils/textProcessing';
+import { queryViewSchema } from '../redux/viewSchemaSlice';
 
 function IntermediatePage({ onContinue }) {
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
 
   const { viewSchema } = useSelector((state) => state.viewSchema);
@@ -122,11 +124,21 @@ function IntermediatePage({ onContinue }) {
   };
 
   useEffect(() => {
-    if (!queryResult?.results || queryResult.results.length === 0) {
-      setError(true);
-    } else {
+    const timer = setTimeout(() => {
+      if (!queryResult || queryResult.length === 0) {
+        setError(true);
+      }
+      setLoading(false);
+    }, 3000);
+
+    // 如果在 3s 内获取到了数据,清除错误状态
+    if (queryResult && queryResult.length > 0) {
       setError(false);
+      setLoading(false);
+      clearTimeout(timer);
     }
+
+    return () => clearTimeout(timer);
   }, [queryResult]);
 
   const getDescription = (name) => {
@@ -189,121 +201,123 @@ function IntermediatePage({ onContinue }) {
       tissueKey = tissueMap['INSPIRE; SusieR'] || 'islet tissue';
     }
 
-    // 保存变量到 Redux store
-    const variables = {
-      snpId,
-      leadSnp,
-      geneId,
-      tissueKey,
+    
+    const params = new URLSearchParams({
+      snpId: snpId,
+      leadSnp: leadSnp,
+      geneId: geneId,
+      relationship: searchState.relationship,
+      tissueKey: tissueKey,
       dataSource: dataSourceFrontend,
       geneSymbol: searchState.targetTermSymbol
-    };
-    
-    dispatch(setVariables(variables));
+    });
+
+    window.location.href = `/result?${params.toString()}`;
+    // dispatch(setVariables(variables));
 
     // 处理当前问题
-    const processedCurrentQuestion = replaceVariables(question_for_result, variables);
-    console.log(processedCurrentQuestion);
+    // const processedCurrentQuestion = replaceVariables(question_for_result, variables);
+    // console.log(processedCurrentQuestion);
 
-    // 处理下一步问题
-    const processedNextQuestions = next_questions?.map(item => {
-      const params = item.parameters || {};
+    // // 处理下一步问题
+    // const processedNextQuestions = next_questions?.map(item => {
+    //   const params = item.parameters || {};
       
-      const questionVariables = {
-        ...variables,
-        snpId: 'rs17510162',
-        leadSnp: 'rs17510162',
-        geneId: 'ENSG00000134242',
-        geneSymbol: 'ptpn22'
-      };
+    //   const questionVariables = {
+    //     ...variables,
+    //     snpId: 'rs17510162',
+    //     leadSnp: 'rs17510162',
+    //     geneId: 'ENSG00000134242',
+    //     geneSymbol: 'ptpn22'
+    //   };
       
-      // 使用更新后的变量对象进行替换
-      let processedQuestion = replaceVariables(item.question, questionVariables);
+    //   // 使用更新后的变量对象进行替换
+    //   let processedQuestion = replaceVariables(item.question, questionVariables);
       
-      console.log(processedQuestion);
-      // 准备新的搜索条件
-      let newSearchState = {
-        sourceTerm: '',
-        relationship: '',
-        targetTerm: '',
-        targetTermSymbol: searchState.targetTermSymbol
-      };
+    //   console.log(processedQuestion);
+    //   // 准备新的搜索条件
+    //   let newSearchState = {
+    //     sourceTerm: '',
+    //     relationship: '',
+    //     targetTerm: '',
+    //     targetTermSymbol: searchState.targetTermSymbol
+    //   };
 
-      // 遍历参数并设置搜索条件
-      let paramEntries = Object.entries(params);
-      if (paramEntries.length >= 3) {
-        // 第一个参数作为 source
-        const [sourceKey, sourceType] = paramEntries[0];
-        // 第二个参数作为 relationship
-        const [_, relationship] = paramEntries[1];
-        // 第三个参数作为 target
-        const [targetKey, targetType] = paramEntries[2];
+    //   // 遍历参数并设置搜索条件
+    //   let paramEntries = Object.entries(params);
+    //   if (paramEntries.length >= 3) {
+    //     // 第一个参数作为 source
+    //     const [sourceKey, sourceType] = paramEntries[0];
+    //     // 第二个参数作为 relationship
+    //     const [_, relationship] = paramEntries[1];
+    //     // 第三个参数作为 target
+    //     const [targetKey, targetType] = paramEntries[2];
 
-        // 处理 source term
-        if (sourceKey.startsWith('@') && sourceKey.endsWith('@')) {
-          const sourceTerm = sourceKey.slice(1, -1) === 'lead_snp_node' ? leadSnp :
-                            sourceKey.slice(1, -1) === 'gene_node' ? geneId :
-                            sourceKey.slice(1, -1) === 'tissue' ? tissueKey :
-                            sourceKey.slice(1, -1) === 'data_source' ? dataSourceFrontend : '';
-          newSearchState.sourceTerm = `${sourceType}:${sourceTerm}`;
-        }
+    //     // 处理 source term
+    //     if (sourceKey.startsWith('@') && sourceKey.endsWith('@')) {
+    //       const sourceTerm = sourceKey.slice(1, -1) === 'lead_snp_node' ? leadSnp :
+    //                         sourceKey.slice(1, -1) === 'gene_node' ? geneId :
+    //                         sourceKey.slice(1, -1) === 'tissue' ? tissueKey :
+    //                         sourceKey.slice(1, -1) === 'data_source' ? dataSourceFrontend : '';
+    //       newSearchState.sourceTerm = `${sourceType}:${sourceTerm}`;
+    //     }
 
-        // 设置 relationship
-        newSearchState.relationship = relationship;
+    //     // 设置 relationship
+    //     newSearchState.relationship = relationship;
 
-        // 处理 target term
-        if (targetKey.startsWith('@') && targetKey.endsWith('@')) {
-          const targetTerm = targetKey.slice(1, -1) === 'lead_snp_node' ? leadSnp :
-                            targetKey.slice(1, -1) === 'gene_node' ? geneId :
-                            targetKey.slice(1, -1) === 'tissue' ? tissueKey :
-                            targetKey.slice(1, -1) === 'data_source' ? dataSourceFrontend : '';
-          newSearchState.targetTerm = `${targetType}:${targetTerm}`;
-        }
-      }
+    //     // 处理 target term
+    //     if (targetKey.startsWith('@') && targetKey.endsWith('@')) {
+    //       const targetTerm = targetKey.slice(1, -1) === 'lead_snp_node' ? leadSnp :
+    //                         targetKey.slice(1, -1) === 'gene_node' ? geneId :
+    //                         targetKey.slice(1, -1) === 'tissue' ? tissueKey :
+    //                         targetKey.slice(1, -1) === 'data_source' ? dataSourceFrontend : '';
+    //       newSearchState.targetTerm = `${targetType}:${targetTerm}`;
+    //     }
+    //   }
 
-      // 分发更新搜索条件的 action
-      console.log(newSearchState);
-      dispatch(setSearchTerms(newSearchState));
+    //   // 分发更新搜索条件的 action
+    //   console.log(newSearchState);
+    //   dispatch(setSearchTerms(newSearchState));
 
-      return processedQuestion;
-    }) || [];
+    //   return processedQuestion;
+    // }) || [];
 
-    // 替换查询语句中的占位符
-    const query = cyper_for_result_page_all_nodes_specific
-      .replace(/@snp_node@/g, snpId)
-      .replace(/@gene_node@/g, geneId);
+    // // 替换查询语句中的占位符
+    // const query = cyper_for_result_page_all_nodes_specific
+    //   .replace(/@snp_node@/g, snpId)
+    //   .replace(/@gene_node@/g, geneId);
 
-    // 处理 AI 问题数组
-    const processedAiQuestions = viewSchema?.ai_question_for_result?.map(question => {
-      let processedQuestion = question;
-      // 替换所有可能的占位符
-      if (snpId) processedQuestion = processedQuestion.replace(/@snp_node@/g, snpId);
-      if (geneId) processedQuestion = processedQuestion.replace(/@gene_node@/g, geneId);
-      if (tissueKey) processedQuestion = processedQuestion.replace(/@tissue@/g, tissueKey);
-      if (dataSourceFrontend) processedQuestion = processedQuestion.replace(/@data_source@/g, dataSourceFrontend);
-      return processedQuestion;
-    }) || [];
+    // // 处理 AI 问题数组
+    // const processedAiQuestions = viewSchema?.ai_question_for_result?.map(question => {
+    //   let processedQuestion = question;
+    //   // 替换所有可能的占位符
+    //   if (snpId) processedQuestion = processedQuestion.replace(/@snp_node@/g, snpId);
+    //   if (geneId) processedQuestion = processedQuestion.replace(/@gene_node@/g, geneId);
+    //   if (tissueKey) processedQuestion = processedQuestion.replace(/@tissue@/g, tissueKey);
+    //   if (dataSourceFrontend) processedQuestion = processedQuestion.replace(/@data_source@/g, dataSourceFrontend);
+    //   return processedQuestion;
+    // }) || [];
 
-    const processedAiAnswerTitle = viewSchema?.ai_answer_title.replace(/@snp_node@/g, snpId).replace(/@gene_id@/g, geneId);
-    const { tissue, frontendKG } = getDataSourceInfo(dataSource, conversionTable);
-    console.log(dataSource, tissue);
-    const currentQuestionType = `${frontendKG} ${tissue}` + ' Tissue';
-    try {
-      // 保存处理后的问题和下一步问题到 redux store
-      dispatch(setProcessedQuestion({
-        currentQuestion: processedCurrentQuestion,
-        nextQuestions: processedNextQuestions,
-        aiQuestions: processedAiQuestions,
-        aiAnswerTitle: processedAiAnswerTitle,
-        aiAnswerSubtitle: viewSchema?.ai_answer_sub_title,
-        currentQuestionType: currentQuestionType
-      }));
-      onContinue();
-      await dispatch(queryQueryVisResult({query: query})).unwrap();
-      await dispatch(queryQueryResult({query: query})).unwrap();
-    } catch (error) {
-      console.error('Error executing query:', error);
-    }
+    // const processedAiAnswerTitle = viewSchema?.ai_answer_title.replace(/@snp_node@/g, snpId).replace(/@gene_id@/g, geneId);
+    // const { tissue, frontendKG } = getDataSourceInfo(dataSource, conversionTable);
+    // console.log(dataSource, tissue);
+    // const currentQuestionType = `${frontendKG} ${tissue}` + ' Tissue';
+    // try {
+    //   // 保存处理后的问题和下一步问题到 redux store
+    //   dispatch(setProcessedQuestion({
+    //     currentQuestion: processedCurrentQuestion,
+    //     nextQuestions: processedNextQuestions,
+    //     aiQuestions: processedAiQuestions,
+    //     aiAnswerTitle: processedAiAnswerTitle,
+    //     aiAnswerSubtitle: viewSchema?.ai_answer_sub_title,
+    //     currentQuestionType: currentQuestionType
+    //   }));
+    //   onContinue();
+    //   await dispatch(queryQueryVisResult({query: query})).unwrap();
+    //   await dispatch(queryQueryResult({query: query})).unwrap();
+    // } catch (error) {
+    //   console.error('Error executing query:', error);
+    // }
   };
 
   // 添加一个新的辅助函数来获取 credibleSet 的显示标签
@@ -390,9 +404,72 @@ function IntermediatePage({ onContinue }) {
     ];
   };
 
+  // 添加从 URL 读取参数的逻辑
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const sourceTerm = params.get('sourceTerm');
+    const relationship = params.get('relationship');
+    const targetTerm = params.get('targetTerm');
+    const targetSymbol = params.get('targetSymbol');
+    
+
+    if (sourceTerm && relationship && targetTerm) {
+      // 更新 Redux store 中的搜索条件
+      dispatch(setSearchTerms({
+        sourceTerm,
+        relationship,
+        targetTerm,
+        targetTermSymbol: targetSymbol || ''
+      }));
+
+      // 使用这些参数执行查询
+      dispatch(queryViewSchema({
+        sourceTerm,
+        relationship,
+        targetTerm,
+        targetTermSymbol: targetSymbol || ''
+      }));
+
+
+    }
+  }, []); // 仅在组件挂载时执行一次
+
+  function replaceCypherTerms(cypher, sourceTerm, targetTerm) {
+    const sourceType = sourceTerm.split(':')[0];
+    const sourceValue = sourceTerm.split(':')[1] || sourceType;
+    const targetType = targetTerm.split(':')[0];
+    const targetValue = targetTerm.split(':')[1] || targetType;
+
+    return cypher.replace(/@([^@]+)@/g, (match, term) => {
+        if (term === sourceType) {
+            return sourceValue;
+        } else if (term === targetType) {
+            return targetValue;
+        }
+        return match;
+    });
+  }
+
+  useEffect(() => {
+  if (viewSchema.cyper_for_intermediate_page && viewSchema.cyper_for_intermediate_KG_viewer) {
+    const processedCypher = replaceCypherTerms(
+        viewSchema.cyper_for_intermediate_page,
+        searchState.sourceTerm,
+        searchState.targetTerm
+    );
+    const processedCypherForKGViewer = replaceCypherTerms(
+        viewSchema.cyper_for_intermediate_KG_viewer,
+        searchState.sourceTerm,
+        searchState.targetTerm
+    );
+    dispatch(queryQueryVisResult({query: processedCypherForKGViewer})).unwrap();
+      dispatch(queryQueryResult({query: processedCypher})).unwrap();
+    } 
+  }, [viewSchema, searchState.sourceTerm, searchState.targetTerm]);
+
   return (
     <Container sx={{ padding: 0 }} disableGutters>
-      {error && (
+      {!loading && error && (
         <Box
           sx={{
             position: 'absolute',
@@ -412,7 +489,7 @@ function IntermediatePage({ onContinue }) {
           </Typography>
           <Button 
             variant="contained"
-            onClick={() => window.location.reload()}
+            onClick={() => window.location.href = '/'}
             sx={{
               backgroundColor: '#D32F2F',
               '&:hover': {
@@ -467,6 +544,10 @@ function IntermediatePage({ onContinue }) {
           top: 350,
           left: windowWidth * 0.5 + 44
         }}>
+          <SearchBar 
+            target={searchState.targetTermSymbol}
+            disabled={true}
+          />
           <Typography sx={{
             fontWeight: 800,
             fontSize: 20,

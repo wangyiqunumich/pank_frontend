@@ -4,6 +4,7 @@ import landingPageLogo from '../image/landingPageLogo.png';
 import relatedResources from '../image/relatedResources.png';
 import apiIcon from '../image/apiIcon.png';
 import { Link as RouterLink } from 'react-router-dom';
+import SearchBar from '../SearchBar';
 
 function LandingPage() {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -64,6 +65,7 @@ function LandingPage() {
             <Typography sx={{ fontSize: 22, textAlign: 'left', zIndex: -1 }}>
               Explore T1D knowledge and resources with the knowledge graph
             </Typography>
+            <SearchBar />
 
             {/* <Box sx={{ marginBottom: 3 }}>
               <FormControl fullWidth>
