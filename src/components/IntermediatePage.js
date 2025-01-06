@@ -30,6 +30,7 @@ import { replaceVariables } from '../utils/textProcessing';
 import IntermediateKG from './IntermediateKG';
 import { getDataSourceInfo } from '../utils/textProcessing';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
+import NavBar from "../NavBar";
 
 function IntermediatePage({ onContinue }) {
   const [error, setError] = useState(false);
@@ -501,6 +502,8 @@ function IntermediatePage({ onContinue }) {
           </Button>
         </Box>
       )}
+      {/*NavBar*/}
+      <NavBar />
       {/* 问题显示区域 */}
       <Box
           flexDirection="column"
@@ -539,21 +542,19 @@ function IntermediatePage({ onContinue }) {
           width: 672,
           display: 'flex',
           flexDirection: 'column',
-          gap: 10,
           position: 'absolute',
-          top: 350,
+          top: 100,
           left: windowWidth * 0.5 + 44
         }}>
-          <SearchBar 
-            target={searchState.targetTermSymbol}
-            disabled={true}
+          <SearchBar
+              target={searchState.targetTermSymbol}
+              disabled={true}
           />
           <Typography sx={{
             fontWeight: 800,
             fontSize: 20,
-            position: 'absolute',
-            top: -44,
-            zIndex: 1
+            marginTop: '40px',
+            marginBottom: '16px'
           }}>
             Graph viewer
           </Typography>
@@ -564,7 +565,8 @@ function IntermediatePage({ onContinue }) {
             overflow: 'visible',
             backgroundColor: '#FBFBFB',
             border: 1,
-            borderColor: '#EEEEEE'
+            borderColor: '#EEEEEE',
+            marginBottom: '60px'
           }}>
               <IntermediateKG />
           </Box>
