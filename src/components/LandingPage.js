@@ -5,6 +5,8 @@ import relatedResources from '../image/relatedResources.png';
 import apiIcon from '../image/apiIcon.png';
 import { Link as RouterLink } from 'react-router-dom';
 import SearchBar from '../SearchBar';
+import NavBar from "../NavBar";
+import PkbFooter from "../Footer/footer";
 
 function LandingPage() {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -21,6 +23,8 @@ function LandingPage() {
   });
   return (
     <Container maxWidth={false} disableGutters sx={{ padding: 0}}>
+      {/*nav bar*/}
+      <NavBar/>
       {/* 主要内容区域 */}
       <Box sx={{ 
         display: 'flex',
@@ -163,6 +167,8 @@ function LandingPage() {
         {/*  </Box>*/}
         {/*</Box>*/}
       </Box>
+    {/*  footer*/}
+      <PkbFooter/>
     </Container>
   );
 }
