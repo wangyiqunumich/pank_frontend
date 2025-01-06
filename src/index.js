@@ -14,6 +14,7 @@ import LandingPage from './components/LandingPage';
 import IntermediatePage from './components/IntermediatePage';
 import ResultPage from './SearchResult';
 import NavBar from "./NavBar";
+import PkbFooter from "./Footer/footer";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -30,6 +31,7 @@ root.render(
           <Route path="/tutorial" element={<Tutorial />} />
           <Route path="/result" element={<ResultPage />} />
         </Routes>
+        {/*<PkbFooter/>*/}
       </BrowserRouter>
     </Provider>
   </React.StrictMode>

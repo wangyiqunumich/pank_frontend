@@ -20,41 +20,6 @@ function NavBar() {
 
   return (
     <>
-      {/* 主导航栏 */}
-      {/*<AppBar position="static" sx={{ */}
-      {/*  backgroundColor: '#2E5F7F',*/}
-      {/*  boxShadow: 'none'*/}
-      {/*}}>*/}
-        {/*<Container maxWidth={false}>*/}
-          {/*<Toolbar disableGutters>*/}
-          {/*  /!* Logo *!/*/}
-          {/*  <Box sx={{ width: '200px' }}>*/}
-          {/*    <Typography*/}
-          {/*      variant="h6"*/}
-          {/*      component={Link}*/}
-          {/*      to="/"*/}
-          {/*      sx={{*/}
-          {/*        fontFamily: 'Open Sans',*/}
-          {/*        fontWeight: 400,*/}
-          {/*        color: 'white',*/}
-          {/*        fontStyle: 'italic',*/}
-          {/*        textDecoration: 'none',*/}
-          {/*        fontSize: '24px',*/}
-          {/*      }}*/}
-          {/*    >*/}
-          {/*      PanKbase.org*/}
-          {/*    </Typography>*/}
-          {/*  </Box>*/}
-            
-            {/* 主菜单项 */}
-            {/*<Box sx={{ */}
-            {/*  display: 'flex', */}
-            {/*  gap: 2,*/}
-            {/*  marginLeft: 'auto',*/}
-            {/*  width: 'calc(100% - 200px)',*/}
-            {/*  justifyContent: 'flex-end',*/}
-            {/*  paddingRight: '48px'*/}
-            {/*}}>*/}
               <div className="pkb-nav">
                 <div className="logo">
                   <a href="https://pankbase.org:8000/">
@@ -143,89 +108,6 @@ function NavBar() {
                   </div>
                 </div>
               </div>
-              {/*{['Resources', 'Data', 'Analysis', 'PanKgraph', 'About', 'Help', 'News'].map((item) => (*/}
-              {/*  <Typography*/}
-              {/*    key={item}*/}
-              {/*    component={item === 'PanKgraph' ? 'button' : Link}*/}
-              {/*    onClick={item === 'PanKgraph' ? handlePanKgraphClick : undefined}*/}
-              {/*    to={item === 'PanKgraph' ? undefined : `/${item.toLowerCase()}`}*/}
-              {/*    sx={{*/}
-              {/*      color: item === 'PanKgraph' ? '#000' : 'white',*/}
-              {/*      textDecoration: 'none',*/}
-              {/*      padding: '20px 15px',*/}
-              {/*      backgroundColor: item === 'PanKgraph' ? '#f5f5f5' : 'transparent',*/}
-              {/*      fontFamily: 'Open Sans',*/}
-              {/*      fontWeight: item === 'PanKgraph' ? 700 : 400,*/}
-              {/*      fontSize: '24px',*/}
-              {/*      lineHeight: '32.68px',*/}
-              {/*      borderTopLeftRadius: item === 'PanKgraph' ? '16px' : '0',*/}
-              {/*      borderTopRightRadius: item === 'PanKgraph' ? '16px' : '0',*/}
-              {/*      border: 'none',*/}
-              {/*      cursor: 'pointer'*/}
-              {/*    }}*/}
-              {/*  >*/}
-              {/*    {item}*/}
-              {/*  </Typography>*/}
-              {/*))}*/}
-            {/*</Box>*/}
-          {/*</Toolbar>*/}
-        {/*</Container>*/}
-      {/*</AppBar>*/}
-
-      {/* 子导航栏 */}
-      {/*<Box sx={{ */}
-      {/*  backgroundColor: '#f5f5f5',*/}
-      {/*  borderBottom: '2px solid #1F8E91'*/}
-      {/*}}>*/}
-      {/*  <Container maxWidth={false}>*/}
-      {/*    <Box sx={{ */}
-      {/*      display: 'flex',*/}
-      {/*      padding: '8px 0',*/}
-      {/*    }}>*/}
-      {/*      /!* 左侧空白，与上面的 Logo 宽度相同 *!/*/}
-      {/*      <Box sx={{ width: '200px' }} />*/}
-      {/*      */}
-      {/*      /!* 右侧导航项 *!/*/}
-      {/*      <Box sx={{ */}
-      {/*        display: 'flex',*/}
-      {/*        gap: 3,*/}
-      {/*        width: 'calc(100% - 200px)',*/}
-      {/*        justifyContent: 'flex-end',*/}
-      {/*        paddingRight: '48px'*/}
-      {/*      }}>*/}
-      {/*        {['Search', 'API', 'Ontology', 'Use cases', 'Tutorial', 'Statistics'].map((item) => (*/}
-      {/*          <Typography*/}
-      {/*            key={item}*/}
-      {/*            component={Link}*/}
-      {/*            to={item === 'Search' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`}*/}
-      {/*            onClick={(e) => {*/}
-      {/*              if (item === 'Search') {*/}
-      {/*                e.preventDefault();*/}
-      {/*                if (window.location.pathname === '/') {*/}
-      {/*                  window.location.reload();*/}
-      {/*                } else {*/}
-      {/*                  window.location.href = '/';*/}
-      {/*                }*/}
-      {/*              }*/}
-      {/*            }}*/}
-      {/*            sx={{*/}
-      {/*              color: '#000',*/}
-      {/*              textDecoration: 'none',*/}
-      {/*              fontFamily: 'Open Sans',*/}
-      {/*              fontWeight: 400,*/}
-      {/*              fontSize: '14px',*/}
-      {/*              '&:hover': {*/}
-      {/*                color: '#4A7298'*/}
-      {/*              }*/}
-      {/*            }}*/}
-      {/*          >*/}
-      {/*            {item}*/}
-      {/*          </Typography>*/}
-      {/*        ))}*/}
-      {/*      </Box>*/}
-      {/*    </Box>*/}
-      {/*  </Container>*/}
-      {/*</Box>*/}
     </>
   );
 }

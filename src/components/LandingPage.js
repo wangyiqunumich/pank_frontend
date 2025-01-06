@@ -168,7 +168,7 @@ function LandingPage() {
         {/*</Box>*/}
       </Box>
     {/*  footer*/}
-      <PkbFooter/>
+    {/*  <PkbFooter/>*/}
     </Container>
   );
 }
