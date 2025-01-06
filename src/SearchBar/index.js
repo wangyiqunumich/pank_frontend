@@ -328,7 +328,7 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
             targetTerm: convertedTerms.targetTerm,
             targetSymbol: convertedTerms.targetTermSymbol
         });
-        console.log('params', `/intermediate?${params.toString()}`)
+
         window.location.href = `/intermediate?${params.toString()}`;
     };
 

@@ -23,13 +23,13 @@ root.render(
       <BrowserRouter>
         <NavBar/>
         <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/intermediate/" element={<IntermediatePage />} />
+          <Route path="/intermediate" element={<IntermediatePage />} />
           <Route path="/ontology" element={<Ontology />} />
           <Route path="/statistics" element={<DocPage />} />
           <Route path="/api" element={<ApiPage />} />
           <Route path="/tutorial" element={<Tutorial />} />
           <Route path="/result" element={<ResultPage />} />
+          <Route path="/" element={<LandingPage />} />
         </Routes>
         {/*<PkbFooter/>*/}
       </BrowserRouter>
