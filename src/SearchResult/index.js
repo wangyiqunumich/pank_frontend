@@ -107,7 +107,7 @@ const Legend = () => (
     }}>
         <Typography sx={{
             fontWeight: 'bold',
-            fontSize: 22,
+            fontSize: 20,
             position: 'absolute',
             top: -44,
             left: 0,
@@ -531,14 +531,10 @@ This answer refers to the following resources in PanKbase:`;
                 // display: 'flex',
                 alignItems: 'center',
                 gap: 0,
-                // position: 'relative',
-                // top: '0px',
-                // right: windowWidth * 0.5 + 44,
                 width: 685,
-                // minHeight: '950px',
                 marginTop: '50px'
             }}>
-                <Typography sx={{ fontSize: 22, width: 685, textAlign: 'left', marginBottom: '10px' }}>
+                <Typography sx={{ fontSize: 20, width: 685, textAlign: 'left', marginBottom: '10px' }}>
                     Question
                 </Typography>
                 {/*test question block*/}
@@ -560,7 +556,7 @@ This answer refers to the following resources in PanKbase:`;
                         dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }}
                     />
                 </Box>
-                <Typography sx={{ fontWeight: 'bold', fontSize: 22, marginTop: '20px', marginBottom: '16px'
+                <Typography sx={{ fontWeight: 'bold', fontSize: 20, marginTop: '20px', marginBottom: '16px'
                 }}>
                     AI' overview
                 </Typography>
@@ -582,7 +578,7 @@ This answer refers to the following resources in PanKbase:`;
                                     <Typography sx={{
                                         textAlign: 'left',
                                         gap: 1,
-                                        fontSize: '20px'
+                                        fontSize: '18px'
                                     }}>
                                         <span style={{ color: '#FFD700' }}>✨</span>
                                         {aiAnswerSubtitle[index]}
@@ -660,7 +656,7 @@ This answer refers to the following resources in PanKbase:`;
                     </Box>
                 </Box>
                 {/*you may also ask*/}
-                <Typography sx={{fontWeight: 'bold', fontSize: 22, marginTop: '20px', marginBottom: '16px' }}>You may also ask</Typography>
+                <Typography sx={{fontWeight: 'bold', fontSize: 20, marginTop: '20px', marginBottom: '16px' }}>You may also ask</Typography>
                 <Box sx={{
                     display: 'flex',
                     flexDirection: 'column',
@@ -715,7 +711,7 @@ This answer refers to the following resources in PanKbase:`;
                 />
                 <Typography sx={{
                     fontWeight: 'bold',
-                    fontSize: 22,
+                    fontSize: 20,
                     marginTop: '20px',
                     marginBottom: '16px'
                 }}>
@@ -736,20 +732,6 @@ This answer refers to the following resources in PanKbase:`;
                 <Legend />
             </Box>
 
-            {/*AI's overview, left*/}
-            {/*<Box sx={{*/}
-            {/*    display: 'flex',*/}
-            {/*    flexDirection: 'column',*/}
-            {/*    gap: 10,*/}
-            {/*    padding: '0px',*/}
-            {/*    margin: '0px',*/}
-            {/*    width: 685,*/}
-            {/*    position: 'absolute',*/}
-            {/*    right: windowWidth * 0.5 + 44,*/}
-            {/*    top: 390*/}
-            {/*}}>*/}
-
-            {/*</Box>*/}
             <ImageModal
                 open={modalOpen}
                 handleClose={handleCloseModal}
