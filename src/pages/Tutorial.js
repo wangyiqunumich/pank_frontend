@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Box, Typography } from '@mui/material';
 import ReactMarkdown from 'react-markdown';
-import tutorialContent from '../schema/doc/tutorial.md';
+import tutorialContent from '../schema/doc/tutorial.txt';
 import NavBar from '../NavBar';
 import 'github-markdown-css';
 
