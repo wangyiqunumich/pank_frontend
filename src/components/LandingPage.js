@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import { Box, Typography, Container, Link, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
-import landingPageLogo from '../image/landingPageLogo.png';
+import landingPageLogo from '../image/LandingPageVisu.png';
 import relatedResources from '../image/relatedResources.png';
 import apiIcon from '../image/apiIcon.png';
 import { Link as RouterLink } from 'react-router-dom';
@@ -22,21 +22,22 @@ function LandingPage() {
     };
   });
   return (
-    <Container minHeight={'100%'} maxWidth={false} disableGutters sx={{
+    <Container maxWidth={false} disableGutters sx={{
       padding: 0, display: 'flex',
       flexDirection: 'row', justifyContent: 'space-evenly',
+      flex: 1, alignItems: 'center'
     }}>
           {/* 左侧图片 */}
           <Box sx={{ 
             width: 550,
-            height: 384,
+            height: 550,
             // flex: 'auto',
             // position: 'relative',
-            marginTop: '10vh',
+            // marginTop: 'calc(10vh - 100)',
             // right: windowWidth * 0.5 + 100,
             '& img': {
               width: 550,
-              height: 384,
+              height: 550,
               objectFit: 'contain'
             }
           }}>
@@ -52,7 +53,7 @@ function LandingPage() {
             gap: 3,
             // position: 'relative',
             // left: windowWidth * 0.5 + 44,
-            marginTop: `calc(10vh + 75px)`
+            // marginTop: `calc(10vh + 75px)`
           }}>
 
             <Typography sx={{ fontSize: 22, textAlign: 'left', zIndex: -1 }}>
