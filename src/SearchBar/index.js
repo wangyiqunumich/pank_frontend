@@ -182,7 +182,7 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
         }
     };
 
-    const [targetDisplayTerm, setTargetDisplayTerm] = useState(target?target:'PTPN22');
+    const [targetDisplayTerm, setTargetDisplayTerm] = useState(target?target:'Fill gene symbol');
     useEffect(() => {
         if (target) {
             setTargetDisplayTerm(target);
