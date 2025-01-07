@@ -1,0 +1,62 @@
+import React, { useEffect, useState } from 'react';
+import { Box, Typography, Select, MenuItem } from '@mui/material';
+
+function Question({ selectedQuestion, setSelectedQuestion }) {
+  const [questions, setQuestions] = useState([
+    'Which SNP serves as the quantitative trait locus (eQTL) for PTPN22?'
+  ]);
+
+  // 当 selectedQuestion 改变时，确保它在 questions 数组中
+  useEffect(() => {
+    if (selectedQuestion && !questions.includes(selectedQuestion)) {
+      setQuestions(prevQuestions => [...prevQuestions, selectedQuestion]);
+    }
+  }, [selectedQuestion]);
+
+  return (
+    <Box sx={{ 
+      width: '100%',
+      marginBottom: 3
+    }}>
+      <Typography sx={{ 
+        fontSize: 16, 
+        textAlign: 'left', 
+        marginBottom: 1 
+      }}>
+        Question
+      </Typography>
+      <Select
+        value={selectedQuestion}
+        onChange={(e) => setSelectedQuestion(e.target.value)}
+        fullWidth
+        sx={{
+          backgroundColor: '#E4F0F1',
+          '& .MuiSelect-select': {
+            padding: '16px',
+            fontSize: 14,
+            textAlign: 'left'
+          },
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'transparent'
+          },
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'transparent'
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'transparent'
+          },
+          minHeight: '48px',
+          borderRadius: '4px'
+        }}
+      >
+        {questions.map((question, index) => (
+          <MenuItem key={index} value={question}>
+            {question}
+          </MenuItem>
+        ))}
+      </Select>
+    </Box>
+  );
+}
+
+export default Question;

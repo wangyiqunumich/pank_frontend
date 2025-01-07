@@ -15,7 +15,7 @@ import { setNextQuestionClicked } from '../redux/searchSlice';
 import { queryQueryVisResult } from '../redux/queryVisResultSlice';
 import { setTargetTermSymbol } from '../redux/searchSlice';
 
-const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, source, target }, ref) => {
+const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, source, target, onTargetTermChange }, ref) => {
     const dispatch = useDispatch();
     const {viewSchema, queryViewSchemaStatus} = useSelector((state) => state.viewSchema);
     const {vocab, queryVocabStatus} = useSelector((state) => state.inputToVocab);
@@ -212,6 +212,9 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
                     try {
                         const result = await dispatch(queryVocab({ input: newValue })).unwrap();
                         if (result) {
+                            if (typeof onTargetTermChange === 'function') {
+                                onTargetTermChange(newValue);
+                            }
                             let formattedOption;
                             let formattedTerm;
                             console.log(result);
