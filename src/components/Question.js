@@ -15,11 +15,10 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
 
   return (
     <Box sx={{ 
-      width: '100%',
-      marginBottom: 3
+      width: '536px'
     }}>
       <Typography sx={{ 
-        fontSize: 16, 
+        fontSize: 20,
         textAlign: 'left', 
         marginBottom: 1 
       }}>
@@ -33,7 +32,7 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
           backgroundColor: '#E4F0F1',
           '& .MuiSelect-select': {
             padding: '16px',
-            fontSize: 14,
+            fontSize: 16,
             textAlign: 'left'
           },
           '& .MuiOutlinedInput-notchedOutline': {
@@ -45,8 +44,7 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
             borderColor: 'transparent'
           },
-          minHeight: '48px',
-          borderRadius: '4px'
+          minHeight: '48px'
         }}
       >
         {questions.map((question, index) => (

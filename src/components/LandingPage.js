@@ -40,15 +40,15 @@ function LandingPage() {
     }}>
           {/* 左侧图片 */}
           <Box sx={{ 
-            width: 550,
-            height: 550,
+            width: '36vw',
+            // height: 550,
             // flex: 'auto',
             // position: 'relative',
             // marginTop: 'calc(10vh - 100)',
             // right: windowWidth * 0.5 + 100,
             '& img': {
-              width: 550,
-              height: 550,
+              width: '36vw',
+              // height: 550,
               objectFit: 'contain'
             }
           }}>

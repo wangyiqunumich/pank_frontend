@@ -405,7 +405,7 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
 
     return (
         <Container maxWidth="md" disableGutters sx={{ padding: 0, ...style }}>
-            <Box sx={{ marginTop: 4, padding: 0 }}>
+            <Box sx={{ padding: 0 }}>
                 <Box display="flex" alignItems="center" gap={2} p={2} sx={{ padding: 0 }}>
                     <FormControl fullWidth>
                         <Typography sx={{
@@ -552,6 +552,8 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
                             minWidth:'120px',
                             backgroundColor: '#219197',
                             color: 'white',
+                            position: 'relative',
+                            top: '14px',
                             '&:hover': { backgroundColor: '#4A7298' },
                             // '&:disabled': {
                         }}
