@@ -29,7 +29,7 @@ function NavBar() {
                 </div>
                 <div className="menu-wrapper">
                   <div className="topmenu">
-                    <a className="topmenu-item" href="#" style={{ color: '#d9d9d9' }}>
+                    <a className="topmenu-item" href="https://dev.pankgraph.org/" style={{ color: '#d9d9d9' }}>
                       Search
                       <img
                           style={{ height: '15px', width: '15px', color: '#d9d9d9' }}
@@ -54,12 +54,12 @@ function NavBar() {
                       <div className="menu-item-wrapper">
                         <a className="menu-item menu-item-main" href="https://dev.pankgraph.org/">PanKgraph</a>
                         <div className="submenu">
-                          <a className="submenu-item" href="#">Search</a>
-                          <a className="submenu-item" href="#">API</a>
-                          <a className="submenu-item" href="http://tools.cmdga.org:3838/metadata_analysis/">Ontology</a>
-                          <a className="submenu-item" href="https://pankbase.org:8000/apis.html">Use cases</a>
-                          <a className="submenu-item" href="https://pankbase.org:8000/apis.html">Tutorial</a>
-                          <a className="submenu-item" href="https://pankbase.org:8000/apis.html">Statistics</a>
+                          <a className="submenu-item" href="https://dev.pankgraph.org/">Search</a>
+                          <a className="submenu-item" href="https://dev.pankgraph.org/api">API</a>
+                          <a className="submenu-item" href="https://dev.pankgraph.org/ontology">Ontology</a>
+                          <a className="submenu-item" href="https://dev.pankgraph.org/">Use cases</a>
+                          <a className="submenu-item" href="https://dev.pankgraph.org/tutorial">Tutorial</a>
+                          <a className="submenu-item" href="https://dev.pankgraph.org/statistics">Statistics</a>
                         </div>
                       </div>
                       <div className="menu-item-wrapper">

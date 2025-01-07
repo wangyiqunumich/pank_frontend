@@ -20,7 +20,6 @@ function DocPage() {
 
   return (
     <div className="App">
-      <NavBar />
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Box sx={{ p: 4, textAlign: 'left' }} className={'markdown-body'}>
           <ReactMarkdown

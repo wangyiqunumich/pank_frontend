@@ -92,7 +92,6 @@ const ontologyTreeHtml = `
 function Ontology() {
   return (
     <div>
-      <NavBar />
       <Container>
         <Typography variant="h4" gutterBottom>
           Ontology Tree
