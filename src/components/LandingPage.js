@@ -22,30 +22,18 @@ function LandingPage() {
     };
   });
   return (
-    <Container maxWidth={false} disableGutters sx={{ padding: 0}}>
-      {/*nav bar*/}
-      {/*<NavBar/>*/}
-      {/* 主要内容区域 */}
-      <Box sx={{ 
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 4
-      }}>
-        {/* 上半部分 */}
-        <Box sx={{ 
-          display: 'flex',
-          width: '100%',
-          gap: 4,
-          alignItems: 'center'
-        }}>
+    <Container minHeight={'100%'} maxWidth={false} disableGutters sx={{
+      padding: 0, display: 'flex',
+      flexDirection: 'row', justifyContent: 'space-evenly',
+    }}>
           {/* 左侧图片 */}
           <Box sx={{ 
             width: 550,
             height: 384,
-            position: 'absolute',
-            top: 192,
-            right: windowWidth * 0.5 + 100,
+            // flex: 'auto',
+            // position: 'relative',
+            marginTop: '10vh',
+            // right: windowWidth * 0.5 + 100,
             '& img': {
               width: 550,
               height: 384,
@@ -58,117 +46,21 @@ function LandingPage() {
           {/* 右侧内容区域 */}
           <Box sx={{ 
             width: 672,
+            // flex: 'auto',
             display: 'flex',
             flexDirection: 'column',
             gap: 3,
-            position: 'absolute',
-            left: windowWidth * 0.5 + 44,
-            top: 250
+            // position: 'relative',
+            // left: windowWidth * 0.5 + 44,
+            marginTop: `calc(10vh + 75px)`
           }}>
 
             <Typography sx={{ fontSize: 22, textAlign: 'left', zIndex: -1 }}>
               Explore T1D knowledge and resources with the knowledge graph
             </Typography>
-            <SearchBar />
-
-            {/* <Box sx={{ marginBottom: 3 }}>
-              <FormControl fullWidth>
-                <InputLabel 
-                  id="question-select-label"
-                  sx={{
-                    color: 'rgba(0, 0, 0, 0.6)',
-                    backgroundColor: '#fff',
-                    padding: '0 5px'
-                  }}
-                >
-                  Question
-                </InputLabel>
-                <Select
-                  labelId="question-select-label"
-                  id="question-select"
-                  value={selectedQuestion}
-                  label="Question"
-                  onChange={(e) => setSelectedQuestion(e.target.value)}
-                  sx={{ 
-                    textAlign: 'left',
-                    fontSize: 20,
-                    backgroundColor: '#2191971A',
-                    '& .MuiSelect-select': {
-                      whiteSpace: 'normal',
-                      minHeight: '80px',
-                      alignItems: 'center',
-                      display: 'flex'
-                    }
-                  }}
-                >
-                  <MenuItem 
-                    value="Which SNP serves as the expression quantitative trait locus (eQTL) for PTPN22?"
-                    sx={{
-                      whiteSpace: 'normal',
-                      fontSize: 20,
-                    }}
-                  >
-                    Which SNP serves as the expression quantitative trait locus (eQTL) for PTPN22?
-                  </MenuItem>
-                </Select>
-              </FormControl>
-            </Box> */}
-            
             {/* SearchBar 组件将在这里 */}
+            <SearchBar />
           </Box>
-        </Box>
-
-        {/*/!* 下半部分 *!/*/}
-        {/*<Box sx={{ */}
-        {/*  width: '100%',*/}
-        {/*  display: 'flex',*/}
-        {/*  flexDirection: 'column',*/}
-        {/*  gap: 3,*/}
-        {/*  mt: 4*/}
-        {/*}}>*/}
-        {/*  /!* API 访问部分 *!/*/}
-        {/*  <Box sx={{ */}
-        {/*    display: 'flex',*/}
-        {/*    alignItems: 'center',*/}
-        {/*    gap: 2,*/}
-        {/*    position: 'absolute',*/}
-        {/*    top: 540,*/}
-        {/*    right: windowWidth * 0.5 + 200*/}
-        {/*  }}>*/}
-        {/*    <img src={apiIcon} alt="API" style={{ width: '32px', height: '32px' }} />*/}
-        {/*    <Typography sx={{ fontSize: 24}}>*/}
-        {/*      Access PanKgraph with <Link component={RouterLink} to="/api" sx={{ textDecoration: 'none' }}>API</Link>*/}
-        {/*    </Typography>*/}
-        {/*  </Box>*/}
-
-        {/*  /!* 关于项目部分 *!/*/}
-        {/*  <Box sx={{ position: 'absolute', bottom: 70, width: 633, right: windowWidth * 0.5 + 44 }}>*/}
-        {/*    <Typography sx={{ fontSize: 32, textAlign: 'left' }}>About the Project</Typography>*/}
-        {/*    <Typography sx={{ maxWidth: '800px', fontSize: 16, textAlign: 'left' }}>*/}
-        {/*      PanKGraph combines Knowledge Graphs and LLMs to create a powerful T1D knowledge portal, */}
-        {/*      integrating diverse data to uncover insights and accelerate research.*/}
-        {/*    </Typography>*/}
-        {/*    <Typography sx={{ fontSize: 16, textAlign: 'left' }}>*/}
-        {/*      Supported by National Institutes of Health (NIH) grants U24 DK138515, U24 DK138512, and */}
-        {/*      supplemental funds from the NIH Office of Data Science Strategies.*/}
-        {/*    </Typography>*/}
-        {/*  </Box>*/}
-
-        {/*  /!* NIH 标志 *!/*/}
-        {/*  <Box sx={{ */}
-        {/*    display: 'flex',*/}
-        {/*    gap: 4,*/}
-        {/*    mt: 2,*/}
-        {/*    position: 'absolute',*/}
-        {/*    left: windowWidth * 0.5 + 44,*/}
-        {/*    bottom: 70*/}
-        {/*  }}>*/}
-        {/*    <img src={relatedResources} alt="NIH NIDDK" style={{ height: '100px' }} />*/}
-        {/*  </Box>*/}
-        {/*</Box>*/}
-      </Box>
-    {/*  footer*/}
-    {/*  <PkbFooter/>*/}
     </Container>
   );
 }

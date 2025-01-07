@@ -15,24 +15,29 @@ import IntermediatePage from './components/IntermediatePage';
 import ResultPage from './SearchResult';
 import NavBar from "./NavBar";
 import PkbFooter from "./Footer/footer";
+import {Container} from "@mui/material";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <BrowserRouter>
-        <NavBar/>
-        <Routes>
-          <Route path="/intermediate" element={<IntermediatePage />} />
-          <Route path="/ontology" element={<Ontology />} />
-          <Route path="/statistics" element={<DocPage />} />
-          <Route path="/api" element={<ApiPage />} />
-          <Route path="/tutorial" element={<Tutorial />} />
-          <Route path="/result" element={<ResultPage />} />
-          <Route path="/" element={<LandingPage />} />
-        </Routes>
-        {/*<PkbFooter/>*/}
-      </BrowserRouter>
+      <Container disableGutters maxWidth={false} sx={{padding: 0, margin: 0, minHeight: '100vh',
+        display: 'flex', flexDirection: 'column'
+      }}>
+        <BrowserRouter>
+          <NavBar/>
+          <Routes>
+            <Route path="/intermediate" element={<IntermediatePage />} />
+            <Route path="/ontology" element={<Ontology />} />
+            <Route path="/statistics" element={<DocPage />} />
+            <Route path="/api" element={<ApiPage />} />
+            <Route path="/tutorial" element={<Tutorial />} />
+            <Route path="/result" element={<ResultPage />} />
+            <Route path="/" element={<LandingPage />} />
+          </Routes>
+          <PkbFooter/>
+        </BrowserRouter>
+      </Container>
     </Provider>
   </React.StrictMode>
 );

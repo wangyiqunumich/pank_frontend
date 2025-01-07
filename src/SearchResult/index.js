@@ -522,26 +522,29 @@ This answer refers to the following resources in PanKbase:`;
     }
 
     return (
-        <Container disableGutters maxWidth={false}>
-            {/*Navbar*/}
-            {/*<NavBar/>*/}
+        <Container disableGutters maxWidth={false} sx={{
+            padding: 0, display: 'flex',
+            flexDirection: 'row', justifyContent: 'space-evenly',
+        }}>
             {/*left*/}
             <Box sx={{
                 // display: 'flex',
                 alignItems: 'center',
                 gap: 0,
-                position: 'absolute',
-                top: '130px',
-                right: windowWidth * 0.5 + 44,
+                // position: 'relative',
+                // top: '0px',
+                // right: windowWidth * 0.5 + 44,
                 width: 685,
-                minHeight: '950px'
+                // minHeight: '950px',
+                marginTop: '50px'
             }}>
                 <Typography sx={{ fontSize: 22, width: 685, textAlign: 'left', marginBottom: '10px' }}>
                     Question
                 </Typography>
-                <Box sx={{ width: 685, padding: '20px', backgroundColor: '#E4F0F1'}}>
+                {/*test question block*/}
+                <Box sx={{ padding: '20px', backgroundColor: '#E4F0F1'}}>
                     {currentQuestionType && (
-                        <Typography sx={{ fontSize: 14, width: 685, textAlign: 'left' }}>
+                        <Typography sx={{ fontSize: 14, textAlign: 'left' }}>
                             (Your selection belongs to: {currentQuestionType})
                         </Typography>
                     )}
@@ -557,80 +560,21 @@ This answer refers to the following resources in PanKbase:`;
                         dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }}
                     />
                 </Box>
-            </Box>
-            {/*graph viewer, right*/}
-            <Box sx={{
-                width: 672,
-                display: 'flex',
-                flexDirection: 'column',
-                position: 'absolute',
-                top: 100,
-                left: windowWidth * 0.5 + 44
-            }}>
-                <SearchBar
-                    source={searchState.sourceTerm}
-                    target={searchState.targetTermSymbol}
-                    disabled={true}
-                    resultPageShown={true}
-                />
-                <Typography sx={{
-                    fontWeight: 'bold',
-                    fontSize: 22,
-                    left: 0,
-                    zIndex: 1,
-                    marginTop: '20px',
-                    marginBottom: '16px'
+                <Typography sx={{ fontWeight: 'bold', fontSize: 22, marginTop: '20px', marginBottom: '16px'
                 }}>
-                    Graph viewer
+                    AI' overview
                 </Typography>
-                <Box sx={{
-                    position: 'relative',
-                    minHeight: '472px',
-                    overflow: 'visible',
-                    backgroundColor: '#FBFBFB',
-                    border: 1,
-                    borderColor: '#EEEEEE',
-                    textAlign: 'left',
-                    marginBottom: '60px'
-                }}>
-                    <KnowledgeGraph />
-                </Box>
-                <Legend />
-            </Box>
-
-            {/*AI's overview, left*/}
-            <Box sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 10,
-                padding: '0px',
-                margin: '0px',
-                width: 685,
-                position: 'absolute',
-                right: windowWidth * 0.5 + 44,
-                top: 390
-            }}>
                 <Box sx={{
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '32px',
-                    width: 685,
+                    // width: 685,
                     backgroundColor: '#FBFBFB',
                     border: 1,
                     borderColor: '#EEEEEE',
                     padding: '20px',
                     position: 'relative',
                 }}>
-                    <Typography sx={{
-                        fontWeight: 'bold',
-                        fontSize: 22,
-                        position: 'absolute',
-                        top: -44,
-                        left: 0,
-                        zIndex: 1
-                    }}>
-                        AI' overview
-                    </Typography>
                     <Typography component="div">
                         {Array.isArray(aiAnswer?.answers) && aiAnswer.answers.map((answer, index) => (
                             <div key={index} style={{ marginBottom: index < aiAnswer.answers.length - 1 ? '20px' : '0' }}>
@@ -655,9 +599,11 @@ This answer refers to the following resources in PanKbase:`;
                             </div>
                         ))}
                     </Typography>
+
+                    {/*resource*/}
                     <Box>
-                        <Box sx={{ 
-                            display: 'flex', 
+                        <Box sx={{
+                            display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between'
                         }}>
@@ -714,27 +660,18 @@ This answer refers to the following resources in PanKbase:`;
                     </Box>
                 </Box>
                 {/*you may also ask*/}
+                <Typography sx={{fontWeight: 'bold', fontSize: 22, marginTop: '20px', marginBottom: '16px' }}>You may also ask</Typography>
                 <Box sx={{
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '32px',
-                    width: 672,
                     backgroundColor: '#FBFBFB',
                     border: 1,
                     borderColor: '#EEEEEE',
                     padding: '20px',
-                    position: 'relative'
+                    marginBottom: '44px'
+                    // position: 'relative'
                 }}>
-                    <Typography sx={{
-                        fontWeight: 'bold',
-                        fontSize: 22,
-                        position: 'absolute',
-                        top: -44,
-                        left: 0,
-                        zIndex: 1
-                    }}>
-                        You may also ask
-                    </Typography>
                     <ul className="next-questions-list">
                         {nextQuestions?.length > 0 ? (
                             nextQuestions.map((question, index) => (
@@ -758,6 +695,61 @@ This answer refers to the following resources in PanKbase:`;
                     </ul>
                 </Box>
             </Box>
+
+            {/*graph viewer, right*/}
+            <Box sx={{
+                width: 672,
+                display: 'flex',
+                flexDirection: 'column',
+                marginBottom: '44px',
+                marginTop: '30px'
+                // position: 'absolute',
+                // top: 100,
+                // left: windowWidth * 0.5 + 44
+            }}>
+                <SearchBar
+                    source={searchState.sourceTerm}
+                    target={searchState.targetTermSymbol}
+                    disabled={true}
+                    resultPageShown={true}
+                />
+                <Typography sx={{
+                    fontWeight: 'bold',
+                    fontSize: 22,
+                    marginTop: '20px',
+                    marginBottom: '16px'
+                }}>
+                    Graph viewer
+                </Typography>
+                <Box sx={{
+                    position: 'relative',
+                    minHeight: '472px',
+                    overflow: 'visible',
+                    backgroundColor: '#FBFBFB',
+                    border: 1,
+                    borderColor: '#EEEEEE',
+                    textAlign: 'left',
+                    marginBottom: '60px'
+                }}>
+                    <KnowledgeGraph />
+                </Box>
+                <Legend />
+            </Box>
+
+            {/*AI's overview, left*/}
+            {/*<Box sx={{*/}
+            {/*    display: 'flex',*/}
+            {/*    flexDirection: 'column',*/}
+            {/*    gap: 10,*/}
+            {/*    padding: '0px',*/}
+            {/*    margin: '0px',*/}
+            {/*    width: 685,*/}
+            {/*    position: 'absolute',*/}
+            {/*    right: windowWidth * 0.5 + 44,*/}
+            {/*    top: 390*/}
+            {/*}}>*/}
+
+            {/*</Box>*/}
             <ImageModal
                 open={modalOpen}
                 handleClose={handleCloseModal}

@@ -469,7 +469,10 @@ function IntermediatePage({ onContinue }) {
   }, [viewSchema, searchState.sourceTerm, searchState.targetTerm]);
 
   return (
-    <Container sx={{ padding: 0 }} disableGutters>
+    <Container sx={{ padding: 0, display: 'flex',
+      flexDirection: 'row', justifyContent: 'space-evenly',
+      marginBottom: '44px'
+    }} disableGutters maxWidth={false}>
       {!loading && error && (
         <Box
           sx={{
@@ -502,49 +505,214 @@ function IntermediatePage({ onContinue }) {
           </Button>
         </Box>
       )}
-      {/*NavBar*/}
-      {/*<NavBar />*/}
-      {/* 问题显示区域 */}
-      <Box
-          flexDirection="column"
-          sx={{
-        // display: 'flex',
-        alignItems: 'center',
-        gap: 0,
-        position: 'absolute',
-        top: '130px',
-        right: windowWidth * 0.5 + 44,
-        width: 685
+
+      {/* left side */}
+      <Box sx={{
+        width: 685,
+        display: 'flex',
+        flexDirection: 'column',
+        marginBottom: '20px',
+        marginTop: '50px'
       }}>
-        {/*<Box sx={{ width: '60%', visibility: 'hidden' }} />*/}
-        <Typography sx={{ fontSize: 20, width: 685, textAlign: 'left', marginBottom: '10px' }}>
+        {/* 问题显示区域 */}
+        <Typography sx={{ fontSize: 20, textAlign: 'left', marginBottom: '10px' }}>
           Question
         </Typography>
-        <Box sx={{ width: 685, padding: '20px', backgroundColor: '#E4F0F1'}}>
+        <Box sx={{ padding: '20px', backgroundColor: '#E4F0F1', marginBottom: '20px'}}>
           <Typography
               sx={{
-                width: 685,
                 textAlign: 'left',
                 fontSize: 16,
               }}
               dangerouslySetInnerHTML={{ __html: processedQuestion }}
           />
         </Box>
+
+        {/* 搜索结果 */}
+        <Typography sx={{
+          fontWeight: 800,
+          fontSize: 20, marginBottom: '16px'
+          // position: 'absolute',
+          // top: -44,
+          // left: 0,
+          // zIndex: 1
+        }}>
+          Result
+        </Typography>
+        <Box sx={{
+          backgroundColor: '#FBFBFB',
+          border: 1,
+          borderColor: '#EEEEEE',
+        }}>
+          <div className="styled-paper">
+            <div className="answer-content">
+              <Typography sx={{ mb: 2, fontSize: 14 }}>
+                Found four categories of Quantitative Trait Loci (QTL) data, derived from pancreatic and islet tissue samples.
+              </Typography>
+
+              {/* 添加 Tabs */}
+              <Tabs
+                  value={selectedTab}
+                  onChange={handleTabChange}
+                  variant="scrollable"
+                  scrollButtons={false}
+                  sx={{
+                    '& .MuiButtonBase-root': {
+                      padding: '10px'
+                    },
+                    '& .MuiTab-root': {
+                      // minHeight: '60px',
+                      textTransform: 'none',
+                      fontSize: '16px',
+                      whiteSpace: 'normal',
+                      // lineHeight: '1.2',
+                      // width: '120px',
+                      // minWidth: '120px',
+                      // maxWidth: '120px',
+                      margin: '0px',
+                      '& .MuiTab-wrapper': {
+                        flexDirection: 'row',
+                        justifyContent: 'flex-start',
+                        alignItems: 'flex-start'
+                      }
+                    },
+                    '& .MuiTabs-flexContainer': {
+                      gap: '0px',
+                      justifyContent: 'space-between'
+                    }
+                  }}
+              >
+                {getTabOptions().map((option) => (
+                    <Tab
+                        sx={{
+                          backgroundColor: selectedTab === option.label ? '#E4F0F1' : 'none'
+                        }}
+                        key={option.label}
+                        label={
+                          <Typography
+                              component="span"
+                              sx={{
+                                textAlign: 'left',
+                                fontSize: '14px',
+                                color: 'black'
+                                // lineHeight: 1.2,
+                                // wordWrap: 'break-word'
+                              }}
+                          >
+                            {option.label} ({option.count})
+                          </Typography>
+                        }
+                        value={option.label}
+                    />
+                ))}
+              </Tabs>
+
+              {/* 详细结果表格 */}
+              <TableContainer component={Paper} sx={{
+                border: '1px solid #727272',
+                boxShadow: '0px 0px 0px 0px rgba(0,0,0,0.2)'
+              }}>
+                <Table size={getFilteredCredibleSets().length > 8 ? "small" : "medium"}>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{
+                        fontWeight: 'bold',
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
+                      }}>Credible set</TableCell>
+                      <TableCell sx={{
+                        fontWeight: 'bold',
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
+                      }}>Purity</TableCell>
+                      <TableCell sx={{
+                        fontWeight: 'bold',
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
+                      }}>Lead SNP</TableCell>
+                      <TableCell sx={{
+                        fontWeight: 'bold',
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
+                      }}>PIP</TableCell>
+                      <TableCell sx={{
+                        fontWeight: 'bold',
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
+                      }}>#</TableCell>
+                      <TableCell sx={{
+                        fontWeight: 'bold',
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
+                      }}></TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {getFilteredCredibleSets().map((item, index) => (
+                        <TableRow
+                            key={`credible-set-${index}`}
+                            onClick={() => handleSNPClick(
+                                item.lead_SNP,
+                                item.data_source,
+                                item.lead_SNP
+                            )}
+                            sx={{
+                              cursor: 'pointer',
+                              '& .MuiTableCell-root': {
+                                padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
+                              }
+                            }}
+                        >
+                          <TableCell sx={{ verticalAlign: 'middle' }}>
+                            <Link
+                                component="button"
+                                variant="body2"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSNPClick(
+                                      item.lead_SNP,
+                                      item.data_source,
+                                      item.lead_SNP
+                                  );
+                                }}
+                                sx={{ textAlign: 'left', display: 'block', padding: '4px', backgroundColor: '#43978F',
+                                  borderRadius: '4px', color: 'white'
+                                }}
+                            >
+                              {item.displayLabel}
+                            </Link>
+                          </TableCell>
+                          <TableCell sx={{ verticalAlign: 'middle' }}>{item.purity?.toFixed(2) || '-'}</TableCell>
+                          <TableCell sx={{ verticalAlign: 'middle' }}>{item.lead_SNP}</TableCell>
+                          <TableCell sx={{ verticalAlign: 'middle' }}>{item.pip?.toFixed(2) || '-'}</TableCell>
+                          <TableCell sx={{ verticalAlign: 'middle' }}>{item.n_snp || '-'}</TableCell>
+                          <TableCell sx={{ verticalAlign: 'middle' }}>
+                            <Typography sx={{ fontSize: '14px', padding: '4px', backgroundColor: '#bfbfbf',
+                              textAlign: 'center'
+                            }}>Click for more</Typography>
+                            {/*<Link */}
+                            {/*  component="button" */}
+                            {/*  variant="body2" */}
+                            {/*  onClick={(e) => {*/}
+                            {/*    e.stopPropagation();*/}
+                            {/*    handleDownload(item);*/}
+                            {/*  }}*/}
+                            {/*>*/}
+                            {/*  Link*/}
+                            {/*</Link>*/}
+                          </TableCell>
+                        </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </div>
+          </div>
+        </Box>
       </Box>
 
-      {/* 主要内容区域 */}
-      <Box sx={{ 
-        display: 'flex',
-        minHeight: '950px',
-      }}>
+
+
         {/* right侧知识图谱区域 */}
         <Box sx={{
           width: 672,
           display: 'flex',
           flexDirection: 'column',
-          position: 'absolute',
-          top: 100,
-          left: windowWidth * 0.5 + 44
+          marginTop: '30px'
         }}>
           <SearchBar
               target={searchState.targetTermSymbol}
@@ -568,7 +736,7 @@ function IntermediatePage({ onContinue }) {
             borderColor: '#EEEEEE',
             marginBottom: '60px'
           }}>
-              <IntermediateKG />
+            <IntermediateKG />
           </Box>
 
           {/* Legend */}
@@ -617,189 +785,6 @@ function IntermediatePage({ onContinue }) {
             </Box>
           </Box>
         </Box>
-
-        {/* left侧搜索结果 */}
-        <Box sx={{ 
-          width: 685,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 2,
-          position: 'absolute',
-          right: windowWidth * 0.5 + 44,
-          top: 350,
-          backgroundColor: '#FBFBFB',
-          border: 1,
-          borderColor: '#EEEEEE',
-          marginBottom: '20px'
-        }}>
-          <Typography sx={{
-            fontWeight: 800,
-            fontSize: 20,
-            position: 'absolute',
-            top: -44,
-            left: 0,
-            zIndex: 1
-          }}>
-            Result
-          </Typography>
-          <div className="styled-paper">
-            <div className="answer-content">
-              <Typography sx={{ mb: 2, fontSize: 14 }}>
-                Found four categories of Quantitative Trait Loci (QTL) data, derived from pancreatic and islet tissue samples.
-              </Typography>
-              
-              {/* 添加 Tabs */}
-              <Tabs
-                value={selectedTab}
-                onChange={handleTabChange}
-                variant="scrollable"
-                scrollButtons={false}
-                sx={{
-                  '& .MuiButtonBase-root': {
-                    padding: '10px'
-                  },
-                  '& .MuiTab-root': {
-                    // minHeight: '60px',
-                    textTransform: 'none',
-                    fontSize: '16px',
-                    whiteSpace: 'normal',
-                    // lineHeight: '1.2',
-                    // width: '120px',
-                    // minWidth: '120px',
-                    // maxWidth: '120px',
-                    margin: '0px',
-                    '& .MuiTab-wrapper': {
-                      flexDirection: 'row',
-                      justifyContent: 'flex-start',
-                      alignItems: 'flex-start'
-                    }
-                  },
-                  '& .MuiTabs-flexContainer': {
-                    gap: '0px',
-                    justifyContent: 'space-between'
-                  }
-                }}
-              >
-                {getTabOptions().map((option) => (
-                  <Tab
-                      sx={{
-                        backgroundColor: selectedTab === option.label ? '#E4F0F1' : 'none'
-                      }}
-                    key={option.label}
-                    label={
-                        <Typography 
-                          component="span" 
-                          sx={{ 
-                            textAlign: 'left',
-                            fontSize: '14px',
-                            color: 'black'
-                            // lineHeight: 1.2,
-                            // wordWrap: 'break-word'
-                          }}
-                        >
-                          {option.label} ({option.count})
-                        </Typography>
-                    }
-                    value={option.label}
-                  />
-                ))}
-              </Tabs>
-
-              {/* 详细结果表格 */}
-              <TableContainer component={Paper} sx={{ 
-                border: '1px solid #727272',
-                boxShadow: '0px 0px 0px 0px rgba(0,0,0,0.2)'
-              }}>
-                <Table size={getFilteredCredibleSets().length > 8 ? "small" : "medium"}>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ 
-                        fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
-                      }}>Credible set</TableCell>
-                      <TableCell sx={{ 
-                        fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
-                      }}>Purity</TableCell>
-                      <TableCell sx={{ 
-                        fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
-                      }}>Lead SNP</TableCell>
-                      <TableCell sx={{ 
-                        fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
-                      }}>PIP</TableCell>
-                      <TableCell sx={{ 
-                        fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
-                      }}>#</TableCell>
-                      <TableCell sx={{ 
-                        fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
-                      }}></TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {getFilteredCredibleSets().map((item, index) => (
-                      <TableRow 
-                        key={`credible-set-${index}`}
-                        onClick={() => handleSNPClick(
-                          item.lead_SNP,
-                          item.data_source,
-                          item.lead_SNP
-                        )}
-                        sx={{ 
-                          cursor: 'pointer',
-                          '& .MuiTableCell-root': {
-                            padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
-                          }
-                        }}
-                      >
-                        <TableCell sx={{ verticalAlign: 'middle' }}>
-                          <Link 
-                            component="button" 
-                            variant="body2"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSNPClick(
-                                item.lead_SNP,
-                                item.data_source,
-                                item.lead_SNP
-                              );
-                            }}
-                            sx={{ textAlign: 'left', display: 'block', padding: '4px', backgroundColor: '#43978F',
-                              borderRadius: '4px', color: 'white'
-                            }}
-                          >
-                            {item.displayLabel}
-                          </Link>
-                        </TableCell>
-                        <TableCell sx={{ verticalAlign: 'middle' }}>{item.purity?.toFixed(2) || '-'}</TableCell>
-                        <TableCell sx={{ verticalAlign: 'middle' }}>{item.lead_SNP}</TableCell>
-                        <TableCell sx={{ verticalAlign: 'middle' }}>{item.pip?.toFixed(2) || '-'}</TableCell>
-                        <TableCell sx={{ verticalAlign: 'middle' }}>{item.n_snp || '-'}</TableCell>
-                        <TableCell sx={{ verticalAlign: 'middle' }}>
-                          <Typography sx={{ fontSize: '14px', padding: '4px', backgroundColor: '#bfbfbf'}}>Click for more</Typography>
-                          {/*<Link */}
-                          {/*  component="button" */}
-                          {/*  variant="body2" */}
-                          {/*  onClick={(e) => {*/}
-                          {/*    e.stopPropagation();*/}
-                          {/*    handleDownload(item);*/}
-                          {/*  }}*/}
-                          {/*>*/}
-                          {/*  Link*/}
-                          {/*</Link>*/}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </div>
-          </div>
-        </Box>
-      </Box>
     </Container>
   );
 }
