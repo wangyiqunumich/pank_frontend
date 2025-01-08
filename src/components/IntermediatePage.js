@@ -366,7 +366,7 @@ function IntermediatePage({ onContinue }) {
         case 'Islet eQTL':
           return cs.data_source === 'INSPIRE; SusieR';
         case 'Pancreatic splicing QTL':
-          return cs.data_source === 'GTEx; Splicing';
+          return cs.data_source === 'splicing; GTEx';
         case 'Islet Exon QTL':
           return cs.data_source === 'exon; INSPIRE';
         default:
