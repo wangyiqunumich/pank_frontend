@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import { Box, Typography, Container, Link, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
-import landingPageLogo from '../image/LandingPageVisu.png';
+import landingPageLogo from '../image/pankgraph landing image 20250108.png';
 import relatedResources from '../image/relatedResources.png';
 import apiIcon from '../image/apiIcon.png';
 import { Link as RouterLink } from 'react-router-dom';
