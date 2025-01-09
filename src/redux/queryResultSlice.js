@@ -21,7 +21,7 @@ export const queryQueryResult = createAsyncThunk('/openCypherToQueryResult',
 export const queryResultSlice = createSlice({
     name: 'queryResult',
     initialState: {
-        queryResult: {},
+        queryResult: {123: 123},
         queryQueryResultStatus: QueryStatus.uninitialized, // This is auto updated
         queryQueryResultErrorMessage: ''
     },

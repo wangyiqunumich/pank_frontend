@@ -15,7 +15,7 @@ import { setNextQuestionClicked } from '../redux/searchSlice';
 import { queryQueryVisResult } from '../redux/queryVisResultSlice';
 import { setTargetTermSymbol } from '../redux/searchSlice';
 
-const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, source, target, onTargetTermChange }, ref) => {
+const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, source, target, onTargetTermChange, question }, ref) => {
     const dispatch = useDispatch();
     const {viewSchema, queryViewSchemaStatus} = useSelector((state) => state.viewSchema);
     const {vocab, queryVocabStatus} = useSelector((state) => state.inputToVocab);
@@ -70,50 +70,72 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
         }));
     }, []);
 
-    const updateSourceTerm = async (event, newValue) => {
-        if (store.getState().search.nextQuestionClicked) {
-            return;
-        }
-        if (!disabled) {
-            setSourceTerm(newValue || '');
+    useEffect(() => {
+        if (!question) {
+            setSourceTerm('');
             setRelationship('');
             setTargetTerm('');
-            dispatch(queryQueryResult({ query: '' }));
-            
-            if (newValue) {
-                const [sourceType, ...rest] = newValue.split(':');
-                const sourceValue = rest.join(':');
-                const predefinedTypes = ["gene", "sequence variant"];
-                const isCustomInput = !predefinedTypes.includes(sourceType);
-                setIsCustomSource(isCustomInput);
-                
-                clearTimeout(sourceTimerRef.current);
-                sourceTimerRef.current = setTimeout(async () => {
-                    const result = await dispatch(queryVocab({input: newValue})).unwrap();
-                    if (result) {
-                        let formattedOption;
-                        if (result.includes('@')) {
-                            const [type, value] = result.split('@');
-                            formattedOption = `${type}:${value}`;
-                            setSourceOptions([formattedOption]);
-                            setSourceTerm(formattedOption);
-                        } else {
-                            formattedOption = `${result}:${newValue}`;
-                            setSourceOptions([formattedOption]);
-                        }
-                    }
-                }, 500);
-                
-                if (!isCustomInput) {
-                    setTargetOptions([]);
-                }
-            } else {
-                setSourceOptions(["gene", "sequence variant"]);
-                setIsTargetTermDisabled(true);
-                setIsCustomSource(false);
-                setTargetOptions([]);
+            setTargetDisplayTerm('');
+            setSourceOptions([]);
+            setRelationshipOptions([]);
+            setTargetOptions([]);
+        }
+        if (question) {
+            if (question.includes('SNP') && question.includes('<gene>')) {
+                setSourceTerm('sequence variant');
+                setRelationship('QTL of');
+                setSourceOptions(['sequence variant']);
+                setRelationshipOptions(['QTL of']);
+                setIsTargetTermDisabled(false);
+                setTargetDisplayTerm('<gene>');
             }
         }
+    }, [question]);
+
+    const updateSourceTerm = async (event, newValue) => {
+        // if (store.getState().search.nextQuestionClicked) {
+        //     return;
+        // }
+        // if (!disabled) {
+        //     setSourceTerm(newValue || '');
+        //     setRelationship('');
+        //     setTargetTerm('');
+        //     dispatch(queryQueryResult({ query: '' }));
+            
+        //     if (newValue) {
+        //         const [sourceType, ...rest] = newValue.split(':');
+        //         const sourceValue = rest.join(':');
+        //         const predefinedTypes = ["gene", "sequence variant"];
+        //         const isCustomInput = !predefinedTypes.includes(sourceType);
+        //         setIsCustomSource(isCustomInput);
+                
+        //         clearTimeout(sourceTimerRef.current);
+        //         sourceTimerRef.current = setTimeout(async () => {
+        //             const result = await dispatch(queryVocab({input: newValue})).unwrap();
+        //             if (result) {
+        //                 let formattedOption;
+        //                 if (result.includes('@')) {
+        //                     const [type, value] = result.split('@');
+        //                     formattedOption = `${type}:${value}`;
+        //                     setSourceOptions([formattedOption]);
+        //                     setSourceTerm(formattedOption);
+        //                 } else {
+        //                     formattedOption = `${result}:${newValue}`;
+        //                     setSourceOptions([formattedOption]);
+        //                 }
+        //             }
+        //         }, 500);
+                
+        //         if (!isCustomInput) {
+        //             setTargetOptions([]);
+        //         }
+        //     } else {
+        //         setSourceOptions(["gene", "sequence variant"]);
+        //         setIsTargetTermDisabled(true);
+        //         setIsCustomSource(false);
+        //         setTargetOptions([]);
+        //     }
+        // }
     };
 
     const handleRelationshipOpen = () => {
@@ -193,14 +215,14 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
         if (store.getState().search.nextQuestionClicked) {
             return;
         }
-    
+
         // 设置用户显示值
         if (!disabled) {
             setTargetDisplayTerm(newValue || '');
         }
-    
+
         if (newValue && (newValue.includes('gene:') || newValue.includes('sequence variant'))) {
-            setTargetTerm(newValue); // 设置后台实际值
+            setTargetTerm(newValue);
             dispatch(setSearchTerms({
                 ...store.getState().search,
                 targetTerm: newValue
@@ -217,23 +239,28 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
                             }
                             let formattedOption;
                             let formattedTerm;
-                            console.log(result);
                             if (result.includes('@')) {
                                 const [type, value] = result.split('@');
                                 formattedTerm = `${type}:${value}`;
                                 formattedOption = `${type}:${newValue}`;
                                 setTargetOptions([formattedOption]);
-                                setTargetTerm(formattedTerm); // 设置后台实际值
+                                setTargetTerm(formattedTerm);
                                 setTargetTermSymbol(newValue);
-                            } else {
-                                // formattedOption = `${result}:${newValue}`;
-                                // formattedTerm = `${result}:${newValue}`;
-                                // setTargetOptions([formattedOption]);
-                                // setTargetTerm(formattedTerm); // 设置后台实际值
                             }
+                        } else {
+                            // 只清空选项，不清空输入框
+                            setTargetOptions([]);
+                            setTargetTerm('');
+                            setTargetTermSymbol('');
+                            // 不清除 targetDisplayTerm，保留用户输入
                         }
                     } catch (error) {
                         console.error('Error querying vocab:', error);
+                        // 错误时也只清空选项
+                        setTargetOptions([]);
+                        setTargetTerm('');
+                        setTargetTermSymbol('');
+                        // 不清除 targetDisplayTerm
                     }
                 }, 500);
             } else {
@@ -367,9 +394,9 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
     // }, [queryViewSchemaStatus, viewSchema, sourceTerm, relationship, targetTerm]);
 
     const isValid = () => {
-        // 检查 targetTerm 是否在 targetOptions 中
-        // const isTargetValid = targetOptions.includes(targetTerm);
-        return sourceTerm && relationship && targetTerm;   
+        // 检查 targetDisplayTerm 不为空且 targetTerm 存在
+        const isTargetValid = targetDisplayTerm && targetDisplayTerm.trim() !== '' && targetTerm;
+        return sourceTerm && relationship && isTargetValid;   
     };
 
     // 添加对 nextQuestionClicked 的监听
@@ -526,6 +553,12 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
                                 )}
                                 disabled={isTargetTermDisabled || disabled || searchClicked}
                                 filterOptions={(options) => options}
+                                onClear={() => {
+                                    setTargetOptions([]);
+                                    setTargetTerm('');
+                                    setTargetTermSymbol('');
+                                    setTargetDisplayTerm('');
+                                }}
                             />
 
                         ) : (

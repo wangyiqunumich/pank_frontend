@@ -41,7 +41,7 @@ function IntermediatePage({ onContinue }) {
   const { queryResult } = useSelector((state) => state.queryResult);
   const conversionTable = require('../utils/conversion_table.json');
 
-  const [selectedTab, setSelectedTab] = useState('Pancreatic eQTL');
+  const [selectedTab, setSelectedTab] = useState('');
 
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
@@ -67,6 +67,7 @@ function IntermediatePage({ onContinue }) {
   };
 
   const processDataSources = () => {
+    console.log('Query Result:', JSON.stringify(queryResult, null, 2));
     if (!queryResult?.results || queryResult.results.length === 0) {
       return {
         'Pancreatic': {
@@ -126,14 +127,14 @@ function IntermediatePage({ onContinue }) {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (!queryResult || queryResult.length === 0) {
+      if (!queryResult?.results || queryResult.results.length === 0) {
         setError(true);
       }
       setLoading(false);
     }, 3000);
 
     // 如果在 3s 内获取到了数据,清除错误状态
-    if (queryResult && queryResult.length > 0) {
+    if (queryResult?.results && queryResult.results.length > 0) {
       setError(false);
       setLoading(false);
       clearTimeout(timer);
@@ -467,6 +468,56 @@ function IntermediatePage({ onContinue }) {
       dispatch(queryQueryResult({query: processedCypher})).unwrap();
     } 
   }, [viewSchema, searchState.sourceTerm, searchState.targetTerm]);
+
+  useEffect(() => {
+    if (queryResult?.results) {
+      const counts = processDataSources();
+      const tabOptions = [
+        { label: 'Pancreatic eQTL', count: counts.Pancreatic['eQTL GTEx'] },
+        { label: 'Islet eQTL', count: counts.Islet['eQTL InsPIRE'] },
+        { label: 'Pancreatic splicing QTL', count: counts.Pancreatic['Splicing QTL GTEx'] },
+        { label: 'Islet Exon QTL', count: counts.Islet['Exon QTL InsPIRE'] }
+      ];
+      
+      // 找到第一个计数不为 0 的选项
+      const firstNonZeroTab = tabOptions.find(tab => tab.count > 0);
+      if (firstNonZeroTab) {
+        setSelectedTab(firstNonZeroTab.label);
+      } else {
+        setSelectedTab('Pancreatic eQTL'); // 默认值
+      }
+    }
+  }, [queryResult]);
+
+  // 添加错误提示组件
+  if (error) {
+    return (
+      <Box sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        gap: 2
+      }}>
+        <Typography variant="h6" color="error">
+          No data found. Please try another gene.
+        </Typography>
+        <Button 
+          variant="contained" 
+          onClick={() => window.location.href = '/'}
+          sx={{
+            backgroundColor: '#219197',
+            '&:hover': {
+              backgroundColor: '#1A747A'
+            }
+          }}
+        >
+          Back to Home
+        </Button>
+      </Box>
+    );
+  }
 
   return (
     <Container sx={{ padding: 0, display: 'flex',

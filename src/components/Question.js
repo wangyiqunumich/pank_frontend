@@ -3,13 +3,17 @@ import { Box, Typography, Select, MenuItem } from '@mui/material';
 
 function Question({ selectedQuestion, setSelectedQuestion }) {
   const [questions, setQuestions] = useState([
-    'Which SNP serves as the quantitative trait locus (eQTL) for PTPN22?'
+    'Which SNP serves as the quantitative trait locus (eQTL) for <gene>?'
   ]);
 
   // 当 selectedQuestion 改变时，确保它在 questions 数组中
   useEffect(() => {
     if (selectedQuestion && !questions.includes(selectedQuestion)) {
-      setQuestions(prevQuestions => [...prevQuestions, selectedQuestion]);
+      setQuestions(prevQuestions => {
+        // 移除第一个问题并在数组开头添加新的问题
+        const newQuestions = prevQuestions.slice(1);
+        return [selectedQuestion, ...newQuestions];
+      });
     }
   }, [selectedQuestion]);
 

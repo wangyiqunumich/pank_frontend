@@ -11,9 +11,7 @@ import Question from './Question';
 
 function LandingPage() {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  const [selectedQuestion, setSelectedQuestion] = useState(
-    'Which SNP serves as the quantitative trait locus (eQTL) for PTPN22?'
-  );
+  const [selectedQuestion, setSelectedQuestion] = useState('');
   
   useEffect(() => {
     function handleResize() {
@@ -79,8 +77,9 @@ function LandingPage() {
             
             {/* SearchBar 组件 */}
             <SearchBar 
-              target={'PTPN22'}
+              // target={'<gene>'}
               onTargetTermChange={handleTargetTermChange}
+              question={selectedQuestion}
             />
           </Box>
     </Container>
