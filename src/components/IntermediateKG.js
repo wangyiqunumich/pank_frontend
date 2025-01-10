@@ -93,7 +93,7 @@ function IntermediateKG() {
         // 基因节点居中
         return {
           ...baseNodeConfig,
-          position: { x: 100, y: 250 }
+          position: { x: 0, y: 250 }
         };
       } else if (node.type.includes('credible_set')) {
         yOffset = startY + (typeCount.credible_set++ * 100);

@@ -123,7 +123,8 @@ const Legend = () => (
       <Box sx={{ 
         display: 'flex',
         // gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: 2
+        gap: 2,
+          marginBottom: '10px'
       }}>
         <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
           <Box sx={{ width: 20, height: 20, backgroundColor: '#ABD0F1', borderRadius: '4px' }} />
@@ -648,7 +649,7 @@ This answer refers to the following resources in PanKbase:`;
                                             }
                                         }}
                                     >
-                                        • Link to Ensembl: {searchState.targetTerm.split(':')[1]}
+                                        • Link to Ensembl {searchState.targetTerm.split(':')[1]}
                                     </Link>
                                 </ListItem>
                             </List>
