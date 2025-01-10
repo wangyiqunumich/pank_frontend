@@ -619,7 +619,7 @@ This answer refers to the following resources in PanKbase:`;
                             <List sx={{ padding: '0px' }}>
                                 <ListItem sx={{ paddingY: '0px' }}>
                                     <Link
-                                        href="https://pankbase.org"
+                                        href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         sx={{
