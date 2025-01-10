@@ -21,11 +21,11 @@ function Tutorial() {
 
   return (
     <>
-      <Container maxWidth={false} disableGutters>
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }} disableGutters>
         <Box className={'markdown-body'} sx={{
-          padding: '40px',
-          maxWidth: '1200px',
-          margin: '0 auto'
+          padding: '4px',
+          // maxWidth: '1200px',
+          p: 4, textAlign: 'left'
         }}>
           <ReactMarkdown>
             {markdown}
