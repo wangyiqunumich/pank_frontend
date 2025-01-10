@@ -1,12 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import { Box, Typography, Container, Link, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import landingPageLogo from '../image/landing image cropped.png';
-import relatedResources from '../image/relatedResources.png';
-import apiIcon from '../image/apiIcon.png';
-import { Link as RouterLink } from 'react-router-dom';
 import SearchBar from '../SearchBar';
-import NavBar from "../NavBar";
-import PkbFooter from "../Footer/footer";
+import TerminalIcon from '@mui/icons-material/Terminal';
 import Question from './Question';
 
 function LandingPage() {
@@ -51,6 +47,14 @@ function LandingPage() {
             }
           }}>
             <img src={landingPageLogo} alt="PanKgraph" />
+            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '6px', alignItems: 'center' }}>
+              <TerminalIcon sx={{ width: '30px', color: '#C48E25' }}/>
+              <Typography sx={{ fontSize: '20px'}}>
+                Access PanKgraph with <Link
+                  href={process.env.REACT_APP_PANKGRAPH_LINK + '/api'}
+                  sx={{ textDecoration: 'underline', color: 'black', textAlign: 'right'}}>API</Link>
+              </Typography>
+            </Box>
           </Box>
 
           {/* 右侧内容区域 */}
