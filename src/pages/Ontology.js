@@ -96,6 +96,9 @@ function Ontology() {
         <Typography variant="h4" gutterBottom>
           Ontology Tree
         </Typography>
+          <Typography>
+              The ontology tree displays all Gene Ontology (GO) terms included in PanKgraph, organized hierarchically for easy navigation and analysis. It encompasses various biological processes, molecular functions, and cellular components, structured to facilitate exploration and analysis of functional relationships within the dataset.
+          </Typography>
         <div dangerouslySetInnerHTML={{ __html: ontologyTreeHtml }} />
       </Container>
     </div>
