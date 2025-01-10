@@ -57,7 +57,7 @@ function NavBar() {
                           <a className="submenu-item" href="https://dev.pankgraph.org/">Search</a>
                           <a className="submenu-item" href="https://dev.pankgraph.org/api">API</a>
                           <a className="submenu-item" href="https://dev.pankgraph.org/ontology">Ontology</a>
-                          <a className="submenu-item" href="https://dev.pankgraph.org/">Use cases</a>
+                          <a className="submenu-item" href="https://dev.pankgraph.org/usecases">Use cases</a>
                           <a className="submenu-item" href="https://dev.pankgraph.org/tutorial">Tutorial</a>
                           <a className="submenu-item" href="https://dev.pankgraph.org/statistics">Statistics</a>
                         </div>

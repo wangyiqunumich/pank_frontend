@@ -16,6 +16,7 @@ import ResultPage from './SearchResult';
 import NavBar from "./NavBar";
 import PkbFooter from "./Footer/footer";
 import {Container} from "@mui/material";
+import UsecasesPage from "./pages/UsecasePage";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -33,6 +34,7 @@ root.render(
             <Route path="/api" element={<ApiPage />} />
             <Route path="/tutorial" element={<Tutorial />} />
             <Route path="/result" element={<ResultPage />} />
+            <Route path="/usecases" element={<UsecasesPage />} />
             <Route path="/" element={<LandingPage />} />
           </Routes>
           <PkbFooter/>
