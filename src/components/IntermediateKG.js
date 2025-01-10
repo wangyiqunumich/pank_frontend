@@ -99,7 +99,7 @@ function IntermediateKG() {
         yOffset = startY + (typeCount.credible_set++ * 100);
         return {
           ...baseNodeConfig,
-          position: { x: 400, y: yOffset }
+          position: { x: 425, y: yOffset }
         };
       } else if (node.type.includes('sequence_variant')) {
         // 找到对应的 credible_set 节点的位置
@@ -123,7 +123,7 @@ function IntermediateKG() {
         
         return {
           ...baseNodeConfig,
-          position: { x: 700, y: yOffset }
+          position: { x: 725, y: yOffset }
         };
       }
     });
