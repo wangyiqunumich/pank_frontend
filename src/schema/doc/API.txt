@@ -75,25 +75,26 @@ and all quotation marks (`"` or `'`) replaced with `\"` to avoid syntax error.
 
 For example,
 ```cypher
-MATCH (n:gene {name: 'LIG3'})
+MATCH (n:gene {name: 'CFTR'})
 RETURN n
 ```
 should be written into 
 ```cypher
-MATCH (n:gene {name: \"LIG3\"}) RETURN n
+MATCH (n:gene {name: \"CFTR\"}) RETURN n
 ```
 
 ### Example queries
 
 Below are some example queries to help you get started.
 
-- Get detailed information for gene `LIG3` (Ensembl ID = `ENSG00000005156`)
+- Get detailed information for gene `CFTR` (Ensembl ID = `ENSG00000001626
+`)
 ```cypher
-MATCH (n:gene {id:\"ENSG00000005156\"}) RETURN n
+MATCH (n:gene {id:\"ENSG00000001626\"}) RETURN n
 ```
 or
 ```cypher
-MATCH (n:gene) WHERE n.id=\"ENSG00000005156\" RETURN n
+MATCH (n:gene) WHERE n.id=\"ENSG00000001626\" RETURN n
 ```
 
 - Count all genes on chromosome `X`
@@ -103,7 +104,7 @@ MATCH (n:gene {chr:\"X\"}) RETURN COUNT(n)
 
 - Find all fine-mapped eQTLs for gene `LIG3` in pancreas and return rs IDs
 ```cypher
-MATCH (v)-[r:fine_mapped_eQTL]->(g:gene {name:\"LIG3\"}) WHERE r.tissue_id = \"UBERON_0001264\" RETURN v.id
+MATCH (v)-[r:fine_mapped_eQTL]->(g:gene {name:\"CFTR\"}) WHERE r.tissue_id = \"UBERON_0001264\" RETURN v.id
 ```
 Note: cell type names are represented with biomedical ontology IDs in PanKgraph.
 So `Pancreas` is represented as `tissue_id = UBERON_0001264`.
@@ -158,34 +159,34 @@ The PanKgraph API returns results as a JSON string.
 
 Example output:
 ```json
-[{
+{
   "results": [{
       "n": {
-        "~id": "ENSG00000005156",
+        "~id": "ENSG00000001626",
         "~entityType": "node",
         "~labels": ["coding_elements", "gene"],
         "~properties": {
-          "id": "ENSG00000005156",
-          "id_version": 12,
-          "name": "LIG3",
-          "HGNC_id": "HGNC:6600",
-          "HGNC_symbol": "LIG3",
-          "description": "DNA ligase 3 [Source:HGNC Symbol;Acc:HGNC:6600]",
-          "chr": "17",
-          "start_loc": 34980512,
-          "end_loc": 35009743,
+          "id": "ENSG00000001626",
+          "id_version": 18,
+          "name": "CFTR",
+          "HGNC_id": "HGNC:1884",
+          "HGNC_symbol": "CFTR",
+          "description": "CF transmembrane conductance regulator [Source:HGNC Symbol;Acc:HGNC:1884]",
+          "chr": "7",
+          "start_loc": 117287120,
+          "end_loc": 117715971,
           "strand": "1",
-          "GC_percentage": 47.21,
+          "GC_percentage": 36.9,
           "type": "protein_coding",
-          "link": "https://www.ensembl.org/id/ENSG00000005156",
-          "gencode_annotation": "GENCODE basic",
-          "synonym": "LIG3ALPHA;LIG2",
+          "link": "https://www.ensembl.org/id/ENSG00000001626",
+          "gencode_annotation": "nan",
+          "synonym": "ABC35;MRP7;TNR-CFTR;CFTR/MRP;ABCC7;CF;DJ760C5.1",
           "data_version": "GRCh38.p14",
           "data_source": "Ensembl"
         }
       }
     }]
-}]
+}
 ```
 Query results can be processed using programming libraries,
 e.g., [`json` package](https://docs.python.org/3/library/json.html) of Python.
@@ -195,3 +196,4 @@ If the query fails, the response starts with `"Error"`.
 - Error 400: Query failed. Check your Cypher query syntax.
 - Error 404: Access denied. Contact the PanKgraph team (`fan.feng@vumc.org`) for support.
 - Internal server error: Query took longer than 30 seconds and was terminated.
+

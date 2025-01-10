@@ -76,7 +76,7 @@ function IntermediateKG() {
         data: {
           id: node.id,
           label: node.type.includes('credible_set') ? 
-                 getCredibleSetLabel(node.id, node.data_source) : 
+                 getCredibleSetLabel(node.id, node.data_source).replace('_', ' ') :
                  (node.symbol || node.id),
           color: node.type.includes('gene') ? colorMap.gene : 
                  node.type.includes('credible_set') ? '#43978F' :
@@ -93,13 +93,13 @@ function IntermediateKG() {
         // 基因节点居中
         return {
           ...baseNodeConfig,
-          position: { x: 100, y: 250 }
+          position: { x: 0, y: 250 }
         };
       } else if (node.type.includes('credible_set')) {
         yOffset = startY + (typeCount.credible_set++ * 100);
         return {
           ...baseNodeConfig,
-          position: { x: 400, y: yOffset }
+          position: { x: 425, y: yOffset }
         };
       } else if (node.type.includes('sequence_variant')) {
         // 找到对应的 credible_set 节点的位置
@@ -123,7 +123,7 @@ function IntermediateKG() {
         
         return {
           ...baseNodeConfig,
-          position: { x: 700, y: yOffset }
+          position: { x: 725, y: yOffset }
         };
       }
     });

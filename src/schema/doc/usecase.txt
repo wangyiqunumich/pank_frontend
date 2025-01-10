@@ -12,9 +12,6 @@ The **AI Answer Section** provides a detailed summary of the relationship betwee
 
 This section is key for understanding variant-to-gene connections in the context of T1D pathogenesis.
 
-**Figure Placement:**  
-*(Place the screenshot of the "AI Answer Section" here for reference.)*
-
 ---
 
 ## **Graph Viewer**
@@ -25,8 +22,6 @@ The **Graph Viewer** provides a visual representation of the relationships betwe
 
 Researchers can use this visualization to quickly identify multi-level connections and focus on specific aspects of the network for further analysis.
 
-**Figure Placement:**  
-*(Place the screenshot of the "Graph Viewer" here, including the legend for better understanding.)*
 
 ---
 
@@ -50,8 +45,6 @@ Expands exploration by linking other related data modalities. Example questions 
 
 These questions guide researchers toward multi-modal exploration and foster new hypotheses about variant-gene-disease relationships.
 
-**Figure Placement:**  
-*(Insert the "You May Also Ask" screenshot here.)*
 
 ---
 

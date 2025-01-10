@@ -123,7 +123,8 @@ const Legend = () => (
       <Box sx={{ 
         display: 'flex',
         // gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: 2
+        gap: 2,
+          marginBottom: '10px'
       }}>
         <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
           <Box sx={{ width: 20, height: 20, backgroundColor: '#ABD0F1', borderRadius: '4px' }} />
@@ -623,7 +624,7 @@ This answer refers to the following resources in PanKbase:`;
                             <List sx={{ padding: '0px' }}>
                                 <ListItem sx={{ paddingY: '0px' }}>
                                     <Link
-                                        href="https://pankbase.org"
+                                        href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         sx={{
