@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import { Box, Typography, Container, Link, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
-import landingPageLogo from '../image/pankgraph landing image 20250108.png';
+import landingPageLogo from '../image/landing image cropped.png';
 import relatedResources from '../image/relatedResources.png';
 import apiIcon from '../image/apiIcon.png';
 import { Link as RouterLink } from 'react-router-dom';
@@ -38,14 +38,14 @@ function LandingPage() {
     }}>
           {/* 左侧图片 */}
           <Box sx={{ 
-            width: '36vw',
+            width: '600px',
             // height: 550,
             // flex: 'auto',
             // position: 'relative',
             // marginTop: 'calc(10vh - 100)',
             // right: windowWidth * 0.5 + 100,
             '& img': {
-              width: '36vw',
+              width: '600px',
               // height: 550,
               objectFit: 'contain'
             }
