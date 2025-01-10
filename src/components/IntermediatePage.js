@@ -724,7 +724,7 @@ function IntermediatePage({ onContinue }) {
                                   borderRadius: '4px', color: 'white'
                                 }}
                             >
-                              {item.displayLabel}
+                              {item.displayLabel?.replace('_', ' ')}
                             </Link>
                           </TableCell>
                           <TableCell sx={{ verticalAlign: 'middle' }}>{item.purity?.toFixed(2) || '-'}</TableCell>
