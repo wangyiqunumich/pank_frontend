@@ -816,19 +816,19 @@ function IntermediatePage({ onContinue }) {
             }}>
               {/* 第一行 */}
               <Box sx={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
+                display: 'flex',
+                // gridTemplateColumns: 'repeat(3, 1fr)',
                 gap: 2
               }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Box sx={{ width: 20, height: 20, backgroundColor: '#ABD0F1', borderRadius: '4px' }} />
                   <Typography variant="body2">Gene</Typography>
                 </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Box sx={{ width: 20, height: 20, backgroundColor: '#FFB77F', borderRadius: '4px' }} />
                   <Typography variant="body2">Sequence Variant</Typography>
                 </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Box sx={{ width: 20, height: 20, backgroundColor: '#43978F', borderRadius: '4px' }} />
                   <Typography variant="body2">Credible set</Typography>
                 </Box>
