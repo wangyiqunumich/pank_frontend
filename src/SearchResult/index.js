@@ -521,6 +521,10 @@ This answer refers to the following resources in PanKbase:`;
         );
     }
 
+    // 获取 URL 参数
+    const params = new URLSearchParams(window.location.search);
+    const geneId = params.get('geneId');
+
     return (
         <Container disableGutters maxWidth={false} sx={{
             padding: 0, display: 'flex',
@@ -636,7 +640,7 @@ This answer refers to the following resources in PanKbase:`;
                                 </ListItem>
                                 <ListItem sx={{ paddingY: '0px' }}>
                                     <Link
-                                        href={`https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${searchState.targetTerm.split(':')[1]}`}
+                                        href={`https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneId}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         sx={{
@@ -648,7 +652,7 @@ This answer refers to the following resources in PanKbase:`;
                                             }
                                         }}
                                     >
-                                        • Link to Ensembl: {searchState.targetTerm.split(':')[1]}
+                                        • Link to Ensembl: {geneId}
                                     </Link>
                                 </ListItem>
                             </List>
