@@ -71,23 +71,25 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
     }, []);
 
     useEffect(() => {
-        if (!question) {
-            setSourceTerm('');
-            setRelationship('');
-            setTargetTerm('');
-            setTargetDisplayTerm('');
-            setSourceOptions([]);
-            setRelationshipOptions([]);
-            setTargetOptions([]);
-        }
-        if (question) {
-            if (question.includes('SNP') && question.includes('<gene>')) {
-                setSourceTerm('sequence variant');
-                setRelationship('QTL of');
-                setSourceOptions(['sequence variant']);
-                setRelationshipOptions(['QTL of']);
-                setIsTargetTermDisabled(false);
-                setTargetDisplayTerm('<gene>');
+        if (!disabled) {
+            if (!question) {
+                setSourceTerm('');
+                setRelationship('');
+                setTargetTerm('');
+                setTargetDisplayTerm('');
+                setSourceOptions([]);
+                setRelationshipOptions([]);
+                setTargetOptions([]);
+            }
+            if (question) {
+                if (question.includes('SNP') && question.includes('<gene>')) {
+                    setSourceTerm('sequence variant');
+                    setRelationship('QTL of');
+                    setSourceOptions(['sequence variant']);
+                    setRelationshipOptions(['QTL of']);
+                    setIsTargetTermDisabled(false);
+                    setTargetDisplayTerm('<gene>');
+                }
             }
         }
     }, [question]);
