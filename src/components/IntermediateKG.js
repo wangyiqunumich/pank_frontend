@@ -76,7 +76,7 @@ function IntermediateKG() {
         data: {
           id: node.id,
           label: node.type.includes('credible_set') ? 
-                 getCredibleSetLabel(node.id, node.data_source) : 
+                 getCredibleSetLabel(node.id, node.data_source).replace('_', ' ') :
                  (node.symbol || node.id),
           color: node.type.includes('gene') ? colorMap.gene : 
                  node.type.includes('credible_set') ? '#43978F' :
