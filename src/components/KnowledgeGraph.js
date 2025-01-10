@@ -386,7 +386,7 @@ function KnowledgeGraph() {
 
     if ((sourceType === 'ontology' && targetType === 'gene') ||
         (sourceType === 'gene' && targetType === 'ontology')) {
-      return 'annotats by';
+      return 'annotates by';
     }
 
     if ((sourceType === 'article' && targetType === 'gene') ||
