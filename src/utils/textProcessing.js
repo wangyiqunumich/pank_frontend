@@ -10,7 +10,7 @@ const colorMap = {
     const sourceValue = sourceRest.join(':') || sourceType;
     
     const [targetType, ...targetRest] = targetTerm.split(':');
-    const targetValue = targetTermSymbol ? targetTermSymbol + '(' + targetRest.join(':') + ')' : targetRest.join(':') || targetType;
+    const targetValue = targetTermSymbol ? targetTermSymbol + ' (' + targetRest.join(':') + ')' : targetRest.join(':') || targetType;
 
     const replaceValue = sourceType !== sourceValue ? sourceValue : targetValue;
   
@@ -38,7 +38,7 @@ const colorMap = {
     const { leadSnp, geneId, tissueKey, dataSource, snpId, geneSymbol } = variables;
     return text
       .replace(/@lead_snp_node@/g, leadSnp)
-      .replace(/@gene_node@/g, geneSymbol + '(' + geneId + ')')
+      .replace(/@gene_node@/g, geneSymbol + ' (' + geneId + ')')
       .replace(/@tissue@/g, tissueKey)
       .replace(/@data_source@/g, dataSource)
       .replace(/@snp_node@/g, snpId);
