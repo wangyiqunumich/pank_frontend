@@ -234,80 +234,82 @@ function SearchResult() {
                         cyper_for_result_page_all_nodes_specific 
                     } = response.payload;
 
-                    // 处理问题和变量替换
-                    const variables = {
-                        snpId: getIdFromTerm(sourceTerm),
-                        leadSnp: leadSnp,
-                        geneId: getIdFromTerm(targetTerm),
-                        dataSource: dataSource,
-                        tissueKey: tissueKey,
-                        geneSymbol: targetSymbol || ''
-                    };
-
-                    const processedCurrentQuestion = replaceVariables(
-                        question_for_result,
-                        variables
-                    );
-
-                    let nextVariables;
-                    if (leadSnp == 'rs17510162') {
-                        nextVariables = {
-                            snpId: '9:95214406_TC_T',
-                            leadSnp: '9:95214406_TC_T',
-                            geneId: 'ENSG00000188312',
-                            dataSource: 'GTEx; SusieR',
-                            tissueKey: 'pancreatic',
-                            geneSymbol: 'CENPP'
-                        };
-                    } else {
-                        nextVariables = {
-                            snpId: 'rs17510162',
-                            leadSnp: 'rs17510162',
-                            geneId: 'ENSG00000134242',
-                            dataSource: 'GTEx; SusieR',
-                            tissueKey: 'pancreatic',
-                            geneSymbol: 'ptpn22'
-                        };
-                    }
-
-                    const processedNextQuestions = next_questions?.map(q => 
-                        replaceVariables(q.question, nextVariables)
-                    ) || [];
-
-                    const processedAiQuestions = ai_question_for_result?.map(question => {
-                        let processedQuestion = question;
-                        if (sourceTerm) {
-                            processedQuestion = processedQuestion.replace(/@snp_node@/g, getIdFromTerm(sourceTerm));
-                        }
-                        if (targetTerm) {
-                            processedQuestion = processedQuestion.replace(/@gene_node@/g, getIdFromTerm(targetTerm));
-                        }
-                        return processedQuestion;
-                    }) || [];
-
-                    const processedAiAnswerTitle = ai_answer_title
-                        ?.replace(/@snp_node@/g, getIdFromTerm(sourceTerm))
-                        ?.replace(/@gene_id@/g, getIdFromTerm(targetTerm));
-
-                    // 更新 Redux store
-                    dispatch(setProcessedQuestion({
-                        currentQuestion: processedCurrentQuestion,
-                        nextQuestions: processedNextQuestions,
-                        aiQuestions: processedAiQuestions,
-                        aiAnswerTitle: processedAiAnswerTitle,
-                        aiAnswerSubtitle: ai_answer_sub_title,
-                        currentQuestionType: dataSource + '; ' + tissueKey + ' tissue'
-                    }));
-
-                    // 处理查询
                     if (cyper_for_result_page_all_nodes_specific) {
                         const query = cyper_for_result_page_all_nodes_specific
                             .replace(/@snp_node@/g, sourceTerm)
                             .replace(/@gene_node@/g, targetTerm);
-                        
-                        dispatch(queryQueryResult({ query }));
                         dispatch(queryQueryVisResult({ query }));
+                        dispatch(queryQueryResult({ query })).then((response)=>{
+                            const fineMapEQTL = response?.payload?.results[0]?.all_extend_rels?.find(
+                                rel => rel['~type'] === 'fine_mapped_eQTL'
+                            );
+                            const variables = {
+                                snpId: getIdFromTerm(sourceTerm),
+                                leadSnp: leadSnp,
+                                geneId: getIdFromTerm(targetTerm),
+                                dataSource: dataSource,
+                                tissueKey: tissueKey,
+                                geneSymbol: targetSymbol || ''
+                            };
+        
+                            const processedCurrentQuestion = replaceVariables(
+                                question_for_result,
+                                variables
+                            );
+        
+                            let nextVariables;
+                            if (sourceTerm == 'rs2402203' && targetTerm == 'ENSG00000001626') {
+                                nextVariables = {
+                                    snpId: 'rs177069',
+                                    leadSnp: 'rs177069',
+                                    geneId: 'ENSG00000001626',
+                                    dataSource: 'splicing; GTEx',
+                                    tissueKey: 'Pancreas',
+                                    geneSymbol: 'CFTR'
+                                };
+                            } else {
+                                nextVariables = {
+                                    snpId: fineMapEQTL['~start'],
+                                    leadSnp: fineMapEQTL['~start'],
+                                    geneId: fineMapEQTL['~end'],
+                                    dataSource: fineMapEQTL['~properties']['data_source'],
+                                    tissueKey: fineMapEQTL['~properties']['tissue_name'],
+                                    geneSymbol: params.get('geneSymbol')
+                                };
+                            }
+            
+                            const processedNextQuestions = next_questions?.map(q => 
+                                replaceVariables(q.question, nextVariables)
+                            );
+        
+                            const processedAiQuestions = ai_question_for_result?.map(question => {
+                                let processedQuestion = question;
+                                if (sourceTerm) {
+                                    processedQuestion = processedQuestion.replace(/@snp_node@/g, getIdFromTerm(sourceTerm));
+                                }
+                                if (targetTerm) {
+                                    processedQuestion = processedQuestion.replace(/@gene_node@/g, getIdFromTerm(targetTerm));
+                                }
+                                return processedQuestion;
+                            }) || [];
+        
+                            const processedAiAnswerTitle = ai_answer_title
+                                ?.replace(/@snp_node@/g, getIdFromTerm(sourceTerm))
+                                ?.replace(/@gene_id@/g, getIdFromTerm(targetTerm));
+        
+                            // 更新 Redux store
+                            dispatch(setProcessedQuestion({
+                                currentQuestion: processedCurrentQuestion,
+                                nextQuestions: processedNextQuestions,
+                                aiQuestions: processedAiQuestions,
+                                aiAnswerTitle: processedAiAnswerTitle,
+                                aiAnswerSubtitle: ai_answer_sub_title,
+                                currentQuestionType: dataSource + '; ' + tissueKey + ' tissue'
+                            }));
+                        });
                     }
+
+                    // 处理查询
                 }
             });
         }
@@ -477,27 +479,32 @@ This answer refers to the following resources in PanKbase:`;
 
         //     processNextQuestion();
         // }
+        
+        const fineMapEQTL = queryResult.results[0].all_extend_rels.find(
+            rel => rel['~type'] === 'fine_mapped_eQTL'
+        );
+        const params = new URLSearchParams(window.location.search);
         let nextVariables;
-        if (searchState.sourceTerm == 'rs17510162') {
+        if (params.get('snpId') == 'rs2402203' && params.get('geneId') == 'ENSG00000001626') {
             nextVariables = {
-                snpId: '9:95214406_TC_T',
-                leadSnp: '9:95214406_TC_T',
-                geneId: 'ENSG00000188312',
-                dataSource: 'GTEx; SusieR',
-                tissueKey: 'pancreatic',
-                geneSymbol: 'CENPP'
+                snpId: 'rs177069',
+                leadSnp: 'rs177069',
+                geneId: 'ENSG00000001626',
+                dataSource: 'splicing; GTEx',
+                tissueKey: 'Pancreas',
+                geneSymbol: 'CFTR'
             };
         } else {
             nextVariables = {
-                snpId: 'rs17510162',
-                leadSnp: 'rs17510162',
-                geneId: 'ENSG00000134242',
-                dataSource: 'GTEx; SusieR',
-                tissueKey: 'pancreatic',
-                geneSymbol: 'ptpn22'
+                snpId: fineMapEQTL['~start'],
+                leadSnp: fineMapEQTL['~start'],
+                geneId: fineMapEQTL['~end'],
+                dataSource: fineMapEQTL['~properties']['data_source'],
+                tissueKey: fineMapEQTL['~properties']['tissue_name'],
+                geneSymbol: new URLSearchParams(window.location.search).get('geneSymbol')
             };
         }
-        const params = new URLSearchParams({
+        const searchParams = new URLSearchParams({
             snpId: nextVariables.snpId,
             leadSnp: nextVariables.leadSnp,
             geneId: nextVariables.geneId,
@@ -506,7 +513,7 @@ This answer refers to the following resources in PanKbase:`;
             dataSource: nextVariables.dataSource,
             geneSymbol: nextVariables.geneSymbol
         });
-        window.location.href = `/result?${params.toString()}`;
+        window.location.href = `/result?${searchParams.toString()}`;
     };
 
     const handleExpandClick = () => {
