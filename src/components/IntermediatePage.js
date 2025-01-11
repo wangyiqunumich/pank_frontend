@@ -663,43 +663,117 @@ function IntermediatePage({ onContinue }) {
                 border: '1px solid #727272',
                 boxShadow: '0px 0px 0px 0px rgba(0,0,0,0.2)'
               }}>
-                <Table size={getFilteredCredibleSets().length > 8 ? "small" : "medium"}>
+                <Table
+                    size={getFilteredCredibleSets().length > 0 ? "small" : "medium"}
+                    // size={'small'}
+                    // stickyHeader={true}
+                >
                   <TableHead>
                     <TableRow>
                       <TableCell sx={{
                         fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px',
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 4px',
                         alignItems: 'center',
-                        display: 'flex'
+                        // display: 'flex',
+                        width: 'fit-content'
                       }}>Credible set
                         <Tooltip
-                            arrow
+                            slotProps={{ tooltip: {
+                              sx: {
+                                backgroundColor: '#219197'
+                              }
+                              }}}
                             title={<Typography sx={{fontSize: '14px'}}>
-                                    Credible Set: represents a group of genetic variants within a genomic region associated with a trait, identified through statistical fine-mapping. Each variant in the set is assigned a posterior probability, indicating its likelihood of being linked to the observed trait, with the entire set typically capturing a predefined confidence level.
+                                    Credible set represents a group of genetic variants within a genomic region associated with a trait, identified through statistical fine-mapping. Each variant in the set is assigned a posterior probability, indicating its likelihood of being linked to the observed trait, with the entire set typically capturing a predefined confidence level.
                                   </Typography>
                         }>
-                            <InfoIcon sx={{height: '16px'}}/>
+                            <InfoIcon sx={{height: '16px', verticalAlign: 'middle'}}/>
                           </Tooltip>
                       </TableCell>
                       <TableCell sx={{
                         fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
-                      }}>Purity</TableCell>
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 4px',
+                        alignItems: 'center',
+                        // display: 'flex',
+                        justifyContent: 'center',
+                        width: 'fit-content'
+                      }}>
+                        Purity
+                        <Tooltip
+                            slotProps={{ tooltip: {
+                                sx: {
+                                  backgroundColor: '#219197'
+                                }
+                              }}}
+                            title={<Typography sx={{fontSize: '14px'}}>
+                          Purity represents the proportion of the genetic association signal captured by the credible set; higher purity indicates higher confidence and quality of the set.
+                          </Typography>}>
+                          <InfoIcon sx={{height: '16px', verticalAlign: 'middle'}}/>
+                        </Tooltip>
+                      </TableCell>
                       <TableCell sx={{
                         fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
-                      }}>Lead SNP</TableCell>
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 4px',
+                        alignItems: 'center',
+                        // display: 'flex',
+                        width: 'fit-content'
+                      }}>
+                        Lead SNP
+                        <Tooltip
+                            slotProps={{ tooltip: {
+                                sx: {
+                                  backgroundColor: '#219197'
+                                }
+                              }}}
+                            title={<Typography sx={{fontSize: '14px'}}>
+                          Lead SNP refers to the genetic variant with the strongest association signal within the credible set, often considered the most likely causal variant.
+                        </Typography>}>
+                          <InfoIcon sx={{height: '16px', verticalAlign: 'middle'}}/>
+                        </Tooltip>
+                      </TableCell>
                       <TableCell sx={{
                         fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
-                      }}>PIP</TableCell>
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 4px',
+                        alignItems: 'center',
+                        // display: 'flex',
+                        width: 'fit-content'
+                      }}>
+                        PIP
+                        <Tooltip
+                            slotProps={{ tooltip: {
+                                sx: {
+                                  backgroundColor: '#219197'
+                                }
+                              }}}
+                            title={<Typography sx={{fontSize: '14px'}}>
+                          PIP (Posterior Inclusion Probability) quantifies the probability of a specific variant being the causal driver of the observed genetic signal; a higher PIP suggests greater confidence in causality.
+                        </Typography>}>
+                          <InfoIcon sx={{height: '16px', verticalAlign: 'middle'}}/>
+                        </Tooltip>
+                      </TableCell>
                       <TableCell sx={{
                         fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
-                      }}>#</TableCell>
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 4px',
+                        width: 'fit-content',
+                      }}
+                      >
+                        #
+                        <Tooltip
+                            slotProps={{ tooltip: {
+                                sx: {
+                                  backgroundColor: '#219197'
+                                }
+                              }}}
+                            title={<Typography sx={{fontSize: '14px'}}>
+                          # (Number of Variants) indicates the total count of genetic variants included in the credible set, encompassing all variants contributing to the signal.
+                        </Typography>}>
+                          <InfoIcon sx={{height: '16px', verticalAlign: 'middle'}}/>
+                        </Tooltip>
+                      </TableCell>
                       <TableCell sx={{
                         fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 4px',
+                        width: 'fit-content'
                       }}></TableCell>
                     </TableRow>
                   </TableHead>
