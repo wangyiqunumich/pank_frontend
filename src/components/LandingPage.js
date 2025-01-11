@@ -47,9 +47,9 @@ function LandingPage() {
             }
           }}>
             <img src={landingPageLogo} alt="PanKgraph" />
-            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '6px', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px', alignItems: 'center' }}>
               <TerminalIcon sx={{ width: '30px', color: '#C48E25' }}/>
-              <Typography sx={{ fontSize: '20px'}}>
+              <Typography sx={{ marginLeft: '10px', fontSize: '20px'}}>
                 Access PanKgraph with <Link
                   href={process.env.REACT_APP_PANKGRAPH_LINK + '/api'}
                   sx={{ textDecoration: 'underline', color: 'black', textAlign: 'right'}}>API</Link>
