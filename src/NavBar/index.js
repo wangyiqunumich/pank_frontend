@@ -52,7 +52,7 @@ function NavBar() {
                   <div className="menu">
                     <div className="main-menu-items">
                       <div className="menu-item-wrapper">
-                        <a className="menu-item menu-item-main" href={process.env.REACT_APP_PANKGRAPH_LINK}>PanKgraph</a>
+                        <a className="menu-item menu-item-main" style={{color: 'white', backgroundColor: '#219197'}} href={process.env.REACT_APP_PANKGRAPH_LINK}>PanKgraph</a>
                         <div className="submenu">
                           <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK}>Search</a>
                           <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/api'}>API</a>
