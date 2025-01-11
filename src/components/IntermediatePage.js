@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  Container, 
-  Typography, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow, 
-  Paper, 
+import {
+  Container,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
   Box,
   Link,
   Tabs,
   Tab,
-  Button
+  Button, Tooltip
 } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import InfoIcon from '@mui/icons-material/Info';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { useSelector, useDispatch } from 'react-redux';
 import { queryQueryResult } from '../redux/queryResultSlice';
@@ -668,8 +668,19 @@ function IntermediatePage({ onContinue }) {
                     <TableRow>
                       <TableCell sx={{
                         fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
-                      }}>Credible set</TableCell>
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px',
+                        alignItems: 'center',
+                        display: 'flex'
+                      }}>Credible set
+                        <Tooltip
+                            arrow
+                            title={<Typography sx={{fontSize: '14px'}}>
+                                    Credible Set: represents a group of genetic variants within a genomic region associated with a trait, identified through statistical fine-mapping. Each variant in the set is assigned a posterior probability, indicating its likelihood of being linked to the observed trait, with the entire set typically capturing a predefined confidence level.
+                                  </Typography>
+                        }>
+                            <InfoIcon sx={{height: '16px'}}/>
+                          </Tooltip>
+                      </TableCell>
                       <TableCell sx={{
                         fontWeight: 'bold',
                         padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
