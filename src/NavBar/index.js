@@ -62,9 +62,9 @@ function NavBar() {
                           <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/statistics'}>Statistics</a>
                         </div>
                       </div>
-                      <div className="menu-item-wrapper">
-                        <a className="menu-item menu-item-main" href={process.env.REACT_APP_DATA_LIB_LINK}>Data Library</a>
-                      </div>
+                      {/*<div className="menu-item-wrapper">*/}
+                      {/*  <a className="menu-item menu-item-main" href={process.env.REACT_APP_DATA_LIB_LINK}>Data Library</a>*/}
+                      {/*</div>*/}
                       <div className="menu-item-wrapper">
                         <a className="menu-item menu-item-main" href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}>Integrated Cell Browser</a>
                       </div>
@@ -72,16 +72,17 @@ function NavBar() {
                     <div className="menu-item-wrapper">
                       <a className="menu-item" href="/">Data</a>
                       <div className="submenu">
-                        <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/data-browser.html'}>Data Browser</a>
-                        <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}>Integrated Cell Browser</a>
-                        <a className="submenu-item" href={process.env.REACT_APP_DONOR_SUMMARY}>Donor Metadata</a>
+                        {/*<a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/data-browser.html'}>Data Browser</a>*/}
+                        <a className="submenu-item" href={process.env.REACT_APP_DATA_LIB_LINK}>Data Library</a>
+                        <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/donor-metadata.html'}>Donor Metadata</a>
                         <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/apis.html'}>APIs</a>
                       </div>
                     </div>
                     <div className="menu-item-wrapper">
                       <a className="menu-item" href="/">Resources</a>
                       <div className="submenu">
-                        <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}>Analytical Library</a>
+                        <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}>Integrated Cell Browser</a>
+                        <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/analytical-library.html'}>Analytical Library</a>
                         <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/publications.html'}>Publications</a>
                       </div>
                     </div>
