@@ -264,7 +264,7 @@ function SearchResult() {
                                     leadSnp: 'rs177069',
                                     geneId: 'ENSG00000001626',
                                     dataSource: 'splicing; GTEx',
-                                    tissueKey: 'Pancreas',
+                                    tissueKey: 'pancreas',
                                     geneSymbol: 'CFTR'
                                 };
                             } else {
@@ -273,7 +273,7 @@ function SearchResult() {
                                     leadSnp: fineMapEQTL['~start'],
                                     geneId: fineMapEQTL['~end'],
                                     dataSource: fineMapEQTL['~properties']['data_source'],
-                                    tissueKey: fineMapEQTL['~properties']['tissue_name'],
+                                    tissueKey: fineMapEQTL['~properties']['tissue_name'].toLowerCase(),
                                     geneSymbol: params.get('geneSymbol')
                                 };
                             }
@@ -491,7 +491,7 @@ This answer refers to the following resources in PanKbase:`;
                 leadSnp: 'rs177069',
                 geneId: 'ENSG00000001626',
                 dataSource: 'splicing; GTEx',
-                tissueKey: 'Pancreas',
+                tissueKey: 'pancreas',
                 geneSymbol: 'CFTR'
             };
         } else {
@@ -500,7 +500,7 @@ This answer refers to the following resources in PanKbase:`;
                 leadSnp: fineMapEQTL['~start'],
                 geneId: fineMapEQTL['~end'],
                 dataSource: fineMapEQTL['~properties']['data_source'],
-                tissueKey: fineMapEQTL['~properties']['tissue_name'],
+                tissueKey: fineMapEQTL['~properties']['tissue_name'].toLowerCase(),
                 geneSymbol: new URLSearchParams(window.location.search).get('geneSymbol')
             };
         }
