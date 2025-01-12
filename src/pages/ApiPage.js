@@ -24,12 +24,12 @@ export function CodeCopyBtn({ children }) {
         setCopyOk(true);
         setTimeout(() => {
             setCopyOk(false);
-        }, 5000);
+        }, 1000);
     }
 
     return (
         <div className="code-copy-btn" style={{ width: '20px', height: '20px', zIndex: 1}}>
-            <i className={`fas ${icon}`} onClick={handleClick} style={{color: 'black', width: '20px', height: '20px', zIndex: 1}}>
+            <i className={`fas ${icon}`} onClick={handleClick} style={{color: iconColor, width: '20px', height: '20px', zIndex: 1}}>
                 <ContentCopyIcon/>
             </i>
         </div>
