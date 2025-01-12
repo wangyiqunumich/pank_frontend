@@ -5,7 +5,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { materialLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import apiContent from '../schema/doc/API.txt';
 import NavBar from '../NavBar';
-import 'github-markdown-css';
+import 'github-markdown-css/github-markdown-light.css';
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import './ApiPage.css'
