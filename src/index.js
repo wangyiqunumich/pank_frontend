@@ -18,6 +18,7 @@ import PkbFooter from "./Footer/footer";
 import {Container} from "@mui/material";
 import UsecasesPage from "./pages/UsecasePage";
 import QTLDataSource from "./pages/QTL_data_source";
+import Pipeline from "./pages/Pipeline";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -29,6 +30,7 @@ root.render(
         <BrowserRouter>
           <NavBar/>
           <Routes>
+            <Route path="/pipeline" element={<Pipeline />} />
             <Route path="/qtldatasource" element={<QTLDataSource />} />
             <Route path="/intermediate" element={<IntermediatePage />} />
             <Route path="/ontology" element={<Ontology />} />

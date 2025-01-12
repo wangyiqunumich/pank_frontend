@@ -677,6 +677,21 @@ This answer refers to the following resources in PanKbase:`;
                                     >QTL Data Source</Link>
                                 </ListItem>
                                 <ListItem sx={{ paddingY: '0px' }}>
+                                    • Link to PanKbase resources: <Link
+                                    href={process.env.REACT_APP_PANKGRAPH_LINK + '/pipeline'}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    sx={{
+                                        color: '#1976d2',
+                                        textDecoration: 'none',
+                                        textSize: '16px',
+                                        '&:hover': {
+                                            textDecoration: 'underline'
+                                        }
+                                    }}
+                                >Pipeline</Link>
+                                </ListItem>
+                                <ListItem sx={{ paddingY: '0px' }}>
                                     •
                                     <Link
                                         href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}
