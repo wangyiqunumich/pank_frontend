@@ -12,8 +12,6 @@ Welcome to **PanKgraph**, your gateway to an intuitive and comprehensive data po
 
 This step ensures your query is contextualized and tailored for specific scientific exploration.
 
----
-
 ### 2. **Natural Language-Based Query Refinement**
 After selecting your question, refine it further step-by-step:
 - **Source Term**: Start with your point of interest (e.g., *sequence variant*).
@@ -23,19 +21,13 @@ After selecting your question, refine it further step-by-step:
 As you refine each term, the interface dynamically updates the natural-language representation of your query. For instance:  
 - *“Which SNP serves as the quantitative trait locus (QTL) for CFTR?”*
 
----
-
 ### 3. **Dynamic Query Formation**
 - **Real-Time Updates**: 
   - The displayed question dynamically evolves as you refine the Source Term, Relationship, or Target Term.
   - Example: Changing the Target Term from "CFTR" to another gene updates the question instantly.
 - Once you click **Search**, the question becomes fixed and serves as the basis for result exploration.
 
----
-
 ### 4. **Search Button: Triggering Data Retrieval**
-
----
 
 ### Tips for Experts
 - Use **specific gene names or IDs** (e.g., ENSG00000001626) to enhance the precision of your queries.
@@ -43,7 +35,7 @@ As you refine each term, the interface dynamically updates the natural-language 
   *How does SNP rs2402203 influence the splicing of CFTR in the pancreas, as reported by GTEx?*
 
 By following these steps, PanKgraph simplifies and enhances the process of exploring T1D knowledge resources.
-
+---
 ## Intermediate Selection Page Overview
 
 ### Current Question (Top Section)
@@ -63,7 +55,7 @@ Results are shown in collapsible panels, each representing a QTL data subtype (e
 1. Confirm your question aligns with what you intended to ask.  
 2. Scan the overview of QTL data types and see how many signals are available.  
 3. Identify SNPs of interest for deeper exploration on the **Result Page**.
-
+---
 ## Result Page Overview
 The **Result Page** shows your finalized question, a knowledge graph visualization, and an AI-generated summary of findings.
 
