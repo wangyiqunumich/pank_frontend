@@ -52,7 +52,7 @@ function NavBar() {
                   <div className="menu">
                     <div className="main-menu-items">
                       <div className="menu-item-wrapper">
-                        <a className="menu-item menu-item-main" href={process.env.REACT_APP_PANKGRAPH_LINK}>PanKgraph</a>
+                        <a className="menu-item menu-item-main" style={{color: 'white', backgroundColor: '#219197'}} href={process.env.REACT_APP_PANKGRAPH_LINK}>PanKgraph</a>
                         <div className="submenu">
                           <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK}>Search</a>
                           <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/api'}>API</a>
@@ -62,9 +62,9 @@ function NavBar() {
                           <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/statistics'}>Statistics</a>
                         </div>
                       </div>
-                      <div className="menu-item-wrapper">
-                        <a className="menu-item menu-item-main" href={process.env.REACT_APP_DATA_LIB_LINK}>Data Library</a>
-                      </div>
+                      {/*<div className="menu-item-wrapper">*/}
+                      {/*  <a className="menu-item menu-item-main" href={process.env.REACT_APP_DATA_LIB_LINK}>Data Library</a>*/}
+                      {/*</div>*/}
                       <div className="menu-item-wrapper">
                         <a className="menu-item menu-item-main" href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}>Integrated Cell Browser</a>
                       </div>
@@ -72,16 +72,17 @@ function NavBar() {
                     <div className="menu-item-wrapper">
                       <a className="menu-item" href="/">Data</a>
                       <div className="submenu">
-                        <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/data-browser.html'}>Data Browser</a>
-                        <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}>Integrated Cell Browser</a>
-                        <a className="submenu-item" href={process.env.REACT_APP_DONOR_SUMMARY}>Donor Metadata</a>
+                        {/*<a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/data-browser.html'}>Data Browser</a>*/}
+                        <a className="submenu-item" href={process.env.REACT_APP_DATA_LIB_LINK}>Data Library</a>
+                        <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/donor-metadata.html'}>Donor Metadata</a>
                         <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/apis.html'}>APIs</a>
                       </div>
                     </div>
                     <div className="menu-item-wrapper">
                       <a className="menu-item" href="/">Resources</a>
                       <div className="submenu">
-                        <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}>Analytical Library</a>
+                        <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}>Integrated Cell Browser</a>
+                        <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/analytical-library.html'}>Analytical Library</a>
                         <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/publications.html'}>Publications</a>
                       </div>
                     </div>
@@ -108,6 +109,16 @@ function NavBar() {
                   </div>
                 </div>
               </div>
+      <Typography sx={{
+        position: 'absolute',
+        top: '71px',
+        left: '20px',
+        padding: '0px 15px',
+        fontSize: '14px',
+        backgroundColor: '#219197',
+        zIndex: 100,
+        color: 'white'
+      }}>beta</Typography>
     </>
   );
 }

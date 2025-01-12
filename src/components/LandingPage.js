@@ -47,9 +47,9 @@ function LandingPage() {
             }
           }}>
             <img src={landingPageLogo} alt="PanKgraph" />
-            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '6px', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px', alignItems: 'center' }}>
               <TerminalIcon sx={{ width: '30px', color: '#C48E25' }}/>
-              <Typography sx={{ fontSize: '20px'}}>
+              <Typography sx={{ marginLeft: '10px', fontSize: '20px'}}>
                 Access PanKgraph with <Link
                   href={process.env.REACT_APP_PANKGRAPH_LINK + '/api'}
                   sx={{ textDecoration: 'underline', color: 'black', textAlign: 'right'}}>API</Link>
@@ -85,6 +85,11 @@ function LandingPage() {
               onTargetTermChange={handleTargetTermChange}
               question={selectedQuestion}
             />
+            <Link href={process.env.REACT_APP_PANKGRAPH_LINK + '/result?snpId=rs2402203&leadSnp=rs2402203&geneId=ENSG00000001626&relationship=fine_mapped_eQTL&tissueKey=&dataSource=splicing%3B+GTEx&geneSymbol=CFTR'}
+                  sx={{ textDecoration: 'underline', color: 'black', fontSize: '14px' }}
+            >
+              Example query: How does the SNP rs2402203 influence the quantitative trait locus (QTL) of CFTR (ENSG00000001626) in pancreatic tissue, as reported by splicing; GTEx?
+            </Link>
           </Box>
     </Container>
   );
