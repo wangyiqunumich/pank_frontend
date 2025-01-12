@@ -80,6 +80,7 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
                 setSourceOptions([]);
                 setRelationshipOptions([]);
                 setTargetOptions([]);
+                setIsTargetTermDisabled(true);
             }
             if (question) {
                 if (question.includes('SNP') && question.includes('<gene>')) {
