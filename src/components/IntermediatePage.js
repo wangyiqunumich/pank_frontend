@@ -201,6 +201,8 @@ function IntermediatePage({ onContinue }) {
       tissueKey = tissueMap['GTEx; SusieR'] || 'pancreatic tissue';
     } else if (dataSource === 'INSPIRE; SusieR') {
       tissueKey = tissueMap['INSPIRE; SusieR'] || 'islet tissue';
+    } else if (dataSource === 'splicing; GTEx') {
+      tissueKey = 'pancreatic';
     }
 
     
