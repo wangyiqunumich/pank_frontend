@@ -202,7 +202,7 @@ function IntermediatePage({ onContinue }) {
     } else if (dataSource === 'INSPIRE; SusieR') {
       tissueKey = tissueMap['INSPIRE; SusieR'] || 'islet tissue';
     } else if (dataSource === 'splicing; GTEx') {
-      tissueKey = 'pancreatic';
+      tissueKey = 'pancreas';
     }
 
     
@@ -370,7 +370,7 @@ function IntermediatePage({ onContinue }) {
           return cs.data_source === 'INSPIRE; SusieR';
         case 'Pancreatic splicing QTL':
           return cs.data_source === 'splicing; GTEx';
-        case 'Islet Exon QTL':
+        case 'Islet exon QTL':
           return cs.data_source === 'exon; INSPIRE';
         default:
           return true;
@@ -402,7 +402,7 @@ function IntermediatePage({ onContinue }) {
         count: counts.Pancreatic['Splicing QTL GTEx']
       },
       {
-        label: 'Islet Exon QTL',
+        label: 'Islet exon QTL',
         count: counts.Islet['Exon QTL InsPIRE']
       }
     ];
@@ -913,7 +913,7 @@ function IntermediatePage({ onContinue }) {
                 </Box>
                 <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Box sx={{ width: 20, height: 20, backgroundColor: '#FFB77F', borderRadius: '4px' }} />
-                  <Typography variant="body2">Sequence Variant</Typography>
+                  <Typography variant="body2">Sequence variant</Typography>
                 </Box>
                 <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Box sx={{ width: 20, height: 20, backgroundColor: '#43978F', borderRadius: '4px' }} />

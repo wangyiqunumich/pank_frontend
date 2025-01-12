@@ -22,7 +22,7 @@ function LandingPage() {
   const handleTargetTermChange = (newTargetTerm) => {
     console.log(newTargetTerm);
     if (newTargetTerm) {
-      setSelectedQuestion(`Which SNP serves as the quantitative trait locus (eQTL) for ${newTargetTerm.toUpperCase()}?`);
+      setSelectedQuestion(`Which SNP serves as the quantitative trait locus (QTL) for ${newTargetTerm.toUpperCase()}?`);
     }
   };
 
@@ -85,10 +85,10 @@ function LandingPage() {
               onTargetTermChange={handleTargetTermChange}
               question={selectedQuestion}
             />
-            <Link href={process.env.REACT_APP_PANKGRAPH_LINK + '/result?snpId=rs2402203&leadSnp=rs2402203&geneId=ENSG00000001626&relationship=fine_mapped_eQTL&tissueKey=&dataSource=splicing%3B+GTEx&geneSymbol=CFTR'}
+            <Link href={process.env.REACT_APP_PANKGRAPH_LINK + '/result?snpId=rs2402203&leadSnp=rs2402203&geneId=ENSG00000001626&relationship=fine_mapped_eQTL&tissueKey=pancreas&dataSource=splicing%3B+GTEx&geneSymbol=CFTR'}
                   sx={{ textDecoration: 'underline', color: 'black', fontSize: '14px' }}
             >
-              Example query: How does the SNP rs2402203 influence the quantitative trait locus (QTL) of CFTR (ENSG00000001626) in pancreatic tissue, as reported by splicing; GTEx?
+              Example query: How does the SNP rs2402203 influence the splicing of CFTR (ENSG00000001626) in pancreas, as reported by GTEx?
             </Link>
           </Box>
     </Container>

@@ -142,6 +142,10 @@ const Legend = () => (
               <Box sx={{ width: 20, height: 20, backgroundColor: '#e377c2', borderRadius: '4px' }} />
               <Typography variant="body2">Article</Typography>
           </Box>
+          <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box sx={{ width: 20, height: 20, backgroundColor: '#b57e47', borderRadius: '4px' }} />
+              <Typography variant="body2">Ontology</Typography>
+          </Box>
       </Box>
       {/* 第3行 */}
       <Box sx={{ 
@@ -252,10 +256,24 @@ function SearchResult() {
                                 geneSymbol: targetSymbol || ''
                             };
         
-                            const processedCurrentQuestion = replaceVariables(
-                                question_for_result,
-                                variables
-                            );
+                            let processedCurrentQuestion;
+                            switch (dataSource) {
+                                case 'splicing; GTEx':
+                                    processedCurrentQuestion = 'How does the SNP ' + sourceTerm + ' influence the splicing of ' + targetSymbol + ' (' + targetTerm + ') in pancreas, as reported by GTEx?';
+                                    break;
+                                case 'GTEx; SusieR':
+                                    processedCurrentQuestion = 'How does the SNP ' + sourceTerm + ' influence the expression of ' + targetSymbol + ' (' + targetTerm + ') in pancreas, as reported by GTEx?';
+                                    break;
+                                case 'INSPIRE; SusieR':
+                                    processedCurrentQuestion = 'How does the SNP ' + sourceTerm + ' influence the expression of ' + targetSymbol + ' (' + targetTerm + ') in islet tissue, as reported by INSPIRE?';
+                                    break;
+                                case 'exon; InsPIRE':
+                                    processedCurrentQuestion = 'How does the SNP ' + sourceTerm + ' influence the exon expression of ' + targetSymbol + ' (' + targetTerm + ') in islet tissue, as reported by INSPIRE?';
+                                    break;
+                                default:
+                                    processedCurrentQuestion = replaceVariables(question_for_result, variables);
+                                    break;
+                            }
         
                             let nextVariables;
                             if (sourceTerm == 'rs2402203' && targetTerm == 'ENSG00000001626') {
@@ -278,9 +296,26 @@ function SearchResult() {
                                 };
                             }
             
-                            const processedNextQuestions = next_questions?.map(q => 
-                                replaceVariables(q.question, nextVariables)
-                            );
+                            let processedNextQuestions;
+                            switch (nextVariables.dataSource) {
+                                case 'splicing; GTEx':
+                                    processedCurrentQuestion = 'How does the SNP ' + nextVariables.snpId + ' influence the splicing of ' + nextVariables.geneSymbol + ' (' + nextVariables.geneId + ') in pancreas, as reported by GTEx?';
+                                    break;
+                                case 'GTEx; SusieR':
+                                    processedCurrentQuestion = 'How does the SNP ' + nextVariables.snpId + ' influence the expression of ' + nextVariables.geneSymbol + ' (' + nextVariables.geneId + ') in pancreas, as reported by GTEx?';
+                                    break;
+                                case 'INSPIRE; SusieR':
+                                    processedCurrentQuestion = 'How does the SNP ' + nextVariables.snpId + ' influence the expression of ' + nextVariables.geneSymbol + ' (' + nextVariables.geneId + ') in islet tissue, as reported by INSPIRE?';
+                                    break;
+                                case 'exon; InsPIRE':
+                                    processedCurrentQuestion = 'How does the SNP ' + nextVariables.snpId + ' influence the exon expression of ' + nextVariables.geneSymbol + ' (' + nextVariables.geneId + ') in islet tissue, as reported by INSPIRE?';
+                                    break;
+                                default:
+                                    processedNextQuestions = next_questions?.map(q => 
+                                        replaceVariables(q.question, nextVariables)
+                                    );
+                                    break;
+                            }
         
                             const processedAiQuestions = ai_question_for_result?.map(question => {
                                 let processedQuestion = question;

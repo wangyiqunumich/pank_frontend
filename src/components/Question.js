@@ -3,7 +3,7 @@ import { Box, Typography, Select, MenuItem } from '@mui/material';
 
 function Question({ selectedQuestion, setSelectedQuestion }) {
   const [questions, setQuestions] = useState([
-    'Which SNP serves as the quantitative trait locus (eQTL) for <gene>?'
+    'Which SNP serves as the quantitative trait locus (QTL) for <gene>?'
   ]);
 
   // 当 selectedQuestion 改变时，确保它在 questions 数组中
