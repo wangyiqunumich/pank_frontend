@@ -9,6 +9,8 @@ function LandingPage() {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [selectedQuestion, setSelectedQuestion] = useState('');
   
+  const isSearchBarDisabled = !selectedQuestion;
+
   useEffect(() => {
     function handleResize() {
       setWindowWidth(window.innerWidth)
@@ -84,6 +86,7 @@ function LandingPage() {
               // target={'<gene>'}
               onTargetTermChange={handleTargetTermChange}
               question={selectedQuestion}
+              disabled={isSearchBarDisabled}
             />
             <Link href={process.env.REACT_APP_PANKGRAPH_LINK + '/result?snpId=rs2402203&leadSnp=rs2402203&geneId=ENSG00000001626&relationship=fine_mapped_eQTL&tissueKey=pancreas&dataSource=splicing%3B+GTEx&geneSymbol=CFTR'}
                   sx={{ textDecoration: 'underline', color: 'black', fontSize: '14px' }}
