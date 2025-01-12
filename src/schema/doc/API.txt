@@ -4,7 +4,8 @@
 1. [Overview](#overview)
 2. [Usage](#usage)
 3. [Writing a Valid Query](#writing-a-valid-query)
-4. [Interpreting query results](#interpreting-query-results)
+4. [Example Queries](#example-queries)
+5. [Interpreting query results](#interpreting-query-results)
 
 ---
 
@@ -63,9 +64,7 @@ Resources:
 - To learn basic openCypher query syntax, refer to [this guide](https://neo4j.com/docs/cypher-manual/current/queries/basic/?utm_source=GSearch&utm_medium=PaidSearch&utm_campaign=Evergreen&utm_content=AMS-Search-SEMCE-DSA-None-SEM-SEM-NonABM&utm_term=&utm_adgroup=DSA&gad_source=1&gclid=CjwKCAiArva5BhBiEiwA-oTnXXVaj70Ck95TVwLXHnxpcTNpX0Vl_4xFUjGR7sQFMkm8mC3dFyfmWRoCNh0QAvD_BwE#find-nodes).
 - To learn openCypher grammar, please refer to [this page](https://opencypher.org/resources/).
 
-### Attention [Important]
-
-(To web team: please highlight this section)
+## Attention
 
 Due to how quotation marks are interpreted in `JSON` strings,
 when submitting queries via the command line,
@@ -83,7 +82,7 @@ should be written into
 MATCH (n:gene {name: \"CFTR\"}) RETURN n
 ```
 
-### Example queries
+## Example queries
 
 Below are some example queries to help you get started.
 

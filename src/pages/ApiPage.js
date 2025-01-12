@@ -5,7 +5,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { materialLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import apiContent from '../schema/doc/API.txt';
 import NavBar from '../NavBar';
-import 'github-markdown-css';
+import 'github-markdown-css/github-markdown-light.css';
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import './ApiPage.css'
@@ -24,12 +24,12 @@ export function CodeCopyBtn({ children }) {
         setCopyOk(true);
         setTimeout(() => {
             setCopyOk(false);
-        }, 5000);
+        }, 1000);
     }
 
     return (
         <div className="code-copy-btn" style={{ width: '20px', height: '20px', zIndex: 1}}>
-            <i className={`fas ${icon}`} onClick={handleClick} style={{color: 'black', width: '20px', height: '20px', zIndex: 1}}>
+            <i className={`fas ${icon}`} onClick={handleClick} style={{color: iconColor, width: '20px', height: '20px', zIndex: 1}}>
                 <ContentCopyIcon/>
             </i>
         </div>
