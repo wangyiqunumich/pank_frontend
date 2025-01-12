@@ -299,21 +299,18 @@ function SearchResult() {
                             let processedNextQuestions;
                             switch (nextVariables.dataSource) {
                                 case 'splicing; GTEx':
-                                    processedCurrentQuestion = 'How does the SNP ' + nextVariables.snpId + ' influence the splicing of ' + nextVariables.geneSymbol + ' (' + nextVariables.geneId + ') in pancreas, as reported by GTEx?';
+                                    processedNextQuestions = 'How does the SNP ' + nextVariables.snpId + ' influence the splicing of ' + nextVariables.geneSymbol + ' (' + nextVariables.geneId + ') in pancreas, as reported by GTEx?';
                                     break;
                                 case 'GTEx; SusieR':
-                                    processedCurrentQuestion = 'How does the SNP ' + nextVariables.snpId + ' influence the expression of ' + nextVariables.geneSymbol + ' (' + nextVariables.geneId + ') in pancreas, as reported by GTEx?';
+                                    processedNextQuestions = 'How does the SNP ' + nextVariables.snpId + ' influence the expression of ' + nextVariables.geneSymbol + ' (' + nextVariables.geneId + ') in pancreas, as reported by GTEx?';
                                     break;
                                 case 'INSPIRE; SusieR':
-                                    processedCurrentQuestion = 'How does the SNP ' + nextVariables.snpId + ' influence the expression of ' + nextVariables.geneSymbol + ' (' + nextVariables.geneId + ') in islet tissue, as reported by INSPIRE?';
+                                    processedNextQuestions = 'How does the SNP ' + nextVariables.snpId + ' influence the expression of ' + nextVariables.geneSymbol + ' (' + nextVariables.geneId + ') in islet tissue, as reported by INSPIRE?';
                                     break;
                                 case 'exon; InsPIRE':
-                                    processedCurrentQuestion = 'How does the SNP ' + nextVariables.snpId + ' influence the exon expression of ' + nextVariables.geneSymbol + ' (' + nextVariables.geneId + ') in islet tissue, as reported by INSPIRE?';
+                                    processedNextQuestions = 'How does the SNP ' + nextVariables.snpId + ' influence the exon expression of ' + nextVariables.geneSymbol + ' (' + nextVariables.geneId + ') in islet tissue, as reported by INSPIRE?';
                                     break;
                                 default:
-                                    processedNextQuestions = next_questions?.map(q => 
-                                        replaceVariables(q.question, nextVariables)
-                                    );
                                     break;
                             }
         
@@ -716,22 +713,19 @@ This answer refers to the following resources in PanKbase:`;
                     // position: 'relative'
                 }}>
                     <ul className="next-questions-list">
-                        {nextQuestions?.length > 0 ? (
-                            nextQuestions.map((question, index) => (
-                                <li key={index}
-                                    onClick={() => handleNextQuestionClick(question)}
-                                    style={{ cursor: 'pointer' }}>
-                                    <Box sx={{
-                                        display: 'flex',
-                                    }}>
-                                        <Typography sx={{
-                                            fontSize: 14,
-                                            fontFamily: 'Open Sans'
-                                        }} dangerouslySetInnerHTML={{ __html: question }} />
-                                        <span style={{ alignContent: 'center' }}><ChevronRightIcon /></span>
-                                    </Box>
-                                </li>
-                            ))
+                        {nextQuestions ? (
+                            <li onClick={() => handleNextQuestionClick(nextQuestions)}
+                                style={{ cursor: 'pointer' }}>
+                                <Box sx={{
+                                    display: 'flex',
+                                }}>
+                                    <Typography sx={{
+                                        fontSize: 14,
+                                        fontFamily: 'Open Sans'
+                                    }} dangerouslySetInnerHTML={{ __html: nextQuestions }} />
+                                    <span style={{ alignContent: 'center' }}><ChevronRightIcon /></span>
+                                </Box>
+                            </li>
                         ) : (
                             <Typography sx={{ fontSize: 16 }}>No next questions available</Typography>
                         )}
