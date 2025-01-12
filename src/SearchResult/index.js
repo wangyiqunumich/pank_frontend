@@ -692,7 +692,7 @@ This answer refers to the following resources in PanKbase:`;
                                 >Pipeline</Link>
                                 </ListItem>
                                 <ListItem sx={{ paddingY: '0px' }}>
-                                    •
+                                    • Link to PanKbase resources:
                                     <Link
                                         href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}
                                         target="_blank"
