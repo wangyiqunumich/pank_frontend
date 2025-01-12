@@ -34,7 +34,6 @@ As you refine each term, the interface dynamically updates the natural-language 
 - Refer to the example query link for additional context:  
   *How does SNP rs2402203 influence the splicing of CFTR in the pancreas, as reported by GTEx?*
 
-By following these steps, PanKgraph simplifies and enhances the process of exploring T1D knowledge resources.
 ---
 ## Intermediate Selection Page Overview
 
