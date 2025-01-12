@@ -662,6 +662,22 @@ This answer refers to the following resources in PanKbase:`;
                         <Collapse in={expanded} timeout="auto" unmountOnExit>
                             <List sx={{ padding: '0px' }}>
                                 <ListItem sx={{ paddingY: '0px' }}>
+                                    • Link to PanKbase resources: <Link
+                                        href={process.env.REACT_APP_PANKGRAPH_LINK + '/qtldatasource'}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        sx={{
+                                            color: '#1976d2',
+                                            textDecoration: 'none',
+                                            textSize: '16px',
+                                            '&:hover': {
+                                                textDecoration: 'underline'
+                                            }
+                                        }}
+                                    >QTL Data Source</Link>
+                                </ListItem>
+                                <ListItem sx={{ paddingY: '0px' }}>
+                                    •
                                     <Link
                                         href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}
                                         target="_blank"
@@ -675,11 +691,11 @@ This answer refers to the following resources in PanKbase:`;
                                             }
                                         }}
                                     >
-                                        • PanKbase resources
+                                        Integrated Cell Browser
                                     </Link>
                                 </ListItem>
                                 <ListItem sx={{ paddingY: '0px' }}>
-                                    <Link
+                                    • Link to Ensembl: <Link
                                         href={`https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneId}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
@@ -691,9 +707,7 @@ This answer refers to the following resources in PanKbase:`;
                                                 textDecoration: 'underline'
                                             }
                                         }}
-                                    >
-                                        • Link to Ensembl: {geneId}
-                                    </Link>
+                                    > {geneId}</Link>
                                 </ListItem>
                             </List>
                         </Collapse>
