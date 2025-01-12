@@ -1,7 +1,7 @@
 # PanKgraph Tutorial
 
 ## Landing Page Overview
-Welcome to **PanKgraph **, your gateway to an intuitive and comprehensive data portal designed for Type 1 Diabetes (T1D) research. Seamlessly explore our integrated multi-omics knowledge graph to uncover valuable genetic, molecular, and clinical insights that drive discoveries in T1D.
+Welcome to **PanKgraph**, your gateway to an intuitive and comprehensive data portal designed for Type 1 Diabetes (T1D) research. Seamlessly explore our integrated multi-omics knowledge graph to uncover valuable genetic, molecular, and clinical insights that drive discoveries in T1D.
 
 ### Key Features of PanKgraph's Knowledge Graph Search
 
