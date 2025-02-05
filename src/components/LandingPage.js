@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { Box, Typography, Container, Link, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { Box, Typography, Container, Link, Select, MenuItem, FormControl, InputLabel, Snackbar, Alert } from '@mui/material';
 import landingPageLogo from '../image/landing image cropped.png';
 import SearchBar from '../SearchBar';
 import TerminalIcon from '@mui/icons-material/Terminal';
@@ -8,6 +8,7 @@ import Question from './Question';
 function LandingPage() {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [selectedQuestion, setSelectedQuestion] = useState('');
+  const [openSnackbar, setOpenSnackbar] = useState(true);
   
   const isSearchBarDisabled = !selectedQuestion;
 
@@ -28,72 +29,87 @@ function LandingPage() {
     }
   };
 
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
+
   return (
     <Container maxWidth={false} disableGutters sx={{
       padding: 0, display: 'flex',
       flexDirection: 'row', justifyContent: 'space-evenly',
       flex: 1, alignItems: 'center'
     }}>
-          {/* 左侧图片 */}
-          <Box sx={{ 
-            width: '600px',
-            // height: 550,
-            // flex: 'auto',
-            // position: 'relative',
-            // marginTop: 'calc(10vh - 100)',
-            // right: windowWidth * 0.5 + 100,
-            '& img': {
-              width: '600px',
-              // height: 550,
-              objectFit: 'contain'
+      <Snackbar
+        open={openSnackbar}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity="info" 
+          sx={{ 
+            width: '100%',
+            backgroundColor: '#E4F0F1',
+            '& .MuiAlert-icon': {
+              color: '#219197'
             }
-          }}>
-            <img src={landingPageLogo} alt="PanKgraph" />
-            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px', alignItems: 'center' }}>
-              <TerminalIcon sx={{ width: '30px', color: '#C48E25' }}/>
-              <Typography sx={{ marginLeft: '10px', fontSize: '20px'}}>
-                Access PanKgraph with <Link
-                  href={process.env.REACT_APP_PANKGRAPH_LINK + '/api'}
-                  sx={{ textDecoration: 'underline', color: 'black', textAlign: 'right'}}>API</Link>
-              </Typography>
-            </Box>
-          </Box>
+          }}
+        >
+          LLM page is currently under maintenance. We apologize for any inconvenience.
+        </Alert>
+      </Snackbar>
 
-          {/* 右侧内容区域 */}
-          <Box sx={{ 
-            width: 672,
-            // flex: 'auto',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 3,
-            // position: 'relative',
-            // left: windowWidth * 0.5 + 44,
-            // marginTop: `calc(10vh + 75px)`
-          }}>
+      {/* 左侧图片 */}
+      <Box sx={{ 
+        width: '600px',
+        '& img': {
+          width: '600px',
+          objectFit: 'contain'
+        }
+      }}>
+        <img src={landingPageLogo} alt="PanKgraph" />
+        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px', alignItems: 'center' }}>
+          <TerminalIcon sx={{ width: '30px', color: '#C48E25' }}/>
+          <Typography sx={{ marginLeft: '10px', fontSize: '20px'}}>
+            Access PanKgraph with <Link
+              href={process.env.REACT_APP_PANKGRAPH_LINK + '/api'}
+              sx={{ textDecoration: 'underline', color: 'black', textAlign: 'right'}}>API</Link>
+          </Typography>
+        </Box>
+      </Box>
 
-            <Typography sx={{ fontSize: 22, textAlign: 'left', zIndex: -1 }}>
-              Explore T1D knowledge and resources with the knowledge graph
-            </Typography>
-            
-            {/* 更新 Question 组件，传入 setSelectedQuestion */}
-            <Question 
-              selectedQuestion={selectedQuestion} 
-              setSelectedQuestion={setSelectedQuestion}
-            />
-            
-            {/* SearchBar 组件 */}
-            <SearchBar 
-              // target={'<gene>'}
-              onTargetTermChange={handleTargetTermChange}
-              question={selectedQuestion}
-              // disabled={isSearchBarDisabled}
-            />
-            <Link href={process.env.REACT_APP_PANKGRAPH_LINK + '/result?snpId=rs2402203&leadSnp=rs2402203&geneId=ENSG00000001626&relationship=fine_mapped_eQTL&tissueKey=pancreas&dataSource=splicing%3B+GTEx&geneSymbol=CFTR'}
-                  sx={{ textDecoration: 'underline', color: 'black', fontSize: '14px' }}
-            >
-              Example query: How does the SNP rs2402203 influence the splicing of CFTR (ENSG00000001626) in pancreas, as reported by GTEx?
-            </Link>
-          </Box>
+      {/* 右侧内容区域 */}
+      <Box sx={{ 
+        width: 672,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 3,
+      }}>
+
+        <Typography sx={{ fontSize: 22, textAlign: 'left', zIndex: -1 }}>
+          Explore T1D knowledge and resources with the knowledge graph
+        </Typography>
+        
+        {/* 更新 Question 组件，传入 setSelectedQuestion */}
+        <Question 
+          selectedQuestion={selectedQuestion} 
+          setSelectedQuestion={setSelectedQuestion}
+        />
+        
+        {/* SearchBar 组件 */}
+        <SearchBar 
+          onTargetTermChange={handleTargetTermChange}
+          question={selectedQuestion}
+        />
+        <Link href={process.env.REACT_APP_PANKGRAPH_LINK + '/result?snpId=rs2402203&leadSnp=rs2402203&geneId=ENSG00000001626&relationship=fine_mapped_eQTL&tissueKey=pancreas&dataSource=splicing%3B+GTEx&geneSymbol=CFTR'}
+              sx={{ textDecoration: 'underline', color: 'black', fontSize: '14px' }}
+        >
+          Example query: How does the SNP rs2402203 influence the splicing of CFTR (ENSG00000001626) in pancreas, as reported by GTEx?
+        </Link>
+      </Box>
     </Container>
   );
 }

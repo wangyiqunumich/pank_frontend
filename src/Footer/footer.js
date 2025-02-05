@@ -1,5 +1,6 @@
 import React from "react";
 import "./PkbFooter.scss"; // Import the CSS file for styles
+import HirnLogo from '../image/HIRN.png';
 
 export const pkbMenu = {
     highlightItems: [
@@ -94,6 +95,20 @@ function PkbFooter() {
                     <br />
                     Supplemental funds from the{" "}
                     <strong>NIH Office of Data Science Strategies</strong>
+                </div>
+            </div>
+            <div className={'f-row'} style={{ gap: "20px", flexDirection: 'row', display: 'flex', width: 'fit-content' }}>
+                <div className="logo">
+                    <a href="https://hirnetwork.org/">
+                        <img
+                            style={{ height: "37px" }}
+                            src="https://hirnetwork.org/2021/wp-content/uploads/2024/02/logo-hirn.svg"
+                            alt="Hirn Logo"
+                        />
+                    </a>
+                </div>
+                <div style={{ textAlign: 'left'}}>
+                Understand how human beta cells are lost in type 1 diabetes and find innovative strategies to protect or replace functional beta cell mass in people with the disease
                 </div>
             </div>
         </div>
