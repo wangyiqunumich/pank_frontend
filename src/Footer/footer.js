@@ -108,7 +108,7 @@ function PkbFooter() {
                     </a>
                 </div>
                 <div style={{ textAlign: 'left'}}>
-                Understand how human beta cells are lost in type 1 diabetes and find innovative strategies to protect or replace functional beta cell mass in people with the disease
+                Check out the latest developments from the Human Islet Resource Network (HIRN) through its newsletter detailing research advancements, funding opportunities, job openings, and more.
                 </div>
             </div>
         </div>
