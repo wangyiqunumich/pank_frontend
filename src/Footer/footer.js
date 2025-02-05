@@ -79,36 +79,39 @@ function PkbFooter() {
                     </div>
                 ))}
             </div>
-            <div className={'f-row'} style={{ gap: "20px", flexDirection: 'row', display: 'flex', width: 'fit-content' }}>
-                <div className="logo">
-                    <a href="/">
-                        <img
-                            style={{ height: "37px" }}
-                            src="https://hugeampkpncms.org/sites/default/files/users/user32/pankbase/PanKbase_logo-black.svg"
-                            alt="PanKbase Logo"
-                        />
-                    </a>
+            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly'}}>
+                <div className={'f-row'} style={{ gap: "20px", flexDirection: 'row', display: 'flex', width: 'fit-content',
+                    marginBottom: '20px' }}>
+                    <div className="logo">
+                        <a href="/">
+                            <img
+                                style={{ height: "37px", width: '200px' }}
+                                src="https://hugeampkpncms.org/sites/default/files/users/user32/pankbase/PanKbase_logo-black.svg"
+                                alt="PanKbase Logo"
+                            />
+                        </a>
+                    </div>
+                    <div style={{ textAlign: 'left'}}>
+                        Supported by <strong>National Institutes of Health (NIH)</strong>{" "}
+                        grants <strong>U24 DK138515</strong>, <strong>U24 DK138512</strong>
+                        <br />
+                        Supplemental funds from the{" "}
+                        <strong>NIH Office of Data Science Strategies</strong>
+                    </div>
                 </div>
-                <div style={{ textAlign: 'left'}}>
-                    Supported by <strong>National Institutes of Health (NIH)</strong>{" "}
-                    grants <strong>U24 DK138515</strong>, <strong>U24 DK138512</strong>
-                    <br />
-                    Supplemental funds from the{" "}
-                    <strong>NIH Office of Data Science Strategies</strong>
-                </div>
-            </div>
-            <div className={'f-row'} style={{ gap: "20px", flexDirection: 'row', display: 'flex', width: 'fit-content' }}>
-                <div className="logo">
-                    <a href="https://hirnetwork.org/">
-                        <img
-                            style={{ height: "37px" }}
-                            src="https://hirnetwork.org/2021/wp-content/uploads/2024/02/logo-hirn.svg"
-                            alt="Hirn Logo"
-                        />
-                    </a>
-                </div>
-                <div style={{ textAlign: 'left'}}>
-                Check out the latest developments from the Human Islet Resource Network (HIRN) through its newsletter detailing research advancements, funding opportunities, job openings, and more.
+                <div className={'f-row'} style={{ gap: "20px", flexDirection: 'row', display: 'flex', width: 'fit-content' }}>
+                    <div className="logo">
+                        <a href="https://hirnetwork.org/">
+                            <img
+                                style={{ height: "37px", width: '200px'  }}
+                                src="https://hirnetwork.org/2021/wp-content/uploads/2024/02/logo-hirn.svg"
+                                alt="Hirn Logo"
+                            />
+                        </a>
+                    </div>
+                    <div style={{ textAlign: 'left'}}>
+                        Check out the latest developments from the Human Islet Resource Network (HIRN) through its newsletter detailing research advancements, funding opportunities, job openings, and more.
+                    </div>
                 </div>
             </div>
         </div>
