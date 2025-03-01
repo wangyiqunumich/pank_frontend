@@ -41,7 +41,7 @@ root.render(
             <Route path="/tutorial" element={<Tutorial />} />
             <Route path="/result" element={<ResultPage />} />
             <Route path="/usecases" element={<UsecasesPage />} />
-            <Route path="/docs" element={<DocPage />} />
+            <Route path="/docs/*" element={<DocPage />} />
             <Route path="/" element={<LandingPage />} />
           </Routes>
           <PkbFooter />

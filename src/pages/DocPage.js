@@ -11,7 +11,9 @@ import NavBar from '../NavBar';
 import 'github-markdown-css';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from "rehype-raw";
-//import './ApiPage.css'
+import { useNavigate } from 'react-router';
+import { useLocation } from 'react-router-dom';
+
 import './Ontology.css'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
@@ -42,28 +44,43 @@ export function CodeCopyBtn({ children }) {
 
 function DocPage() {
   const [content, setContent] = useState('');
-  const [page, setPage] = useState('API');
-  const [currPage, setCurrPage] = useState('API');
+  const [page, setPage] = useState('overview');
+  const [currPage, setCurrPage] = useState('overview');
+  const [selectedPage, setSelectedPage] = useState('overview');
   const apiRef = useTreeViewApiRef();
   const [expandedItems, setExpandedItems] = React.useState(['documentation']);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleExpandedItemsChange = (event, itemIds) => {
     setExpandedItems(itemIds);
   };
 
   useEffect(() => {
-    fetch(require(`../schema/doc/${page}.txt`))
+    if (location.pathname.match(/^\/docs\/[^\/]+$/)) {
+      var newpage = location.pathname.split('/')[2];
+      newpage = newpage.split('#')[0];
+      setPage(newpage);
+      setSelectedPage(newpage);
+    }
+  }, [location]);
+
+  useEffect(() => {
+    import(`../schema/doc/${page}.txt`)
+      .then(module => fetch(module.default))
       .then(response => response.text())
       .then(text => setContent(text))
       .then(() => { setCurrPage(page) })
-      .catch(error => console.error('Error loading documentation:', error));
+      .catch(error => {
+        console.error('Error loading documentation:', error);
+        navigate('/docs/overview');
+      });
   }, [page]);
 
-  const handlePageChange = (event, itemId, isSelected) => {
-    if (!isSelected) {
-      return;
-    }
+  const handlePageChange = (event, itemId) => {
+    setSelectedPage(itemId);
     if (itemId !== 'data' && itemId !== 'documentation') {
+      navigate(`/docs/${itemId}`);
       setPage(itemId);
     }
   }
@@ -85,7 +102,7 @@ function DocPage() {
             mr: 10
           }}
         >
-          <SimpleTreeView apiRef={apiRef} onItemSelectionToggle={handlePageChange}
+          <SimpleTreeView apiRef={apiRef} selectedItems={[selectedPage]} onSelectedItemsChange={handlePageChange}
             expandedItems={expandedItems} onExpandedItemsChange={handleExpandedItemsChange}>
             <TreeItem itemId='documentation' label="Documentation">
               <TreeItem itemId="overview" label="Overview" />
