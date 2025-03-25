@@ -1,8 +1,8 @@
 {
   "rs177069": {"x": 100.0, "y": 150, "Level": "Core"},
   "ENSG00000001626": {"x": 100, "y": 50, "Level": "Core"},
-  "ENSG00000111319": {"x": 100, "y": 100, "Level": "Neb"},
-  "rs7784156": {"x": 70.0, "y": 70, "Level": "Neb"},
-  "rs2402203": {"x": 130, "y": 130", "Level": "Neb"},
-  "MONDO_0005147": {"x": 70.0, "y": 130, "Level": "Neb"}
+  "ENSG00000111319": {"x": 100, "y": 100, "Level": "Neighbor"},
+  "rs7784156": {"x": 70.0, "y": 70, "Level": "Neighbor"},
+  "rs2402203": {"x": 130, "y": 130", "Level": "Neighbor"},
+  "MONDO_0005147": {"x": 70.0, "y": 130, "Level": "Neighbor"}
 }
