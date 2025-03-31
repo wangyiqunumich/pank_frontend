@@ -42,7 +42,7 @@ function LandingPage() {
       flexDirection: 'row', justifyContent: 'space-evenly',
       flex: 1, alignItems: 'center'
     }}>
-      {/* <Snackbar
+      <Snackbar
         open={openSnackbar}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
@@ -60,7 +60,7 @@ function LandingPage() {
         >
           LLM page is currently under maintenance. We apologize for any inconvenience.
         </Alert>
-      </Snackbar> */}
+      </Snackbar>
 
       {/* 左侧图片 */}
       <Box sx={{ 
