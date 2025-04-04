@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Typography, Box } from '@mui/material';
+import { Container, Box } from '@mui/material';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { materialLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import docContent from '../schema/doc/statistics.txt';
-import NavBar from '../NavBar';
-import 'github-markdown-css';
+import docContent from '../schema/doc/statistics.md';
+import "./github-markdown-light.css";
 import remarkGfm from 'remark-gfm'
 
 function StatPage() {

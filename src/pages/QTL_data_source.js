@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Box, Typography } from '@mui/material';
+import { Container, Box } from '@mui/material';
 import ReactMarkdown from 'react-markdown';
-import QTL_data_source_content from '../schema/doc/QTL_data_source.txt';
-import 'github-markdown-css/github-markdown-light.css';
+import QTL_data_source_content from '../schema/doc/QTL_data_source.md';
+import "./github-markdown-light.css";
 
 function QTLDataSource() {
     const [markdown, setMarkdown] = useState('');

@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Box, Typography } from '@mui/material';
+import { Container, Box } from '@mui/material';
 import ReactMarkdown from 'react-markdown';
-import tutorialContent from '../schema/doc/tutorial.txt';
-import NavBar from '../NavBar';
-import 'github-markdown-css';
+import tutorialContent from '../schema/doc/tutorial.md';
+import "./github-markdown-light.css";
 
 function Tutorial() {
   const [markdown, setMarkdown] = useState('');

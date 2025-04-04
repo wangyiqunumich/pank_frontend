@@ -1,44 +1,38 @@
 import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
-import {Container, Box, FormControl, InputLabel, Select, MenuItem, Button, TextField, Typography} from '@mui/material';
+import { Container, Box, FormControl, Select, MenuItem, Button, TextField, Typography } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
 import { useSelector, useDispatch } from 'react-redux';
-import { queryViewSchema } from '../redux/viewSchemaSlice';
-import { queryAiAnswer } from '../redux/aiAnswerSlice';
 import { queryQueryResult } from '../redux/queryResultSlice';
-import { setProcessedQuestion } from '../redux/processedQuestionSlice';
 import { setSearchTerms } from '../redux/searchSlice';
 import { queryVocab } from '../redux/inputToVocabSlice';
 import conversionTable from '../utils/conversion_table.json';
 import catalog from '../utils/Catalog.json';
 import { store } from '../redux/store';
-import { setNextQuestionClicked } from '../redux/searchSlice';
-import { queryQueryVisResult } from '../redux/queryVisResultSlice';
-import { setTargetTermSymbol } from '../redux/searchSlice';
 
 const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, source, target, onTargetTermChange, question }, ref) => {
     const dispatch = useDispatch();
-    const {viewSchema, queryViewSchemaStatus} = useSelector((state) => state.viewSchema);
-    const {vocab, queryVocabStatus} = useSelector((state) => state.inputToVocab);
-    const {queryVisResult, queryQueryVisResultStatus} = useSelector((state) => state.queryVisResult);
-    
+    const { viewSchema, queryViewSchemaStatus } = useSelector((state) => state.viewSchema);
+    const { vocab, queryVocabStatus } = useSelector((state) => state.inputToVocab);
+    const { queryVisResult, queryQueryVisResultStatus } = useSelector((state) => state.queryVisResult);
+
     // 初始状态设置
-    const [sourceTerm, setSourceTerm] = useState(source?source:'sequence variant');
+    const [sourceTerm, setSourceTerm] = useState(source ? source : 'sequence variant');
     const [relationship, setRelationship] = useState('QTL of');
     const [targetTerm, setTargetTerm] = useState('');
     const [sourceOptions, setSourceOptions] = useState(['sequence variant']);
     const [targetOptions, setTargetOptions] = useState([]);
     const [targetTermSymbol, setTargetTermSymbol] = useState('');
-    
+
     // 修改这里：设置固定的 relationshipOptions
     const [relationshipOptions, setRelationshipOptions] = useState(['QTL of']);
-    
+
     // 固定禁用状态
     const isRelationshipDisabled = true;
     const isSourceTermDisabled = true;
     const [isTargetTermDisabled, setIsTargetTermDisabled] = useState(false);
-    
-    const {aiAnswer, queryAiAnswerStatus, queryAiAnswerErrorMessage} = useSelector((state) => state.aiAnswer);
-    const {queryResult, queryResultStatus, queryResultErrorMessage} = useSelector((state) => state.queryResult);
+
+    const { aiAnswer, queryAiAnswerStatus, queryAiAnswerErrorMessage } = useSelector((state) => state.aiAnswer);
+    const { queryResult, queryResultStatus, queryResultErrorMessage } = useSelector((state) => state.queryResult);
 
     const colorMap = {
         gene: '#43978F',
@@ -61,7 +55,7 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
     useEffect(() => {
         // 设置初始的 relationship options
         setRelationship(['QTL of']);
-        
+
         // 设置初始搜索条件
         dispatch(setSearchTerms({
             sourceTerm: 'sequence_variant:',
@@ -104,14 +98,14 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
         //     setRelationship('');
         //     setTargetTerm('');
         //     dispatch(queryQueryResult({ query: '' }));
-            
+
         //     if (newValue) {
         //         const [sourceType, ...rest] = newValue.split(':');
         //         const sourceValue = rest.join(':');
         //         const predefinedTypes = ["gene", "sequence variant"];
         //         const isCustomInput = !predefinedTypes.includes(sourceType);
         //         setIsCustomSource(isCustomInput);
-                
+
         //         clearTimeout(sourceTimerRef.current);
         //         sourceTimerRef.current = setTimeout(async () => {
         //             const result = await dispatch(queryVocab({input: newValue})).unwrap();
@@ -128,7 +122,7 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
         //                 }
         //             }
         //         }, 500);
-                
+
         //         if (!isCustomInput) {
         //             setTargetOptions([]);
         //         }
@@ -146,17 +140,17 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
             return;
         }
         const sourceType = sourceTerm.split(':')[0];
-        
+
         const frontendToKG = conversionTable.Conversion_table.query_vocab_frontend_KG;
         const KGToFrontend = conversionTable.Conversion_table.query_vocab_KG_frontend;
-        
+
         const kgSourceType = frontendToKG[sourceType] || sourceType;
-        
+
         const possiblePatterns = catalog.filter(pattern => {
             const parts = pattern.split(" - ");
             return parts[0] === kgSourceType;
         });
-        
+
         const uniqueRelationships = new Set(
             possiblePatterns.map(pattern => {
                 const parts = pattern.split(" - ");
@@ -164,7 +158,7 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
                 return KGToFrontend[relationship] || relationship;
             })
         );
-        
+
         setRelationshipOptions([...uniqueRelationships]);
     };
 
@@ -172,15 +166,15 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
         const sourceType = sourceTerm.split(':')[0];
         const frontendToKG = conversionTable.Conversion_table.query_vocab_frontend_KG;
         const KGToFrontend = conversionTable.Conversion_table.query_vocab_KG_frontend;
-        
+
         const kgSourceType = frontendToKG[sourceType] || sourceType;
         const kgRelationship = frontendToKG[currentRelationship] || currentRelationship;
-        
+
         const possiblePatterns = catalog.filter(pattern => {
             const parts = pattern.split(" - ");
             return parts[0] === kgSourceType && parts[1] === kgRelationship;
         });
-        
+
         const uniqueTargetTypes = new Set(
             possiblePatterns.map(pattern => {
                 const parts = pattern.split(" - ");
@@ -188,7 +182,7 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
                 return KGToFrontend[targetType] || targetType;
             })
         );
-        
+
         return [...uniqueTargetTypes];
     };
 
@@ -202,12 +196,12 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
         dispatch(queryQueryResult({ query: '' }));
         setIsTargetTermDisabled(false);
         const targetOptions = updateTargetOptions(newRelationship);
-        if (isCustomSource) {  
+        if (isCustomSource) {
             setTargetOptions(targetOptions);
         }
     };
 
-    const [targetDisplayTerm, setTargetDisplayTerm] = useState(target?target:'Fill gene symbol');
+    const [targetDisplayTerm, setTargetDisplayTerm] = useState(target ? target : 'Fill gene symbol');
     useEffect(() => {
         if (target) {
             setTargetDisplayTerm(target);
@@ -272,7 +266,7 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
             }
         }
     };
-    
+
 
     const fetchOptions = async (term, inputType) => {
         console.log(`Fetching options for ${inputType}: ${term}`);
@@ -282,7 +276,7 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
             // { type: 'gene', term: `${term}` },
             { type: 'sequence variant', term: `${term}` },
         ];
-        
+
         // 返回格式化的选项
         return mockResults.map(result => `${result.type}:${result.term}`);
     };
@@ -334,7 +328,7 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
 
     function convertTerms(sourceTerm, relationship, targetTerm, targetTermSymbol) {
         const frontendToKG = conversionTable.Conversion_table.query_vocab_frontend_KG;
-        
+
         const [sourceType, sourceValue] = sourceTerm.split(':').map(s => s.trim());
         const [targetType, targetValue] = targetTerm.split(':').map(s => s.trim());
 
@@ -399,11 +393,11 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
     const isValid = () => {
         // 检查 targetDisplayTerm 不为空且 targetTerm 存在
         const isTargetValid = targetDisplayTerm && targetDisplayTerm.trim() !== '' && targetTerm;
-        return sourceTerm && relationship && isTargetValid;   
+        return sourceTerm && relationship && isTargetValid;
     };
 
     // 添加对 nextQuestionClicked 的监听
-    const { nextQuestionClicked, sourceTerm: searchSourceTerm, relationship: searchRelationship, targetTerm: searchTargetTerm } = 
+    const { nextQuestionClicked, sourceTerm: searchSourceTerm, relationship: searchRelationship, targetTerm: searchTargetTerm } =
         useSelector((state) => state.search);
 
     useEffect(() => {
@@ -412,13 +406,13 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
             const sourceValue = sourceRest.join(':');
             const [targetType, ...targetRest] = searchTargetTerm.split(':');
             const targetValue = targetRest.join(':');
-            
+
             const KGToFrontend = conversionTable.Conversion_table.query_vocab_KG_frontend;
-            
+
             const sourceDisplay = `${KGToFrontend[sourceType]}:${sourceValue}`;
             const relationshipDisplay = KGToFrontend[searchRelationship] || searchRelationship;
             const targetDisplay = `${KGToFrontend[targetType]}:${targetValue}`;
-            
+
             setSourceTerm(sourceDisplay);
             setRelationship(relationshipDisplay);
             setIsTargetTermDisabled(false);
@@ -439,10 +433,10 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
                 <Box display="flex" alignItems="center" gap={2} p={2} sx={{ padding: 0 }}>
                     <FormControl fullWidth>
                         <Typography sx={{
-                                marginBottom: '10px',
-                                fontSize: '20px',
-                                textAlign: 'left'
-                            }}
+                            marginBottom: '10px',
+                            fontSize: '20px',
+                            textAlign: 'left'
+                        }}
                         >Source term</Typography>
                         <Autocomplete
                             freeSolo
@@ -482,7 +476,8 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
                             onChange={updateRelationship}
                             onOpen={handleRelationshipOpen}
                             disabled={true}
-                            sx={{ textAlign: 'left',
+                            sx={{
+                                textAlign: 'left',
                                 backgroundColor: '#2191971A',
                                 '& fieldset': {
                                     border: 'none', // Removes the border
@@ -556,12 +551,13 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
                                 )}
                                 disabled={isTargetTermDisabled || disabled || searchClicked}
                                 filterOptions={(options) => options}
-                                onClear={() => {
-                                    setTargetOptions([]);
-                                    setTargetTerm('');
-                                    setTargetTermSymbol('');
-                                    setTargetDisplayTerm('');
-                                }}
+                            // onClear={() => {
+                            //     setTargetOptions([]);
+                            //     setTargetTerm('');
+                            //     setTargetTermSymbol('');
+                            //     setTargetDisplayTerm('');
+                            // }}
+                            // commented out, since onClear does not exist
                             />
 
                         ) : (
@@ -585,7 +581,7 @@ const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, sour
 
                     <Button variant="contained" color="primary"
                         sx={{
-                            minWidth:'120px',
+                            minWidth: '120px',
                             backgroundColor: '#219197',
                             color: 'white',
                             position: 'relative',

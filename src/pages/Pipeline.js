@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Box, Typography } from '@mui/material';
+import { Container, Box } from '@mui/material';
 import ReactMarkdown from 'react-markdown';
-import pipeline_content from '../schema/doc/pipeline.txt';
-import 'github-markdown-css/github-markdown-light.css';
+import pipeline_content from '../schema/doc/pipeline.md';
+import "./github-markdown-light.css";
 
 function Pipeline() {
     const [markdown, setMarkdown] = useState('');
