@@ -7,6 +7,7 @@
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.15.12",
     "@mui/material": "^5.15.12",
+    "@mui/x-tree-view": "7.26.0",
     "@reduxjs/toolkit": "^2.2.8",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -28,7 +29,9 @@
     "remark-gfm": "^4.0.0",
     "sass": "^1.83.0",
     "styled-components": "^6.1.13",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "lunr": "^2.3.9",
+    "mark.js": "8.11.1"
   },
   "scripts": {
     "start": "react-scripts start",

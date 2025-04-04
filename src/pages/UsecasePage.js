@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Typography, Box } from '@mui/material';
+import { Container, Box } from '@mui/material';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { materialLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import usecasesContent from '../schema/doc/usecase.txt';
-import 'github-markdown-css';
+import usecasesContent from '../schema/doc/usecase.md';
+import "./github-markdown-light.css";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -12,7 +12,6 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 export function CodeCopyBtn({ children }) {
     const [copyOk, setCopyOk] = React.useState(false);
 
-    const iconColor = copyOk ? '#0af20a' : '#ddd';
     const icon = copyOk ? 'fa-check-square' : 'fa-copy';
 
     const handleClick = (e) => {
@@ -26,9 +25,9 @@ export function CodeCopyBtn({ children }) {
     }
 
     return (
-        <div className="code-copy-btn" style={{ width: '20px', height: '20px', zIndex: 1}}>
-            <i className={`fas ${icon}`} onClick={handleClick} style={{color: 'black', width: '20px', height: '20px', zIndex: 1}}>
-                <ContentCopyIcon/>
+        <div className="code-copy-btn" style={{ width: '20px', height: '20px', zIndex: 1 }}>
+            <i className={`fas ${icon}`} onClick={handleClick} style={{ color: 'black', width: '20px', height: '20px', zIndex: 1 }}>
+                <ContentCopyIcon />
             </i>
         </div>
     )
@@ -59,7 +58,7 @@ function UsecasesPage() {
                         remarkPlugins={[remarkGfm]}
                         components={{
                             pre: Pre,
-                            code({node, inline, className, children, ...props}) {
+                            code({ node, inline, className, children, ...props }) {
                                 const match = /language-(\w+)/.exec(className || '');
                                 return !inline && match ? (
                                     <SyntaxHighlighter

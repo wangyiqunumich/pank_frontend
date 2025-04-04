@@ -1,3 +1,7 @@
+# Ontology Tree
+
+The ontology tree displays all Gene Ontology (GO) terms included in PanKgraph, organized hierarchically for easy navigation and analysis. It encompasses various biological processes, molecular functions, and cellular components, structured to facilitate exploration and analysis of functional relationships within the dataset.
+
 <details style="margin-left: 0px;">
   <summary><a href="#">PanKgraph Root (#)</a></summary>
   <details style="margin-left: 20px;">

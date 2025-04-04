@@ -8,7 +8,7 @@ Welcome to **PanKgraph**, your gateway to an intuitive and comprehensive data po
 ### 1. **Select Your Question of Interest**
 - Start by selecting a question from the predefined list of commonly asked queries. 
 - Example includes:
-  - *“Which SNP serves as the quantitative trait locus (QTL) for <gene>?”*
+  - *“Which SNP serves as the quantitative trait locus (QTL) for \<gene\>?”*
 
 This step ensures your query is contextualized and tailored for specific scientific exploration.
 

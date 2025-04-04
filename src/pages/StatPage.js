@@ -3,63 +3,27 @@ import { Container, Box } from '@mui/material';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { materialLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import apiContent from '../schema/doc/API.md';
+import docContent from '../schema/doc/statistics.md';
 import "./github-markdown-light.css";
-import remarkGfm from "remark-gfm";
-import rehypeRaw from "rehype-raw";
-import './ApiPage.css'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import remarkGfm from 'remark-gfm'
 
-export function CodeCopyBtn({ children }) {
-  const [copyOk, setCopyOk] = React.useState(false);
-
-  const iconColor = copyOk ? '#0af20a' : '#ddd';
-  const icon = copyOk ? 'fa-check-square' : 'fa-copy';
-
-  const handleClick = (e) => {
-    navigator.clipboard.writeText(children.props.children);
-    console.log(children)
-
-    setCopyOk(true);
-    setTimeout(() => {
-      setCopyOk(false);
-    }, 1000);
-  }
-
-  return (
-    <div className="code-copy-btn" style={{ width: '20px', height: '20px', zIndex: 1 }}>
-      <i className={`fas ${icon}`} onClick={handleClick} style={{ color: iconColor, width: '20px', height: '20px', zIndex: 1 }}>
-        <ContentCopyIcon />
-      </i>
-    </div>
-  )
-}
-
-function ApiPage() {
+function StatPage() {
   const [content, setContent] = useState('');
 
   useEffect(() => {
-    fetch(apiContent)
+    fetch(docContent)
       .then(response => response.text())
       .then(text => setContent(text))
-      .catch(error => console.error('Error loading API documentation:', error));
+      .catch(error => console.error('Error loading documentation:', error));
   }, []);
-  const Pre = ({ children }) => <pre className="blog-pre">
-    <CodeCopyBtn>{children}</CodeCopyBtn>
-    {children}
-  </pre>
 
   return (
     <div className="App">
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Box sx={{ p: 4, textAlign: 'left' }} className={'markdown-body'}>
           <ReactMarkdown
-            className={'post-markdown'}
-            // linkTarget='_blank'
-            rehypePlugins={[rehypeRaw]}
             remarkPlugins={[remarkGfm]}
             components={{
-              pre: Pre,
               code({ node, inline, className, children, ...props }) {
                 const match = /language-(\w+)/.exec(className || '');
                 return !inline && match ? (
@@ -76,10 +40,6 @@ function ApiPage() {
                     {children}
                   </code>
                 );
-              },
-              h2(node) {
-                // console.log('here', children)
-                return <h2 id={node.children.toLowerCase().replaceAll(' ', '-')}>{node.children}</h2>
               }
             }}
           >
@@ -91,4 +51,4 @@ function ApiPage() {
   );
 }
 
-export default ApiPage;
+export default StatPage;
