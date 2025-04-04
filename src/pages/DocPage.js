@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router';
 import { useLocation } from 'react-router-dom';
 import lunr from 'lunr';
 import ReactDOMServer from 'react-dom/server'
+import Mark from 'mark.js';
 
 import './Ontology.css'
 import "./github-markdown-light.css";
@@ -80,9 +81,9 @@ function getText(html) {
             .map(row =>
                 Array.from(row.cells)
                     .map(cell => cell.textContent.trim())
-                    .join(" ") // Separate columns with " | "
+                    .join(" ")
             )
-            .join("\n"); // Newline for rows
+            .join("\n");
     }
 
     function extractTextFromNode(node) {
@@ -91,8 +92,8 @@ function getText(html) {
                 .map(node => node.textContent.trim())
                 .filter(text => text.length > 0)
                 .join("\n")
-                .replace(/\s+/g, " ") // Remove extra spaces and empty lines
-                .trim(); // Ensure no leading/trailing spaces
+                .replace(/\s+/g, " ")
+                .trim();
         }
         if (node.tagName === "TABLE") {
             return extractTextFromTable(node);
@@ -102,13 +103,13 @@ function getText(html) {
             return Array.from(node.childNodes)
                 .map(extractTextFromNode)
                 .filter(text => text.length > 0)
-                .join(" "); // Ensure spacing
+                .join(" ");
         }
         return "";
     }
 
     return extractTextFromNode(divContainer)
-        .replace(/\n{2,}/g, "\n") // Remove excessive blank lines
+        .replace(/\n{2,}/g, "\n")
         .trim();
 }
 
@@ -150,14 +151,16 @@ function DocPage() {
     const [pageHTML, setpageHTML] = useState({}); // pages in jsx
     const [cache, setCache] = useState({}); // cache for search results
     const [isLoading, setIsLoading] = useState(true);
+    const [highlightKey, setHighlightKey] = useState('');
     const scrollRef = useRef(null);
+    const contentRef = useRef(null);
+    const [inputValue, setInputValue] = useState("");
 
     const renderMD = useCallback((contn) => {
-        function getID(children) { // convert subsection title to string
+        function getID(children) {
             if (children.$$typeof === Symbol.for('react.element')) {
                 return children.props.children.toLowerCase().replaceAll(' ', '-')
             }
-            // if children is a list
             if (Array.isArray(children)) {
                 return children.map((child) => {
                     if (child.$$typeof === Symbol.for('react.element')) {
@@ -170,7 +173,6 @@ function DocPage() {
         }
         return (<ReactMarkdown
             className={'post-markdown'}
-            // linkTarget='_blank'
             rehypePlugins={[rehypeRaw]}
             remarkPlugins={[remarkGfm]}
             components={{
@@ -258,7 +260,7 @@ function DocPage() {
 
     function findRelevantSnippet(query, pagetitle, snippetLength = 50) {
         let text = pages[pagetitle].replace(/\s+/g, ' ').trim();
-        if (!text) return [<></>, ""];
+        if (!text) return [<></>, "", ""];
         let matchIndex = text.toLowerCase().indexOf(query.toLowerCase());
         if (!query) matchIndex = snippetLength / 2;
         if (matchIndex === -1) return findRelevantSnippet(query.slice(0, -1), pagetitle, snippetLength);
@@ -270,7 +272,7 @@ function DocPage() {
         let afterquery = snippet.substring(matchIndex - start + query.length, end - start);
         let highlighted = <span>{beforequery}<span style={{ backgroundColor: '#ff0' }}>{query}</span>{afterquery}</span>;
         let section = findSection(pageString[pagetitle], query);
-        return [<span>{highlighted}</span>, section];
+        return [<span>{highlighted}</span>, section, query];
     }
 
     function getResult(query) {
@@ -284,10 +286,10 @@ function DocPage() {
         let result = idx.search(query)
             .map(res => {
                 const content = pages[res.ref] || '';
-                const [snippet, section] =
-                    content ? findRelevantSnippet(query, res.ref, 50) : ["", null];
+                const [snippet, section, querykey] =
+                    content ? findRelevantSnippet(query, res.ref, 50) : ["", null, ""];
 
-                return { page: Pages[res.ref], snippet: snippet, section: section };
+                return { page: Pages[res.ref], snippet: snippet, section: section, querykey: querykey };
             });
         setCache({ ...cache, [query]: result });
         return result;
@@ -295,7 +297,6 @@ function DocPage() {
 
 
     function SearchDropdown() {
-        const [inputValue, setInputValue] = useState("");
 
         return (
             <Autocomplete
@@ -303,10 +304,10 @@ function DocPage() {
                 freeSolo
                 autoSelect
                 options={isLoading ? [] : getResult(inputValue).map(res => {
-                    return { title: res.page, content: res.snippet, section: res.section };
+                    return { title: res.page, content: res.snippet, section: res.section, querykey: res.querykey };
                 })}
-                getOptionLabel={() => inputValue} // What appears in input
-                filterOptions={(options => options)} // Disable filtering
+                getOptionLabel={() => inputValue}
+                filterOptions={(options => options)}
                 renderOption={(props, option) => (
                     <Box {...props} key={option.title} sx=
                         {{
@@ -315,6 +316,7 @@ function DocPage() {
                         }} onClick={() => {
                             document.getElementById('search').blur();
                             setInputValue("");
+                            setHighlightKey(option.querykey);
                             let pg = Object.entries(Pages)
                                 .find(([_, value]) => value === option.title)?.[0];
                             navigate(`/docs/${pg}${option.section ? `#${option.section}` : ''}`);
@@ -328,7 +330,7 @@ function DocPage() {
                         </Typography>
                     </Box>
                 )}
-                onInputChange={(_, v, _2) => { setInputValue(v); }}
+                onInputChange={(_, v, r) => { if (r === "input") { setHighlightKey(v); } setInputValue(v); }}
                 renderInput={(params) => (
                     <TextField
                         {...params}
@@ -384,11 +386,20 @@ function DocPage() {
         }
     }, [page, frag]);
 
+    useEffect(() => {
+        if (contentRef.current) {
+            const instance = new Mark(contentRef.current);
+            instance.unmark();
+            instance.mark(highlightKey);
+        }
+    }, [highlightKey, page]);
+
     const handlePageChange = (event, itemId) => {
         setSelectedPage(itemId);
         if (itemId !== 'data' && itemId !== 'documentation') {
             const newfrag = page !== itemId ? '' : frag;
             setFrag(newfrag);
+            setHighlightKey(inputValue);
             navigate(`/docs/${itemId}${newfrag ? `#${newfrag}` : ''}`);
         }
     }
@@ -437,7 +448,9 @@ function DocPage() {
                     className={'markdown-body'}
                 >
                     <p className="gradient-overlay-top"></p>
-                    {isLoading ? loading() : pageHTML[page]}
+                    <div ref={contentRef} >
+                        {isLoading ? loading() : pageHTML[page]}
+                    </div>
                     <p className="gradient-overlay-bottom"></p>
                 </Box>
             </Container>

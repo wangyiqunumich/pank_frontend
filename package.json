@@ -30,7 +30,8 @@
     "sass": "^1.83.0",
     "styled-components": "^6.1.13",
     "web-vitals": "^2.1.4",
-    "lunr": "^2.3.9"
+    "lunr": "^2.3.9",
+    "mark.js": "8.11.1"
   },
   "scripts": {
     "start": "react-scripts start",
