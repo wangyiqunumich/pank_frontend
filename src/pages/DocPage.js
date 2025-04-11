@@ -1,23 +1,37 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Container, Typography, Box, Autocomplete, TextField } from '@mui/material';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router';
+import { useLocation } from 'react-router-dom';
+
+import {
+    Container,
+    Typography,
+    Box,
+    Autocomplete,
+    TextField
+} from '@mui/material';
+
+import {
+    SimpleTreeView
+} from '@mui/x-tree-view/SimpleTreeView';
+import {
+    TreeItem
+} from '@mui/x-tree-view/TreeItem';
+
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { materialLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
-import { TreeItem } from '@mui/x-tree-view/TreeItem';
+
 import remarkGfm from 'remark-gfm';
-import rehypeRaw from "rehype-raw";
-import { useNavigate } from 'react-router';
-import { useLocation } from 'react-router-dom';
+import rehypeRaw from 'rehype-raw';
 import lunr from 'lunr';
-import ReactDOMServer from 'react-dom/server'
+import ReactDOMServer from 'react-dom/server';
 import Mark from 'mark.js';
 
-import './Ontology.css'
-import "./github-markdown-light.css";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
 
-import { useRef } from 'react';
+import './Ontology.css';
+import './github-markdown-light.css';
 
 const Pages = {
     overview: 'Overview',
@@ -33,23 +47,27 @@ const defaultPage = 'overview';
 export function CodeCopyBtn({ children }) {
     const [copyOk, setCopyOk] = React.useState(false);
 
-    const iconColor = copyOk ? '#bbb' : '#ddd';
-    const icon = copyOk ? 'fa-check-square' : 'fa-copy';
+    const iconColor = copyOk ? '#126130' : '#ddd';
 
-    const handleClick = (e) => {
+    const handleClick = (_) => {
         navigator.clipboard.writeText(children.props.children);
 
         setCopyOk(true);
         setTimeout(() => {
             setCopyOk(false);
-        }, 200);
+        }, 1000);
     }
 
     return (
         <div className="code-copy-btn" style={{ width: '24px', height: '24px', zIndex: 1 }}>
-            <i className={`fas ${icon}`} onClick={handleClick} style={{ color: iconColor, width: '24px', height: '24px', zIndex: 1 }}>
-                <ContentCopyIcon />
-            </i>
+            <div
+                onClick={handleClick}
+                style={{ color: iconColor, width: '24px', height: '24px', zIndex: 1 }}
+            >
+
+                {!copyOk && (<ContentCopyIcon />)}
+                {copyOk && (<CheckBoxIcon />)}
+            </div>
         </div>
     )
 }
@@ -57,8 +75,6 @@ export function CodeCopyBtn({ children }) {
 function loading() {
     return <h2>Loading...</h2>
 }
-
-
 
 function getText(html) {
     var divContainer = document.createElement("div");
