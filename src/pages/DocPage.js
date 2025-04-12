@@ -32,17 +32,65 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 
 import './Ontology.css';
 import './github-markdown-light.css';
+import pageHierarchy from '../schema/doc/documentation.json';
 
-const Pages = {
-    overview: 'Overview',
-    ontology: 'Ontology',
-    API: 'API',
-    statistics: 'Statistics',
-    usecase: 'Use cases',
-    tutorial: 'Tutorials'
-}
+// const Pages = {
+//     overview: 'Overview',
+//     API: 'API',
+//     ontology: 'Ontology',
+//     usecase: 'Use cases',
+//     tutorial: 'Tutorials',
+//     statistics: 'Statistics'
+// }
 
-const defaultPage = 'overview';
+// const defaultPage = 'overview';
+
+// const Folders = ["documentation", "data"];
+
+const Pages = (() => {
+    let pages = {};
+    function traverse(node) {
+        if (node.children) {
+            node.children.forEach(child => {
+                traverse(child);
+            });
+        } else {
+            pages[node.id] = node.name;
+        }
+    }
+    traverse(pageHierarchy.root);
+    return pages;
+})();
+
+const Folders = (() => {
+    let folders = [];
+    function traverse(node) {
+        if (node.children) {
+            folders = [...folders, node.id];
+            node.children.forEach(child => {
+                traverse(child);
+            });
+        }
+    }
+    traverse(pageHierarchy.root);
+    console.log('folders', folders);
+    return folders;
+})();
+
+const defaultPage = pageHierarchy.default;
+
+const treeNodes = (() => {
+    function traverse(node) {
+        if (node.children) {
+            return <TreeItem itemId={node.id} label={node.name} key={node.id}>
+                {node.children.map(child => traverse(child))}
+            </TreeItem>
+        } else {
+            return <TreeItem itemId={node.id} label={node.name} key={node.id} />
+        }
+    }
+    return traverse(pageHierarchy.root);
+})();
 
 export function CodeCopyBtn({ children }) {
     const [copyOk, setCopyOk] = React.useState(false);
@@ -159,7 +207,7 @@ function DocPage() {
     const [page, setPage] = useState('loading'); //current page to change
     const [frag, setFrag] = useState('');
     const [selectedPage, setSelectedPage] = useState(''); //selected item in the left
-    const [expandedItems, setExpandedItems] = React.useState(['documentation']);
+    const [expandedItems, setExpandedItems] = React.useState(pageHierarchy.defaultExpanded);
     const navigate = useNavigate();
     const location = useLocation();
     const [pages, setPages] = useState({}); // converted page text
@@ -229,7 +277,7 @@ function DocPage() {
     }, []);
 
     const fetchPages = useCallback(async () => {
-        if (!isLoading) { setPage(defaultPage); return };
+        if (!isLoading) { return };
         const html = await Promise.all(
             Object.keys(Pages).map(async (page) => {
                 const module = await import(`../schema/doc/${page}.md`);
@@ -382,7 +430,7 @@ function DocPage() {
                 setPage(defaultPage);
             }
         }
-    }, [location]);
+    }, [location, isLoading]);
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -412,7 +460,7 @@ function DocPage() {
 
     const handlePageChange = (event, itemId) => {
         setSelectedPage(itemId);
-        if (itemId !== 'data' && itemId !== 'documentation') {
+        if (!Folders.includes(itemId)) {
             const newfrag = page !== itemId ? '' : frag;
             setFrag(newfrag);
             setHighlightKey(inputValue);
@@ -427,7 +475,7 @@ function DocPage() {
 
     return (
         <div className="App">
-            <Container maxWidth="100%" sx={{ mt: 4, mb: 4, display: 'flex', flexDirection: 'row' }}>
+            <Container maxWidth="100%" sx={{ mt: 4, mb: 4, display: 'flex', flexDirection: 'row', maxHeight: "calc(100%-64px)" }}>
                 <Box
                     sx={{
                         width: '300px',
@@ -441,7 +489,7 @@ function DocPage() {
                     {SearchDropdown()}
                     <SimpleTreeView selectedItems={[selectedPage]} onSelectedItemsChange={handlePageChange}
                         expandedItems={expandedItems} onExpandedItemsChange={handleExpandedItemsChange}>
-                        <TreeItem itemId='documentation' label="Documentation">
+                        {/* <TreeItem itemId='documentation' label="Documentation">
                             <TreeItem itemId="overview" label="Overview" />
                             <TreeItem itemId="ontology" label="Ontology" />
                             <TreeItem itemId="API" label="API" />
@@ -450,7 +498,8 @@ function DocPage() {
                             </TreeItem>
                             <TreeItem itemId="usecase" label="Use cases" />
                             <TreeItem itemId="tutorial" label="Tutorials" />
-                        </TreeItem>
+                        </TreeItem> */}
+                        {treeNodes}
                     </SimpleTreeView>
                 </Box>
                 <Box

@@ -1,0 +1,43 @@
+{
+    "root": {
+        "name": "Documentation",
+        "id": "documentation",
+        "children": [
+            {
+                "name": "Overview",
+                "id": "overview"
+            },
+            {
+                "name": "API",
+                "id": "API"
+            },
+            {
+                "name": "Ontology",
+                "id": "ontology"
+            },
+            {
+                "name": "Use cases",
+                "id": "usecase"
+            },
+            {
+                "name": "Tutorials",
+                "id": "tutorial"
+            },
+            {
+                "name": "Data",
+                "id": "data",
+                "children": [
+                    {
+                        "name": "Statistics",
+                        "id": "statistics"
+                    }
+                ]
+            }
+        ]
+    },
+    "default": "overview",
+    "defaultExpanded": [
+        "documentation"
+    ],
+    "__comment": "nodes with children cannot have content in themselves."
+}

@@ -55,12 +55,11 @@ function NavBar() {
                 <a className="menu-item menu-item-main" style={{ color: 'white', backgroundColor: '#219197' }} href={process.env.REACT_APP_PANKGRAPH_LINK}>PanKgraph</a>
                 <div className="submenu">
                   <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK}>Search</a>
-                  <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/docs'}>Documentation</a>
-                  {/* <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/api'}>API</a>
-                          <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/ontology'}>Ontology</a>
-                          <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/usecases'}>Use cases</a>
-                          <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/tutorial'}>Tutorial</a>
-                          <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/statistics'}>Statistics</a> */}
+                  <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/docs/API'}>API</a>
+                  <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/docs/ontology'}>Ontology</a>
+                  <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/docs/usecase'}>Use cases</a>
+                  <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/docs/tutorial'}>Tutorial</a>
+                  <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/docs/statistics'}>Statistics</a>
                 </div>
               </div>
               {/*<div className="menu-item-wrapper">*/}
