@@ -10,9 +10,10 @@
   padding-right: 15%;
   color: #1f2328;
   background-color: #ffffff;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  font-family: "Open Sans", sans-serif;
+  letter-spacing: -.01em;
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 24px;
   word-wrap: break-word;
 }
 
@@ -180,7 +181,7 @@
 }
 
 .markdown-body a:hover {
-  text-decoration: underline;
+  color: #00437d;
 }
 
 .markdown-body ::placeholder {
@@ -271,47 +272,48 @@
 .markdown-body h4,
 .markdown-body h5,
 .markdown-body h6 {
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
+  margin-top: 30px;
+  margin-bottom: 16px;
   font-weight: 600;
   line-height: 1.25;
 }
 
 .markdown-body h1 {
-  margin-bottom: 1rem;
+  font-size: 30px;
+  line-height: 1.3;
+  letter-spacing: -.02em;
 }
 
 .markdown-body h2 {
-  font-weight: 600;
-  padding-bottom: .3em;
-  font-size: 1.5em;
+  font-size: 25px;
+  line-height: 1.3;
 }
 
 .markdown-body h3 {
+  font-size: 20px;
+  line-height: 1.3;
   font-weight: 600;
-  padding-top: .2em;
-  font-size: 1.25em;
 }
 
 .markdown-body h4 {
-  font-weight: 600;
-  font-size: 1em;
+  font-size: 17px;
+  line-height: 1.3;
 }
 
 .markdown-body h5 {
-  font-weight: 600;
-  font-size: .875em;
+  font-size: 15px;
+  line-height: 1.3;
 }
 
 .markdown-body h6 {
-  font-weight: 600;
-  font-size: .85em;
-  color: #59636e;
+  font-size: 13px;
+  line-height: 1.3;
 }
 
 .markdown-body p {
   margin-top: 0;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  line-height: 1.6em;
 }
 
 .markdown-body blockquote {
@@ -321,11 +323,15 @@
   border-left: .25em solid #ececf1;
 }
 
-.markdown-body ul,
 .markdown-body ol {
-  margin-top: 0;
-  margin-bottom: 0;
-  padding-left: 2em;
+  padding-left: 16px;
+  margin-bottom: 16px;
+}
+
+.markdown-body ul {
+  padding-left: 0;
+  margin-bottom: 16px;
+  list-style: none;
 }
 
 .markdown-body ol ol,
@@ -338,6 +344,35 @@
 .markdown-body ol ul ol,
 .markdown-body ol ol ol {
   list-style-type: lower-alpha;
+}
+
+.markdown-body ol li {
+  display: list-item;
+  text-align: -webkit-match-parent;
+  unicode-bidi: isolate;
+  padding-left: 8px;
+  position: relative;
+  line-height: 1.5;
+}
+
+.markdown-body ul li {
+  display: list-item;
+  text-align: -webkit-match-parent;
+  unicode-bidi: isolate;
+  padding-left: 32px;
+  position: relative;
+  line-height: 1.5;
+}
+
+.markdown-body ul li:before {
+  content: "";
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  left: 15px;
+  top: 8px;
+  border-radius: 50%;
+  background: #1f2328;
 }
 
 .markdown-body dd {
@@ -424,7 +459,6 @@
 .markdown-body pre,
 .markdown-body details {
   margin-top: 0;
-  margin-bottom: 0.5rem;
 }
 
 .markdown-body table {
@@ -543,7 +577,7 @@
 .markdown-body ul ol,
 .markdown-body ol ol,
 .markdown-body ol ul {
-  margin-top: 0;
+  margin-top: 8px;
   margin-bottom: 0;
 }
 
@@ -552,7 +586,7 @@
 }
 
 .markdown-body li+li {
-  margin-top: .25em;
+  margin-top: 8px;
 }
 
 .markdown-body dl {
@@ -578,8 +612,21 @@
 
 .markdown-body table th,
 .markdown-body table td {
-  padding: 6px 13px;
+  padding-top: .5rem;
+  padding-bottom: .5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  font-size: .875rem;
+  line-height: 1.25rem;
   border: 1px solid #ececf1;
+}
+
+.markdown-body table tr td:not(:first-child) {
+  text-align: right;
+}
+
+.markdown-body table tr th:not(:first-child) {
+  text-align: right;
 }
 
 .markdown-body table td>:last-child {
@@ -705,7 +752,8 @@
 .markdown-body tt {
   padding: .2em .4em;
   margin: 0;
-  font-size: 85%;
+  font-size: 14px;
+  line-height: 1.6em;
   white-space: break-spaces;
   background-color: #818b981f;
   border-radius: 6px;
@@ -755,6 +803,7 @@
   background-color: rgb(250, 250, 250);
   border-radius: 6px;
   padding-right: 50px;
+  margin: 20px 0;
 }
 
 .markdown-body pre code,
@@ -1121,7 +1170,7 @@
   height: 40px;
   position: absolute;
   top: 100px;
-  left: 450px;
+  left: 440px;
   background: rgba(255, 255, 255, 0);
   background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.9) 50%, rgba(255, 255, 255, 0) 100%);
 }
@@ -1132,7 +1181,7 @@
   height: 40px;
   position: absolute;
   bottom: 255px;
-  left: 450px;
+  left: 440px;
   background: rgba(255, 255, 255, 0);
   background: linear-gradient(0deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.9) 50%, rgba(255, 255, 255, 0) 100%);
 }
