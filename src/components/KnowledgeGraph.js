@@ -1,410 +1,473 @@
-import React, { useEffect, useRef } from 'react';
-import Cytoscape from 'cytoscape';
-import coseBilkent from 'cytoscape-cose-bilkent';
-import cola from 'cytoscape-cola';
-import { useSelector } from 'react-redux';
+"use client";
 
-Cytoscape.use(coseBilkent);
-Cytoscape.use(cola);
+import React, { useEffect, useRef, useState } from "react";
+import cytoscape from "cytoscape";
+import graphData from "./data/example_cypher_query_result.json";
+import positionData from "./data/example_x_y.json";
 
-const colorMap = {
-  gene: "#ABD0F1",
-  sequence_variant: "#FFB77F",
-  pathway: "#F6C957",
-  ontology : "#8c561b",
-  article:"#e377c2",
-  open_chromatin_region: "#8c564b",
-};
-
-function KnowledgeGraph() {
-  const queryVisResult = useSelector((state) => state.queryVisResult?.queryVisResult) || {};
-  const { aiAnswer, queryAiAnswerStatus } = useSelector((state) => state.aiAnswer);
-  const containerRef = useRef(null);
+export default function KnowledgeGraph() {
   const cyRef = useRef(null);
-  console.log(queryVisResult);
+  const contextNodeRef = useRef(null);
+  const [deletedItems, setDeletedItems] = useState([]);
+  const [redoItems, setRedoItems] = useState([]);
+  const [hoveredData, setHoveredData] = useState(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+
+  const hideContextMenu = () => {
+    const menu = document.getElementById("context-menu");
+    if (menu) menu.style.display = "none";
+    contextNodeRef.current = null;
+  };
+
+  const handleDeleteNode = () => {
+    if (contextNodeRef.current && cyRef.current) {
+      const nodeToDelete = contextNodeRef.current;
+      const nodeJson = nodeToDelete.json();
+      const connectedEdges = nodeToDelete
+        .connectedEdges()
+        .map((edge) => edge.json());
+      const uniqueEdges = [];
+      const edgeIds = new Set();
+      connectedEdges.forEach((edge) => {
+        if (!edgeIds.has(edge.data.id)) {
+          edgeIds.add(edge.data.id);
+          uniqueEdges.push(edge);
+        }
+      });
+      const deletedItem = { node: nodeJson, edges: uniqueEdges };
+      setDeletedItems((prev) => [...prev, deletedItem]);
+      setRedoItems([]);
+      nodeToDelete.remove();
+      contextNodeRef.current = null;
+    }
+    hideContextMenu();
+  };
+
+  const handleUndo = () => {
+    if (deletedItems.length > 0 && cyRef.current) {
+      const lastDeletedItem = deletedItems[deletedItems.length - 1];
+      cyRef.current.batch(() => {
+        if (
+          !cyRef.current.getElementById(lastDeletedItem.node.data.id).nonempty()
+        ) {
+          cyRef.current.add(lastDeletedItem.node);
+        }
+        lastDeletedItem.edges.forEach((edgeJson) => {
+          if (!cyRef.current.getElementById(edgeJson.data.id).nonempty()) {
+            const source = cyRef.current.getElementById(edgeJson.data.source);
+            const target = cyRef.current.getElementById(edgeJson.data.target);
+            if (source.nonempty() && target.nonempty()) {
+              cyRef.current.add(edgeJson);
+            }
+          }
+        });
+      });
+      setDeletedItems((prev) => prev.slice(0, -1));
+      setRedoItems((prev) => [...prev, lastDeletedItem]);
+    }
+  };
+
+  const handleRedo = () => {
+    if (redoItems.length > 0 && cyRef.current) {
+      const lastRedoItem = redoItems[redoItems.length - 1];
+      const node = cyRef.current.getElementById(lastRedoItem.node.data.id);
+      if (node.nonempty()) node.remove();
+      setRedoItems((prev) => prev.slice(0, -1));
+      setDeletedItems((prev) => [...prev, lastRedoItem]);
+    }
+  };
+
+  const handleZoomIn = () =>
+    cyRef.current && cyRef.current.zoom(cyRef.current.zoom() + 0.2);
+  const handleZoomOut = () =>
+    cyRef.current && cyRef.current.zoom(cyRef.current.zoom() - 0.2);
+
   useEffect(() => {
-    if (containerRef.current && queryVisResult?.results?.[0]) {
-      const result = queryVisResult.results[0];
-      const geneNode = result.gene_node;
-      
-      // 处理两种可能的数据格式
-      let extendNodes = [];
-      if (result.all_extend_nodes) {
-        // 第一种格式：使用 all_extend_nodes
-        extendNodes = Array.isArray(result.all_extend_nodes) ? result.all_extend_nodes : [];
-      } else {
-        // 第二种格式：合并各种类型的 extend nodes
-        const extendNodeArrays = [
-          result.extend_node_snps,
-          result.extend_node_genes,
-          result.extend_node_pathways,
-          result.extend_node_ontologies,
-          result.extend_node_articles,
-          result.extend_node_ocrs
-        ].filter(Array.isArray);
-        
-        extendNodes = extendNodeArrays.flat();
-      }
-      
-      // 处理两种可能的关系数据格式
-      let relationships = [];
-      if (result.all_extend_rels) {
-        // 第一种格式：使用 all_extend_rels
-        relationships = Array.isArray(result.all_extend_rels) ? result.all_extend_rels : [];
-      } else {
-        // 第二种格式：合并各种类型的关系
-        const relationshipArrays = [
-          result.r_extend_snps,
-          result.r_extend_genes,
-          result.r_extend_pathways,
-          result.r_extend_ontologies,
-          result.r_extend_articles,
-          result.r_extend_ocrs
-        ].filter(Array.isArray);
-        
-        relationships = relationshipArrays.flat();
-      }
-
-      // 计算周围有效节点的总数
-      const surroundingNodes = [
-        result.snp_node,
-        ...extendNodes
-      ].filter(node => node && node['~id']);
-
-      // 添加文章节点到总数计算中
-      const totalNodes = surroundingNodes.length + (aiAnswer?.article?.[0] ? 1 : 0);
-
-      // 根据节点数量调整节点大小和布局参数
-      const nodeWidth = totalNodes <= 3 ? 180 : 150;
-      const nodeHeight = totalNodes <= 3 ? 30 : 30;
-      const fontSize = totalNodes <= 3 ? '20px' : '20px';
-      const radius = totalNodes <= 3 ? 300 : 240;
-
-      // 创建所有节点数据
-      const nodes = [
-        // 中心基因节点
-        {
-          data: {
-            id: geneNode['~id'],
-            label: geneNode['~properties']?.HGNC_symbol === 'nan' ? geneNode['~id'] : (geneNode['~properties']?.HGNC_symbol || geneNode['~id']),
-            color: colorMap.gene,
-            borderWidth: 2,
-            borderColor: colorMap.gene,
-            width: nodeWidth,
-            height: nodeHeight,
-            fontSize: fontSize,
-            isMainNode: true
-          },
-          position: { x: 550, y: 250 }
-        }
-      ];
-
-      // 创建边的数据
-      const edges = [];
-
-      // 添加其他节点并计算它们的位置
-      let currentIndex = 0;
-
-      // 如果存在 SNP 节点，添加它
-      if (result.snp_node) { 
-        const angle = (2 * Math.PI * currentIndex) / totalNodes;
-        nodes.push({
-          data: {
-            id: result.snp_node['~id'],
-            label: result.snp_node['~id'],
-            color: colorMap.sequence_variant,
-            width: nodeWidth,
-            height: nodeHeight,
-            fontSize: fontSize,
-            isMainNode: true
-          },
-          position: {
-            x: 625 + radius * Math.cos(angle),
-            y: 250 + radius * Math.sin(angle)
-          }
-        });
-        currentIndex++;
-      }
-
-      // 如果存在文章，添加文章节点和边
-      if (aiAnswer?.article?.[0]) {
-        const angle = (2 * Math.PI * currentIndex) / totalNodes;
-        nodes.push({
-          data: {
-            id: 'article_node',
-            label: 'PMID: ' + aiAnswer.article[0],
-            color: colorMap.article,
-            width: nodeWidth,
-            height: nodeHeight,
-            fontSize: fontSize
-          },
-          position: {
-            x: 650 + radius * Math.cos(angle),
-            y: 250 + radius * Math.sin(angle)
-          }
-        });
-
-        // 添加文章和中心基因之间的边
-        edges.push({
-          data: {
-            id: `article_to_gene`,
-            source: 'article_node',
-            target: geneNode['~id'],
-            label: 'mentions',
-            color:'#7F7D7D'
-          }
-        });
-        
-        currentIndex++;
-      }
-
-      // 添加其他扩展节点
-      surroundingNodes.forEach((node, index) => {
-        if (node && node['~id'] && node['~id'] !== result.snp_node?.['~id']) {
-          const angle = (2 * Math.PI * currentIndex) / totalNodes;
-          nodes.push({
-            data: {
-              id: node['~id'],
-              label: node['~id'] === 'MONDO_0005147' ? 'type 1 diabetes' : node['~properties']?.HGNC_symbol || node['~id'],
-              color: getNodeColor(getNodeType(node)),
-              width: nodeWidth,
-              height: nodeHeight,
-              fontSize: fontSize
-            },
-            position: {
-              x: 450 + radius * Math.cos(angle),
-              y: 250 + radius * Math.sin(angle)
-            }
-          });
-          currentIndex++;
-        }
-      });
-
-      // 处理主要边
-      if (result.snp_node && result.r) {
-        edges.push({
-          data: {
-            source: geneNode['~id'],
-            target: result.snp_node['~id'],
-            label: getEdgeLabel(geneNode, result.snp_node),
-            color: 'black'
-          }
-        });
-      }
-
-      // 处理扩展边
-      if (Array.isArray(relationships)) {
-        edges.push(...relationships
-          .filter(edge => edge && edge['~start'] && edge['~end'])
-          .map(edge => {
-            const sourceNode = [...surroundingNodes, geneNode]
-              .find(node => node['~id'] === edge['~start']);
-            const targetNode = [...surroundingNodes, geneNode]
-              .find(node => node['~id'] === edge['~end']);
-            
-            if (sourceNode && targetNode) {
-              if (getNodeType(sourceNode) === 'sequence_variant' && getNodeType(targetNode) === 'gene') {
-                return {
-                  data: {
-                    source: targetNode['~id'],
-                    target: sourceNode['~id'],
-                    label: getEdgeLabel(targetNode, sourceNode),
-                    color: '#7F7D7D'
-                  }
-                };
-              }
-              
-              return {
-                data: {
-                  source: edge['~start'],
-                  target: edge['~end'],
-                  label: getEdgeLabel(sourceNode, targetNode),
-                  color: '#7F7D7D'
-                }
-              };
-            }
-          }).filter(Boolean));
-      }
-
-      cyRef.current = Cytoscape({
-        container: containerRef.current,
-        elements: [...nodes, ...edges],
-        style: [
-          {
-            selector: 'node',
-            style: {
-              'shape': 'round-rectangle',
-              'width': 'data(width)',
-              'height': 'data(height)',
-              'background-color': '#FBFBFB',
-              'label': 'data(label)',
-              'text-valign': 'center',
-              'text-halign': 'center',
-              'font-size': 'data(fontSize)',
-              'color': '#000000',
-              'border-width': '2px',
-              'border-color': 'data(color)',
-              'border-opacity': 0.8,
-              'padding': '10px',
-              'text-wrap': 'wrap',
-            }
-          },
-          {
-            selector: 'node[isMainNode]',
-            style: {
-              'font-weight': 800,
-              'background-color': 'data(color)'
-            }
-          },
-          {
-            selector: 'edge',
-            style: {
-              'width': 2,
-              'line-color': '#666',
-              'target-arrow-color': '#666',
-              'target-arrow-shape': 'triangle',
-              'arrow-scale': 1.5,
-              'curve-style': 'straight',
-              'label': 'data(label)',
-              'font-size': '18px',
-              'text-rotation': 'autorotate',
-              'text-margin-y': -5,
-              'text-background-color': '#F7F7F7',
-              'text-background-opacity': 1,
-              'text-background-padding': '2px',
-              'color': 'data(color)'
-            }
-          },
-          {
-            selector: 'edge[label = "interact"]',
-            style: {
-              'width': 2,
-              'line-color': '#666',
-              'target-arrow-color': '#666',
-              'source-arrow-color': '#666',
-              'target-arrow-shape': 'triangle',
-              'source-arrow-shape': 'triangle',
-              'arrow-scale': 1.5,
-              'curve-style': 'straight',
-              'label': 'data(label)',
-              'font-size': '10px',
-              'text-rotation': 'autorotate',
-              'text-margin-y': -5,
-              'text-background-color': '#fff',
-              'text-background-opacity': 1,
-              'text-background-padding': '2px'
-            }
-          }
-        ],
-        layout: {
-          name: 'preset',
-          fit: false,
-          padding: 100,
-          zoom: 0.8,
-          pan: { x: -100, y: 50 }
-        },
-        userZoomingEnabled: false,
-        userPanningEnabled: false,
-      });
-
-      // 添加点击事件处理
-      cyRef.current.on('click', 'node', function(evt) {
-        const node = evt.target;
-        console.log(node.id());
-        if (node.id() === 'article_node') {
-          const articleId = node.data('label').replace('PMID: ', '');
-          console.log('pmid', articleId);
-          if (articleId) {
-            window.open(`https://pubmed.ncbi.nlm.nih.gov/${articleId}`, '_blank');
-          }
-        }
-      });
-
-      return () => {
-        if (cyRef.current) {
-          cyRef.current.destroy();
-        }
+    const result = graphData.results[0];
+    const uniqueNodesMap = {};
+    result.nodes.forEach((node) => (uniqueNodesMap[node["~id"]] = node));
+    const nodes = Object.values(uniqueNodesMap).map((node) => {
+      // Determine type based on the labels
+      const type = node["~labels"].includes("gene")
+        ? "protein_coding"
+        : node["~labels"].includes("variants")
+        ? "SNP"
+        : node["~labels"].includes("ontology")
+        ? "ontology"
+        : "other";
+      // Use the provided positionData and extract the Level property.
+      const posData = positionData[node["~id"]] || {
+        x: Math.random() * 600 + 100,
+        y: Math.random() * 400 + 100,
+        Level: "C",
       };
-    }
-  }, [queryVisResult, aiAnswer]);
+      const pos = { x: posData.x, y: posData.y };
+      return {
+        data: {
+          id: node["~id"],
+          ...node["~properties"],
+          type,
+          Level: posData.Level,
+        },
+        position: pos,
+      };
+    });
 
-  // 根据节点类型返回颜色
-  const getNodeColor = (nodeType) => {
-    switch (nodeType) {
-      case 'gene':
-        return colorMap.gene;
-      case 'sequence_variant':
-        return colorMap.sequence_variant;
-      case 'pathway':
-        return colorMap.pathway;
-      case 'ontology':
-        return colorMap.ontology;
-      case 'open_chromatin_region':
-        return colorMap.open_chromatin_region;
-      default:
-        return colorMap.sequence_variant;
-    }
-  };
+    const uniqueEdgesMap = {};
+    result.edges.forEach((edge) => (uniqueEdgesMap[edge["~id"]] = edge));
+    const edges = Object.values(uniqueEdgesMap).map((edge) => ({
+      data: {
+        id: edge["~id"],
+        source: edge["~start"],
+        target: edge["~end"],
+        ...edge["~properties"],
+      },
+    }));
 
-  // 添加一个新的辅助函数来获取节点类型
-  const getNodeType = (node) => {
-    const labels = node['~labels'];
-    if (!labels) return null;
-    
-    // 尝试从labels中找到匹配colorMap中的类型
-    for (const label of labels) {
-      if (label in colorMap) {
-        return label;
-      }
-    }
-    return labels[0]; // 如果没有匹配的，返回第一个label
-  };
+    cyRef.current = cytoscape({
+      container: document.getElementById("cy-container"),
+      elements: { nodes, edges },
+      style: [
+        // Protein Coding nodes: Core (filled)
+        {
+          selector: 'node[type = "protein_coding"][Level = "C"]',
+          style: {
+            shape: "round-rectangle",
+            "background-color": "#a8d0e6",
+            label: "data(HGNC_symbol)",
+            "font-size": "6px",
+            "text-valign": "center",
+            color: "#333",
+            width: "label",
+            height: "label",
+            padding: "5px",
+            cursor: "pointer",
+            "text-outline-width": 0.5,
+            "text-outline-color": "#fff",
+            "text-outline-opacity": 0.5,
+          },
+        },
+        // Protein Coding nodes: Neighbor (transparent fill, colored border)
+        {
+          selector: 'node[type = "protein_coding"][Level = "N"]',
+          style: {
+            shape: "round-rectangle",
+            "background-opacity": 0,
+            "border-width": 2,
+            "border-color": "#a8d0e6",
+            label: "data(HGNC_symbol)",
+            "font-size": "6px",
+            "text-valign": "center",
+            color: "#333",
+            width: "label",
+            height: "label",
+            padding: "5px",
+            cursor: "pointer",
+            "text-outline-width": 0.5,
+            "text-outline-color": "#fff",
+            "text-outline-opacity": 0.5,
+          },
+        },
+        // SNP nodes: Core (filled)
+        {
+          selector: 'node[type = "SNP"][Level = "C"]',
+          style: {
+            shape: "round-rectangle",
+            "background-color": "#ffb3ba",
+            label: "data(id)",
+            "font-size": "6px",
+            "text-valign": "center",
+            color: "#333",
+            width: "label",
+            height: "label",
+            padding: "5px",
+            cursor: "pointer",
+            "text-outline-width": 0.5,
+            "text-outline-color": "#fff",
+            "text-outline-opacity": 0.5,
+          },
+        },
+        // SNP nodes: Neighbor (transparent fill, colored border)
+        {
+          selector: 'node[type = "SNP"][Level = "N"]',
+          style: {
+            shape: "round-rectangle",
+            "background-opacity": 0,
+            "border-width": 2,
+            "border-color": "#ffb3ba",
+            label: "data(id)",
+            "font-size": "6px",
+            "text-valign": "center",
+            color: "#333",
+            width: "label",
+            height: "label",
+            padding: "5px",
+            cursor: "pointer",
+            "text-outline-width": 0.5,
+            "text-outline-color": "#fff",
+            "text-outline-opacity": 0.5,
+          },
+        },
+        // Ontology nodes: Core (filled)
+        {
+          selector: 'node[type = "ontology"][Level = "C"]',
+          style: {
+            shape: "round-rectangle",
+            "background-color": "#b8e1a3",
+            label: "data(id)",
+            "font-size": "6px",
+            "text-valign": "center",
+            color: "#333",
+            width: "label",
+            height: "label",
+            padding: "5px",
+            cursor: "pointer",
+            "text-outline-width": 0.5,
+            "text-outline-color": "#fff",
+            "text-outline-opacity": 0.5,
+          },
+        },
+        // Ontology nodes: Neighbor (transparent fill, colored border)
+        {
+          selector: 'node[type = "ontology"][Level = "N"]',
+          style: {
+            shape: "round-rectangle",
+            "background-opacity": 0,
+            "border-width": 2,
+            "border-color": "#b8e1a3",
+            label: "data(id)",
+            "font-size": "6px",
+            "text-valign": "center",
+            color: "#333",
+            width: "label",
+            height: "label",
+            padding: "5px",
+            cursor: "pointer",
+            "text-outline-width": 0.5,
+            "text-outline-color": "#fff",
+            "text-outline-opacity": 0.5,
+          },
+        },
+        // Node active state
+        {
+          selector: "node:active",
+          style: {
+            "overlay-padding": "0px",
+            "overlay-opacity": 0,
+          },
+        },
+        // Edge style
+        {
+          selector: "edge",
+          style: {
+            width: 1,
+            "line-color": "#d3d3d3",
+            "target-arrow-color": "#545454",
+            "target-arrow-shape": "vee",
+            "arrow-scale": 0.8,
+            "curve-style": "bezier",
+          },
+        },
+      ],
+      layout: { name: "preset" },
+      zoom: 0.01,
+      minZoom: 0.2,
+      maxZoom: 3,
+      pan: { x: 0, y: 0 },
+    });
 
-  // 添加一个新的辅助函数来确定边的标签
-  const getEdgeLabel = (sourceNode, targetNode) => {
-    const sourceType = getNodeType(sourceNode);
-    const targetType = getNodeType(targetNode);
+    cyRef.current.on("mouseover", "node", (evt) => {
+      document.body.style.cursor = "pointer";
 
-    if ((sourceType === 'gene' && targetType === 'sequence_variant') ||
-        (sourceType === 'sequence_variant' && targetType === 'gene')) {
-      return 'has lead QTL';
-    }
-    
-    if (sourceType === 'gene' && targetType === 'gene') {
-      return 'interacts with';
-    }
+      const nodeData = evt.target.data();
 
-    if ((sourceType === 'open_chromatin_region' && targetType === 'gene') ||
-        (sourceType === 'gene' && targetType === 'open_chromatin_region')) {
-      return 'locates in';
-    }
+      // 'renderedPosition' gives you the on-screen pixel coords of the node center
+      const { x, y } = evt.renderedPosition;
+      // Now compute the final tooltip position
+      setTooltipPosition({
+        x: x + 70, //20 is offset, change this
+        y: y + 70,
+      });
 
-    if ((sourceType === 'pathway' && targetType === 'gene') ||
-        (sourceType === 'gene' && targetType === 'pathway')) {
-      return 'belongs to';
-    }
+      setHoveredData(nodeData);
+      setTimeout(() => {
+        if (!document.getElementById("tooltip")?.matches(":hover")) {
+          setTooltipVisible(true);
+        }
+      }, 200); // time delay for hover meny fading in
+    });
 
-    if ((sourceType === 'ontology' && targetType === 'gene') ||
-        (sourceType === 'gene' && targetType === 'ontology')) {
-      return 'annotates by';
-    }
+    cyRef.current.on("mouseout", "node", () => {
+      document.body.style.cursor = "default";
+      setTimeout(() => {
+        if (!document.getElementById("tooltip")?.matches(":hover")) {
+          setTooltipVisible(false);
+        }
+      }, 500); //mouse delay for hover menu fading out
+    });
 
-    if ((sourceType === 'article' && targetType === 'gene') ||
-        (sourceType === 'gene' && targetType === 'article')) {
-      return 'mentions in';
-    }
-    
-    return ''; // 默认返回空字符串
-  };
+    cyRef.current.on("cxttap", "node", (evt) => {
+      setTooltipVisible(false);
+      hideContextMenu();
+      contextNodeRef.current = evt.target;
+      const menu = document.getElementById("context-menu");
+      menu.style.left = `${evt.originalEvent.clientX}px`;
+      menu.style.top = `${evt.originalEvent.clientY}px`;
+      menu.style.display = "block";
+    });
+
+    document.addEventListener("click", hideContextMenu);
+    return () => {
+      if (cyRef.current) cyRef.current.destroy();
+      document.removeEventListener("click", hideContextMenu);
+    };
+  }, []);
+
+  // useEffect(() => {
+  //   const handleClickOutsideTooltip = (e) => {
+  //     const tooltipElement = document.getElementById("tooltip");
+  //     if (tooltipElement && !tooltipElement.contains(e.target)) {
+  //       setTooltipVisible(false);
+  //     }
+  //   };
+
+  //   document.addEventListener("click", handleClickOutsideTooltip);
+  //   return () => {
+  //     document.removeEventListener("click", handleClickOutsideTooltip);
+  //   };
+  // }, []);
 
   return (
-    <div ref={containerRef} style={{
-      width: 672,
-      height: 472,
-      backgroundColor: '#F7F7F74D',
-      borderRadius: '10px',
-    }} />
+    <div style={{ position: "relative" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          padding: "8px",
+          backgroundColor: "#f5f5f7",
+          borderTopLeftRadius: "8px",
+          borderTopRightRadius: "8px",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+        }}
+      >
+        <button onClick={handleDeleteNode} style={{ marginRight: "8px" }}>
+          🗑️ Delete
+        </button>
+        <button onClick={handleUndo} style={{ marginRight: "8px" }}>
+          ↩️ Undo
+        </button>
+        <button onClick={handleRedo}>↪️ Redo</button>
+      </div>
+      <div
+        id="cy-container"
+        style={{
+          width: "500px",
+          height: "600px",
+          backgroundColor: "#fff",
+          border: "1px solid #ddd",
+          borderBottomLeftRadius: "8px",
+          borderBottomRightRadius: "8px",
+        }}
+      />
+      {tooltipVisible && hoveredData && (
+        <div
+          id="tooltip"
+          style={{
+            position: "absolute",
+            left: tooltipPosition.x,
+            top: tooltipPosition.y,
+            background: "#fff",
+            borderRadius: "8px",
+            padding: "12px",
+            fontSize: "13px",
+            color: "#333",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+            zIndex: 1000,
+            maxWidth: "320px",
+            pointerEvents: "auto",
+          }}
+        >
+          <div style={{ fontWeight: "bold", marginBottom: "8px" }}>
+            {hoveredData.HGNC_symbol || hoveredData.id}
+          </div>
+          {Object.entries(hoveredData).map(
+            ([key, value]) =>
+              key !== "type" &&
+              (key === "link" ? (
+                <div key={key}>
+                  <span style={{ fontWeight: 500 }}>{key}:</span>{" "}
+                  <a
+                    href={value}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: "#007bff" }}
+                  >
+                    Open Link ↗
+                  </a>
+                </div>
+              ) : (
+                <div key={key}>
+                  <span style={{ fontWeight: 500 }}>{key}:</span> {value}
+                </div>
+              ))
+          )}
+        </div>
+      )}
+
+      {/* Zoom buttons */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: "20px",
+          right: "20px",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "10px",
+          borderRadius: "8px",
+        }}
+      >
+        <button
+          onClick={handleZoomIn}
+          className="zoom-button"
+          style={{
+            marginBottom: "8px",
+            backgroundColor: "#ffffff",
+            border: "none",
+            borderRadius: "4px",
+
+            cursor: "pointer",
+          }}
+        >
+          <img
+            src="/zoomIn.png"
+            alt="Zoom In"
+            width={40}
+            height={40}
+            style={{ display: "block" }}
+          />
+        </button>
+        <button
+          onClick={handleZoomOut}
+          className="zoom-button"
+          style={{
+            backgroundColor: "#ffffff",
+            border: "none",
+            borderRadius: "4px",
+
+            cursor: "pointer",
+          }}
+        >
+          <img
+            src="/zoomOut.png"
+            alt="Zoom Out"
+            width={40}
+            height={40}
+            style={{ display: "block" }}
+          />
+        </button>
+      </div>
+    </div>
   );
 }
-
-export default KnowledgeGraph;
