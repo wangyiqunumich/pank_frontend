@@ -1,0 +1,274 @@
+{
+  "results": [
+    {
+      "nodes": [
+        {
+          "~id": "rs177069",
+          "~entityType": "node",
+          "~labels": [
+            "variants",
+            "sequence_variant",
+            "non_core_snp"
+          ],
+          "~properties": {
+            "id": "rs177069",
+            "common_SNP": "True",
+            "chr": "7",
+            "start_loc": 117462031,
+            "end_loc": 117462032,
+            "type": "SNP",
+            "link": "https://www.ncbi.nlm.nih.gov/snp/rs177069",
+            "data_version": "GRCh38",
+            "data_source": "ensembl",
+            "ref": "A",
+            "alt": "G"
+          }
+        },
+        {
+          "~id": "ENSG00000001626",
+          "~entityType": "node",
+          "~labels": [
+            "coding_elements",
+            "gene"
+          ],
+          "~properties": {
+            "id": "ENSG00000001626",
+            "id_version": 18,
+            "name": "CFTR",
+            "HGNC_id": "HGNC:1884",
+            "HGNC_symbol": "CFTR",
+            "description": "CF transmembrane conductance regulator [Source:HGNC Symbol;Acc:HGNC:1884]",
+            "chr": "7",
+            "start_loc": 117287120,
+            "end_loc": 117715971,
+            "strand": "1",
+            "GC_percentage": 36.9,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000001626",
+            "gencode_annotation": "nan",
+            "synonym": "ABC35;MRP7;TNR-CFTR;CFTR/MRP;ABCC7;CF;DJ760C5.1",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        },
+        {
+          "~id": "ENSG00000111319",
+          "~entityType": "node",
+          "~labels": [
+            "coding_elements",
+            "gene"
+          ],
+          "~properties": {
+            "id": "ENSG00000111319",
+            "id_version": 13,
+            "name": "SCNN1A",
+            "HGNC_id": "HGNC:10599",
+            "HGNC_symbol": "SCNN1A",
+            "description": "sodium channel epithelial 1 subunit alpha [Source:HGNC Symbol;Acc:HGNC:10599]",
+            "chr": "12",
+            "start_loc": 6346843,
+            "end_loc": 6377730,
+            "strand": "-1",
+            "GC_percentage": 51.15,
+            "type": "protein_coding",
+            "link": "https://www.ensembl.org/id/ENSG00000111319",
+            "gencode_annotation": "GENCODE basic",
+            "synonym": "ENACALPHA;SCNN1",
+            "data_version": "GRCh38.p14",
+            "data_source": "Ensembl"
+          }
+        },
+        {
+          "~id": "rs7784156",
+          "~entityType": "node",
+          "~labels": [
+            "variants",
+            "sequence_variant",
+            "non_core_snp"
+          ],
+          "~properties": {
+            "id": "rs7784156",
+            "common_SNP": "True",
+            "chr": "7",
+            "start_loc": 117426664,
+            "end_loc": 117426665,
+            "type": "SNP",
+            "link": "https://www.ncbi.nlm.nih.gov/snp/rs7784156",
+            "data_version": "GRCh38",
+            "data_source": "ensembl",
+            "ref": "C",
+            "alt": "G"
+          }
+        },
+        {
+          "~id": "rs2402203",
+          "~entityType": "node",
+          "~labels": [
+            "variants",
+            "sequence_variant",
+            "non_core_snp"
+          ],
+          "~properties": {
+            "id": "rs2402203",
+            "common_SNP": "True",
+            "chr": "7",
+            "start_loc": 117431166,
+            "end_loc": 117431167,
+            "type": "SNP",
+            "link": "https://www.ncbi.nlm.nih.gov/snp/rs2402203",
+            "data_version": "GRCh38",
+            "data_source": "ensembl",
+            "ref": "T",
+            "alt": "A"
+          }
+        },
+        {
+          "~id": "rs177069",
+          "~entityType": "node",
+          "~labels": [
+            "variants",
+            "sequence_variant",
+            "non_core_snp"
+          ],
+          "~properties": {
+            "id": "rs177069",
+            "common_SNP": "True",
+            "chr": "7",
+            "start_loc": 117462031,
+            "end_loc": 117462032,
+            "type": "SNP",
+            "link": "https://www.ncbi.nlm.nih.gov/snp/rs177069",
+            "data_version": "GRCh38",
+            "data_source": "ensembl",
+            "ref": "A",
+            "alt": "G"
+          }
+        },
+        {
+          "~id": "MONDO_0005147",
+          "~entityType": "node",
+          "~labels": [
+            "ontology"
+          ],
+          "~properties": {
+            "data_source": "NCBO",
+            "id": "MONDO_0005147",
+            "definition": "A chronic condition characterized by minimal or absent production of insulin by the pancreas.",
+            "synonyms": "type I diabetes mellitus|juvenile diabetes|insulin dependent diabetes|type 1 diabetes|immune mediated diabetes|IDDM|insulin-dependent diabetes mellitus|diabetes mellitis type I|diabetes mellitis type 1|type I diabetes",
+            "all_labels": "experimental_factor",
+            "data_version": "2024-2-20"
+          }
+        }
+      ],
+      "node_count": 7,
+      "edges": [
+        {
+          "~id": "ea3b6cef-0f14-4668-a253-b0930460e07c",
+          "~entityType": "relationship",
+          "~start": "rs177069",
+          "~end": "ENSG00000001626",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "G",
+            "slope": "-0.35529500246048",
+            "other_allele": "A",
+            "data_version": "2024-12-12",
+            "data_source": "splicing; GTEx",
+            "pip": "0.5042815369514",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "0.0001460820081263",
+            "lbf": "86.1518563671259"
+          }
+        },
+        {
+          "~id": "c57bf121-5103-43cc-bd17-42f7eb7a285b0",
+          "~entityType": "relationship",
+          "~start": "ENSG00000001626",
+          "~end": "ENSG00000111319",
+          "~type": "REGULATION",
+          "~properties": {
+            "biogrid_interaction_id": "9999",
+            "pubmed_id": 24736260.0,
+            "cDSD_distance": -1.8003792900955773e-10,
+            "data_version": "- (-) (-) (-) (-) (-)",
+            "data_source": "PMID: 24736260"
+          }
+        },
+        {
+          "~id": "fb6c2dd9-baf4-4653-ac83-9bdab8de2cd9",
+          "~entityType": "relationship",
+          "~start": "rs7784156",
+          "~end": "ENSG00000001626",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "G",
+            "slope": "-0.312057822942734",
+            "other_allele": "C",
+            "data_version": "2024-12-12",
+            "data_source": "splicing; GTEx",
+            "pip": "0.11537703624494",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "0.0007498692683347",
+            "lbf": "30.9850624636671"
+          }
+        },
+        {
+          "~id": "ea3b6cef-0f14-4668-a253-b0930460e07c",
+          "~entityType": "relationship",
+          "~start": "rs177069",
+          "~end": "ENSG00000001626",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "G",
+            "slope": "-0.35529500246048",
+            "other_allele": "A",
+            "data_version": "2024-12-12",
+            "data_source": "splicing; GTEx",
+            "pip": "0.5042815369514",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "0.0001460820081263",
+            "lbf": "86.1518563671259"
+          }
+        },
+        {
+          "~id": "2edd7ac6-7f04-4df5-8861-8dff44bccf2e",
+          "~entityType": "relationship",
+          "~start": "rs2402203",
+          "~end": "ENSG00000001626",
+          "~type": "fine_mapped_eQTL",
+          "~properties": {
+            "effect_allele": "C",
+            "slope": "-2.36158680915833",
+            "other_allele": "T",
+            "data_version": "2024-12-12",
+            "data_source": "splicing; GTEx",
+            "pip": "0.698594303240268",
+            "tissue_name": "Pancreas",
+            "tissue_id": "UBERON_0001264",
+            "nominal_p": "4.835496097730581e-17",
+            "lbf": "93.0188603740186"
+          }
+        },
+        {
+          "~id": "7065e072-e18c-4301-9125-a09d06105ef4",
+          "~entityType": "relationship",
+          "~start": "ENSG00000001626",
+          "~end": "MONDO_0005147",
+          "~type": "effector_gene",
+          "~properties": {
+            "evidence": "co-accessibility|colocalized eQTL, CRISPRi|",
+            "reference": "Gaulton KJ 2021",
+            "related_variants": "nan",
+            "related_publications": "PMID:34012112|PMID:34012112",
+            "data_version": "2024-11-14",
+            "data_source": "HuGeAMP"
+          }
+        }
+      ],
+      "edge_count": 6
+    }
+  ]
+}

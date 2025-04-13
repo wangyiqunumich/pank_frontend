@@ -6,7 +6,7 @@ import axios from "axios";
 export const queryAiAnswer = createAsyncThunk('/queryResultToAiAnswer',
     async (payload) => {
         return await axios
-            .post('https://glkb.dcmb.med.umich.edu/api/search/PKG_LLM_QA', payload, {
+            .post('https://glkb.dcmb.med.umich.edu/api/external/pkg_summarize', payload, {
                 headers: {
                     "Content-Type": "application/json",
                 }
