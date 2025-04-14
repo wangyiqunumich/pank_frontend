@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Box, List, ListItem, Link, CircularProgress, Divider, Collapse } from '@mui/material';
+import { Container, Typography, IconButton, Box, List, ListItem, Link, CircularProgress, Collapse } from '@mui/material';
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import { useSelector, useDispatch } from 'react-redux';
 import './scoped.css';
 import KnowledgeGraph from '../components/KnowledgeGraph';
@@ -20,6 +21,7 @@ import { store } from '../redux/store';
 import { queryQueryVisResult } from '../redux/queryVisResultSlice';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import InfoOutlineIcon from '@mui/icons-material/InfoOutlined';
 import { styled } from '@mui/material/styles';
 import { setSearchTerms } from '../redux/searchSlice';
 import SearchBar from '../SearchBar';
@@ -29,21 +31,34 @@ const colorMap = {
     gene: "#ABD0F1",
     sequence_variant: "#FFB77F",
     pathway: "#F6C957",
-    ontology : "#8c561b",
-    article:"#e377c2",
+    ontology: "#8c561b",
+    article: "#e377c2",
     open_chromatin_region: "#8c564b",
-  };
+};
 
 // 添加一个带动画的展开按钮组件
 const ExpandMore = styled((props) => {
-  const { expand, ...other } = props;
-  return <IconButton {...other} />;
+    const { expand, ...other } = props;
+    return <IconButton {...other} />;
 })(({ theme, expand }) => ({
-  transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
-  marginLeft: 'auto',
-  transition: theme.transitions.create('transform', {
-    duration: theme.transitions.duration.shortest,
-  }),
+    transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
+    marginLeft: 'auto',
+    transition: theme.transitions.create('transform', {
+        duration: theme.transitions.duration.shortest,
+    }),
+}));
+
+const HtmlTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+        backgroundColor: '#219197',
+        color: 'rgba(255, 255, 255, 0.87)',
+        maxWidth: 220,
+        fontSize: theme.typography.pxToRem(12),
+        border: '1px solid #dadde9',
+        shadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+    },
 }));
 
 function TypewriterEffect({ text, speed = 5, onComplete }) {
@@ -67,37 +82,37 @@ function TypewriterEffect({ text, speed = 5, onComplete }) {
 }
 
 const SNPPlotImage = ({ imageSrc }) => {
-  if (!imageSrc) return null;
+    if (!imageSrc) return null;
 
-  return (
-    <div style={{ 
-      position: 'relative', 
-      width: '100%', 
-      height: '100%', 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      overflow: 'hidden'
-    }}>
-      <img 
-        src={`data:image/jpeg;base64,${imageSrc}`} 
-        alt="SNP p-values Plot" 
-        style={{ 
-          maxWidth: '100%',
-          maxHeight: '100%',
-          objectFit: 'contain'
-        }}
-      />
-    </div>
-  );
+    return (
+        <div style={{
+            position: 'relative',
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            overflow: 'hidden'
+        }}>
+            <img
+                src={`data:image/jpeg;base64,${imageSrc}`}
+                alt="SNP p-values Plot"
+                style={{
+                    maxWidth: '100%',
+                    maxHeight: '100%',
+                    objectFit: 'contain'
+                }}
+            />
+        </div>
+    );
 };
 
 const Legend = () => (
-  // <div className="styled-paper" data-title="Legend">
-    <Box sx={{ 
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 2,
+    // <div className="styled-paper" data-title="Legend">
+    <Box sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 2,
         position: 'relative',
         padding: '20px',
         backgroundColor: '#FBFBFB',
@@ -113,63 +128,80 @@ const Legend = () => (
             left: 0,
             zIndex: 1
         }}>
-            Legend
+            Legend&nbsp;&nbsp;<HtmlTooltip
+                title={
+                    <React.Fragment>
+                        <Typography color="inherit">Legend</Typography>
+                        The legend of the graph.
+                    </React.Fragment>
+                }
+            >
+                <InfoOutlineIcon sx={{
+                    position: 'relative',
+                    top: "2px",
+                    right: 0,
+                    color: '#1976d2',
+                    cursor: 'pointer',
+                    width: "0.7em",
+                }} />
+            </HtmlTooltip>
         </Typography>
-      {/* 第一行 */}
+
+        {/* 第一行 */}
         <Box>
             <Typography sx={{ textAlign: 'left' }}>Search result:</Typography>
         </Box>
         {/* 第2行 */}
-      <Box sx={{ 
-        display: 'flex',
-        // gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: 2,
-          marginBottom: '10px'
-      }}>
-        <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ width: 20, height: 20, backgroundColor: '#ABD0F1', borderRadius: '4px' }} />
-          <Typography variant="body2">Gene</Typography>
+        <Box sx={{
+            display: 'flex',
+            // gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: 2,
+            marginBottom: '10px'
+        }}>
+            <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 20, height: 20, backgroundColor: '#ABD0F1', borderRadius: '4px' }} />
+                <Typography variant="body2">Gene</Typography>
+            </Box>
+            <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 20, height: 20, backgroundColor: '#FFB77F', borderRadius: '4px' }} />
+                <Typography variant="body2">Sequence variant</Typography>
+            </Box>
+            <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 20, height: 20, backgroundColor: '#F6C957', borderRadius: '4px' }} />
+                <Typography variant="body2">Pathway</Typography>
+            </Box>
+            <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 20, height: 20, backgroundColor: '#e377c2', borderRadius: '4px' }} />
+                <Typography variant="body2">Article</Typography>
+            </Box>
+            <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 20, height: 20, backgroundColor: '#b57e47', borderRadius: '4px' }} />
+                <Typography variant="body2">Ontology</Typography>
+            </Box>
         </Box>
-        <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ width: 20, height: 20, backgroundColor: '#FFB77F', borderRadius: '4px' }} />
-          <Typography variant="body2">Sequence variant</Typography>
-        </Box>
-        <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ width: 20, height: 20, backgroundColor: '#F6C957', borderRadius: '4px' }} />
-          <Typography variant="body2">Pathway</Typography>
-        </Box>
-          <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Box sx={{ width: 20, height: 20, backgroundColor: '#e377c2', borderRadius: '4px' }} />
-              <Typography variant="body2">Article</Typography>
-          </Box>
-          <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Box sx={{ width: 20, height: 20, backgroundColor: '#b57e47', borderRadius: '4px' }} />
-              <Typography variant="body2">Ontology</Typography>
-          </Box>
-      </Box>
-      {/* 第3行 */}
-      <Box sx={{ 
-        display: 'flex',
-        // gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: 2
-      }}>
-          <Typography>Concepts related to current search result presented in </Typography>
-          <Box sx={{ width: 20, height: 20, backgroundColor: 'white', borderRadius: '4px', border: '2px solid #C0C0C0' }} />
-        {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        {/* 第3行 */}
+        <Box sx={{
+            display: 'flex',
+            // gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: 2
+        }}>
+            <Typography>Concepts related to current search result presented in </Typography>
+            <Box sx={{ width: 20, height: 20, backgroundColor: 'white', borderRadius: '4px', border: '2px solid #C0C0C0' }} />
+            {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Box sx={{ width: 20, height: 20, backgroundColor: '#8c561b', borderRadius: '4px' }} />
           <Typography variant="body2">Ontology</Typography>
         </Box> */}
-        {/*<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>*/}
-        {/*  <Box sx={{ width: 20, height: 20, backgroundColor: '#C0C0C0', borderRadius: '4px' }} />*/}
-        {/*  <Typography variant="body2">Current Searched Node</Typography>*/}
-        {/*</Box>*/}
-        {/*<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>*/}
-        {/*  <Box sx={{ width: 20, height: 20, backgroundColor: 'white', borderRadius: '4px', border: '2px solid #C0C0C0' }} />*/}
-        {/*  <Typography variant="body2">Extend Node</Typography>*/}
-        {/*</Box>*/}
-      </Box>
+            {/*<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>*/}
+            {/*  <Box sx={{ width: 20, height: 20, backgroundColor: '#C0C0C0', borderRadius: '4px' }} />*/}
+            {/*  <Typography variant="body2">Current Searched Node</Typography>*/}
+            {/*</Box>*/}
+            {/*<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>*/}
+            {/*  <Box sx={{ width: 20, height: 20, backgroundColor: 'white', borderRadius: '4px', border: '2px solid #C0C0C0' }} />*/}
+            {/*  <Typography variant="body2">Extend Node</Typography>*/}
+            {/*</Box>*/}
+        </Box>
     </Box>
-  // </div>
+    // </div>
 );
 
 function SearchResult() {
@@ -197,7 +229,7 @@ function SearchResult() {
         const leadSnp = params.get('leadSnp');
         const dataSource = params.get('dataSource');
         const tissueKey = params.get('tissueKey');
-        
+
         if (sourceTerm && relationship && targetTerm) {
             dispatch(setSearchTerms({
                 sourceTerm,
@@ -221,7 +253,7 @@ function SearchResult() {
 
             const fixedSourceTerm = 'sequence_variant';
             const fixedTargetTerm = 'gene:' + getIdFromTerm(targetTerm);
-            
+
             dispatch(queryViewSchema({
                 sourceTerm: fixedSourceTerm,
                 relationship,
@@ -229,13 +261,13 @@ function SearchResult() {
             })).then((response) => {
                 if (response.payload) {
                     // 处理 schema 数据
-                    const { 
+                    const {
                         question_for_result,
                         next_questions,
                         ai_question_for_result,
                         ai_answer_title,
                         ai_answer_sub_title,
-                        cyper_for_result_page_all_nodes_specific 
+                        cyper_for_result_page_all_nodes_specific
                     } = response.payload;
 
                     if (cyper_for_result_page_all_nodes_specific) {
@@ -243,7 +275,7 @@ function SearchResult() {
                             .replace(/@snp_node@/g, sourceTerm)
                             .replace(/@gene_node@/g, targetTerm);
                         dispatch(queryQueryVisResult({ query }));
-                        dispatch(queryQueryResult({ query })).then((response)=>{
+                        dispatch(queryQueryResult({ query })).then((response) => {
                             const fineMapEQTL = response?.payload?.results[0]?.all_extend_rels?.find(
                                 rel => rel['~type'] === 'fine_mapped_eQTL'
                             );
@@ -255,7 +287,7 @@ function SearchResult() {
                                 tissueKey: tissueKey,
                                 geneSymbol: targetSymbol || ''
                             };
-        
+
                             let processedCurrentQuestion;
                             switch (dataSource) {
                                 case 'splicing; GTEx':
@@ -274,7 +306,7 @@ function SearchResult() {
                                     processedCurrentQuestion = replaceVariables(question_for_result, variables);
                                     break;
                             }
-        
+
                             let nextVariables;
                             if (sourceTerm == 'rs2402203' && targetTerm == 'ENSG00000001626') {
                                 nextVariables = {
@@ -295,7 +327,7 @@ function SearchResult() {
                                     geneSymbol: params.get('geneSymbol')
                                 };
                             }
-            
+
                             let processedNextQuestions;
                             switch (nextVariables.dataSource) {
                                 case 'splicing; GTEx':
@@ -313,7 +345,7 @@ function SearchResult() {
                                 default:
                                     break;
                             }
-        
+
                             const processedAiQuestions = ai_question_for_result?.map(question => {
                                 let processedQuestion = question;
                                 if (sourceTerm) {
@@ -324,11 +356,11 @@ function SearchResult() {
                                 }
                                 return processedQuestion;
                             }) || [];
-        
+
                             const processedAiAnswerTitle = ai_answer_title
                                 ?.replace(/@snp_node@/g, getIdFromTerm(sourceTerm))
                                 ?.replace(/@gene_id@/g, getIdFromTerm(targetTerm));
-        
+
                             // 更新 Redux store
                             dispatch(setProcessedQuestion({
                                 currentQuestion: processedCurrentQuestion,
@@ -369,12 +401,12 @@ function SearchResult() {
     };
     useEffect(() => {
         if (queryResult.results?.length != 0 && queryResult.results?.[0]?.gene_node) {
-            const processedQuestions = aiQuestions.map(question => 
+            const processedQuestions = aiQuestions.map(question =>
                 `${question} (answer the question in 50 words)`
             );
             console.log(processedQuestions);
             dispatch(queryAiAnswer({
-                "question": processedQuestions, 
+                "question": processedQuestions,
                 "graph": queryResult
             })).unwrap();
         }
@@ -397,9 +429,9 @@ This answer refers to the following resources in PanKbase:`;
     const handleOpenModal = () => {
         setModalOpen(true);
         setImageLoading(true);
-        dispatch(queryImage({imageType: 'snp_p_values_plot'}));
+        dispatch(queryImage({ imageType: 'snp_p_values_plot' }));
     };
-    
+
     const handleCloseModal = () => setModalOpen(false);
 
     const handleNextQuestionClick = (question) => {
@@ -407,7 +439,7 @@ This answer refers to the following resources in PanKbase:`;
         //     dispatch(setNextQuestionClicked(true));
         //     const currentState = store.getState();
         //     const isUsingFallback = currentState.search.usingFallback;
-            
+
         //     let queryParams = {
         //         sourceTerm: searchState.sourceTerm,
         //         relationship: searchState.relationship,
@@ -445,15 +477,15 @@ This answer refers to the following resources in PanKbase:`;
 
         //         await Promise.resolve();
         //         const response = await dispatch(queryViewSchema(queryParams));
-                
+
         //         if (response.payload && response.payload.cyper_for_result_page_all_nodes_specific) {
         //             const query = response.payload.cyper_for_result_page_all_nodes_specific
         //                 .replace(/@snp_node@/g, getIdFromTerm(queryParams.sourceTerm))
         //                 .replace(/@gene_node@/g, getIdFromTerm(queryParams.targetTerm));
-                    
+
         //             const updatedState = store.getState();
         //             console.log('Variables after update:', updatedState.variables);
-                    
+
         //             const processedCurrentQuestion = replaceVariables(
         //                 response.payload.question_for_result, 
         //                 updatedState.variables
@@ -494,7 +526,7 @@ This answer refers to the following resources in PanKbase:`;
         //             const processedAiAnswerTitle = response.payload?.ai_answer_title
         //                 .replace(/@snp_node@/g, queryParams.sourceTerm.split(':')[1])
         //                 .replace(/@gene_id@/g, queryParams.targetTerm.split(':')[1]);
-                    
+
         //             dispatch(setProcessedQuestion({
         //                 currentQuestion: processedCurrentQuestion,
         //                 nextQuestions: processedNextQuestions,
@@ -503,7 +535,7 @@ This answer refers to the following resources in PanKbase:`;
         //                 aiAnswerSubtitle: response.payload?.ai_answer_sub_title,
         //                 currentQuestionType: currentQuestionType
         //             }));
-                    
+
         //             dispatch(queryQueryResult({ query }));
         //             dispatch(queryQueryVisResult({ query }));
         //         }
@@ -511,7 +543,7 @@ This answer refers to the following resources in PanKbase:`;
 
         //     processNextQuestion();
         // }
-        
+
         const fineMapEQTL = queryResult.results[0].all_extend_rels.find(
             rel => rel['~type'] === 'fine_mapped_eQTL'
         );
@@ -578,11 +610,27 @@ This answer refers to the following resources in PanKbase:`;
                 width: 685,
                 marginTop: '50px'
             }}>
-                <Typography sx={{ fontSize: 20, width: 685, textAlign: 'left', marginBottom: '10px' }}>
-                    Question
+                <Typography sx={{ fontWeight: 700, fontSize: 20, width: 685, textAlign: 'left', marginBottom: '10px' }}>
+                    Question&nbsp;&nbsp;<HtmlTooltip
+                        title={
+                            <React.Fragment>
+                                <Typography color="inherit">Question</Typography>
+                                The question of the current search result.
+                            </React.Fragment>
+                        }
+                    >
+                        <InfoOutlineIcon sx={{
+                            position: 'relative',
+                            top: "2px",
+                            right: 0,
+                            color: '#1976d2',
+                            cursor: 'pointer',
+                            width: "0.7em",
+                        }} />
+                    </HtmlTooltip>
                 </Typography>
                 {/*test question block*/}
-                <Box sx={{ padding: '20px', backgroundColor: '#E4F0F1'}}>
+                <Box sx={{ padding: '20px', backgroundColor: '#E4F0F1' }}>
                     {currentQuestionType && (
                         <Typography sx={{ fontSize: 14, textAlign: 'left' }}>
                             (Your selection belongs to: {currentQuestionType})
@@ -600,9 +648,26 @@ This answer refers to the following resources in PanKbase:`;
                         dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }}
                     />
                 </Box>
-                <Typography sx={{ fontWeight: 'bold', fontSize: 20, marginTop: '20px', marginBottom: '16px'
+                <Typography sx={{
+                    fontWeight: 'bold', fontSize: 20, marginTop: '20px', marginBottom: '16px'
                 }}>
-                    AI' overview
+                    AI's Overview&nbsp;&nbsp;<HtmlTooltip
+                        title={
+                            <React.Fragment>
+                                <Typography color="inherit">AI's Overview</Typography>
+                                AI's overview of the current search result.
+                            </React.Fragment>
+                        }
+                    >
+                        <InfoOutlineIcon sx={{
+                            position: 'relative',
+                            top: "2px",
+                            right: 0,
+                            color: '#1976d2',
+                            cursor: 'pointer',
+                            width: "0.7em",
+                        }} />
+                    </HtmlTooltip>
                 </Typography>
                 <Box sx={{
                     display: 'flex',
@@ -678,18 +743,18 @@ This answer refers to the following resources in PanKbase:`;
                                 </ListItem>
                                 <ListItem sx={{ paddingY: '0px' }}>
                                     • Link to PanKbase resources: <Link
-                                    href={process.env.REACT_APP_PANKGRAPH_LINK + '/pipeline'}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    sx={{
-                                        color: '#1976d2',
-                                        textDecoration: 'none',
-                                        textSize: '16px',
-                                        '&:hover': {
-                                            textDecoration: 'underline'
-                                        }
-                                    }}
-                                >Pipeline</Link>
+                                        href={process.env.REACT_APP_PANKGRAPH_LINK + '/pipeline'}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        sx={{
+                                            color: '#1976d2',
+                                            textDecoration: 'none',
+                                            textSize: '16px',
+                                            '&:hover': {
+                                                textDecoration: 'underline'
+                                            }
+                                        }}
+                                    >Pipeline</Link>
                                 </ListItem>
                                 <ListItem sx={{ paddingY: '0px' }}>
                                     • Link to PanKbase resources:
@@ -729,7 +794,25 @@ This answer refers to the following resources in PanKbase:`;
                     </Box>
                 </Box>
                 {/*you may also ask*/}
-                <Typography sx={{fontWeight: 'bold', fontSize: 20, marginTop: '20px', marginBottom: '16px' }}>You may also ask</Typography>
+                <Typography sx={{ fontWeight: 'bold', fontSize: 20, marginTop: '20px', marginBottom: '16px' }}>
+                    You May Also Ask&nbsp;&nbsp;<HtmlTooltip
+                        title={
+                            <React.Fragment>
+                                <Typography color="inherit">You May Also Ask</Typography>
+                                Links to other problems.
+                            </React.Fragment>
+                        }
+                    >
+                        <InfoOutlineIcon sx={{
+                            position: 'relative',
+                            top: "2px",
+                            right: 0,
+                            color: '#1976d2',
+                            cursor: 'pointer',
+                            width: "0.7em",
+                        }} />
+                    </HtmlTooltip>
+                </Typography>
                 <Box sx={{
                     display: 'flex',
                     flexDirection: 'column',
@@ -768,7 +851,7 @@ This answer refers to the following resources in PanKbase:`;
                 display: 'flex',
                 flexDirection: 'column',
                 marginBottom: '44px',
-                marginTop: '30px'
+                marginTop: '50px'
                 // position: 'absolute',
                 // top: 100,
                 // left: windowWidth * 0.5 + 44
@@ -785,11 +868,27 @@ This answer refers to the following resources in PanKbase:`;
                     marginTop: '20px',
                     marginBottom: '16px'
                 }}>
-                    Graph viewer
+                    Graph Viewer&nbsp;&nbsp;<HtmlTooltip
+                        title={
+                            <React.Fragment>
+                                <Typography color="inherit">Graph Viewer</Typography>
+                                The graph showing the relationship between the SNP and the gene.
+                            </React.Fragment>
+                        }
+                    >
+                        <InfoOutlineIcon sx={{
+                            position: 'relative',
+                            top: "2px",
+                            right: 0,
+                            color: '#1976d2',
+                            cursor: 'pointer',
+                            width: "0.7em",
+                        }} />
+                    </HtmlTooltip>
                 </Typography>
                 <Box sx={{
                     position: 'relative',
-                    minHeight: '472px',
+                    minHeight: '450px',
                     overflow: 'visible',
                     backgroundColor: '#FBFBFB',
                     border: 1,

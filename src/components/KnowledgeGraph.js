@@ -92,10 +92,10 @@ export default function KnowledgeGraph() {
       const type = node["~labels"].includes("gene")
         ? "protein_coding"
         : node["~labels"].includes("variants")
-        ? "SNP"
-        : node["~labels"].includes("ontology")
-        ? "ontology"
-        : "other";
+          ? "SNP"
+          : node["~labels"].includes("ontology")
+            ? "ontology"
+            : "other";
       // Use the provided positionData and extract the Level property.
       const posData = positionData[node["~id"]] || {
         x: Math.random() * 600 + 100,
@@ -339,7 +339,7 @@ export default function KnowledgeGraph() {
   // }, []);
 
   return (
-    <div style={{ position: "relative" }}>
+    <div style={{ position: "relative", height: "100%" }}>
       <div
         style={{
           display: "flex",
@@ -363,7 +363,7 @@ export default function KnowledgeGraph() {
         id="cy-container"
         style={{
           width: "500px",
-          height: "600px",
+          height: "450px",
           backgroundColor: "#fff",
           border: "1px solid #ddd",
           borderBottomLeftRadius: "8px",
