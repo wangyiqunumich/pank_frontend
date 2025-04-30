@@ -26,6 +26,9 @@ import { styled } from '@mui/material/styles';
 import { setSearchTerms } from '../redux/searchSlice';
 import SearchBar from '../SearchBar';
 import NavBar from "../NavBar";
+import CarouselCards from '../components/SupportingMaterial';
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const colorMap = {
     gene: "#ABD0F1",
@@ -60,6 +63,27 @@ const HtmlTooltip = styled(({ className, ...props }) => (
         shadow: '0 0 10px rgba(0, 0, 0, 0.1)',
     },
 }));
+
+const TooltipComponent = ({ title, content }) => (
+    <>
+        &nbsp;&nbsp;<HtmlTooltip
+            title={
+                <React.Fragment>
+                    <Typography color="inherit">{title}</Typography>
+                    {content}
+                </React.Fragment>
+            }
+        >
+            <InfoOutlineIcon sx={{
+                position: 'relative',
+                top: "6px",
+                right: 0,
+                color: '#1976d2',
+                cursor: 'pointer',
+                width: "0.7em",
+            }} />
+        </HtmlTooltip>
+    </>);
 
 function TypewriterEffect({ text, speed = 5, onComplete }) {
     const [displayedText, setDisplayedText] = useState('');
@@ -128,23 +152,7 @@ const Legend = () => (
             left: 0,
             zIndex: 1
         }}>
-            Legend&nbsp;&nbsp;<HtmlTooltip
-                title={
-                    <React.Fragment>
-                        <Typography color="inherit">Legend</Typography>
-                        The legend of the graph.
-                    </React.Fragment>
-                }
-            >
-                <InfoOutlineIcon sx={{
-                    position: 'relative',
-                    top: "2px",
-                    right: 0,
-                    color: '#1976d2',
-                    cursor: 'pointer',
-                    width: "0.7em",
-                }} />
-            </HtmlTooltip>
+            Legend<TooltipComponent title="Legend" content="The legend of the graph." />
         </Typography>
 
         {/* 第一行 */}
@@ -600,314 +608,282 @@ This answer refers to the following resources in PanKbase:`;
     return (
         <Container disableGutters maxWidth={false} sx={{
             padding: 0, display: 'flex',
-            flexDirection: 'row', justifyContent: 'space-evenly',
+            flexDirection: 'column'
         }}>
-            {/*left*/}
-            <Box sx={{
-                // display: 'flex',
-                alignItems: 'center',
-                gap: 0,
-                width: 685,
-                marginTop: '50px'
-            }}>
+            {/*test question block*/}
+            <Box sx={{ padding: '20px', backgroundColor: '#E4F0F1', marginBottom: '20px', mx: "60px", marginTop: '60px', borderRadius: '20px' }}>
                 <Typography sx={{ fontWeight: 700, fontSize: 20, width: 685, textAlign: 'left', marginBottom: '10px' }}>
-                    Question&nbsp;&nbsp;<HtmlTooltip
-                        title={
-                            <React.Fragment>
-                                <Typography color="inherit">Question</Typography>
-                                The question of the current search result.
-                            </React.Fragment>
-                        }
-                    >
-                        <InfoOutlineIcon sx={{
-                            position: 'relative',
-                            top: "2px",
-                            right: 0,
-                            color: '#1976d2',
-                            cursor: 'pointer',
-                            width: "0.7em",
-                        }} />
-                    </HtmlTooltip>
+                    Question <TooltipComponent title="Question" content="The question of the current search result." />
                 </Typography>
-                {/*test question block*/}
-                <Box sx={{ padding: '20px', backgroundColor: '#E4F0F1' }}>
-                    {currentQuestionType && (
-                        <Typography sx={{ fontSize: 14, textAlign: 'left' }}>
-                            (Your selection belongs to: {currentQuestionType})
-                        </Typography>
-                    )}
-                    <Typography
-                        sx={{
-                            flex: 1,
-                            textAlign: 'left',
-                            wordWrap: 'break-word',
-                            whiteSpace: 'normal',
-                            fontSize: 16,
-                            // fontWeight: 300
-                        }}
-                        dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }}
-                    />
-                </Box>
-                <Typography sx={{
-                    fontWeight: 'bold', fontSize: 20, marginTop: '20px', marginBottom: '16px'
-                }}>
-                    AI's Overview&nbsp;&nbsp;<HtmlTooltip
-                        title={
-                            <React.Fragment>
-                                <Typography color="inherit">AI's Overview</Typography>
-                                AI's overview of the current search result.
-                            </React.Fragment>
-                        }
-                    >
-                        <InfoOutlineIcon sx={{
-                            position: 'relative',
-                            top: "2px",
-                            right: 0,
-                            color: '#1976d2',
-                            cursor: 'pointer',
-                            width: "0.7em",
-                        }} />
-                    </HtmlTooltip>
-                </Typography>
-                <Box sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '32px',
-                    // width: 685,
-                    backgroundColor: '#FBFBFB',
-                    border: 1,
-                    borderColor: '#EEEEEE',
-                    padding: '20px',
-                    position: 'relative',
-                }}>
-                    <Typography component="div">
-                        {Array.isArray(aiAnswer?.answers) && aiAnswer.answers.map((answer, index) => (
-                            <div key={index} style={{ marginBottom: index < aiAnswer.answers.length - 1 ? '20px' : '0' }}>
-                                {aiAnswerSubtitle && aiAnswerSubtitle[index] && (
-                                    <Typography sx={{
-                                        textAlign: 'left',
-                                        gap: 1,
-                                        fontSize: '18px'
-                                    }}>
-                                        <span style={{ color: '#FFD700' }}>✨</span>
-                                        {aiAnswerSubtitle[index]}
-                                    </Typography>
-                                )}
-                                <Typography sx={{
-                                    textAlign: 'justify',
-                                    fontSize: '14px',
-                                    fontWeight: 100
-                                }}>
-                                    <span dangerouslySetInnerHTML={{ __html: removeConsecutiveAsterisks(answer) }} />
-                                </Typography>
-                                {/*{index < aiAnswer.answers.length - 1 && <Divider sx={{ my: 2 }} />}*/}
-                            </div>
-                        ))}
+                {currentQuestionType && (
+                    <Typography sx={{ fontSize: 14, textAlign: 'left' }}>
+                        (Your selection belongs to: {currentQuestionType})
                     </Typography>
-
-                    {/*resource*/}
-                    <Box>
-                        <Box sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between'
+                )}
+                <Typography
+                    sx={{
+                        flex: 1,
+                        textAlign: 'left',
+                        wordWrap: 'break-word',
+                        whiteSpace: 'normal',
+                        fontSize: 16,
+                        // fontWeight: 300
+                    }}
+                    dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }}
+                />
+            </Box>
+            <Container disableGutters maxWidth={false} sx={{
+                padding: 0, display: 'flex',
+                flexDirection: 'row', justifyContent: 'space-evenly',
+            }}>
+                {/*left*/}
+                <Box sx={{
+                    // display: 'flex',
+                    alignItems: 'center',
+                    gap: 0,
+                    width: 685,
+                    marginTop: '20px'
+                }}>
+                    <Box sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '20px',
+                        // width: 685,
+                        backgroundColor: '#FBFBFB',
+                        border: 1,
+                        borderColor: '#EEEEEE',
+                        padding: '20px',
+                        position: 'relative',
+                        borderRadius: '20px'
+                    }}>
+                        <Typography sx={{
+                            fontWeight: 'bold', fontSize: 20
                         }}>
-                            <Typography sx={{ fontWeight: 500, fontSize: 20, textAlign: 'left' }}>
-                                <span>📎</span> Resources
-                            </Typography>
-                            <ExpandMore
-                                expand={expanded}
-                                onClick={handleExpandClick}
-                                aria-expanded={expanded}
-                                aria-label="show more"
-                            >
-                                <ExpandMoreIcon />
-                            </ExpandMore>
+                            AI's Overview<TooltipComponent title="AI's Overview" content="AI's overview of the current search result." />
+                        </Typography>
+                        <Typography component="div">
+                            {Array.isArray(aiAnswer?.answers) && aiAnswer.answers.map((answer, index) => (
+                                <div key={index} style={{ marginBottom: index < aiAnswer.answers.length - 1 ? '20px' : '0' }}>
+                                    {aiAnswerSubtitle && aiAnswerSubtitle[index] && (
+                                        <Typography sx={{
+                                            textAlign: 'left',
+                                            gap: 1,
+                                            fontSize: '18px'
+                                        }}>
+                                            <span style={{ color: '#FFD700' }}>✨</span>
+                                            {aiAnswerSubtitle[index]}
+                                        </Typography>
+                                    )}
+                                    <Typography sx={{
+                                        textAlign: 'justify',
+                                        fontSize: '14px',
+                                        fontWeight: 100
+                                    }}>
+                                        <span dangerouslySetInnerHTML={{ __html: removeConsecutiveAsterisks(answer) }} />
+                                    </Typography>
+                                    {/*{index < aiAnswer.answers.length - 1 && <Divider sx={{ my: 2 }} />}*/}
+                                </div>
+                            ))}
+                        </Typography>
+
+                        {/*resource*/}
+                        <Box>
+                            <Box sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between'
+                            }}>
+                                <Typography sx={{ fontWeight: 500, fontSize: 20, textAlign: 'left' }}>
+                                    <span>📎</span> Resources
+                                </Typography>
+                                <ExpandMore
+                                    expand={expanded}
+                                    onClick={handleExpandClick}
+                                    aria-expanded={expanded}
+                                    aria-label="show more"
+                                >
+                                    <ExpandMoreIcon />
+                                </ExpandMore>
+                            </Box>
+                            <Collapse in={expanded} timeout="auto" unmountOnExit>
+                                <List sx={{ padding: '0px' }}>
+                                    <ListItem sx={{ paddingY: '0px' }}>
+                                        • Link to PanKbase resources: <Link
+                                            href={process.env.REACT_APP_PANKGRAPH_LINK + '/qtldatasource'}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            sx={{
+                                                color: '#1976d2',
+                                                textDecoration: 'none',
+                                                textSize: '16px',
+                                                '&:hover': {
+                                                    textDecoration: 'underline'
+                                                }
+                                            }}
+                                        >QTL Data Source</Link>
+                                    </ListItem>
+                                    <ListItem sx={{ paddingY: '0px' }}>
+                                        • Link to PanKbase resources: <Link
+                                            href={process.env.REACT_APP_PANKGRAPH_LINK + '/pipeline'}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            sx={{
+                                                color: '#1976d2',
+                                                textDecoration: 'none',
+                                                textSize: '16px',
+                                                '&:hover': {
+                                                    textDecoration: 'underline'
+                                                }
+                                            }}
+                                        >Pipeline</Link>
+                                    </ListItem>
+                                    <ListItem sx={{ paddingY: '0px' }}>
+                                        • Link to PanKbase resources:
+                                        <Link
+                                            href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            sx={{
+                                                color: '#1976d2',
+                                                textDecoration: 'none',
+                                                textSize: '16px',
+                                                '&:hover': {
+                                                    textDecoration: 'underline'
+                                                }
+                                            }}
+                                        >
+                                            Integrated Cell Browser
+                                        </Link>
+                                    </ListItem>
+                                    <ListItem sx={{ paddingY: '0px' }}>
+                                        • Link to Ensembl: <Link
+                                            href={`https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneId}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            sx={{
+                                                color: '#1976d2',
+                                                textDecoration: 'none',
+                                                textSize: '16px',
+                                                '&:hover': {
+                                                    textDecoration: 'underline'
+                                                }
+                                            }}
+                                        > {geneId}</Link>
+                                    </ListItem>
+                                </List>
+                            </Collapse>
                         </Box>
-                        <Collapse in={expanded} timeout="auto" unmountOnExit>
-                            <List sx={{ padding: '0px' }}>
-                                <ListItem sx={{ paddingY: '0px' }}>
-                                    • Link to PanKbase resources: <Link
-                                        href={process.env.REACT_APP_PANKGRAPH_LINK + '/qtldatasource'}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        sx={{
-                                            color: '#1976d2',
-                                            textDecoration: 'none',
-                                            textSize: '16px',
-                                            '&:hover': {
-                                                textDecoration: 'underline'
-                                            }
-                                        }}
-                                    >QTL Data Source</Link>
-                                </ListItem>
-                                <ListItem sx={{ paddingY: '0px' }}>
-                                    • Link to PanKbase resources: <Link
-                                        href={process.env.REACT_APP_PANKGRAPH_LINK + '/pipeline'}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        sx={{
-                                            color: '#1976d2',
-                                            textDecoration: 'none',
-                                            textSize: '16px',
-                                            '&:hover': {
-                                                textDecoration: 'underline'
-                                            }
-                                        }}
-                                    >Pipeline</Link>
-                                </ListItem>
-                                <ListItem sx={{ paddingY: '0px' }}>
-                                    • Link to PanKbase resources:
-                                    <Link
-                                        href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        sx={{
-                                            color: '#1976d2',
-                                            textDecoration: 'none',
-                                            textSize: '16px',
-                                            '&:hover': {
-                                                textDecoration: 'underline'
-                                            }
-                                        }}
-                                    >
-                                        Integrated Cell Browser
-                                    </Link>
-                                </ListItem>
-                                <ListItem sx={{ paddingY: '0px' }}>
-                                    • Link to Ensembl: <Link
-                                        href={`https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneId}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        sx={{
-                                            color: '#1976d2',
-                                            textDecoration: 'none',
-                                            textSize: '16px',
-                                            '&:hover': {
-                                                textDecoration: 'underline'
-                                            }
-                                        }}
-                                    > {geneId}</Link>
-                                </ListItem>
-                            </List>
-                        </Collapse>
+                    </Box>
+                    {/*you may also ask*/}
+                    <Typography sx={{ fontWeight: 'bold', fontSize: 20, marginTop: '20px', marginBottom: '16px' }}>
+                        You May Also Ask<TooltipComponent title="You May Also Ask" content="Links to other problems." />
+                    </Typography>
+                    <Box sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '32px',
+                        backgroundColor: '#FBFBFB',
+                        border: 1,
+                        borderColor: '#EEEEEE',
+                        padding: '20px',
+                        marginBottom: '44px'
+                        // position: 'relative'
+                    }}>
+                        <ul className="next-questions-list">
+                            {nextQuestions ? (
+                                <li onClick={() => handleNextQuestionClick(nextQuestions)}
+                                    style={{ cursor: 'pointer' }}>
+                                    <Box sx={{
+                                        display: 'flex',
+                                    }}>
+                                        <Typography sx={{
+                                            fontSize: 14,
+                                            fontFamily: 'Open Sans'
+                                        }} dangerouslySetInnerHTML={{ __html: nextQuestions }} />
+                                        <span style={{ alignContent: 'center' }}><ChevronRightIcon /></span>
+                                    </Box>
+                                </li>
+                            ) : (
+                                <Typography sx={{ fontSize: 16 }}>No next questions available</Typography>
+                            )}
+                        </ul>
                     </Box>
                 </Box>
-                {/*you may also ask*/}
-                <Typography sx={{ fontWeight: 'bold', fontSize: 20, marginTop: '20px', marginBottom: '16px' }}>
-                    You May Also Ask&nbsp;&nbsp;<HtmlTooltip
-                        title={
-                            <React.Fragment>
-                                <Typography color="inherit">You May Also Ask</Typography>
-                                Links to other problems.
-                            </React.Fragment>
-                        }
-                    >
-                        <InfoOutlineIcon sx={{
-                            position: 'relative',
-                            top: "2px",
-                            right: 0,
-                            color: '#1976d2',
-                            cursor: 'pointer',
-                            width: "0.7em",
-                        }} />
-                    </HtmlTooltip>
-                </Typography>
+
+                {/*graph viewer, right*/}
                 <Box sx={{
+                    width: 672,
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '32px',
-                    backgroundColor: '#FBFBFB',
-                    border: 1,
-                    borderColor: '#EEEEEE',
-                    padding: '20px',
-                    marginBottom: '44px'
-                    // position: 'relative'
+                    marginBottom: '44px',
+                    marginTop: '20px'
+                    // position: 'absolute',
+                    // top: 100,
+                    // left: windowWidth * 0.5 + 44
                 }}>
-                    <ul className="next-questions-list">
-                        {nextQuestions ? (
-                            <li onClick={() => handleNextQuestionClick(nextQuestions)}
-                                style={{ cursor: 'pointer' }}>
-                                <Box sx={{
-                                    display: 'flex',
-                                }}>
-                                    <Typography sx={{
-                                        fontSize: 14,
-                                        fontFamily: 'Open Sans'
-                                    }} dangerouslySetInnerHTML={{ __html: nextQuestions }} />
-                                    <span style={{ alignContent: 'center' }}><ChevronRightIcon /></span>
-                                </Box>
-                            </li>
-                        ) : (
-                            <Typography sx={{ fontSize: 16 }}>No next questions available</Typography>
-                        )}
-                    </ul>
-                </Box>
-            </Box>
-
-            {/*graph viewer, right*/}
-            <Box sx={{
-                width: 672,
-                display: 'flex',
-                flexDirection: 'column',
-                marginBottom: '44px',
-                marginTop: '50px'
-                // position: 'absolute',
-                // top: 100,
-                // left: windowWidth * 0.5 + 44
-            }}>
-                <SearchBar
-                    source={searchState.sourceTerm}
-                    target={searchState.targetTermSymbol}
-                    disabled={true}
-                    resultPageShown={true}
-                />
-                <Typography sx={{
-                    fontWeight: 'bold',
-                    fontSize: 20,
-                    marginTop: '20px',
-                    marginBottom: '16px'
-                }}>
-                    Graph Viewer&nbsp;&nbsp;<HtmlTooltip
-                        title={
-                            <React.Fragment>
-                                <Typography color="inherit">Graph Viewer</Typography>
-                                The graph showing the relationship between the SNP and the gene.
-                            </React.Fragment>
-                        }
-                    >
-                        <InfoOutlineIcon sx={{
+                    <Box sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '32px',
+                        // width: 685,
+                        backgroundColor: '#FBFBFB',
+                        border: 1,
+                        borderColor: '#EEEEEE',
+                        padding: '20px',
+                        position: 'relative',
+                        borderRadius: '20px'
+                    }}>
+                        <Typography sx={{
+                            fontWeight: 'bold',
+                            fontSize: 20,
+                            marginTop: '20px',
+                            marginBottom: '16px'
+                        }}>
+                            Graph Viewer<TooltipComponent title="Graph Viewer" content="The graph showing the relationship between the SNP and the gene." />
+                        </Typography>
+                        <Box sx={{
                             position: 'relative',
-                            top: "2px",
-                            right: 0,
-                            color: '#1976d2',
-                            cursor: 'pointer',
-                            width: "0.7em",
-                        }} />
-                    </HtmlTooltip>
-                </Typography>
-                <Box sx={{
-                    position: 'relative',
-                    minHeight: '450px',
-                    overflow: 'visible',
-                    backgroundColor: '#FBFBFB',
-                    border: 1,
-                    borderColor: '#EEEEEE',
-                    textAlign: 'left',
-                    marginBottom: '60px'
-                }}>
-                    <KnowledgeGraph />
+                            minHeight: '450px',
+                            overflow: 'visible',
+                            backgroundColor: '#FBFBFB',
+                            border: 1,
+                            borderColor: '#EEEEEE',
+                            textAlign: 'left',
+                            marginBottom: '60px'
+                        }}>
+                            <KnowledgeGraph />
+                        </Box>
+                    </Box>
+                    {/* <Legend /> */}
                 </Box>
-                <Legend />
-            </Box>
 
-            <ImageModal
-                open={modalOpen}
-                handleClose={handleCloseModal}
-                loading={imageLoading}
-            >
-                <SNPPlotImage imageSrc={snpPlotImage} />
-            </ImageModal>
+                <ImageModal
+                    open={modalOpen}
+                    handleClose={handleCloseModal}
+                    loading={imageLoading}
+                >
+                    <SNPPlotImage imageSrc={snpPlotImage} />
+                </ImageModal>
+                </Container>
+                <Container disableGutters maxWidth={false} sx={{
+                padding: 0, display: 'flex',
+                flexDirection: 'row', justifyContent: 'space-evenly',
+            }}>
+                <CarouselCards cardData={[[{
+                    title: "PanKBase Link",
+                    icon: "🔗",
+                    content: [{ text: "QTL Data Source", link: process.env.REACT_APP_PANKGRAPH_LINK + '/qtldatasource' },
+                    { text: "Pipeline", link: process.env.REACT_APP_PANKGRAPH_LINK + '/pipeline' },
+                    { text: "Integrated Cell Browser", link: process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html' }
+                    ],
+                }, {
+                    title: "External Link",
+                    icon: "🔗",
+                    content: [
+                        { text: "Ensembl", link: `https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneId}` }
+                    ],
+                }]]} />
+                </Container>
         </Container>
     );
 }

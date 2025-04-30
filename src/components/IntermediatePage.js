@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+  Alert,
   Container,
   Typography,
   Table,
@@ -13,6 +14,7 @@ import {
   Link,
   Tabs,
   Tab,
+  IconButton,
   Button, Tooltip
 } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
@@ -31,6 +33,8 @@ import IntermediateKG from './IntermediateKG';
 import { getDataSourceInfo } from '../utils/textProcessing';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import NavBar from "../NavBar";
+import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import Close from '@mui/icons-material/Close'; 
 
 function IntermediatePage({ onContinue }) {
   const [error, setError] = useState(false);
@@ -44,6 +48,7 @@ function IntermediatePage({ onContinue }) {
   const [selectedTab, setSelectedTab] = useState('');
 
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [notification, setNotification] = useState(true);
 
   useEffect(() => {
     function handleResize() {
@@ -101,17 +106,17 @@ function IntermediatePage({ onContinue }) {
     };
 
     const results = queryResult.results;
-    
+
     results.forEach(result => {
       if (!result?.credible_sets) return;
-      
+
       const uniqueCredibleSets = Array.from(
         new Map(result.credible_sets.map(item => [item.id, item])).values()
       );
 
       uniqueCredibleSets.forEach(cs => {
         if (!cs?.data_source) return;
-        
+
         const { tissue, frontendKG } = getDataSourceInfo(cs.data_source, conversionTable);
         console.log(frontendKG);
         if (tissue && frontendKG) {
@@ -154,24 +159,24 @@ function IntermediatePage({ onContinue }) {
 
   const items = processDataSources();
 
-  const searchState = useSelector((state) => state.search) || { 
-    sourceTerm: '', 
-    relationship: '', 
+  const searchState = useSelector((state) => state.search) || {
+    sourceTerm: '',
+    relationship: '',
     targetTerm: '',
-    targetTermSymbol: ''  
+    targetTermSymbol: ''
   };
   console.log(searchState)
 
   const processedQuestion = viewSchema?.question?.[0]
     ? replaceTerms(
-        viewSchema.question[0], 
-        searchState.sourceTerm, 
-        searchState.relationship, 
-        searchState.targetTerm,
-        searchState.targetTermSymbol,
-        false,  // isNextQuestion
-        false   // addStyle
-      )
+      viewSchema.question[0],
+      searchState.sourceTerm,
+      searchState.relationship,
+      searchState.targetTerm,
+      searchState.targetTermSymbol,
+      false,  // isNextQuestion
+      false   // addStyle
+    )
     : 'Loading...';
 
   const handleSNPClick = async (snpId, dataSource, leadSnp) => {
@@ -195,7 +200,7 @@ function IntermediatePage({ onContinue }) {
     // 获取组织名称和数据源前端显示名称
     const tissueMap = conversionTable.Conversion_table.Tissue_KG_tissue_name;
     const dataSourceFrontend = dataSource;
-    
+
     let tissueKey = '';
     if (dataSource === 'GTEx; SusieR') {
       tissueKey = tissueMap['GTEx; SusieR'] || 'pancreatic tissue';
@@ -205,7 +210,7 @@ function IntermediatePage({ onContinue }) {
       tissueKey = 'pancreas';
     }
 
-    
+
     const params = new URLSearchParams({
       snpId: snpId,
       leadSnp: leadSnp,
@@ -226,7 +231,7 @@ function IntermediatePage({ onContinue }) {
     // // 处理下一步问题
     // const processedNextQuestions = next_questions?.map(item => {
     //   const params = item.parameters || {};
-      
+
     //   const questionVariables = {
     //     ...variables,
     //     snpId: 'rs17510162',
@@ -234,10 +239,10 @@ function IntermediatePage({ onContinue }) {
     //     geneId: 'ENSG00000134242',
     //     geneSymbol: 'ptpn22'
     //   };
-      
+
     //   // 使用更新后的变量对象进行替换
     //   let processedQuestion = replaceVariables(item.question, questionVariables);
-      
+
     //   console.log(processedQuestion);
     //   // 准备新的搜索条件
     //   let newSearchState = {
@@ -343,13 +348,13 @@ function IntermediatePage({ onContinue }) {
       default:
         return credibleSet.id;
     }
-    
+
     const setNumber = credibleSet.id.split('_').pop().slice(11);
     return `CredibleSet_${prefix}${setNumber}`;
   };
 
   const getFilteredCredibleSets = () => {
-    const allCredibleSets = queryResult?.results?.flatMap(result => 
+    const allCredibleSets = queryResult?.results?.flatMap(result =>
       (result?.credible_sets || []).map(cs => ({
         ...cs,
         displayLabel: getCredibleSetLabel(cs)  // 添加显示标签
@@ -363,7 +368,7 @@ function IntermediatePage({ onContinue }) {
 
     // 然后根据选中的 tab 进行筛选
     return uniqueCredibleSets.filter(cs => {
-      switch(selectedTab) {
+      switch (selectedTab) {
         case 'Pancreatic eQTL':
           return cs.data_source === 'GTEx; SusieR';
         case 'Islet eQTL':
@@ -415,7 +420,7 @@ function IntermediatePage({ onContinue }) {
     const relationship = params.get('relationship');
     const targetTerm = params.get('targetTerm');
     const targetSymbol = params.get('targetSymbol');
-    
+
 
     if (sourceTerm && relationship && targetTerm) {
       // 更新 Redux store 中的搜索条件
@@ -445,30 +450,30 @@ function IntermediatePage({ onContinue }) {
     const targetValue = targetTerm.split(':')[1] || targetType;
 
     return cypher.replace(/@([^@]+)@/g, (match, term) => {
-        if (term === sourceType) {
-            return sourceValue;
-        } else if (term === targetType) {
-            return targetValue;
-        }
-        return match;
+      if (term === sourceType) {
+        return sourceValue;
+      } else if (term === targetType) {
+        return targetValue;
+      }
+      return match;
     });
   }
 
   useEffect(() => {
-  if (viewSchema.cyper_for_intermediate_page && viewSchema.cyper_for_intermediate_KG_viewer) {
-    const processedCypher = replaceCypherTerms(
+    if (viewSchema.cyper_for_intermediate_page && viewSchema.cyper_for_intermediate_KG_viewer) {
+      const processedCypher = replaceCypherTerms(
         viewSchema.cyper_for_intermediate_page,
         searchState.sourceTerm,
         searchState.targetTerm
-    );
-    const processedCypherForKGViewer = replaceCypherTerms(
+      );
+      const processedCypherForKGViewer = replaceCypherTerms(
         viewSchema.cyper_for_intermediate_KG_viewer,
         searchState.sourceTerm,
         searchState.targetTerm
-    );
-    dispatch(queryQueryVisResult({query: processedCypherForKGViewer})).unwrap();
-      dispatch(queryQueryResult({query: processedCypher})).unwrap();
-    } 
+      );
+      dispatch(queryQueryVisResult({ query: processedCypherForKGViewer })).unwrap();
+      dispatch(queryQueryResult({ query: processedCypher })).unwrap();
+    }
   }, [viewSchema, searchState.sourceTerm, searchState.targetTerm]);
 
   useEffect(() => {
@@ -480,7 +485,7 @@ function IntermediatePage({ onContinue }) {
         { label: 'Pancreatic splicing QTL', count: counts.Pancreatic['Splicing QTL GTEx'] },
         { label: 'Islet Exon QTL', count: counts.Islet['Exon QTL InsPIRE'] }
       ];
-      
+
       // 找到第一个计数不为 0 的选项
       const firstNonZeroTab = tabOptions.find(tab => tab.count > 0);
       if (firstNonZeroTab) {
@@ -505,8 +510,8 @@ function IntermediatePage({ onContinue }) {
         <Typography variant="h6" color="error">
           No data found. Please try another gene.
         </Typography>
-        <Button 
-          variant="contained" 
+        <Button
+          variant="contained"
           onClick={() => window.location.href = '/'}
           sx={{
             backgroundColor: '#219197',
@@ -521,8 +526,32 @@ function IntermediatePage({ onContinue }) {
     );
   }
 
-  return (
-    <Container sx={{ padding: 0, display: 'flex',
+  return (<Container sx={{
+    padding: 0, display: 'flex',
+    flexDirection: 'column', justifyContent: 'space-evenly'
+  }} disableGutters maxWidth={false}>
+    {/* 问题显示区域 */}
+
+    <Box sx={{ padding: '20px', backgroundColor: '#E4F0F1', marginBottom: '20px', mx: "60px", marginTop: '60px', borderRadius: '20px' }}>
+      <Box sx={{ width: "100%", justifyContent: "space-between", display: "flex", alignItems: "center" }}>
+        <Typography sx={{ fontSize: '20px', textAlign: 'left', marginBottom: '10px', fontWeight: 600 }}>
+          Question
+        </Typography>
+        {/*a link*/}
+        <a href={"/"} style={{ color: "#398289", textUnderlineOffset: "3px", fontSize: "16px", marginBottom: "20px" }}>
+          CANCEL
+        </a>
+      </Box>
+      <Typography
+        sx={{
+          textAlign: 'left',
+          fontSize: 16,
+        }}
+        dangerouslySetInnerHTML={{ __html: processedQuestion }}
+      />
+    </Box>
+    <Container sx={{
+      padding: 0, display: 'flex',
       flexDirection: 'row', justifyContent: 'space-evenly',
       marginBottom: '44px'
     }} disableGutters maxWidth={false}>
@@ -544,7 +573,7 @@ function IntermediatePage({ onContinue }) {
           <Typography sx={{ color: '#D32F2F', marginBottom: 2 }}>
             No data found. Please refresh the page and try again.
           </Typography>
-          <Button 
+          <Button
             variant="contained"
             onClick={() => window.location.href = '/'}
             sx={{
@@ -565,98 +594,112 @@ function IntermediatePage({ onContinue }) {
         display: 'flex',
         flexDirection: 'column',
         marginBottom: '20px',
-        marginTop: '50px'
+        marginTop: '30px',
       }}>
-        {/* 问题显示区域 */}
-        <Typography sx={{ fontSize: 20, textAlign: 'left', marginBottom: '10px' }}>
-          Question
-        </Typography>
-        <Box sx={{ padding: '20px', backgroundColor: '#E4F0F1', marginBottom: '20px'}}>
-          <Typography
-              sx={{
-                textAlign: 'left',
-                fontSize: 16,
-              }}
-              dangerouslySetInnerHTML={{ __html: processedQuestion }}
-          />
-        </Box>
+
 
         {/* 搜索结果 */}
-        <Typography sx={{
-          fontWeight: 800,
-          fontSize: 20, marginBottom: '16px'
-          // position: 'absolute',
-          // top: -44,
-          // left: 0,
-          // zIndex: 1
-        }}>
-          Result
-        </Typography>
+
         <Box sx={{
           backgroundColor: '#FBFBFB',
           border: 1,
           borderColor: '#EEEEEE',
+          borderRadius: '20px'
         }}>
+          <Typography sx={{
+            fontWeight: 800,
+            fontSize: 20,
+            paddingLeft: '30px', paddingTop: '30px'
+            // position: 'absolute',
+            // top: -44,
+            // left: 0,
+            // zIndex: 1
+          }}>
+            Result
+          </Typography>
           <div className="styled-paper">
             <div className="answer-content">
               <Typography sx={{ mb: 2, fontSize: 14 }}>
                 Found four categories of Quantitative Trait Loci (QTL) data, derived from pancreatic and islet tissue samples.
               </Typography>
 
+              <Alert
+                variant="outlined"
+                severity="info"
+                icon={<NotificationsNoneIcon fontSize="small" />}
+                sx={{
+                  backgroundColor: "white",
+                  border: "1px solid",
+                  borderColor: "#23A6F0",
+                  color: "#23A6F0",
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: "10px",
+                  display: notification ? 'flex' : 'none',
+                }}
+                action={
+                  <IconButton size="small" color="inherit" onClick={()=> setNotification(false) }>
+                      <Close fontSize="small" />
+                  </IconButton>
+              }
+              >
+                Select an SNP entry below and click "Click for more" to see detailed relationship data
+              </Alert>
+
               {/* 添加 Tabs */}
               <Tabs
-                  value={selectedTab}
-                  onChange={handleTabChange}
-                  variant="scrollable"
-                  scrollButtons={false}
-                  sx={{
-                    '& .MuiButtonBase-root': {
-                      padding: '10px'
-                    },
-                    '& .MuiTab-root': {
-                      // minHeight: '60px',
-                      textTransform: 'none',
-                      fontSize: '16px',
-                      whiteSpace: 'normal',
-                      // lineHeight: '1.2',
-                      // width: '120px',
-                      // minWidth: '120px',
-                      // maxWidth: '120px',
-                      margin: '0px',
-                      '& .MuiTab-wrapper': {
-                        flexDirection: 'row',
-                        justifyContent: 'flex-start',
-                        alignItems: 'flex-start'
-                      }
-                    },
-                    '& .MuiTabs-flexContainer': {
-                      gap: '0px',
-                      justifyContent: 'space-between'
+                value={selectedTab}
+                onChange={handleTabChange}
+                variant="scrollable"
+                scrollButtons={false}
+                sx={{
+                  '& .MuiButtonBase-root': {
+                    padding: '10px'
+                  },
+                  '& .MuiTab-root': {
+                    // minHeight: '60px',
+                    textTransform: 'none',
+                    fontSize: '16px',
+                    whiteSpace: 'normal',
+                    // lineHeight: '1.2',
+                    // width: '120px',
+                    // minWidth: '120px',
+                    // maxWidth: '120px',
+                    margin: '0px',
+                    '& .MuiTab-wrapper': {
+                      flexDirection: 'row',
+                      justifyContent: 'flex-start',
+                      alignItems: 'flex-start'
                     }
-                  }}
+                  },
+                  '& .MuiTabs-flexContainer': {
+                    gap: '0px',
+                    justifyContent: 'space-between'
+                  }
+                }}
               >
                 {getTabOptions().map((option) => (
-                    <Tab
+                  <Tab
+                    sx={{
+                      backgroundColor: selectedTab === option.label ? '#E4F0F1' : 'none'
+                    }}
+                    key={option.label}
+                    label={
+                      <Typography
+                        component="span"
                         sx={{
-                          backgroundColor: selectedTab === option.label ? '#E4F0F1' : 'none'
+                          textAlign: 'left',
+                          fontSize: '14px',
+                          color: 'black'
+                          // lineHeight: 1.2,
+                          // wordWrap: 'break-word'
                         }}
-                        key={option.label}
-                        label={
-                          <Typography
-                              component="span"
-                              sx={{
-                                textAlign: 'left',
-                                fontSize: '14px',
-                                color: 'black'
-                                // lineHeight: 1.2,
-                                // wordWrap: 'break-word'
-                              }}
-                          >
-                            {option.label} ({option.count})
-                          </Typography>
-                        }
-                        value={option.label}
-                    />
+                      >
+                        {option.label} ({option.count})
+                      </Typography>
+                    }
+                    value={option.label}
+                  />
                 ))}
               </Tabs>
 
@@ -666,35 +709,38 @@ function IntermediatePage({ onContinue }) {
                 boxShadow: '0px 0px 0px 0px rgba(0,0,0,0.2)'
               }}>
                 <Table
-                    size={getFilteredCredibleSets().length > 0 ? "small" : "medium"}
-                    // size={'small'}
-                    // stickyHeader={true}
+                  size={getFilteredCredibleSets().length > 0 ? "small" : "medium"}
+                // size={'small'}
+                // stickyHeader={true}
                 >
                   <TableHead>
                     <TableRow>
                       <TableCell sx={{
                         fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 4px',
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px',
                         alignItems: 'center',
                         // display: 'flex',
+                        justifyContent: 'center',
                         width: 'fit-content'
                       }}>Credible set
                         <Tooltip
-                            slotProps={{ tooltip: {
+                          slotProps={{
+                            tooltip: {
                               sx: {
                                 backgroundColor: '#219197'
                               }
-                              }}}
-                            title={<Typography sx={{fontSize: '14px'}}>
-                                    Credible set represents a group of genetic variants within a genomic region associated with a trait, identified through statistical fine-mapping. Each variant in the set is assigned a posterior probability, indicating its likelihood of being linked to the observed trait, with the entire set typically capturing a predefined confidence level.
-                                  </Typography>
-                        }>
-                            <InfoIcon sx={{height: '16px', verticalAlign: 'middle'}}/>
-                          </Tooltip>
+                            }
+                          }}
+                          title={<Typography sx={{ fontSize: '14px' }}>
+                            Credible set represents a group of genetic variants within a genomic region associated with a trait, identified through statistical fine-mapping. Each variant in the set is assigned a posterior probability, indicating its likelihood of being linked to the observed trait, with the entire set typically capturing a predefined confidence level.
+                          </Typography>
+                          }>
+                          <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
+                        </Tooltip>
                       </TableCell>
                       <TableCell sx={{
                         fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 4px',
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 8px',
                         alignItems: 'center',
                         // display: 'flex',
                         justifyContent: 'center',
@@ -702,138 +748,169 @@ function IntermediatePage({ onContinue }) {
                       }}>
                         Purity
                         <Tooltip
-                            slotProps={{ tooltip: {
-                                sx: {
-                                  backgroundColor: '#219197'
-                                }
-                              }}}
-                            title={<Typography sx={{fontSize: '14px'}}>
-                          Purity represents the proportion of the genetic association signal captured by the credible set; higher purity indicates higher confidence and quality of the set.
+                          slotProps={{
+                            tooltip: {
+                              sx: {
+                                backgroundColor: '#219197'
+                              }
+                            }
+                          }}
+                          title={<Typography sx={{ fontSize: '14px' }}>
+                            Purity represents the proportion of the genetic association signal captured by the credible set; higher purity indicates higher confidence and quality of the set.
                           </Typography>}>
-                          <InfoIcon sx={{height: '16px', verticalAlign: 'middle'}}/>
+                          <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
                         </Tooltip>
                       </TableCell>
                       <TableCell sx={{
                         fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 4px',
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 8px',
                         alignItems: 'center',
                         // display: 'flex',
                         width: 'fit-content'
                       }}>
                         Lead SNP
                         <Tooltip
-                            slotProps={{ tooltip: {
-                                sx: {
-                                  backgroundColor: '#219197'
-                                }
-                              }}}
-                            title={<Typography sx={{fontSize: '14px'}}>
-                          Lead SNP refers to the genetic variant with the strongest association signal within the credible set, often considered the most likely causal variant.
-                        </Typography>}>
-                          <InfoIcon sx={{height: '16px', verticalAlign: 'middle'}}/>
+                          slotProps={{
+                            tooltip: {
+                              sx: {
+                                backgroundColor: '#219197'
+                              }
+                            }
+                          }}
+                          title={<Typography sx={{ fontSize: '14px' }}>
+                            Lead SNP refers to the genetic variant with the strongest association signal within the credible set, often considered the most likely causal variant.
+                          </Typography>}>
+                          <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
                         </Tooltip>
                       </TableCell>
                       <TableCell sx={{
                         fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 4px',
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 8px',
                         alignItems: 'center',
                         // display: 'flex',
                         width: 'fit-content'
                       }}>
                         PIP
                         <Tooltip
-                            slotProps={{ tooltip: {
-                                sx: {
-                                  backgroundColor: '#219197'
-                                }
-                              }}}
-                            title={<Typography sx={{fontSize: '14px'}}>
-                          PIP (Posterior Inclusion Probability) quantifies the probability of a specific variant being the causal driver of the observed genetic signal; a higher PIP suggests greater confidence in causality.
-                        </Typography>}>
-                          <InfoIcon sx={{height: '16px', verticalAlign: 'middle'}}/>
+                          slotProps={{
+                            tooltip: {
+                              sx: {
+                                backgroundColor: '#219197'
+                              }
+                            }
+                          }}
+                          title={<Typography sx={{ fontSize: '14px' }}>
+                            PIP (Posterior Inclusion Probability) quantifies the probability of a specific variant being the causal driver of the observed genetic signal; a higher PIP suggests greater confidence in causality.
+                          </Typography>}>
+                          <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
                         </Tooltip>
                       </TableCell>
                       <TableCell sx={{
                         fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 4px',
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 8px',
                         width: 'fit-content',
                       }}
                       >
                         #
                         <Tooltip
-                            slotProps={{ tooltip: {
-                                sx: {
-                                  backgroundColor: '#219197'
-                                }
-                              }}}
-                            title={<Typography sx={{fontSize: '14px'}}>
-                          # (Number of Variants) indicates the total count of genetic variants included in the credible set, encompassing all variants contributing to the signal.
-                        </Typography>}>
-                          <InfoIcon sx={{height: '16px', verticalAlign: 'middle'}}/>
+                          slotProps={{
+                            tooltip: {
+                              sx: {
+                                backgroundColor: '#219197'
+                              }
+                            }
+                          }}
+                          title={<Typography sx={{ fontSize: '14px' }}>
+                            # (Number of Variants) indicates the total count of genetic variants included in the credible set, encompassing all variants contributing to the signal.
+                          </Typography>}>
+                          <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
                         </Tooltip>
                       </TableCell>
                       <TableCell sx={{
                         fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 4px',
+                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 8px',
+                        alignItems: 'center',
+                        // display: 'flex',
                         width: 'fit-content'
-                      }}></TableCell>
+                      }}>
+                        Action
+                        <Tooltip
+                          slotProps={{
+                            tooltip: {
+                              sx: {
+                                backgroundColor: '#219197'
+                              }
+                            }
+                          }}
+                          title={<Typography sx={{ fontSize: '14px' }}>
+                            TBD
+                          </Typography>}>
+                          <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
+                        </Tooltip>
+                      </TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {getFilteredCredibleSets().map((item, index) => (
-                        <TableRow
-                            key={`credible-set-${index}`}
-                            onClick={() => handleSNPClick(
+                      <TableRow
+                        key={`credible-set-${index}`}
+                        onClick={() => handleSNPClick(
+                          item.lead_SNP,
+                          item.data_source,
+                          item.lead_SNP
+                        )}
+                        sx={{
+                          cursor: 'pointer',
+                          '& .MuiTableCell-root': {
+                            padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
+                          }
+                        }}
+                      >
+                        <TableCell sx={{ verticalAlign: 'middle' }}>
+                          <Link
+                            component="button"
+                            variant="body2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSNPClick(
                                 item.lead_SNP,
                                 item.data_source,
                                 item.lead_SNP
-                            )}
+                              );
+                            }}
                             sx={{
-                              cursor: 'pointer',
-                              '& .MuiTableCell-root': {
-                                padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
+                              textAlign: 'left', display: 'block', padding: '4px', color: 'black',
+                              textDecoration: 'none',
+                              hover: {
+                                textDecoration: 'none',
+                                color: 'black'
                               }
                             }}
-                        >
-                          <TableCell sx={{ verticalAlign: 'middle' }}>
-                            <Link
-                                component="button"
-                                variant="body2"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleSNPClick(
-                                      item.lead_SNP,
-                                      item.data_source,
-                                      item.lead_SNP
-                                  );
-                                }}
-                                sx={{ textAlign: 'left', display: 'block', padding: '4px', backgroundColor: '#43978F',
-                                  borderRadius: '4px', color: 'white'
-                                }}
-                            >
-                              {item.displayLabel?.replace('_', ' ')}
-                            </Link>
-                          </TableCell>
-                          <TableCell sx={{ verticalAlign: 'middle' }}>{item.purity?.toFixed(2) || '-'}</TableCell>
-                          <TableCell sx={{ verticalAlign: 'middle' }}>{item.lead_SNP}</TableCell>
-                          <TableCell sx={{ verticalAlign: 'middle' }}>{item.pip?.toFixed(2) || '-'}</TableCell>
-                          <TableCell sx={{ verticalAlign: 'middle' }}>{item.n_snp || '-'}</TableCell>
-                          <TableCell sx={{ verticalAlign: 'middle' }}>
-                            <Typography sx={{ fontSize: '14px', padding: '4px', backgroundColor: '#bfbfbf',
-                              textAlign: 'center'
-                            }}>Click for more</Typography>
-                            {/*<Link */}
-                            {/*  component="button" */}
-                            {/*  variant="body2" */}
-                            {/*  onClick={(e) => {*/}
-                            {/*    e.stopPropagation();*/}
-                            {/*    handleDownload(item);*/}
-                            {/*  }}*/}
-                            {/*>*/}
-                            {/*  Link*/}
-                            {/*</Link>*/}
-                          </TableCell>
-                        </TableRow>
+                          >
+                            {item.displayLabel?.replace('_', ' ')}
+                          </Link>
+                        </TableCell>
+                        <TableCell sx={{ verticalAlign: 'middle' }}>{item.purity?.toFixed(2) || '-'}</TableCell>
+                        <TableCell sx={{ verticalAlign: 'middle' }}>{item.lead_SNP}</TableCell>
+                        <TableCell sx={{ verticalAlign: 'middle' }}>{item.pip?.toFixed(2) || '-'}</TableCell>
+                        <TableCell sx={{ verticalAlign: 'middle' }}>{item.n_snp || '-'}</TableCell>
+                        <TableCell sx={{ verticalAlign: 'middle' }}>
+                          <Typography sx={{
+                            fontSize: '14px', padding: '4px', backgroundColor: '#219197',
+                            textAlign: 'center', borderRadius: '8px', color: 'white',
+                          }}>Click for more</Typography>
+                          {/*<Link */}
+                          {/*  component="button" */}
+                          {/*  variant="body2" */}
+                          {/*  onClick={(e) => {*/}
+                          {/*    e.stopPropagation();*/}
+                          {/*    handleDownload(item);*/}
+                          {/*  }}*/}
+                          {/*>*/}
+                          {/*  Link*/}
+                          {/*</Link>*/}
+                        </TableCell>
+                      </TableRow>
                     ))}
                   </TableBody>
                 </Table>
@@ -845,85 +922,83 @@ function IntermediatePage({ onContinue }) {
 
 
 
-        {/* right侧知识图谱区域 */}
+      {/* right侧知识图谱区域 */}
+      <Box sx={{
+        width: 672,
+        display: 'flex',
+        flexDirection: 'column',
+        marginTop: '30px',
+      }}>
+
+        {/* KG Viewer */}
         <Box sx={{
-          width: 672,
-          display: 'flex',
-          flexDirection: 'column',
-          marginTop: '30px'
+          position: 'relative',
+          minHeight: '472px',
+          overflow: 'visible',
+          backgroundColor: '#FBFBFB',
+          border: 1,
+          borderColor: '#EEEEEE',
+          marginBottom: '60px',
+          borderRadius: '20px'
         }}>
-          <SearchBar
-              target={searchState.targetTermSymbol}
-              disabled={true}
-          />
           <Typography sx={{
             fontWeight: 800,
             fontSize: 20,
-            marginTop: '40px',
-            marginBottom: '16px'
+            marginBottom: '16px', paddingLeft: '30px', paddingTop: '30px',
           }}>
             Graph viewer
           </Typography>
-          {/* KG Viewer */}
-          <Box sx={{
-            position: 'relative',
-            minHeight: '472px',
-            overflow: 'visible',
-            backgroundColor: '#FBFBFB',
-            border: 1,
-            borderColor: '#EEEEEE',
-            marginBottom: '60px'
-          }}>
-            <IntermediateKG />
-          </Box>
+          <IntermediateKG />
+        </Box>
 
-          {/* Legend */}
-          <Box sx={{
-            position: 'relative',
-            padding: '20px',
-            backgroundColor: '#FBFBFB',
-            border: 1,
-            borderColor: '#EEEEEE',
-            marginBottom: '40px'
+        {/* Legend */}
+        {/* <Box sx={{
+          position: 'relative',
+          padding: '20px',
+          backgroundColor: '#FBFBFB',
+          border: 1,
+          borderColor: '#EEEEEE',
+          marginBottom: '40px'
+        }}>
+          <Typography sx={{
+            fontWeight: 800,
+            fontSize: 20,
+            position: 'absolute',
+            top: -44,
+            left: 0,
+            zIndex: 1
           }}>
-            <Typography sx={{
-              fontWeight: 800,
-              fontSize: 20,
-              position: 'absolute',
-              top: -44,
-              left: 0,
-              zIndex: 1
-            }}>
-              Legend
-            </Typography>
+            Legend
+          </Typography>
+          <Box sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2
+          }}>
+            {/* 第一行 
             <Box sx={{
               display: 'flex',
-              flexDirection: 'column',
+              // gridTemplateColumns: 'repeat(3, 1fr)',
               gap: 2
             }}>
-              {/* 第一行 */}
-              <Box sx={{
-                display: 'flex',
-                // gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: 2
-              }}>
-                <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Box sx={{ width: 20, height: 20, backgroundColor: '#ABD0F1', borderRadius: '4px' }} />
-                  <Typography variant="body2">Gene</Typography>
-                </Box>
-                <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Box sx={{ width: 20, height: 20, backgroundColor: '#FFB77F', borderRadius: '4px' }} />
-                  <Typography variant="body2">Sequence variant</Typography>
-                </Box>
-                <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Box sx={{ width: 20, height: 20, backgroundColor: '#43978F', borderRadius: '4px' }} />
-                  <Typography variant="body2">Credible set</Typography>
-                </Box>
+              <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 20, height: 20, backgroundColor: '#ABD0F1', borderRadius: '4px' }} />
+                <Typography variant="body2">Gene</Typography>
+              </Box>
+              <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 20, height: 20, backgroundColor: '#FFB77F', borderRadius: '4px' }} />
+                <Typography variant="body2">Sequence variant</Typography>
+              </Box>
+              <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 20, height: 20, backgroundColor: '#43978F', borderRadius: '4px' }} />
+                <Typography variant="body2">Credible set</Typography>
               </Box>
             </Box>
           </Box>
-        </Box>
+        </Box> */}
+      </Box>
     </Container>
+  </Container>
   );
 }
 
