@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Container, Typography, IconButton, Box, List, ListItem, Link, CircularProgress, Collapse } from '@mui/material';
+import { Container, Typography, IconButton, Box, Grid, List, ListItem, Link, CircularProgress, Collapse } from '@mui/material';
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import { useSelector, useDispatch } from 'react-redux';
 import './scoped.css';
@@ -606,49 +606,54 @@ This answer refers to the following resources in PanKbase:`;
     const geneId = params.get('geneId');
 
     return (
-        <Container disableGutters maxWidth={false} sx={{
+        <Container sx={{
             padding: 0, display: 'flex',
-            flexDirection: 'column'
-        }}>
+            flexDirection: 'column', justifyContent: 'space-evenly',
+            alignSelf: 'center',
+            maxWidth: '1440px',
+            minWidth: '1000px',
+            marginLeft: '20px',
+            marginRight: '20px',
+            flexDirection: 'column',
+            flexGrow: 1,
+        }} disableGutters maxWidth={false}>
             {/*test question block*/}
-            <Box sx={{ padding: '20px', backgroundColor: '#E4F0F1', marginBottom: '20px', mx: "60px", marginTop: '60px', borderRadius: '20px' }}>
-                <Typography sx={{ fontWeight: 700, fontSize: 20, width: 685, textAlign: 'left', marginBottom: '10px' }}>
-                    Question <TooltipComponent title="Question" content="The question of the current search result." />
-                </Typography>
-                {currentQuestionType && (
-                    <Typography sx={{ fontSize: 14, textAlign: 'left' }}>
-                        (Your selection belongs to: {currentQuestionType})
-                    </Typography>
-                )}
-                <Typography
-                    sx={{
-                        flex: 1,
-                        textAlign: 'left',
-                        wordWrap: 'break-word',
-                        whiteSpace: 'normal',
-                        fontSize: 16,
-                        // fontWeight: 300
-                    }}
-                    dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }}
-                />
-            </Box>
-            <Container disableGutters maxWidth={false} sx={{
-                padding: 0, display: 'flex',
-                flexDirection: 'row', justifyContent: 'space-evenly',
+            <Grid container spacing={4} height={"100%"} sx={{ alignItems: "stretch" }}>
+                <Grid item xs={12} height={"100%"}>
+                    <Box sx={{ padding: '20px', backgroundColor: '#E4F0F1', marginBottom: '20px', marginTop: '60px', borderRadius: '20px' }}>
+                        <Typography sx={{ fontWeight: 700, fontSize: 20, width: 685, textAlign: 'left', marginBottom: '10px' }}>
+                            Question <TooltipComponent title="Question" content="The question of the current search result." />
+                        </Typography>
+                        {currentQuestionType && (
+                            <Typography sx={{ fontSize: 14, textAlign: 'left' }}>
+                                (Your selection belongs to: {currentQuestionType})
+                            </Typography>
+                        )}
+                        <Typography
+                            sx={{
+                                flex: 1,
+                                textAlign: 'left',
+                                wordWrap: 'break-word',
+                                whiteSpace: 'normal',
+                                fontSize: 16,
+                                // fontWeight: 300
+                            }}
+                            dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }}
+                        />
+                    </Box>
+                </Grid>
+            </Grid>
+            <Grid container spacing={4} height={"100%"} sx={{
+                alignItems: "stretch", marginBottom: '20px', marginTop: '-20px'
             }}>
                 {/*left*/}
-                <Box sx={{
-                    // display: 'flex',
-                    alignItems: 'center',
-                    gap: 0,
-                    width: 685,
-                    marginTop: '20px'
-                }}>
+                <Grid item xs={6} height={"700px"} display="flex">
+
                     <Box sx={{
                         display: 'flex',
                         flexDirection: 'column',
                         gap: '20px',
-                        // width: 685,
+                        width: "100%",
                         backgroundColor: '#FBFBFB',
                         border: 1,
                         borderColor: '#EEEEEE',
@@ -687,7 +692,7 @@ This answer refers to the following resources in PanKbase:`;
                         </Typography>
 
                         {/*resource*/}
-                        <Box>
+                        {/* <Box>
                             <Box sx={{
                                 display: 'flex',
                                 alignItems: 'center',
@@ -772,23 +777,12 @@ This answer refers to the following resources in PanKbase:`;
                                     </ListItem>
                                 </List>
                             </Collapse>
-                        </Box>
-                    </Box>
-                    {/*you may also ask*/}
-                    <Typography sx={{ fontWeight: 'bold', fontSize: 20, marginTop: '20px', marginBottom: '16px' }}>
-                        You May Also Ask<TooltipComponent title="You May Also Ask" content="Links to other problems." />
-                    </Typography>
-                    <Box sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '32px',
-                        backgroundColor: '#FBFBFB',
-                        border: 1,
-                        borderColor: '#EEEEEE',
-                        padding: '20px',
-                        marginBottom: '44px'
-                        // position: 'relative'
-                    }}>
+                            </Box> */}
+
+                        {/*you may also ask*/}
+                        <Typography sx={{ fontWeight: 'bold', fontSize: 20, marginTop: '20px', marginBottom: '16px' }}>
+                            You May Also Ask<TooltipComponent title="You May Also Ask" content="Links to other problems." />
+                        </Typography>
                         <ul className="next-questions-list">
                             {nextQuestions ? (
                                 <li onClick={() => handleNextQuestionClick(nextQuestions)}
@@ -808,24 +802,16 @@ This answer refers to the following resources in PanKbase:`;
                             )}
                         </ul>
                     </Box>
-                </Box>
+                </Grid>
 
                 {/*graph viewer, right*/}
-                <Box sx={{
-                    width: 672,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    marginBottom: '44px',
-                    marginTop: '20px'
-                    // position: 'absolute',
-                    // top: 100,
-                    // left: windowWidth * 0.5 + 44
-                }}>
+                <Grid item xs={6} height={"700px"} display="flex">
+
                     <Box sx={{
                         display: 'flex',
                         flexDirection: 'column',
                         gap: '32px',
-                        // width: 685,
+                        width: "100%",
                         backgroundColor: '#FBFBFB',
                         border: 1,
                         borderColor: '#EEEEEE',
@@ -835,9 +821,7 @@ This answer refers to the following resources in PanKbase:`;
                     }}>
                         <Typography sx={{
                             fontWeight: 'bold',
-                            fontSize: 20,
-                            marginTop: '20px',
-                            marginBottom: '16px'
+                            fontSize: 20
                         }}>
                             Graph Viewer<TooltipComponent title="Graph Viewer" content="The graph showing the relationship between the SNP and the gene." />
                         </Typography>
@@ -854,8 +838,7 @@ This answer refers to the following resources in PanKbase:`;
                             <KnowledgeGraph />
                         </Box>
                     </Box>
-                    {/* <Legend /> */}
-                </Box>
+                </Grid>
 
                 <ImageModal
                     open={modalOpen}
@@ -864,26 +847,50 @@ This answer refers to the following resources in PanKbase:`;
                 >
                     <SNPPlotImage imageSrc={snpPlotImage} />
                 </ImageModal>
-                </Container>
-                <Container disableGutters maxWidth={false} sx={{
+            </Grid>
+            <Typography sx={{
+                fontWeight: 'bold',
+                fontSize: 20
+            }}>
+                Supporting Materials<TooltipComponent title="Supporting Materials" content="Supporting Materials." />
+            </Typography>
+            <Container disableGutters maxWidth={false} sx={{
                 padding: 0, display: 'flex',
                 flexDirection: 'row', justifyContent: 'space-evenly',
+                marginX: '-20px', width: 'calc(100% + 40px)',
             }}>
                 <CarouselCards cardData={[[{
                     title: "PanKBase Link",
-                    icon: "🔗",
+                    icon: "link",
                     content: [{ text: "QTL Data Source", link: process.env.REACT_APP_PANKGRAPH_LINK + '/qtldatasource' },
                     { text: "Pipeline", link: process.env.REACT_APP_PANKGRAPH_LINK + '/pipeline' },
                     { text: "Integrated Cell Browser", link: process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html' }
                     ],
                 }, {
                     title: "External Link",
-                    icon: "🔗",
+                    icon: "link",
                     content: [
                         { text: "Ensembl", link: `https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneId}` }
                     ],
+                }],
+                [{
+                    title: "Placeholder",
+                    icon: "link",
+                    content: []
+                }, {
+                    title: "Placeholder",
+                    icon: "ref",
+                    content: []
+                }, {
+                    title: "Placeholder",
+                    icon: "plot",
+                    image: [
+                        'https://picsum.photos/id/1015/600/400',
+                        'https://picsum.photos/id/1016/600/400',
+                        'https://picsum.photos/id/1018/600/400',
+                    ]
                 }]]} />
-                </Container>
+            </Container>
         </Container>
     );
 }

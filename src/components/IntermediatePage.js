@@ -1,40 +1,86 @@
 import React, { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+
 import {
   Alert,
+  Box,
+  Button,
   Container,
-  Typography,
+  Grid,
+  IconButton,
+  Link,
+  Paper,
+  Tab,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  Box,
-  Link,
   Tabs,
-  Tab,
-  IconButton,
-  Button, Tooltip
+  Typography,
 } from '@mui/material';
+
+import { styled } from '@mui/material/styles';
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
+
 import InfoIcon from '@mui/icons-material/Info';
+import InfoOutlineIcon from '@mui/icons-material/InfoOutlined';
+import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import { useSelector, useDispatch } from 'react-redux';
-import { queryQueryResult } from '../redux/queryResultSlice';
-import { replaceTerms } from '../utils/textProcessing';
-import { setProcessedQuestion } from '../redux/processedQuestionSlice';
-import { queryQueryVisResult } from '../redux/queryVisResultSlice';
+import CloseIcon from '@mui/icons-material/Close';
+
+import NavBar from '../NavBar';
 import SearchBar from '../SearchBar';
 import KnowledgeGraph from './KnowledgeGraph';
+import IntermediateKG from './IntermediateKG';
+
+import { queryQueryResult } from '../redux/queryResultSlice';
+import { queryQueryVisResult } from '../redux/queryVisResultSlice';
+import { queryViewSchema } from '../redux/viewSchemaSlice';
+import { setProcessedQuestion } from '../redux/processedQuestionSlice';
 import { setSearchTerms, setUsingFallback } from '../redux/searchSlice';
 import { setVariables } from '../redux/variablesSlice';
-import { replaceVariables } from '../utils/textProcessing';
-import IntermediateKG from './IntermediateKG';
-import { getDataSourceInfo } from '../utils/textProcessing';
-import { queryViewSchema } from '../redux/viewSchemaSlice';
-import NavBar from "../NavBar";
-import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
-import Close from '@mui/icons-material/Close'; 
+
+import {
+  getDataSourceInfo,
+  replaceTerms,
+  replaceVariables,
+} from '../utils/textProcessing';
+
+const HtmlTooltip = styled(({ className, ...props }) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: '#219197',
+    color: 'rgba(255, 255, 255, 0.87)',
+    maxWidth: 220,
+    fontSize: theme.typography.pxToRem(12),
+    border: '1px solid #dadde9',
+    shadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+  },
+}));
+
+const TooltipComponent = ({ title, content }) => (
+  <>
+    &nbsp;&nbsp;<HtmlTooltip
+      title={
+        <React.Fragment>
+          <Typography color="inherit">{title}</Typography>
+          {content}
+        </React.Fragment>
+      }
+    >
+      <InfoOutlineIcon sx={{
+        position: 'relative',
+        top: "6px",
+        right: 0,
+        color: '#1976d2',
+        cursor: 'pointer',
+        width: "0.7em",
+      }} />
+    </HtmlTooltip>
+  </>);
 
 function IntermediatePage({ onContinue }) {
   const [error, setError] = useState(false);
@@ -528,431 +574,447 @@ function IntermediatePage({ onContinue }) {
 
   return (<Container sx={{
     padding: 0, display: 'flex',
-    flexDirection: 'column', justifyContent: 'space-evenly'
+    flexDirection: 'column', justifyContent: 'space-evenly',
+    alignSelf: 'center',
+    maxWidth: '1440px',
+    minWidth: '1000px',
+    marginLeft: '20px',
+    marginRight: '20px',
+    flexDirection: 'column',
+    flexGrow: 1,
   }} disableGutters maxWidth={false}>
     {/* 问题显示区域 */}
-
-    <Box sx={{ padding: '20px', backgroundColor: '#E4F0F1', marginBottom: '20px', mx: "60px", marginTop: '60px', borderRadius: '20px' }}>
-      <Box sx={{ width: "100%", justifyContent: "space-between", display: "flex", alignItems: "center" }}>
-        <Typography sx={{ fontSize: '20px', textAlign: 'left', marginBottom: '10px', fontWeight: 600 }}>
-          Question
-        </Typography>
-        {/*a link*/}
-        <a href={"/"} style={{ color: "#398289", textUnderlineOffset: "3px", fontSize: "16px", marginBottom: "20px" }}>
-          CANCEL
-        </a>
-      </Box>
-      <Typography
-        sx={{
-          textAlign: 'left',
-          fontSize: 16,
-        }}
-        dangerouslySetInnerHTML={{ __html: processedQuestion }}
-      />
-    </Box>
-    <Container sx={{
-      padding: 0, display: 'flex',
-      flexDirection: 'row', justifyContent: 'space-evenly',
-      marginBottom: '44px'
-    }} disableGutters maxWidth={false}>
-      {!loading && error && (
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            textAlign: 'center',
-            backgroundColor: '#FFF3F3',
-            padding: '20px',
-            borderRadius: '8px',
-            border: '1px solid #FFB6B6',
-            zIndex: 1000
-          }}
-        >
-          <Typography sx={{ color: '#D32F2F', marginBottom: 2 }}>
-            No data found. Please refresh the page and try again.
-          </Typography>
-          <Button
-            variant="contained"
-            onClick={() => window.location.href = '/'}
+    <Grid container spacing={2} height={"100%"} sx={{ alignItems: "stretch" }}>
+      <Grid item xs={12} height={"100%"}>
+        <Box sx={{ padding: '20px', backgroundColor: '#E4F0F1', marginTop: '60px', borderRadius: '20px' }}>
+          <Box sx={{ width: "100%", justifyContent: "space-between", display: "flex", alignItems: "center" }}>
+            <Typography sx={{ fontSize: '20px', textAlign: 'left', marginBottom: '10px', fontWeight: 600 }}>
+              Question<TooltipComponent title="Question" content="User's question." />
+            </Typography>
+            {/*a link*/}
+            <a href={"/"} style={{ color: "#398289", textUnderlineOffset: "3px", fontSize: "16px", marginBottom: "20px" }}>
+              CANCEL
+            </a>
+          </Box>
+          <Typography
             sx={{
-              backgroundColor: '#D32F2F',
-              '&:hover': {
-                backgroundColor: '#B71C1C'
-              }
+              textAlign: 'left',
+              fontSize: 16,
+            }}
+            dangerouslySetInnerHTML={{ __html: processedQuestion }}
+          />
+        </Box>
+      </Grid>
+    </Grid>
+    <Grid container spacing={4} height={"100%"} sx={{ alignItems: "stretch", marginBottom: '20px' }}>
+
+      {!loading && error && (
+        <Grid item xs={12} height={"100%"}>
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              textAlign: 'center',
+              backgroundColor: '#FFF3F3',
+              padding: '20px',
+              borderRadius: '8px',
+              border: '1px solid #FFB6B6',
+              zIndex: 1000
             }}
           >
-            Refresh Page
-          </Button>
-        </Box>
+            <Typography sx={{ color: '#D32F2F', marginBottom: 2 }}>
+              No data found. Please refresh the page and try again.
+            </Typography>
+            <Button
+              variant="contained"
+              onClick={() => window.location.href = '/'}
+              sx={{
+                backgroundColor: '#D32F2F',
+                '&:hover': {
+                  backgroundColor: '#B71C1C'
+                }
+              }}
+            >
+              Refresh Page
+            </Button>
+          </Box>
+        </Grid>
       )}
 
       {/* left side */}
-      <Box sx={{
-        width: 685,
-        display: 'flex',
-        flexDirection: 'column',
-        marginBottom: '20px',
-        marginTop: '30px',
-      }}>
-
-
-        {/* 搜索结果 */}
-
+      <Grid item xs={6} height={"700px"} display="flex">
         <Box sx={{
-          backgroundColor: '#FBFBFB',
-          border: 1,
-          borderColor: '#EEEEEE',
-          borderRadius: '20px'
+          width: "100%",
+          display: 'flex',
+          flexDirection: 'column',
+          paddingTop: '30px',
+          flex: 1,
         }}>
-          <Typography sx={{
-            fontWeight: 800,
-            fontSize: 20,
-            paddingLeft: '30px', paddingTop: '30px'
-            // position: 'absolute',
-            // top: -44,
-            // left: 0,
-            // zIndex: 1
+
+          {/* 搜索结果 */}
+
+          <Box sx={{
+            backgroundColor: '#FBFBFB',
+            border: 1,
+            borderColor: '#EEEEEE',
+            borderRadius: '20px',
+            flex: 1,
           }}>
-            Result
-          </Typography>
-          <div className="styled-paper">
-            <div className="answer-content">
-              <Typography sx={{ mb: 2, fontSize: 14 }}>
-                Found four categories of Quantitative Trait Loci (QTL) data, derived from pancreatic and islet tissue samples.
-              </Typography>
+            <Typography sx={{
+              fontWeight: 800,
+              fontSize: 20,
+              paddingLeft: '30px', paddingTop: '30px'
+              // position: 'absolute',
+              // top: -44,
+              // left: 0,
+              // zIndex: 1
+            }}>
+              Result<TooltipComponent title="Result" content="Search result." />
+            </Typography>
+            <div className="styled-paper">
+              <div className="answer-content">
+                <Typography sx={{ mb: 2, fontSize: 14 }}>
+                  Found four categories of Quantitative Trait Loci (QTL) data, derived from pancreatic and islet tissue samples.
+                </Typography>
 
-              <Alert
-                variant="outlined"
-                severity="info"
-                icon={<NotificationsNoneIcon fontSize="small" />}
-                sx={{
-                  backgroundColor: "white",
-                  border: "1px solid",
-                  borderColor: "#23A6F0",
-                  color: "#23A6F0",
-                  display: "flex",
-                  alignItems: "center",
-                  marginBottom: "10px",
-                  display: notification ? 'flex' : 'none',
-                }}
-                action={
-                  <IconButton size="small" color="inherit" onClick={()=> setNotification(false) }>
-                      <Close fontSize="small" />
-                  </IconButton>
-              }
-              >
-                Select an SNP entry below and click "Click for more" to see detailed relationship data
-              </Alert>
-
-              {/* 添加 Tabs */}
-              <Tabs
-                value={selectedTab}
-                onChange={handleTabChange}
-                variant="scrollable"
-                scrollButtons={false}
-                sx={{
-                  '& .MuiButtonBase-root': {
-                    padding: '10px'
-                  },
-                  '& .MuiTab-root': {
-                    // minHeight: '60px',
-                    textTransform: 'none',
-                    fontSize: '16px',
-                    whiteSpace: 'normal',
-                    // lineHeight: '1.2',
-                    // width: '120px',
-                    // minWidth: '120px',
-                    // maxWidth: '120px',
-                    margin: '0px',
-                    '& .MuiTab-wrapper': {
-                      flexDirection: 'row',
-                      justifyContent: 'flex-start',
-                      alignItems: 'flex-start'
-                    }
-                  },
-                  '& .MuiTabs-flexContainer': {
-                    gap: '0px',
-                    justifyContent: 'space-between'
+                <Alert
+                  variant="outlined"
+                  severity="info"
+                  icon={<NotificationsNoneIcon fontSize="small" />}
+                  sx={{
+                    backgroundColor: "white",
+                    border: "1px solid",
+                    borderColor: "#23A6F0",
+                    color: "#23A6F0",
+                    display: "flex",
+                    alignItems: "center",
+                    marginBottom: "10px",
+                    display: notification ? 'flex' : 'none',
+                  }}
+                  action={
+                    <IconButton size="small" color="inherit" onClick={() => setNotification(false)}>
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
                   }
-                }}
-              >
-                {getTabOptions().map((option) => (
-                  <Tab
-                    sx={{
-                      backgroundColor: selectedTab === option.label ? '#E4F0F1' : 'none'
-                    }}
-                    key={option.label}
-                    label={
-                      <Typography
-                        component="span"
-                        sx={{
-                          textAlign: 'left',
-                          fontSize: '14px',
-                          color: 'black'
-                          // lineHeight: 1.2,
-                          // wordWrap: 'break-word'
-                        }}
-                      >
-                        {option.label} ({option.count})
-                      </Typography>
-                    }
-                    value={option.label}
-                  />
-                ))}
-              </Tabs>
-
-              {/* 详细结果表格 */}
-              <TableContainer component={Paper} sx={{
-                border: '1px solid #727272',
-                boxShadow: '0px 0px 0px 0px rgba(0,0,0,0.2)'
-              }}>
-                <Table
-                  size={getFilteredCredibleSets().length > 0 ? "small" : "medium"}
-                // size={'small'}
-                // stickyHeader={true}
                 >
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{
-                        fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px',
-                        alignItems: 'center',
-                        // display: 'flex',
-                        justifyContent: 'center',
-                        width: 'fit-content'
-                      }}>Credible set
-                        <Tooltip
-                          slotProps={{
-                            tooltip: {
-                              sx: {
-                                backgroundColor: '#219197'
-                              }
-                            }
-                          }}
-                          title={<Typography sx={{ fontSize: '14px' }}>
-                            Credible set represents a group of genetic variants within a genomic region associated with a trait, identified through statistical fine-mapping. Each variant in the set is assigned a posterior probability, indicating its likelihood of being linked to the observed trait, with the entire set typically capturing a predefined confidence level.
-                          </Typography>
-                          }>
-                          <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
-                        </Tooltip>
-                      </TableCell>
-                      <TableCell sx={{
-                        fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 8px',
-                        alignItems: 'center',
-                        // display: 'flex',
-                        justifyContent: 'center',
-                        width: 'fit-content'
-                      }}>
-                        Purity
-                        <Tooltip
-                          slotProps={{
-                            tooltip: {
-                              sx: {
-                                backgroundColor: '#219197'
-                              }
-                            }
-                          }}
-                          title={<Typography sx={{ fontSize: '14px' }}>
-                            Purity represents the proportion of the genetic association signal captured by the credible set; higher purity indicates higher confidence and quality of the set.
-                          </Typography>}>
-                          <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
-                        </Tooltip>
-                      </TableCell>
-                      <TableCell sx={{
-                        fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 8px',
-                        alignItems: 'center',
-                        // display: 'flex',
-                        width: 'fit-content'
-                      }}>
-                        Lead SNP
-                        <Tooltip
-                          slotProps={{
-                            tooltip: {
-                              sx: {
-                                backgroundColor: '#219197'
-                              }
-                            }
-                          }}
-                          title={<Typography sx={{ fontSize: '14px' }}>
-                            Lead SNP refers to the genetic variant with the strongest association signal within the credible set, often considered the most likely causal variant.
-                          </Typography>}>
-                          <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
-                        </Tooltip>
-                      </TableCell>
-                      <TableCell sx={{
-                        fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 8px',
-                        alignItems: 'center',
-                        // display: 'flex',
-                        width: 'fit-content'
-                      }}>
-                        PIP
-                        <Tooltip
-                          slotProps={{
-                            tooltip: {
-                              sx: {
-                                backgroundColor: '#219197'
-                              }
-                            }
-                          }}
-                          title={<Typography sx={{ fontSize: '14px' }}>
-                            PIP (Posterior Inclusion Probability) quantifies the probability of a specific variant being the causal driver of the observed genetic signal; a higher PIP suggests greater confidence in causality.
-                          </Typography>}>
-                          <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
-                        </Tooltip>
-                      </TableCell>
-                      <TableCell sx={{
-                        fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 8px',
-                        width: 'fit-content',
+                  Select an SNP entry below and click "Click for more" to see detailed relationship data
+                </Alert>
+
+                {/* 添加 Tabs */}
+                <Tabs
+                  value={selectedTab}
+                  onChange={handleTabChange}
+                  variant="scrollable"
+                  scrollButtons={false}
+                  sx={{
+                    '& .MuiButtonBase-root': {
+                      padding: '10px'
+                    },
+                    '& .MuiTab-root': {
+                      // minHeight: '60px',
+                      textTransform: 'none',
+                      fontSize: '16px',
+                      whiteSpace: 'normal',
+                      // lineHeight: '1.2',
+                      // width: '120px',
+                      // minWidth: '120px',
+                      // maxWidth: '120px',
+                      margin: '0px',
+                      '& .MuiTab-wrapper': {
+                        flexDirection: 'row',
+                        justifyContent: 'flex-start',
+                        alignItems: 'flex-start'
+                      }
+                    },
+                    '& .MuiTabs-flexContainer': {
+                      gap: '0px',
+                      justifyContent: 'space-between'
+                    }
+                  }}
+                >
+                  {getTabOptions().map((option) => (
+                    <Tab
+                      sx={{
+                        backgroundColor: selectedTab === option.label ? '#E4F0F1' : 'none'
                       }}
-                      >
-                        #
-                        <Tooltip
-                          slotProps={{
-                            tooltip: {
-                              sx: {
-                                backgroundColor: '#219197'
-                              }
-                            }
+                      key={option.label}
+                      label={
+                        <Typography
+                          component="span"
+                          sx={{
+                            textAlign: 'left',
+                            fontSize: '14px',
+                            color: 'black'
+                            // lineHeight: 1.2,
+                            // wordWrap: 'break-word'
                           }}
-                          title={<Typography sx={{ fontSize: '14px' }}>
-                            # (Number of Variants) indicates the total count of genetic variants included in the credible set, encompassing all variants contributing to the signal.
-                          </Typography>}>
-                          <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
-                        </Tooltip>
-                      </TableCell>
-                      <TableCell sx={{
-                        fontWeight: 'bold',
-                        padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 8px',
-                        alignItems: 'center',
-                        // display: 'flex',
-                        width: 'fit-content'
-                      }}>
-                        Action
-                        <Tooltip
-                          slotProps={{
-                            tooltip: {
-                              sx: {
-                                backgroundColor: '#219197'
-                              }
-                            }
-                          }}
-                          title={<Typography sx={{ fontSize: '14px' }}>
-                            TBD
-                          </Typography>}>
-                          <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
-                        </Tooltip>
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {getFilteredCredibleSets().map((item, index) => (
-                      <TableRow
-                        key={`credible-set-${index}`}
-                        onClick={() => handleSNPClick(
-                          item.lead_SNP,
-                          item.data_source,
-                          item.lead_SNP
-                        )}
-                        sx={{
-                          cursor: 'pointer',
-                          '& .MuiTableCell-root': {
-                            padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
-                          }
-                        }}
-                      >
-                        <TableCell sx={{ verticalAlign: 'middle' }}>
-                          <Link
-                            component="button"
-                            variant="body2"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSNPClick(
-                                item.lead_SNP,
-                                item.data_source,
-                                item.lead_SNP
-                              );
-                            }}
-                            sx={{
-                              textAlign: 'left', display: 'block', padding: '4px', color: 'black',
-                              textDecoration: 'none',
-                              hover: {
-                                textDecoration: 'none',
-                                color: 'black'
+                        >
+                          {option.label} ({option.count})
+                        </Typography>
+                      }
+                      value={option.label}
+                    />
+                  ))}
+                </Tabs>
+
+                {/* 详细结果表格 */}
+                <TableContainer component={Paper} sx={{
+                  border: '1px solid #727272',
+                  boxShadow: '0px 0px 0px 0px rgba(0,0,0,0.2)',
+                  height: '100%',
+                  maxHeight: '410px',
+                }}>
+                  <Table
+                    size={getFilteredCredibleSets().length > 0 ? "small" : "medium"}
+                    // size={'small'}
+                    stickyHeader={true}
+                  >
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{
+                          fontWeight: 'bold',
+                          padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px',
+                          alignItems: 'center',
+                          // display: 'flex',
+                          justifyContent: 'center',
+                          width: 'fit-content'
+                        }}>Credible set
+                          <Tooltip
+                            slotProps={{
+                              tooltip: {
+                                sx: {
+                                  backgroundColor: '#219197'
+                                }
                               }
                             }}
-                          >
-                            {item.displayLabel?.replace('_', ' ')}
-                          </Link>
+                            title={<Typography sx={{ fontSize: '14px' }}>
+                              Credible set represents a group of genetic variants within a genomic region associated with a trait, identified through statistical fine-mapping. Each variant in the set is assigned a posterior probability, indicating its likelihood of being linked to the observed trait, with the entire set typically capturing a predefined confidence level.
+                            </Typography>
+                            }>
+                            <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
+                          </Tooltip>
                         </TableCell>
-                        <TableCell sx={{ verticalAlign: 'middle' }}>{item.purity?.toFixed(2) || '-'}</TableCell>
-                        <TableCell sx={{ verticalAlign: 'middle' }}>{item.lead_SNP}</TableCell>
-                        <TableCell sx={{ verticalAlign: 'middle' }}>{item.pip?.toFixed(2) || '-'}</TableCell>
-                        <TableCell sx={{ verticalAlign: 'middle' }}>{item.n_snp || '-'}</TableCell>
-                        <TableCell sx={{ verticalAlign: 'middle' }}>
-                          <Typography sx={{
-                            fontSize: '14px', padding: '4px', backgroundColor: '#219197',
-                            textAlign: 'center', borderRadius: '8px', color: 'white',
-                          }}>Click for more</Typography>
-                          {/*<Link */}
-                          {/*  component="button" */}
-                          {/*  variant="body2" */}
-                          {/*  onClick={(e) => {*/}
-                          {/*    e.stopPropagation();*/}
-                          {/*    handleDownload(item);*/}
-                          {/*  }}*/}
-                          {/*>*/}
-                          {/*  Link*/}
-                          {/*</Link>*/}
+                        <TableCell sx={{
+                          fontWeight: 'bold',
+                          padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 8px',
+                          alignItems: 'center',
+                          // display: 'flex',
+                          justifyContent: 'center',
+                          width: 'fit-content'
+                        }}>
+                          Purity
+                          <Tooltip
+                            slotProps={{
+                              tooltip: {
+                                sx: {
+                                  backgroundColor: '#219197'
+                                }
+                              }
+                            }}
+                            title={<Typography sx={{ fontSize: '14px' }}>
+                              Purity represents the proportion of the genetic association signal captured by the credible set; higher purity indicates higher confidence and quality of the set.
+                            </Typography>}>
+                            <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
+                          </Tooltip>
+                        </TableCell>
+                        <TableCell sx={{
+                          fontWeight: 'bold',
+                          padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 8px',
+                          alignItems: 'center',
+                          // display: 'flex',
+                          width: 'fit-content'
+                        }}>
+                          Lead SNP
+                          <Tooltip
+                            slotProps={{
+                              tooltip: {
+                                sx: {
+                                  backgroundColor: '#219197'
+                                }
+                              }
+                            }}
+                            title={<Typography sx={{ fontSize: '14px' }}>
+                              Lead SNP refers to the genetic variant with the strongest association signal within the credible set, often considered the most likely causal variant.
+                            </Typography>}>
+                            <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
+                          </Tooltip>
+                        </TableCell>
+                        <TableCell sx={{
+                          fontWeight: 'bold',
+                          padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 8px',
+                          alignItems: 'center',
+                          // display: 'flex',
+                          width: 'fit-content'
+                        }}>
+                          PIP
+                          <Tooltip
+                            slotProps={{
+                              tooltip: {
+                                sx: {
+                                  backgroundColor: '#219197'
+                                }
+                              }
+                            }}
+                            title={<Typography sx={{ fontSize: '14px' }}>
+                              PIP (Posterior Inclusion Probability) quantifies the probability of a specific variant being the causal driver of the observed genetic signal; a higher PIP suggests greater confidence in causality.
+                            </Typography>}>
+                            <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
+                          </Tooltip>
+                        </TableCell>
+                        <TableCell sx={{
+                          fontWeight: 'bold',
+                          padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 8px',
+                          width: 'fit-content',
+                        }}
+                        >
+                          #
+                          <Tooltip
+                            slotProps={{
+                              tooltip: {
+                                sx: {
+                                  backgroundColor: '#219197'
+                                }
+                              }
+                            }}
+                            title={<Typography sx={{ fontSize: '14px' }}>
+                              # (Number of Variants) indicates the total count of genetic variants included in the credible set, encompassing all variants contributing to the signal.
+                            </Typography>}>
+                            <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
+                          </Tooltip>
+                        </TableCell>
+                        <TableCell sx={{
+                          fontWeight: 'bold',
+                          padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 8px',
+                          alignItems: 'center',
+                          // display: 'flex',
+                          width: 'fit-content'
+                        }}>
+                          Action
+                          <Tooltip
+                            slotProps={{
+                              tooltip: {
+                                sx: {
+                                  backgroundColor: '#219197'
+                                }
+                              }
+                            }}
+                            title={<Typography sx={{ fontSize: '14px' }}>
+                              TBD
+                            </Typography>}>
+                            <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
+                          </Tooltip>
                         </TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                    </TableHead>
+                    <TableBody>
+                      {getFilteredCredibleSets().map((item, index) => (
+                        <TableRow
+                          key={`credible-set-${index}`}
+                          onClick={() => handleSNPClick(
+                            item.lead_SNP,
+                            item.data_source,
+                            item.lead_SNP
+                          )}
+                          sx={{
+                            cursor: 'pointer',
+                            '& .MuiTableCell-root': {
+                              padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
+                            },
+                            ":hover": {
+                              backgroundColor: "#E4F0F1",
+                            }
+                          }}
+                        >
+                          <TableCell sx={{ verticalAlign: 'middle' }}>
+                            <Link
+                              component="button"
+                              variant="body2"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSNPClick(
+                                  item.lead_SNP,
+                                  item.data_source,
+                                  item.lead_SNP
+                                );
+                              }}
+                              sx={{
+                                textAlign: 'left', display: 'block', padding: '4px', color: 'black',
+                                textDecoration: 'none',
+                                hover: {
+                                  textDecoration: 'none',
+                                  color: 'black'
+                                }
+                              }}
+                            >
+                              {item.displayLabel?.replace('_', ' ')}
+                            </Link>
+                          </TableCell>
+                          <TableCell sx={{ verticalAlign: 'middle' }}>{item.purity?.toFixed(2) || '-'}</TableCell>
+                          <TableCell sx={{ verticalAlign: 'middle' }}>{item.lead_SNP}</TableCell>
+                          <TableCell sx={{ verticalAlign: 'middle' }}>{item.pip?.toFixed(2) || '-'}</TableCell>
+                          <TableCell sx={{ verticalAlign: 'middle' }}>{item.n_snp || '-'}</TableCell>
+                          <TableCell sx={{ verticalAlign: 'middle' }}>
+                            <Typography sx={{
+                              fontSize: '14px', padding: '4px', backgroundColor: '#219197',
+                              textAlign: 'center', borderRadius: '8px', color: 'white',
+                            }}>Click for more</Typography>
+                            {/*<Link */}
+                            {/*  component="button" */}
+                            {/*  variant="body2" */}
+                            {/*  onClick={(e) => {*/}
+                            {/*    e.stopPropagation();*/}
+                            {/*    handleDownload(item);*/}
+                            {/*  }}*/}
+                            {/*>*/}
+                            {/*  Link*/}
+                            {/*</Link>*/}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </div>
             </div>
-          </div>
+          </Box>
         </Box>
-      </Box>
-
-
+      </Grid>
 
       {/* right侧知识图谱区域 */}
-      <Box sx={{
-        width: 672,
-        display: 'flex',
-        flexDirection: 'column',
-        marginTop: '30px',
-      }}>
-
-        {/* KG Viewer */}
+      <Grid item xs={6} height={"700px"} display="flex">
         <Box sx={{
-          position: 'relative',
-          minHeight: '472px',
-          overflow: 'visible',
-          backgroundColor: '#FBFBFB',
-          border: 1,
-          borderColor: '#EEEEEE',
-          marginBottom: '60px',
-          borderRadius: '20px'
+          width: "100%",
+          display: 'flex',
+          flexDirection: 'column',
+          paddingTop: '30px',
+          flex: 1,
         }}>
-          <Typography sx={{
-            fontWeight: 800,
-            fontSize: 20,
-            marginBottom: '16px', paddingLeft: '30px', paddingTop: '30px',
-          }}>
-            Graph viewer
-          </Typography>
-          <IntermediateKG />
-        </Box>
 
-        {/* Legend */}
-        {/* <Box sx={{
+          {/* KG Viewer */}
+          <Box sx={{
+            position: 'relative',
+            minHeight: '472px',
+            height: '100%',
+            overflow: 'visible',
+            backgroundColor: '#FBFBFB',
+            border: 1,
+            borderColor: '#EEEEEE',
+            borderRadius: '20px'
+          }}>
+            <Typography sx={{
+              fontWeight: 800,
+              fontSize: 20,
+              marginBottom: '16px', paddingLeft: '30px', paddingTop: '30px',
+            }}>
+              Graph viewer<TooltipComponent title="Graph viewer" content="Graph viewer." />
+            </Typography>
+            <IntermediateKG />
+          </Box>
+
+          {/* Legend */}
+          {/* <Box sx={{
           position: 'relative',
           padding: '20px',
           backgroundColor: '#FBFBFB',
@@ -996,9 +1058,10 @@ function IntermediatePage({ onContinue }) {
             </Box>
           </Box>
         </Box> */}
-      </Box>
-    </Container>
-  </Container>
+        </Box>
+      </Grid>
+    </Grid>
+  </Container >
   );
 }
 

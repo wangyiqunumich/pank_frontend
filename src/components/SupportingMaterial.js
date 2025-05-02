@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import Slider from "react-slick";
-import { Card, CardContent, Typography, IconButton, Box, Container, Stack, Grid } from "@mui/material";
+import { Card, CardContent, Typography, IconButton, Box, Container, Stack, Grid, Paper, Fade, Stepper, Step, StepButton } from "@mui/material";
 import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { KeyboardArrowUp, KeyboardArrowDown, FiberManualRecord, Link, Description, Equalizer } from '@mui/icons-material';
 
 
 // const cardData = [
@@ -64,39 +65,140 @@ import "slick-carousel/slick/slick-theme.css";
 //   },],
 // ];
 
+const getIcon = (icon) => {
+  switch (icon) {
+    case "link":
+      return <Link sx={{ fontSize: 40 }} />;
+    case "ref":
+      return <Description sx={{ fontSize: 40 }} />;
+    case "plot":
+      return <Equalizer sx={{ fontSize: 40 }} />;
+    default:
+      return null;
+  }
+}
 
-const MaterialCard = ({ data }) => {
+const ImagePager = ({ images, active }) => {
+  const [activeStep, setActiveStep] = useState(0);
+
+  useEffect(() => {
+    if (!active) {
+      setActiveStep(0);
+    }
+  }
+    , [active]);
+
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'row-reverse', position: 'relative' }}>
+
+      {images.map((src, index) => (
+        <Fade
+          in={index === activeStep}
+          timeout={500}
+          key={index}
+        >
+          <Box
+            component="img"
+            src={src}
+            alt={`Image ${index + 1}`}
+            sx={{
+              maxWidth: '65%',
+              maxHeight: 200,
+              position: 'absolute',
+              right: "50px",
+              borderRadius: 2,
+            }}
+          />
+        </Fade>
+      ))}
+
+      <Stack spacing={1} alignItems="center">
+        <IconButton
+          onClick={() => { setActiveStep((activeStep - 1 + images.length) % images.length) }}
+        >
+          <KeyboardArrowUp />
+        </IconButton>
+
+        {images.map((_, index) => (
+          <IconButton
+            key={index}
+            onClick={() => { setActiveStep(index) }}
+            size="small"
+            sx={{
+              color: index === activeStep ? 'primary.main' : 'grey.400',
+            }}
+          >
+            <FiberManualRecord fontSize="small" />
+          </IconButton>
+        ))}
+
+        <IconButton
+          onClick={() => { setActiveStep((activeStep + 1) % images.length) }}
+        >
+          <KeyboardArrowDown />
+        </IconButton>
+      </Stack>
+    </Box>
+  );
+}
+
+const MaterialCard = ({ data, active }) => {
   return (
     <Container sx={{
       height: 300,
+      paddingX: "0 !important",
+      marginX: "2px !important",
+      overflow: "visible",
     }}>
       <Card
         sx={{
           textAlign: "center",
           alignContent: "center",
-          borderRadius: 4,
           height: "100%",
           width: "100%",
-          bgcolor: "white",
           color: "black",
           display: "flex",
           justifyContent: "center",
           alignItems: "space-between",
+
+          backgroundColor: '#FBFBFB',
+          border: 1,
+          borderColor: '#EEEEEE',
+          borderRadius: '20px',
+          boxShadow: 0,
         }}
       >
-        <CardContent sx={{ width: "100%", p: 2 }}>
+        <CardContent sx={{ width: "100%", p: 2, position: "relative" }}>
+          <Box
+            sx={{
+              width: "70px",
+              height: "70px",
+              borderRadius: '50%',
+              backgroundColor: '#E4F0F1',
+              color: 'black',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'absolute',
+              top: "25px",
+              left: "25px",
+            }}
+          >
+            {getIcon(data.icon)}
+          </Box>
           <Typography variant="h5" sx={{ alignSelf: "center", pb: 3, fontWeight: "bold" }}>
-            {data.icon} {data.title}
+            {data.title}
           </Typography>
           {data.image && (
-            <Box component="img"
-              src={data.image}
-              alt={data.title} sx={{
-                width: "100%", height: 100, objectFit: "contain", my: 1, display: "flex",
-                justifyContent: "center",
-                alignItems: "center"
-              }}
-            />
+            // <Box component="img"
+            //   src={data.image}
+            //   alt={data.title} sx={{
+            //     width: "100%", height: 100, objectFit: "contain", my: 1, display: "flex",
+            //     justifyContent: "center",
+            //     alignItems: "center"
+            //   }}
+            // />
+            <ImagePager images={data.image} active={active} />
           )}
           {data.content && data.content.map((link, idx) => (
             <Typography key={idx} variant="body1" sx={{ textAlign: "left", pl: "calc(100%/5)" }}>
@@ -119,8 +221,9 @@ const MaterialCard = ({ data }) => {
 }
 
 
-function CarouselCards({cardData}) {
+function CarouselCards({ cardData }) {
   const sliderRef = React.useRef(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const settings = {
     dots: true,
@@ -144,24 +247,67 @@ function CarouselCards({cardData}) {
     //     }}
     //   />
     // ),
-    // appendDots: (dots) => (
-    //   <Box sx={{ textAlign: "center", mt: 1 }}>
-    //     <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", justifyContent: "center" }}>
-    //       {dots.map((dot, index) => (
-    //         <li key={index} style={{ margin: "0 5px", display: "inline-block" }}>{dot}</li>
-    //       ))}
-    //     </ul>
-    //   </Box>
-    // ),
+    appendDots: _ =>
+      <Box sx={{ alignSelf: "center", justifyContent: "center", paddingTop: "10px", gap: "10px", display: "flex" }}>
+        {Array.apply(null, { length: cardData.length }).map((_, index) => (
+          <IconButton
+            key={index}
+            onClick={() => { sliderRef.current.slickGoTo(index) }}
+            size="small"
+            sx={{
+              color: index === currentIndex ? 'primary.main' : 'grey.400',
+            }}
+          >
+            <FiberManualRecord fontSize="small" />
+          </IconButton>
+        ))}</Box>
+    ,
+    customPaging: index => (
+      <IconButton
+        key={index}
+        onClick={() => { setCurrentIndex(index) }}
+        size="medium"
+        sx={{
+          color: index === currentIndex ? 'primary.main' : 'grey.400',
+        }}
+      >
+        <FiberManualRecord fontSize="large" />
+      </IconButton>
+      // <Box sx={{
+      //   justifyContent: "center",
+      //   alignItems: "center",
+      //   width: "20px",
+      //   height: "20px",
+      // }}>
+      // <Box
+      //   sx={{
+      //     width: "10px",
+      //     height: "10px",
+      //     borderRadius: '50%',
+      //     backgroundColor: 'primary.main',
+      //     mr: 2,
+      //     flexShrink: 0,
+      //   }}
+      // /></Box>
+    ),
+    beforeChange: (current, next) => setCurrentIndex(next)
     // appendDots: (dots) => ( //larger dots
     //  //font size
     // <ul style={{ font-size: "20px" }}>{dots}</ul>
     // ),
   };
 
+  useEffect(() => {
+    if (sliderRef.current) {
+      sliderRef.current.slickGoTo(currentIndex);
+    }
+  }, []);
 
   return (
-    <Box sx={{ position: "relative", width: '1520px', pb: 2, height: "auto", alignSelf: "center", display: "flex", flexDirection: "row", justifyContent: "center" }}>
+    <Box sx={{
+      position: "relative", maxWidth: '1480px', width: "100%",
+      minWidth: '1040px', pb: 2, height: "auto", alignSelf: "center", display: "flex", flexDirection: "row", justifyContent: "center"
+    }}>
 
       {/* Left Arrow */}
       <IconButton
@@ -174,11 +320,14 @@ function CarouselCards({cardData}) {
           position: "absolute",
           top: "160px",
           transform: "translateY(-50%)",
-          left: 2,
+          left: "-60px",
           width: 50,
           height: 50,
           bgcolor: "white",
-          boxShadow: 1,
+          boxShadow: 0,
+          border: 1,
+          borderColor: '#EEEEEE',
+          backgroundColor: '#FBFBFB',
           zIndex: 10, // Ensure arrows stay above carousel
         }}
       >
@@ -186,19 +335,26 @@ function CarouselCards({cardData}) {
       </IconButton>
 
       {/* Slider */}
-      <Container sx={{ width: "1500px", maxWidth: "1500px !important", height: "350px", alignSelf: "center", }}>
+      <Container sx={{
+        maxWidth: '1480px !important',
+        minWidth: '1040px', height: "350px", alignSelf: "center",
+        px: "0 !important",
+      }}>
         <Slider ref={sliderRef} {...settings}>
           {cardData.map((item, index) => (
-            <Stack direction="row" spacing={2} key={index} sx={{
-              width: "1500px",
+            <Stack direction="row" key={index} sx={{
+              maxWidth: '1440px',
+              minWidth: '1000px',
+              paddingX: '20px',
               height: "310px",
               pt: 2,
               display: "flex !important",
               flexDirection: "row !important",
               justifyContent: "center !important",
+              gap: "40px",
             }}>
-              {item.map((item, index) => (
-                <MaterialCard key={index} data={item} />
+              {item.map((item, index1) => (
+                <MaterialCard key={index1} data={item} active={index === currentIndex} />
               ))}
             </Stack>
 
@@ -214,12 +370,15 @@ function CarouselCards({cardData}) {
           position: "absolute",
           top: "160px",
           transform: "translateY(-50%)",
-          right: 2,
+          right: "-60px",
           width: 50,
           height: 50,
           bgcolor: "white",
-          boxShadow: 1,
+          boxShadow: 0,
+          border: 1,
+          borderColor: '#EEEEEE',
           alignSelf: "center",
+          backgroundColor: '#FBFBFB',
           zIndex: 10,
         }}
       >
