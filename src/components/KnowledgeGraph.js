@@ -4,12 +4,14 @@ import React, { useEffect, useRef, useState } from "react";
 import cytoscape from "cytoscape";
 import graphData from "./data/example_cypher_query_result.json";
 import positionData from "./data/example_x_y.json";
+import zoomInIcon from "../image/zoomIn.png";
+import zoomOutIcon from "../image/zoomOut.png";
 
 export default function KnowledgeGraph() {
   const cyRef = useRef(null);
   const contextNodeRef = useRef(null);
-  const [deletedItems, setDeletedItems] = useState([]);
-  const [redoItems, setRedoItems] = useState([]);
+  const hoverTimeoutRef = useRef(null);
+  const fadeOutTimeoutRef = useRef(null);
   const [hoveredData, setHoveredData] = useState(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [tooltipVisible, setTooltipVisible] = useState(false);
@@ -18,64 +20,6 @@ export default function KnowledgeGraph() {
     const menu = document.getElementById("context-menu");
     if (menu) menu.style.display = "none";
     contextNodeRef.current = null;
-  };
-
-  const handleDeleteNode = () => {
-    if (contextNodeRef.current && cyRef.current) {
-      const nodeToDelete = contextNodeRef.current;
-      const nodeJson = nodeToDelete.json();
-      const connectedEdges = nodeToDelete
-        .connectedEdges()
-        .map((edge) => edge.json());
-      const uniqueEdges = [];
-      const edgeIds = new Set();
-      connectedEdges.forEach((edge) => {
-        if (!edgeIds.has(edge.data.id)) {
-          edgeIds.add(edge.data.id);
-          uniqueEdges.push(edge);
-        }
-      });
-      const deletedItem = { node: nodeJson, edges: uniqueEdges };
-      setDeletedItems((prev) => [...prev, deletedItem]);
-      setRedoItems([]);
-      nodeToDelete.remove();
-      contextNodeRef.current = null;
-    }
-    hideContextMenu();
-  };
-
-  const handleUndo = () => {
-    if (deletedItems.length > 0 && cyRef.current) {
-      const lastDeletedItem = deletedItems[deletedItems.length - 1];
-      cyRef.current.batch(() => {
-        if (
-          !cyRef.current.getElementById(lastDeletedItem.node.data.id).nonempty()
-        ) {
-          cyRef.current.add(lastDeletedItem.node);
-        }
-        lastDeletedItem.edges.forEach((edgeJson) => {
-          if (!cyRef.current.getElementById(edgeJson.data.id).nonempty()) {
-            const source = cyRef.current.getElementById(edgeJson.data.source);
-            const target = cyRef.current.getElementById(edgeJson.data.target);
-            if (source.nonempty() && target.nonempty()) {
-              cyRef.current.add(edgeJson);
-            }
-          }
-        });
-      });
-      setDeletedItems((prev) => prev.slice(0, -1));
-      setRedoItems((prev) => [...prev, lastDeletedItem]);
-    }
-  };
-
-  const handleRedo = () => {
-    if (redoItems.length > 0 && cyRef.current) {
-      const lastRedoItem = redoItems[redoItems.length - 1];
-      const node = cyRef.current.getElementById(lastRedoItem.node.data.id);
-      if (node.nonempty()) node.remove();
-      setRedoItems((prev) => prev.slice(0, -1));
-      setDeletedItems((prev) => [...prev, lastRedoItem]);
-    }
   };
 
   const handleZoomIn = () =>
@@ -281,30 +225,47 @@ export default function KnowledgeGraph() {
       document.body.style.cursor = "pointer";
 
       const nodeData = evt.target.data();
-
-      // 'renderedPosition' gives you the on-screen pixel coords of the node center
       const { x, y } = evt.renderedPosition;
-      // Now compute the final tooltip position
-      setTooltipPosition({
-        x: x + 70, //20 is offset, change this
-        y: y + 70,
-      });
+      const container = document.getElementById("cy-container");
+      const containerRect = container.getBoundingClientRect();
+      const containerWidth = containerRect.width;
+      const containerHeight = containerRect.height;
 
+      // Calculate tooltip offset based on node position
+      // If node is in the right half of the screen, show tooltip to the left
+      // If node is in the bottom half of the screen, show tooltip above
+      const isRightSide = x > containerWidth / 2;
+      const isBottomSide = y > containerHeight / 2;
+
+      // Calculate tooltip x position
+      const tooltipX = isRightSide
+        ? x - 120 // Tooltip appears left of the node
+        : x + 70; // Tooltip appears right of the node
+
+      // Calculate tooltip y position
+      const tooltipY = isBottomSide
+        ? y - 100 // Tooltip appears above the node
+        : y + 20; // Tooltip appears below the node
+
+      setTooltipPosition({ x: tooltipX, y: tooltipY });
       setHoveredData(nodeData);
-      setTimeout(() => {
-        if (!document.getElementById("tooltip")?.matches(":hover")) {
-          setTooltipVisible(true);
-        }
-      }, 200); // time delay for hover meny fading in
+
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = setTimeout(() => {
+        setTooltipVisible(true);
+      }, 150);
     });
 
     cyRef.current.on("mouseout", "node", () => {
       document.body.style.cursor = "default";
-      setTimeout(() => {
+      clearTimeout(hoverTimeoutRef.current);
+
+      // Use fadeOutTimeoutRef to delay hiding the tooltip
+      fadeOutTimeoutRef.current = setTimeout(() => {
         if (!document.getElementById("tooltip")?.matches(":hover")) {
           setTooltipVisible(false);
         }
-      }, 500); //mouse delay for hover menu fading out
+      }, 500);
     });
 
     cyRef.current.on("cxttap", "node", (evt) => {
@@ -324,41 +285,8 @@ export default function KnowledgeGraph() {
     };
   }, []);
 
-  // useEffect(() => {
-  //   const handleClickOutsideTooltip = (e) => {
-  //     const tooltipElement = document.getElementById("tooltip");
-  //     if (tooltipElement && !tooltipElement.contains(e.target)) {
-  //       setTooltipVisible(false);
-  //     }
-  //   };
-
-  //   document.addEventListener("click", handleClickOutsideTooltip);
-  //   return () => {
-  //     document.removeEventListener("click", handleClickOutsideTooltip);
-  //   };
-  // }, []);
-
   return (
     <div style={{ position: "relative", height: "100%" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          padding: "8px",
-          backgroundColor: "#f5f5f7",
-          borderTopLeftRadius: "8px",
-          borderTopRightRadius: "8px",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-        }}
-      >
-        <button onClick={handleDeleteNode} style={{ marginRight: "8px" }}>
-          🗑️ Delete
-        </button>
-        <button onClick={handleUndo} style={{ marginRight: "8px" }}>
-          ↩️ Undo
-        </button>
-        <button onClick={handleRedo}>↪️ Redo</button>
-      </div>
       <div
         id="cy-container"
         style={{
@@ -373,6 +301,12 @@ export default function KnowledgeGraph() {
       {tooltipVisible && hoveredData && (
         <div
           id="tooltip"
+          onMouseEnter={() => clearTimeout(fadeOutTimeoutRef.current)}
+          onMouseLeave={() => {
+            fadeOutTimeoutRef.current = setTimeout(() => {
+              setTooltipVisible(false);
+            }, 500);
+          }}
           style={{
             position: "absolute",
             left: tooltipPosition.x,
@@ -386,6 +320,9 @@ export default function KnowledgeGraph() {
             zIndex: 1000,
             maxWidth: "320px",
             pointerEvents: "auto",
+            opacity: tooltipVisible ? 1 : 0,
+            transform: tooltipVisible ? "translateY(0px)" : "translateY(-2px)",
+            transition: "opacity 0.2s ease-in-out, transform 0.2s ease-in-out",
           }}
         >
           <div style={{ fontWeight: "bold", marginBottom: "8px" }}>
@@ -441,7 +378,7 @@ export default function KnowledgeGraph() {
           }}
         >
           <img
-            src="/zoomIn.png"
+            src={zoomInIcon}
             alt="Zoom In"
             width={40}
             height={40}
@@ -460,7 +397,7 @@ export default function KnowledgeGraph() {
           }}
         >
           <img
-            src="/zoomOut.png"
+            src={zoomOutIcon}
             alt="Zoom Out"
             width={40}
             height={40}
