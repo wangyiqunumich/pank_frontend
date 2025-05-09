@@ -219,6 +219,7 @@ function DocPage() {
     const scrollRef = useRef(null);
     const contentRef = useRef(null);
     const [inputValue, setInputValue] = useState("");
+    const [getResultResult, setGetResultResult] = useState([]);
 
     const renderMD = useCallback((contn) => {
         function getID(children) {
@@ -359,6 +360,20 @@ function DocPage() {
         return result;
     }
 
+    useEffect(() => {
+        if (isLoading) {
+            return;
+        }
+        if (inputValue) {
+            const result = getResult(inputValue);
+            setGetResultResult(result.map(res => {
+                return { title: res.page, content: res.snippet, section: res.section, querykey: res.querykey };
+            }));
+        } else {
+            setGetResultResult([]);
+        }
+    }, [inputValue, isLoading, pages]);
+
 
     function SearchDropdown() {
 
@@ -367,9 +382,7 @@ function DocPage() {
                 id="search"
                 freeSolo
                 autoSelect
-                options={isLoading ? [] : getResult(inputValue).map(res => {
-                    return { title: res.page, content: res.snippet, section: res.section, querykey: res.querykey };
-                })}
+                options={isLoading ? [] : getResultResult}
                 getOptionLabel={() => inputValue}
                 filterOptions={(options => options)}
                 renderOption={(props, option) => (
@@ -394,7 +407,9 @@ function DocPage() {
                         </Typography>
                     </Box>
                 )}
-                onInputChange={(_, v, r) => { if (r === "input") { setHighlightKey(v); } setInputValue(v); }}
+                onInputChange={(_, v, r) => {
+                    if (r === "input") { setHighlightKey(v); } setInputValue(v);
+                }}
                 renderInput={(params) => (
                     <TextField
                         {...params}
@@ -475,13 +490,15 @@ function DocPage() {
 
     return (
         <div className="App">
-            <Container maxWidth="100%" sx={{ mt: 4, mb: 4, display: 'flex', flexDirection: 'row', maxHeight: "calc(100%-64px)" }}>
+            <Container maxWidth="100%" sx={{ mt: 4, mb: 4, display: 'flex', flexDirection: 'row' }}>
                 <Box
                     sx={{
                         width: '300px',
                         textAlign: 'left',
                         maxHeight: 'calc(100vh - 420px)',
                         overflowY: 'auto',
+                        position: 'sticky',
+                        top: '30px',
                         mr: 10
                     }}
                 >
@@ -505,18 +522,14 @@ function DocPage() {
                 <Box
                     ref={scrollRef}
                     sx={{
-                        width: 'stretch',
+                        width: 'calc(70% - 380px)',
                         textAlign: 'left',
-                        maxHeight: 'calc(100vh - 420px)',
-                        overflowY: 'auto',
                     }}
                     className={'markdown-body'}
                 >
-                    <p className="gradient-overlay-top"></p>
                     <div ref={contentRef} >
                         {isLoading ? loading() : pageHTML[page]}
                     </div>
-                    <p className="gradient-overlay-bottom"></p>
                 </Box>
             </Container>
         </div>

@@ -5,6 +5,10 @@ export const flaskBackendAxiosInstance = axios.create({
     baseURL: process.env.REACT_APP_API_BASE_URL + '/' + process.env.REACT_APP_API_GATEWAY_STAGE_NAME
 });
 
+export const flaskBackendAxiosInstanceNew = axios.create({
+    baseURL: 'https://nzi5e9mb0f.execute-api.us-east-1.amazonaws.com/' + process.env.REACT_APP_API_GATEWAY_STAGE_NAME
+});
+
 // const https = require('https');
 // const agent = new https.Agent({
 //     rejectUnauthorized: false,

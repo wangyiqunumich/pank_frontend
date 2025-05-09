@@ -1163,25 +1163,3 @@
 .markdown-body .highlight pre:has(+.zeroclipboard-container) {
   min-height: 52px;
 }
-
-.gradient-overlay-top {
-  z-index: 2;
-  width: calc(100% - 500px);
-  height: 40px;
-  position: absolute;
-  top: 100px;
-  left: 440px;
-  background: rgba(255, 255, 255, 0);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.9) 50%, rgba(255, 255, 255, 0) 100%);
-}
-
-.gradient-overlay-bottom {
-  z-index: 2;
-  width: calc(100% - 500px);
-  height: 40px;
-  position: absolute;
-  bottom: 255px;
-  left: 440px;
-  background: rgba(255, 255, 255, 0);
-  background: linear-gradient(0deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.9) 50%, rgba(255, 255, 255, 0) 100%);
-}
