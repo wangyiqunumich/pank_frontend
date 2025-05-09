@@ -6,12 +6,25 @@ import graphData from "./data/example_cypher_query_result.json";
 import positionData from "./data/example_x_y.json";
 import zoomInIcon from "../image/zoomIn.png";
 import zoomOutIcon from "../image/zoomOut.png";
+import { nodeStyle } from "./style.js";
 
+// Define the node type colors for the legend
+const nodeTypeColors = {
+  gene: "#ABD0F1", // Blue color for protein_coding/gene nodes
+  sequence_variant: "#FFB77F", // Orange color for SNP/sequence_variant nodes
+  pathway: "#F6C957", // Yellow color for pathway nodes
+  article: "#e377c2", // Pink color for article nodes
+  ontology: "#B57E47", // Brown color for ontology nodes
+};
+
+// Main KnowledgeGraph component
 export default function KnowledgeGraph() {
   const cyRef = useRef(null);
   const contextNodeRef = useRef(null);
   const hoverTimeoutRef = useRef(null);
   const fadeOutTimeoutRef = useRef(null);
+  const tooltipRef = useRef(null);
+  const activeNodeRef = useRef(null);
   const [hoveredData, setHoveredData] = useState(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [tooltipVisible, setTooltipVisible] = useState(false);
@@ -37,6 +50,10 @@ export default function KnowledgeGraph() {
         ? "protein_coding"
         : node["~labels"].includes("variants")
         ? "SNP"
+        : node["~labels"].includes("pathway")
+        ? "pathway"
+        : node["~labels"].includes("article")
+        ? "article"
         : node["~labels"].includes("ontology")
         ? "ontology"
         : "other";
@@ -72,148 +89,7 @@ export default function KnowledgeGraph() {
     cyRef.current = cytoscape({
       container: document.getElementById("cy-container"),
       elements: { nodes, edges },
-      style: [
-        // Protein Coding nodes: Core (filled)
-        {
-          selector: 'node[type = "protein_coding"][Level = "C"]',
-          style: {
-            shape: "round-rectangle",
-            "background-color": "#a8d0e6",
-            label: "data(HGNC_symbol)",
-            "font-size": "6px",
-            "text-valign": "center",
-            color: "#333",
-            width: "label",
-            height: "label",
-            padding: "5px",
-            cursor: "pointer",
-            "text-outline-width": 0.5,
-            "text-outline-color": "#fff",
-            "text-outline-opacity": 0.5,
-          },
-        },
-        // Protein Coding nodes: Neighbor (transparent fill, colored border)
-        {
-          selector: 'node[type = "protein_coding"][Level = "N"]',
-          style: {
-            shape: "round-rectangle",
-            "background-opacity": 0,
-            "border-width": 2,
-            "border-color": "#a8d0e6",
-            label: "data(HGNC_symbol)",
-            "font-size": "6px",
-            "text-valign": "center",
-            color: "#333",
-            width: "label",
-            height: "label",
-            padding: "5px",
-            cursor: "pointer",
-            "text-outline-width": 0.5,
-            "text-outline-color": "#fff",
-            "text-outline-opacity": 0.5,
-          },
-        },
-        // SNP nodes: Core (filled)
-        {
-          selector: 'node[type = "SNP"][Level = "C"]',
-          style: {
-            shape: "round-rectangle",
-            "background-color": "#ffb3ba",
-            label: "data(id)",
-            "font-size": "6px",
-            "text-valign": "center",
-            color: "#333",
-            width: "label",
-            height: "label",
-            padding: "5px",
-            cursor: "pointer",
-            "text-outline-width": 0.5,
-            "text-outline-color": "#fff",
-            "text-outline-opacity": 0.5,
-          },
-        },
-        // SNP nodes: Neighbor (transparent fill, colored border)
-        {
-          selector: 'node[type = "SNP"][Level = "N"]',
-          style: {
-            shape: "round-rectangle",
-            "background-opacity": 0,
-            "border-width": 2,
-            "border-color": "#ffb3ba",
-            label: "data(id)",
-            "font-size": "6px",
-            "text-valign": "center",
-            color: "#333",
-            width: "label",
-            height: "label",
-            padding: "5px",
-            cursor: "pointer",
-            "text-outline-width": 0.5,
-            "text-outline-color": "#fff",
-            "text-outline-opacity": 0.5,
-          },
-        },
-        // Ontology nodes: Core (filled)
-        {
-          selector: 'node[type = "ontology"][Level = "C"]',
-          style: {
-            shape: "round-rectangle",
-            "background-color": "#b8e1a3",
-            label: "data(id)",
-            "font-size": "6px",
-            "text-valign": "center",
-            color: "#333",
-            width: "label",
-            height: "label",
-            padding: "5px",
-            cursor: "pointer",
-            "text-outline-width": 0.5,
-            "text-outline-color": "#fff",
-            "text-outline-opacity": 0.5,
-          },
-        },
-        // Ontology nodes: Neighbor (transparent fill, colored border)
-        {
-          selector: 'node[type = "ontology"][Level = "N"]',
-          style: {
-            shape: "round-rectangle",
-            "background-opacity": 0,
-            "border-width": 2,
-            "border-color": "#b8e1a3",
-            label: "data(id)",
-            "font-size": "6px",
-            "text-valign": "center",
-            color: "#333",
-            width: "label",
-            height: "label",
-            padding: "5px",
-            cursor: "pointer",
-            "text-outline-width": 0.5,
-            "text-outline-color": "#fff",
-            "text-outline-opacity": 0.5,
-          },
-        },
-        // Node active state
-        {
-          selector: "node:active",
-          style: {
-            "overlay-padding": "0px",
-            "overlay-opacity": 0,
-          },
-        },
-        // Edge style
-        {
-          selector: "edge",
-          style: {
-            width: 1,
-            "line-color": "#d3d3d3",
-            "target-arrow-color": "#545454",
-            "target-arrow-shape": "vee",
-            "arrow-scale": 0.8,
-            "curve-style": "bezier",
-          },
-        },
-      ],
+      style: nodeStyle,
       layout: { name: "preset" },
       zoom: 0.01,
       minZoom: 0.2,
@@ -222,7 +98,12 @@ export default function KnowledgeGraph() {
     });
 
     cyRef.current.on("mouseover", "node", (evt) => {
+      // Clear any existing timers immediately
+      clearTimeout(hoverTimeoutRef.current);
+      clearTimeout(fadeOutTimeoutRef.current);
+
       document.body.style.cursor = "pointer";
+      activeNodeRef.current = evt.target;
 
       const nodeData = evt.target.data();
       const { x, y } = evt.renderedPosition;
@@ -247,25 +128,31 @@ export default function KnowledgeGraph() {
         ? y - 100 // Tooltip appears above the node
         : y + 20; // Tooltip appears below the node
 
-      setTooltipPosition({ x: tooltipX, y: tooltipY });
       setHoveredData(nodeData);
+      setTooltipPosition({ x: tooltipX, y: tooltipY });
 
-      clearTimeout(hoverTimeoutRef.current);
+      // Use a shorter delay for better responsiveness
       hoverTimeoutRef.current = setTimeout(() => {
         setTooltipVisible(true);
-      }, 150);
+      }, 80);
     });
 
-    cyRef.current.on("mouseout", "node", () => {
+    cyRef.current.on("mouseout", "node", (evt) => {
       document.body.style.cursor = "default";
       clearTimeout(hoverTimeoutRef.current);
 
-      // Use fadeOutTimeoutRef to delay hiding the tooltip
-      fadeOutTimeoutRef.current = setTimeout(() => {
-        if (!document.getElementById("tooltip")?.matches(":hover")) {
-          setTooltipVisible(false);
-        }
-      }, 500);
+      // Only proceed with hiding if we're leaving the active node
+      if (evt.target === activeNodeRef.current) {
+        // Use a shorter delay for hiding to feel more responsive
+        fadeOutTimeoutRef.current = setTimeout(() => {
+          // More reliable way to check if mouse is over tooltip
+          const tooltip = document.getElementById("tooltip");
+          if (tooltip && !tooltip.matches(":hover")) {
+            setTooltipVisible(false);
+            activeNodeRef.current = null;
+          }
+        }, 300);
+      }
     });
 
     cyRef.current.on("cxttap", "node", (evt) => {
@@ -286,26 +173,169 @@ export default function KnowledgeGraph() {
   }, []);
 
   return (
-    <div style={{ position: "relative" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
       <div
         id="cy-container"
         style={{
-          width: "relative",
+          width: "100%",
           height: "600px",
-          backgroundColor: "#fff",
+          backgroundColor: "#fff", // Restored to white as requested
           border: "1px solid #ddd",
-          borderBottomLeftRadius: "8px",
-          borderBottomRightRadius: "8px",
+          borderRadius: "8px",
+          position: "relative", // Add this for absolute positioning inside
+          overflow: "hidden", // To keep contents within rounded corners
         }}
-      />
+      >
+        <div
+          style={{
+            position: "absolute",
+            bottom: "20px",
+            left: "20px",
+            backgroundColor: "#fff",
+            borderRadius: "8px",
+            padding: "16px 20px",
+            boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
+            zIndex: 10,
+            fontSize: "13px",
+            width: "auto",
+            border: "1px solid rgba(0,0,0,0.05)",
+          }}
+        >
+          <div
+            style={{
+              fontWeight: "bold",
+              marginBottom: "12px",
+              fontSize: "14px",
+            }}
+          >
+            Legend
+          </div>
+
+          <div style={{ marginBottom: "10px" }}>
+            <div
+              style={{ color: "#666", fontSize: "12px", marginBottom: "8px" }}
+            >
+              Search result:
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "16px",
+                marginBottom: "4px",
+              }}
+            >
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "6px" }}
+              >
+                <div
+                  style={{
+                    width: "20px",
+                    height: "20px",
+                    backgroundColor: nodeTypeColors.gene,
+                    borderRadius: "4px",
+                  }}
+                />
+                <div style={{ fontSize: "13px", color: "#333" }}>Gene</div>
+              </div>
+
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "6px" }}
+              >
+                <div
+                  style={{
+                    width: "20px",
+                    height: "20px",
+                    backgroundColor: nodeTypeColors.sequence_variant,
+                    borderRadius: "4px",
+                  }}
+                />
+                <div style={{ fontSize: "13px", color: "#333" }}>
+                  Sequence variant
+                </div>
+              </div>
+
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "6px" }}
+              >
+                <div
+                  style={{
+                    width: "20px",
+                    height: "20px",
+                    backgroundColor: nodeTypeColors.article,
+                    borderRadius: "4px",
+                  }}
+                />
+                <div style={{ fontSize: "13px", color: "#333" }}>Article</div>
+              </div>
+
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "6px" }}
+              >
+                <div
+                  style={{
+                    width: "20px",
+                    height: "20px",
+                    backgroundColor: nodeTypeColors.pathway,
+                    borderRadius: "4px",
+                  }}
+                />
+                <div style={{ fontSize: "13px", color: "#333" }}>Pathway</div>
+              </div>
+
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "6px" }}
+              >
+                <div
+                  style={{
+                    width: "20px",
+                    height: "20px",
+                    backgroundColor: nodeTypeColors.ontology,
+                    borderRadius: "4px",
+                  }}
+                />
+                <div style={{ fontSize: "13px", color: "#333" }}>Ontology</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div
+              style={{ color: "#666", fontSize: "12px", marginBottom: "8px" }}
+            >
+              Concepts related to current search result presented in
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <div
+                style={{
+                  width: "16px",
+                  height: "16px",
+                  border: "1px solid #ccc",
+                  borderRadius: "3px",
+                  backgroundColor: "white",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
       {tooltipVisible && hoveredData && (
         <div
           id="tooltip"
-          onMouseEnter={() => clearTimeout(fadeOutTimeoutRef.current)}
+          ref={tooltipRef}
+          onMouseEnter={() => {
+            clearTimeout(fadeOutTimeoutRef.current);
+          }}
           onMouseLeave={() => {
+            // More responsive hide on mouse leave
             fadeOutTimeoutRef.current = setTimeout(() => {
               setTooltipVisible(false);
-            }, 500);
+              activeNodeRef.current = null;
+            }, 200);
           }}
           style={{
             position: "absolute",
@@ -320,9 +350,10 @@ export default function KnowledgeGraph() {
             zIndex: 1000,
             maxWidth: "320px",
             pointerEvents: "auto",
-            opacity: tooltipVisible ? 1 : 0,
-            transform: tooltipVisible ? "translateY(0px)" : "translateY(-2px)",
-            transition: "opacity 0.2s ease-in-out, transform 0.2s ease-in-out",
+            opacity: 1, // Always fully visible when rendered
+            transform: "translateY(0px)",
+            transition: "opacity 0.15s ease-out, transform 0.15s ease-out",
+            willChange: "transform, opacity", // Performance hint for smoother animations
           }}
         >
           <div style={{ fontWeight: "bold", marginBottom: "8px" }}>
@@ -351,59 +382,170 @@ export default function KnowledgeGraph() {
           )}
         </div>
       )}
-
-      {/* Zoom buttons */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: "20px",
-          right: "20px",
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "10px",
-          borderRadius: "8px",
-        }}
-      >
-        <button
-          onClick={handleZoomIn}
-          className="zoom-button"
+      <div style={{ display: "flex", flexDirection: "row", gap: "200px" }}>
+        {/* Zoom buttons */}
+        <div
           style={{
-            marginBottom: "8px",
-            backgroundColor: "#ffffff",
-            border: "none",
-            borderRadius: "4px",
-
-            cursor: "pointer",
+            position: "absolute",
+            bottom: "20px",
+            right: "20px",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "10px",
+            borderRadius: "8px",
           }}
         >
-          <img
-            src={zoomInIcon}
-            alt="Zoom In"
-            width={40}
-            height={40}
-            style={{ display: "block" }}
-          />
-        </button>
-        <button
-          onClick={handleZoomOut}
-          className="zoom-button"
-          style={{
-            backgroundColor: "#ffffff",
-            border: "none",
-            borderRadius: "4px",
+          <button
+            onClick={handleZoomIn}
+            className="zoom-button"
+            style={{
+              marginBottom: "8px",
+              backgroundColor: "#ffffff",
+              border: "none",
+              borderRadius: "4px",
 
-            cursor: "pointer",
+              cursor: "pointer",
+            }}
+          >
+            <img
+              src={zoomInIcon}
+              alt="Zoom In"
+              width={40}
+              height={40}
+              style={{ display: "block" }}
+            />
+          </button>
+          <button
+            onClick={handleZoomOut}
+            className="zoom-button"
+            style={{
+              backgroundColor: "#ffffff",
+              border: "none",
+              borderRadius: "4px",
+
+              cursor: "pointer",
+            }}
+          >
+            <img
+              src={zoomOutIcon}
+              alt="Zoom Out"
+              width={40}
+              height={40}
+              style={{ display: "block" }}
+            />
+          </button>
+        </div>
+
+        {/* Legend */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: 20,
+            left: 20,
+            display: "flex",
+            flexDirection: "column",
+            gap: "12px",
+            background: "#fff",
+            padding: "12px",
+            borderRadius: "8px",
+            boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
+            zIndex: 10,
+            userSelect: "none",
           }}
         >
-          <img
-            src={zoomOutIcon}
-            alt="Zoom Out"
-            width={40}
-            height={40}
-            style={{ display: "block" }}
-          />
-        </button>
+          {/* Title */}
+          <div style={{ fontSize: "14px", fontWeight: 600, color: "#172A3A" }}>
+            Legend
+          </div>
+
+          {/* Search‑result pills */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              flexWrap: "wrap",
+            }}
+          >
+            <span style={{ fontSize: "12px", color: "#666" }}>
+              Search result:
+            </span>
+
+            {/* map these instead if you like */}
+            <span
+              style={{
+                padding: "4px 12px",
+                borderRadius: "12px",
+                backgroundColor: nodeTypeColors.gene,
+                fontSize: "12px",
+                color: "#172A3A",
+              }}
+            >
+              Gene
+            </span>
+            <span
+              style={{
+                padding: "4px 12px",
+                borderRadius: "12px",
+                backgroundColor: nodeTypeColors.sequence_variant,
+                fontSize: "12px",
+                color: "#172A3A",
+              }}
+            >
+              Sequence variant
+            </span>
+            <span
+              style={{
+                padding: "4px 12px",
+                borderRadius: "12px",
+                backgroundColor: nodeTypeColors.pathway,
+                fontSize: "12px",
+                color: "#172A3A",
+              }}
+            >
+              Pathway
+            </span>
+            <span
+              style={{
+                padding: "4px 12px",
+                borderRadius: "12px",
+                backgroundColor: nodeTypeColors.article,
+                fontSize: "12px",
+                color: "#172A3A",
+              }}
+            >
+              Article
+            </span>
+            <span
+              style={{
+                padding: "4px 12px",
+                borderRadius: "12px",
+                backgroundColor: nodeTypeColors.ontology,
+                fontSize: "12px",
+                color: "#172A3A",
+              }}
+            >
+              Ontology
+            </span>
+          </div>
+
+          {/* Related‑concept indicator */}
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span style={{ fontSize: "12px", color: "#666" }}>
+              Concepts related to current search result presented in
+            </span>
+            <span
+              style={{
+                width: "16px",
+                height: "16px",
+                borderRadius: "3px",
+                border: "1px solid #ccc",
+                background: "#fff",
+              }}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

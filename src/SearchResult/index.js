@@ -1,386 +1,424 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Box, List, ListItem, Link, CircularProgress, Divider, Collapse } from '@mui/material';
-import { useSelector, useDispatch } from 'react-redux';
-import './scoped.css';
-import KnowledgeGraph from '../components/KnowledgeGraph';
-import exactData from '../exact.json';
-import extendData from '../extend.json';
-import ImageModal from '../components/ImageModal';
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Container,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  Box,
+  List,
+  ListItem,
+  Link,
+  CircularProgress,
+  Divider,
+  Collapse,
+} from "@mui/material";
+import { useSelector, useDispatch } from "react-redux";
+import "./scoped.css";
+import KnowledgeGraph from "../components/KnowledgeGraph";
+import exactData from "../exact.json";
+import extendData from "../extend.json";
+import ImageModal from "../components/ImageModal";
 import { queryImage } from "../redux/typeToImageSlice";
-import { queryAiAnswer } from '../redux/aiAnswerSlice';
-import { Dialpad } from '@mui/icons-material';
-import { queryViewSchema } from '../redux/viewSchemaSlice';
-import { setNextQuestionClicked } from '../redux/searchSlice';
-import { queryQueryResult } from '../redux/queryResultSlice';
-import { setProcessedQuestion } from '../redux/processedQuestionSlice';
-import { setUsingFallback } from '../redux/searchSlice';
-import { setVariables } from '../redux/variablesSlice';
-import { replaceVariables } from '../utils/textProcessing';
-import { store } from '../redux/store';
-import { queryQueryVisResult } from '../redux/queryVisResultSlice';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { styled } from '@mui/material/styles';
-import { setSearchTerms } from '../redux/searchSlice';
-import SearchBar from '../SearchBar';
+import { queryAiAnswer } from "../redux/aiAnswerSlice";
+import { Dialpad } from "@mui/icons-material";
+import { queryViewSchema } from "../redux/viewSchemaSlice";
+import { setNextQuestionClicked } from "../redux/searchSlice";
+import { queryQueryResult } from "../redux/queryResultSlice";
+import { setProcessedQuestion } from "../redux/processedQuestionSlice";
+import { setUsingFallback } from "../redux/searchSlice";
+import { setVariables } from "../redux/variablesSlice";
+import { replaceVariables } from "../utils/textProcessing";
+import { store } from "../redux/store";
+import { queryQueryVisResult } from "../redux/queryVisResultSlice";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { styled } from "@mui/material/styles";
+import { setSearchTerms } from "../redux/searchSlice";
+import SearchBar from "../SearchBar";
 import NavBar from "../NavBar";
 
 const colorMap = {
-    gene: "#ABD0F1",
-    sequence_variant: "#FFB77F",
-    pathway: "#F6C957",
-    ontology : "#8c561b",
-    article:"#e377c2",
-    open_chromatin_region: "#8c564b",
-  };
+  gene: "#ABD0F1",
+  sequence_variant: "#FFB77F",
+  pathway: "#F6C957",
+  ontology: "#8c561b",
+  article: "#e377c2",
+  open_chromatin_region: "#8c564b",
+};
 
 // 添加一个带动画的展开按钮组件
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
   return <IconButton {...other} />;
 })(({ theme, expand }) => ({
-  transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
-  marginLeft: 'auto',
-  transition: theme.transitions.create('transform', {
+  transform: !expand ? "rotate(0deg)" : "rotate(180deg)",
+  marginLeft: "auto",
+  transition: theme.transitions.create("transform", {
     duration: theme.transitions.duration.shortest,
   }),
 }));
 
 function TypewriterEffect({ text, speed = 5, onComplete }) {
-    const [displayedText, setDisplayedText] = useState('');
-    const [currentIndex, setCurrentIndex] = useState(0);
+  const [displayedText, setDisplayedText] = useState("");
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-    useEffect(() => {
-        if (currentIndex < text.length) {
-            const timer = setTimeout(() => {
-                setDisplayedText(prevText => prevText + text[currentIndex]);
-                setCurrentIndex(prevIndex => prevIndex + 1);
-            }, speed);
+  useEffect(() => {
+    if (currentIndex < text.length) {
+      const timer = setTimeout(() => {
+        setDisplayedText((prevText) => prevText + text[currentIndex]);
+        setCurrentIndex((prevIndex) => prevIndex + 1);
+      }, speed);
 
-            return () => clearTimeout(timer);
-        } else if (onComplete) {
-            onComplete();
-        }
-    }, [currentIndex, text, speed, onComplete]);
+      return () => clearTimeout(timer);
+    } else if (onComplete) {
+      onComplete();
+    }
+  }, [currentIndex, text, speed, onComplete]);
 
-    return <span dangerouslySetInnerHTML={{ __html: displayedText }} />;
+  return <span dangerouslySetInnerHTML={{ __html: displayedText }} />;
 }
 
 const SNPPlotImage = ({ imageSrc }) => {
   if (!imageSrc) return null;
 
   return (
-    <div style={{ 
-      position: 'relative', 
-      width: '100%', 
-      height: '100%', 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      overflow: 'hidden'
-    }}>
-      <img 
-        src={`data:image/jpeg;base64,${imageSrc}`} 
-        alt="SNP p-values Plot" 
-        style={{ 
-          maxWidth: '100%',
-          maxHeight: '100%',
-          objectFit: 'contain'
+    <div
+      style={{
+        position: "relative",
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        overflow: "hidden",
+      }}
+    >
+      <img
+        src={`data:image/jpeg;base64,${imageSrc}`}
+        alt="SNP p-values Plot"
+        style={{
+          maxWidth: "100%",
+          maxHeight: "100%",
+          objectFit: "contain",
         }}
       />
     </div>
   );
 };
 
-const Legend = () => (
-  // <div className="styled-paper" data-title="Legend">
-    <Box sx={{ 
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 2,
-        position: 'relative',
-        padding: '20px',
-        backgroundColor: '#FBFBFB',
-        border: 1,
-        borderColor: '#EEEEEE',
-        marginBottom: '20px'
-    }}>
-        <Typography sx={{
-            fontWeight: 'bold',
-            fontSize: 20,
-            position: 'absolute',
-            top: -44,
-            left: 0,
-            zIndex: 1
-        }}>
-            Legend
-        </Typography>
-      {/* 第一行 */}
-        <Box>
-            <Typography sx={{ textAlign: 'left' }}>Search result:</Typography>
-        </Box>
-        {/* 第2行 */}
-      <Box sx={{ 
-        display: 'flex',
-        // gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: 2,
-          marginBottom: '10px'
-      }}>
-        <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ width: 20, height: 20, backgroundColor: '#ABD0F1', borderRadius: '4px' }} />
-          <Typography variant="body2">Gene</Typography>
-        </Box>
-        <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ width: 20, height: 20, backgroundColor: '#FFB77F', borderRadius: '4px' }} />
-          <Typography variant="body2">Sequence variant</Typography>
-        </Box>
-        <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ width: 20, height: 20, backgroundColor: '#F6C957', borderRadius: '4px' }} />
-          <Typography variant="body2">Pathway</Typography>
-        </Box>
-          <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Box sx={{ width: 20, height: 20, backgroundColor: '#e377c2', borderRadius: '4px' }} />
-              <Typography variant="body2">Article</Typography>
-          </Box>
-          <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Box sx={{ width: 20, height: 20, backgroundColor: '#b57e47', borderRadius: '4px' }} />
-              <Typography variant="body2">Ontology</Typography>
-          </Box>
-      </Box>
-      {/* 第3行 */}
-      <Box sx={{ 
-        display: 'flex',
-        // gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: 2
-      }}>
-          <Typography>Concepts related to current search result presented in </Typography>
-          <Box sx={{ width: 20, height: 20, backgroundColor: 'white', borderRadius: '4px', border: '2px solid #C0C0C0' }} />
-        {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ width: 20, height: 20, backgroundColor: '#8c561b', borderRadius: '4px' }} />
-          <Typography variant="body2">Ontology</Typography>
-        </Box> */}
-        {/*<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>*/}
-        {/*  <Box sx={{ width: 20, height: 20, backgroundColor: '#C0C0C0', borderRadius: '4px' }} />*/}
-        {/*  <Typography variant="body2">Current Searched Node</Typography>*/}
-        {/*</Box>*/}
-        {/*<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>*/}
-        {/*  <Box sx={{ width: 20, height: 20, backgroundColor: 'white', borderRadius: '4px', border: '2px solid #C0C0C0' }} />*/}
-        {/*  <Typography variant="body2">Extend Node</Typography>*/}
-        {/*</Box>*/}
-      </Box>
-    </Box>
-  // </div>
-);
+
 
 function SearchResult() {
-    const [showTable, setShowTable] = useState(false);
-    const [modalOpen, setModalOpen] = useState(false);
-    const [imageLoading, setImageLoading] = useState(true);
-    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-    const [expanded, setExpanded] = useState(false);
-    const dispatch = useDispatch();
+  const [showTable, setShowTable] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [expanded, setExpanded] = useState(false);
+  const dispatch = useDispatch();
 
-    // 从 viewSchema 中获取数据
-    const { viewSchema } = useSelector((state) => state.viewSchema);
-    const queryResult = useSelector((state) => state.queryResult.queryResult);
-    const { aiAnswer, queryAiAnswerStatus } = useSelector((state) => state.aiAnswer);
-    const searchState = useSelector((state) => state.search);
-    const snpPlotImage = useSelector((state) => state.typeToImage.typeToImage);
-    const queryTypeToImageStatus = useSelector((state) => state.typeToImage.queryTypeToImageStatus);
+  // 从 viewSchema 中获取数据
+  const { viewSchema } = useSelector((state) => state.viewSchema);
+  const queryResult = useSelector((state) => state.queryResult.queryResult);
+  const { aiAnswer, queryAiAnswerStatus } = useSelector(
+    (state) => state.aiAnswer
+  );
+  const searchState = useSelector((state) => state.search);
+  const snpPlotImage = useSelector((state) => state.typeToImage.typeToImage);
+  const queryTypeToImageStatus = useSelector(
+    (state) => state.typeToImage.queryTypeToImageStatus
+  );
 
-    useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const sourceTerm = params.get('snpId');
-        const relationship = params.get('relationship');
-        const targetTerm = params.get('geneId');
-        const targetSymbol = params.get('geneSymbol');
-        const leadSnp = params.get('leadSnp');
-        const dataSource = params.get('dataSource');
-        const tissueKey = params.get('tissueKey');
-        
-        if (sourceTerm && relationship && targetTerm) {
-            dispatch(setSearchTerms({
-                sourceTerm,
-                relationship,
-                targetTerm,
-                targetTermSymbol: targetSymbol || ''
-            }));
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const sourceTerm = params.get("snpId");
+    const relationship = params.get("relationship");
+    const targetTerm = params.get("geneId");
+    const targetSymbol = params.get("geneSymbol");
+    const leadSnp = params.get("leadSnp");
+    const dataSource = params.get("dataSource");
+    const tissueKey = params.get("tissueKey");
 
-            const getIdFromTerm = (term) => {
-                return term;
-            };
+    if (sourceTerm && relationship && targetTerm) {
+      dispatch(
+        setSearchTerms({
+          sourceTerm,
+          relationship,
+          targetTerm,
+          targetTermSymbol: targetSymbol || "",
+        })
+      );
 
-            dispatch(setVariables({
+      const getIdFromTerm = (term) => {
+        return term;
+      };
+
+      dispatch(
+        setVariables({
+          snpId: getIdFromTerm(sourceTerm),
+          leadSnp: leadSnp,
+          geneId: getIdFromTerm(targetTerm),
+          dataSource: dataSource,
+          tissueKey: tissueKey,
+          geneSymbol: targetSymbol || "",
+        })
+      );
+
+      const fixedSourceTerm = "sequence_variant";
+      const fixedTargetTerm = "gene:" + getIdFromTerm(targetTerm);
+
+      dispatch(
+        queryViewSchema({
+          sourceTerm: fixedSourceTerm,
+          relationship,
+          targetTerm: fixedTargetTerm,
+        })
+      ).then((response) => {
+        if (response.payload) {
+          // 处理 schema 数据
+          const {
+            question_for_result,
+            next_questions,
+            ai_question_for_result,
+            ai_answer_title,
+            ai_answer_sub_title,
+            cyper_for_result_page_all_nodes_specific,
+          } = response.payload;
+
+          if (cyper_for_result_page_all_nodes_specific) {
+            const query = cyper_for_result_page_all_nodes_specific
+              .replace(/@snp_node@/g, sourceTerm)
+              .replace(/@gene_node@/g, targetTerm);
+            dispatch(queryQueryVisResult({ query }));
+            dispatch(queryQueryResult({ query })).then((response) => {
+              const fineMapEQTL =
+                response?.payload?.results[0]?.all_extend_rels?.find(
+                  (rel) => rel["~type"] === "fine_mapped_eQTL"
+                );
+              const variables = {
                 snpId: getIdFromTerm(sourceTerm),
                 leadSnp: leadSnp,
                 geneId: getIdFromTerm(targetTerm),
                 dataSource: dataSource,
                 tissueKey: tissueKey,
-                geneSymbol: targetSymbol || ''
-            }));
+                geneSymbol: targetSymbol || "",
+              };
 
-            const fixedSourceTerm = 'sequence_variant';
-            const fixedTargetTerm = 'gene:' + getIdFromTerm(targetTerm);
-            
-            dispatch(queryViewSchema({
-                sourceTerm: fixedSourceTerm,
-                relationship,
-                targetTerm: fixedTargetTerm
-            })).then((response) => {
-                if (response.payload) {
-                    // 处理 schema 数据
-                    const { 
-                        question_for_result,
-                        next_questions,
-                        ai_question_for_result,
-                        ai_answer_title,
-                        ai_answer_sub_title,
-                        cyper_for_result_page_all_nodes_specific 
-                    } = response.payload;
+              let processedCurrentQuestion;
+              switch (dataSource) {
+                case "splicing; GTEx":
+                  processedCurrentQuestion =
+                    "How does the SNP " +
+                    sourceTerm +
+                    " influence the splicing of " +
+                    targetSymbol +
+                    " (" +
+                    targetTerm +
+                    ") in pancreas, as reported by GTEx?";
+                  break;
+                case "GTEx; SusieR":
+                  processedCurrentQuestion =
+                    "How does the SNP " +
+                    sourceTerm +
+                    " influence the expression of " +
+                    targetSymbol +
+                    " (" +
+                    targetTerm +
+                    ") in pancreas, as reported by GTEx?";
+                  break;
+                case "INSPIRE; SusieR":
+                  processedCurrentQuestion =
+                    "How does the SNP " +
+                    sourceTerm +
+                    " influence the expression of " +
+                    targetSymbol +
+                    " (" +
+                    targetTerm +
+                    ") in islet tissue, as reported by INSPIRE?";
+                  break;
+                case "exon; InsPIRE":
+                  processedCurrentQuestion =
+                    "How does the SNP " +
+                    sourceTerm +
+                    " influence the exon expression of " +
+                    targetSymbol +
+                    " (" +
+                    targetTerm +
+                    ") in islet tissue, as reported by INSPIRE?";
+                  break;
+                default:
+                  processedCurrentQuestion = replaceVariables(
+                    question_for_result,
+                    variables
+                  );
+                  break;
+              }
 
-                    if (cyper_for_result_page_all_nodes_specific) {
-                        const query = cyper_for_result_page_all_nodes_specific
-                            .replace(/@snp_node@/g, sourceTerm)
-                            .replace(/@gene_node@/g, targetTerm);
-                        dispatch(queryQueryVisResult({ query }));
-                        dispatch(queryQueryResult({ query })).then((response)=>{
-                            const fineMapEQTL = response?.payload?.results[0]?.all_extend_rels?.find(
-                                rel => rel['~type'] === 'fine_mapped_eQTL'
-                            );
-                            const variables = {
-                                snpId: getIdFromTerm(sourceTerm),
-                                leadSnp: leadSnp,
-                                geneId: getIdFromTerm(targetTerm),
-                                dataSource: dataSource,
-                                tissueKey: tissueKey,
-                                geneSymbol: targetSymbol || ''
-                            };
-        
-                            let processedCurrentQuestion;
-                            switch (dataSource) {
-                                case 'splicing; GTEx':
-                                    processedCurrentQuestion = 'How does the SNP ' + sourceTerm + ' influence the splicing of ' + targetSymbol + ' (' + targetTerm + ') in pancreas, as reported by GTEx?';
-                                    break;
-                                case 'GTEx; SusieR':
-                                    processedCurrentQuestion = 'How does the SNP ' + sourceTerm + ' influence the expression of ' + targetSymbol + ' (' + targetTerm + ') in pancreas, as reported by GTEx?';
-                                    break;
-                                case 'INSPIRE; SusieR':
-                                    processedCurrentQuestion = 'How does the SNP ' + sourceTerm + ' influence the expression of ' + targetSymbol + ' (' + targetTerm + ') in islet tissue, as reported by INSPIRE?';
-                                    break;
-                                case 'exon; InsPIRE':
-                                    processedCurrentQuestion = 'How does the SNP ' + sourceTerm + ' influence the exon expression of ' + targetSymbol + ' (' + targetTerm + ') in islet tissue, as reported by INSPIRE?';
-                                    break;
-                                default:
-                                    processedCurrentQuestion = replaceVariables(question_for_result, variables);
-                                    break;
-                            }
-        
-                            let nextVariables;
-                            if (sourceTerm == 'rs2402203' && targetTerm == 'ENSG00000001626') {
-                                nextVariables = {
-                                    snpId: 'rs177069',
-                                    leadSnp: 'rs177069',
-                                    geneId: 'ENSG00000001626',
-                                    dataSource: 'splicing; GTEx',
-                                    tissueKey: 'pancreas',
-                                    geneSymbol: 'CFTR'
-                                };
-                            } else {
-                                nextVariables = {
-                                    snpId: fineMapEQTL['~start'],
-                                    leadSnp: fineMapEQTL['~start'],
-                                    geneId: fineMapEQTL['~end'],
-                                    dataSource: fineMapEQTL['~properties']['data_source'],
-                                    tissueKey: fineMapEQTL['~properties']['tissue_name'].toLowerCase(),
-                                    geneSymbol: params.get('geneSymbol')
-                                };
-                            }
-            
-                            let processedNextQuestions;
-                            switch (nextVariables.dataSource) {
-                                case 'splicing; GTEx':
-                                    processedNextQuestions = 'How does the SNP ' + nextVariables.snpId + ' influence the splicing of ' + nextVariables.geneSymbol + ' (' + nextVariables.geneId + ') in pancreas, as reported by GTEx?';
-                                    break;
-                                case 'GTEx; SusieR':
-                                    processedNextQuestions = 'How does the SNP ' + nextVariables.snpId + ' influence the expression of ' + nextVariables.geneSymbol + ' (' + nextVariables.geneId + ') in pancreas, as reported by GTEx?';
-                                    break;
-                                case 'INSPIRE; SusieR':
-                                    processedNextQuestions = 'How does the SNP ' + nextVariables.snpId + ' influence the expression of ' + nextVariables.geneSymbol + ' (' + nextVariables.geneId + ') in islet tissue, as reported by INSPIRE?';
-                                    break;
-                                case 'exon; InsPIRE':
-                                    processedNextQuestions = 'How does the SNP ' + nextVariables.snpId + ' influence the exon expression of ' + nextVariables.geneSymbol + ' (' + nextVariables.geneId + ') in islet tissue, as reported by INSPIRE?';
-                                    break;
-                                default:
-                                    break;
-                            }
-        
-                            const processedAiQuestions = ai_question_for_result?.map(question => {
-                                let processedQuestion = question;
-                                if (sourceTerm) {
-                                    processedQuestion = processedQuestion.replace(/@snp_node@/g, getIdFromTerm(sourceTerm));
-                                }
-                                if (targetTerm) {
-                                    processedQuestion = processedQuestion.replace(/@gene_node@/g, getIdFromTerm(targetTerm));
-                                }
-                                return processedQuestion;
-                            }) || [];
-        
-                            const processedAiAnswerTitle = ai_answer_title
-                                ?.replace(/@snp_node@/g, getIdFromTerm(sourceTerm))
-                                ?.replace(/@gene_id@/g, getIdFromTerm(targetTerm));
-        
-                            // 更新 Redux store
-                            dispatch(setProcessedQuestion({
-                                currentQuestion: processedCurrentQuestion,
-                                nextQuestions: processedNextQuestions,
-                                aiQuestions: processedAiQuestions,
-                                aiAnswerTitle: processedAiAnswerTitle,
-                                aiAnswerSubtitle: ai_answer_sub_title,
-                                currentQuestionType: dataSource + '; ' + tissueKey + ' tissue'
-                            }));
-                        });
-                    }
+              let nextVariables;
+              if (
+                sourceTerm == "rs2402203" &&
+                targetTerm == "ENSG00000001626"
+              ) {
+                nextVariables = {
+                  snpId: "rs177069",
+                  leadSnp: "rs177069",
+                  geneId: "ENSG00000001626",
+                  dataSource: "splicing; GTEx",
+                  tissueKey: "pancreas",
+                  geneSymbol: "CFTR",
+                };
+              } else {
+                nextVariables = {
+                  snpId: fineMapEQTL["~start"],
+                  leadSnp: fineMapEQTL["~start"],
+                  geneId: fineMapEQTL["~end"],
+                  dataSource: fineMapEQTL["~properties"]["data_source"],
+                  tissueKey:
+                    fineMapEQTL["~properties"]["tissue_name"].toLowerCase(),
+                  geneSymbol: params.get("geneSymbol"),
+                };
+              }
 
-                    // 处理查询
-                }
+              let processedNextQuestions;
+              switch (nextVariables.dataSource) {
+                case "splicing; GTEx":
+                  processedNextQuestions =
+                    "How does the SNP " +
+                    nextVariables.snpId +
+                    " influence the splicing of " +
+                    nextVariables.geneSymbol +
+                    " (" +
+                    nextVariables.geneId +
+                    ") in pancreas, as reported by GTEx?";
+                  break;
+                case "GTEx; SusieR":
+                  processedNextQuestions =
+                    "How does the SNP " +
+                    nextVariables.snpId +
+                    " influence the expression of " +
+                    nextVariables.geneSymbol +
+                    " (" +
+                    nextVariables.geneId +
+                    ") in pancreas, as reported by GTEx?";
+                  break;
+                case "INSPIRE; SusieR":
+                  processedNextQuestions =
+                    "How does the SNP " +
+                    nextVariables.snpId +
+                    " influence the expression of " +
+                    nextVariables.geneSymbol +
+                    " (" +
+                    nextVariables.geneId +
+                    ") in islet tissue, as reported by INSPIRE?";
+                  break;
+                case "exon; InsPIRE":
+                  processedNextQuestions =
+                    "How does the SNP " +
+                    nextVariables.snpId +
+                    " influence the exon expression of " +
+                    nextVariables.geneSymbol +
+                    " (" +
+                    nextVariables.geneId +
+                    ") in islet tissue, as reported by INSPIRE?";
+                  break;
+                default:
+                  break;
+              }
+
+              const processedAiQuestions =
+                ai_question_for_result?.map((question) => {
+                  let processedQuestion = question;
+                  if (sourceTerm) {
+                    processedQuestion = processedQuestion.replace(
+                      /@snp_node@/g,
+                      getIdFromTerm(sourceTerm)
+                    );
+                  }
+                  if (targetTerm) {
+                    processedQuestion = processedQuestion.replace(
+                      /@gene_node@/g,
+                      getIdFromTerm(targetTerm)
+                    );
+                  }
+                  return processedQuestion;
+                }) || [];
+
+              const processedAiAnswerTitle = ai_answer_title
+                ?.replace(/@snp_node@/g, getIdFromTerm(sourceTerm))
+                ?.replace(/@gene_id@/g, getIdFromTerm(targetTerm));
+
+              // 更新 Redux store
+              dispatch(
+                setProcessedQuestion({
+                  currentQuestion: processedCurrentQuestion,
+                  nextQuestions: processedNextQuestions,
+                  aiQuestions: processedAiQuestions,
+                  aiAnswerTitle: processedAiAnswerTitle,
+                  aiAnswerSubtitle: ai_answer_sub_title,
+                  currentQuestionType:
+                    dataSource + "; " + tissueKey + " tissue",
+                })
+              );
             });
-        }
-    }, [dispatch]);
+          }
 
-    const { currentQuestion, nextQuestions, aiQuestions, aiAnswerTitle, aiAnswerSubtitle, currentQuestionType } = useSelector((state) => state.processedQuestion);
-    useEffect(() => {
-        function handleResize() {
-            setWindowWidth(window.innerWidth)
+          // 处理查询
         }
-        window.addEventListener('resize', handleResize);
-        return () => {
-            window.removeEventListener('resize', handleResize);
-        };
-    }, []);
+      });
+    }
+  }, [dispatch]);
 
-    useEffect(() => {
-        if (queryTypeToImageStatus === 'fulfilled') {
-            setImageLoading(false);
-        }
-    }, [queryTypeToImageStatus]);
-
-    const removeConsecutiveAsterisks = (text) => {
-        return text.replace(/\*\*/g, '');
+  const {
+    currentQuestion,
+    nextQuestions,
+    aiQuestions,
+    aiAnswerTitle,
+    aiAnswerSubtitle,
+    currentQuestionType,
+  } = useSelector((state) => state.processedQuestion);
+  useEffect(() => {
+    function handleResize() {
+      setWindowWidth(window.innerWidth);
+    }
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
     };
-    useEffect(() => {
-        if (queryResult.results?.length != 0 && queryResult.results?.[0]?.gene_node) {
-            const processedQuestions = aiQuestions.map(question => 
-                `${question} (answer the question in 50 words)`
-            );
-            console.log(processedQuestions);
-            dispatch(queryAiAnswer({
-                "question": processedQuestions, 
-                "graph": queryResult
-            })).unwrap();
-        }
-    }, [queryResult, currentQuestion, aiQuestions, dispatch]);
-    console.log(aiAnswer);
-    const answerText = `Currently <span style="color: #FFA500;">SNP rs73920612</span> is the eQTL of one gene: <span style="color: #FF69B4;">CENPO</span>
+  }, []);
+
+  useEffect(() => {
+    if (queryTypeToImageStatus === "fulfilled") {
+      setImageLoading(false);
+    }
+  }, [queryTypeToImageStatus]);
+
+  const removeConsecutiveAsterisks = (text) => {
+    return text.replace(/\*\*/g, "");
+  };
+  useEffect(() => {
+    if (
+      queryResult.results?.length != 0 &&
+      queryResult.results?.[0]?.gene_node
+    ) {
+      const processedQuestions = aiQuestions.map(
+        (question) => `${question} (answer the question in 50 words)`
+      );
+      console.log(processedQuestions);
+      dispatch(
+        queryAiAnswer({
+          question: processedQuestions,
+          graph: queryResult,
+        })
+      ).unwrap();
+    }
+  }, [queryResult, currentQuestion, aiQuestions, dispatch]);
+  console.log(aiAnswer);
+  const answerText = `Currently <span style="color: #FFA500;">SNP rs73920612</span> is the eQTL of one gene: <span style="color: #FF69B4;">CENPO</span>
 
 ✨ Gene overview:
 • <span style="color: #FF69B4;">CENPO</span> (Centromere Protein O) is a protein coding gene involved in key processes such as bipolar spindle assembly, chromosome segregation, and checkpoint signaling during mitosis. It is critical for maintaining chromosomal stability during cell division (<a href="https://pubmed.ncbi.nlm.nih.gov/36187159/" target="_blank" style="color: #8A2BE2;">PMID:36187159</a>).
@@ -390,427 +428,525 @@ function SearchResult() {
 
 This answer refers to the following resources in PanKbase:`;
 
-    const handleTypewriterComplete = () => {
-        setShowTable(true);
-    };
+  const handleTypewriterComplete = () => {
+    setShowTable(true);
+  };
 
-    const handleOpenModal = () => {
-        setModalOpen(true);
-        setImageLoading(true);
-        dispatch(queryImage({imageType: 'snp_p_values_plot'}));
-    };
-    
-    const handleCloseModal = () => setModalOpen(false);
+  const handleOpenModal = () => {
+    setModalOpen(true);
+    setImageLoading(true);
+    dispatch(queryImage({ imageType: "snp_p_values_plot" }));
+  };
 
-    const handleNextQuestionClick = (question) => {
-        // if (searchState.sourceTerm && searchState.relationship && searchState.targetTerm) {
-        //     dispatch(setNextQuestionClicked(true));
-        //     const currentState = store.getState();
-        //     const isUsingFallback = currentState.search.usingFallback;
-            
-        //     let queryParams = {
-        //         sourceTerm: searchState.sourceTerm,
-        //         relationship: searchState.relationship,
-        //         targetTerm: searchState.targetTerm,
-        //         targetTermSymbol: searchState.targetTermSymbol
-        //     };
+  const handleCloseModal = () => setModalOpen(false);
 
-        //     if (isUsingFallback) {
-        //         dispatch(setUsingFallback(false));
-        //     } else {
-        //         dispatch(setUsingFallback(true));
-        //         queryParams = {
-        //             sourceTerm: 'sequence_variant:rs17510162',
-        //             relationship: 'fine_mapped_eQTL',
-        //             targetTerm: 'gene:ENSG00000134242',
-        //             targetTermSymbol: 'ptpn22'
-        //         };
-        //     }
+  const handleNextQuestionClick = (question) => {
+    // if (searchState.sourceTerm && searchState.relationship && searchState.targetTerm) {
+    //     dispatch(setNextQuestionClicked(true));
+    //     const currentState = store.getState();
+    //     const isUsingFallback = currentState.search.usingFallback;
 
-        //     const processNextQuestion = async () => {
-        //         // 使用正则表达式来分割 sourceTerm 和 targetTerm
-        //         const getIdFromTerm = (term) => {
-        //             const match = term.match(/^[^:]+:(.+)$/);
-        //             return match ? match[1] : term;
-        //         };
+    //     let queryParams = {
+    //         sourceTerm: searchState.sourceTerm,
+    //         relationship: searchState.relationship,
+    //         targetTerm: searchState.targetTerm,
+    //         targetTermSymbol: searchState.targetTermSymbol
+    //     };
 
-        //         dispatch(setVariables({
-        //             snpId: getIdFromTerm(queryParams.sourceTerm),
-        //             leadSnp: getIdFromTerm(queryParams.sourceTerm),
-        //             geneId: getIdFromTerm(queryParams.targetTerm),
-        //             dataSource: 'GTEx; SusieR',
-        //             tissueKey: 'pancreatic',
-        //             geneSymbol: queryParams.targetTermSymbol
-        //         }));
+    //     if (isUsingFallback) {
+    //         dispatch(setUsingFallback(false));
+    //     } else {
+    //         dispatch(setUsingFallback(true));
+    //         queryParams = {
+    //             sourceTerm: 'sequence_variant:rs17510162',
+    //             relationship: 'fine_mapped_eQTL',
+    //             targetTerm: 'gene:ENSG00000134242',
+    //             targetTermSymbol: 'ptpn22'
+    //         };
+    //     }
 
-        //         await Promise.resolve();
-        //         const response = await dispatch(queryViewSchema(queryParams));
-                
-        //         if (response.payload && response.payload.cyper_for_result_page_all_nodes_specific) {
-        //             const query = response.payload.cyper_for_result_page_all_nodes_specific
-        //                 .replace(/@snp_node@/g, getIdFromTerm(queryParams.sourceTerm))
-        //                 .replace(/@gene_node@/g, getIdFromTerm(queryParams.targetTerm));
-                    
-        //             const updatedState = store.getState();
-        //             console.log('Variables after update:', updatedState.variables);
-                    
-        //             const processedCurrentQuestion = replaceVariables(
-        //                 response.payload.question_for_result, 
-        //                 updatedState.variables
-        //             );
+    //     const processNextQuestion = async () => {
+    //         // 使用正则表达式来分割 sourceTerm 和 targetTerm
+    //         const getIdFromTerm = (term) => {
+    //             const match = term.match(/^[^:]+:(.+)$/);
+    //             return match ? match[1] : term;
+    //         };
 
-        //             console.log(response.payload.question_for_result);
+    //         dispatch(setVariables({
+    //             snpId: getIdFromTerm(queryParams.sourceTerm),
+    //             leadSnp: getIdFromTerm(queryParams.sourceTerm),
+    //             geneId: getIdFromTerm(queryParams.targetTerm),
+    //             dataSource: 'GTEx; SusieR',
+    //             tissueKey: 'pancreatic',
+    //             geneSymbol: queryParams.targetTermSymbol
+    //         }));
 
-        //             const variables = {
-        //                 snpId: isUsingFallback ? 'rs17510162' : getIdFromTerm(searchState.sourceTerm),
-        //                 leadSnp: isUsingFallback ? 'rs17510162' : getIdFromTerm(searchState.sourceTerm),
-        //                 geneId: isUsingFallback ? 'ENSG00000134242' : getIdFromTerm(searchState.targetTerm),
-        //                 dataSource: 'GTEx; SusieR',
-        //                 tissueKey: 'pancreatic',
-        //                 geneSymbol: isUsingFallback ? 'ptpn22' : searchState.targetTermSymbol
-        //             };  
+    //         await Promise.resolve();
+    //         const response = await dispatch(queryViewSchema(queryParams));
 
-        //             const processedNextQuestions = response.payload.next_questions.map(q => 
-        //                 replaceVariables(q.question, variables)
-        //             );
+    //         if (response.payload && response.payload.cyper_for_result_page_all_nodes_specific) {
+    //             const query = response.payload.cyper_for_result_page_all_nodes_specific
+    //                 .replace(/@snp_node@/g, getIdFromTerm(queryParams.sourceTerm))
+    //                 .replace(/@gene_node@/g, getIdFromTerm(queryParams.targetTerm));
 
-        //             const processedAiQuestions = response.payload?.ai_question_for_result?.map(question => {
-        //                 let processedQuestion = question;
-        //                 if (queryParams.sourceTerm.split(':')[1]) {
-        //                     processedQuestion = processedQuestion.replace(
-        //                         /@snp_node@/g, 
-        //                         queryParams.sourceTerm.split(':')[1]
-        //                     );
-        //                 }
-        //                 if (queryParams.targetTerm.split(':')[1]) {
-        //                     processedQuestion = processedQuestion.replace(
-        //                         /@gene_node@/g, 
-        //                         queryParams.targetTerm.split(':')[1]
-        //                     );
-        //                 }
-        //                 return processedQuestion;
-        //             }) || [];
+    //             const updatedState = store.getState();
+    //             console.log('Variables after update:', updatedState.variables);
 
-        //             const processedAiAnswerTitle = response.payload?.ai_answer_title
-        //                 .replace(/@snp_node@/g, queryParams.sourceTerm.split(':')[1])
-        //                 .replace(/@gene_id@/g, queryParams.targetTerm.split(':')[1]);
-                    
-        //             dispatch(setProcessedQuestion({
-        //                 currentQuestion: processedCurrentQuestion,
-        //                 nextQuestions: processedNextQuestions,
-        //                 aiQuestions: processedAiQuestions,
-        //                 aiAnswerTitle: processedAiAnswerTitle,
-        //                 aiAnswerSubtitle: response.payload?.ai_answer_sub_title,
-        //                 currentQuestionType: currentQuestionType
-        //             }));
-                    
-        //             dispatch(queryQueryResult({ query }));
-        //             dispatch(queryQueryVisResult({ query }));
-        //         }
-        //     };
+    //             const processedCurrentQuestion = replaceVariables(
+    //                 response.payload.question_for_result,
+    //                 updatedState.variables
+    //             );
 
-        //     processNextQuestion();
-        // }
-        
-        const fineMapEQTL = queryResult.results[0].all_extend_rels.find(
-            rel => rel['~type'] === 'fine_mapped_eQTL'
-        );
-        const params = new URLSearchParams(window.location.search);
-        let nextVariables;
-        if (params.get('snpId') == 'rs2402203' && params.get('geneId') == 'ENSG00000001626') {
-            nextVariables = {
-                snpId: 'rs177069',
-                leadSnp: 'rs177069',
-                geneId: 'ENSG00000001626',
-                dataSource: 'splicing; GTEx',
-                tissueKey: 'pancreas',
-                geneSymbol: 'CFTR'
-            };
-        } else {
-            nextVariables = {
-                snpId: fineMapEQTL['~start'],
-                leadSnp: fineMapEQTL['~start'],
-                geneId: fineMapEQTL['~end'],
-                dataSource: fineMapEQTL['~properties']['data_source'],
-                tissueKey: fineMapEQTL['~properties']['tissue_name'].toLowerCase(),
-                geneSymbol: new URLSearchParams(window.location.search).get('geneSymbol')
-            };
-        }
-        const searchParams = new URLSearchParams({
-            snpId: nextVariables.snpId,
-            leadSnp: nextVariables.leadSnp,
-            geneId: nextVariables.geneId,
-            relationship: searchState.relationship,
-            tissueKey: nextVariables.tissueKey,
-            dataSource: nextVariables.dataSource,
-            geneSymbol: nextVariables.geneSymbol
-        });
-        window.location.href = `/result?${searchParams.toString()}`;
-    };
+    //             console.log(response.payload.question_for_result);
 
-    const handleExpandClick = () => {
-        setExpanded(!expanded);
-    };
+    //             const variables = {
+    //                 snpId: isUsingFallback ? 'rs17510162' : getIdFromTerm(searchState.sourceTerm),
+    //                 leadSnp: isUsingFallback ? 'rs17510162' : getIdFromTerm(searchState.sourceTerm),
+    //                 geneId: isUsingFallback ? 'ENSG00000134242' : getIdFromTerm(searchState.targetTerm),
+    //                 dataSource: 'GTEx; SusieR',
+    //                 tissueKey: 'pancreatic',
+    //                 geneSymbol: isUsingFallback ? 'ptpn22' : searchState.targetTermSymbol
+    //             };
 
-    // 如果正在加载答案或答案为空，显示加载状态
-    if (queryAiAnswerStatus === 'pending' || !aiAnswer?.answers) {
-        return (
-            <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                <CircularProgress />
-            </Container>
-        );
-    }
+    //             const processedNextQuestions = response.payload.next_questions.map(q =>
+    //                 replaceVariables(q.question, variables)
+    //             );
 
-    // 获取 URL 参数
-    const params = new URLSearchParams(window.location.search);
-    const geneId = params.get('geneId');
+    //             const processedAiQuestions = response.payload?.ai_question_for_result?.map(question => {
+    //                 let processedQuestion = question;
+    //                 if (queryParams.sourceTerm.split(':')[1]) {
+    //                     processedQuestion = processedQuestion.replace(
+    //                         /@snp_node@/g,
+    //                         queryParams.sourceTerm.split(':')[1]
+    //                     );
+    //                 }
+    //                 if (queryParams.targetTerm.split(':')[1]) {
+    //                     processedQuestion = processedQuestion.replace(
+    //                         /@gene_node@/g,
+    //                         queryParams.targetTerm.split(':')[1]
+    //                     );
+    //                 }
+    //                 return processedQuestion;
+    //             }) || [];
 
-    return (
-        <Container disableGutters maxWidth={false} sx={{
-            padding: 0, display: 'flex',
-            flexDirection: 'row', justifyContent: 'space-evenly',
-        }}>
-            {/*left*/}
-            <Box sx={{
-                // display: 'flex',
-                alignItems: 'center',
-                gap: 0,
-                width: 685,
-                marginTop: '50px'
-            }}>
-                <Typography sx={{ fontSize: 20, width: 685, textAlign: 'left', marginBottom: '10px' }}>
-                    Question
-                </Typography>
-                {/*test question block*/}
-                <Box sx={{ padding: '20px', backgroundColor: '#E4F0F1'}}>
-                    {currentQuestionType && (
-                        <Typography sx={{ fontSize: 14, textAlign: 'left' }}>
-                            (Your selection belongs to: {currentQuestionType})
-                        </Typography>
-                    )}
-                    <Typography
-                        sx={{
-                            flex: 1,
-                            textAlign: 'left',
-                            wordWrap: 'break-word',
-                            whiteSpace: 'normal',
-                            fontSize: 16,
-                            // fontWeight: 300
-                        }}
-                        dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }}
-                    />
-                </Box>
-                <Typography sx={{ fontWeight: 'bold', fontSize: 20, marginTop: '20px', marginBottom: '16px'
-                }}>
-                    AI' overview
-                </Typography>
-                <Box sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '32px',
-                    // width: 685,
-                    backgroundColor: '#FBFBFB',
-                    border: 1,
-                    borderColor: '#EEEEEE',
-                    padding: '20px',
-                    position: 'relative',
-                }}>
-                    <Typography component="div">
-                        {Array.isArray(aiAnswer?.answers) && aiAnswer.answers.map((answer, index) => (
-                            <div key={index} style={{ marginBottom: index < aiAnswer.answers.length - 1 ? '20px' : '0' }}>
-                                {aiAnswerSubtitle && aiAnswerSubtitle[index] && (
-                                    <Typography sx={{
-                                        textAlign: 'left',
-                                        gap: 1,
-                                        fontSize: '18px'
-                                    }}>
-                                        <span style={{ color: '#FFD700' }}>✨</span>
-                                        {aiAnswerSubtitle[index]}
-                                    </Typography>
-                                )}
-                                <Typography sx={{
-                                    textAlign: 'justify',
-                                    fontSize: '14px',
-                                    fontWeight: 100
-                                }}>
-                                    <span dangerouslySetInnerHTML={{ __html: removeConsecutiveAsterisks(answer) }} />
-                                </Typography>
-                                {/*{index < aiAnswer.answers.length - 1 && <Divider sx={{ my: 2 }} />}*/}
-                            </div>
-                        ))}
-                    </Typography>
+    //             const processedAiAnswerTitle = response.payload?.ai_answer_title
+    //                 .replace(/@snp_node@/g, queryParams.sourceTerm.split(':')[1])
+    //                 .replace(/@gene_id@/g, queryParams.targetTerm.split(':')[1]);
 
-                    {/*resource*/}
-                    <Box>
-                        <Box sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between'
-                        }}>
-                            <Typography sx={{ fontWeight: 500, fontSize: 20, textAlign: 'left' }}>
-                                <span>📎</span> Resources
-                            </Typography>
-                            <ExpandMore
-                                expand={expanded}
-                                onClick={handleExpandClick}
-                                aria-expanded={expanded}
-                                aria-label="show more"
-                            >
-                                <ExpandMoreIcon />
-                            </ExpandMore>
-                        </Box>
-                        <Collapse in={expanded} timeout="auto" unmountOnExit>
-                            <List sx={{ padding: '0px' }}>
-                                <ListItem sx={{ paddingY: '0px' }}>
-                                    • Link to PanKbase resources: <Link
-                                        href={process.env.REACT_APP_PANKGRAPH_LINK + '/qtldatasource'}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        sx={{
-                                            color: '#1976d2',
-                                            textDecoration: 'none',
-                                            textSize: '16px',
-                                            '&:hover': {
-                                                textDecoration: 'underline'
-                                            }
-                                        }}
-                                    >QTL Data Source</Link>
-                                </ListItem>
-                                <ListItem sx={{ paddingY: '0px' }}>
-                                    • Link to PanKbase resources: <Link
-                                    href={process.env.REACT_APP_PANKGRAPH_LINK + '/pipeline'}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    sx={{
-                                        color: '#1976d2',
-                                        textDecoration: 'none',
-                                        textSize: '16px',
-                                        '&:hover': {
-                                            textDecoration: 'underline'
-                                        }
-                                    }}
-                                >Pipeline</Link>
-                                </ListItem>
-                                <ListItem sx={{ paddingY: '0px' }}>
-                                    • Link to PanKbase resources:
-                                    <Link
-                                        href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        sx={{
-                                            color: '#1976d2',
-                                            textDecoration: 'none',
-                                            textSize: '16px',
-                                            '&:hover': {
-                                                textDecoration: 'underline'
-                                            }
-                                        }}
-                                    >
-                                        Integrated Cell Browser
-                                    </Link>
-                                </ListItem>
-                                <ListItem sx={{ paddingY: '0px' }}>
-                                    • Link to Ensembl: <Link
-                                        href={`https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneId}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        sx={{
-                                            color: '#1976d2',
-                                            textDecoration: 'none',
-                                            textSize: '16px',
-                                            '&:hover': {
-                                                textDecoration: 'underline'
-                                            }
-                                        }}
-                                    > {geneId}</Link>
-                                </ListItem>
-                            </List>
-                        </Collapse>
-                    </Box>
-                </Box>
-                {/*you may also ask*/}
-                <Typography sx={{fontWeight: 'bold', fontSize: 20, marginTop: '20px', marginBottom: '16px' }}>You may also ask</Typography>
-                <Box sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '32px',
-                    backgroundColor: '#FBFBFB',
-                    border: 1,
-                    borderColor: '#EEEEEE',
-                    padding: '20px',
-                    marginBottom: '44px'
-                    // position: 'relative'
-                }}>
-                    <ul className="next-questions-list">
-                        {nextQuestions ? (
-                            <li onClick={() => handleNextQuestionClick(nextQuestions)}
-                                style={{ cursor: 'pointer' }}>
-                                <Box sx={{
-                                    display: 'flex',
-                                }}>
-                                    <Typography sx={{
-                                        fontSize: 14,
-                                        fontFamily: 'Open Sans'
-                                    }} dangerouslySetInnerHTML={{ __html: nextQuestions }} />
-                                    <span style={{ alignContent: 'center' }}><ChevronRightIcon /></span>
-                                </Box>
-                            </li>
-                        ) : (
-                            <Typography sx={{ fontSize: 16 }}>No next questions available</Typography>
-                        )}
-                    </ul>
-                </Box>
-            </Box>
+    //             dispatch(setProcessedQuestion({
+    //                 currentQuestion: processedCurrentQuestion,
+    //                 nextQuestions: processedNextQuestions,
+    //                 aiQuestions: processedAiQuestions,
+    //                 aiAnswerTitle: processedAiAnswerTitle,
+    //                 aiAnswerSubtitle: response.payload?.ai_answer_sub_title,
+    //                 currentQuestionType: currentQuestionType
+    //             }));
 
-            {/*graph viewer, right*/}
-            <Box sx={{
-                width: 672,
-                display: 'flex',
-                flexDirection: 'column',
-                marginBottom: '44px',
-                marginTop: '30px'
-                // position: 'absolute',
-                // top: 100,
-                // left: windowWidth * 0.5 + 44
-            }}>
-                <SearchBar
-                    source={searchState.sourceTerm}
-                    target={searchState.targetTermSymbol}
-                    disabled={true}
-                    resultPageShown={true}
-                />
-                <Typography sx={{
-                    fontWeight: 'bold',
-                    fontSize: 20,
-                    marginTop: '20px',
-                    marginBottom: '16px'
-                }}>
-                    Graph viewer
-                </Typography>
-                <Box sx={{
-                    position: 'relative',
-                    minHeight: '472px',
-                    overflow: 'visible',
-                    backgroundColor: '#FBFBFB',
-                    border: 1,
-                    borderColor: '#EEEEEE',
-                    textAlign: 'left',
-                    marginBottom: '60px'
-                }}>
-                    <KnowledgeGraph />
-                </Box>
-                <Legend />
-            </Box>
+    //             dispatch(queryQueryResult({ query }));
+    //             dispatch(queryQueryVisResult({ query }));
+    //         }
+    //     };
 
-            <ImageModal
-                open={modalOpen}
-                handleClose={handleCloseModal}
-                loading={imageLoading}
-            >
-                <SNPPlotImage imageSrc={snpPlotImage} />
-            </ImageModal>
-        </Container>
+    //     processNextQuestion();
+    // }
+
+    const fineMapEQTL = queryResult.results[0].all_extend_rels.find(
+      (rel) => rel["~type"] === "fine_mapped_eQTL"
     );
+    const params = new URLSearchParams(window.location.search);
+    let nextVariables;
+    if (
+      params.get("snpId") == "rs2402203" &&
+      params.get("geneId") == "ENSG00000001626"
+    ) {
+      nextVariables = {
+        snpId: "rs177069",
+        leadSnp: "rs177069",
+        geneId: "ENSG00000001626",
+        dataSource: "splicing; GTEx",
+        tissueKey: "pancreas",
+        geneSymbol: "CFTR",
+      };
+    } else {
+      nextVariables = {
+        snpId: fineMapEQTL["~start"],
+        leadSnp: fineMapEQTL["~start"],
+        geneId: fineMapEQTL["~end"],
+        dataSource: fineMapEQTL["~properties"]["data_source"],
+        tissueKey: fineMapEQTL["~properties"]["tissue_name"].toLowerCase(),
+        geneSymbol: new URLSearchParams(window.location.search).get(
+          "geneSymbol"
+        ),
+      };
+    }
+    const searchParams = new URLSearchParams({
+      snpId: nextVariables.snpId,
+      leadSnp: nextVariables.leadSnp,
+      geneId: nextVariables.geneId,
+      relationship: searchState.relationship,
+      tissueKey: nextVariables.tissueKey,
+      dataSource: nextVariables.dataSource,
+      geneSymbol: nextVariables.geneSymbol,
+    });
+    window.location.href = `/result?${searchParams.toString()}`;
+  };
+
+  const handleExpandClick = () => {
+    setExpanded(!expanded);
+  };
+
+  // 如果正在加载答案或答案为空，显示加载状态
+  if (queryAiAnswerStatus === "pending" || !aiAnswer?.answers) {
+    return (
+      <Container
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <CircularProgress />
+      </Container>
+    );
+  }
+
+  // 获取 URL 参数
+  const params = new URLSearchParams(window.location.search);
+  const geneId = params.get("geneId");
+
+  return (
+    <Container
+      disableGutters
+      maxWidth={false}
+      sx={{
+        padding: 0,
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-evenly",
+      }}
+    >
+      {/*left*/}
+      <Box
+        sx={{
+          // display: 'flex',
+          alignItems: "center",
+          gap: 0,
+          width: 685,
+          marginTop: "50px",
+        }}
+      >
+        <Typography
+          sx={{
+            fontSize: 20,
+            width: 685,
+            textAlign: "left",
+            marginBottom: "10px",
+          }}
+        >
+          Question
+        </Typography>
+        {/*test question block*/}
+        <Box sx={{ padding: "20px", backgroundColor: "#E4F0F1" }}>
+          {currentQuestionType && (
+            <Typography sx={{ fontSize: 14, textAlign: "left" }}>
+              (Your selection belongs to: {currentQuestionType})
+            </Typography>
+          )}
+          <Typography
+            sx={{
+              flex: 1,
+              textAlign: "left",
+              wordWrap: "break-word",
+              whiteSpace: "normal",
+              fontSize: 16,
+              // fontWeight: 300
+            }}
+            dangerouslySetInnerHTML={{
+              __html: currentQuestion || "No question available",
+            }}
+          />
+        </Box>
+        <Typography
+          sx={{
+            fontWeight: "bold",
+            fontSize: 20,
+            marginTop: "20px",
+            marginBottom: "16px",
+          }}
+        >
+          AI' overview
+        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "32px",
+            // width: 685,
+            backgroundColor: "#FBFBFB",
+            border: 1,
+            borderColor: "#EEEEEE",
+            padding: "20px",
+            position: "relative",
+          }}
+        >
+          <Typography component="div">
+            {Array.isArray(aiAnswer?.answers) &&
+              aiAnswer.answers.map((answer, index) => (
+                <div
+                  key={index}
+                  style={{
+                    marginBottom:
+                      index < aiAnswer.answers.length - 1 ? "20px" : "0",
+                  }}
+                >
+                  {aiAnswerSubtitle && aiAnswerSubtitle[index] && (
+                    <Typography
+                      sx={{
+                        textAlign: "left",
+                        gap: 1,
+                        fontSize: "18px",
+                      }}
+                    >
+                      <span style={{ color: "#FFD700" }}>✨</span>
+                      {aiAnswerSubtitle[index]}
+                    </Typography>
+                  )}
+                  <Typography
+                    sx={{
+                      textAlign: "justify",
+                      fontSize: "14px",
+                      fontWeight: 100,
+                    }}
+                  >
+                    <span
+                      dangerouslySetInnerHTML={{
+                        __html: removeConsecutiveAsterisks(answer),
+                      }}
+                    />
+                  </Typography>
+                  {/*{index < aiAnswer.answers.length - 1 && <Divider sx={{ my: 2 }} />}*/}
+                </div>
+              ))}
+          </Typography>
+
+          {/*resource*/}
+          <Box>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <Typography
+                sx={{ fontWeight: 500, fontSize: 20, textAlign: "left" }}
+              >
+                <span>📎</span> Resources
+              </Typography>
+              <ExpandMore
+                expand={expanded}
+                onClick={handleExpandClick}
+                aria-expanded={expanded}
+                aria-label="show more"
+              >
+                <ExpandMoreIcon />
+              </ExpandMore>
+            </Box>
+            <Collapse in={expanded} timeout="auto" unmountOnExit>
+              <List sx={{ padding: "0px" }}>
+                <ListItem sx={{ paddingY: "0px" }}>
+                  • Link to PanKbase resources:{" "}
+                  <Link
+                    href={
+                      process.env.REACT_APP_PANKGRAPH_LINK + "/qtldatasource"
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{
+                      color: "#1976d2",
+                      textDecoration: "none",
+                      textSize: "16px",
+                      "&:hover": {
+                        textDecoration: "underline",
+                      },
+                    }}
+                  >
+                    QTL Data Source
+                  </Link>
+                </ListItem>
+                <ListItem sx={{ paddingY: "0px" }}>
+                  • Link to PanKbase resources:{" "}
+                  <Link
+                    href={process.env.REACT_APP_PANKGRAPH_LINK + "/pipeline"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{
+                      color: "#1976d2",
+                      textDecoration: "none",
+                      textSize: "16px",
+                      "&:hover": {
+                        textDecoration: "underline",
+                      },
+                    }}
+                  >
+                    Pipeline
+                  </Link>
+                </ListItem>
+                <ListItem sx={{ paddingY: "0px" }}>
+                  • Link to PanKbase resources:
+                  <Link
+                    href={
+                      process.env.REACT_APP_PANKBASE_LINK + "/single-cell.html"
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{
+                      color: "#1976d2",
+                      textDecoration: "none",
+                      textSize: "16px",
+                      "&:hover": {
+                        textDecoration: "underline",
+                      },
+                    }}
+                  >
+                    Integrated Cell Browser
+                  </Link>
+                </ListItem>
+                <ListItem sx={{ paddingY: "0px" }}>
+                  • Link to Ensembl:{" "}
+                  <Link
+                    href={`https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{
+                      color: "#1976d2",
+                      textDecoration: "none",
+                      textSize: "16px",
+                      "&:hover": {
+                        textDecoration: "underline",
+                      },
+                    }}
+                  >
+                    {" "}
+                    {geneId}
+                  </Link>
+                </ListItem>
+              </List>
+            </Collapse>
+          </Box>
+        </Box>
+        {/*you may also ask*/}
+        <Typography
+          sx={{
+            fontWeight: "bold",
+            fontSize: 20,
+            marginTop: "20px",
+            marginBottom: "16px",
+          }}
+        >
+          You may also ask
+        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "32px",
+            backgroundColor: "#FBFBFB",
+            border: 1,
+            borderColor: "#EEEEEE",
+            padding: "20px",
+            marginBottom: "44px",
+            // position: 'relative'
+          }}
+        >
+          <ul className="next-questions-list">
+            {nextQuestions ? (
+              <li
+                onClick={() => handleNextQuestionClick(nextQuestions)}
+                style={{ cursor: "pointer" }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontSize: 14,
+                      fontFamily: "Open Sans",
+                    }}
+                    dangerouslySetInnerHTML={{ __html: nextQuestions }}
+                  />
+                  <span style={{ alignContent: "center" }}>
+                    <ChevronRightIcon />
+                  </span>
+                </Box>
+              </li>
+            ) : (
+              <Typography sx={{ fontSize: 16 }}>
+                No next questions available
+              </Typography>
+            )}
+          </ul>
+        </Box>
+      </Box>
+
+      {/*graph viewer, right*/}
+      <Box
+        sx={{
+          width: 672,
+          display: "flex",
+          flexDirection: "column",
+          marginBottom: "44px",
+          marginTop: "30px",
+          // position: 'absolute',
+          // top: 100,
+          // left: windowWidth * 0.5 + 44
+        }}
+      >
+        <SearchBar
+          source={searchState.sourceTerm}
+          target={searchState.targetTermSymbol}
+          disabled={true}
+          resultPageShown={true}
+        />
+        <Typography
+          sx={{
+            fontWeight: "bold",
+            fontSize: 20,
+            marginTop: "20px",
+            marginBottom: "16px",
+          }}
+        >
+          Graph viewer
+        </Typography>
+        <Box
+          sx={{
+            position: "relative",
+            minHeight: "472px",
+            overflow: "visible",
+            backgroundColor: "#FBFBFB",
+            border: 1,
+            borderColor: "#EEEEEE",
+            textAlign: "left",
+            marginBottom: "60px",
+          }}
+        >
+          <KnowledgeGraph />
+         
+        </Box>
+      </Box>
+
+      <ImageModal
+        open={modalOpen}
+        handleClose={handleCloseModal}
+        loading={imageLoading}
+      >
+        <SNPPlotImage imageSrc={snpPlotImage} />
+      </ImageModal>
+    </Container>
+  );
 }
 
 export default SearchResult;
