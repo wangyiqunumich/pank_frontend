@@ -42,7 +42,7 @@
             "question": [
                 "Which {SNP} serves as the lead {QTL} for {gene@gene@}?"
             ],
-            "pattern_for_the_mathced_page": 
+            "pattern_for_the_matched_page": 
               "(SNP) - eqtl of -> (@gene@)"
               ,
             "cyper_for_intermediate_page": 
