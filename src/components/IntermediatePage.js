@@ -10,6 +10,7 @@ import {
   IconButton,
   Link,
   Paper,
+  Pagination,
   Tab,
   Table,
   TableBody,
@@ -17,6 +18,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TableFooter,
   Tabs,
   Typography,
 } from '@mui/material';
@@ -92,6 +94,7 @@ function IntermediatePage({ onContinue }) {
   const conversionTable = require('../utils/conversion_table.json');
 
   const [selectedTab, setSelectedTab] = useState('');
+  const [currPage, setCurrPage] = useState(1);
 
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [notification, setNotification] = useState(true);
@@ -114,7 +117,12 @@ function IntermediatePage({ onContinue }) {
   ];
 
   const handleTabChange = (event, newValue) => {
+    setCurrPage(1);
     setSelectedTab(newValue);
+  };
+
+  const handlePageChange = (event, newPage) => {
+    setCurrPage(newPage);
   };
 
   const processDataSources = () => {
@@ -157,7 +165,7 @@ function IntermediatePage({ onContinue }) {
       if (!result?.credible_sets) return;
 
       const uniqueCredibleSets = Array.from(
-        new Map(result.credible_sets.map(item => [item.id, item])).values()
+        new Map(result.credible_sets.map(item => [item.credible_set_id, item])).values()
       );
 
       uniqueCredibleSets.forEach(cs => {
@@ -221,7 +229,7 @@ function IntermediatePage({ onContinue }) {
       searchState.targetTerm,
       searchState.targetTermSymbol,
       false,  // isNextQuestion
-      false   // addStyle
+      true   // addStyle
     )
     : 'Loading...';
 
@@ -392,10 +400,10 @@ function IntermediatePage({ onContinue }) {
         prefix = 'D';
         break;
       default:
-        return credibleSet.id;
+        return credibleSet.credible_set_id;
     }
 
-    const setNumber = credibleSet.id.split('_').pop().slice(11);
+    const setNumber = credibleSet.credible_set_id.split('_').pop().slice(11);
     return `CredibleSet_${prefix}${setNumber}`;
   };
 
@@ -409,7 +417,7 @@ function IntermediatePage({ onContinue }) {
 
     // 首先根据 id 去重
     const uniqueCredibleSets = Array.from(
-      new Map(allCredibleSets.map(item => [item.id, item])).values()
+      new Map(allCredibleSets.map(item => [item.credible_set_id, item])).values()
     );
 
     // 然后根据选中的 tab 进行筛选
@@ -586,7 +594,7 @@ function IntermediatePage({ onContinue }) {
     {/* 问题显示区域 */}
     <Grid container spacing={2} height={"100%"} sx={{ alignItems: "stretch" }}>
       <Grid item xs={12} height={"100%"}>
-        <Box sx={{ padding: '20px', backgroundColor: '#E4F0F1', marginTop: '60px', borderRadius: '20px' }}>
+        <Box sx={{ padding: '20px', backgroundColor: '#F2FAFB', marginTop: '60px', borderRadius: '20px' }}>
           <Box sx={{ width: "100%", justifyContent: "space-between", display: "flex", alignItems: "center" }}>
             <Typography sx={{ fontSize: '20px', textAlign: 'left', marginBottom: '10px', fontWeight: 600 }}>
               Question<TooltipComponent title="Question" content="User's question." />
@@ -600,6 +608,7 @@ function IntermediatePage({ onContinue }) {
             sx={{
               textAlign: 'left',
               fontSize: 16,
+              fontWeight: 600,
             }}
             dangerouslySetInnerHTML={{ __html: processedQuestion }}
           />
@@ -644,7 +653,7 @@ function IntermediatePage({ onContinue }) {
       )}
 
       {/* left side */}
-      <Grid item xs={6} height={"700px"} display="flex">
+      <Grid item xs={6} display="flex">
         <Box sx={{
           width: "100%",
           display: 'flex',
@@ -676,7 +685,7 @@ function IntermediatePage({ onContinue }) {
             <div className="styled-paper">
               <div className="answer-content">
                 <Typography sx={{ mb: 2, fontSize: 14 }}>
-                  Found four categories of Quantitative Trait Loci (QTL) data, derived from pancreatic and islet tissue samples.
+                  Found <span style={{ color: "#3A838B", fontWeight: "700" }}>four</span> categories of Quantitative Trait Loci (QTL) data, derived from pancreatic and islet tissue samples.
                 </Typography>
 
                 <Alert
@@ -737,7 +746,7 @@ function IntermediatePage({ onContinue }) {
                   {getTabOptions().map((option) => (
                     <Tab
                       sx={{
-                        backgroundColor: selectedTab === option.label ? '#E4F0F1' : 'none'
+                        backgroundColor: 'none'
                       }}
                       key={option.label}
                       label={
@@ -745,8 +754,10 @@ function IntermediatePage({ onContinue }) {
                           component="span"
                           sx={{
                             textAlign: 'left',
+                            fontFamily: 'Inter',
                             fontSize: '14px',
-                            color: 'black'
+                            color: selectedTab === option.label ? '#3A838B' : 'black',
+                            fontWeight: selectedTab === option.label ? '700' : '500',
                             // lineHeight: 1.2,
                             // wordWrap: 'break-word'
                           }}
@@ -775,7 +786,7 @@ function IntermediatePage({ onContinue }) {
                       <TableRow>
                         <TableCell sx={{
                           fontWeight: 'bold',
-                          padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px',
+                          padding: '16px',
                           alignItems: 'center',
                           // display: 'flex',
                           justifyContent: 'center',
@@ -798,7 +809,7 @@ function IntermediatePage({ onContinue }) {
                         </TableCell>
                         <TableCell sx={{
                           fontWeight: 'bold',
-                          padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 8px',
+                          padding: '16px 8px',
                           alignItems: 'center',
                           // display: 'flex',
                           justifyContent: 'center',
@@ -821,7 +832,7 @@ function IntermediatePage({ onContinue }) {
                         </TableCell>
                         <TableCell sx={{
                           fontWeight: 'bold',
-                          padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 8px',
+                          padding: '16px 8px',
                           alignItems: 'center',
                           // display: 'flex',
                           width: 'fit-content'
@@ -843,7 +854,7 @@ function IntermediatePage({ onContinue }) {
                         </TableCell>
                         <TableCell sx={{
                           fontWeight: 'bold',
-                          padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 8px',
+                          padding: '16px 8px',
                           alignItems: 'center',
                           // display: 'flex',
                           width: 'fit-content'
@@ -865,7 +876,7 @@ function IntermediatePage({ onContinue }) {
                         </TableCell>
                         <TableCell sx={{
                           fontWeight: 'bold',
-                          padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 8px',
+                          padding: '16px 8px',
                           width: 'fit-content',
                         }}
                         >
@@ -886,7 +897,7 @@ function IntermediatePage({ onContinue }) {
                         </TableCell>
                         <TableCell sx={{
                           fontWeight: 'bold',
-                          padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px 8px',
+                          padding: '16px 8px',
                           alignItems: 'center',
                           // display: 'flex',
                           width: 'fit-content'
@@ -909,71 +920,103 @@ function IntermediatePage({ onContinue }) {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {getFilteredCredibleSets().map((item, index) => (
-                        <TableRow
-                          key={`credible-set-${index}`}
-                          onClick={() => handleSNPClick(
-                            item.lead_SNP,
-                            item.data_source,
-                            item.lead_SNP
-                          )}
-                          sx={{
-                            cursor: 'pointer',
-                            '& .MuiTableCell-root': {
-                              padding: getFilteredCredibleSets().length > 8 ? '8px' : '16px'
-                            },
-                            ":hover": {
-                              backgroundColor: "#E4F0F1",
-                            }
-                          }}
-                        >
-                          <TableCell sx={{ verticalAlign: 'middle' }}>
-                            <Link
-                              component="button"
-                              variant="body2"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleSNPClick(
-                                  item.lead_SNP,
-                                  item.data_source,
-                                  item.lead_SNP
-                                );
-                              }}
+                      {getFilteredCredibleSets()
+                        .concat(Array(5).fill({})) // Fill with empty objects to ensure at least 5 rows
+                        .slice((currPage - 1) * 5, currPage * 5)
+                        .map((item, index) => (
+                          Object.keys(item).length === 0 ? (
+                            <TableRow key={`empty-row-${index}`} sx={{
+                              '& .MuiTableCell-root': {
+                                padding: '16.25px'
+                              }
+                            }}>
+                              <TableCell colSpan={6} sx={{ textAlign: 'center', padding: '16px' }}>
+                                <Typography sx={{ fontSize: '19px', color: '#B0B0B0' }}>
+                                  &nbsp;
+                                </Typography>
+                              </TableCell>
+                            </TableRow>
+                          ) : (
+                            <TableRow
+                              key={`credible-set-${index}`}
+                              onClick={() => handleSNPClick(
+                                item.lead_SNP,
+                                item.data_source,
+                                item.lead_SNP
+                              )}
                               sx={{
-                                textAlign: 'left', display: 'block', padding: '4px', color: 'black',
-                                textDecoration: 'none',
-                                hover: {
-                                  textDecoration: 'none',
-                                  color: 'black'
+                                cursor: 'pointer',
+                                '& .MuiTableCell-root': {
+                                  padding: '16px'
+                                },
+                                ":hover": {
+                                  backgroundColor: "#E4F0F1",
                                 }
                               }}
                             >
-                              {item.displayLabel?.replace('_', ' ')}
-                            </Link>
-                          </TableCell>
-                          <TableCell sx={{ verticalAlign: 'middle' }}>{item.purity?.toFixed(2) || '-'}</TableCell>
-                          <TableCell sx={{ verticalAlign: 'middle' }}>{item.lead_SNP}</TableCell>
-                          <TableCell sx={{ verticalAlign: 'middle' }}>{item.pip?.toFixed(2) || '-'}</TableCell>
-                          <TableCell sx={{ verticalAlign: 'middle' }}>{item.n_snp || '-'}</TableCell>
-                          <TableCell sx={{ verticalAlign: 'middle' }}>
-                            <Typography sx={{
-                              fontSize: '14px', padding: '4px', backgroundColor: '#219197',
-                              textAlign: 'center', borderRadius: '8px', color: 'white',
-                            }}>Click for more</Typography>
-                            {/*<Link */}
-                            {/*  component="button" */}
-                            {/*  variant="body2" */}
-                            {/*  onClick={(e) => {*/}
-                            {/*    e.stopPropagation();*/}
-                            {/*    handleDownload(item);*/}
-                            {/*  }}*/}
-                            {/*>*/}
-                            {/*  Link*/}
-                            {/*</Link>*/}
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                              <TableCell sx={{ verticalAlign: 'middle' }}>
+                                <Link
+                                  component="button"
+                                  variant="body2"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleSNPClick(
+                                      item.lead_SNP,
+                                      item.data_source,
+                                      item.lead_SNP
+                                    );
+                                  }}
+                                  sx={{
+                                    textAlign: 'left', display: 'block', padding: '4px', color: 'black',
+                                    textDecoration: 'none',
+                                    hover: {
+                                      textDecoration: 'none',
+                                      color: 'black'
+                                    }
+                                  }}
+                                >
+                                  {item.displayLabel?.replace('_', ' ')}
+                                </Link>
+                              </TableCell>
+                              <TableCell sx={{ verticalAlign: 'middle' }}>{item.purity?.toFixed(2) || '-'}</TableCell>
+                              <TableCell sx={{ verticalAlign: 'middle' }}>{item.snp}</TableCell>
+                              <TableCell sx={{ verticalAlign: 'middle' }}>{item.pip?.toFixed(2) || '-'}</TableCell>
+                              <TableCell sx={{ verticalAlign: 'middle' }}>{item.n_snp || '-'}</TableCell>
+                              <TableCell sx={{ verticalAlign: 'middle' }}>
+                                <Typography sx={{
+                                  fontSize: '14px', padding: '4px', backgroundColor: '#219197',
+                                  textAlign: 'center', borderRadius: '8px', color: 'white',
+                                }}>Click for more</Typography>
+                                {/*<Link */}
+                                {/*  component="button" */}
+                                {/*  variant="body2" */}
+                                {/*  onClick={(e) => {*/}
+                                {/*    e.stopPropagation();*/}
+                                {/*    handleDownload(item);*/}
+                                {/*  }}*/}
+                                {/*>*/}
+                                {/*  Link*/}
+                                {/*</Link>*/}
+                              </TableCell>
+                            </TableRow>
+                          )
+                        ))}
                     </TableBody>
+                    <TableFooter>
+                      <TableRow>
+                        <TableCell colSpan={6} align="center" sx={{ padding: '6px 16px' }}>
+                          <Pagination
+                            count={Math.ceil(getFilteredCredibleSets().length / 5)}
+                            page={currPage}
+                            onChange={handlePageChange}
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'center',
+                            }}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    </TableFooter>
                   </Table>
                 </TableContainer>
               </div>
@@ -983,7 +1026,7 @@ function IntermediatePage({ onContinue }) {
       </Grid>
 
       {/* right侧知识图谱区域 */}
-      <Grid item xs={6} height={"700px"} display="flex">
+      <Grid item xs={6} display="flex">
         <Box sx={{
           width: "100%",
           display: 'flex',
@@ -1010,7 +1053,7 @@ function IntermediatePage({ onContinue }) {
             }}>
               Graph viewer<TooltipComponent title="Graph viewer" content="Graph viewer." />
             </Typography>
-            <IntermediateKG />
+            {/* <IntermediateKG /> */}
           </Box>
 
           {/* Legend */}

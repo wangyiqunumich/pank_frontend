@@ -14,7 +14,7 @@ export const queryQueryResult = createAsyncThunk('/openCypherToQueryResult',
             })
             .then((response) => response.data)
             .catch((response) => {
-                console.log("qqr: ", response);
+                console.log(response);
             });
     }
 );
