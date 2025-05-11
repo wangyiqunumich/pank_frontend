@@ -1,11 +1,12 @@
-import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
-import {flaskBackendAxiosInstance} from "../axios/axios";
-import {QueryStatus} from "@reduxjs/toolkit/query";
-import {viewSchemaSlice} from "./viewSchemaSlice";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { flaskBackendAxiosInstance, flaskBackendAxiosInstanceNew } from "../axios/axios";
+import { QueryStatus } from "@reduxjs/toolkit/query";
+import { viewSchemaSlice } from "./viewSchemaSlice";
+import axios from "axios";
 
 export const queryQueryResult = createAsyncThunk('/openCypherToQueryResult',
     async (payload) => {
-        return await flaskBackendAxiosInstance
+        return await flaskBackendAxiosInstanceNew
             .post('/openCypherToQueryResult', payload, {
                 headers: {
                     "Content-Type": "application/json"
@@ -21,7 +22,7 @@ export const queryQueryResult = createAsyncThunk('/openCypherToQueryResult',
 export const queryResultSlice = createSlice({
     name: 'queryResult',
     initialState: {
-        queryResult: {123: 123},
+        queryResult: { 123: 123 },
         queryQueryResultStatus: QueryStatus.uninitialized, // This is auto updated
         queryQueryResultErrorMessage: ''
     },
