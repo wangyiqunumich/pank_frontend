@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Container, Typography, IconButton, Box, Grid, List, ListItem, Link, CircularProgress, Collapse } from '@mui/material';
+import { Container, Typography, IconButton, Box, Grid, List, ListItem, Link, Tab, Tabs, CircularProgress, Collapse } from '@mui/material';
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import { useSelector, useDispatch } from 'react-redux';
 import './scoped.css';
@@ -218,6 +218,7 @@ function SearchResult() {
     const [imageLoading, setImageLoading] = useState(true);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     const [expanded, setExpanded] = useState(false);
+    const [currTab, setCurrTab] = useState('reference');
     const dispatch = useDispatch();
 
     // 从 viewSchema 中获取数据
@@ -618,12 +619,19 @@ This answer refers to the following resources in PanKbase:`;
             flexGrow: 1,
         }} disableGutters maxWidth={false}>
             {/*test question block*/}
-            <Grid container spacing={4} height={"100%"} sx={{ alignItems: "stretch" }}>
-                <Grid item xs={12} height={"100%"}>
-                    <Box sx={{ padding: '20px', backgroundColor: '#E4F0F1', marginBottom: '20px', marginTop: '60px', borderRadius: '20px' }}>
-                        <Typography sx={{ fontWeight: 700, fontSize: 20, width: 685, textAlign: 'left', marginBottom: '10px' }}>
-                            Question <TooltipComponent title="Question" content="The question of the current search result." />
-                        </Typography>
+
+            <Box sx={{ padding: '20px', backgroundColor: '#E4F0F1', marginBottom: '20px', marginTop: '60px', borderRadius: '20px' }}>
+                <Grid container spacing={4} height={"100%"} sx={{ alignItems: "stretch" }}>
+                    <Grid item xs={6} height={"100%"}>
+                        <Box sx={{ width: "100%", justifyContent: "space-between", display: "flex", alignItems: "center" }}>
+                            <Typography sx={{ fontWeight: 600, fontSize: 20, width: 685, textAlign: 'left', marginBottom: '10px' }}>
+                                Question <TooltipComponent title="Question" content="The question of the current search result." />
+                            </Typography>
+                            {/*a link*/}
+                            <a href={"/"} style={{ color: "#398289", textUnderlineOffset: "3px", fontSize: "16px", marginBottom: "20px" }}>
+                                CANCEL
+                            </a>
+                        </Box>
                         {currentQuestionType && (
                             <Typography sx={{ fontSize: 14, textAlign: 'left' }}>
                                 (Your selection belongs to: {currentQuestionType})
@@ -640,9 +648,34 @@ This answer refers to the following resources in PanKbase:`;
                             }}
                             dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }}
                         />
-                    </Box>
+
+                    </Grid>
+                    <Grid item xs={6} height={"100%"}>
+                        {/*you may also ask*/}
+                        <Typography sx={{ fontWeight: 600, fontSize: 20, width: 685, textAlign: 'left', marginBottom: '10px' }}>
+                            You May Also Ask<TooltipComponent title="You May Also Ask" content="Links to other problems." />
+                        </Typography>
+                        <ul className="next-questions-list">
+                            {nextQuestions ? (
+                                <li onClick={() => handleNextQuestionClick(nextQuestions)}
+                                    style={{ cursor: 'pointer' }}>
+                                    <Box sx={{
+                                        display: 'flex',
+                                    }}>
+                                        <Typography sx={{
+                                            fontSize: 14,
+                                            fontFamily: 'Open Sans'
+                                        }} dangerouslySetInnerHTML={{ __html: nextQuestions }} />
+                                        <span style={{ alignContent: 'center' }}><ChevronRightIcon /></span>
+                                    </Box>
+                                </li>
+                            ) : (
+                                <Typography sx={{ fontSize: 16 }}>No next questions available</Typography>
+                            )}
+                        </ul>
+                    </Grid>
                 </Grid>
-            </Grid>
+            </Box>
             <Grid container spacing={4} height={"100%"} sx={{
                 alignItems: "stretch", marginBottom: '20px', marginTop: '-20px'
             }}>
@@ -779,28 +812,7 @@ This answer refers to the following resources in PanKbase:`;
                             </Collapse>
                             </Box> */}
 
-                        {/*you may also ask*/}
-                        <Typography sx={{ fontWeight: 'bold', fontSize: 20, marginTop: '20px', marginBottom: '16px' }}>
-                            You May Also Ask<TooltipComponent title="You May Also Ask" content="Links to other problems." />
-                        </Typography>
-                        <ul className="next-questions-list">
-                            {nextQuestions ? (
-                                <li onClick={() => handleNextQuestionClick(nextQuestions)}
-                                    style={{ cursor: 'pointer' }}>
-                                    <Box sx={{
-                                        display: 'flex',
-                                    }}>
-                                        <Typography sx={{
-                                            fontSize: 14,
-                                            fontFamily: 'Open Sans'
-                                        }} dangerouslySetInnerHTML={{ __html: nextQuestions }} />
-                                        <span style={{ alignContent: 'center' }}><ChevronRightIcon /></span>
-                                    </Box>
-                                </li>
-                            ) : (
-                                <Typography sx={{ fontSize: 16 }}>No next questions available</Typography>
-                            )}
-                        </ul>
+
                     </Box>
                 </Grid>
 
@@ -835,7 +847,7 @@ This answer refers to the following resources in PanKbase:`;
                             textAlign: 'left',
                             marginBottom: '60px'
                         }}>
-                            <KnowledgeGraph />
+                            {/* <KnowledgeGraph /> */}
                         </Box>
                     </Box>
                 </Grid>
@@ -848,7 +860,7 @@ This answer refers to the following resources in PanKbase:`;
                     <SNPPlotImage imageSrc={snpPlotImage} />
                 </ImageModal>
             </Grid>
-            <Typography sx={{
+            {/* <Typography sx={{
                 fontWeight: 'bold',
                 fontSize: 20
             }}>
@@ -890,7 +902,126 @@ This answer refers to the following resources in PanKbase:`;
                         'https://picsum.photos/id/1018/600/400',
                     ]
                 }]]} />
-            </Container>
+            </Container> */}
+            <Tabs
+                value={currTab}
+                onChange={(e, value) => setCurrTab(value)}
+                variant="scrollable"
+                scrollButtons={false}
+                sx={{
+                    minHeight: '30px',
+                    height: '30px',
+                    '& .MuiTab-root': {
+                        textTransform: 'none',
+                        fontSize: '16px',
+                        whiteSpace: 'normal',
+                        margin: '0px',
+                        '& .MuiTab-wrapper': {
+                            flexDirection: 'row',
+                            justifyContent: 'flex-start',
+                            alignItems: 'flex-start'
+                        }
+                    },
+                }}
+            >
+                {[
+                    { value: 'reference', label: 'Reference' },
+                    { value: 'visualization', label: 'Visualization' },
+                    { value: 'external_link', label: 'External Link' }
+                ].map((option) => (
+                    <Tab
+                        sx={{
+                            minHeight: '30px',
+                            height: '30px',
+                            backgroundColor: currTab === option.value ? 'none' : '#F2FAFB'
+                        }}
+                        key={option.value}
+                        label={
+                            <Typography
+                                component="span"
+                                sx={{
+                                    textAlign: 'left',
+                                    fontFamily: 'Inter',
+                                    fontSize: '14px',
+                                    color: currTab === option.value ? '#3A838B' : 'black',
+                                    fontWeight: '500',
+                                }}
+                            >
+                                {option.label}
+                            </Typography>
+                        }
+                        value={option.value}
+                    />))}
+            </Tabs>
+            <Box sx={{ padding: '20px', backgroundColor: '#E4F0F1', marginBottom: '20px', borderRadius: '0px 20px 20px 20px' }}>
+                {currTab === 'external_link' && (
+                    <List sx={{ padding: '0px' }}>
+                        <ListItem sx={{ paddingY: '0px' }}>
+                            • Link to PanKbase resources:&nbsp;<Link
+                                href={process.env.REACT_APP_PANKGRAPH_LINK + '/qtldatasource'}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                sx={{
+                                    color: '#1976d2',
+                                    textDecoration: 'none',
+                                    textSize: '16px',
+                                    '&:hover': {
+                                        textDecoration: 'underline'
+                                    }
+                                }}
+                            >QTL Data Source</Link>
+                        </ListItem>
+                        <ListItem sx={{ paddingY: '0px' }}>
+                            • Link to PanKbase resources:&nbsp;<Link
+                                href={process.env.REACT_APP_PANKGRAPH_LINK + '/pipeline'}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                sx={{
+                                    color: '#1976d2',
+                                    textDecoration: 'none',
+                                    textSize: '16px',
+                                    '&:hover': {
+                                        textDecoration: 'underline'
+                                    }
+                                }}
+                            >Pipeline</Link>
+                        </ListItem>
+                        <ListItem sx={{ paddingY: '0px' }}>
+                            • Link to PanKbase resources:&nbsp;
+                            <Link
+                                href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                sx={{
+                                    color: '#1976d2',
+                                    textDecoration: 'none',
+                                    textSize: '16px',
+                                    '&:hover': {
+                                        textDecoration: 'underline'
+                                    }
+                                }}
+                            >
+                                Integrated Cell Browser
+                            </Link>
+                        </ListItem>
+                        <ListItem sx={{ paddingY: '0px' }}>
+                            • Link to Ensembl:&nbsp;<Link
+                                href={`https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneId}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                sx={{
+                                    color: '#1976d2',
+                                    textDecoration: 'none',
+                                    textSize: '16px',
+                                    '&:hover': {
+                                        textDecoration: 'underline'
+                                    }
+                                }}
+                            > {geneId}</Link>
+                        </ListItem>
+                    </List>
+                )}
+            </Box>
         </Container>
     );
 }

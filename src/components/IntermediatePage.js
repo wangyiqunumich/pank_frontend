@@ -31,6 +31,7 @@ import InfoOutlineIcon from '@mui/icons-material/InfoOutlined';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import CloseIcon from '@mui/icons-material/Close';
+import DownloadIcon from '@mui/icons-material/Download';
 
 import NavBar from '../NavBar';
 import SearchBar from '../SearchBar';
@@ -43,6 +44,8 @@ import { queryViewSchema } from '../redux/viewSchemaSlice';
 import { setProcessedQuestion } from '../redux/processedQuestionSlice';
 import { setSearchTerms, setUsingFallback } from '../redux/searchSlice';
 import { setVariables } from '../redux/variablesSlice';
+
+import './styles.css'
 
 import {
   getDataSourceInfo,
@@ -68,7 +71,7 @@ const TooltipComponent = ({ title, content }) => (
     &nbsp;&nbsp;<HtmlTooltip
       title={
         <React.Fragment>
-          <Typography color="inherit">{title}</Typography>
+          <Typography color="inherit" sx={{ fontFamily: 'Open Sans' }}>{title}</Typography>
           {content}
         </React.Fragment>
       }
@@ -561,7 +564,7 @@ function IntermediatePage({ onContinue }) {
         height: '100vh',
         gap: 2
       }}>
-        <Typography variant="h6" color="error">
+        <Typography variant="h6" color="error" sx={{ fontFamily: 'Open Sans' }}>
           No data found. Please try another gene.
         </Typography>
         <Button
@@ -594,20 +597,23 @@ function IntermediatePage({ onContinue }) {
     {/* 问题显示区域 */}
     <Grid container spacing={2} height={"100%"} sx={{ alignItems: "stretch" }}>
       <Grid item xs={12} height={"100%"}>
-        <Box sx={{ padding: '20px', backgroundColor: '#F2FAFB', marginTop: '60px', borderRadius: '20px' }}>
+        <Box sx={{ padding: '32px', backgroundColor: '#F2FAFB', marginTop: '60px', borderRadius: '20px' }}>
           <Box sx={{ width: "100%", justifyContent: "space-between", display: "flex", alignItems: "center" }}>
-            <Typography sx={{ fontSize: '20px', textAlign: 'left', marginBottom: '10px', fontWeight: 600 }}>
+            <Typography sx={{ fontFamily: 'Open Sans', fontSize: '20px', textAlign: 'left', marginBottom: '10px', fontWeight: 600 }}>
               Question<TooltipComponent title="Question" content="User's question." />
             </Typography>
             {/*a link*/}
-            <a href={"/"} style={{ color: "#398289", textUnderlineOffset: "3px", fontSize: "16px", marginBottom: "20px" }}>
-              CANCEL
+            <a href={"/"} style={{ color: "#398289", textDecoration: "none" }}>
+              <Typography sx={{ color: "#398289", textDecoration: "underline", textUnderlineOffset: "3px", fontSize: "16px", marginBottom: "20px", fontWeight: 600 }}>
+                CANCEL
+              </Typography>
             </a>
           </Box>
           <Typography
             sx={{
+              fontFamily: 'Open Sans',
               textAlign: 'left',
-              fontSize: 16,
+              fontSize: 24,
               fontWeight: 600,
             }}
             dangerouslySetInnerHTML={{ __html: processedQuestion }}
@@ -633,7 +639,7 @@ function IntermediatePage({ onContinue }) {
               zIndex: 1000
             }}
           >
-            <Typography sx={{ color: '#D32F2F', marginBottom: 2 }}>
+            <Typography sx={{ fontFamily: 'Open Sans', color: '#D32F2F', marginBottom: 2 }}>
               No data found. Please refresh the page and try again.
             </Typography>
             <Button
@@ -672,8 +678,9 @@ function IntermediatePage({ onContinue }) {
             flex: 1,
           }}>
             <Typography sx={{
+              fontFamily: 'Open Sans',
               fontWeight: 800,
-              fontSize: 20,
+              fontSize: 22,
               paddingLeft: '30px', paddingTop: '30px'
               // position: 'absolute',
               // top: -44,
@@ -682,9 +689,9 @@ function IntermediatePage({ onContinue }) {
             }}>
               Result<TooltipComponent title="Result" content="Search result." />
             </Typography>
-            <div className="styled-paper">
+            <div className="styled-paper" style={{ padding: '10px 32px' }}>
               <div className="answer-content">
-                <Typography sx={{ mb: 2, fontSize: 14 }}>
+                <Typography sx={{ mb: 2, fontSize: 16, fontFamily: 'Open Sans' }}>
                   Found <span style={{ color: "#3A838B", fontWeight: "700" }}>four</span> categories of Quantitative Trait Loci (QTL) data, derived from pancreatic and islet tissue samples.
                 </Typography>
 
@@ -700,7 +707,11 @@ function IntermediatePage({ onContinue }) {
                     display: "flex",
                     alignItems: "center",
                     marginBottom: "10px",
+                    padding: "6px 12px",
                     display: notification ? 'flex' : 'none',
+                    fontSize: '15px',
+                    fontFamily: 'Open Sans',
+                    borderRadius: '8px',
                   }}
                   action={
                     <IconButton size="small" color="inherit" onClick={() => setNotification(false)}>
@@ -754,10 +765,10 @@ function IntermediatePage({ onContinue }) {
                           component="span"
                           sx={{
                             textAlign: 'left',
-                            fontFamily: 'Inter',
-                            fontSize: '14px',
+                            fontFamily: 'Open Sans',
+                            fontSize: '16px',
                             color: selectedTab === option.label ? '#3A838B' : 'black',
-                            fontWeight: selectedTab === option.label ? '700' : '500',
+                            fontWeight: selectedTab === option.label ? '800' : '500',
                             // lineHeight: 1.2,
                             // wordWrap: 'break-word'
                           }}
@@ -776,11 +787,13 @@ function IntermediatePage({ onContinue }) {
                   boxShadow: '0px 0px 0px 0px rgba(0,0,0,0.2)',
                   height: '100%',
                   maxHeight: '410px',
+                  borderRadius: '8px',
                 }}>
                   <Table
                     size={getFilteredCredibleSets().length > 0 ? "small" : "medium"}
                     // size={'small'}
                     stickyHeader={true}
+                    sx={{ minWidth: '600px' }}
                   >
                     <TableHead>
                       <TableRow>
@@ -800,7 +813,7 @@ function IntermediatePage({ onContinue }) {
                                 }
                               }
                             }}
-                            title={<Typography sx={{ fontSize: '14px' }}>
+                            title={<Typography sx={{ fontFamily: 'Open Sans', fontSize: '14px' }}>
                               Credible set represents a group of genetic variants within a genomic region associated with a trait, identified through statistical fine-mapping. Each variant in the set is assigned a posterior probability, indicating its likelihood of being linked to the observed trait, with the entire set typically capturing a predefined confidence level.
                             </Typography>
                             }>
@@ -824,7 +837,7 @@ function IntermediatePage({ onContinue }) {
                                 }
                               }
                             }}
-                            title={<Typography sx={{ fontSize: '14px' }}>
+                            title={<Typography sx={{ fontFamily: 'Open Sans', fontSize: '14px' }}>
                               Purity represents the proportion of the genetic association signal captured by the credible set; higher purity indicates higher confidence and quality of the set.
                             </Typography>}>
                             <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
@@ -846,7 +859,7 @@ function IntermediatePage({ onContinue }) {
                                 }
                               }
                             }}
-                            title={<Typography sx={{ fontSize: '14px' }}>
+                            title={<Typography sx={{ fontFamily: 'Open Sans', fontSize: '14px' }}>
                               Lead SNP refers to the genetic variant with the strongest association signal within the credible set, often considered the most likely causal variant.
                             </Typography>}>
                             <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
@@ -868,7 +881,7 @@ function IntermediatePage({ onContinue }) {
                                 }
                               }
                             }}
-                            title={<Typography sx={{ fontSize: '14px' }}>
+                            title={<Typography sx={{ fontFamily: 'Open Sans', fontSize: '14px' }}>
                               PIP (Posterior Inclusion Probability) quantifies the probability of a specific variant being the causal driver of the observed genetic signal; a higher PIP suggests greater confidence in causality.
                             </Typography>}>
                             <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
@@ -889,7 +902,7 @@ function IntermediatePage({ onContinue }) {
                                 }
                               }
                             }}
-                            title={<Typography sx={{ fontSize: '14px' }}>
+                            title={<Typography sx={{ fontFamily: 'Open Sans', fontSize: '14px' }}>
                               # (Number of Variants) indicates the total count of genetic variants included in the credible set, encompassing all variants contributing to the signal.
                             </Typography>}>
                             <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
@@ -911,7 +924,7 @@ function IntermediatePage({ onContinue }) {
                                 }
                               }
                             }}
-                            title={<Typography sx={{ fontSize: '14px' }}>
+                            title={<Typography sx={{ fontFamily: 'Open Sans', fontSize: '14px' }}>
                               TBD
                             </Typography>}>
                             <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
@@ -931,7 +944,7 @@ function IntermediatePage({ onContinue }) {
                               }
                             }}>
                               <TableCell colSpan={6} sx={{ textAlign: 'center', padding: '16px' }}>
-                                <Typography sx={{ fontSize: '19px', color: '#B0B0B0' }}>
+                                <Typography sx={{ fontFamily: 'Open Sans', fontSize: '19px', color: '#B0B0B0' }}>
                                   &nbsp;
                                 </Typography>
                               </TableCell>
@@ -940,9 +953,9 @@ function IntermediatePage({ onContinue }) {
                             <TableRow
                               key={`credible-set-${index}`}
                               onClick={() => handleSNPClick(
-                                item.lead_SNP,
+                                item.snp,
                                 item.data_source,
-                                item.lead_SNP
+                                item.snp
                               )}
                               sx={{
                                 cursor: 'pointer',
@@ -961,9 +974,9 @@ function IntermediatePage({ onContinue }) {
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleSNPClick(
-                                      item.lead_SNP,
+                                      item.snp,
                                       item.data_source,
-                                      item.lead_SNP
+                                      item.snp
                                     );
                                   }}
                                   sx={{
@@ -984,8 +997,10 @@ function IntermediatePage({ onContinue }) {
                               <TableCell sx={{ verticalAlign: 'middle' }}>{item.n_snp || '-'}</TableCell>
                               <TableCell sx={{ verticalAlign: 'middle' }}>
                                 <Typography sx={{
+                                  fontFamily: 'Open Sans',
                                   fontSize: '14px', padding: '4px', backgroundColor: '#219197',
                                   textAlign: 'center', borderRadius: '8px', color: 'white',
+                                  fontWeight: 700,
                                 }}>Click for more</Typography>
                                 {/*<Link */}
                                 {/*  component="button" */}
@@ -1020,6 +1035,18 @@ function IntermediatePage({ onContinue }) {
                   </Table>
                 </TableContainer>
               </div>
+              <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                <IconButton aria-label="download" sx={{ color: '#3A838B' }}>
+                  <DownloadIcon />
+                </IconButton>
+                <Typography sx={{
+                  fontFamily: 'Open Sans',
+                  fontWeight: 600,
+                  fontSize: 16,
+                }}>
+                  Total rows: {getTabOptions().map((option) => (option.count)).reduce((a, b) => a + b, 0)}
+                </Typography>
+              </Box>
             </div>
           </Box>
         </Box>
@@ -1047,8 +1074,9 @@ function IntermediatePage({ onContinue }) {
             borderRadius: '20px'
           }}>
             <Typography sx={{
+              fontFamily: 'Open Sans',
               fontWeight: 800,
-              fontSize: 20,
+              fontSize: 22,
               marginBottom: '16px', paddingLeft: '30px', paddingTop: '30px',
             }}>
               Graph viewer<TooltipComponent title="Graph viewer" content="Graph viewer." />
