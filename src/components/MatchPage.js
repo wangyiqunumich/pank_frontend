@@ -5,10 +5,17 @@ import SearchBar from '../SearchBar';
 import { useNavigate } from 'react-router-dom';
 import TerminalIcon from '@mui/icons-material/Terminal';
 import Question from './Question';
+import { useDispatch, useSelector } from 'react-redux';
+import { queryVocab } from '../redux/inputToVocabSlice'; // Import the action
+import axios from 'axios';
 
 function MatchPage() {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [selectedQuestion, setSelectedQuestion] = useState('');
+  const [visualPattern, setVisualPattern] = useState('');
+  const dispatch = useDispatch();
+
+
   const navigate = useNavigate();
   const [openSnackbar, setOpenSnackbar] = useState(true);
 
@@ -70,7 +77,7 @@ function MatchPage() {
         );
       } else if (part.startsWith('{') && part.endsWith('}')) {
         // Render dropdown for items enclosed in {}
-        const options = ['Option 1', 'Option 2', 'Option 3']; // Example dropdown options
+        const options = ['Option 1', 'Option 2', 'CFTR']; // Example dropdown options
         return (
           <Box key={index} sx={{ display: 'inline-flex', alignItems: 'center',marginLeft: '-8px' }} >
             <Select
@@ -134,6 +141,77 @@ function MatchPage() {
       }
     });
   };
+  // Function to fetch the gene pattern
+  const fetchGenePattern = async (question) => {
+    // Extract the gene name from the question
+    const geneNameMatch = question.match(/\{(.*?)\}/); // Match text inside {}
+    if (!geneNameMatch) {
+      console.error('Gene name not found in the question');
+      setVisualPattern('Gene name not found');
+      return;
+    }
+    const geneName = geneNameMatch[1]; // Extract the gene name
+
+    try {
+      // Make a request to the Amazon API Gateway to fetch the gene ID
+      const response = await axios.post('https://vcr7lwcrnh.execute-api.us-east-1.amazonaws.com/development/inputToVocab', 
+        { input: geneName }, 
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+      console.log(response.data); // Log the API response for debugging
+      // Extract the gene ID from the API response
+      const geneId = response.data; // Assuming the API returns { "gene_id": "some_id" }
+
+      if (!geneId) {
+        console.error('Gene ID not found for the given gene name');
+        setVisualPattern('Gene ID not found');
+        return;
+      }
+
+      // Construct the pattern
+      const pattern = `(SNP) - eqtl of -> (@${geneId.split('@')[1]}@)`;
+      setVisualPattern(pattern); // Update the state with the fetched pattern
+    } catch (error) {
+      console.error('Error fetching gene ID:', error.message);
+      setVisualPattern('Failed to fetch gene ID');
+    }
+  };
+
+  // Update the gene pattern whenever selectedQuestion changes
+  useEffect(() => {
+    if (selectedQuestion) {
+      fetchGenePattern(selectedQuestion);
+    }
+  }, [selectedQuestion]);
+
+  // useEffect(() => {
+  //   if (selectedQuestion) {
+  //     // Extract the gene name from the selected question
+  //     const geneNameMatch = selectedQuestion.match(/\{(.*?)\}/); // Match text inside {}
+  //     if (geneNameMatch) {
+  //       const geneName = geneNameMatch[1]; // Extract the gene name
+  
+  //       // Dispatch the queryVocab action to fetch the gene ID
+  //       dispatch(queryVocab(geneName))
+  //         .unwrap()
+  //         .then((response) => {
+  //           if (response.gene_id) {
+  //             // Construct the pattern using the fetched gene ID
+  //             const pattern = `(SNP) - eqtl of -> (@${response.gene_id}@)`;
+  //             setVisualPattern(pattern); // Update the state with the fetched pattern
+  //           } else {
+  //             setVisualPattern('Gene ID not found');
+  //           }
+  //         })
+  //         .catch((error) => {
+  //           console.error('Error fetching gene ID:', error.message);
+  //           setVisualPattern('Failed to fetch gene ID');
+  //         });
+  //     } else {
+  //       setVisualPattern('Gene name not found in the question');
+  //     }
+  //   }
+  // }, [selectedQuestion, dispatch]);
 
   return (
     <Container maxWidth={false} disableGutters sx={{
@@ -235,7 +313,7 @@ function MatchPage() {
         flexWrap: 'wrap',
         padding: 2,
       }}>
-        
+        {visualPattern}
       </Box>
         
       <Button
