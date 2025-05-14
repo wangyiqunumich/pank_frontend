@@ -5,7 +5,7 @@ export const nodeStyle = [
     style: {
       shape: "round-rectangle",
       "background-color": "#ABD0F1",
-      label: "data(HGNC_symbol)",
+      label: "data(name)",
       "font-size": "6px",
       "text-valign": "center",
       color: "#fff",
@@ -26,7 +26,7 @@ export const nodeStyle = [
       "background-opacity": 0,
       "border-width": 2,
       "border-color": "#ABD0F1",
-      label: "data(HGNC_symbol)",
+      label: "data(name)",
       "font-size": "6px",
       "text-valign": "center",
       color: "#333",
