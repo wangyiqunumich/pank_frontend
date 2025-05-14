@@ -43,7 +43,7 @@ export default function KnowledgeGraph() {
     cyRef.current && cyRef.current.zoom(cyRef.current.zoom() - 0.2);
 
   useEffect(() => {
-    const result = queryResultPage?.combined_query_result?.results[0];
+    const result = queryResultPage?.combined_query_result;
     const uniqueNodesMap = {};
     result.nodes.forEach((node) => (uniqueNodesMap[node["~id"]] = node));
     const nodes = Object.values(uniqueNodesMap).map((node) => {
@@ -78,7 +78,7 @@ export default function KnowledgeGraph() {
     });
 
     const uniqueEdgesMap = {};
-    result.edges.forEach((edge) => (uniqueEdgesMap[edge["~id"]] = edge));
+    result.edges.forEach((edge, index) => (uniqueEdgesMap[edge["~id"] || index.toString()] = edge));
     const edges = Object.values(uniqueEdgesMap).map((edge) => ({
       data: {
         id: edge["~id"],
@@ -175,7 +175,7 @@ export default function KnowledgeGraph() {
   }, [queryResultPage]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "16px", position: "relative", justifyContent: "flex-start" }}>
       <div
         id="cy-container"
         style={{
@@ -390,7 +390,7 @@ export default function KnowledgeGraph() {
           style={{
             position: "absolute",
             bottom: "20px",
-            right: "20px",
+            right: "0px",
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "center",
@@ -406,7 +406,6 @@ export default function KnowledgeGraph() {
               backgroundColor: "#ffffff",
               border: "none",
               borderRadius: "4px",
-
               cursor: "pointer",
             }}
           >
@@ -443,8 +442,8 @@ export default function KnowledgeGraph() {
         <div
           style={{
             position: "absolute",
-            bottom: 20,
-            left: 20,
+            bottom: "36px",
+            left: "20px",
             display: "flex",
             flexDirection: "column",
             gap: "12px",
