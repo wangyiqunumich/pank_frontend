@@ -221,9 +221,11 @@ function MatchPage() {
 
       {/* 左侧图片 */}
       <Box sx={{ 
-        width: '600px',
+        width: '50%',
+        padding: '2 auto',
+        display: 'block',
         '& img': {
-          width: '600px',
+          width: '100%',
           objectFit: 'contain'
         }
       }}>
@@ -240,15 +242,15 @@ function MatchPage() {
 
       {/* 右侧内容区域 */}
       <Box sx={{ 
-        width: 612,
-        backgroundColor: '#E4F0F1',
-        borderRadius: '20px',
+        width: '50%',
+        height: '100%',
         display: 'flex',
         flexDirection: 'column',
+        gap: 3,
+        margin: 2,
+        backgroundColor: '#E4F0F1',
+        borderRadius: '20px',
         padding:3,
-        gap: 2,
-        marginTop: 2,
-        marginBottom: 2
       }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
         <Typography sx={{ 
