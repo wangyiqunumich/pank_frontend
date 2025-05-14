@@ -64,9 +64,11 @@ function LandingPage() {
 
       {/* 左侧图片 */}
       <Box sx={{ 
-        width: '600px',
+        width: '50%',
+        display: 'block',
+        padding: '2 auto',
         '& img': {
-          width: '600px',
+          width: '100%',
           objectFit: 'contain'
         }
       }}>
@@ -83,15 +85,13 @@ function LandingPage() {
 
       {/* 右侧内容区域 */}
       <Box sx={{ 
-        width: 672,
+        width: '50%',
+        height: '100%',
         display: 'flex',
         flexDirection: 'column',
         gap: 3,
+        margin: 2,
       }}>
-
-        <Typography sx={{ fontSize: 22, textAlign: 'left', zIndex: -1 }}>
-          Explore T1D knowledge and resources with the knowledge graph
-        </Typography>
         
         {/* 更新 Question 组件，传入 setSelectedQuestion */}
         <Question 
@@ -99,16 +99,16 @@ function LandingPage() {
           setSelectedQuestion={setSelectedQuestion}
         />
         
-        {/* SearchBar 组件 */}
+        {/* SearchBar 组件
         <SearchBar 
           onTargetTermChange={handleTargetTermChange}
           question={selectedQuestion}
-        />
-        <Link href={process.env.REACT_APP_PANKGRAPH_LINK + '/result?snpId=rs2402203&leadSnp=rs2402203&geneId=ENSG00000001626&relationship=fine_mapped_eQTL&tissueKey=pancreas&dataSource=splicing%3B+GTEx&geneSymbol=CFTR'}
+        /> */}
+        {/* <Link href={process.env.REACT_APP_PANKGRAPH_LINK + '/result?snpId=rs2402203&leadSnp=rs2402203&geneId=ENSG00000001626&relationship=fine_mapped_eQTL&tissueKey=pancreas&dataSource=splicing%3B+GTEx&geneSymbol=CFTR'}
               sx={{ textDecoration: 'underline', color: 'black', fontSize: '14px' }}
         >
           Example query: How does the SNP rs2402203 influence the splicing of CFTR (ENSG00000001626) in pancreas, as reported by GTEx?
-        </Link>
+        </Link> */}
       </Box>
     </Container>
   );
