@@ -94,7 +94,7 @@ function IntermediatePage({ onContinue }) {
 
   const { viewSchema } = useSelector((state) => state.viewSchema);
   const { queryResult } = useSelector((state) => state.queryResult);
-  const conversionTable = require('../utils/conversion_table.json');
+  const conversionTable = require("../utils/conversion_table.json");
 
   const [selectedTab, setSelectedTab] = useState('');
   const [currPage, setCurrPage] = useState(1);
@@ -104,19 +104,19 @@ function IntermediatePage({ onContinue }) {
 
   useEffect(() => {
     function handleResize() {
-      setWindowWidth(window.innerWidth)
+      setWindowWidth(window.innerWidth);
     }
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
     return (_) => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   });
 
   const tabOptions = [
-    'Pancreatic eQTL',
-    'Islet eQTL',
-    'Pancreatic splicing QTL',
-    'Islet Exon QTL'
+    "Pancreatic eQTL",
+    "Islet eQTL",
+    "Pancreatic splicing QTL",
+    "Islet Exon QTL",
   ];
 
   const handleTabChange = (event, newValue) => {
@@ -129,37 +129,37 @@ function IntermediatePage({ onContinue }) {
   };
 
   const processDataSources = () => {
-    console.log('Query Result:', JSON.stringify(queryResult, null, 2));
+    console.log("Query Result:", JSON.stringify(queryResult, null, 2));
     if (!queryResult?.results || queryResult.results.length === 0) {
       return {
-        'Pancreatic': {
-          'eQTL GTEx': 0,
-          'eQTL InsPIRE': 0,
-          'Splicing QTL GTEx': 0,
-          'Exon QTL InsPIRE': 0
+        Pancreatic: {
+          "eQTL GTEx": 0,
+          "eQTL InsPIRE": 0,
+          "Splicing QTL GTEx": 0,
+          "Exon QTL InsPIRE": 0,
         },
-        'Islet': {
-          'eQTL GTEx': 0,
-          'eQTL InsPIRE': 0,
-          'Splicing QTL GTEx': 0,
-          'Exon QTL InsPIRE': 0
-        }
+        Islet: {
+          "eQTL GTEx": 0,
+          "eQTL InsPIRE": 0,
+          "Splicing QTL GTEx": 0,
+          "Exon QTL InsPIRE": 0,
+        },
       };
     }
 
     const counts = {
-      'Pancreatic': {
-        'eQTL GTEx': 0,
-        'eQTL InsPIRE': 0,
-        'Splicing QTL GTEx': 0,
-        'Exon QTL InsPIRE': 0
+      Pancreatic: {
+        "eQTL GTEx": 0,
+        "eQTL InsPIRE": 0,
+        "Splicing QTL GTEx": 0,
+        "Exon QTL InsPIRE": 0,
       },
-      'Islet': {
-        'eQTL GTEx': 0,
-        'eQTL InsPIRE': 0,
-        'Splicing QTL GTEx': 0,
-        'Exon QTL InsPIRE': 0
-      }
+      Islet: {
+        "eQTL GTEx": 0,
+        "eQTL InsPIRE": 0,
+        "Splicing QTL GTEx": 0,
+        "Exon QTL InsPIRE": 0,
+      },
     };
 
     const results = queryResult.results;
@@ -167,21 +167,23 @@ function IntermediatePage({ onContinue }) {
     results.forEach(result => {
       if (!result?.credible_sets) return;
 
+
       const uniqueCredibleSets = Array.from(
         new Map(result.credible_sets.map(item => [item.credible_set_id, item])).values()
       );
 
-      uniqueCredibleSets.forEach(cs => {
+      uniqueCredibleSets.forEach((cs) => {
         if (!cs?.data_source) return;
 
         const { tissue, frontendKG } = getDataSourceInfo(cs.data_source, conversionTable);
         console.log(frontendKG);
         if (tissue && frontendKG) {
-          const tissueKey = tissue === 'pancreatic' ? 'Pancreatic' : 'Islet';
-          counts[tissueKey][frontendKG] = (counts[tissueKey][frontendKG] || 0) + 1;
+          const tissueKey = tissue === "pancreatic" ? "Pancreatic" : "Islet";
+          counts[tissueKey][frontendKG] =
+            (counts[tissueKey][frontendKG] || 0) + 1;
         }
       });
-      console.log(counts['Pancreatic']['Exon QTL InsPIRE']);
+      console.log(counts["Pancreatic"]["Exon QTL InsPIRE"]);
     });
 
     return counts;
@@ -207,11 +209,14 @@ function IntermediatePage({ onContinue }) {
 
   const getDescription = (name) => {
     const descriptions = {
-      'eQTL GTEx': 'Identifies genetic variants regulating gene expression in pancreatic tissue using GTEx data.',
-      'eQTL Gene-level InsPIRE': 'Identifies genetic variants regulating gene expression in islet tissue using InsPIRE data.',
-      'splicing QTL GTEx': 'Identifies genetic variants influencing RNA splicing in pancreatic tissue using GTEx data.'
+      "eQTL GTEx":
+        "Identifies genetic variants regulating gene expression in pancreatic tissue using GTEx data.",
+      "eQTL Gene-level InsPIRE":
+        "Identifies genetic variants regulating gene expression in islet tissue using InsPIRE data.",
+      "splicing QTL GTEx":
+        "Identifies genetic variants influencing RNA splicing in pancreatic tissue using GTEx data.",
     };
-    return descriptions[name] || '';
+    return descriptions[name] || "";
   };
 
   const items = processDataSources();
@@ -222,7 +227,7 @@ function IntermediatePage({ onContinue }) {
     targetTerm: '',
     targetTermSymbol: ''
   };
-  console.log(searchState)
+  console.log(searchState);
 
   const processedQuestion = viewSchema?.question?.[0]
     ? replaceTerms(
@@ -237,20 +242,25 @@ function IntermediatePage({ onContinue }) {
     : 'Loading...';
 
   const handleSNPClick = async (snpId, dataSource, leadSnp) => {
-    const { cyper_for_result_page_all_nodes_specific, question_for_result, next_questions } = viewSchema;
-    if (!cyper_for_result_page_all_nodes_specific || !question_for_result) return;
+    const {
+      cyper_for_result_page_all_nodes_specific,
+      question_for_result,
+      next_questions,
+    } = viewSchema;
+    if (!cyper_for_result_page_all_nodes_specific || !question_for_result)
+      return;
 
     // 从 searchTerms 中获取 geneId
-    let geneId = '';
+    let geneId = "";
     console.log(searchState);
-    if (searchState.sourceTerm.startsWith('gene:')) {
-      geneId = searchState.sourceTerm.split(':')[1];
-    } else if (searchState.targetTerm.startsWith('gene:')) {
-      geneId = searchState.targetTerm.split(':')[1];
+    if (searchState.sourceTerm.startsWith("gene:")) {
+      geneId = searchState.sourceTerm.split(":")[1];
+    } else if (searchState.targetTerm.startsWith("gene:")) {
+      geneId = searchState.targetTerm.split(":")[1];
     }
 
     if (!geneId) {
-      console.error('No gene ID found in search terms');
+      console.error("No gene ID found in search terms");
       return;
     }
 
@@ -275,7 +285,7 @@ function IntermediatePage({ onContinue }) {
       relationship: searchState.relationship,
       tissueKey: tissueKey,
       dataSource: dataSourceFrontend,
-      geneSymbol: searchState.targetTermSymbol
+      geneSymbol: searchState.targetTermSymbol,
     });
 
     window.location.href = `/result?${params.toString()}`;
@@ -289,6 +299,7 @@ function IntermediatePage({ onContinue }) {
     // const processedNextQuestions = next_questions?.map(item => {
     //   const params = item.parameters || {};
 
+
     //   const questionVariables = {
     //     ...variables,
     //     snpId: 'rs17510162',
@@ -297,8 +308,10 @@ function IntermediatePage({ onContinue }) {
     //     geneSymbol: 'ptpn22'
     //   };
 
+
     //   // 使用更新后的变量对象进行替换
     //   let processedQuestion = replaceVariables(item.question, questionVariables);
+
 
     //   console.log(processedQuestion);
     //   // 准备新的搜索条件
@@ -388,19 +401,19 @@ function IntermediatePage({ onContinue }) {
 
   // 添加一个新的辅助函数来获取 credibleSet 的显示标签
   const getCredibleSetLabel = (credibleSet) => {
-    let prefix = '';
+    let prefix = "";
     switch (credibleSet.data_source) {
-      case 'GTEx; SusieR':
-        prefix = 'A';
+      case "GTEx; SusieR":
+        prefix = "A";
         break;
-      case 'INSPIRE; SusieR':
-        prefix = 'B';
+      case "INSPIRE; SusieR":
+        prefix = "B";
         break;
-      case 'splicing; GTEx':
-        prefix = 'C';
+      case "splicing; GTEx":
+        prefix = "C";
         break;
-      case 'exon; INSPIRE':
-        prefix = 'D';
+      case "exon; INSPIRE":
+        prefix = "D";
         break;
       default:
         return credibleSet.credible_set_id;
@@ -452,21 +465,21 @@ function IntermediatePage({ onContinue }) {
     const counts = processDataSources();
     return [
       {
-        label: 'Pancreatic eQTL',
-        count: counts.Pancreatic['eQTL GTEx']
+        label: "Pancreatic eQTL",
+        count: counts.Pancreatic["eQTL GTEx"],
       },
       {
-        label: 'Islet eQTL',
-        count: counts.Islet['eQTL InsPIRE']
+        label: "Islet eQTL",
+        count: counts.Islet["eQTL InsPIRE"],
       },
       {
-        label: 'Pancreatic splicing QTL',
-        count: counts.Pancreatic['Splicing QTL GTEx']
+        label: "Pancreatic splicing QTL",
+        count: counts.Pancreatic["Splicing QTL GTEx"],
       },
       {
-        label: 'Islet exon QTL',
-        count: counts.Islet['Exon QTL InsPIRE']
-      }
+        label: "Islet exon QTL",
+        count: counts.Islet["Exon QTL InsPIRE"],
+      },
     ];
   };
 
@@ -481,32 +494,40 @@ function IntermediatePage({ onContinue }) {
 
     if (sourceTerm && relationship && targetTerm) {
       // 更新 Redux store 中的搜索条件
-      dispatch(setSearchTerms({
-        sourceTerm,
-        relationship,
-        targetTerm,
-        targetTermSymbol: targetSymbol || ''
-      }));
+      dispatch(
+        setSearchTerms({
+          sourceTerm,
+          relationship,
+          targetTerm,
+          targetTermSymbol: targetSymbol || "",
+        })
+      );
 
       // 使用这些参数执行查询
-      dispatch(queryViewSchema({
-        sourceTerm,
-        relationship,
-        targetTerm,
-        targetTermSymbol: targetSymbol || ''
-      }));
-
-
+      dispatch(
+        queryViewSchema({
+          sourceTerm,
+          relationship,
+          targetTerm,
+          targetTermSymbol: targetSymbol || "",
+        })
+      );
     }
   }, []); // 仅在组件挂载时执行一次
 
   function replaceCypherTerms(cypher, sourceTerm, targetTerm) {
-    const sourceType = sourceTerm.split(':')[0];
-    const sourceValue = sourceTerm.split(':')[1] || sourceType;
-    const targetType = targetTerm.split(':')[0];
-    const targetValue = targetTerm.split(':')[1] || targetType;
+    const sourceType = sourceTerm.split(":")[0];
+    const sourceValue = sourceTerm.split(":")[1] || sourceType;
+    const targetType = targetTerm.split(":")[0];
+    const targetValue = targetTerm.split(":")[1] || targetType;
 
     return cypher.replace(/@([^@]+)@/g, (match, term) => {
+      if (term === sourceType) {
+        return sourceValue;
+      } else if (term === targetType) {
+        return targetValue;
+      }
+      return match;
       if (term === sourceType) {
         return sourceValue;
       } else if (term === targetType) {
@@ -524,6 +545,8 @@ function IntermediatePage({ onContinue }) {
         searchState.targetTerm
       );
       const processedCypherForKGViewer = replaceCypherTerms(
+      );
+      const processedCypherForKGViewer = replaceCypherTerms(
         viewSchema.cyper_for_intermediate_KG_viewer,
         searchState.sourceTerm,
         searchState.targetTerm
@@ -537,18 +560,22 @@ function IntermediatePage({ onContinue }) {
     if (queryResult?.results) {
       const counts = processDataSources();
       const tabOptions = [
-        { label: 'Pancreatic eQTL', count: counts.Pancreatic['eQTL GTEx'] },
-        { label: 'Islet eQTL', count: counts.Islet['eQTL InsPIRE'] },
-        { label: 'Pancreatic splicing QTL', count: counts.Pancreatic['Splicing QTL GTEx'] },
-        { label: 'Islet Exon QTL', count: counts.Islet['Exon QTL InsPIRE'] }
+        { label: "Pancreatic eQTL", count: counts.Pancreatic["eQTL GTEx"] },
+        { label: "Islet eQTL", count: counts.Islet["eQTL InsPIRE"] },
+        {
+          label: "Pancreatic splicing QTL",
+          count: counts.Pancreatic["Splicing QTL GTEx"],
+        },
+        { label: "Islet Exon QTL", count: counts.Islet["Exon QTL InsPIRE"] },
       ];
 
+
       // 找到第一个计数不为 0 的选项
-      const firstNonZeroTab = tabOptions.find(tab => tab.count > 0);
+      const firstNonZeroTab = tabOptions.find((tab) => tab.count > 0);
       if (firstNonZeroTab) {
         setSelectedTab(firstNonZeroTab.label);
       } else {
-        setSelectedTab('Pancreatic eQTL'); // 默认值
+        setSelectedTab("Pancreatic eQTL"); // 默认值
       }
     }
   }, [queryResult]);
@@ -571,10 +598,10 @@ function IntermediatePage({ onContinue }) {
           variant="contained"
           onClick={() => window.location.href = '/'}
           sx={{
-            backgroundColor: '#219197',
-            '&:hover': {
-              backgroundColor: '#1A747A'
-            }
+            backgroundColor: "#219197",
+            "&:hover": {
+              backgroundColor: "#1A747A",
+            },
           }}
         >
           Back to Home
