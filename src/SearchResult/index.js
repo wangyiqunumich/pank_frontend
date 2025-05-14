@@ -87,23 +87,23 @@ const TooltipComponent = ({ title, content }) => (
     </>);
 
 function TypewriterEffect({ text, speed = 5, onComplete }) {
-    const [displayedText, setDisplayedText] = useState('');
-    const [currentIndex, setCurrentIndex] = useState(0);
+  const [displayedText, setDisplayedText] = useState("");
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-    useEffect(() => {
-        if (currentIndex < text.length) {
-            const timer = setTimeout(() => {
-                setDisplayedText(prevText => prevText + text[currentIndex]);
-                setCurrentIndex(prevIndex => prevIndex + 1);
-            }, speed);
+  useEffect(() => {
+    if (currentIndex < text.length) {
+      const timer = setTimeout(() => {
+        setDisplayedText((prevText) => prevText + text[currentIndex]);
+        setCurrentIndex((prevIndex) => prevIndex + 1);
+      }, speed);
 
-            return () => clearTimeout(timer);
-        } else if (onComplete) {
-            onComplete();
-        }
-    }, [currentIndex, text, speed, onComplete]);
+      return () => clearTimeout(timer);
+    } else if (onComplete) {
+      onComplete();
+    }
+  }, [currentIndex, text, speed, onComplete]);
 
-    return <span dangerouslySetInnerHTML={{ __html: displayedText }} />;
+  return <span dangerouslySetInnerHTML={{ __html: displayedText }} />;
 }
 
 const SNPPlotImage = ({ imageSrc }) => {
@@ -253,18 +253,20 @@ function SearchResult() {
                 targetTermSymbol: targetSymbol || ''
             }));
 
-            const getIdFromTerm = (term) => {
-                return term;
-            };
+      const getIdFromTerm = (term) => {
+        return term;
+      };
 
-            dispatch(setVariables({
-                snpId: getIdFromTerm(sourceTerm),
-                leadSnp: leadSnp,
-                geneId: getIdFromTerm(targetTerm),
-                dataSource: dataSource,
-                tissueKey: tissueKey,
-                geneSymbol: targetSymbol || ''
-            }));
+      dispatch(
+        setVariables({
+          snpId: getIdFromTerm(sourceTerm),
+          leadSnp: leadSnp,
+          geneId: getIdFromTerm(targetTerm),
+          dataSource: dataSource,
+          tissueKey: tissueKey,
+          geneSymbol: targetSymbol || "",
+        })
+      );
 
             const fixedSourceTerm = 'sequence_variant';
             const fixedTargetTerm = 'gene:' + getIdFromTerm(targetTerm);
@@ -398,28 +400,35 @@ function SearchResult() {
                         });
                     }
 
-                    // 处理查询
-                }
-            });
+          // 处理查询
         }
-    }, [dispatch]);
+      });
+    }
+  }, [dispatch]);
 
-    const { currentQuestion, nextQuestions, aiQuestions, aiAnswerTitle, aiAnswerSubtitle, currentQuestionType } = useSelector((state) => state.processedQuestion);
-    useEffect(() => {
-        function handleResize() {
-            setWindowWidth(window.innerWidth)
-        }
-        window.addEventListener('resize', handleResize);
-        return () => {
-            window.removeEventListener('resize', handleResize);
-        };
-    }, []);
+  const {
+    currentQuestion,
+    nextQuestions,
+    aiQuestions,
+    aiAnswerTitle,
+    aiAnswerSubtitle,
+    currentQuestionType,
+  } = useSelector((state) => state.processedQuestion);
+  useEffect(() => {
+    function handleResize() {
+      setWindowWidth(window.innerWidth);
+    }
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
-    useEffect(() => {
-        if (queryTypeToImageStatus === 'fulfilled') {
-            setImageLoading(false);
-        }
-    }, [queryTypeToImageStatus]);
+  useEffect(() => {
+    if (queryTypeToImageStatus === "fulfilled") {
+      setImageLoading(false);
+    }
+  }, [queryTypeToImageStatus]);
 
     const removeConsecutiveAsterisks = (text) => {
         return text.replace(/\*\*/g, '');
@@ -448,9 +457,9 @@ function SearchResult() {
 
 This answer refers to the following resources in PanKbase:`;
 
-    const handleTypewriterComplete = () => {
-        setShowTable(true);
-    };
+  const handleTypewriterComplete = () => {
+    setShowTable(true);
+  };
 
     const handleOpenModal = () => {
         setModalOpen(true);
@@ -473,33 +482,33 @@ This answer refers to the following resources in PanKbase:`;
         //         targetTermSymbol: searchState.targetTermSymbol
         //     };
 
-        //     if (isUsingFallback) {
-        //         dispatch(setUsingFallback(false));
-        //     } else {
-        //         dispatch(setUsingFallback(true));
-        //         queryParams = {
-        //             sourceTerm: 'sequence_variant:rs17510162',
-        //             relationship: 'fine_mapped_eQTL',
-        //             targetTerm: 'gene:ENSG00000134242',
-        //             targetTermSymbol: 'ptpn22'
-        //         };
-        //     }
+    //     if (isUsingFallback) {
+    //         dispatch(setUsingFallback(false));
+    //     } else {
+    //         dispatch(setUsingFallback(true));
+    //         queryParams = {
+    //             sourceTerm: 'sequence_variant:rs17510162',
+    //             relationship: 'fine_mapped_eQTL',
+    //             targetTerm: 'gene:ENSG00000134242',
+    //             targetTermSymbol: 'ptpn22'
+    //         };
+    //     }
 
-        //     const processNextQuestion = async () => {
-        //         // 使用正则表达式来分割 sourceTerm 和 targetTerm
-        //         const getIdFromTerm = (term) => {
-        //             const match = term.match(/^[^:]+:(.+)$/);
-        //             return match ? match[1] : term;
-        //         };
+    //     const processNextQuestion = async () => {
+    //         // 使用正则表达式来分割 sourceTerm 和 targetTerm
+    //         const getIdFromTerm = (term) => {
+    //             const match = term.match(/^[^:]+:(.+)$/);
+    //             return match ? match[1] : term;
+    //         };
 
-        //         dispatch(setVariables({
-        //             snpId: getIdFromTerm(queryParams.sourceTerm),
-        //             leadSnp: getIdFromTerm(queryParams.sourceTerm),
-        //             geneId: getIdFromTerm(queryParams.targetTerm),
-        //             dataSource: 'GTEx; SusieR',
-        //             tissueKey: 'pancreatic',
-        //             geneSymbol: queryParams.targetTermSymbol
-        //         }));
+    //         dispatch(setVariables({
+    //             snpId: getIdFromTerm(queryParams.sourceTerm),
+    //             leadSnp: getIdFromTerm(queryParams.sourceTerm),
+    //             geneId: getIdFromTerm(queryParams.targetTerm),
+    //             dataSource: 'GTEx; SusieR',
+    //             tissueKey: 'pancreatic',
+    //             geneSymbol: queryParams.targetTermSymbol
+    //         }));
 
         //         await Promise.resolve();
         //         const response = await dispatch(queryViewSchema(queryParams));
@@ -517,37 +526,37 @@ This answer refers to the following resources in PanKbase:`;
         //                 updatedState.variables
         //             );
 
-        //             console.log(response.payload.question_for_result);
+    //             console.log(response.payload.question_for_result);
 
-        //             const variables = {
-        //                 snpId: isUsingFallback ? 'rs17510162' : getIdFromTerm(searchState.sourceTerm),
-        //                 leadSnp: isUsingFallback ? 'rs17510162' : getIdFromTerm(searchState.sourceTerm),
-        //                 geneId: isUsingFallback ? 'ENSG00000134242' : getIdFromTerm(searchState.targetTerm),
-        //                 dataSource: 'GTEx; SusieR',
-        //                 tissueKey: 'pancreatic',
-        //                 geneSymbol: isUsingFallback ? 'ptpn22' : searchState.targetTermSymbol
-        //             };  
+    //             const variables = {
+    //                 snpId: isUsingFallback ? 'rs17510162' : getIdFromTerm(searchState.sourceTerm),
+    //                 leadSnp: isUsingFallback ? 'rs17510162' : getIdFromTerm(searchState.sourceTerm),
+    //                 geneId: isUsingFallback ? 'ENSG00000134242' : getIdFromTerm(searchState.targetTerm),
+    //                 dataSource: 'GTEx; SusieR',
+    //                 tissueKey: 'pancreatic',
+    //                 geneSymbol: isUsingFallback ? 'ptpn22' : searchState.targetTermSymbol
+    //             };
 
-        //             const processedNextQuestions = response.payload.next_questions.map(q => 
-        //                 replaceVariables(q.question, variables)
-        //             );
+    //             const processedNextQuestions = response.payload.next_questions.map(q =>
+    //                 replaceVariables(q.question, variables)
+    //             );
 
-        //             const processedAiQuestions = response.payload?.ai_question_for_result?.map(question => {
-        //                 let processedQuestion = question;
-        //                 if (queryParams.sourceTerm.split(':')[1]) {
-        //                     processedQuestion = processedQuestion.replace(
-        //                         /@snp_node@/g, 
-        //                         queryParams.sourceTerm.split(':')[1]
-        //                     );
-        //                 }
-        //                 if (queryParams.targetTerm.split(':')[1]) {
-        //                     processedQuestion = processedQuestion.replace(
-        //                         /@gene_node@/g, 
-        //                         queryParams.targetTerm.split(':')[1]
-        //                     );
-        //                 }
-        //                 return processedQuestion;
-        //             }) || [];
+    //             const processedAiQuestions = response.payload?.ai_question_for_result?.map(question => {
+    //                 let processedQuestion = question;
+    //                 if (queryParams.sourceTerm.split(':')[1]) {
+    //                     processedQuestion = processedQuestion.replace(
+    //                         /@snp_node@/g,
+    //                         queryParams.sourceTerm.split(':')[1]
+    //                     );
+    //                 }
+    //                 if (queryParams.targetTerm.split(':')[1]) {
+    //                     processedQuestion = processedQuestion.replace(
+    //                         /@gene_node@/g,
+    //                         queryParams.targetTerm.split(':')[1]
+    //                     );
+    //                 }
+    //                 return processedQuestion;
+    //             }) || [];
 
         //             const processedAiAnswerTitle = response.payload?.ai_answer_title
         //                 .replace(/@snp_node@/g, queryParams.sourceTerm.split(':')[1])
@@ -606,22 +615,29 @@ This answer refers to the following resources in PanKbase:`;
         window.location.href = `/result?${searchParams.toString()}`;
     };
 
-    const handleExpandClick = () => {
-        setExpanded(!expanded);
-    };
+  const handleExpandClick = () => {
+    setExpanded(!expanded);
+  };
 
-    // 如果正在加载答案或答案为空，显示加载状态
-    if (queryAiAnswerStatus === 'pending' || !aiAnswer?.answers) {
-        return (
-            <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                <CircularProgress />
-            </Container>
-        );
-    }
+  // 如果正在加载答案或答案为空，显示加载状态
+  if (queryAiAnswerStatus === "pending" || !aiAnswer?.answers) {
+    return (
+      <Container
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <CircularProgress />
+      </Container>
+    );
+  }
 
-    // 获取 URL 参数
-    const params = new URLSearchParams(window.location.search);
-    const geneId = params.get('geneId');
+  // 获取 URL 参数
+  const params = new URLSearchParams(window.location.search);
+  const geneId = params.get("geneId");
 
     return (
         <Container sx={{
