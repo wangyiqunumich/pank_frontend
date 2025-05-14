@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { useSelector } from 'react-redux';
 import cytoscape from "cytoscape";
 import graphData from "./data/example_cypher_query_result.json";
 import positionData from "./data/example_x_y.json";
@@ -28,6 +29,7 @@ export default function KnowledgeGraph() {
   const [hoveredData, setHoveredData] = useState(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [tooltipVisible, setTooltipVisible] = useState(false);
+  const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
 
   const hideContextMenu = () => {
     const menu = document.getElementById("context-menu");
@@ -41,7 +43,7 @@ export default function KnowledgeGraph() {
     cyRef.current && cyRef.current.zoom(cyRef.current.zoom() - 0.2);
 
   useEffect(() => {
-    const result = graphData.results[0];
+    const result = queryResultPage?.combined_query_result?.results[0];
     const uniqueNodesMap = {};
     result.nodes.forEach((node) => (uniqueNodesMap[node["~id"]] = node));
     const nodes = Object.values(uniqueNodesMap).map((node) => {
@@ -49,14 +51,14 @@ export default function KnowledgeGraph() {
       const type = node["~labels"].includes("gene")
         ? "protein_coding"
         : node["~labels"].includes("variants")
-        ? "SNP"
-        : node["~labels"].includes("pathway")
-        ? "pathway"
-        : node["~labels"].includes("article")
-        ? "article"
-        : node["~labels"].includes("ontology")
-        ? "ontology"
-        : "other";
+          ? "SNP"
+          : node["~labels"].includes("pathway")
+            ? "pathway"
+            : node["~labels"].includes("article")
+              ? "article"
+              : node["~labels"].includes("ontology")
+                ? "ontology"
+                : "other";
       // Use the provided positionData and extract the Level property.
       const posData = positionData[node["~id"]] || {
         x: Math.random() * 600 + 100,
@@ -170,7 +172,7 @@ export default function KnowledgeGraph() {
       if (cyRef.current) cyRef.current.destroy();
       document.removeEventListener("click", hideContextMenu);
     };
-  }, []);
+  }, [queryResultPage]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
