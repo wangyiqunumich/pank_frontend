@@ -19,6 +19,7 @@ import { setVariables } from '../redux/variablesSlice';
 import { replaceVariables } from '../utils/textProcessing';
 import { store } from '../redux/store';
 import { queryQueryVisResult } from '../redux/queryVisResultSlice';
+import { queryQueryResultPage } from '../redux/queryResultPage';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import InfoOutlineIcon from '@mui/icons-material/InfoOutlined';
@@ -224,7 +225,12 @@ function SearchResult() {
     // 从 viewSchema 中获取数据
     const { viewSchema } = useSelector((state) => state.viewSchema);
     const queryResult = useSelector((state) => state.queryResult.queryResult);
-    const { aiAnswer, queryAiAnswerStatus } = useSelector((state) => state.aiAnswer);
+    const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
+    // const { aiAnswer, queryAiAnswerStatus } = useSelector((state) => state.aiAnswer);
+    // ============= Temporary Disabled ===============
+    const aiAnswer = { answers: [] };
+    // const queryAiAnswerStatus = 'fulfilled';
+    const [queryAiAnswerStatus, setQueryAiAnswerStatus] = useState('pending');
     const searchState = useSelector((state) => state.search);
     const snpPlotImage = useSelector((state) => state.typeToImage.typeToImage);
     const queryTypeToImageStatus = useSelector((state) => state.typeToImage.queryTypeToImageStatus);
@@ -276,18 +282,28 @@ function SearchResult() {
                         ai_question_for_result,
                         ai_answer_title,
                         ai_answer_sub_title,
-                        cyper_for_result_page_all_nodes_specific
+                        // cyper_for_result_page_all_nodes_specific
+                        cypher_for_result_page_core,
+                        cypher_for_result_page_nbr,
                     } = response.payload;
 
-                    if (cyper_for_result_page_all_nodes_specific) {
-                        const query = cyper_for_result_page_all_nodes_specific
-                            .replace(/@snp_node@/g, sourceTerm)
-                            .replace(/@gene_node@/g, targetTerm);
-                        dispatch(queryQueryVisResult({ query }));
-                        dispatch(queryQueryResult({ query })).then((response) => {
-                            const fineMapEQTL = response?.payload?.results[0]?.all_extend_rels?.find(
+                    if (cypher_for_result_page_core && cypher_for_result_page_nbr) {
+                        const core_cypher = cypher_for_result_page_core
+                            .replace(/@snp@/g, sourceTerm)
+                            .replace(/@gene@/g, targetTerm);
+                        const neighbor_cypher = cypher_for_result_page_nbr
+                            .replace(/@snp@/g, sourceTerm)
+                            .replace(/@gene@/g, targetTerm);
+                        // dispatch(queryQueryVisResult({ core_cypher, neighbor_cypher }));
+                        dispatch(queryQueryResultPage({ core_cypher, neighbor_cypher })).then((response) => {
+                            console.log('Query result:', response.payload);
+                            // const fineMapEQTL = response?.payload?.results[0]?.all_extend_rels?.find(
+                            //     rel => rel['~type'] === 'fine_mapped_eQTL'
+                            // );
+                            const fineMapEQTL = response?.payload?.combined_query_result?.results[0]?.edges?.find(
                                 rel => rel['~type'] === 'fine_mapped_eQTL'
                             );
+
                             const variables = {
                                 snpId: getIdFromTerm(sourceTerm),
                                 leadSnp: leadSnp,
@@ -367,8 +383,8 @@ function SearchResult() {
                             }) || [];
 
                             const processedAiAnswerTitle = ai_answer_title
-                                ?.replace(/@snp_node@/g, getIdFromTerm(sourceTerm))
-                                ?.replace(/@gene_id@/g, getIdFromTerm(targetTerm));
+                                ?.replace(/@sno_node@/g, getIdFromTerm(sourceTerm))
+                                ?.replace(/@gene_node@/g, getIdFromTerm(targetTerm));
 
                             // 更新 Redux store
                             dispatch(setProcessedQuestion({
@@ -409,17 +425,18 @@ function SearchResult() {
         return text.replace(/\*\*/g, '');
     };
     useEffect(() => {
-        if (queryResult.results?.length != 0 && queryResult.results?.[0]?.gene_node) {
+        if (queryResultPage?.combined_query_result?.results?.length != 0 && queryResultPage?.core_nodes) {
             const processedQuestions = aiQuestions.map(question =>
                 `${question} (answer the question in 50 words)`
             );
             console.log(processedQuestions);
-            dispatch(queryAiAnswer({
-                "question": processedQuestions,
-                "graph": queryResult
-            })).unwrap();
+            setQueryAiAnswerStatus('fulfilled');
+            // dispatch(queryAiAnswer({
+            //     "question": processedQuestions,
+            //     "graph": queryResult
+            // })).unwrap();
         }
-    }, [queryResult, currentQuestion, aiQuestions, dispatch]);
+    }, [queryResultPage, currentQuestion, aiQuestions, dispatch]);
     console.log(aiAnswer);
     const answerText = `Currently <span style="color: #FFA500;">SNP rs73920612</span> is the eQTL of one gene: <span style="color: #FF69B4;">CENPO</span>
 
@@ -553,7 +570,7 @@ This answer refers to the following resources in PanKbase:`;
         //     processNextQuestion();
         // }
 
-        const fineMapEQTL = queryResult.results[0].all_extend_rels.find(
+        const fineMapEQTL = queryResultPage.combined_query_result?.results[0]?.edges?.find(
             rel => rel['~type'] === 'fine_mapped_eQTL'
         );
         const params = new URLSearchParams(window.location.search);
@@ -847,7 +864,7 @@ This answer refers to the following resources in PanKbase:`;
                             textAlign: 'left',
                             marginBottom: '60px'
                         }}>
-                            {/* <KnowledgeGraph /> */}
+                            <KnowledgeGraph />
                         </Box>
                     </Box>
                 </Grid>

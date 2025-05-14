@@ -9,6 +9,7 @@ import inputToVocabReducer from './inputToVocabSlice'
 import searchReducer from './searchSlice'
 import variablesReducer from './variablesSlice'
 import queryVisResultReducer from './queryVisResultSlice'
+import queryResultPage from './queryResultPage'
 const store = configureStore({
     reducer: {
         viewSchema: viewSchemaReducer,
@@ -21,6 +22,7 @@ const store = configureStore({
         search: searchReducer,
         variables: variablesReducer,
         queryVisResult: queryVisResultReducer,
+        queryResultPage: queryResultPage,
     },
 });
 

@@ -110,14 +110,14 @@ function NavBar() {
         </div>
       </div>
       <Typography sx={{
-        position: 'absolute',
-        top: '71px',
+        position: 'relative',
         left: '20px',
         padding: '0px 15px',
         fontSize: '14px',
         backgroundColor: '#219197',
         zIndex: 100,
-        color: 'white'
+        color: 'white',
+        width: 'fit-content',
       }}>beta</Typography>
     </>
   );
