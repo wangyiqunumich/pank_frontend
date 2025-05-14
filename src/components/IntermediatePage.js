@@ -545,8 +545,6 @@ function IntermediatePage({ onContinue }) {
         searchState.targetTerm
       );
       const processedCypherForKGViewer = replaceCypherTerms(
-      );
-      const processedCypherForKGViewer = replaceCypherTerms(
         viewSchema.cyper_for_intermediate_KG_viewer,
         searchState.sourceTerm,
         searchState.targetTerm
