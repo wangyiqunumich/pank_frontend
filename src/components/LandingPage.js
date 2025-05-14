@@ -66,7 +66,7 @@ function LandingPage() {
       <Box sx={{ 
         width: '50%',
         display: 'block',
-        margin: '0 auto',
+        padding: '2 auto',
         '& img': {
           width: '100%',
           objectFit: 'contain'
@@ -90,6 +90,7 @@ function LandingPage() {
         display: 'flex',
         flexDirection: 'column',
         gap: 3,
+        margin: 2,
       }}>
         
         {/* 更新 Question 组件，传入 setSelectedQuestion */}
