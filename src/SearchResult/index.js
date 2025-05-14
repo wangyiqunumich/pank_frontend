@@ -229,7 +229,8 @@ function SearchResult() {
     // const { aiAnswer, queryAiAnswerStatus } = useSelector((state) => state.aiAnswer);
     // ============= Temporary Disabled ===============
     const aiAnswer = { answers: [] };
-    const queryAiAnswerStatus = 'fulfilled';
+    // const queryAiAnswerStatus = 'fulfilled';
+    const [queryAiAnswerStatus, setQueryAiAnswerStatus] = useState('pending');
     const searchState = useSelector((state) => state.search);
     const snpPlotImage = useSelector((state) => state.typeToImage.typeToImage);
     const queryTypeToImageStatus = useSelector((state) => state.typeToImage.queryTypeToImageStatus);
@@ -424,11 +425,12 @@ function SearchResult() {
         return text.replace(/\*\*/g, '');
     };
     useEffect(() => {
-        if (queryResultPage?.combined_query_result?.results?.length != 0 && queryResultPage.core_nodes) {
+        if (queryResultPage?.combined_query_result?.results?.length != 0 && queryResultPage?.core_nodes) {
             const processedQuestions = aiQuestions.map(question =>
                 `${question} (answer the question in 50 words)`
             );
             console.log(processedQuestions);
+            setQueryAiAnswerStatus('fulfilled');
             // dispatch(queryAiAnswer({
             //     "question": processedQuestions,
             //     "graph": queryResult
