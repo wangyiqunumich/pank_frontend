@@ -12,6 +12,7 @@ import StatPage from './pages/StatPage';
 import DocPage from './pages/DocPage';
 import Tutorial from './pages/Tutorial';
 import LandingPage from './components/LandingPage';
+import MatchPage from './components/MatchPage';
 import IntermediatePage from './components/IntermediatePage';
 import ResultPage from './SearchResult';
 import NavBar from "./NavBar";
@@ -42,6 +43,7 @@ root.render(
             <Route path="/result" element={<ResultPage />} />
             <Route path="/usecases" element={<UsecasesPage />} />
             <Route path="/docs/*" element={<DocPage />} />
+            <Route path="/match" element={<MatchPage />} />
             <Route path="/" element={<LandingPage />} />
           </Routes>
           <PkbFooter />
