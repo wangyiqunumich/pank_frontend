@@ -1,5 +1,14 @@
+html, body {
+  height: 100%; /* Make the body take the full height of the viewport */
+  margin: 0; /* Remove default margin */
+  overflow-y: auto; /* Enable vertical scrolling */
+}
+
 .App {
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 .App-logo {

@@ -77,7 +77,7 @@ function MatchPage() {
         );
       } else if (part.startsWith('{') && part.endsWith('}')) {
         // Render dropdown for items enclosed in {}
-        const options = ['Option 1', 'Option 2', 'CFTR']; // Example dropdown options
+        const options = ['Option 1', 'long option test', 'CFTR']; // Example dropdown options
         return (
           <Box key={index} sx={{ display: 'inline-flex', alignItems: 'center',marginLeft: '-8px' }} >
             <Select
@@ -91,8 +91,7 @@ function MatchPage() {
                 minWidth: '80px',
                 mx: 1,
                 '& .MuiSelect-select': {
-                  padding: '2px !important', // Overwrite the default padding-right
-                  paddingLeft: '8px !important', // Overwrite the default padding-left
+                  padding: '2px 20px 2px 8px  !important',
                   alignItems: 'center',
                   display: 'flex',
                   justifyContent: 'center',
@@ -108,7 +107,7 @@ function MatchPage() {
                 },
                 '.MuiSvgIcon-root ': {
                   position: 'absolute',
-                  right: '8px', 
+                  right: '2px', 
                   color: '#A9D3FC',
                 },
                 
@@ -248,6 +247,8 @@ function MatchPage() {
         flexDirection: 'column',
         padding:3,
         gap: 2,
+        marginTop: 2,
+        marginBottom: 2
       }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
         <Typography sx={{ 
@@ -292,6 +293,7 @@ function MatchPage() {
           display: 'flex',
           flexWrap: 'wrap',
           padding: 2,
+          width: 'calc(100% - 32px)', 
         }}>
           {renderSequence()}
         </Box>

@@ -9,7 +9,6 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
     'Is {Gene} has GWAS signal associated with (T1D)?',
     'Find the GWAS-QTL co-localization contribute to T1D?',
     'How is {CFTR}’s expression in {β cells} and it’s link to T1D?',
-    'What’s {CFTR}’s function in (T1D)?',
   ]);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -52,7 +51,11 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
 
   return (
     <Box sx={{ 
-      width: '685px'
+      width: '100%',
+      height: '100%',
+      overflowY: 'auto',
+      marginTop: '44px',
+      marginBottom: '44px'
     }}>
       <Typography sx={{ 
         fontSize: 28,

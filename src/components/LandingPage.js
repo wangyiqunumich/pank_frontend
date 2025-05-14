@@ -64,9 +64,11 @@ function LandingPage() {
 
       {/* 左侧图片 */}
       <Box sx={{ 
-        width: '600px',
+        width: '50%',
+        display: 'block',
+        margin: '0 auto',
         '& img': {
-          width: '600px',
+          width: '100%',
           objectFit: 'contain'
         }
       }}>
@@ -83,7 +85,8 @@ function LandingPage() {
 
       {/* 右侧内容区域 */}
       <Box sx={{ 
-        width: 672,
+        width: '50%',
+        height: '100%',
         display: 'flex',
         flexDirection: 'column',
         gap: 3,
