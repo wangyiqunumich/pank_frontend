@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, Typography, Select, MenuItem,List,ListItem,ListItemText,TextField, InputAdornment } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
+import { Link } from 'react-router-dom';
 
 function Question({ selectedQuestion, setSelectedQuestion }) {
   const [questions, setQuestions] = useState([
@@ -183,7 +184,13 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
           );
         })}
       </List>
-
+      <Link 
+      to="/result?snpId=rs2402203&leadSnp=rs2402203&geneId=ENSG00000001626&relationship=fine_mapped_QTL&tissueKey=pancreas&dataSource=splicing%3B+GTEx&geneSymbol=CFTR"
+      style={{ textDecoration: 'underline', color: 'grey' }}>
+          <Typography>
+            Example: Which SNP serves as the expressive quantitative trait locus (eQTL) for CFTR?
+          </Typography>
+        </Link>
     </Box>
   );
 }
