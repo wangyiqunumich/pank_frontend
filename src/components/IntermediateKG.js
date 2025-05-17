@@ -12,40 +12,20 @@ const colorMap = {
   pathway: "#F6C957",
   ontology: "#8c561b",
   article: "#e377c2",
-  open_chromatin_region: "#8c564b"
+  open_chromatin_region: "#8c564b",
+  credible_set: '#43978F',
 };
 
-function IntermediateKG() {
-  const queryVisResult = useSelector((state) => state.queryVisResult?.queryVisResult);
+function IntermediateKG({ data }) {
   const containerRef = useRef(null);
   const cyRef = useRef(null);
   const conversionTable = require('../utils/conversion_table.json');
 
   useEffect(() => {
-    if (!containerRef.current || !queryVisResult?.results?.[0]) {
+    if (!containerRef.current || !data?.credible_sets?.[0]) {
       return;
     }
-
-    const { nodes, relationships } = queryVisResult.results[0];
-    
-    // 计算每种类型节点的数量
-    const typeCounts = nodes.reduce((acc, node) => {
-      if (node.type.includes('gene')) acc.gene++;
-      else if (node.type.includes('credible_set')) acc.credible_set++;
-      else if (node.type.includes('sequence_variant')) acc.variant++;
-      return acc;
-    }, { gene: 0, credible_set: 0, variant: 0 });
-
-    // 计算总高度和起始位置
-    const totalHeight = Math.max(typeCounts.credible_set, typeCounts.variant) * 100;
-    const startY = 250 - (totalHeight / 2);
-
-    // 创建节点数据
-    const typeCount = {
-      gene: 0,
-      credible_set: 0,
-      variant: 0
-    };
+    console.log('data', data);
 
     const getCredibleSetLabel = (nodeId, dataSource) => {
       let prefix = '';
@@ -65,22 +45,99 @@ function IntermediateKG() {
         default:
           return nodeId;
       }
-      
+
       const setNumber = nodeId.split('_').pop().slice(11);
       return `CredibleSet_${prefix}${setNumber}`;
     };
+
+    const credible_sets = data.credible_sets;
+
+    const root_label = data.root;
+
+    console.log('credible_sets', credible_sets);
+
+    const branches = credible_sets.map((credible_set) => {
+      return {
+        edge1: generateEdgeLabel(credible_set.data_source, conversionTable),
+        node1: getCredibleSetLabel(credible_set.credible_set_id, credible_set.data_source).replace('_', ' '),
+        edge2: "lead SNP",
+        node2: credible_set.snp
+      }
+    });
+
+    console.log('branches', branches);
+
+    const typesDetail = {
+      'root': 'gene',
+      'mid': 'credible_set',
+      'leaf': 'sequence_variant'
+    };
+
+    const nodes = branches.map((branch, index) => {
+      return [
+        {
+          id: `node${index * 2}`,
+          index: index * 2,
+          type: 'mid',
+          label: branch.node1
+        },
+        {
+          id: `node${index * 2 + 1}`,
+          index: index * 2 + 1,
+          type: 'leaf',
+          label: branch.node2,
+        }
+      ]
+    }).flat().concat([
+      {
+        id: 'node_root',
+        index: -1,
+        type: 'root',
+        label: root_label
+      }]);
+
+    const edges = branches.map((branch, index) => {
+      return [
+        {
+          id: `edge${index * 2}`,
+          start: `node_root`,
+          end: `node${index * 2}`,
+          label: branch.edge1
+        },
+        {
+          id: `edge${index * 2 + 1}`,
+          start: `node${index * 2}`,
+          end: `node${index * 2 + 1}`,
+          label: branch.edge2
+        }
+      ]
+    }).flat();
+
+    // 计算每种类型节点的数量
+    // const typeCounts = nodes.reduce((acc, node) => {
+    //   if (node.type.includes('gene')) acc.gene++;
+    //   else if (node.type.includes('credible_set')) acc.credible_set++;
+    //   else if (node.type.includes('sequence_variant')) acc.variant++;
+    //   return acc;
+    // }, { gene: 0, credible_set: 0, variant: 0 });
+
+    const typeCounts = nodes.reduce((acc, node) => {
+      acc[node.type] = (acc[node.type] || 0) + 1;
+      return acc;
+    }
+      , { root: 0, mid: 0, leaf: 0 });
+
+    // 计算总高度和起始位置
+    const totalHeight = (branches.length - 1) * 100;
+    const startY = 250 - (totalHeight / 2);
 
     const cyNodes = nodes.map(node => {
       const baseNodeConfig = {
         group: 'nodes',
         data: {
           id: node.id,
-          label: node.type.includes('credible_set') ? 
-                 getCredibleSetLabel(node.id, node.data_source).replace('_', ' ') :
-                 (node.symbol || node.id),
-          color: node.type.includes('gene') ? colorMap.gene : 
-                 node.type.includes('credible_set') ? '#43978F' :
-                 colorMap.sequence_variant,
+          label: node.label,
+          color: colorMap[typesDetail[node.type]],
           width: 170,
           height: 46,
           fontSize: '20px',
@@ -89,38 +146,20 @@ function IntermediateKG() {
       };
 
       let yOffset;
-      if (node.type.includes('gene')) {
+      if (node.type === 'root') {
         // 基因节点居中
         return {
           ...baseNodeConfig,
           position: { x: 0, y: 250 }
         };
-      } else if (node.type.includes('credible_set')) {
-        yOffset = startY + (typeCount.credible_set++ * 100);
+      } else if (node.type === 'mid') {
+        yOffset = startY + (node.index * 50);
         return {
           ...baseNodeConfig,
           position: { x: 425, y: yOffset }
         };
-      } else if (node.type.includes('sequence_variant')) {
-        // 找到对应的 credible_set 节点的位置
-        const relatedEdge = relationships.find(rel => 
-          (rel.start === node.id || rel.end === node.id) && 
-          nodes.find(n => (n.id === rel.start || n.id === rel.end) && n.type.includes('credible_set'))
-        );
-        
-        if (relatedEdge) {
-          const credibleSetNode = nodes.find(n => 
-            n.type.includes('credible_set') && 
-            (n.id === relatedEdge.start || n.id === relatedEdge.end)
-          );
-          const credibleSetIndex = nodes
-            .filter(n => n.type.includes('credible_set'))
-            .findIndex(n => n.id === credibleSetNode.id);
-          yOffset = startY + (credibleSetIndex * 100);
-        } else {
-          yOffset = startY + (typeCount.variant++ * 100);
-        }
-        
+      } else if (node.type === 'leaf') {
+        yOffset = startY + ((node.index - 1) * 50);
         return {
           ...baseNodeConfig,
           position: { x: 725, y: yOffset }
@@ -129,24 +168,14 @@ function IntermediateKG() {
     });
 
     // 创建边的数据
-    const cyEdges = relationships.map((rel, index) => {
-      const sourceNode = nodes.find(node => node.id === rel.start);
-      const targetNode = nodes.find(node => node.id === rel.end);
-      
-      let label = generateEdgeLabel(rel.data_source, conversionTable);
-      
-      // 如果是从 credible_set 到 snp 的边，修改标签为 "lead SNP"
-      if (targetNode?.type.includes('credible_set') && sourceNode?.type.includes('sequence_variant')) {
-        label = 'lead SNP';
-      }
-      
+    const cyEdges = edges.map((rel, index) => {
       return {
         group: 'edges',
         data: {
-          id: `e${index}`,
+          id: rel.id,
           source: rel.end,  // 保持反转的方向
           target: rel.start,
-          label: label
+          label: rel.label,
         }
       };
     });
@@ -202,7 +231,7 @@ function IntermediateKG() {
     cyRef.current = cy;
 
     // 添加点击事件
-    cy.on('tap', 'node', function(evt) {
+    cy.on('tap', 'node', function (evt) {
       const node = evt.target;
       // console.log('Clicked node:', node.id());
     });
@@ -212,18 +241,18 @@ function IntermediateKG() {
         cyRef.current.destroy();
       }
     };
-  }, [queryVisResult]);
+  }, [data]);
 
   return (
-    <div 
-      ref={containerRef} 
+    <div
+      ref={containerRef}
       style={{
         width: 672,
         height: 472,
         backgroundColor: '#F7F7F74D',
         borderRadius: '8px',
         textAlign: 'left'
-      }} 
+      }}
     />
   );
 }

@@ -1,11 +1,11 @@
-import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
-import {flaskBackendAxiosInstance} from "../axios/axios";
-import {QueryStatus} from "@reduxjs/toolkit/query";
-import {viewSchemaSlice} from "./viewSchemaSlice";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { flaskBackendAxiosInstanceNew } from "../axios/axios";
+import { QueryStatus } from "@reduxjs/toolkit/query";
+import { viewSchemaSlice } from "./viewSchemaSlice";
 
 export const queryQueryVisResult = createAsyncThunk('/queryResultToVisualization',
     async (payload) => {
-        return await flaskBackendAxiosInstance
+        return await flaskBackendAxiosInstanceNew
             .post('/queryResultToVisualization', payload, {
                 headers: {
                     "Content-Type": "application/json"

@@ -222,15 +222,8 @@ function SearchResult() {
     const [currTab, setCurrTab] = useState('reference');
     const dispatch = useDispatch();
 
-    // 从 viewSchema 中获取数据
-    const { viewSchema } = useSelector((state) => state.viewSchema);
-    const queryResult = useSelector((state) => state.queryResult.queryResult);
     const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
-    // const { aiAnswer, queryAiAnswerStatus } = useSelector((state) => state.aiAnswer);
-    // ============= Temporary Disabled ===============
-    const aiAnswer = { answers: [] };
-    // const queryAiAnswerStatus = 'fulfilled';
-    const [queryAiAnswerStatus, setQueryAiAnswerStatus] = useState('pending');
+    const { aiAnswer, queryAiAnswerStatus } = useSelector((state) => state.aiAnswer);
     const searchState = useSelector((state) => state.search);
     const snpPlotImage = useSelector((state) => state.typeToImage.typeToImage);
     const queryTypeToImageStatus = useSelector((state) => state.typeToImage.queryTypeToImageStatus);
@@ -438,12 +431,14 @@ function SearchResult() {
             const processedQuestions = aiQuestions.map(question =>
                 `${question} (answer the question in 50 words)`
             );
-            console.log(processedQuestions);
-            setQueryAiAnswerStatus('fulfilled');
-            // dispatch(queryAiAnswer({
-            //     "question": processedQuestions,
-            //     "graph": queryResult
-            // })).unwrap();
+            console.log("processedQuestions", processedQuestions);
+            dispatch(queryAiAnswer({
+                "question": processedQuestions,
+                "graph": {
+                    combined_query_result: queryResultPage.combined_query_result,
+                    core_nodes: queryResultPage.core_nodes,
+                }
+            })).unwrap();
         }
     }, [queryResultPage, currentQuestion, aiQuestions, dispatch]);
     console.log(aiAnswer);

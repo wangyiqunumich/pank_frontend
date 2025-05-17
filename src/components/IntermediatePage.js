@@ -95,6 +95,7 @@ function IntermediatePage({ onContinue }) {
   const { viewSchema } = useSelector((state) => state.viewSchema);
   const { queryResult } = useSelector((state) => state.queryResult);
   const conversionTable = require("../utils/conversion_table.json");
+  const [rootLabel, setRootLabel] = useState("");
 
   const [selectedTab, setSelectedTab] = useState('');
   const [currPage, setCurrPage] = useState(1);
@@ -431,13 +432,7 @@ function IntermediatePage({ onContinue }) {
       }))
     ) || [];
 
-    // 首先根据 id 去重
-    const uniqueCredibleSets = Array.from(
-      new Map(allCredibleSets.map(item => [item.credible_set_id, item])).values()
-    );
-
-    // 然后根据选中的 tab 进行筛选
-    return uniqueCredibleSets.filter(cs => {
+    const selectedCredibleSets = allCredibleSets.filter(cs => {
       switch (selectedTab) {
         case 'Pancreatic eQTL':
           return cs.data_source === 'GTEx; SusieR';
@@ -451,6 +446,10 @@ function IntermediatePage({ onContinue }) {
           return true;
       }
     });
+
+    return Array.from(
+      new Map(selectedCredibleSets.map(item => [item.credible_set_id, item])).values()
+    );
   };
 
   const handleCredibleSetClick = (credibleSet) => {
@@ -490,6 +489,7 @@ function IntermediatePage({ onContinue }) {
     const relationship = params.get('relationship');
     const targetTerm = params.get('targetTerm');
     const targetSymbol = params.get('targetSymbol');
+    setRootLabel(params.get('targetSymbol') || "");
 
 
     if (sourceTerm && relationship && targetTerm) {
@@ -522,12 +522,6 @@ function IntermediatePage({ onContinue }) {
     const targetValue = targetTerm.split(":")[1] || targetType;
 
     return cypher.replace(/@([^@]+)@/g, (match, term) => {
-      if (term === sourceType) {
-        return sourceValue;
-      } else if (term === targetType) {
-        return targetValue;
-      }
-      return match;
       if (term === sourceType) {
         return sourceValue;
       } else if (term === targetType) {
@@ -1106,7 +1100,7 @@ function IntermediatePage({ onContinue }) {
             }}>
               Graph viewer<TooltipComponent title="Graph viewer" content="Graph viewer." />
             </Typography>
-            {/* <IntermediateKG /> */}
+            <IntermediateKG data={{ credible_sets: getFilteredCredibleSets().slice((currPage - 1) * 5, currPage * 5), root: rootLabel }} />
           </Box>
 
           {/* Legend */}
