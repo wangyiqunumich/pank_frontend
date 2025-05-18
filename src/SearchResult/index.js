@@ -222,15 +222,8 @@ function SearchResult() {
     const [currTab, setCurrTab] = useState('reference');
     const dispatch = useDispatch();
 
-    // 从 viewSchema 中获取数据
-    const { viewSchema } = useSelector((state) => state.viewSchema);
-    const queryResult = useSelector((state) => state.queryResult.queryResult);
     const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
-    // const { aiAnswer, queryAiAnswerStatus } = useSelector((state) => state.aiAnswer);
-    // ============= Temporary Disabled ===============
-    const aiAnswer = { answers: [] };
-    // const queryAiAnswerStatus = 'fulfilled';
-    const [queryAiAnswerStatus, setQueryAiAnswerStatus] = useState('pending');
+    const { aiAnswer, queryAiAnswerStatus } = useSelector((state) => state.aiAnswer);
     const searchState = useSelector((state) => state.search);
     const snpPlotImage = useSelector((state) => state.typeToImage.typeToImage);
     const queryTypeToImageStatus = useSelector((state) => state.typeToImage.queryTypeToImageStatus);
@@ -438,12 +431,14 @@ function SearchResult() {
             const processedQuestions = aiQuestions.map(question =>
                 `${question} (answer the question in 50 words)`
             );
-            console.log(processedQuestions);
-            setQueryAiAnswerStatus('fulfilled');
-            // dispatch(queryAiAnswer({
-            //     "question": processedQuestions,
-            //     "graph": queryResult
-            // })).unwrap();
+            console.log("processedQuestions", processedQuestions);
+            dispatch(queryAiAnswer({
+                "question": processedQuestions,
+                "graph": {
+                    combined_query_result: queryResultPage.combined_query_result,
+                    core_nodes: queryResultPage.core_nodes,
+                }
+            })).unwrap();
         }
     }, [queryResultPage, currentQuestion, aiQuestions, dispatch]);
     console.log(aiAnswer);
@@ -638,6 +633,7 @@ This answer refers to the following resources in PanKbase:`;
     // 获取 URL 参数
     const params = new URLSearchParams(window.location.search);
     const geneId = params.get("geneId");
+    const targetSymbol = params.get("geneSymbol");
 
     return (
         <Container sx={{
@@ -943,8 +939,11 @@ This answer refers to the following resources in PanKbase:`;
                 variant="scrollable"
                 scrollButtons={false}
                 sx={{
-                    minHeight: '30px',
-                    height: '30px',
+                    minHeight: '48px',
+                    height: '48px',
+                    width: 'fit-content',
+                    backgroundColor: '#F2FAFB',
+                    borderRadius: '20px 20px 0px 0px',
                     '& .MuiTab-root': {
                         textTransform: 'none',
                         fontSize: '16px',
@@ -956,18 +955,29 @@ This answer refers to the following resources in PanKbase:`;
                             alignItems: 'flex-start'
                         }
                     },
+                    '& .MuiTab-root:first-child': {
+                        borderTopLeftRadius: '20px',
+                    },
+                    '& .MuiTab-root:last-child': {
+                        borderTopRightRadius: '20px',
+                    },
                 }}
             >
                 {[
                     { value: 'reference', label: 'Reference' },
                     { value: 'visualization', label: 'Visualization' },
-                    { value: 'external_link', label: 'External Link' }
+                    { value: 'pankbase_links', label: 'PanKbase Links' },
+                    { value: 'external_links', label: 'External Links' }
                 ].map((option) => (
                     <Tab
                         sx={{
-                            minHeight: '30px',
-                            height: '30px',
-                            backgroundColor: currTab === option.value ? 'none' : '#F2FAFB'
+                            minHeight: '48px',
+                            height: '48px',
+                            backgroundColor: currTab === option.value ? 'white' : '#F2FAFB',
+                            borderWidth: '1px 1px 0px 1px',
+                            borderStyle: currTab === option.value ? 'solid' : 'none',
+                            borderColor: currTab === option.value ? '#DDDDDD' : '#EEEEEE',
+                            borderRadius: currTab === option.value ? '20px 20px 0px 0px' : 'default',
                         }}
                         key={option.value}
                         label={
@@ -975,10 +985,11 @@ This answer refers to the following resources in PanKbase:`;
                                 component="span"
                                 sx={{
                                     textAlign: 'left',
-                                    fontFamily: 'Inter',
-                                    fontSize: '14px',
+                                    fontFamily: 'Open Sans',
+                                    fontSize: '16px',
                                     color: currTab === option.value ? '#3A838B' : 'black',
-                                    fontWeight: '500',
+                                    fontWeight: currTab === option.value ? '600' : '400',
+                                    marginX: '20px',
                                 }}
                             >
                                 {option.label}
@@ -988,10 +999,10 @@ This answer refers to the following resources in PanKbase:`;
                     />))}
             </Tabs>
             <Box sx={{ padding: '20px', backgroundColor: '#E4F0F1', marginBottom: '20px', borderRadius: '0px 20px 20px 20px' }}>
-                {currTab === 'external_link' && (
+                {currTab === 'pankbase_links' && (
                     <List sx={{ padding: '0px' }}>
                         <ListItem sx={{ paddingY: '0px' }}>
-                            • Link to PanKbase resources:&nbsp;<Link
+                            •&nbsp;<Link
                                 href={process.env.REACT_APP_PANKGRAPH_LINK + '/qtldatasource'}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -1006,7 +1017,7 @@ This answer refers to the following resources in PanKbase:`;
                             >QTL Data Source</Link>
                         </ListItem>
                         <ListItem sx={{ paddingY: '0px' }}>
-                            • Link to PanKbase resources:&nbsp;<Link
+                            •&nbsp;<Link
                                 href={process.env.REACT_APP_PANKGRAPH_LINK + '/pipeline'}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -1018,11 +1029,10 @@ This answer refers to the following resources in PanKbase:`;
                                         textDecoration: 'underline'
                                     }
                                 }}
-                            >Pipeline</Link>
+                            >QTL Pipeline</Link>
                         </ListItem>
                         <ListItem sx={{ paddingY: '0px' }}>
-                            • Link to PanKbase resources:&nbsp;
-                            <Link
+                            •&nbsp;<Link
                                 href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -1038,6 +1048,10 @@ This answer refers to the following resources in PanKbase:`;
                                 Integrated Cell Browser
                             </Link>
                         </ListItem>
+                    </List>
+                )}
+                {currTab === 'external_links' && (
+                    <List sx={{ padding: '0px' }}>
                         <ListItem sx={{ paddingY: '0px' }}>
                             • Link to Ensembl:&nbsp;<Link
                                 href={`https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneId}`}
@@ -1051,7 +1065,7 @@ This answer refers to the following resources in PanKbase:`;
                                         textDecoration: 'underline'
                                     }
                                 }}
-                            > {geneId}</Link>
+                            > {`View the [${targetSymbol} gene (${geneId})] in Ensembl`}</Link>
                         </ListItem>
                     </List>
                 )}
