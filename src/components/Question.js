@@ -6,10 +6,10 @@ import { Link } from 'react-router-dom';
 
 function Question({ selectedQuestion, setSelectedQuestion }) {
   const [questions, setQuestions] = useState([
-    'Which (SNP) serves as the quantitative trait locus (QTL) for {CFTR}?',
-    'Is {Gene} has GWAS signal associated with (T1D)?',
-    'Find the GWAS-QTL co-localization contribute to T1D?',
-    'How is {CFTR}’s expression in {β cells} and it’s link to T1D?',
+    '1@Which (SNP) serves as the quantitative trait locus (QTL) for {CFTR}?',
+    '2@Is {Gene} has GWAS signal associated with (T1D)?',
+    '3@Find the GWAS-QTL co-localization contribute to T1D?',
+    '4@How is {CFTR}’s expression in {β cells} and it’s link to T1D?',
   ]);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -27,18 +27,6 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
     setQuestions([...matchingQuestions, ...nonMatchingQuestions]);
   };
 
-  // const handleSearch = (e) => {
-  //   if (e.key === 'Enter') {
-  //     const query = searchQuery.toLowerCase();
-  //     const matchingQuestions = questions.filter((q) =>
-  //       q.toLowerCase().includes(query)
-  //     );
-  //     const nonMatchingQuestions = questions.filter(
-  //       (q) => !q.toLowerCase().includes(query)
-  //     );
-  //     setQuestions([...matchingQuestions, ...nonMatchingQuestions]);
-  //   }
-  // };
   // 当 selectedQuestion 改变时，确保它在 questions 数组中
   useEffect(() => {
     if (selectedQuestion && !questions.includes(selectedQuestion)) {
@@ -107,6 +95,7 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
       >
         {questions.map((question, index) => {
           const isRelated = question.toLowerCase().includes(searchQuery.toLowerCase());
+          const [qid, questionContent] = question.split('@');
           return (
             <ListItem
               key={index}
@@ -122,7 +111,7 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
                 component="a"
                 href={
                   isRelated
-                  ? `/match?question=${encodeURIComponent(question)}` // Encode the question as a query parameter
+                  ? `/match?question=${encodeURIComponent(questionContent)}&qid=${qid}` // Encode the question as a query parameter
                   : undefined
                 } 
                 sx={{
@@ -159,7 +148,7 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
                   }}
                 />
                 <ListItemText
-                  primary={question}
+                  primary={questionContent}
                   sx={{
                     fontSize: 16,
                     textAlign: 'left',

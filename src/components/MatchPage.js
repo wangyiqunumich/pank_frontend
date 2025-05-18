@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { Box, Typography, Container, Link, Select, MenuItem,Button, FormControl, InputLabel, Snackbar, Alert } from '@mui/material';
+import { Box, Typography, Container, Link, Autocomplete, TextField,MenuItem,Button, FormControl, InputLabel, Snackbar, Alert } from '@mui/material';
 import landingPageLogo from '../image/landing image cropped.png';
 import SearchBar from '../SearchBar';
 import { useNavigate } from 'react-router-dom';
@@ -12,22 +12,21 @@ import axios from 'axios';
 function MatchPage() {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [selectedQuestion, setSelectedQuestion] = useState('');
+  const [qid, setQid] = useState('');
   const [visualPattern, setVisualPattern] = useState('');
   const dispatch = useDispatch();
-
-
+  const [options, setOptions] = useState([]);
+  const [inputValue, setInputValue] = useState('');
   const navigate = useNavigate();
-  const [openSnackbar, setOpenSnackbar] = useState(true);
 
-  const isSearchBarDisabled = !selectedQuestion;
-  const dropdownOptions = {};
-
-  // Extract the question from the URL
+  // 从URL中提取问题和qid
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const questionFromUrl = params.get('question'); // Get the 'question' parameter
+    const questionFromUrl = params.get('question'); // 获取'question'参数
+    const qidFromUrl = params.get('qid'); // 获取'qid'参数
     if (questionFromUrl) {
-      setSelectedQuestion(decodeURIComponent(questionFromUrl)); // Decode the question and set it
+      setSelectedQuestion(decodeURIComponent(questionFromUrl)); // 解码问题并设置它
+      setQid(qidFromUrl);
     }
   }, []);
 
@@ -39,27 +38,38 @@ function MatchPage() {
     return (_) => {
       window.removeEventListener('resize', handleResize);
     };
-  });
+  },[]);
 
-  // Handle dropdown value change
-  const handleDropdownChange = (value, placeholder) => {
-    setSelectedQuestion((prevQuestion) =>
-      prevQuestion.replace(`{${placeholder}}`, `{${value}}`) // Replace the placeholder with the selected value
-    );
-  };
 
   // Handle submit button click
   const handleSubmit = () => {
-    navigate(`/intermediate?question=${encodeURIComponent(selectedQuestion)}`); // Navigate to the intermediate page with the updated question
+    const consequenceMatch = selectedQuestion.match(/\{(.*?)\}|\(.*?\)/g);
+    const sourceTerm = consequenceMatch[0] ? consequenceMatch[0].replace(/[{}()]/g, '') : '';
+    const relationTerm = consequenceMatch[1] ? consequenceMatch[1].replace(/[{}()]/g, '') : '';
+    const targetTerm = consequenceMatch[2] ? consequenceMatch[2].replace(/[{}()]/g, '') : '';
+  
+    const url = `/intermediate?qid=${qid}&sourceTerm=${sourceTerm}&relationship=${relationTerm}&targetTerm=gene:${targetTerm}&question=${selectedQuestion}`;
+    navigate(url);
+  };
+
+  function updateSource(newInputValue) {
+    const geneName = newInputValue;
+    dispatch(queryVocab({input: geneName})).unwrap() 
+    .then((response) => 
+      { if (response) {
+        console.log('response in updateSource', response);
+        console.log('geneName', geneName);
+        const geneId = response.replace('gene', geneName);
+        setOptions([geneId]);
+      }});
   };
 
   function renderSequence() {
-    const sequence = selectedQuestion || ''; // Use the selected question or an empty string
-    const parts = sequence.split(/(\{.*?\}|\(.*?\))/); // Split the string into parts based on {} or ()
+    const sequence = selectedQuestion || ''; // 使用选定的问题或空字符串
+    const parts = sequence.split(/(\{.*?\}|\(.*?\))/); // 根据{}或()将字符串分割成部分
   
     return parts.map((part, index) => {
       if (part.startsWith('(') && part.endsWith(')')) {
-        // Render grey box for items enclosed in ()
         return (
           <Box
             key={index}
@@ -76,52 +86,67 @@ function MatchPage() {
           </Box>
         );
       } else if (part.startsWith('{') && part.endsWith('}')) {
-        // Render dropdown for items enclosed in {}
-        const options = ['Option 1', 'long option test', 'CFTR']; // Example dropdown options
         return (
           <Box key={index} sx={{ display: 'inline-flex', alignItems: 'center',marginLeft: '-8px' }} >
-            <Select
-              defaultValue=""
-              displayEmpty
-              onChange={(e) => handleDropdownChange(e.target.value, part.slice(1, -1))}
-              sx={{
-                backgroundColor: '#EFF5FF',
-                border: '1px solid #71B9FA', // Remove the default border
-                borderRadius: '8px',
-                minWidth: '80px',
-                mx: 1,
-                '& .MuiSelect-select': {
-                  padding: '2px 20px 2px 8px  !important',
-                  alignItems: 'center',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  overflow: 'hidden !important',
-                  textOverflow: 'ellipsis !important',
-                },
-                '.MuiOutlinedInput-notchedOutline': {
-                  border:'none',
-                  marginLeft: '0px !important',
-                },
-                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                  border: 'none',
-                },
-                '.MuiSvgIcon-root ': {
-                  position: 'absolute',
-                  right: '2px', 
-                  color: '#A9D3FC',
-                },
-                
+            <Autocomplete
+              freeSolo
+              defaultValue={part.slice(1, -1)}
+              options={options}
+              onInputChange={(event, newInputValue) => {
+                if(newInputValue) {
+                  updateSource(newInputValue);
+                }else{
+                  setOptions([]);
+                }
               }}
-            >
-              <MenuItem value="" disabled>
-                {part.slice(1, -1)} {/* Use the text inside the curly braces as the placeholder */}
-              </MenuItem>
-              {options.map((option, idx) => (
-                <MenuItem key={idx} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </Select>
+              onChange={(event, newValue) => {
+                if (newValue && selectedQuestion) {
+                  setSelectedQuestion((prevQuestion) => {
+                    if (!prevQuestion) return '';
+                    return prevQuestion.replace(`{${part.slice(1, -1)}}`, `{${newValue}}`);
+                  });
+                }
+              }}
+              value={inputValue}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  onChange={(e) => {
+                    setInputValue(e.target.value);  // 更新输入值
+                    if (e.target.value) {
+                      updateSource(e.target.value);
+                    }
+                  }}
+                  sx={{
+                    backgroundColor: '#EFF5FF',
+                    border: '1px solid #71B9FA',
+                    borderRadius: '8px',
+                    minWidth: '80px',
+                    mx: 1,
+                    '& .MuiAutocomplete-root': {
+                      width: 'auto !important',
+                    },
+                    '& .MuiOutlinedInput-root':{
+                      padding: '2px 8px !important',
+                      width: 'auto !important',
+                      '& fieldset': {
+                        border: 'none',
+                      },
+                      '&:hover fieldset': {
+                        border: 'none',
+                      },
+                      '&.Mui-focused fieldset': {
+                        border: 'none',
+                      },
+                    },
+                    '& .MuiInputBase-input': {
+                      padding: '2px 8px !important',
+                      width: 'auto !important',
+                    },
+                  }}
+                />
+              )}
+            />
           </Box>
         );
       } else {
@@ -140,77 +165,16 @@ function MatchPage() {
       }
     });
   };
-  // Function to fetch the gene pattern
-  const fetchGenePattern = async (question) => {
-    // Extract the gene name from the question
-    const geneNameMatch = question.match(/\{(.*?)\}/); // Match text inside {}
-    if (!geneNameMatch) {
-      console.error('Gene name not found in the question');
-      setVisualPattern('Gene name not found');
-      return;
-    }
-    const geneName = geneNameMatch[1]; // Extract the gene name
 
-    try {
-      // Make a request to the Amazon API Gateway to fetch the gene ID
-      const response = await axios.post('https://vcr7lwcrnh.execute-api.us-east-1.amazonaws.com/development/inputToVocab', 
-        { input: geneName }, 
-        { headers: { 'Content-Type': 'application/json' } }
-      );
-      console.log(response.data); // Log the API response for debugging
-      // Extract the gene ID from the API response
-      const geneId = response.data; // Assuming the API returns { "gene_id": "some_id" }
-
-      if (!geneId) {
-        console.error('Gene ID not found for the given gene name');
-        setVisualPattern('Gene ID not found');
-        return;
-      }
-
-      // Construct the pattern
-      const pattern = `(SNP) - eqtl of -> (@${geneId.split('@')[1]}@)`;
-      setVisualPattern(pattern); // Update the state with the fetched pattern
-    } catch (error) {
-      console.error('Error fetching gene ID:', error.message);
-      setVisualPattern('Failed to fetch gene ID');
-    }
-  };
-
-  // Update the gene pattern whenever selectedQuestion changes
   useEffect(() => {
     if (selectedQuestion) {
-      fetchGenePattern(selectedQuestion);
+      const extractedParts = selectedQuestion.match(/\(\s*.*?\s*\)|\{\s*.*?\s*\}/g);
+      const connectedString = extractedParts.join('-');
+      setVisualPattern(connectedString);
+      console.log('visual pattern', connectedString);
     }
   }, [selectedQuestion]);
 
-  // useEffect(() => {
-  //   if (selectedQuestion) {
-  //     // Extract the gene name from the selected question
-  //     const geneNameMatch = selectedQuestion.match(/\{(.*?)\}/); // Match text inside {}
-  //     if (geneNameMatch) {
-  //       const geneName = geneNameMatch[1]; // Extract the gene name
-  
-  //       // Dispatch the queryVocab action to fetch the gene ID
-  //       dispatch(queryVocab(geneName))
-  //         .unwrap()
-  //         .then((response) => {
-  //           if (response.gene_id) {
-  //             // Construct the pattern using the fetched gene ID
-  //             const pattern = `(SNP) - eqtl of -> (@${response.gene_id}@)`;
-  //             setVisualPattern(pattern); // Update the state with the fetched pattern
-  //           } else {
-  //             setVisualPattern('Gene ID not found');
-  //           }
-  //         })
-  //         .catch((error) => {
-  //           console.error('Error fetching gene ID:', error.message);
-  //           setVisualPattern('Failed to fetch gene ID');
-  //         });
-  //     } else {
-  //       setVisualPattern('Gene name not found in the question');
-  //     }
-  //   }
-  // }, [selectedQuestion, dispatch]);
 
   return (
     <Container maxWidth={false} disableGutters sx={{
@@ -302,7 +266,6 @@ function MatchPage() {
       </Box>
       
       <Typography sx={{ 
-          marginBottom: 2,
           color: '#398289',
           fontSize: 17,
           fontWeight: 600,
@@ -344,6 +307,7 @@ function MatchPage() {
       </Box>
     </Container>
   );
-}
+};
+
 
 export default MatchPage;
