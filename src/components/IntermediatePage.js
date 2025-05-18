@@ -485,13 +485,20 @@ function IntermediatePage({ onContinue }) {
   // 添加从 URL 读取参数的逻辑
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const sourceTerm = params.get('sourceTerm');
+    let sourceTerm = params.get('sourceTerm');
     const relationship = params.get('relationship');
-    const targetTerm = params.get('targetTerm');
-    const targetSymbol = params.get('targetSymbol');
-    setRootLabel(params.get('targetSymbol') || "");
-
-
+    let targetTerm = params.get('targetTerm');
+    let targetSymbol;
+    console.log(sourceTerm, relationship, targetTerm);
+    if (sourceTerm.includes("@")) {
+      targetSymbol = sourceTerm.split(":")[1].split("@")[0] || "";
+      sourceTerm = `${sourceTerm.split(":")[0]}:${sourceTerm.split("@")[1]}` || "";
+    } else {
+      targetSymbol = targetTerm.split(":")[1].split("@")[0] || "";
+      targetTerm = `${targetTerm.split(":")[0]}:${targetTerm.split("@")[1]}` || "";
+    }
+    console.log(sourceTerm, relationship, targetTerm);
+    setRootLabel(targetSymbol || "");
     if (sourceTerm && relationship && targetTerm) {
       // 更新 Redux store 中的搜索条件
       dispatch(

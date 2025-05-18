@@ -1,0 +1,14 @@
+{
+    "intermediate": {
+        "Question": "Tooltip for 'Question' section",
+        "Graph Viewer": "Tooltip for 'Graph Viewer' section",
+        "Result": "Tooltip for 'Result' section"
+    },
+    "result": {
+        "You May Also Ask": "Tooltip for 'You May Also Ask' section",
+        "Legend": "Tooltip for 'Legend' section",
+        "Question": "Tooltip for 'Question' section",
+        "AI's Overview": "Tooltip for 'AI's Overview' section",
+        "Graph Viewer": "Tooltip for 'Graph Viewer' section"
+    }
+}
