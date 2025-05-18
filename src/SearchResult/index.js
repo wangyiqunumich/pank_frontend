@@ -30,6 +30,7 @@ import NavBar from "../NavBar";
 import CarouselCards from '../components/SupportingMaterial';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import tooltipsSchema from '../schema/tool_tips_schema.json';
 
 const colorMap = {
     gene: "#ABD0F1",
@@ -71,7 +72,7 @@ const TooltipComponent = ({ title, content }) => (
             title={
                 <React.Fragment>
                     <Typography color="inherit">{title}</Typography>
-                    {content}
+                    {tooltipsSchema.result[title] || ""}
                 </React.Fragment>
             }
         >
@@ -295,9 +296,7 @@ function SearchResult() {
                             // const fineMapEQTL = response?.payload?.results[0]?.all_extend_rels?.find(
                             //     rel => rel['~type'] === 'fine_mapped_eQTL'
                             // );
-                            const fineMapEQTL = response?.payload?.combined_query_result?.edges?.find(
-                                rel => rel['~type'] === 'fine_mapped_eQTL'
-                            );
+
 
                             const variables = {
                                 snpId: getIdFromTerm(sourceTerm),
@@ -326,27 +325,30 @@ function SearchResult() {
                                     processedCurrentQuestion = replaceVariables(question_for_result, variables);
                                     break;
                             }
+                            const fineMapEQTL = response?.payload?.combined_query_result?.edges?.find(
+                                rel => rel['~type'] === 'fine_mapped_eQTL'
+                            );
 
                             let nextVariables;
-                            if (sourceTerm == 'rs2402203' && targetTerm == 'ENSG00000001626') {
-                                nextVariables = {
-                                    snpId: 'rs177069',
-                                    leadSnp: 'rs177069',
-                                    geneId: 'ENSG00000001626',
-                                    dataSource: 'splicing; GTEx',
-                                    tissueKey: 'pancreas',
-                                    geneSymbol: 'CFTR'
-                                };
-                            } else {
-                                nextVariables = {
-                                    snpId: fineMapEQTL['~start'],
-                                    leadSnp: fineMapEQTL['~start'],
-                                    geneId: fineMapEQTL['~end'],
-                                    dataSource: fineMapEQTL['~properties']['data_source'],
-                                    tissueKey: fineMapEQTL['~properties']['tissue_name'].toLowerCase(),
-                                    geneSymbol: params.get('geneSymbol')
-                                };
-                            }
+                            // if (sourceTerm == 'rs2402203' && targetTerm == 'ENSG00000001626') {
+                            nextVariables = {
+                                snpId: 'rs177069',
+                                leadSnp: 'rs177069',
+                                geneId: 'ENSG00000001626',
+                                dataSource: 'splicing; GTEx',
+                                tissueKey: 'pancreas',
+                                geneSymbol: 'CFTR'
+                            };
+                            // } else {
+                            //     nextVariables = {
+                            //         snpId: fineMapEQTL['~start'],
+                            //         leadSnp: fineMapEQTL['~start'],
+                            //         geneId: fineMapEQTL['~end'],
+                            //         dataSource: fineMapEQTL['~properties']['data_source'],
+                            //         tissueKey: fineMapEQTL['~properties']['tissue_name'].toLowerCase(),
+                            //         geneSymbol: params.get('geneSymbol')
+                            //     };
+                            // }
 
                             let processedNextQuestions;
                             switch (nextVariables.dataSource) {
