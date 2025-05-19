@@ -48,7 +48,7 @@ function MatchPage() {
     const relationTerm = consequenceMatch[1] ? consequenceMatch[1].replace(/[{}()]/g, '') : '';
     const targetTerm = consequenceMatch[2] ? consequenceMatch[2].replace(/[{}()]/g, '') : '';
   
-    const url = `/intermediate?qid=${qid}&sourceTerm=${sourceTerm}&relationship=${relationTerm}&targetTerm=gene:${targetTerm}&question=${selectedQuestion}`;
+    const url = `/intermediate?qid=${qid}&sourceTerm=sequence_variant&relationship=fine_mapped_QTL&targetTerm=gene:${targetTerm}&question=${selectedQuestion}`;
     navigate(url);
   };
 
@@ -90,7 +90,7 @@ function MatchPage() {
           <Box key={index} sx={{ display: 'inline-flex', alignItems: 'center',marginLeft: '-8px' }} >
             <Autocomplete
               freeSolo
-              defaultValue={part.slice(1, -1)}
+              initialValue={part.slice(1, -1)}
               options={options}
               onInputChange={(event, newInputValue) => {
                 if(newInputValue) {
