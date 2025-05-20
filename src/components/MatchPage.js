@@ -17,6 +17,7 @@ function MatchPage() {
   const dispatch = useDispatch();
   const [options, setOptions] = useState([]);
   const [inputValue, setInputValue] = useState('');
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const navigate = useNavigate();
 
   // 从URL中提取问题和qid
@@ -67,7 +68,6 @@ function MatchPage() {
   function renderSequence() {
     const sequence = selectedQuestion || ''; // 使用选定的问题或空字符串
     const parts = sequence.split(/(\{.*?\}|\(.*?\))/); // 根据{}或()将字符串分割成部分
-  
     return parts.map((part, index) => {
       if (part.startsWith('(') && part.endsWith(')')) {
         return (
@@ -90,24 +90,27 @@ function MatchPage() {
           <Box key={index} sx={{ display: 'inline-flex', alignItems: 'center',marginLeft: '-8px' }} >
             <Autocomplete
               freeSolo
-              initialValue={part.slice(1, -1)}
               options={options}
+              value={part.slice(1, -1)?part.slice(1, -1):''}
               onInputChange={(event, newInputValue) => {
                 if(newInputValue) {
                   updateSource(newInputValue);
+                  setIsSubmitDisabled(!options.includes(newInputValue));
                 }else{
                   setOptions([]);
+                  setIsSubmitDisabled(true);
                 }
               }}
               onChange={(event, newValue) => {
-                if (newValue && selectedQuestion) {
+                if (newValue) {
+                  if(selectedQuestion){
                   setSelectedQuestion((prevQuestion) => {
                     if (!prevQuestion) return '';
                     return prevQuestion.replace(`{${part.slice(1, -1)}}`, `{${newValue}}`);
                   });
                 }
+                setIsSubmitDisabled(!newValue);}
               }}
-              value={inputValue}
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -121,14 +124,13 @@ function MatchPage() {
                     backgroundColor: '#EFF5FF',
                     border: '1px solid #71B9FA',
                     borderRadius: '8px',
-                    minWidth: '80px',
+                    width: 'auto !important',
                     mx: 1,
-                    '& .MuiAutocomplete-root': {
-                      width: 'auto !important',
+                    '& .MuiAutocomplete-input':{
+                      width: '80px !important',
                     },
                     '& .MuiOutlinedInput-root':{
                       padding: '2px 8px !important',
-                      width: 'auto !important',
                       '& fieldset': {
                         border: 'none',
                       },
@@ -140,8 +142,7 @@ function MatchPage() {
                       },
                     },
                     '& .MuiInputBase-input': {
-                      padding: '2px 8px !important',
-                      width: 'auto !important',
+                      padding: '2px 18px 2px 8px !important',
                     },
                   }}
                 />
@@ -270,7 +271,7 @@ function MatchPage() {
           fontSize: 17,
           fontWeight: 600,
         }}>
-        Graph Visualization
+        Graph visualization
       </Typography>
       <Box sx={{
         backgroundColor: '#FFFFFF',
@@ -299,6 +300,7 @@ function MatchPage() {
         },
       }}
       onClick={handleSubmit}
+      disabled={isSubmitDisabled}
     >
       Submit
     </Button>
