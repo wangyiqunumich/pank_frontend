@@ -8,7 +8,6 @@ import {
   Container,
   Grid,
   IconButton,
-  Link,
   Paper,
   Pagination,
   Tab,
@@ -29,63 +28,24 @@ import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 import InfoOutlineIcon from '@mui/icons-material/InfoOutlined';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import CloseIcon from '@mui/icons-material/Close';
 import DownloadIcon from '@mui/icons-material/Download';
 
-import NavBar from '../NavBar';
-import SearchBar from '../SearchBar';
-import KnowledgeGraph from './KnowledgeGraph';
 import IntermediateKG from './IntermediateKG';
 
 import { queryQueryResult } from '../redux/queryResultSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
-import { setProcessedQuestion } from '../redux/processedQuestionSlice';
-import { setSearchTerms, setUsingFallback } from '../redux/searchSlice';
-import { setVariables } from '../redux/variablesSlice';
+import { setSearchTerms } from '../redux/searchSlice';
+import tooltipsSchema from '../schema/tool_tips_schema.json';
 
 import './styles.css'
 
 import {
   getDataSourceInfo,
   replaceTerms,
-  replaceVariables,
 } from '../utils/textProcessing';
-import { replace } from 'react-router-dom';
 
-const HtmlTooltip = styled(({ className, ...props }) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))(({ theme }) => ({
-  [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: '#219197',
-    color: 'rgba(255, 255, 255, 0.87)',
-    maxWidth: 220,
-    fontSize: theme.typography.pxToRem(12),
-    border: '1px solid #dadde9',
-    shadow: '0 0 10px rgba(0, 0, 0, 0.1)',
-  },
-}));
 
-const TooltipComponent = ({ title, content }) => (
-  <>
-    &nbsp;&nbsp;<HtmlTooltip
-      title={
-        <React.Fragment>
-          <Typography color="inherit" sx={{ fontFamily: 'Open Sans' }}>{title}</Typography>
-          {content}
-        </React.Fragment>
-      }
-    >
-      <InfoOutlineIcon sx={{
-        position: 'relative',
-        top: "6px",
-        right: 0,
-        color: '#1976d2',
-        cursor: 'pointer',
-        width: "0.7em",
-      }} />
-    </HtmlTooltip>
-  </>);
 
 function IntermediatePage({ onContinue }) {
   const [error, setError] = useState(false);
@@ -100,26 +60,44 @@ function IntermediatePage({ onContinue }) {
   const [selectedTab, setSelectedTab] = useState('');
   const [currPage, setCurrPage] = useState(1);
 
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [notification, setNotification] = useState(true);
   const [tableColumns, setTableColumns] = useState([]);
 
-  useEffect(() => {
-    function handleResize() {
-      setWindowWidth(window.innerWidth);
-    }
-    window.addEventListener("resize", handleResize);
-    return (_) => {
-      window.removeEventListener("resize", handleResize);
-    };
-  });
+  const [toolTipsData, setToolTipsData] = useState({});
 
-  const tabOptions = [
-    "Pancreatic eQTL",
-    "Islet eQTL",
-    "Pancreatic splicing QTL",
-    "Islet Exon QTL",
-  ];
+  const HtmlTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: '#219197',
+      color: 'rgba(255, 255, 255, 0.87)',
+      maxWidth: 220,
+      fontSize: theme.typography.pxToRem(12),
+      border: '1px solid #dadde9',
+      shadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+    },
+  }));
+
+  const TooltipComponent = ({ title, content }) => (
+    <>
+      &nbsp;&nbsp;<HtmlTooltip
+        title={
+          <React.Fragment>
+            <Typography color="inherit" sx={{ fontFamily: 'Open Sans' }}>{title}</Typography>
+            {toolTipsData?.intermediate?.[title] || ""}
+          </React.Fragment>
+        }
+      >
+        <InfoOutlineIcon sx={{
+          position: 'relative',
+          top: "6px",
+          right: 0,
+          color: '#1976d2',
+          cursor: 'pointer',
+          width: "0.7em",
+        }} />
+      </HtmlTooltip>
+    </>);
 
   const floatKeys = [
     "purity",
@@ -416,6 +394,10 @@ function IntermediatePage({ onContinue }) {
           targetTerm,
         })
       );
+
+      let questionType = `${sourceTerm.split(":")[0]} - ${relationship} - ${targetTerm.split(":")[0]}`;
+      let specificType = `${sourceTerm.includes(":") ? "specific" : "general"} - relationship - ${targetTerm.includes(":") ? "specific" : "general"}`;
+      setToolTipsData(tooltipsSchema[questionType]?.[specificType]);
     }
   }, []); // 仅在组件挂载时执行一次
 
@@ -746,7 +728,7 @@ function IntermediatePage({ onContinue }) {
                                   }
                                 }}
                                 title={<Typography sx={{ fontFamily: 'Open Sans', fontSize: '14px' }}>
-                                  1111
+                                  {toolTipsData?.intermediate_page_table?.[column.label] || ""}
                                 </Typography>
                                 }>
                                 <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
