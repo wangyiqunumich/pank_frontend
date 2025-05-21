@@ -7,9 +7,9 @@
               "(SNP) - eqtl of -> (@gene@)"
               ,
             "cyper_for_intermediate_page": 
-              "MATCH (variant:sequence_variant:snp)-[r:fine_mapped_eQTL]->(gene:coding_elements {id:'@gene@'}) WITH CASE WHEN r.data_source='GTEx; SusieR' THEN 'GTEx; SusieR' WHEN r.data_source='INSPIRE; SusieR' THEN 'INSPIRE; SusieR' WHEN r.data_source='splicing; GTEx' THEN 'splicing; GTEx' WHEN r.data_source='exon; INSPIRE' THEN 'exon; INSPIRE' ELSE 'Other' END AS data_source, r, variant WITH data_source, COLLECT({snp: id(variant), credible_set_id: r.credible_set, data_source: r.data_source, pip: r.pip, n_snp: r.n_snp, purity: r.purity, nominal_p: r.nominal_p, lbf: r.lbf, effect_allele: r.effect_allele}) AS credible_sets RETURN data_source, credible_sets ORDER BY data_source;"
+              "MATCH (variant:sequence_variant:snp)-[r:fine_mapped_eQTL]->(gene:coding_elements {id:'@gene@'}) WITH CASE WHEN r.data_source='GTEx; SusieR' THEN 'GTEx; SusieR' WHEN r.data_source='INSPIRE; SusieR' THEN 'INSPIRE; SusieR' WHEN r.data_source='splicing; GTEx' THEN 'splicing; GTEx' WHEN r.data_source='exon; INSPIRE' THEN 'exon; INSPIRE' ELSE 'Other' END AS data_source, r, variant WITH data_source, COLLECT({snp_id: id(variant), credible_set_id: r.credible_set, data_source: r.data_source, pip: r.pip, n_snp: r.n_snp, purity: r.purity, nominal_p: r.nominal_p, lbf: r.lbf, effect_allele: r.effect_allele}) AS credible_sets RETURN data_source, credible_sets ORDER BY data_source;"
               ,
-            "intermediate_page_table":[{"Credible set":"credible_set_id"},{"Purity":"purity"},{"Lead SNP":"snp"},{"PIP":"pip","#":"n_snp"}]
+            "intermediate_page_table":[{"Credible set":"credible_set_id"},{"Purity":"purity"},{"Lead SNP":"snp_id"},{"PIP":"pip","#":"n_snp"}]
               ,
             "question_for_result": 
               "How does the SNP @snp_id@ influence the expression of @gene_symbol@(@gene_id@) in @tissue@ tissue, as reported by @method@?"
