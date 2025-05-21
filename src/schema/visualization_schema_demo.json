@@ -1,43 +1,4 @@
-{"Conversion_table": {
-      "query_vocab_frontend_KG": {
-          "sequence variant": "sequence_variant",
-          "gene": "gene",
-          "QTL of": "fine_mapped_QTL"
-      },
-      "query_vocab_KG_frontend": {
-          "sequence_variant": "sequence variant",
-          "gene": "gene",
-          "fine_mapped_QTL": "QTL of"
-      }
-        "data_source_KG_frontend": {
-          "GTEx; SusieR": "eQTL GTEx",
-          "INSPIRE; SusieR": "eQTL InsPIRE",
-          "splicing; GTEx": "splicing QTL GTEx",
-          "exon; INSPIRE": "exon QTL InsPIRE"
-      },
-      "data_source_frontend_KG": {
-          "eQTL GTEx": "GTEx; SusieR",
-          "eQTL InsPIRE": "INSPIRE; SusieR",
-          "splicing QTL GTEx": "splicing; GTEx; SusieR",
-          "exon QTL InsPIRE": "exon; INSPIRE"
-      },
-        "Tissue_KG_tissue_name": {
-          "GTEx; SusieR": "pancreatic",
-          "INSPIRE; SusieR": "islet",
-          "splicing; GTEx": "pancreatic",,
-          "exon; INSPIRE": "islet",
-              
-      },
-        "Color": {
-            "gene": "#ABD0F1",
-            "sequence_variant": "#FFB77F",
-            "pathway": "#F6C957",
-            "ontology" : "#B57E47",
-            "article":"#87C8BC",
-            "open chromatin region": "#E39ECE",
-      }
-},
-    "sequence_variant - fine_mapped_QTL - gene": {
+{"snp - QTL - gene": {
         "general - relationship - specific": {
             "question": [
                 "Which {SNP} serves as the lead {QTL} for {gene@gene@}?"
@@ -48,15 +9,12 @@
             "cyper_for_intermediate_page": 
               "MATCH (variant:sequence_variant:snp)-[r:fine_mapped_eQTL]->(gene:coding_elements {id:'@gene@'}) WITH CASE WHEN r.data_source='GTEx; SusieR' THEN 'GTEx; SusieR' WHEN r.data_source='INSPIRE; SusieR' THEN 'INSPIRE; SusieR' WHEN r.data_source='splicing; GTEx' THEN 'splicing; GTEx' WHEN r.data_source='exon; INSPIRE' THEN 'exon; INSPIRE' ELSE 'Other' END AS data_source, r, variant WITH data_source, COLLECT({snp: id(variant), credible_set_id: r.credible_set, data_source: r.data_source, pip: r.pip, n_snp: r.n_snp, purity: r.purity, nominal_p: r.nominal_p, lbf: r.lbf, effect_allele: r.effect_allele}) AS credible_sets RETURN data_source, credible_sets ORDER BY data_source;"
               ,
-            "cyper_for_intermediate_KG_viewer":
-            "MATCH (variant:sequence_variant:snp)-[r:fine_mapped_eQTL]->(gene:coding_elements {id:'@gene@'}) WITH variant, gene, CASE WHEN r.data_source='GTEx; SusieR' THEN 'GTEx; SusieR' WHEN r.data_source='INSPIRE; SusieR' THEN 'INSPIRE; SusieR' WHEN r.data_source='splicing; GTEx' THEN 'splicing; GTEx' WHEN r.data_source='exon; INSPIRE' THEN 'exon; INSPIRE' ELSE 'Other' END AS data_source, r WITH data_source, variant, gene, r RETURN data_source, r.credible_set AS credible_sets, id(gene) AS gene_id, gene.name AS gene_symbol, id(variant) AS variant_id, variant.link AS variant_link ORDER BY data_source;"
-            ,
-            "selection_result" : 
-              "snp_node, QTL_of, gene_node, belong_to_credible_set, credible_set_node, data_source, tissue"
-              ,
+			"intermediate_page_table":[{"Credible set":"credible_set_id"},{"Purity":"purity"},{"Lead SNP":"snp"},{"PIP":"pip","#":"n_snp"}]
+			,
             "question_for_result": 
-              "How does the lead SNP @snp_node@ influence the quantitative trait locus of @gene_node@ in @tissue@ tissue, as reported by @data_source@?"
-              ,
+			"How does the SNP @snp_id@ influence the expression of @gene_symbol@(@gene_id@) in @tissue@ tissue, as reported by @method@?"
+             
+			,
             "cypher_for_result_page_core": 
                   "MATCH (variant:sequence_variant:snp), (gene:coding_elements) WHERE ID(variant) = '@snp@' AND ID(gene) = '@gene@' MATCH (variant)-[r:fine_mapped_eQTL]-(gene) WITH collect(DISTINCT variant) + collect(DISTINCT gene) AS nodes, collect(DISTINCT r) AS edges RETURN { results: [ { nodes: nodes, edges: edges } ] } AS output;"
             ,
@@ -65,21 +23,19 @@
             ,
             "ai_question_for_result":
               [
-                    "From the given JSON information, summarize the key characteristics and functions of the gene @gene_node@, including its involvement in immune regulation and associated pathways",
-                    "Based on the JSON data, describe the relationship between the SNP @snp_node@ and the QTL of @gene_node@ in the pancreas, including details such as the effect allele, slope, posterior inclusion probability (PIP), and nominal p-value",
-                    "Considering the input JSON, discuss the association between the gene @gene_node@ and Type 1 diabetes, including any evidence linking genetic variants to the disease"
+                    "From the given JSON information, summarize the key characteristics and functions of the gene @gene_id@, including its involvement in immune regulation and associated pathways",
+                    "Based on the JSON data, describe the relationship between the SNP @snp_id@ and the QTL of @gene_id@ in the pancreas, including details such as the effect allele, slope, posterior inclusion probability (PIP), and nominal p-value",
+                    "Considering the input JSON, discuss the association between the gene @gene_id@ and Type 1 diabetes, including any evidence linking genetic variants to the disease"
               ],
               "ai_answer_sub_title":
               [
                     "Gene overview:",
                     "QTL overview:",
                     "Specific relation to Type 1 Diabetes:"
-              ],
-            "ai_answer_title":
-                  "Currently SNP @sno_node@ is the QTL of the gene: @gene_node@(@gene_id@)"
+              ]
             ,
-            "next_questions": [
-                "How does the lead SNP @snp_node1@ influence the quantitative trait locus of @gene_node1@ in @tissue1@ tissue, as reported by @data_source1@?"
+            "next_questions": {
+                "How does the lead SNP @snp_node1@ influence the quantitative trait locus of @gene_node1@ in @tissue1@ tissue, as reported by @data_source1@?":
                   {
                   "source_term":"sequence_variant",
                   "relationship": "fine_mapped_QTL",
@@ -87,53 +43,48 @@
                   "@snp_node1@":"another snp from json",
                   "@gene_node1@": "gene_node",
                   "@tissue1@":"another tissue from json",
-                  "@data_source1@":"another data_source from json",
+                  "@data_source1@":"another data_source from json"
                   }
-            ],
-            "visualizations": {
-                "manhattan_plot": {
-                    "credible_set_id": "@credible_set@"
-                }
-            }
+            },
+			"resources_tabs": {
+			"reference": {},
+			"visualization": {},
+			"pankbase_links":{},
+			"external_links":[["Link to Ensembl: ","View the @gene_symbol@(@gene_id@) in Ensembl","https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000001626"]]
+			
+			}         
         },
-    },
-      "gene - GWAS - ontology": {
-        "general - relationship - specific": {
+"specific - relationship - specific": {
             "question": [
-                "Is {gene} has GWAS signal associated with (ontology@ontology@)?"
+                "Does {SNP} serves as a {QTL} for {gene@gene@}?"
             ],
-            "cyper_for_intermediate_page": 
-              ""
-              ,
-            "cyper_for_intermediate_KG_viewer":
-                  ""
-            ,
-            "selection_result" : 
-              ""
-              ,
+            "pattern_for_the_matched_page": 
+              "(@gene@) - eqtl of -> (@gene@)"
+             ,       
             "question_for_result": 
-              "How does the {@gene@} has GWAS signal associated with (ontology@ontology@)??"
-              ,
+			"How does the SNP @snp_id@ influence the expression of @gene_symbol@(@gene_id@) in @tissue@ tissue, as reported by @method@?"
+			,
+            "cypher_for_result_page_core": 
+                  "MATCH (variant:sequence_variant:snp), (gene:coding_elements) WHERE ID(variant) = '@snp@' AND ID(gene) = '@gene@' MATCH (variant)-[r:fine_mapped_eQTL]-(gene) WITH collect(DISTINCT variant) + collect(DISTINCT gene) AS nodes, collect(DISTINCT r) AS edges RETURN { results: [ { nodes: nodes, edges: edges } ] } AS output;"
+            ,
+            "cypher_for_result_page_nbr": 
+                  "MATCH (variant:sequence_variant)-[r1]-(nbr1) WHERE ID(variant) = '@snp@' WITH r1, nbr1 MATCH (gene:coding_elements)-[r2]-(nbr2) WHERE ID(gene) = '@gene@'WITH collect(DISTINCT r1) + collect(DISTINCT r2) AS rels, collect(DISTINCT nbr1) + collect(DISTINCT nbr2) AS nbrs WITH rels, [n IN nbrs WHERE NOT id(n) IN ['@snp@','@gene@']] AS nodes RETURN { results: [ { nodes: nodes, edges: rels } ] } AS output;"
+            ,
             "ai_question_for_result":
               [
-                    "From the given JSON information, summarize the key characteristics and functions of the gene @gene_node@, including its involvement in immune regulation and associated pathways",
-                    "Based on the JSON data, describe the relationship between the SNP @snp_node@ and the QTL of @gene_node@ in the pancreas, including details such as the effect allele, slope, posterior inclusion probability (PIP), and nominal p-value",
-                    "Considering the input JSON, discuss the association between the gene @gene_node@ and Type 1 diabetes, including any evidence linking genetic variants to the disease"
+                    "From the given JSON information, summarize the key characteristics and functions of the gene @gene_id@, including its involvement in immune regulation and associated pathways",
+                    "Based on the JSON data, describe the relationship between the SNP @snp_id@ and the QTL of @gene_id@ in the pancreas, including details such as the effect allele, slope, posterior inclusion probability (PIP), and nominal p-value",
+                    "Considering the input JSON, discuss the association between the gene @gene_id@ and Type 1 diabetes, including any evidence linking genetic variants to the disease"
               ],
-            "cypher_for_result_page_all_nodes_specific": 
-                  "MATCH (snp_node:variants:sequence_variant {id: '@snp_node@'})-[r:fine_mapped_eQTL]-(gene_node:coding_elements {id: '@gene_node@'}) WITH snp_node, r, gene_node OPTIONAL MATCH (gene_node)-[r_extend_gene]-(extend_node_gene:coding_elements) WITH snp_node, r, gene_node, r_extend_gene, extend_node_gene LIMIT 1 OPTIONAL MATCH (gene_node)-[r_extend_snp]-(extend_node_snp:variants:sequence_variant) WITH snp_node, r, gene_node, r_extend_gene, extend_node_gene, r_extend_snp, extend_node_snp LIMIT 1 OPTIONAL MATCH (gene_node)-[r_extend_pathway]-(extend_pathway_node:pathway) WITH snp_node, r, gene_node, r_extend_gene, extend_node_gene, r_extend_snp, extend_node_snp, r_extend_pathway, extend_pathway_node LIMIT 1 OPTIONAL MATCH (gene_node)-[r_extend_ontology]-(extend_ontology_node:ontology) WITH snp_node, r, gene_node, r_extend_gene, extend_node_gene, r_extend_snp, extend_node_snp, r_extend_pathway, extend_pathway_node, r_extend_ontology, extend_ontology_node LIMIT 1 WITH snp_node, r, gene_node, [node IN [extend_node_gene, extend_node_snp, extend_pathway_node, extend_ontology_node] WHERE node IS NOT NULL] AS all_extend_nodes, [rel IN [r_extend_gene, r_extend_snp, r_extend_pathway, r_extend_ontology] WHERE rel IS NOT NULL] AS all_extend_rels, SIZE([node IN [extend_node_gene, extend_node_snp, extend_pathway_node, extend_ontology_node] WHERE node IS NOT NULL]) AS extend_node_count WHERE extend_node_count = 4 RETURN snp_node, r, gene_node, all_extend_nodes, all_extend_rels, extend_node_count UNION MATCH (snp_node:variants:sequence_variant {id: '@snp_node@'})-[r:fine_mapped_eQTL]-(gene_node:coding_elements {id: '@gene_node@'}) WITH snp_node, r, gene_node OPTIONAL MATCH (gene_node)-[r_extend_gene]-(extend_node_gene:coding_elements) WITH snp_node, r, gene_node, r_extend_gene, extend_node_gene LIMIT 2 OPTIONAL MATCH (gene_node)-[r_extend_snp]-(extend_node_snp:variants:sequence_variant) WITH snp_node, r, gene_node, r_extend_gene, extend_node_gene, r_extend_snp, extend_node_snp LIMIT 1 OPTIONAL MATCH (gene_node)-[r_extend_pathway]-(extend_pathway_node:pathway) WITH snp_node, r, gene_node, r_extend_gene, extend_node_gene, r_extend_snp, extend_node_snp, r_extend_pathway, extend_pathway_node LIMIT 1 OPTIONAL MATCH (gene_node)-[r_extend_ontology]-(extend_ontology_node:ontology) WITH snp_node, r, gene_node, r_extend_gene, extend_node_gene, r_extend_snp, extend_node_snp, r_extend_pathway, extend_pathway_node, r_extend_ontology, extend_ontology_node LIMIT 1 WITH snp_node, r, gene_node, [node IN [extend_node_gene, extend_node_snp, extend_pathway_node, extend_ontology_node] WHERE node IS NOT NULL] AS all_extend_nodes, [rel IN [r_extend_gene, r_extend_snp, r_extend_pathway, r_extend_ontology] WHERE rel IS NOT NULL] AS all_extend_rels, SIZE([node IN [extend_node_gene, extend_node_snp, extend_pathway_node, extend_ontology_node] WHERE node IS NOT NULL]) AS extend_node_count WHERE extend_node_count = 4 RETURN snp_node, r, gene_node, all_extend_nodes, all_extend_rels, extend_node_count UNION MATCH (snp_node:variants:sequence_variant {id: '@snp_node@'})-[r:fine_mapped_eQTL]-(gene_node:coding_elements {id: '@gene_node@'}) WITH snp_node, r, gene_node OPTIONAL MATCH (gene_node)-[r_extend_gene]-(extend_node_gene:coding_elements) WITH snp_node, r, gene_node, r_extend_gene, extend_node_gene LIMIT 2 OPTIONAL MATCH (gene_node)-[r_extend_snp]-(extend_node_snp:variants:sequence_variant) WITH snp_node, r, gene_node, r_extend_gene, extend_node_gene, r_extend_snp, extend_node_snp LIMIT 1 OPTIONAL MATCH (gene_node)-[r_extend_pathway]-(extend_pathway_node:pathway) WITH snp_node, r, gene_node, r_extend_gene, extend_node_gene, r_extend_snp, extend_node_snp, r_extend_pathway, extend_pathway_node LIMIT 1 OPTIONAL MATCH (gene_node)-[r_extend_ontology]-(extend_ontology_node:ontology) WITH snp_node, r, gene_node, r_extend_gene, extend_node_gene, r_extend_snp, extend_node_snp, r_extend_pathway, extend_pathway_node, r_extend_ontology, extend_ontology_node LIMIT 1 WITH snp_node, r, gene_node, [node IN [extend_node_gene, extend_node_snp, extend_pathway_node, extend_ontology_node] WHERE node IS NOT NULL] AS all_extend_nodes, [rel IN [r_extend_gene, r_extend_snp, r_extend_pathway, r_extend_ontology] WHERE rel IS NOT NULL] AS all_extend_rels, SIZE([node IN [extend_node_gene, extend_node_snp, extend_pathway_node, extend_ontology_node] WHERE node IS NOT NULL]) AS extend_node_count WHERE extend_node_count < 4 RETURN snp_node, r, gene_node, all_extend_nodes, all_extend_rels, extend_node_count"
-            ,
               "ai_answer_sub_title":
               [
                     "Gene overview:",
                     "QTL overview:",
                     "Specific relation to Type 1 Diabetes:"
-              ],
-            "ai_answer_title":
-                  "Currently SNP @sno_node@ is the QTL of the gene: @gene_node@(@gene_id@)"
+              ]
             ,
-            "next_questions": [
-                "How does the lead SNP @snp_node1@ influence the quantitative trait locus of @gene_node1@ in @tissue1@ tissue, as reported by @data_source1@?"
+            "next_questions": {
+                "How does the lead SNP @snp_node1@ influence the quantitative trait locus of @gene_node1@ in @tissue1@ tissue, as reported by @data_source1@?":
                   {
                   "source_term":"sequence_variant",
                   "relationship": "fine_mapped_QTL",
@@ -141,14 +92,16 @@
                   "@snp_node1@":"another snp from json",
                   "@gene_node1@": "gene_node",
                   "@tissue1@":"another tissue from json",
-                  "@data_source1@":"another data_source from json",
+                  "@data_source1@":"another data_source from json"
                   }
-            ],
-            "visualizations": {
-                "manhattan_plot": {
-                    "credible_set_id": "@credible_set@"
-                }
-            }
-        },
+            },
+			"resources_tabs": {
+			"reference": {},
+			"visualization": {},
+			"pankbase_links":{},
+			"external_links":[["Link to Ensembl: ","View the @gene_symbol@(@gene_id@) in Ensembl","https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000001626"]]
+			
+			}         
+        }
     }
 }
