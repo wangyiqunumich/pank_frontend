@@ -39,7 +39,6 @@ import KnowledgeGraph from './KnowledgeGraph';
 import IntermediateKG from './IntermediateKG';
 
 import { queryQueryResult } from '../redux/queryResultSlice';
-import { queryQueryVisResult } from '../redux/queryVisResultSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import { setProcessedQuestion } from '../redux/processedQuestionSlice';
 import { setSearchTerms, setUsingFallback } from '../redux/searchSlice';
@@ -52,6 +51,7 @@ import {
   replaceTerms,
   replaceVariables,
 } from '../utils/textProcessing';
+import { replace } from 'react-router-dom';
 
 const HtmlTooltip = styled(({ className, ...props }) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -102,6 +102,7 @@ function IntermediatePage({ onContinue }) {
 
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [notification, setNotification] = useState(true);
+  const [tableColumns, setTableColumns] = useState([]);
 
   useEffect(() => {
     function handleResize() {
@@ -118,6 +119,11 @@ function IntermediatePage({ onContinue }) {
     "Islet eQTL",
     "Pancreatic splicing QTL",
     "Islet Exon QTL",
+  ];
+
+  const floatKeys = [
+    "purity",
+    "pip",
   ];
 
   const handleTabChange = (event, newValue) => {
@@ -226,7 +232,8 @@ function IntermediatePage({ onContinue }) {
     sourceTerm: '',
     relationship: '',
     targetTerm: '',
-    targetTermSymbol: ''
+    targetTermSymbol: '',
+    sourceTermSymbol: '',
   };
   console.log(searchState);
 
@@ -236,38 +243,43 @@ function IntermediatePage({ onContinue }) {
       searchState.sourceTerm,
       searchState.relationship,
       searchState.targetTerm,
+      searchState.sourceTermSymbol,
       searchState.targetTermSymbol,
       false,  // isNextQuestion
       true   // addStyle
     )
     : 'Loading...';
 
-  const handleSNPClick = async (snpId, dataSource, leadSnp) => {
+  const handleSNPClick = async (item) => {
     const {
-      cyper_for_result_page_all_nodes_specific,
       question_for_result,
       next_questions,
     } = viewSchema;
-    if (!cyper_for_result_page_all_nodes_specific || !question_for_result)
+    console.log(1);
+    let {
+      sourceTerm,
+      targetTerm,
+      sourceTermSymbol,
+      targetTermSymbol,
+      relationship
+    } = searchState;
+    if (!question_for_result)
       return;
+
+    let sourceSymbol = sourceTermSymbol;
+    let targetSymbol = targetTermSymbol;
 
     // 从 searchTerms 中获取 geneId
-    let geneId = "";
-    console.log(searchState);
-    if (searchState.sourceTerm.startsWith("gene:")) {
-      geneId = searchState.sourceTerm.split(":")[1];
-    } else if (searchState.targetTerm.startsWith("gene:")) {
-      geneId = searchState.targetTerm.split(":")[1];
+    if (!sourceTerm.includes(":")) {
+      sourceTerm = sourceTerm + ":" + (item[sourceTerm] || item[`${sourceTerm}_id`] || sourceTerm);
     }
-
-    if (!geneId) {
-      console.error("No gene ID found in search terms");
-      return;
+    if (!targetTerm.includes(":")) {
+      targetTerm = targetTerm + ":" + (item[targetTerm] || item[`${targetTerm}_id`] || targetTerm);
     }
 
     // 获取组织名称和数据源前端显示名称
     const tissueMap = conversionTable.Conversion_table.Tissue_KG_tissue_name;
-    const dataSourceFrontend = dataSource;
+    const dataSource = item.data_source;
 
     let tissueKey = '';
     if (dataSource === 'GTEx; SusieR') {
@@ -280,124 +292,16 @@ function IntermediatePage({ onContinue }) {
 
 
     const params = new URLSearchParams({
-      snpId: snpId,
-      leadSnp: leadSnp,
-      geneId: geneId,
-      relationship: searchState.relationship,
+      sourceTerm,
+      targetTerm,
+      sourceSymbol,
+      targetSymbol,
+      relationship,
       tissueKey: tissueKey,
-      dataSource: dataSourceFrontend,
-      geneSymbol: searchState.targetTermSymbol,
+      dataSource,
     });
 
     window.location.href = `/result?${params.toString()}`;
-    // dispatch(setVariables(variables));
-
-    // 处理当前问题
-    // const processedCurrentQuestion = replaceVariables(question_for_result, variables);
-    // console.log(processedCurrentQuestion);
-
-    // // 处理下一步问题
-    // const processedNextQuestions = next_questions?.map(item => {
-    //   const params = item.parameters || {};
-
-
-    //   const questionVariables = {
-    //     ...variables,
-    //     snpId: 'rs17510162',
-    //     leadSnp: 'rs17510162',
-    //     geneId: 'ENSG00000134242',
-    //     geneSymbol: 'ptpn22'
-    //   };
-
-
-    //   // 使用更新后的变量对象进行替换
-    //   let processedQuestion = replaceVariables(item.question, questionVariables);
-
-
-    //   console.log(processedQuestion);
-    //   // 准备新的搜索条件
-    //   let newSearchState = {
-    //     sourceTerm: '',
-    //     relationship: '',
-    //     targetTerm: '',
-    //     targetTermSymbol: searchState.targetTermSymbol
-    //   };
-
-    //   // 遍历参数并设置搜索条件
-    //   let paramEntries = Object.entries(params);
-    //   if (paramEntries.length >= 3) {
-    //     // 第一个参数作为 source
-    //     const [sourceKey, sourceType] = paramEntries[0];
-    //     // 第二个参数作为 relationship
-    //     const [_, relationship] = paramEntries[1];
-    //     // 第三个参数作为 target
-    //     const [targetKey, targetType] = paramEntries[2];
-
-    //     // 处理 source term
-    //     if (sourceKey.startsWith('@') && sourceKey.endsWith('@')) {
-    //       const sourceTerm = sourceKey.slice(1, -1) === 'lead_snp_node' ? leadSnp :
-    //                         sourceKey.slice(1, -1) === 'gene_node' ? geneId :
-    //                         sourceKey.slice(1, -1) === 'tissue' ? tissueKey :
-    //                         sourceKey.slice(1, -1) === 'data_source' ? dataSourceFrontend : '';
-    //       newSearchState.sourceTerm = `${sourceType}:${sourceTerm}`;
-    //     }
-
-    //     // 设置 relationship
-    //     newSearchState.relationship = relationship;
-
-    //     // 处理 target term
-    //     if (targetKey.startsWith('@') && targetKey.endsWith('@')) {
-    //       const targetTerm = targetKey.slice(1, -1) === 'lead_snp_node' ? leadSnp :
-    //                         targetKey.slice(1, -1) === 'gene_node' ? geneId :
-    //                         targetKey.slice(1, -1) === 'tissue' ? tissueKey :
-    //                         targetKey.slice(1, -1) === 'data_source' ? dataSourceFrontend : '';
-    //       newSearchState.targetTerm = `${targetType}:${targetTerm}`;
-    //     }
-    //   }
-
-    //   // 分发更新搜索条件的 action
-    //   console.log(newSearchState);
-    //   dispatch(setSearchTerms(newSearchState));
-
-    //   return processedQuestion;
-    // }) || [];
-
-    // // 替换查询语句中的占位符
-    // const query = cyper_for_result_page_all_nodes_specific
-    //   .replace(/@snp_node@/g, snpId)
-    //   .replace(/@gene_node@/g, geneId);
-
-    // // 处理 AI 问题数组
-    // const processedAiQuestions = viewSchema?.ai_question_for_result?.map(question => {
-    //   let processedQuestion = question;
-    //   // 替换所有可能的占位符
-    //   if (snpId) processedQuestion = processedQuestion.replace(/@snp_node@/g, snpId);
-    //   if (geneId) processedQuestion = processedQuestion.replace(/@gene_node@/g, geneId);
-    //   if (tissueKey) processedQuestion = processedQuestion.replace(/@tissue@/g, tissueKey);
-    //   if (dataSourceFrontend) processedQuestion = processedQuestion.replace(/@data_source@/g, dataSourceFrontend);
-    //   return processedQuestion;
-    // }) || [];
-
-    // const processedAiAnswerTitle = viewSchema?.ai_answer_title.replace(/@snp_node@/g, snpId).replace(/@gene_id@/g, geneId);
-    // const { tissue, frontendKG } = getDataSourceInfo(dataSource, conversionTable);
-    // console.log(dataSource, tissue);
-    // const currentQuestionType = `${frontendKG} ${tissue}` + ' Tissue';
-    // try {
-    //   // 保存处理后的问题和下一步问题到 redux store
-    //   dispatch(setProcessedQuestion({
-    //     currentQuestion: processedCurrentQuestion,
-    //     nextQuestions: processedNextQuestions,
-    //     aiQuestions: processedAiQuestions,
-    //     aiAnswerTitle: processedAiAnswerTitle,
-    //     aiAnswerSubtitle: viewSchema?.ai_answer_sub_title,
-    //     currentQuestionType: currentQuestionType
-    //   }));
-    //   onContinue();
-    //   await dispatch(queryQueryVisResult({query: query})).unwrap();
-    //   await dispatch(queryQueryResult({query: query})).unwrap();
-    // } catch (error) {
-    //   console.error('Error executing query:', error);
-    // }
   };
 
   // 添加一个新的辅助函数来获取 credibleSet 的显示标签
@@ -424,15 +328,15 @@ function IntermediatePage({ onContinue }) {
     return `CredibleSet_${prefix}${setNumber}`;
   };
 
-  const getFilteredCredibleSets = () => {
-    const allCredibleSets = queryResult?.results?.flatMap(result =>
+  const getFilteredResults = () => {
+    const allResults = queryResult?.results?.flatMap(result =>
       (result?.credible_sets || []).map(cs => ({
         ...cs,
-        displayLabel: getCredibleSetLabel(cs)  // 添加显示标签
+        credible_set_id: getCredibleSetLabel(cs).replace('_', ' ')  // 添加显示标签
       }))
     ) || [];
 
-    const selectedCredibleSets = allCredibleSets.filter(cs => {
+    const selectedResults = allResults.filter(cs => {
       switch (selectedTab) {
         case 'Pancreatic eQTL':
           return cs.data_source === 'GTEx; SusieR';
@@ -448,7 +352,7 @@ function IntermediatePage({ onContinue }) {
     });
 
     return Array.from(
-      new Map(selectedCredibleSets.map(item => [item.credible_set_id, item])).values()
+      new Map(selectedResults.map(item => [item.credible_set_id, item])).values()
     );
   };
 
@@ -488,15 +392,8 @@ function IntermediatePage({ onContinue }) {
     let sourceTerm = params.get('sourceTerm');
     const relationship = params.get('relationship');
     let targetTerm = params.get('targetTerm');
-    let targetSymbol;
-    console.log(sourceTerm, relationship, targetTerm);
-    if (sourceTerm.includes("@")) {
-      targetSymbol = sourceTerm.split(":")[1].split("@")[0] || "";
-      sourceTerm = `${sourceTerm.split(":")[0]}:${sourceTerm.split("@")[1]}` || "";
-    } else {
-      targetSymbol = targetTerm.split(":")[1].split("@")[0] || "";
-      targetTerm = `${targetTerm.split(":")[0]}:${targetTerm.split("@")[1]}` || "";
-    }
+    let sourceSymbol = params.get('sourceSymbol') || "";
+    let targetSymbol = params.get('targetSymbol') || "";
     console.log(sourceTerm, relationship, targetTerm);
     setRootLabel(targetSymbol || "");
     if (sourceTerm && relationship && targetTerm) {
@@ -507,6 +404,7 @@ function IntermediatePage({ onContinue }) {
           relationship,
           targetTerm,
           targetTermSymbol: targetSymbol || "",
+          sourceTermSymbol: sourceSymbol || "",
         })
       );
 
@@ -516,44 +414,51 @@ function IntermediatePage({ onContinue }) {
           sourceTerm,
           relationship,
           targetTerm,
-          targetTermSymbol: targetSymbol || "",
         })
       );
     }
   }, []); // 仅在组件挂载时执行一次
 
-  function replaceCypherTerms(cypher, sourceTerm, targetTerm) {
+  function replaceCypherTerms(cypher, sourceTerm, targetTerm, sourceSymbol = "", targetSymbol = "") {
     const sourceType = sourceTerm.split(":")[0];
     const sourceValue = sourceTerm.split(":")[1] || sourceType;
     const targetType = targetTerm.split(":")[0];
     const targetValue = targetTerm.split(":")[1] || targetType;
 
     return cypher.replace(/@([^@]+)@/g, (match, term) => {
-      if (term === sourceType) {
+      if (term === sourceType || term === `${sourceType}_id`) {
         return sourceValue;
-      } else if (term === targetType) {
+      } else if (term === targetType || term === `${targetType}_id`) {
         return targetValue;
+      } else if (term === `${sourceType}_symbol`) {
+        return sourceSymbol;
+      } else if (term === `${targetType}_symbol`) {
+        return targetSymbol;
       }
       return match;
     });
   }
 
   useEffect(() => {
-    if (viewSchema.cyper_for_intermediate_page && viewSchema.cyper_for_intermediate_KG_viewer) {
+    if (viewSchema.cyper_for_intermediate_page) {
       const processedCypher = replaceCypherTerms(
         viewSchema.cyper_for_intermediate_page,
         searchState.sourceTerm,
         searchState.targetTerm
       );
-      const processedCypherForKGViewer = replaceCypherTerms(
-        viewSchema.cyper_for_intermediate_KG_viewer,
-        searchState.sourceTerm,
-        searchState.targetTerm
-      );
-      dispatch(queryQueryVisResult({ query: processedCypherForKGViewer })).unwrap();
+      console.log("Processed Cypher:", processedCypher);
       dispatch(queryQueryResult({ query: processedCypher })).unwrap();
     }
   }, [viewSchema, searchState.sourceTerm, searchState.targetTerm]);
+
+  useEffect(() => {
+    setTableColumns(
+      viewSchema?.intermediate_page_table?.map((column) => ({
+        label: Object.keys(column)[0] || "",
+        key: Object.values(column)[0] || "",
+      }))
+    );
+  }, [viewSchema]);
 
   useEffect(() => {
     if (queryResult?.results) {
@@ -816,130 +721,47 @@ function IntermediatePage({ onContinue }) {
                   borderRadius: '8px',
                 }}>
                   <Table
-                    size={getFilteredCredibleSets().length > 0 ? "small" : "medium"}
+                    size={getFilteredResults().length > 0 ? "small" : "medium"}
                     // size={'small'}
                     stickyHeader={true}
                     sx={{ minWidth: '600px' }}
                   >
                     <TableHead>
                       <TableRow>
-                        <TableCell sx={{
-                          fontWeight: 'bold',
-                          padding: '16px',
-                          alignItems: 'center',
-                          // display: 'flex',
-                          justifyContent: 'center',
-                          width: 'fit-content'
-                        }}>Credible set
-                          <Tooltip
-                            slotProps={{
-                              tooltip: {
-                                sx: {
-                                  backgroundColor: '#219197'
-                                }
-                              }
-                            }}
-                            title={<Typography sx={{ fontFamily: 'Open Sans', fontSize: '14px' }}>
-                              Credible set represents a group of genetic variants within a genomic region associated with a trait, identified through statistical fine-mapping. Each variant in the set is assigned a posterior probability, indicating its likelihood of being linked to the observed trait, with the entire set typically capturing a predefined confidence level.
-                            </Typography>
-                            }>
-                            <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell sx={{
-                          fontWeight: 'bold',
-                          padding: '16px 8px',
-                          alignItems: 'center',
-                          // display: 'flex',
-                          justifyContent: 'center',
-                          width: 'fit-content'
-                        }}>
-                          Purity
-                          <Tooltip
-                            slotProps={{
-                              tooltip: {
-                                sx: {
-                                  backgroundColor: '#219197'
-                                }
-                              }
-                            }}
-                            title={<Typography sx={{ fontFamily: 'Open Sans', fontSize: '14px' }}>
-                              Purity represents the proportion of the genetic association signal captured by the credible set; higher purity indicates higher confidence and quality of the set.
-                            </Typography>}>
-                            <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
-                          </Tooltip>
-                        </TableCell>
+                        {
+                          tableColumns?.map((column, index) => (
+                            <TableCell sx={{
+                              fontWeight: 'bold',
+                              padding: index === 0 ? '16px' : '16px 4px',
+                              width: 'fit-content',
+                              verticalAlign: 'middle',
+                              textAlign: 'center',
+                            }} key={column.key}>{column.label === "num" ? "#" : column.label}
+                              <Tooltip
+                                slotProps={{
+                                  tooltip: {
+                                    sx: {
+                                      backgroundColor: '#219197'
+                                    }
+                                  }
+                                }}
+                                title={<Typography sx={{ fontFamily: 'Open Sans', fontSize: '14px' }}>
+                                  1111
+                                </Typography>
+                                }>
+                                <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
+                              </Tooltip>
+                            </TableCell>
+                          ))
+                        }
                         <TableCell sx={{
                           fontWeight: 'bold',
                           padding: '16px 8px',
                           alignItems: 'center',
                           // display: 'flex',
-                          width: 'fit-content'
-                        }}>
-                          Lead SNP
-                          <Tooltip
-                            slotProps={{
-                              tooltip: {
-                                sx: {
-                                  backgroundColor: '#219197'
-                                }
-                              }
-                            }}
-                            title={<Typography sx={{ fontFamily: 'Open Sans', fontSize: '14px' }}>
-                              Lead SNP refers to the genetic variant with the strongest association signal within the credible set, often considered the most likely causal variant.
-                            </Typography>}>
-                            <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell sx={{
-                          fontWeight: 'bold',
-                          padding: '16px 8px',
-                          alignItems: 'center',
-                          // display: 'flex',
-                          width: 'fit-content'
-                        }}>
-                          PIP
-                          <Tooltip
-                            slotProps={{
-                              tooltip: {
-                                sx: {
-                                  backgroundColor: '#219197'
-                                }
-                              }
-                            }}
-                            title={<Typography sx={{ fontFamily: 'Open Sans', fontSize: '14px' }}>
-                              PIP (Posterior Inclusion Probability) quantifies the probability of a specific variant being the causal driver of the observed genetic signal; a higher PIP suggests greater confidence in causality.
-                            </Typography>}>
-                            <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell sx={{
-                          fontWeight: 'bold',
-                          padding: '16px 8px',
                           width: 'fit-content',
-                        }}
-                        >
-                          #
-                          <Tooltip
-                            slotProps={{
-                              tooltip: {
-                                sx: {
-                                  backgroundColor: '#219197'
-                                }
-                              }
-                            }}
-                            title={<Typography sx={{ fontFamily: 'Open Sans', fontSize: '14px' }}>
-                              # (Number of Variants) indicates the total count of genetic variants included in the credible set, encompassing all variants contributing to the signal.
-                            </Typography>}>
-                            <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell sx={{
-                          fontWeight: 'bold',
-                          padding: '16px 8px',
-                          alignItems: 'center',
-                          // display: 'flex',
-                          width: 'fit-content'
+                          verticalAlign: 'middle',
+                          textAlign: 'center',
                         }}>
                           Action
                           <Tooltip
@@ -959,7 +781,7 @@ function IntermediatePage({ onContinue }) {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {getFilteredCredibleSets()
+                      {getFilteredResults()
                         .concat(Array(5).fill({})) // Fill with empty objects to ensure at least 5 rows
                         .slice((currPage - 1) * 5, currPage * 5)
                         .map((item, index) => (
@@ -978,11 +800,7 @@ function IntermediatePage({ onContinue }) {
                           ) : (
                             <TableRow
                               key={`credible-set-${index}`}
-                              onClick={() => handleSNPClick(
-                                item.snp,
-                                item.data_source,
-                                item.snp
-                              )}
+                              onClick={() => handleSNPClick(item)}
                               sx={{
                                 cursor: 'pointer',
                                 '& .MuiTableCell-root': {
@@ -993,51 +811,31 @@ function IntermediatePage({ onContinue }) {
                                 }
                               }}
                             >
-                              <TableCell sx={{ verticalAlign: 'middle' }}>
-                                <Link
-                                  component="button"
-                                  variant="body2"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleSNPClick(
-                                      item.snp,
-                                      item.data_source,
-                                      item.snp
-                                    );
-                                  }}
-                                  sx={{
-                                    textAlign: 'left', display: 'block', padding: '4px', color: 'black',
-                                    textDecoration: 'none',
-                                    hover: {
-                                      textDecoration: 'none',
-                                      color: 'black'
-                                    }
-                                  }}
-                                >
-                                  {item.displayLabel?.replace('_', ' ')}
-                                </Link>
-                              </TableCell>
-                              <TableCell sx={{ verticalAlign: 'middle' }}>{item.purity?.toFixed(2) || '-'}</TableCell>
-                              <TableCell sx={{ verticalAlign: 'middle' }}>{item.snp}</TableCell>
-                              <TableCell sx={{ verticalAlign: 'middle' }}>{item.pip?.toFixed(2) || '-'}</TableCell>
-                              <TableCell sx={{ verticalAlign: 'middle' }}>{item.n_snp || '-'}</TableCell>
+                              {tableColumns.map((column, index) => (
+                                <TableCell sx={{ verticalAlign: 'middle', textAlign: 'center' }}>
+                                  {index === 0
+                                    ? (<Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                      {item[column.key]}
+                                      <IconButton aria-label="download" sx={{ color: '#3A838B', padding: '2px' }}>
+                                        <DownloadIcon />
+                                      </IconButton>
+                                    </Box>)
+                                    : (item[column.key]
+                                      ? (floatKeys.includes(column.key)
+                                        ? item[column.key].toFixed(2)
+                                        : item[column.key]
+                                      ) : "-"
+                                    )
+                                  }
+                                </TableCell>))
+                              }
                               <TableCell sx={{ verticalAlign: 'middle' }}>
                                 <Typography sx={{
                                   fontFamily: 'Open Sans',
                                   fontSize: '14px', padding: '4px', backgroundColor: '#219197',
                                   textAlign: 'center', borderRadius: '8px', color: 'white',
                                   fontWeight: 700,
-                                }}>Click for more</Typography>
-                                {/*<Link */}
-                                {/*  component="button" */}
-                                {/*  variant="body2" */}
-                                {/*  onClick={(e) => {*/}
-                                {/*    e.stopPropagation();*/}
-                                {/*    handleDownload(item);*/}
-                                {/*  }}*/}
-                                {/*>*/}
-                                {/*  Link*/}
-                                {/*</Link>*/}
+                                }} onClick={() => handleSNPClick(item)}>Click for more</Typography>
                               </TableCell>
                             </TableRow>
                           )
@@ -1047,7 +845,7 @@ function IntermediatePage({ onContinue }) {
                       <TableRow>
                         <TableCell colSpan={6} align="center" sx={{ padding: '6px 16px' }}>
                           <Pagination
-                            count={Math.ceil(getFilteredCredibleSets().length / 5)}
+                            count={Math.ceil(getFilteredResults().length / 5)}
                             page={currPage}
                             onChange={handlePageChange}
                             sx={{
@@ -1062,9 +860,6 @@ function IntermediatePage({ onContinue }) {
                 </TableContainer>
               </div>
               <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                <IconButton aria-label="download" sx={{ color: '#3A838B' }}>
-                  <DownloadIcon />
-                </IconButton>
                 <Typography sx={{
                   fontFamily: 'Open Sans',
                   fontWeight: 600,
@@ -1107,7 +902,7 @@ function IntermediatePage({ onContinue }) {
             }}>
               Graph viewer<TooltipComponent title="Graph viewer" content="Graph viewer." />
             </Typography>
-            <IntermediateKG data={{ credible_sets: getFilteredCredibleSets().slice((currPage - 1) * 5, currPage * 5), root: rootLabel }} />
+            <IntermediateKG data={{ credible_sets: getFilteredResults().slice((currPage - 1) * 5, currPage * 5), root: rootLabel }} />
           </Box>
 
           {/* Legend */}

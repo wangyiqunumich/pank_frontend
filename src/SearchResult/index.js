@@ -15,7 +15,7 @@ import { setNextQuestionClicked } from '../redux/searchSlice';
 import { queryQueryResult } from '../redux/queryResultSlice';
 import { setProcessedQuestion } from '../redux/processedQuestionSlice';
 import { setUsingFallback } from '../redux/searchSlice';
-import { setVariables } from '../redux/variablesSlice';
+// import { setVariables } from '../redux/variablesSlice';
 import { replaceVariables } from '../utils/textProcessing';
 import { store } from '../redux/store';
 import { queryQueryVisResult } from '../redux/queryVisResultSlice';
@@ -228,14 +228,38 @@ function SearchResult() {
     const searchState = useSelector((state) => state.search);
     const snpPlotImage = useSelector((state) => state.typeToImage.typeToImage);
     const queryTypeToImageStatus = useSelector((state) => state.typeToImage.queryTypeToImageStatus);
+    const { viewSchema } = useSelector((state) => state.viewSchema);
+    //const variables = useSelector((state) => state.variables.variables);
+    const [variables, setVariables] = useState({});
+    const [referenceData, setReferenceData] = useState({});
+    useEffect(() => {
+        if (viewSchema?.resources_tabs) {
+            let data = viewSchema.resources_tabs;
+            let newPankbaseLinks = data.pankbase_links.map((item) => item.map((i) => replaceVariables(i, variables)));
+            let newExternalLinks = data.external_links.map((item) => item.map((i) => replaceVariables(i, variables)));
+            console.log("newPankbaseLinks", newPankbaseLinks);
+            console.log("newExternalLinks", newExternalLinks);
+            setReferenceData({
+                ...data,
+                pankbase_links: newPankbaseLinks,
+                external_links: newExternalLinks
+            });
+            console.log(variables);
+            console.log("referenceData", {
+                ...data,
+                pankbase_links: newPankbaseLinks,
+                external_links: newExternalLinks
+            });
+        }
+    }, [viewSchema, variables]);
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
-        const sourceTerm = params.get('snpId');
+        const sourceTerm = params.get('sourceTerm');
         const relationship = params.get('relationship');
-        const targetTerm = params.get('geneId');
-        const targetSymbol = params.get('geneSymbol');
-        const leadSnp = params.get('leadSnp');
+        const targetTerm = params.get('targetTerm');
+        const targetSymbol = params.get('targetSymbol');
+        const sourceSymbol = params.get('sourceSymbol');
         const dataSource = params.get('dataSource');
         const tissueKey = params.get('tissueKey');
 
@@ -248,22 +272,15 @@ function SearchResult() {
             }));
 
             const getIdFromTerm = (term) => {
-                return term;
+                return term.split(':')[1] || term;
             };
 
-            dispatch(
-                setVariables({
-                    snpId: getIdFromTerm(sourceTerm),
-                    leadSnp: leadSnp,
-                    geneId: getIdFromTerm(targetTerm),
-                    dataSource: dataSource,
-                    tissueKey: tissueKey,
-                    geneSymbol: targetSymbol || "",
-                })
-            );
+            const getTypeFromTerm = (term) => {
+                return term.split(':')[0] || term;
+            };
 
-            const fixedSourceTerm = 'sequence_variant';
-            const fixedTargetTerm = 'gene:' + getIdFromTerm(targetTerm);
+            const fixedSourceTerm = sourceTerm;
+            const fixedTargetTerm = targetTerm;
 
             dispatch(queryViewSchema({
                 sourceTerm: fixedSourceTerm,
@@ -285,49 +302,26 @@ function SearchResult() {
 
                     if (cypher_for_result_page_core && cypher_for_result_page_nbr) {
                         const core_cypher = cypher_for_result_page_core
-                            .replace(/@snp@/g, sourceTerm)
-                            .replace(/@gene@/g, targetTerm);
+                            .replace(`@${getTypeFromTerm(sourceTerm)}@`, getIdFromTerm(sourceTerm))
+                            .replace(`@${getTypeFromTerm(targetTerm)}@`, getIdFromTerm(targetTerm));
                         const neighbor_cypher = cypher_for_result_page_nbr
-                            .replace(/@snp@/g, sourceTerm)
-                            .replace(/@gene@/g, targetTerm);
+                            .replace(`@${getTypeFromTerm(sourceTerm)}@`, getIdFromTerm(sourceTerm))
+                            .replace(`@${getTypeFromTerm(targetTerm)}@`, getIdFromTerm(targetTerm));
                         // dispatch(queryQueryVisResult({ core_cypher, neighbor_cypher }));
                         dispatch(queryQueryResultPage({ core_cypher, neighbor_cypher })).then((response) => {
                             console.log('Query result:', response.payload);
-                            // const fineMapEQTL = response?.payload?.results[0]?.all_extend_rels?.find(
-                            //     rel => rel['~type'] === 'fine_mapped_eQTL'
-                            // );
-
-
-                            const variables = {
-                                snpId: getIdFromTerm(sourceTerm),
-                                leadSnp: leadSnp,
-                                geneId: getIdFromTerm(targetTerm),
-                                dataSource: dataSource,
+                            let newVariables = {
+                                sourceTerm: sourceTerm,
+                                relationship: relationship,
+                                targetTerm: targetTerm,
+                                sourceSymbol: sourceSymbol || '',
+                                targetSymbol: targetSymbol || '',
                                 tissueKey: tissueKey,
-                                geneSymbol: targetSymbol || ''
+                                dataSource: dataSource,
                             };
-
-                            let processedCurrentQuestion;
-                            switch (dataSource) {
-                                case 'splicing; GTEx':
-                                    processedCurrentQuestion = 'How does the SNP ' + sourceTerm + ' influence the splicing of ' + targetSymbol + ' (' + targetTerm + ') in pancreas, as reported by GTEx?';
-                                    break;
-                                case 'GTEx; SusieR':
-                                    processedCurrentQuestion = 'How does the SNP ' + sourceTerm + ' influence the expression of ' + targetSymbol + ' (' + targetTerm + ') in pancreas, as reported by GTEx?';
-                                    break;
-                                case 'INSPIRE; SusieR':
-                                    processedCurrentQuestion = 'How does the SNP ' + sourceTerm + ' influence the expression of ' + targetSymbol + ' (' + targetTerm + ') in islet tissue, as reported by INSPIRE?';
-                                    break;
-                                case 'exon; InsPIRE':
-                                    processedCurrentQuestion = 'How does the SNP ' + sourceTerm + ' influence the exon expression of ' + targetSymbol + ' (' + targetTerm + ') in islet tissue, as reported by INSPIRE?';
-                                    break;
-                                default:
-                                    processedCurrentQuestion = replaceVariables(question_for_result, variables);
-                                    break;
-                            }
-                            const fineMapEQTL = response?.payload?.combined_query_result?.edges?.find(
-                                rel => rel['~type'] === 'fine_mapped_eQTL'
-                            );
+                            if (newVariables) { setVariables(newVariables); }
+                            console.log("newVariables", newVariables);
+                            let processedCurrentQuestion = replaceVariables(question_for_result, newVariables);
 
                             let nextVariables;
                             // if (sourceTerm == 'rs2402203' && targetTerm == 'ENSG00000001626') {
@@ -339,16 +333,6 @@ function SearchResult() {
                                 tissueKey: 'pancreas',
                                 geneSymbol: 'CFTR'
                             };
-                            // } else {
-                            //     nextVariables = {
-                            //         snpId: fineMapEQTL['~start'],
-                            //         leadSnp: fineMapEQTL['~start'],
-                            //         geneId: fineMapEQTL['~end'],
-                            //         dataSource: fineMapEQTL['~properties']['data_source'],
-                            //         tissueKey: fineMapEQTL['~properties']['tissue_name'].toLowerCase(),
-                            //         geneSymbol: params.get('geneSymbol')
-                            //     };
-                            // }
 
                             let processedNextQuestions;
                             switch (nextVariables.dataSource) {
@@ -368,20 +352,10 @@ function SearchResult() {
                                     break;
                             }
 
-                            const processedAiQuestions = ai_question_for_result?.map(question => {
-                                let processedQuestion = question;
-                                if (sourceTerm) {
-                                    processedQuestion = processedQuestion.replace(/@snp_node@/g, getIdFromTerm(sourceTerm));
-                                }
-                                if (targetTerm) {
-                                    processedQuestion = processedQuestion.replace(/@gene_node@/g, getIdFromTerm(targetTerm));
-                                }
-                                return processedQuestion;
-                            }) || [];
+                            const processedAiQuestions = ai_question_for_result?.map(question => replaceVariables(question, newVariables)) || [];
+                            console.log("processedAiQuestions", processedAiQuestions);
 
-                            const processedAiAnswerTitle = ai_answer_title
-                                ?.replace(/@sno_node@/g, getIdFromTerm(sourceTerm))
-                                ?.replace(/@gene_node@/g, getIdFromTerm(targetTerm));
+                            const processedAiAnswerTitle = replaceVariables(ai_answer_title, newVariables);
 
                             // 更新 Redux store
                             dispatch(setProcessedQuestion({
@@ -433,7 +407,13 @@ function SearchResult() {
             const processedQuestions = aiQuestions.map(question =>
                 `${question} (answer the question in 50 words)`
             );
-            console.log("processedQuestions", processedQuestions);
+            console.log("processedQuestions", {
+                "question": processedQuestions,
+                "graph": {
+                    combined_query_result: queryResultPage.combined_query_result,
+                    core_nodes: queryResultPage.core_nodes,
+                }
+            });
             dispatch(queryAiAnswer({
                 "question": processedQuestions,
                 "graph": {
@@ -442,17 +422,7 @@ function SearchResult() {
                 }
             })).unwrap();
         }
-    }, [queryResultPage, currentQuestion, aiQuestions, dispatch]);
-    console.log(aiAnswer);
-    const answerText = `Currently <span style="color: #FFA500;">SNP rs73920612</span> is the eQTL of one gene: <span style="color: #FF69B4;">CENPO</span>
-
-✨ Gene overview:
-• <span style="color: #FF69B4;">CENPO</span> (Centromere Protein O) is a protein coding gene involved in key processes such as bipolar spindle assembly, chromosome segregation, and checkpoint signaling during mitosis. It is critical for maintaining chromosomal stability during cell division (<a href="https://pubmed.ncbi.nlm.nih.gov/36187159/" target="_blank" style="color: #8A2BE2;">PMID:36187159</a>).
-
-✨ Specific relation to Type 1 Diabetes:
-• While <span style="color: #FF69B4;">CENPO</span>'s direct association with Type 1 Diabetes is not explicitly documented, its role in immune system modulation could suggest potential indirect links. However, specific research connecting <span style="color: #FFA500;">SNP rs73920512</span> in the <span style="color: #FF69B4;">CENPO</span> gene to Type 1 Diabetes is required for a definitive association (<a href="https://pubmed.ncbi.nlm.nih.gov/37061713/" target="_blank" style="color: #8A2BE2;">PMID:37061713</a>).
-
-This answer refers to the following resources in PanKbase:`;
+    }, [queryResultPage, aiQuestions]);
 
     const handleTypewriterComplete = () => {
         setShowTable(true);
@@ -467,114 +437,6 @@ This answer refers to the following resources in PanKbase:`;
     const handleCloseModal = () => setModalOpen(false);
 
     const handleNextQuestionClick = (question) => {
-        // if (searchState.sourceTerm && searchState.relationship && searchState.targetTerm) {
-        //     dispatch(setNextQuestionClicked(true));
-        //     const currentState = store.getState();
-        //     const isUsingFallback = currentState.search.usingFallback;
-
-        //     let queryParams = {
-        //         sourceTerm: searchState.sourceTerm,
-        //         relationship: searchState.relationship,
-        //         targetTerm: searchState.targetTerm,
-        //         targetTermSymbol: searchState.targetTermSymbol
-        //     };
-
-        //     if (isUsingFallback) {
-        //         dispatch(setUsingFallback(false));
-        //     } else {
-        //         dispatch(setUsingFallback(true));
-        //         queryParams = {
-        //             sourceTerm: 'sequence_variant:rs17510162',
-        //             relationship: 'fine_mapped_eQTL',
-        //             targetTerm: 'gene:ENSG00000134242',
-        //             targetTermSymbol: 'ptpn22'
-        //         };
-        //     }
-
-        //     const processNextQuestion = async () => {
-        //         // 使用正则表达式来分割 sourceTerm 和 targetTerm
-        //         const getIdFromTerm = (term) => {
-        //             const match = term.match(/^[^:]+:(.+)$/);
-        //             return match ? match[1] : term;
-        //         };
-
-        //         dispatch(setVariables({
-        //             snpId: getIdFromTerm(queryParams.sourceTerm),
-        //             leadSnp: getIdFromTerm(queryParams.sourceTerm),
-        //             geneId: getIdFromTerm(queryParams.targetTerm),
-        //             dataSource: 'GTEx; SusieR',
-        //             tissueKey: 'pancreatic',
-        //             geneSymbol: queryParams.targetTermSymbol
-        //         }));
-
-        //         await Promise.resolve();
-        //         const response = await dispatch(queryViewSchema(queryParams));
-
-        //         if (response.payload && response.payload.cyper_for_result_page_all_nodes_specific) {
-        //             const query = response.payload.cyper_for_result_page_all_nodes_specific
-        //                 .replace(/@snp_node@/g, getIdFromTerm(queryParams.sourceTerm))
-        //                 .replace(/@gene_node@/g, getIdFromTerm(queryParams.targetTerm));
-
-        //             const updatedState = store.getState();
-        //             console.log('Variables after update:', updatedState.variables);
-
-        //             const processedCurrentQuestion = replaceVariables(
-        //                 response.payload.question_for_result, 
-        //                 updatedState.variables
-        //             );
-
-        //             console.log(response.payload.question_for_result);
-
-        //             const variables = {
-        //                 snpId: isUsingFallback ? 'rs17510162' : getIdFromTerm(searchState.sourceTerm),
-        //                 leadSnp: isUsingFallback ? 'rs17510162' : getIdFromTerm(searchState.sourceTerm),
-        //                 geneId: isUsingFallback ? 'ENSG00000134242' : getIdFromTerm(searchState.targetTerm),
-        //                 dataSource: 'GTEx; SusieR',
-        //                 tissueKey: 'pancreatic',
-        //                 geneSymbol: isUsingFallback ? 'ptpn22' : searchState.targetTermSymbol
-        //             };
-
-        //             const processedNextQuestions = response.payload.next_questions.map(q =>
-        //                 replaceVariables(q.question, variables)
-        //             );
-
-        //             const processedAiQuestions = response.payload?.ai_question_for_result?.map(question => {
-        //                 let processedQuestion = question;
-        //                 if (queryParams.sourceTerm.split(':')[1]) {
-        //                     processedQuestion = processedQuestion.replace(
-        //                         /@snp_node@/g,
-        //                         queryParams.sourceTerm.split(':')[1]
-        //                     );
-        //                 }
-        //                 if (queryParams.targetTerm.split(':')[1]) {
-        //                     processedQuestion = processedQuestion.replace(
-        //                         /@gene_node@/g,
-        //                         queryParams.targetTerm.split(':')[1]
-        //                     );
-        //                 }
-        //                 return processedQuestion;
-        //             }) || [];
-
-        //             const processedAiAnswerTitle = response.payload?.ai_answer_title
-        //                 .replace(/@snp_node@/g, queryParams.sourceTerm.split(':')[1])
-        //                 .replace(/@gene_id@/g, queryParams.targetTerm.split(':')[1]);
-
-        //             dispatch(setProcessedQuestion({
-        //                 currentQuestion: processedCurrentQuestion,
-        //                 nextQuestions: processedNextQuestions,
-        //                 aiQuestions: processedAiQuestions,
-        //                 aiAnswerTitle: processedAiAnswerTitle,
-        //                 aiAnswerSubtitle: response.payload?.ai_answer_sub_title,
-        //                 currentQuestionType: currentQuestionType
-        //             }));
-
-        //             dispatch(queryQueryResult({ query }));
-        //             dispatch(queryQueryVisResult({ query }));
-        //         }
-        //     };
-
-        //     processNextQuestion();
-        // }
 
         const fineMapEQTL = queryResultPage.combined_query_result?.edges?.find(
             rel => rel['~type'] === 'fine_mapped_eQTL'
@@ -616,6 +478,14 @@ This answer refers to the following resources in PanKbase:`;
         setExpanded(!expanded);
     };
 
+    const processLinks = (text) => {
+        // replace (aaa)[bbb] with <a href="bbb">aaa</a>
+        const regex = /\[(.*?)\]\((.*?)\)/g;
+        return text.replace(regex, (match, p1, p2) => {
+            return `<a href="${p2}" target="_blank" style="color: #0069c2; text-decoration: none">${p1}</a>`;
+        });
+    }
+
     // 如果正在加载答案或答案为空，显示加载状态
     if (queryAiAnswerStatus === "pending" || !aiAnswer?.answers) {
         return (
@@ -634,8 +504,6 @@ This answer refers to the following resources in PanKbase:`;
 
     // 获取 URL 参数
     const params = new URLSearchParams(window.location.search);
-    const geneId = params.get("geneId");
-    const targetSymbol = params.get("geneSymbol");
 
     return (
         <Container sx={{
@@ -748,7 +616,7 @@ This answer refers to the following resources in PanKbase:`;
                                         fontSize: '14px',
                                         fontWeight: 100
                                     }}>
-                                        <span dangerouslySetInnerHTML={{ __html: removeConsecutiveAsterisks(answer) }} />
+                                        <span dangerouslySetInnerHTML={{ __html: processLinks(removeConsecutiveAsterisks(answer)) }} />
                                     </Typography>
                                     {/*{index < aiAnswer.answers.length - 1 && <Divider sx={{ my: 2 }} />}*/}
                                 </div>
@@ -874,7 +742,7 @@ This answer refers to the following resources in PanKbase:`;
                             minHeight: '450px',
                             overflow: 'visible',
                             backgroundColor: '#FBFBFB',
-                            border: 1,
+                            border: "none",
                             borderColor: '#EEEEEE',
                             textAlign: 'left',
                             maxWidth: '100%',
@@ -884,13 +752,13 @@ This answer refers to the following resources in PanKbase:`;
                     </Box>
                 </Grid>
 
-                <ImageModal
+                {/* <ImageModal
                     open={modalOpen}
                     handleClose={handleCloseModal}
                     loading={imageLoading}
                 >
                     <SNPPlotImage imageSrc={snpPlotImage} />
-                </ImageModal>
+                </ImageModal> */}
             </Grid>
             {/* <Typography sx={{
                 fontWeight: 'bold',
@@ -1054,21 +922,23 @@ This answer refers to the following resources in PanKbase:`;
                 )}
                 {currTab === 'external_links' && (
                     <List sx={{ padding: '0px' }}>
-                        <ListItem sx={{ paddingY: '0px' }}>
-                            • Link to Ensembl:&nbsp;<Link
-                                href={`https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneId}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                sx={{
-                                    color: '#1976d2',
-                                    textDecoration: 'none',
-                                    textSize: '16px',
-                                    '&:hover': {
-                                        textDecoration: 'underline'
-                                    }
-                                }}
-                            > {`View the [${targetSymbol} gene (${geneId})] in Ensembl`}</Link>
-                        </ListItem>
+                        {referenceData?.external_links?.map((link, index) => (
+                            <ListItem sx={{ paddingY: '0px' }} key={index}>
+                                • {link[0]}&nbsp;<Link
+                                    href={link[2]}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    sx={{
+                                        color: '#1976d2',
+                                        textDecoration: 'none',
+                                        textSize: '16px',
+                                        '&:hover': {
+                                            textDecoration: 'underline'
+                                        }
+                                    }}
+                                > {link[1]}</Link>
+                            </ListItem>))
+                        }
                     </List>
                 )}
             </Box>
