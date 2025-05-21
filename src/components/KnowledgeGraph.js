@@ -182,7 +182,8 @@ export default function KnowledgeGraph() {
           width: "100%",
           height: "600px",
           backgroundColor: "#fff", // Restored to white as requested
-          border: "1px solid #ddd",
+          // border: "1px solid #ddd",
+          border: "none",
           borderRadius: "8px",
           position: "relative", // Add this for absolute positioning inside
           overflow: "hidden", // To keep contents within rounded corners

@@ -9,9 +9,9 @@ const colorMap = {
   default: '#3A838B'
 };
 
-export function replaceTerms(question, sourceTerm, relationship, targetTerm, targetTermSymbol, isNextQuestion = false, addStyle = true) {
+export function replaceTerms(question, sourceTerm, relationship, targetTerm, sourceTermSymbol, targetTermSymbol, isNextQuestion = false, addStyle = true) {
   const [sourceType, ...sourceRest] = sourceTerm.split(':');
-  const sourceValue = sourceRest.join(':') || sourceType;
+  const sourceValue = sourceTermSymbol ? sourceTermSymbol + ' (' + sourceRest.join(':') + ')' : sourceRest.join(':') || sourceType;
 
   const [targetType, ...targetRest] = targetTerm.split(':');
   const targetValue = targetTermSymbol ? targetTermSymbol + ' (' + targetRest.join(':') + ')' : targetRest.join(':') || targetType;
@@ -39,13 +39,27 @@ export function replaceTerms(question, sourceTerm, relationship, targetTerm, tar
 }
 
 export function replaceVariables(text, variables) {
-  const { leadSnp, geneId, tissueKey, dataSource, snpId, geneSymbol } = variables;
-  return text
-    .replace(/@lead_snp_node@/g, leadSnp)
-    .replace(/@gene_node@/g, geneSymbol + ' (' + geneId + ')')
-    .replace(/@tissue@/g, tissueKey)
-    .replace(/@data_source@/g, dataSource)
-    .replace(/@snp_node@/g, snpId);
+  if (!text || !variables || !variables.sourceTerm || !variables.relationship || !variables.targetTerm) {
+    return text;
+  }
+  const { sourceTerm, relationship, targetTerm, sourceSymbol, targetSymbol, tissueKey, dataSource } = variables;
+  const [sourceType, sourceId] = sourceTerm.split(':');
+  const [targetType, targetId] = targetTerm.split(':');
+  let replaceList = {};
+  replaceList[`@${sourceType}_id@`] = sourceId;
+  replaceList[`@${sourceType}_symbol@`] = sourceSymbol;
+  replaceList[`@${targetType}_id@`] = targetId;
+  replaceList[`@${targetType}_symbol@`] = targetSymbol;
+  replaceList['@tissue@'] = tissueKey;
+  replaceList['@method@'] = dataSource.includes('GTEx') ? 'GTEx' : 'INSPIRE';
+  // start to replace
+  console.log('replaceList', replaceList);
+  let replacedText = text;
+  for (const [key, value] of Object.entries(replaceList)) {
+    const regex = new RegExp(key, 'g');
+    replacedText = replacedText.replace(regex, value);
+  }
+  return replacedText;
 }
 
 // 从conversion table中获取数据源对应的前端显示和组织信息
