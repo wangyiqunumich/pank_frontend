@@ -47,9 +47,10 @@ function MatchPage() {
     const consequenceMatch = selectedQuestion.match(/\{(.*?)\}|\(.*?\)/g);
     const sourceTerm = consequenceMatch[0] ? consequenceMatch[0].replace(/[{}()]/g, '') : '';
     const relationTerm = consequenceMatch[1] ? consequenceMatch[1].replace(/[{}()]/g, '') : '';
-    const targetTerm = consequenceMatch[2] ? consequenceMatch[2].replace(/[{}()]/g, '') : '';
-  
-    const url = `/intermediate?qid=${qid}&sourceTerm=sequence_variant&relationship=fine_mapped_QTL&targetTerm=gene:${targetTerm}&question=${selectedQuestion}`;
+    const target = consequenceMatch[2] ? consequenceMatch[2].replace(/[{}()]/g, '') : '';
+    const targetSymbol = target.split('@')[0];
+    const targetTerm = target.split('@')[1];
+    const url = `/intermediate?qid=${qid}&sourceTerm=${sourceTerm.toLowerCase()}&relationship=${relationTerm}&targetTerm=gene:${targetTerm}&targetSymbol=${targetSymbol}&question=${selectedQuestion}`;
     navigate(url);
   };
 
