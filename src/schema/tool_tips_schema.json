@@ -13,13 +13,13 @@
                 "PIP": "PIP (Posterior Inclusion Probability) quantifies the probability of a specific variant being the causal driver of the observed genetic signal; a higher PIP suggests greater confidence in causality.",
                 "#": "# (Number of Variants) indicates the total count of genetic variants included in the credible set, encompassing all variants contributing to the signal."
             }
-        },
-        "result": {
-            "You May Also Ask": "Tooltip for 'You May Also Ask' section",
-            "Legend": "Tooltip for 'Legend' section",
-            "Question": "Tooltip for 'Question' section",
-            "AI's Overview": "Tooltip for 'AI's Overview' section",
-            "Graph Viewer": "Tooltip for 'Graph Viewer' section"
         }
+    },
+    "result": {
+        "You May Also Ask": "Tooltip for 'You May Also Ask' section",
+        "Legend": "Tooltip for 'Legend' section",
+        "Question": "Tooltip for 'Question' section",
+        "AI's Overview": "Tooltip for 'AI's Overview' section",
+        "Graph Viewer": "Tooltip for 'Graph Viewer' section"
     }
 }
