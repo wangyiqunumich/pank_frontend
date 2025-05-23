@@ -7,7 +7,7 @@ import TerminalIcon from '@mui/icons-material/Terminal';
 import Question from './Question';
 import { useDispatch, useSelector } from 'react-redux';
 import { queryVocab } from '../redux/inputToVocabSlice'; // Import the action
-import axios from 'axios';
+import Popper from '@mui/material/Popper';
 
 function MatchPage() {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -20,7 +20,7 @@ function MatchPage() {
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const navigate = useNavigate();
 
-  // 从URL中提取问题和qid
+  // Extract this page's question and qid from URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const questionFromUrl = params.get('question'); // 获取'question'参数
@@ -47,9 +47,8 @@ function MatchPage() {
     const consequenceMatch = selectedQuestion.match(/\{(.*?)\}|\(.*?\)/g);
     const sourceTerm = consequenceMatch[0] ? consequenceMatch[0].replace(/[{}()]/g, '') : '';
     const relationTerm = consequenceMatch[1] ? consequenceMatch[1].replace(/[{}()]/g, '') : '';
-    const target = consequenceMatch[2] ? consequenceMatch[2].replace(/[{}()]/g, '') : '';
-    const targetSymbol = target.split('@')[0];
-    const targetTerm = target.split('@')[1];
+    const target = consequenceMatch[2] ? consequenceMatch[2].replace(/[{})]/g, '') : '';
+    const [targetSymbol, targetTerm] = target.split('(');
     const url = `/intermediate?qid=${qid}&sourceTerm=${sourceTerm.toLowerCase()}&relationship=${relationTerm}&targetTerm=gene:${targetTerm}&targetSymbol=${targetSymbol}&question=${selectedQuestion}`;
     navigate(url);
   };
@@ -68,7 +67,7 @@ function MatchPage() {
 
   function renderSequence() {
     const sequence = selectedQuestion || ''; // 使用选定的问题或空字符串
-    const parts = sequence.split(/(\{.*?\}|\(.*?\))/); // 根据{}或()将字符串分割成部分
+    const parts = sequence.split(/(\s+|\{.*?\}|\(.*?\))/); // 根据{} 或（）将字符串分割成部分，其余按照空格分割成部分
     return parts.map((part, index) => {
       if (part.startsWith('(') && part.endsWith(')')) {
         return (
@@ -91,7 +90,7 @@ function MatchPage() {
           <Box key={index} sx={{ display: 'inline-flex', alignItems: 'center',marginLeft: '-8px' }} >
             <Autocomplete
               freeSolo
-              options={options}
+              options={options.map((option) => option.split('@').join('(').concat(')'))}
               value={part.slice(1, -1)?part.slice(1, -1):''}
               onInputChange={(event, newInputValue) => {
                 if(newInputValue) {
@@ -112,6 +111,9 @@ function MatchPage() {
                 }
                 setIsSubmitDisabled(!newValue);}
               }}
+              PopperComponent={(props) => (
+                <Popper {...props} style={{ width: 'fit-content !important' }} />
+              )}
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -128,10 +130,11 @@ function MatchPage() {
                     width: 'auto !important',
                     mx: 1,
                     '& .MuiAutocomplete-input':{
-                      width: '80px !important',
+                      width: '60px !important',
                     },
                     '& .MuiOutlinedInput-root':{
-                      padding: '2px 8px !important',
+                      width: '100%',
+                      padding: '0px 8px !important',
                       '& fieldset': {
                         border: 'none',
                       },
@@ -157,7 +160,7 @@ function MatchPage() {
           <Typography
             key={index}
             sx={{
-              marginRight: '8px',
+              marginRight: '4px',
               display: 'inline-block',
             }}
           >
@@ -170,10 +173,18 @@ function MatchPage() {
 
   useEffect(() => {
     if (selectedQuestion) {
-      const extractedParts = selectedQuestion.match(/\(\s*.*?\s*\)|\{\s*.*?\s*\}/g);
-      const connectedString = extractedParts.join('-');
-      setVisualPattern(connectedString);
-      console.log('visual pattern', connectedString);
+      if (isSubmitDisabled) {
+        const tobeConnected = selectedQuestion.replace(/\{.*?\}/g, '{?}');
+        const connectedString = tobeConnected.match(/\(\s*.*?\s*\)|\{\s*.*?\s*\}/g).join('-');
+        setVisualPattern(connectedString);
+      }
+      else{
+        const extractedParts = selectedQuestion.match(/\(\s*.*?\s*\)|\{\s*.*?\s*\}/g);
+        const connectedString = extractedParts.join('-');
+        setVisualPattern(connectedString);
+        console.log('visual pattern', connectedString);
+      }
+      
     }
   }, [selectedQuestion]);
 
@@ -262,6 +273,7 @@ function MatchPage() {
           flexWrap: 'wrap',
           padding: 2,
           width: 'calc(100% - 32px)', 
+          gap: 0,
         }}>
           {renderSequence()}
         </Box>
