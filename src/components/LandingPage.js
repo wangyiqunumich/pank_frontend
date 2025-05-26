@@ -40,7 +40,8 @@ function LandingPage() {
     <Container maxWidth={false} disableGutters sx={{
       padding: 0, display: 'flex',
       flexDirection: 'row', justifyContent: 'space-evenly',
-      flex: 1, alignItems: 'center'
+      flex: 1, alignItems: 'center',
+      marginBottom: '40px'
     }}>
       {/* <Snackbar
         open={openSnackbar}
@@ -66,10 +67,10 @@ function LandingPage() {
       <Box sx={{ 
         width: '50%',
         display: 'block',
-        padding: '2 auto',
+        textAlign: 'center',
         '& img': {
-          width: '100%',
-          objectFit: 'contain'
+          width: '75%',
+          objectFit: 'contain',
         }
       }}>
         <img src={landingPageLogo} alt="PanKgraph" />
@@ -85,12 +86,12 @@ function LandingPage() {
 
       {/* 右侧内容区域 */}
       <Box sx={{ 
-        width: '50%',
+        width: '44%',
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
         gap: 3,
-        margin: 2,
+        marginRight: 20,
       }}>
         
         {/* 更新 Question 组件，传入 setSelectedQuestion */}
