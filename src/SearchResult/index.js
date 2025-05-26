@@ -868,8 +868,8 @@ function SearchResult() {
                         value={option.value}
                     />))}
             </Tabs>
-            <Box sx={{ padding: '20px', backgroundColor: '#E4F0F1', marginBottom: '20px', borderRadius: '0px 20px 20px 20px' }}>
-                {currTab === 'pankbase_links' && (
+            <Box sx={{ position: 'relative', padding: '20px', backgroundColor: '#E4F0F1', marginBottom: '20px', borderRadius: '0px 20px 20px 20px' }}>
+                <Collapse in={currTab === 'pankbase_links'}>
                     <List sx={{ padding: '0px' }}>
                         <ListItem sx={{ paddingY: '0px' }}>
                             •&nbsp;<Link
@@ -919,8 +919,8 @@ function SearchResult() {
                             </Link>
                         </ListItem>
                     </List>
-                )}
-                {currTab === 'external_links' && (
+                </Collapse>
+                <Collapse in={currTab === 'external_links'}>
                     <List sx={{ padding: '0px' }}>
                         {referenceData?.external_links?.map((link, index) => (
                             <ListItem sx={{ paddingY: '0px' }} key={index}>
@@ -940,7 +940,7 @@ function SearchResult() {
                             </ListItem>))
                         }
                     </List>
-                )}
+                </Collapse>
             </Box>
         </Container>
     );

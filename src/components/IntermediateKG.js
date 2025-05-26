@@ -56,14 +56,14 @@ function IntermediateKG({ data }) {
 
     console.log('credible_sets', credible_sets);
 
-    const branches = credible_sets.map((credible_set) => {
-      return {
+    const branches = credible_sets.map((credible_set) => (
+      {
         edge1: generateEdgeLabel(credible_set.data_source, conversionTable),
         node1: getCredibleSetLabel(credible_set.credible_set_id, credible_set.data_source).replace('_', ' '),
         edge2: "lead SNP",
         node2: credible_set.snp
       }
-    });
+    ));
 
     console.log('branches', branches);
 
@@ -73,8 +73,8 @@ function IntermediateKG({ data }) {
       'leaf': 'sequence_variant'
     };
 
-    const nodes = branches.map((branch, index) => {
-      return [
+    const nodes = branches.map((branch, index) => (
+      [
         {
           id: `node${index * 2}`,
           index: index * 2,
@@ -88,16 +88,17 @@ function IntermediateKG({ data }) {
           label: branch.node2,
         }
       ]
-    }).flat().concat([
-      {
+    )).flat().concat(
+      [{
         id: 'node_root',
         index: -1,
         type: 'root',
         label: root_label
-      }]);
+      }]
+    );
 
-    const edges = branches.map((branch, index) => {
-      return [
+    const edges = branches.map((branch, index) => (
+      [
         {
           id: `edge${index * 2}`,
           start: `node_root`,
@@ -111,7 +112,7 @@ function IntermediateKG({ data }) {
           label: branch.edge2
         }
       ]
-    }).flat();
+    )).flat();
 
     // 计算每种类型节点的数量
     // const typeCounts = nodes.reduce((acc, node) => {
@@ -121,13 +122,11 @@ function IntermediateKG({ data }) {
     //   return acc;
     // }, { gene: 0, credible_set: 0, variant: 0 });
 
-    const typeCounts = nodes.reduce((acc, node) => {
-      acc[node.type] = (acc[node.type] || 0) + 1;
-      return acc;
-    }
-      , { root: 0, mid: 0, leaf: 0 });
+    // const typeCounts = nodes.reduce((acc, node) => ({
+    //   ...acc,
+    //   [node.type]: (acc[node.type] || 0) + 1
+    // }), { root: 0, mid: 0, leaf: 0 });
 
-    // 计算总高度和起始位置
     const totalHeight = (branches.length - 1) * 100;
     const startY = 250 - (totalHeight / 2);
 
@@ -168,8 +167,8 @@ function IntermediateKG({ data }) {
     });
 
     // 创建边的数据
-    const cyEdges = edges.map((rel, index) => {
-      return {
+    const cyEdges = edges.map((rel, index) => (
+      {
         group: 'edges',
         data: {
           id: rel.id,
@@ -177,8 +176,8 @@ function IntermediateKG({ data }) {
           target: rel.start,
           label: rel.label,
         }
-      };
-    });
+      }
+    ));
 
     // 确保在创建新实例前销毁旧实例
     if (cyRef.current) {
@@ -231,7 +230,7 @@ function IntermediateKG({ data }) {
     cyRef.current = cy;
 
     // 添加点击事件
-    cy.on('tap', 'node', function (evt) {
+    cy.on('tap', 'node', (evt) => {
       const node = evt.target;
       // console.log('Clicked node:', node.id());
     });
