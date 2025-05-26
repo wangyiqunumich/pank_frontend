@@ -161,7 +161,6 @@ function IntermediatePage({ onContinue }) {
         if (!cs?.data_source) return;
 
         const { tissue, frontendKG } = getDataSourceInfo(cs.data_source, conversionTable);
-        console.log(frontendKG);
         if (tissue && frontendKG) {
           const tissueKey = tissue === "pancreatic" ? "Pancreatic" : "Islet";
           counts[tissueKey][frontendKG] =
@@ -764,7 +763,7 @@ function IntermediatePage({ onContinue }) {
                     </TableHead>
                     <TableBody>
                       {getFilteredResults()
-                        .concat(Array(5).fill({})) // Fill with empty objects to ensure at least 5 rows
+                        .concat(Array(5).fill({}))
                         .slice((currPage - 1) * 5, currPage * 5)
                         .map((item, index) => (
                           Object.keys(item).length === 0 ? (
