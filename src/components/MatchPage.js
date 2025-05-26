@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import { Box, Typography, Container, Link, Autocomplete, TextField,MenuItem,Button, FormControl, InputLabel, Snackbar, Alert } from '@mui/material';
 import landingPageLogo from '../image/landing image cropped.png';
 import SearchBar from '../SearchBar';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import TerminalIcon from '@mui/icons-material/Terminal';
 import Question from './Question';
 import { useDispatch, useSelector } from 'react-redux';
@@ -19,6 +19,8 @@ function MatchPage() {
   const [inputValue, setInputValue] = useState('');
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
+  const questionData = location.state;
 
   // Extract this page's question and qid from URL
   useEffect(() => {
@@ -235,7 +237,7 @@ function MatchPage() {
           fontWeight: 700,
           textAlign: 'left', 
         }}>
-          Search for QTL
+          {questionData.matched_page_title}
         </Typography>
         <Link
           href="/"
@@ -263,7 +265,7 @@ function MatchPage() {
           fontSize: 17,
           fontWeight: 600,
         }}>
-        Pick a specific gene
+        {questionData.matched_page_sub_title}
         </Typography>
         <Box sx={{
           backgroundColor: '#FFFFFF',
