@@ -18,7 +18,7 @@ export function replaceTerms(question, sourceTerm, relationship, targetTerm, sou
 
   const replaceValue = sourceType !== sourceValue ? sourceValue : targetValue;
 
-  return question.replace(/\{([^{}@]+)(@([^{}@]+)@)?\}/g, (match, term, fullType, type) => {
+  return question.replace(/[\{\(]([^{}()@]+)(@([^{}()@]+)@)?[\}\)]/g, (match, term, fullType, type) => {
     let replacedTerm;
 
     if (isNextQuestion) {
