@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from 'react-redux';
 import cytoscape from "cytoscape";
-import positionData from "./data/example_x_y.json";
 import zoomInIcon from "../image/zoomIn.png";
 import zoomOutIcon from "../image/zoomOut.png";
 import { nodeStyle } from "./style.js";
@@ -48,6 +47,7 @@ export default function KnowledgeGraph() {
 
   useEffect(() => {
     const result = queryResultPage?.combined_query_result;
+    const positionData = queryResultPage?.xy_json || {};
     const uniqueNodesMap = {};
     result.nodes.forEach((node) => (uniqueNodesMap[node["~id"]] = node));
     const nodes = Object.values(uniqueNodesMap).map((node) => {
@@ -67,7 +67,7 @@ export default function KnowledgeGraph() {
       const posData = positionData[node["~id"]] || {
         x: Math.random() * 250 - 125,
         y: Math.random() * 200 - 125,
-        Level: "C",
+        Level: "Core",
       };
       const pos = { x: posData.x, y: posData.y };
       return {
@@ -91,6 +91,8 @@ export default function KnowledgeGraph() {
         ...edge["~properties"],
       },
     }));
+    console.log("Edges:", edges);
+    console.log("Nodes:", nodes);
 
     cyRef.current = cytoscape({
       container: document.getElementById("cy-container"),
