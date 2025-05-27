@@ -1,7 +1,7 @@
 export const nodeStyle = [
   // Protein Coding nodes: Core (filled)
   {
-    selector: 'node[type = "protein_coding"][Level = "C"]',
+    selector: 'node[type = "protein_coding"][Level = "Core"]',
     style: {
       shape: "round-rectangle",
       "background-color": "#ABD0F1",
@@ -20,7 +20,7 @@ export const nodeStyle = [
   },
   // Protein Coding nodes: Neighbor (transparent fill, colored border)
   {
-    selector: 'node[type = "protein_coding"][Level = "N"]',
+    selector: 'node[type = "protein_coding"][Level = "Neighbor"]',
     style: {
       shape: "round-rectangle",
       "background-opacity": 0,
@@ -41,7 +41,7 @@ export const nodeStyle = [
   },
   // SNP nodes: Core (filled)
   {
-    selector: 'node[type = "SNP"][Level = "C"]',
+    selector: 'node[type = "SNP"][Level = "Core"]',
     style: {
       shape: "round-rectangle",
       "background-color": "#FFB77F",
@@ -60,7 +60,7 @@ export const nodeStyle = [
   },
   // SNP nodes: Neighbor (transparent fill, colored border)
   {
-    selector: 'node[type = "SNP"][Level = "N"]',
+    selector: 'node[type = "SNP"][Level = "Neighbor"]',
     style: {
       shape: "round-rectangle",
       "background-opacity": 0,
@@ -81,7 +81,7 @@ export const nodeStyle = [
   },
   // Ontology nodes: Core (filled)
   {
-    selector: 'node[type = "ontology"][Level = "C"]',
+    selector: 'node[type = "ontology"][Level = "Core"]',
     style: {
       shape: "round-rectangle",
       "background-color": "#B57E47",
@@ -100,7 +100,7 @@ export const nodeStyle = [
   },
   // Ontology nodes: Neighbor (transparent fill, colored border)
   {
-    selector: 'node[type = "ontology"][Level = "N"]',
+    selector: 'node[type = "ontology"][Level = "Neighbor"]',
     style: {
       shape: "round-rectangle",
       "background-opacity": 0,
