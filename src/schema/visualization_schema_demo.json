@@ -2,9 +2,8 @@
       "snp - QTL - gene": {
             "general - relationship - specific": {
                   "question": [
-                        "Which (snp) serves as the lead (QTL) for {gene@gene@}?"
+                        "Which {SNP} serves as the lead {QTL} for {@gene_symbol@ (@gene_id@)}?"
                   ],
-                  "pattern_for_the_matched_page": "(snp) - eqtl of -> (gene@gene@)",
                   "cyper_for_intermediate_page": "MATCH (variant:sequence_variant:snp)-[r:fine_mapped_eQTL]->(gene:coding_elements {id:'@gene@'}) WITH CASE WHEN r.data_source='GTEx; SusieR' THEN 'GTEx; SusieR' WHEN r.data_source='INSPIRE; SusieR' THEN 'INSPIRE; SusieR' WHEN r.data_source='splicing; GTEx' THEN 'splicing; GTEx' WHEN r.data_source='exon; INSPIRE' THEN 'exon; INSPIRE' ELSE 'Other' END AS data_source, r, variant WITH data_source, COLLECT({snp: id(variant), credible_set_id: r.credible_set, data_source: r.data_source, pip: r.pip, n_snp: r.n_snp, purity: r.purity, nominal_p: r.nominal_p, lbf: r.lbf, effect_allele: r.effect_allele}) AS credible_sets RETURN data_source, credible_sets ORDER BY data_source;",
                   "intermediate_page_table": [
                         {
@@ -60,9 +59,8 @@
             },
             "specific - relationship - specific": {
                   "question": [
-                        "Does {SNP@snp@} serves as a (QTL) for {gene@gene@}?"
+                        "Does {SNP@snp@} serve as a {QTL} for {@gene_symbol@(@gene_id@)}?"
                   ],
-                  "pattern_for_the_matched_page": "(snp@snp@) - eqtl of -> (gene@gene@)",
                   "question_for_result": "How does the SNP @snp_id@ influence the expression of @gene_symbol@(@gene_id@) in @tissue@ tissue, as reported by @method@?",
                   "cypher_for_result_page_core": "MATCH (variant:sequence_variant:snp), (gene:coding_elements) WHERE ID(variant) = '@snp@' AND ID(gene) = '@gene@' MATCH (variant)-[r:fine_mapped_eQTL]-(gene) WITH collect(DISTINCT variant) + collect(DISTINCT gene) AS nodes, collect(DISTINCT r) AS edges RETURN { results: [ { nodes: nodes, edges: edges } ] } AS output;",
                   "cypher_for_result_page_nbr": "MATCH (variant:sequence_variant)-[r1]-(nbr1) WHERE ID(variant) = '@snp@' WITH r1, nbr1 MATCH (gene:coding_elements)-[r2]-(nbr2) WHERE ID(gene) = '@gene@'WITH collect(DISTINCT r1) + collect(DISTINCT r2) AS rels, collect(DISTINCT nbr1) + collect(DISTINCT nbr2) AS nbrs WITH rels, [n IN nbrs WHERE NOT id(n) IN ['@snp@','@gene@']] AS nodes RETURN { results: [ { nodes: nodes, edges: rels } ] } AS output;",
@@ -104,14 +102,13 @@
       "gene - express_in - cell_type": {
             "specific - relationship - specific": {
                   "question": [
-                        "What is {gene@gene@}’s expression level in {cell_type@cell_type@} and its link to (T1D)?"
+                        "What is {@gene@}’s expression level in {@cell_type_name@(@cell_type_id@)} and its link to {T1D}?"
                   ],
-                  "pattern_for_the_matched_page": "(gene@gene@) - express in -> (ontology@cell_type@)",
-                  "question_for_result": "hat is {gene@gene@}’s expression level in {cell_type@cell_type@} and its link to (T1D)?",
+                  "question_for_result": "What is @gene@’s expression level in @cell_type_name@(@cell_type_id@) and its link to (T1D)?",
                   "cypher_for_result_page_core": "MATCH (g:gene {id: '@gene@'})-[r:express_in]->(c:cell_type {id: '@cell_type@'}) WITH collect(DISTINCT g) + collect(DISTINCT c) AS nodes, collect(DISTINCT r) AS edges RETURN { results: [ { nodes: nodes, edges: edges } ] } AS output;",
                   "cypher_for_result_page_nbr": "MATCH (g:gene)-[r1]-(nbr1) WHERE ID(g) ='@gene@' WITH r1, nbr1 WITH collect(DISTINCT r1) AS rels, collect(DISTINCT nbr1)AS nbrs WITH rels, [n IN nbrs WHERE NOT id(n) IN ['@gene@','@cell_type@']] AS nodes  RETURN { results: [ { nodes: nodes, edges: rels } ] } AS output;",
                   "ai_question_for_result": [
-                        "Based on the JSON data, describe the expression level of the the gene @gene_id@ in the @cell_type@. Compare between Non-diabetes, T1D, and T2D data.",
+                        "Based on the JSON data, describe the expression level of the gene @gene_id@ in the @cell_type@. Compare between Non-diabetes, T1D, and T2D data.",
                         "ATAC not ready",
                         "Considering the input JSON, discuss the association between the gene @gene_id@ and Type 1 diabetes, including any evidence linking genetic variants to the disease"
                   ],
