@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import cytoscape from "cytoscape";
 import zoomInIcon from "../image/zoomIn.png";
 import zoomOutIcon from "../image/zoomOut.png";
-import { nodeStyle } from "./style.js";
+import { nodeStyle, nodeColors, nodeLabels } from "./style.js";
 import Collapse from "@mui/material/Collapse";
 import SouthWestIcon from '@mui/icons-material/SouthWest';
 import NorthEastIcon from '@mui/icons-material/NorthEast';
@@ -20,6 +20,29 @@ const nodeTypeColors = {
   ontology: "#B57E47", // Brown color for ontology nodes
 };
 
+const nodeTypeLabelColors = {
+  gene: "#fff",
+  sequence_variant: "#fff",
+  pathway: "#fff",
+  article: "#fff",
+  ontology: "#fff",
+};
+
+const LegendItem = ({ type, sx }) => (
+  <span
+    style={{
+      padding: "4px 8px",
+      borderRadius: "6px",
+      backgroundColor: nodeColors[type],
+      fontSize: "12px",
+      color: "white",
+      ...sx,
+    }}
+  >
+    {nodeLabels[type] || type}
+  </span>
+);
+
 // Main KnowledgeGraph component
 export default function KnowledgeGraph() {
   const cyRef = useRef(null);
@@ -32,7 +55,7 @@ export default function KnowledgeGraph() {
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
-  const [legendVisible, setLegendVisible] = useState(true);
+  const [legendVisible, setLegendVisible] = useState(false);
 
   const hideContextMenu = () => {
     const menu = document.getElementById("context-menu");
@@ -52,17 +75,7 @@ export default function KnowledgeGraph() {
     result.nodes.forEach((node) => (uniqueNodesMap[node["~id"]] = node));
     const nodes = Object.values(uniqueNodesMap).map((node) => {
       // Determine type based on the labels
-      const type = node["~labels"].includes("gene")
-        ? "protein_coding"
-        : node["~labels"].includes("variants")
-          ? "SNP"
-          : node["~labels"].includes("pathway")
-            ? "pathway"
-            : node["~labels"].includes("article")
-              ? "article"
-              : node["~labels"].includes("ontology")
-                ? "ontology"
-                : "other";
+      const type = node["~labels"].join(";");
       // Use the provided positionData and extract the Level property.
       const posData = positionData[node["~id"]] || {
         x: Math.random() * 250 - 125,
@@ -93,6 +106,7 @@ export default function KnowledgeGraph() {
     }));
     console.log("Edges:", edges);
     console.log("Nodes:", nodes);
+    console.log(nodeStyle);
 
     cyRef.current = cytoscape({
       container: document.getElementById("cy-container"),
@@ -100,8 +114,8 @@ export default function KnowledgeGraph() {
       style: nodeStyle,
       layout: { name: "preset" },
       zoom: 1.5,
-      minZoom: 1,
-      maxZoom: 3.5,
+      minZoom: 1.2,
+      maxZoom: 4,
       pan: { x: 0, y: 0 },
     });
 
@@ -114,18 +128,13 @@ export default function KnowledgeGraph() {
       activeNodeRef.current = evt.target;
 
       const nodeData = evt.target.data();
-      console.log(evt.renderedPosition);
       const container = document.getElementById("cy-container");
       const containerRect = container.getBoundingClientRect();
       const containerWidth = containerRect.width;
       const containerHeight = containerRect.height;
-      console.log(containerWidth, containerHeight);
-      // get node rendered position
-      console.log(cyRef.current.$(evt.target).position());
       const { x: modelX, y: modelY } = cyRef.current.$(evt.target).position();
       const x = modelX * cyRef.current.zoom() + cyRef.current.pan().x;
       const y = modelY * cyRef.current.zoom() + cyRef.current.pan().y;
-      console.log(cyRef.current.zoom());
 
       // Calculate tooltip offset based on node position
       // If node is in the right half of the screen, show tooltip to the left
@@ -179,6 +188,15 @@ export default function KnowledgeGraph() {
       menu.style.top = `${evt.originalEvent.clientY}px`;
       menu.style.display = "block";
     });
+
+    // cyRef.current.on('mouseover', 'node', (evt) => {
+    //   $('html,body').css('cursor', 'pointer');
+    // });
+
+    cyRef.current.on("mouseover", "node", (evt) => {
+      document.body.style.cursor = "pointer";
+    });
+
 
     document.addEventListener("click", hideContextMenu);
     return () => {
@@ -469,9 +487,9 @@ export default function KnowledgeGraph() {
             zIndex: 10,
             userSelect: "none",
             height: "fit-content",
-            width: legendVisible ? "520px" : "100px",
-            transition: "width 0.3s, height 0.3s",
+            width: legendVisible ? "450px" : "100px",
             opacity: legendVisible ? 1 : 0.5,
+            transition: "width 0.3s, height 0.3s, opacity 0.3s, box-shadow 0.3s",
           }}
         >
           {/* Title */}
@@ -484,14 +502,14 @@ export default function KnowledgeGraph() {
               style={{ padding: "0px 4px" }}
             >
               {legendVisible ? (
-                <SouthWestIcon style={{ color: "#172A3A" }} />
+                <SouthWestIcon style={{ color: "#172A3A", fontSize: "20px" }} />
               ) : (
-                <NorthEastIcon style={{ color: "#172A3A" }} />
+                <NorthEastIcon style={{ color: "#172A3A", fontSize: "20px" }} />
               )}
             </IconButton>
           </div>
           <Collapse in={legendVisible} timeout="auto">
-            <div style={{ width: "500px" }}>
+            <div style={{ width: "430px", paddingTop: "2px" }}>
 
               {/* Search‑result pills */}
               <div
@@ -502,82 +520,21 @@ export default function KnowledgeGraph() {
                   flexWrap: "wrap",
                 }}
               >
-                <span style={{ fontSize: "12px", color: "#666" }}>
-                  Search result:
-                </span>
-
-                {/* map these instead if you like */}
-                <span
-                  style={{
-                    padding: "4px 12px",
-                    borderRadius: "12px",
-                    backgroundColor: nodeTypeColors.gene,
-                    fontSize: "12px",
-                    color: "#172A3A",
-                  }}
-                >
-                  Gene
-                </span>
-                <span
-                  style={{
-                    padding: "4px 12px",
-                    borderRadius: "12px",
-                    backgroundColor: nodeTypeColors.sequence_variant,
-                    fontSize: "12px",
-                    color: "#172A3A",
-                  }}
-                >
-                  Sequence variant
-                </span>
-                <span
-                  style={{
-                    padding: "4px 12px",
-                    borderRadius: "12px",
-                    backgroundColor: nodeTypeColors.pathway,
-                    fontSize: "12px",
-                    color: "#172A3A",
-                  }}
-                >
-                  Pathway
-                </span>
-                <span
-                  style={{
-                    padding: "4px 12px",
-                    borderRadius: "12px",
-                    backgroundColor: nodeTypeColors.article,
-                    fontSize: "12px",
-                    color: "#172A3A",
-                  }}
-                >
-                  Article
-                </span>
-                <span
-                  style={{
-                    padding: "4px 12px",
-                    borderRadius: "12px",
-                    backgroundColor: nodeTypeColors.ontology,
-                    fontSize: "12px",
-                    color: "#172A3A",
-                  }}
-                >
-                  Ontology
-                </span>
+                {/* future todo: map these instead */}
+                {
+                  Object.keys(nodeLabels).map((type) => (
+                    <LegendItem
+                      type={type}
+                      key={type}
+                    />
+                  ))
+                }
               </div>
 
               {/* Related‑concept indicator */}
               <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingTop: "4px" }}>
-                <span style={{ fontSize: "12px", color: "#666" }}>
-                  Concepts related to current search result presented in
-                </span>
-                <span
-                  style={{
-                    width: "16px",
-                    height: "16px",
-                    borderRadius: "3px",
-                    border: "1px solid #ccc",
-                    background: "#fff",
-                  }}
-                />
+                <LegendItem type="Core Nodes" sx={{ backgroundColor: "#D9D9D9", color: "black" }} />
+                <LegendItem type="Neighbor" sx={{ backgroundColor: "white", color: "black", border: "1px solid #D9D9D9", }} />
               </div>
             </div>
           </Collapse>

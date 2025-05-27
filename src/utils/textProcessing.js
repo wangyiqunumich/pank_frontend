@@ -39,10 +39,10 @@ export function replaceTerms(question, sourceTerm, relationship, targetTerm, sou
 }
 
 export function replaceVariables(text, variables) {
-  if (!text || !variables || !variables.sourceTerm || !variables.relationship || !variables.targetTerm) {
+  if (!text || !variables || !variables.sourceTerm || !variables.targetTerm) {
     return text;
   }
-  const { sourceTerm, relationship, targetTerm, sourceSymbol, targetSymbol, tissueKey, dataSource } = variables;
+  const { sourceTerm, targetTerm, sourceSymbol, targetSymbol, tissueKey, dataSource } = variables;
   const [sourceType, sourceId] = sourceTerm.split(':');
   const [targetType, targetId] = targetTerm.split(':');
   let replaceList = {};
