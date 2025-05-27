@@ -100,5 +100,42 @@
                         ]
                   }
             }
-      }
+}
+
+      ,"gene - express_in - cell_type": {
+            "specific - relationship - specific": {
+                  "question": [
+                        "What is {gene@gene@}’s expression level in {cell_type@cell_type@} and its link to (T1D)?"
+                  ],
+                  "pattern_for_the_matched_page": "(gene@gene@) - express in -> (ontology@cell_type@)",
+                  "question_for_result": "hat is {gene@gene@}’s expression level in {cell_type@cell_type@} and its link to (T1D)?",
+                  "cypher_for_result_page_core": "MATCH (g:gene {id: '@gene@'})-[r:express_in]->(c:cell_type {id: '@cell_type@'}) WITH collect(DISTINCT g) + collect(DISTINCT c) AS nodes, collect(DISTINCT r) AS edges RETURN { results: [ { nodes: nodes, edges: edges } ] } AS output;",
+                  "cypher_for_result_page_nbr": "MATCH (g:gene)-[r1]-(nbr1) WHERE ID(g) ='@gene@' WITH r1, nbr1 WITH collect(DISTINCT r1) AS rels, collect(DISTINCT nbr1)AS nbrs WITH rels, [n IN nbrs WHERE NOT id(n) IN ['@gene@','@cell_type@']] AS nodes  RETURN { results: [ { nodes: nodes, edges: rels } ] } AS output;",
+                  "ai_question_for_result": [
+                        "Based on the JSON data, describe the expression level of the the gene @gene_id@ in the @cell_type@. Compare between Non-diabetes, T1D, and T2D data.",
+                        "ATAC not ready",
+                        "Considering the input JSON, discuss the association between the gene @gene_id@ and Type 1 diabetes, including any evidence linking genetic variants to the disease"
+                  ],
+                  "ai_answer_sub_title": [
+                        "Expression level overview: ",
+                        "ATAC-seq overview: ",
+                        "Specific relation to Type 1 Diabetes:"
+                  ],
+                  "next_questions": {
+
+                  },
+                  "resources_tabs": {
+                        "reference": {},
+                        "visualization": {},
+                        "pankbase_links": [],
+                        "external_links": [
+                              [
+                                    "Link to Ensembl: ",
+                                    "View the @gene_symbol@(@gene_id@) in Ensembl",
+                                    "https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000001626"
+                              ]
+                        ]
+                  }
+            }
+			}
 }
