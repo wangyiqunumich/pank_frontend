@@ -1,124 +1,82 @@
-export const nodeStyle = [
-  // Protein Coding nodes: Core (filled)
-  {
-    selector: 'node[type = "protein_coding"][Level = "Core"]',
-    style: {
-      shape: "round-rectangle",
-      "background-color": "#ABD0F1",
-      label: "data(name)",
-      "font-size": "6px",
-      "text-valign": "center",
-      color: "#fff",
-      width: "label",
-      height: "label",
-      padding: "5px",
-      cursor: "pointer",
-      "text-outline-width": 0,
-      "text-outline-color": "#fff",
-      "text-outline-opacity": 0,
-    },
+const nodeAutoWidth = (node) => {
+  const ctx = document.createElement('canvas').getContext("2d");
+  const fStyle = node.pstyle('font-style').strValue;
+  const size = node.pstyle('font-size').pfValue + 'px';
+  const family = node.pstyle('font-family').strValue;
+  const weight = node.pstyle('font-weight').strValue;
+
+  ctx.font = fStyle + ' ' + weight + ' ' + size + ' ' + family;
+  return ctx.measureText(node.data('name')).width;
+};
+
+export const nodeColors = {
+  "coding_elements;gene": "#A4D0F6",
+  "variants;sequence_variant;snp": "#FFB371",
+  "ontology;pathway": "#FFDE7D",
+  "ontology;cell_type": "#FFDE7D",
+  "ocr": "#61ECBC",
+  "article": "#F5BEFF"
+};
+
+export const nodeLabels = {
+  "coding_elements;gene": "Gene",
+  "variants;sequence_variant;snp": "SNP",
+  "ontology;pathway": "Ontology",
+  "ocr": "OCR",
+  "article": "Literature",
+};
+
+const nodeColorsList = Object.keys(nodeColors).reduce(
+  (acc, type) => (
+    [
+      ...acc,
+      {
+        type,
+        color: nodeColors[type],
+      }
+    ]
+  ), []);
+console.log("nodeColorsList", nodeColorsList);
+
+export const nodeStyle = nodeColorsList.map(({ color, type }) => ({
+  // Core nodes style
+  selector: `node[type = "${type}"][Level = "Core"]`,
+  style: {
+    shape: "round-rectangle",
+    "background-color": color,
+    label: type === "coding_elements;gene" ? "data(name)" : "data(id)",
+    "font-size": "6px",
+    "text-valign": "center",
+    color: "#fff",
+    width: nodeAutoWidth,
+    height: "6px",
+    padding: "5px",
+    "text-outline-width": 0,
+    "text-outline-color": "#fff",
+    "text-outline-opacity": 0,
   },
-  // Protein Coding nodes: Neighbor (transparent fill, colored border)
-  {
-    selector: 'node[type = "protein_coding"][Level = "Neighbor"]',
-    style: {
-      shape: "round-rectangle",
-      "background-opacity": 0,
-      "border-width": 2,
-      "border-color": "#ABD0F1",
-      label: "data(name)",
-      "font-size": "6px",
-      "text-valign": "center",
-      color: "#333",
-      width: "label",
-      height: "label",
-      padding: "5px",
-      cursor: "pointer",
-      "text-outline-width": 0,
-      "text-outline-color": "#fff",
-      "text-outline-opacity": 0,
-    },
-  },
-  // SNP nodes: Core (filled)
-  {
-    selector: 'node[type = "SNP"][Level = "Core"]',
-    style: {
-      shape: "round-rectangle",
-      "background-color": "#FFB77F",
-      label: "data(id)",
-      "font-size": "6px",
-      "text-valign": "center",
-      color: "#fff",
-      width: "label",
-      height: "label",
-      padding: "5px",
-      cursor: "pointer",
-      "text-outline-width": 0,
-      "text-outline-color": "#fff",
-      "text-outline-opacity": 0,
-    },
-  },
-  // SNP nodes: Neighbor (transparent fill, colored border)
-  {
-    selector: 'node[type = "SNP"][Level = "Neighbor"]',
-    style: {
-      shape: "round-rectangle",
-      "background-opacity": 0,
-      "border-width": 2,
-      "border-color": "#FFB77F",
-      label: "data(id)",
-      "font-size": "6px",
-      "text-valign": "center",
-      color: "#333",
-      width: "label",
-      height: "label",
-      padding: "5px",
-      cursor: "pointer",
-      "text-outline-width": 0,
-      "text-outline-color": "#fff",
-      "text-outline-opacity": 0,
-    },
-  },
-  // Ontology nodes: Core (filled)
-  {
-    selector: 'node[type = "ontology"][Level = "Core"]',
-    style: {
-      shape: "round-rectangle",
-      "background-color": "#B57E47",
-      label: "data(id)",
-      "font-size": "6px",
-      "text-valign": "center",
-      color: "#fff",
-      width: "label",
-      height: "label",
-      padding: "5px",
-      cursor: "pointer",
-      "text-outline-width": 0,
-      "text-outline-color": "#fff",
-      "text-outline-opacity": 0,
-    },
-  },
-  // Ontology nodes: Neighbor (transparent fill, colored border)
-  {
-    selector: 'node[type = "ontology"][Level = "Neighbor"]',
+})).concat(
+  nodeColorsList.map(({ color, type }) => ({
+    // Neighbor nodes style
+    selector: `node[type = "${type}"][Level = "Neighbor"]`,
     style: {
       shape: "round-rectangle",
       "background-opacity": 0,
       "border-width": 2,
-      "border-color": "#B57E47",
-      label: "data(id)",
+      "border-color": color,
+      label: type === "coding_elements;gene" ? "data(name)" : "data(id)",
       "font-size": "6px",
       "text-valign": "center",
       color: "#333",
-      width: "label",
-      height: "label",
+      width: nodeAutoWidth,
+      height: "6px",
       padding: "5px",
-      cursor: "pointer",
       "text-outline-width": 0,
       "text-outline-color": "#fff",
       "text-outline-opacity": 0,
     },
-  },
+  }))
+).concat([
   // Node active state
   {
     selector: "node:active",
@@ -139,4 +97,6 @@ export const nodeStyle = [
       "curve-style": "bezier",
     },
   },
-];
+]);
+
+console.log("nodeStyle", nodeStyle);

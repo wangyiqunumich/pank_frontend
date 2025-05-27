@@ -42,7 +42,8 @@ import './styles.css'
 
 import {
   getDataSourceInfo,
-  replaceTerms,
+  replaceVariables,
+  addHighlight,
 } from '../utils/textProcessing';
 
 
@@ -213,18 +214,18 @@ function IntermediatePage({ onContinue }) {
     sourceTermSymbol: '',
   };
   console.log(searchState);
+  console.log(viewSchema?.question);
 
   const processedQuestion = viewSchema?.question?.[0]
-    ? replaceTerms(
+    ? addHighlight(replaceVariables(
       viewSchema.question[0],
-      searchState.sourceTerm,
-      searchState.relationship,
-      searchState.targetTerm,
-      searchState.sourceTermSymbol,
-      searchState.targetTermSymbol,
-      false,  // isNextQuestion
-      true   // addStyle
-    )
+      {
+        sourceTerm: searchState.sourceTerm,
+        targetTerm: searchState.targetTerm,
+        sourceSymbol: searchState.sourceTermSymbol,
+        targetSymbol: searchState.targetTermSymbol,
+      }
+    ))
     : 'Loading...';
 
   const handleSNPClick = async (item) => {
@@ -254,28 +255,12 @@ function IntermediatePage({ onContinue }) {
       targetTerm = targetTerm + ":" + (item[targetTerm] || item[`${targetTerm}_id`] || targetTerm);
     }
 
-    // 获取组织名称和数据源前端显示名称
-    const tissueMap = conversionTable.Conversion_table.Tissue_KG_tissue_name;
-    const dataSource = item.data_source;
-
-    let tissueKey = '';
-    if (dataSource === 'GTEx; SusieR') {
-      tissueKey = tissueMap['GTEx; SusieR'] || 'pancreatic tissue';
-    } else if (dataSource === 'INSPIRE; SusieR') {
-      tissueKey = tissueMap['INSPIRE; SusieR'] || 'islet tissue';
-    } else if (dataSource === 'splicing; GTEx') {
-      tissueKey = 'pancreas';
-    }
-
-
     const params = new URLSearchParams({
       sourceTerm,
       targetTerm,
       sourceSymbol,
       targetSymbol,
       relationship,
-      tissueKey: tissueKey,
-      dataSource,
     });
 
     window.location.href = `/result?${params.toString()}`;

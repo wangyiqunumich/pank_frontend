@@ -1,57 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Container, Typography, IconButton, Box, Grid, List, ListItem, Link, Tab, Tabs, CircularProgress, Collapse } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Container, Typography, Box, Grid, List, ListItem, Link, Tab, Tabs, CircularProgress, Collapse } from '@mui/material';
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import { useSelector, useDispatch } from 'react-redux';
 import './scoped.css';
 import KnowledgeGraph from '../components/KnowledgeGraph';
-import exactData from '../exact.json';
-import extendData from '../extend.json';
-import ImageModal from '../components/ImageModal';
-import { queryImage } from "../redux/typeToImageSlice";
 import { queryAiAnswer } from '../redux/aiAnswerSlice';
-import { Dialpad } from '@mui/icons-material';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
-import { setNextQuestionClicked } from '../redux/searchSlice';
-import { queryQueryResult } from '../redux/queryResultSlice';
 import { setProcessedQuestion } from '../redux/processedQuestionSlice';
-import { setUsingFallback } from '../redux/searchSlice';
-// import { setVariables } from '../redux/variablesSlice';
 import { replaceVariables } from '../utils/textProcessing';
-import { store } from '../redux/store';
-import { queryQueryVisResult } from '../redux/queryVisResultSlice';
 import { queryQueryResultPage } from '../redux/queryResultPage';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import InfoOutlineIcon from '@mui/icons-material/InfoOutlined';
 import { styled } from '@mui/material/styles';
 import { setSearchTerms } from '../redux/searchSlice';
-import SearchBar from '../SearchBar';
-import NavBar from "../NavBar";
-import CarouselCards from '../components/SupportingMaterial';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import tooltipsSchema from '../schema/tool_tips_schema.json';
-
-const colorMap = {
-    gene: "#ABD0F1",
-    sequence_variant: "#FFB77F",
-    pathway: "#F6C957",
-    ontology: "#8c561b",
-    article: "#e377c2",
-    open_chromatin_region: "#8c564b",
-};
-
-// 添加一个带动画的展开按钮组件
-const ExpandMore = styled((props) => {
-    const { expand, ...other } = props;
-    return <IconButton {...other} />;
-})(({ theme, expand }) => ({
-    transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
-    marginLeft: 'auto',
-    transition: theme.transitions.create('transform', {
-        duration: theme.transitions.duration.shortest,
-    }),
-}));
 
 const HtmlTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} classes={{ popper: className }} />
@@ -72,7 +36,7 @@ const TooltipComponent = ({ title, content }) => (
             title={
                 <React.Fragment>
                     <Typography color="inherit">{title}</Typography>
-                    {tooltipsSchema.result[title] || ""}
+                    {tooltipsSchema.result[title] || content || ""}
                 </React.Fragment>
             }
         >
@@ -86,26 +50,6 @@ const TooltipComponent = ({ title, content }) => (
             }} />
         </HtmlTooltip>
     </>);
-
-function TypewriterEffect({ text, speed = 5, onComplete }) {
-    const [displayedText, setDisplayedText] = useState("");
-    const [currentIndex, setCurrentIndex] = useState(0);
-
-    useEffect(() => {
-        if (currentIndex < text.length) {
-            const timer = setTimeout(() => {
-                setDisplayedText((prevText) => prevText + text[currentIndex]);
-                setCurrentIndex((prevIndex) => prevIndex + 1);
-            }, speed);
-
-            return () => clearTimeout(timer);
-        } else if (onComplete) {
-            onComplete();
-        }
-    }, [currentIndex, text, speed, onComplete]);
-
-    return <span dangerouslySetInnerHTML={{ __html: displayedText }} />;
-}
 
 const SNPPlotImage = ({ imageSrc }) => {
     if (!imageSrc) return null;
@@ -133,119 +77,23 @@ const SNPPlotImage = ({ imageSrc }) => {
     );
 };
 
-const Legend = () => (
-    // <div className="styled-paper" data-title="Legend">
-    <Box sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
-        position: 'relative',
-        padding: '20px',
-        backgroundColor: '#FBFBFB',
-        border: 1,
-        borderColor: '#EEEEEE',
-        marginBottom: '20px'
-    }}>
-        <Typography sx={{
-            fontWeight: 'bold',
-            fontSize: 20,
-            position: 'absolute',
-            top: -44,
-            left: 0,
-            zIndex: 1
-        }}>
-            Legend<TooltipComponent title="Legend" content="The legend of the graph." />
-        </Typography>
-
-        {/* 第一行 */}
-        <Box>
-            <Typography sx={{ textAlign: 'left' }}>Search result:</Typography>
-        </Box>
-        {/* 第2行 */}
-        <Box sx={{
-            display: 'flex',
-            // gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: 2,
-            marginBottom: '10px'
-        }}>
-            <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Box sx={{ width: 20, height: 20, backgroundColor: '#ABD0F1', borderRadius: '4px' }} />
-                <Typography variant="body2">Gene</Typography>
-            </Box>
-            <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Box sx={{ width: 20, height: 20, backgroundColor: '#FFB77F', borderRadius: '4px' }} />
-                <Typography variant="body2">Sequence variant</Typography>
-            </Box>
-            <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Box sx={{ width: 20, height: 20, backgroundColor: '#F6C957', borderRadius: '4px' }} />
-                <Typography variant="body2">Pathway</Typography>
-            </Box>
-            <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Box sx={{ width: 20, height: 20, backgroundColor: '#e377c2', borderRadius: '4px' }} />
-                <Typography variant="body2">Article</Typography>
-            </Box>
-            <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Box sx={{ width: 20, height: 20, backgroundColor: '#b57e47', borderRadius: '4px' }} />
-                <Typography variant="body2">Ontology</Typography>
-            </Box>
-        </Box>
-        {/* 第3行 */}
-        <Box sx={{
-            display: 'flex',
-            // gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: 2
-        }}>
-            <Typography>Concepts related to current search result presented in </Typography>
-            <Box sx={{ width: 20, height: 20, backgroundColor: 'white', borderRadius: '4px', border: '2px solid #C0C0C0' }} />
-            {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ width: 20, height: 20, backgroundColor: '#8c561b', borderRadius: '4px' }} />
-          <Typography variant="body2">Ontology</Typography>
-        </Box> */}
-            {/*<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>*/}
-            {/*  <Box sx={{ width: 20, height: 20, backgroundColor: '#C0C0C0', borderRadius: '4px' }} />*/}
-            {/*  <Typography variant="body2">Current Searched Node</Typography>*/}
-            {/*</Box>*/}
-            {/*<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>*/}
-            {/*  <Box sx={{ width: 20, height: 20, backgroundColor: 'white', borderRadius: '4px', border: '2px solid #C0C0C0' }} />*/}
-            {/*  <Typography variant="body2">Extend Node</Typography>*/}
-            {/*</Box>*/}
-        </Box>
-    </Box>
-    // </div>
-);
-
 function SearchResult() {
-    const [showTable, setShowTable] = useState(false);
-    const [modalOpen, setModalOpen] = useState(false);
-    const [imageLoading, setImageLoading] = useState(true);
-    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-    const [expanded, setExpanded] = useState(false);
     const [currTab, setCurrTab] = useState('reference');
     const dispatch = useDispatch();
 
     const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
     const { aiAnswer, queryAiAnswerStatus } = useSelector((state) => state.aiAnswer);
-    const searchState = useSelector((state) => state.search);
-    const snpPlotImage = useSelector((state) => state.typeToImage.typeToImage);
-    const queryTypeToImageStatus = useSelector((state) => state.typeToImage.queryTypeToImageStatus);
     const { viewSchema } = useSelector((state) => state.viewSchema);
-    //const variables = useSelector((state) => state.variables.variables);
     const [variables, setVariables] = useState({});
     const [referenceData, setReferenceData] = useState({});
+    const [dataSource, setDataSource] = useState('');
+    const [tissueKey, setTissueKey] = useState('');
     useEffect(() => {
         if (viewSchema?.resources_tabs) {
             let data = viewSchema.resources_tabs;
             let newPankbaseLinks = data.pankbase_links.map((item) => item.map((i) => replaceVariables(i, variables)));
             let newExternalLinks = data.external_links.map((item) => item.map((i) => replaceVariables(i, variables)));
-            console.log("newPankbaseLinks", newPankbaseLinks);
-            console.log("newExternalLinks", newExternalLinks);
             setReferenceData({
-                ...data,
-                pankbase_links: newPankbaseLinks,
-                external_links: newExternalLinks
-            });
-            console.log(variables);
-            console.log("referenceData", {
                 ...data,
                 pankbase_links: newPankbaseLinks,
                 external_links: newExternalLinks
@@ -260,8 +108,6 @@ function SearchResult() {
         const targetTerm = params.get('targetTerm');
         const targetSymbol = params.get('targetSymbol');
         const sourceSymbol = params.get('sourceSymbol');
-        const dataSource = params.get('dataSource');
-        const tissueKey = params.get('tissueKey');
 
         if (sourceTerm && relationship && targetTerm) {
             dispatch(setSearchTerms({
@@ -293,9 +139,7 @@ function SearchResult() {
                         question_for_result,
                         next_questions,
                         ai_question_for_result,
-                        ai_answer_title,
                         ai_answer_sub_title,
-                        // cyper_for_result_page_all_nodes_specific
                         cypher_for_result_page_core,
                         cypher_for_result_page_nbr,
                     } = response.payload;
@@ -307,64 +151,47 @@ function SearchResult() {
                         const neighbor_cypher = cypher_for_result_page_nbr
                             .replace(`@${getTypeFromTerm(sourceTerm)}@`, getIdFromTerm(sourceTerm))
                             .replace(`@${getTypeFromTerm(targetTerm)}@`, getIdFromTerm(targetTerm));
-                        // dispatch(queryQueryVisResult({ core_cypher, neighbor_cypher }));
                         dispatch(queryQueryResultPage({ core_cypher, neighbor_cypher })).then((response) => {
                             console.log('Query result:', response.payload);
+                            const coreNodes = response?.payload?.core_nodes || [];
+                            const coreRelationship = response?.payload?.combined_query_result?.edges?.filter(
+                                edge => (edge["~start"] === coreNodes[0] && edge["~end"] === coreNodes[1])
+                                    || (edge["~end"] === coreNodes[0] && edge["~start"] === coreNodes[1])
+                            )?.[0];
+                            const newDataSource = coreRelationship?.["~properties"]?.data_source || '';
+                            const newTissueKey = coreRelationship?.["~properties"]?.tissue_name || '';
+                            setDataSource(newDataSource);
+                            setTissueKey(newTissueKey);
                             let newVariables = {
                                 sourceTerm: sourceTerm,
                                 relationship: relationship,
                                 targetTerm: targetTerm,
                                 sourceSymbol: sourceSymbol || '',
                                 targetSymbol: targetSymbol || '',
-                                tissueKey: tissueKey,
-                                dataSource: dataSource,
+                                tissueKey: newTissueKey,
+                                dataSource: newDataSource,
                             };
                             if (newVariables) { setVariables(newVariables); }
-                            console.log("newVariables", newVariables);
                             let processedCurrentQuestion = replaceVariables(question_for_result, newVariables);
-
                             let nextVariables;
-                            // if (sourceTerm == 'rs2402203' && targetTerm == 'ENSG00000001626') {
                             nextVariables = {
-                                snpId: 'rs177069',
-                                leadSnp: 'rs177069',
-                                geneId: 'ENSG00000001626',
+                                sourceTerm: 'snp:rs177069',
+                                targetTerm: 'gene:ENSG00000001626',
                                 dataSource: 'splicing; GTEx',
                                 tissueKey: 'pancreas',
-                                geneSymbol: 'CFTR'
+                                targetSymbol: 'CFTR'
                             };
-
-                            let processedNextQuestions;
-                            switch (nextVariables.dataSource) {
-                                case 'splicing; GTEx':
-                                    processedNextQuestions = 'How does the SNP ' + nextVariables.snpId + ' influence the splicing of ' + nextVariables.geneSymbol + ' (' + nextVariables.geneId + ') in pancreas, as reported by GTEx?';
-                                    break;
-                                case 'GTEx; SusieR':
-                                    processedNextQuestions = 'How does the SNP ' + nextVariables.snpId + ' influence the expression of ' + nextVariables.geneSymbol + ' (' + nextVariables.geneId + ') in pancreas, as reported by GTEx?';
-                                    break;
-                                case 'INSPIRE; SusieR':
-                                    processedNextQuestions = 'How does the SNP ' + nextVariables.snpId + ' influence the expression of ' + nextVariables.geneSymbol + ' (' + nextVariables.geneId + ') in islet tissue, as reported by INSPIRE?';
-                                    break;
-                                case 'exon; InsPIRE':
-                                    processedNextQuestions = 'How does the SNP ' + nextVariables.snpId + ' influence the exon expression of ' + nextVariables.geneSymbol + ' (' + nextVariables.geneId + ') in islet tissue, as reported by INSPIRE?';
-                                    break;
-                                default:
-                                    break;
-                            }
+                            let processedNextQuestions = replaceVariables(question_for_result, nextVariables);
 
                             const processedAiQuestions = ai_question_for_result?.map(question => replaceVariables(question, newVariables)) || [];
-                            console.log("processedAiQuestions", processedAiQuestions);
-
-                            const processedAiAnswerTitle = replaceVariables(ai_answer_title, newVariables);
 
                             // 更新 Redux store
                             dispatch(setProcessedQuestion({
                                 currentQuestion: processedCurrentQuestion,
                                 nextQuestions: processedNextQuestions,
                                 aiQuestions: processedAiQuestions,
-                                aiAnswerTitle: processedAiAnswerTitle,
                                 aiAnswerSubtitle: ai_answer_sub_title,
-                                currentQuestionType: dataSource + '; ' + tissueKey + ' tissue'
+                                currentQuestionType: newDataSource + '; ' + newTissueKey + ' tissue'
                             }));
                         });
                     }
@@ -373,37 +200,21 @@ function SearchResult() {
                 }
             });
         }
-    }, [dispatch]);
+    }, []);
 
     const {
         currentQuestion,
         nextQuestions,
         aiQuestions,
-        aiAnswerTitle,
         aiAnswerSubtitle,
         currentQuestionType,
     } = useSelector((state) => state.processedQuestion);
-    useEffect(() => {
-        function handleResize() {
-            setWindowWidth(window.innerWidth);
-        }
-        window.addEventListener("resize", handleResize);
-        return () => {
-            window.removeEventListener("resize", handleResize);
-        };
-    }, []);
-
-    useEffect(() => {
-        if (queryTypeToImageStatus === "fulfilled") {
-            setImageLoading(false);
-        }
-    }, [queryTypeToImageStatus]);
 
     const removeConsecutiveAsterisks = (text) => {
         return text.replace(/\*\*/g, '');
     };
     useEffect(() => {
-        if (queryResultPage?.combined_query_result?.nodes?.length != 0 && queryResultPage?.core_nodes) {
+        if (queryResultPage?.combined_query_result?.nodes?.length != 0 && queryResultPage?.core_nodes && aiQuestions?.length > 0) {
             const processedQuestions = aiQuestions.map(question =>
                 `${question} (answer the question in 50 words)`
             );
@@ -424,58 +235,14 @@ function SearchResult() {
         }
     }, [queryResultPage, aiQuestions]);
 
-    const handleTypewriterComplete = () => {
-        setShowTable(true);
-    };
-
-    const handleOpenModal = () => {
-        setModalOpen(true);
-        setImageLoading(true);
-        dispatch(queryImage({ imageType: 'snp_p_values_plot' }));
-    };
-
-    const handleCloseModal = () => setModalOpen(false);
-
     const handleNextQuestionClick = (question) => {
-
-        const fineMapEQTL = queryResultPage.combined_query_result?.edges?.find(
-            rel => rel['~type'] === 'fine_mapped_eQTL'
-        );
-        const params = new URLSearchParams(window.location.search);
-        let nextVariables;
-        if (params.get('snpId') == 'rs2402203' && params.get('geneId') == 'ENSG00000001626') {
-            nextVariables = {
-                snpId: 'rs177069',
-                leadSnp: 'rs177069',
-                geneId: 'ENSG00000001626',
-                dataSource: 'splicing; GTEx',
-                tissueKey: 'pancreas',
-                geneSymbol: 'CFTR'
-            };
-        } else {
-            nextVariables = {
-                snpId: fineMapEQTL['~start'],
-                leadSnp: fineMapEQTL['~start'],
-                geneId: fineMapEQTL['~end'],
-                dataSource: fineMapEQTL['~properties']['data_source'],
-                tissueKey: fineMapEQTL['~properties']['tissue_name'].toLowerCase(),
-                geneSymbol: new URLSearchParams(window.location.search).get('geneSymbol')
-            };
-        }
-        const searchParams = new URLSearchParams({
-            snpId: nextVariables.snpId,
-            leadSnp: nextVariables.leadSnp,
-            geneId: nextVariables.geneId,
-            relationship: searchState.relationship,
-            tissueKey: nextVariables.tissueKey,
-            dataSource: nextVariables.dataSource,
-            geneSymbol: nextVariables.geneSymbol
-        });
-        window.location.href = `/result?${searchParams.toString()}`;
-    };
-
-    const handleExpandClick = () => {
-        setExpanded(!expanded);
+        const nextVariables = {
+            sourceTerm: 'snp:rs177069',
+            targetTerm: 'gene:ENSG00000001626',
+            relationship: 'QTL',
+            targetSymbol: 'CFTR'
+        };
+        window.location.href = `/result?${new URLSearchParams()}`;
     };
 
     const processLinks = (text) => {
@@ -622,102 +389,11 @@ function SearchResult() {
                                 </div>
                             ))}
                         </Typography>
-
-                        {/*resource*/}
-                        {/* <Box>
-                            <Box sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between'
-                            }}>
-                                <Typography sx={{ fontWeight: 500, fontSize: 20, textAlign: 'left' }}>
-                                    <span>📎</span> Resources
-                                </Typography>
-                                <ExpandMore
-                                    expand={expanded}
-                                    onClick={handleExpandClick}
-                                    aria-expanded={expanded}
-                                    aria-label="show more"
-                                >
-                                    <ExpandMoreIcon />
-                                </ExpandMore>
-                            </Box>
-                            <Collapse in={expanded} timeout="auto" unmountOnExit>
-                                <List sx={{ padding: '0px' }}>
-                                    <ListItem sx={{ paddingY: '0px' }}>
-                                        • Link to PanKbase resources: <Link
-                                            href={process.env.REACT_APP_PANKGRAPH_LINK + '/qtldatasource'}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            sx={{
-                                                color: '#1976d2',
-                                                textDecoration: 'none',
-                                                textSize: '16px',
-                                                '&:hover': {
-                                                    textDecoration: 'underline'
-                                                }
-                                            }}
-                                        >QTL Data Source</Link>
-                                    </ListItem>
-                                    <ListItem sx={{ paddingY: '0px' }}>
-                                        • Link to PanKbase resources: <Link
-                                            href={process.env.REACT_APP_PANKGRAPH_LINK + '/pipeline'}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            sx={{
-                                                color: '#1976d2',
-                                                textDecoration: 'none',
-                                                textSize: '16px',
-                                                '&:hover': {
-                                                    textDecoration: 'underline'
-                                                }
-                                            }}
-                                        >Pipeline</Link>
-                                    </ListItem>
-                                    <ListItem sx={{ paddingY: '0px' }}>
-                                        • Link to PanKbase resources:
-                                        <Link
-                                            href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            sx={{
-                                                color: '#1976d2',
-                                                textDecoration: 'none',
-                                                textSize: '16px',
-                                                '&:hover': {
-                                                    textDecoration: 'underline'
-                                                }
-                                            }}
-                                        >
-                                            Integrated Cell Browser
-                                        </Link>
-                                    </ListItem>
-                                    <ListItem sx={{ paddingY: '0px' }}>
-                                        • Link to Ensembl: <Link
-                                            href={`https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneId}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            sx={{
-                                                color: '#1976d2',
-                                                textDecoration: 'none',
-                                                textSize: '16px',
-                                                '&:hover': {
-                                                    textDecoration: 'underline'
-                                                }
-                                            }}
-                                        > {geneId}</Link>
-                                    </ListItem>
-                                </List>
-                            </Collapse>
-                            </Box> */}
-
-
                     </Box>
                 </Grid>
 
                 {/*graph viewer, right*/}
                 <Grid item xs={6} height={"740px"} display="flex">
-
                     <Box sx={{
                         display: 'flex',
                         flexDirection: 'column',
@@ -751,58 +427,7 @@ function SearchResult() {
                         </Box>
                     </Box>
                 </Grid>
-
-                {/* <ImageModal
-                    open={modalOpen}
-                    handleClose={handleCloseModal}
-                    loading={imageLoading}
-                >
-                    <SNPPlotImage imageSrc={snpPlotImage} />
-                </ImageModal> */}
             </Grid>
-            {/* <Typography sx={{
-                fontWeight: 'bold',
-                fontSize: 20
-            }}>
-                Supporting Materials<TooltipComponent title="Supporting Materials" content="Supporting Materials." />
-            </Typography>
-            <Container disableGutters maxWidth={false} sx={{
-                padding: 0, display: 'flex',
-                flexDirection: 'row', justifyContent: 'space-evenly',
-                marginX: '-20px', width: 'calc(100% + 40px)',
-            }}>
-                <CarouselCards cardData={[[{
-                    title: "PanKBase Link",
-                    icon: "link",
-                    content: [{ text: "QTL Data Source", link: process.env.REACT_APP_PANKGRAPH_LINK + '/qtldatasource' },
-                    { text: "Pipeline", link: process.env.REACT_APP_PANKGRAPH_LINK + '/pipeline' },
-                    { text: "Integrated Cell Browser", link: process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html' }
-                    ],
-                }, {
-                    title: "External Link",
-                    icon: "link",
-                    content: [
-                        { text: "Ensembl", link: `https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneId}` }
-                    ],
-                }],
-                [{
-                    title: "Placeholder",
-                    icon: "link",
-                    content: []
-                }, {
-                    title: "Placeholder",
-                    icon: "ref",
-                    content: []
-                }, {
-                    title: "Placeholder",
-                    icon: "plot",
-                    image: [
-                        'https://picsum.photos/id/1015/600/400',
-                        'https://picsum.photos/id/1016/600/400',
-                        'https://picsum.photos/id/1018/600/400',
-                    ]
-                }]]} />
-            </Container> */}
             <Tabs
                 value={currTab}
                 onChange={(e, value) => setCurrTab(value)}
