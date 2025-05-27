@@ -2,7 +2,7 @@
       "snp - QTL - gene": {
             "general - relationship - specific": {
                   "question": [
-                        "Which (snp) serves as the lead (QTL) for {@gene@}?"
+                        "Which (SNP) serves as the lead (QTL) for {@gene_symbol@(@gene_id@)}?"
                   ],
                   "cyper_for_intermediate_page": "MATCH (variant:sequence_variant:snp)-[r:fine_mapped_eQTL]->(gene:coding_elements {id:'@gene@'}) WITH CASE WHEN r.data_source='GTEx; SusieR' THEN 'GTEx; SusieR' WHEN r.data_source='INSPIRE; SusieR' THEN 'INSPIRE; SusieR' WHEN r.data_source='splicing; GTEx' THEN 'splicing; GTEx' WHEN r.data_source='exon; INSPIRE' THEN 'exon; INSPIRE' ELSE 'Other' END AS data_source, r, variant WITH data_source, COLLECT({snp: id(variant), credible_set_id: r.credible_set, data_source: r.data_source, pip: r.pip, n_snp: r.n_snp, purity: r.purity, nominal_p: r.nominal_p, lbf: r.lbf, effect_allele: r.effect_allele}) AS credible_sets RETURN data_source, credible_sets ORDER BY data_source;",
                   "intermediate_page_table": [
@@ -59,7 +59,7 @@
             },
             "specific - relationship - specific": {
                   "question": [
-                        "Does {@snp@} serves as a (QTL) for {@gene@}?"
+                        "Does {SNP@snp@} serves as a (QTL) for {@gene_symbol@(@gene_id@)}?"
                   ],
                   "question_for_result": "How does the SNP @snp_id@ influence the expression of @gene_symbol@(@gene_id@) in @tissue@ tissue, as reported by @method@?",
                   "cypher_for_result_page_core": "MATCH (variant:sequence_variant:snp), (gene:coding_elements) WHERE ID(variant) = '@snp@' AND ID(gene) = '@gene@' MATCH (variant)-[r:fine_mapped_eQTL]-(gene) WITH collect(DISTINCT variant) + collect(DISTINCT gene) AS nodes, collect(DISTINCT r) AS edges RETURN { results: [ { nodes: nodes, edges: edges } ] } AS output;",
@@ -103,7 +103,7 @@
       ,"gene - express_in - cell_type": {
             "specific - relationship - specific": {
                   "question": [
-                        "What is {@gene@}’s expression level in {@cell_type@} and its link to (T1D)?"
+                        "What is {@gene@}’s expression level in {@cell_type_name@(@cell_type_id@)} and its link to (T1D)?"
                   ],
                   "question_for_result": "What is @gene@’s expression level in @cell_type_name@(@cell_type_id@) and its link to (T1D)?",
                   "cypher_for_result_page_core": "MATCH (g:gene {id: '@gene@'})-[r:express_in]->(c:cell_type {id: '@cell_type@'}) WITH collect(DISTINCT g) + collect(DISTINCT c) AS nodes, collect(DISTINCT r) AS edges RETURN { results: [ { nodes: nodes, edges: edges } ] } AS output;",
