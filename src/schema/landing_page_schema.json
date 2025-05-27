@@ -13,7 +13,7 @@
 	"matched_page_sub_title":
 	"Pick a specific gene and cell type",
 	"pattern_for_the_matched_page":
-		"(gene) - express in -> (ontology)"
+		"(gene@gene@) - express in -> (ontology@cell_type@)"
 	},
 	{
 	"question":
@@ -29,7 +29,7 @@
 	"matched_page_sub_title":
 	"Pick a specific gene",
 	"pattern_for_the_matched_page":
-		"(snp) - eqtl of -> (@gene@)"
+		"(snp) - eqtl of -> (gene@gene@)"
 	},
 	{
 	"question":
