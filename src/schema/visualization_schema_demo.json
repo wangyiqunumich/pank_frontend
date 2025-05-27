@@ -100,9 +100,8 @@
                         ]
                   }
             }
-}
-
-      ,"gene - express_in - cell_type": {
+      },
+      "gene - express_in - cell_type": {
             "specific - relationship - specific": {
                   "question": [
                         "What is {gene@gene@}’s expression level in {cell_type@cell_type@} and its link to (T1D)?"
@@ -121,9 +120,7 @@
                         "ATAC-seq overview: ",
                         "Specific relation to Type 1 Diabetes:"
                   ],
-                  "next_questions": {
-
-                  },
+                  "next_questions": {},
                   "resources_tabs": {
                         "reference": {},
                         "visualization": {},
@@ -137,5 +134,5 @@
                         ]
                   }
             }
-			}
+      }
 }

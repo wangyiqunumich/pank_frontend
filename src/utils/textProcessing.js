@@ -9,32 +9,9 @@ const colorMap = {
   default: '#3A838B'
 };
 
-export function replaceTerms(question, sourceTerm, relationship, targetTerm, sourceTermSymbol, targetTermSymbol, isNextQuestion = false, addStyle = true) {
-  const [sourceType, ...sourceRest] = sourceTerm.split(':');
-  const sourceValue = sourceTermSymbol ? sourceTermSymbol + ' (' + sourceRest.join(':') + ')' : sourceRest.join(':') || sourceType;
-
-  const [targetType, ...targetRest] = targetTerm.split(':');
-  const targetValue = targetTermSymbol ? targetTermSymbol + ' (' + targetRest.join(':') + ')' : targetRest.join(':') || targetType;
-
-  const replaceValue = sourceType !== sourceValue ? sourceValue : targetValue;
-
-  return question.replace(/[\{\(]([^{}()@]+)(@([^{}()@]+)@)?[\}\)]/g, (match, term, fullType, type) => {
-    let replacedTerm;
-
-    if (isNextQuestion) {
-      replacedTerm = term;
-    } else if (fullType) {
-      replacedTerm = replaceValue;
-    } else {
-      replacedTerm = term;
-    }
-
-    if (addStyle) {
-      const color = colorMap[type || term] || colorMap.default;
-      return `<span style="color: ${color}; font-weight: 700">${replacedTerm}</span>`;
-    } else {
-      return replacedTerm;
-    }
+export function addHighlight(question) {
+  return question.replace(/\{([^{}@]+)\}/g, (match, term) => {
+    return `<span style="color: #3A838B; font-weight: 700">${term}</span>`;
   });
 }
 
@@ -45,20 +22,22 @@ export function replaceVariables(text, variables) {
   const { sourceTerm, targetTerm, sourceSymbol, targetSymbol, tissueKey, dataSource } = variables;
   const [sourceType, sourceId] = sourceTerm.split(':');
   const [targetType, targetId] = targetTerm.split(':');
-  let replaceList = {};
-  replaceList[`@${sourceType}_id@`] = sourceId;
-  replaceList[`@${sourceType}_symbol@`] = sourceSymbol;
-  replaceList[`@${targetType}_id@`] = targetId;
-  replaceList[`@${targetType}_symbol@`] = targetSymbol;
-  replaceList['@tissue@'] = tissueKey;
-  replaceList['@method@'] = dataSource.includes('GTEx') ? 'GTEx' : 'INSPIRE';
-  // start to replace
-  console.log('replaceList', replaceList);
-  let replacedText = text;
-  for (const [key, value] of Object.entries(replaceList)) {
+  const replaceList = {
+    [`@${sourceType}@`]: sourceId,
+    [`@${sourceType}_id@`]: sourceId,
+    [`@${sourceType}_name@`]: sourceSymbol,
+    [`@${sourceType}_symbol@`]: sourceSymbol,
+    [`@${targetType}@`]: targetId,
+    [`@${targetType}_id@`]: targetId,
+    [`@${targetType}_name@`]: targetSymbol,
+    [`@${targetType}_symbol@`]: targetSymbol,
+    '@tissue@': tissueKey,
+    '@method@': dataSource?.includes('GTEx') ? 'GTEx' : 'INSPIRE'
+  };
+  const replacedText = Object.entries(replaceList).reduce((acc, [key, value]) => {
     const regex = new RegExp(key, 'g');
-    replacedText = replacedText.replace(regex, value);
-  }
+    return acc.replace(regex, value);
+  }, text);
   return replacedText;
 }
 

@@ -4,7 +4,6 @@ import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import { useSelector, useDispatch } from 'react-redux';
 import './scoped.css';
 import KnowledgeGraph from '../components/KnowledgeGraph';
-import { queryImage } from "../redux/typeToImageSlice";
 import { queryAiAnswer } from '../redux/aiAnswerSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import { setProcessedQuestion } from '../redux/processedQuestionSlice';
@@ -87,6 +86,8 @@ function SearchResult() {
     const { viewSchema } = useSelector((state) => state.viewSchema);
     const [variables, setVariables] = useState({});
     const [referenceData, setReferenceData] = useState({});
+    const [dataSource, setDataSource] = useState('');
+    const [tissueKey, setTissueKey] = useState('');
     useEffect(() => {
         if (viewSchema?.resources_tabs) {
             let data = viewSchema.resources_tabs;
@@ -107,8 +108,6 @@ function SearchResult() {
         const targetTerm = params.get('targetTerm');
         const targetSymbol = params.get('targetSymbol');
         const sourceSymbol = params.get('sourceSymbol');
-        const dataSource = params.get('dataSource');
-        const tissueKey = params.get('tissueKey');
 
         if (sourceTerm && relationship && targetTerm) {
             dispatch(setSearchTerms({
@@ -154,19 +153,27 @@ function SearchResult() {
                             .replace(`@${getTypeFromTerm(targetTerm)}@`, getIdFromTerm(targetTerm));
                         dispatch(queryQueryResultPage({ core_cypher, neighbor_cypher })).then((response) => {
                             console.log('Query result:', response.payload);
+                            const coreNodes = response?.payload?.core_nodes || [];
+                            const coreRelationship = response?.payload?.combined_query_result?.edges?.filter(
+                                edge => (edge["~start"] === coreNodes[0] && edge["~end"] === coreNodes[1])
+                                    || (edge["~end"] === coreNodes[0] && edge["~start"] === coreNodes[1])
+                            )?.[0];
+                            const newDataSource = coreRelationship?.["~properties"]?.data_source || '';
+                            const newTissueKey = coreRelationship?.["~properties"]?.tissue_name || '';
+                            setDataSource(newDataSource);
+                            setTissueKey(newTissueKey);
                             let newVariables = {
                                 sourceTerm: sourceTerm,
                                 relationship: relationship,
                                 targetTerm: targetTerm,
                                 sourceSymbol: sourceSymbol || '',
                                 targetSymbol: targetSymbol || '',
-                                tissueKey: tissueKey,
-                                dataSource: dataSource,
+                                tissueKey: newTissueKey,
+                                dataSource: newDataSource,
                             };
                             if (newVariables) { setVariables(newVariables); }
                             let processedCurrentQuestion = replaceVariables(question_for_result, newVariables);
                             let nextVariables;
-                            // if (sourceTerm == 'rs2402203' && targetTerm == 'ENSG00000001626') {
                             nextVariables = {
                                 sourceTerm: 'snp:rs177069',
                                 targetTerm: 'gene:ENSG00000001626',
@@ -177,7 +184,6 @@ function SearchResult() {
                             let processedNextQuestions = replaceVariables(question_for_result, nextVariables);
 
                             const processedAiQuestions = ai_question_for_result?.map(question => replaceVariables(question, newVariables)) || [];
-                            console.log("processedAiQuestions", processedAiQuestions);
 
                             // 更新 Redux store
                             dispatch(setProcessedQuestion({
@@ -185,7 +191,7 @@ function SearchResult() {
                                 nextQuestions: processedNextQuestions,
                                 aiQuestions: processedAiQuestions,
                                 aiAnswerSubtitle: ai_answer_sub_title,
-                                currentQuestionType: dataSource + '; ' + tissueKey + ' tissue'
+                                currentQuestionType: newDataSource + '; ' + newTissueKey + ' tissue'
                             }));
                         });
                     }
@@ -194,7 +200,7 @@ function SearchResult() {
                 }
             });
         }
-    }, [dispatch]);
+    }, []);
 
     const {
         currentQuestion,
@@ -234,46 +240,9 @@ function SearchResult() {
             sourceTerm: 'snp:rs177069',
             targetTerm: 'gene:ENSG00000001626',
             relationship: 'QTL',
-            dataSource: 'splicing; GTEx',
-            tissueKey: 'pancreas',
             targetSymbol: 'CFTR'
         };
         window.location.href = `/result?${new URLSearchParams()}`;
-
-        // const fineMapEQTL = queryResultPage.combined_query_result?.edges?.find(
-        //     rel => rel['~type'] === 'fine_mapped_eQTL'
-        // );
-        // const params = new URLSearchParams(window.location.search);
-        // let nextVariables;
-        // if (params.get('snpId') == 'rs2402203' && params.get('geneId') == 'ENSG00000001626') {
-        //     nextVariables = {
-        //         snpId: 'rs177069',
-        //         leadSnp: 'rs177069',
-        //         geneId: 'ENSG00000001626',
-        //         dataSource: 'splicing; GTEx',
-        //         tissueKey: 'pancreas',
-        //         geneSymbol: 'CFTR'
-        //     };
-        // } else {
-        //     nextVariables = {
-        //         snpId: fineMapEQTL['~start'],
-        //         leadSnp: fineMapEQTL['~start'],
-        //         geneId: fineMapEQTL['~end'],
-        //         dataSource: fineMapEQTL['~properties']['data_source'],
-        //         tissueKey: fineMapEQTL['~properties']['tissue_name'].toLowerCase(),
-        //         geneSymbol: new URLSearchParams(window.location.search).get('geneSymbol')
-        //     };
-        // }
-        // const searchParams = new URLSearchParams({
-        //     snpId: nextVariables.snpId,
-        //     leadSnp: nextVariables.leadSnp,
-        //     geneId: nextVariables.geneId,
-        //     relationship: searchState.relationship,
-        //     tissueKey: nextVariables.tissueKey,
-        //     dataSource: nextVariables.dataSource,
-        //     geneSymbol: nextVariables.geneSymbol
-        // });
-        // window.location.href = `/result?${searchParams.toString()}`;
     };
 
     const processLinks = (text) => {

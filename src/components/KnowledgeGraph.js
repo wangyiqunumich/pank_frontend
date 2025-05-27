@@ -189,14 +189,9 @@ export default function KnowledgeGraph() {
       menu.style.display = "block";
     });
 
-    // cyRef.current.on('mouseover', 'node', (evt) => {
-    //   $('html,body').css('cursor', 'pointer');
-    // });
-
     cyRef.current.on("mouseover", "node", (evt) => {
       document.body.style.cursor = "pointer";
     });
-
 
     document.addEventListener("click", hideContextMenu);
     return () => {
@@ -398,7 +393,7 @@ export default function KnowledgeGraph() {
           {Object.entries(hoveredData || {})?.map(
             ([key, value]) =>
               key !== "type" &&
-              (key === "link" ? (
+              (key === "link" || key === "url" ? (
                 <div key={key}>
                   <span style={{ fontWeight: 500 }}>{key}:</span>{" "}
                   <a
@@ -532,9 +527,11 @@ export default function KnowledgeGraph() {
               </div>
 
               {/* Related‑concept indicator */}
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingTop: "4px" }}>
-                <LegendItem type="Core Nodes" sx={{ backgroundColor: "#D9D9D9", color: "black" }} />
-                <LegendItem type="Neighbor" sx={{ backgroundColor: "white", color: "black", border: "1px solid #D9D9D9", }} />
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingTop: "4px", fontSize: "12px" }}>
+                <LegendItem type="　　" sx={{ backgroundColor: "#D9D9D9", color: "black", height: "10px" }} />
+                Core Nodes
+                <LegendItem type="　　" sx={{ backgroundColor: "white", color: "black", border: "1px solid #D9D9D9", height: "10px" }} />
+                Neighbor
               </div>
             </div>
           </Collapse>
