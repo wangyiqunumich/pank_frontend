@@ -1,7 +1,7 @@
 [
 	{
 	"question":
-		"What is {gene}’s expression level in {cell_type} and its link to (T1D)?",
+		"What is {gene@gene@}’s expression level in {cell@cell_type@} and its link to (T1D)?",
 	"landing_page_subtitle":
 "The gene and cell type will be specified in the next step",
 	"terms":
@@ -13,7 +13,7 @@
 	"matched_page_sub_title":
 	"Pick a specific gene and cell type",
 	"pattern_for_the_matched_page":
-		"(gene) - express in -> (ontology)"
+		"{gene@gene@} - express in -> {ontology@cell_type@}"
 	},
 	{
 	"question":
@@ -29,7 +29,7 @@
 	"matched_page_sub_title":
 	"Pick a specific gene",
 	"pattern_for_the_matched_page":
-		"(snp) - eqtl of -> (@gene@)"
+		"(snp) - eqtl of -> {gene@gene@}"
 	},
 	{
 	"question":
@@ -45,7 +45,7 @@
 	"matched_page_sub_title":
 	"Pick a specific snp",
 	"pattern_for_the_matched_page":
-		"(snp@snp@) - eqtl of -> (gene)"
+		"{snp@snp@} - eqtl of -> (gene)"
 	},
 	{
 	"question":
@@ -61,6 +61,6 @@
 	"matched_page_sub_title":
 	"Pick a specific gene and snp",
 	"pattern_for_the_matched_page":
-		"(snp@snp@) - eqtl of -> (gene@gene@)"
+		"{snp@snp@} - eqtl of -> {gene@gene@}"
 	}
 ]

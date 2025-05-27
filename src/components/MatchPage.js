@@ -194,18 +194,20 @@ function MatchPage() {
   return (
     <Container maxWidth={false} disableGutters sx={{
       padding: 0, display: 'flex',
-      flexDirection: 'row', justifyContent: 'space-evenly',
-      flex: 1, alignItems: 'center'
+      flexDirection: {sm: 'column', md: 'row'}, justifyContent: 'center',
+      flex: 1, alignItems: 'center',
+      marginBottom: '40px',
+      gap: {sm: 0, md: '40px'},
     }}>
 
       {/* 左侧图片 */}
       <Box sx={{ 
-        width: '50%',
-        padding: '2 auto',
+        width: {sm: '100%', md: '50%'},
         display: 'block',
+        textAlign: 'center',
         '& img': {
-          width: '100%',
-          objectFit: 'contain'
+          width: '75%',
+          objectFit: 'contain',
         }
       }}>
         <img src={landingPageLogo} alt="PanKgraph" />
@@ -220,13 +222,15 @@ function MatchPage() {
       </Box>
 
       {/* 右侧内容区域 */}
+      {/* 右侧内容区域 */}
       <Box sx={{ 
-        width: '50%',
+        width: {sm: '80%', md: '44%'},
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
         gap: 3,
-        margin: 2,
+        marginRight: {sm: 0, md: 20},
+        marginTop: {sm: 0, md: '40px'},
         backgroundColor: '#E4F0F1',
         borderRadius: '20px',
         padding:3,

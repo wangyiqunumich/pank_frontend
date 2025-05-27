@@ -39,9 +39,10 @@ function LandingPage() {
   return (
     <Container maxWidth={false} disableGutters sx={{
       padding: 0, display: 'flex',
-      flexDirection: 'row', justifyContent: 'space-evenly',
+      flexDirection: {sm: 'column', md: 'row'}, justifyContent: 'center',
       flex: 1, alignItems: 'center',
-      marginBottom: '40px'
+      marginBottom: '40px',
+      gap: {sm: 0, md: '40px'},
     }}>
       {/* <Snackbar
         open={openSnackbar}
@@ -65,7 +66,7 @@ function LandingPage() {
 
       {/* 左侧图片 */}
       <Box sx={{ 
-        width: '50%',
+        width: {sm: '100%', md: '50%'},
         display: 'block',
         textAlign: 'center',
         '& img': {
@@ -86,12 +87,12 @@ function LandingPage() {
 
       {/* 右侧内容区域 */}
       <Box sx={{ 
-        width: '44%',
+        width: {sm: '80%', md: '44%'},
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
         gap: 3,
-        marginRight: 20,
+        marginRight: {sm: 0, md: 20},
       }}>
         
         {/* 更新 Question 组件，传入 setSelectedQuestion */}
