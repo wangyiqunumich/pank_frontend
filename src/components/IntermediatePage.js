@@ -215,15 +215,10 @@ function IntermediatePage({ onContinue }) {
     let {
       sourceTerm,
       targetTerm,
-      sourceTermSymbol,
-      targetTermSymbol,
       relationship
     } = searchState;
     if (!question_for_result)
       return;
-
-    let sourceSymbol = sourceTermSymbol;
-    let targetSymbol = targetTermSymbol;
 
     // 从 searchTerms 中获取 geneId
     if (!sourceTerm.includes(":")) {
@@ -236,8 +231,6 @@ function IntermediatePage({ onContinue }) {
     const params = new URLSearchParams({
       sourceTerm,
       targetTerm,
-      sourceSymbol,
-      targetSymbol,
       relationship,
     });
 
