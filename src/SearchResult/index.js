@@ -17,6 +17,13 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 
+const tabOptions = [
+    { value: 'reference', label: 'Reference' },
+    { value: 'visualization', label: 'Visualization' },
+    { value: 'pankbase_links', label: 'PanKbase Links' },
+    { value: 'external_links', label: 'External Links' }
+];
+
 const HtmlTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} classes={{ popper: className }} />
 ))(({ theme }) => ({
@@ -435,6 +442,7 @@ function SearchResult() {
                     width: 'fit-content',
                     backgroundColor: '#F2FAFB',
                     borderRadius: '20px 20px 0px 0px',
+                    border: 'none',
                     '& .MuiTab-root': {
                         textTransform: 'none',
                         fontSize: '16px',
@@ -452,23 +460,44 @@ function SearchResult() {
                     '& .MuiTab-root:last-child': {
                         borderTopRightRadius: '20px',
                     },
+                    '& .MuiTabs-indicator': {
+                        backgroundColor: '#398289',
+                    },
+                    zIndex: 2,
                 }}
             >
+                <div style={{
+                    position: 'absolute',
+                    top: '0px',
+                    left: '0px',
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: '20px 20px 0px 0px',
+                    borderWidth: '1px 1px 0px 1px',
+                    borderStyle: 'solid',
+                    borderColor: "#E5E5E5",
+                }}></div>
                 {[
                     { value: 'reference', label: 'Reference' },
                     { value: 'visualization', label: 'Visualization' },
                     { value: 'pankbase_links', label: 'PanKbase Links' },
                     { value: 'external_links', label: 'External Links' }
-                ].map((option) => (
+                ].map((option, index) => (
                     <Tab
                         sx={{
                             minHeight: '48px',
                             height: '48px',
                             backgroundColor: currTab === option.value ? 'white' : '#F2FAFB',
-                            borderWidth: '1px 1px 0px 1px',
-                            borderStyle: currTab === option.value ? 'solid' : 'none',
-                            borderColor: currTab === option.value ? '#DDDDDD' : '#EEEEEE',
-                            borderRadius: currTab === option.value ? '20px 20px 0px 0px' : 'default',
+                            borderWidth:
+                                currTab === option.value ? '1px 1px 0px 1px' :
+                                    tabOptions.findIndex((tab) => tab.value === currTab) > index ?
+                                        '1px 0px 0px 1px' : '1px 1px 0px 0px',
+                            borderStyle: 'solid',
+                            borderColor: '#E5E5E5',
+                            borderRadius:
+                                currTab === option.value ? '20px 20px 0px 0px' :
+                                    tabOptions.findIndex((tab) => tab.value === currTab) > index ?
+                                        '20px 0px 0px 0px' : '0px 20px 0px 0px',
                         }}
                         key={option.value}
                         label={
@@ -478,7 +507,7 @@ function SearchResult() {
                                     textAlign: 'left',
                                     fontFamily: 'Open Sans',
                                     fontSize: '16px',
-                                    color: currTab === option.value ? '#3A838B' : 'black',
+                                    color: currTab === option.value ? '#398289' : 'black',
                                     fontWeight: currTab === option.value ? '600' : '400',
                                     marginX: '20px',
                                 }}
@@ -489,7 +518,15 @@ function SearchResult() {
                         value={option.value}
                     />))}
             </Tabs>
-            <Box sx={{ position: 'relative', padding: '20px', backgroundColor: '#E4F0F1', marginBottom: '20px', borderRadius: '0px 20px 20px 20px' }}>
+            <Box sx={{
+                position: 'relative',
+                padding: '20px',
+                backgroundColor: '#FBFBFB',
+                marginBottom: '20px',
+                borderRadius: '0px 20px 20px 20px',
+                border: '1px solid #EEEEEE',
+                transform: 'translateY(-1px)',
+            }}>
                 <Collapse in={currTab === 'pankbase_links'}>
                     <List sx={{ padding: '0px' }}>
                         <ListItem sx={{ paddingY: '0px' }}>

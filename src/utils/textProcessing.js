@@ -14,10 +14,10 @@ export function replaceVariables(text, variables, replaceUnderscore = false) {
   let [sourceType, sourceId] = sourceTerm.split(':');
   let [targetType, targetId] = targetTerm.split(':');
   if (replaceUnderscore) {
-    sourceId = sourceId.replace(/_/g, ' ');
-    targetId = targetId.replace(/_/g, ' ');
-    sourceSymbol = sourceSymbol.replace(/_/g, ' ');
-    targetSymbol = targetSymbol.replace(/_/g, ' ');
+    sourceId = sourceId?.replace(/_/g, ' ');
+    targetId = targetId?.replace(/_/g, ' ');
+    sourceSymbol = sourceSymbol?.replace(/_/g, ' ');
+    targetSymbol = targetSymbol?.replace(/_/g, ' ');
   }
   const replaceList = {
     [`@${sourceType}@`]: sourceId,
