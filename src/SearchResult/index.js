@@ -95,9 +95,9 @@ function SearchResult() {
     const [referenceData, setReferenceData] = useState({});
     useEffect(() => {
         if (viewSchema?.resources_tabs) {
-            let data = viewSchema.resources_tabs;
-            let newPankbaseLinks = data.pankbase_links.map((item) => item.map((i) => replaceVariables(i, variables)));
-            let newExternalLinks = data.external_links.map((item) => item.map((i) => replaceVariables(i, variables)));
+            const data = viewSchema.resources_tabs;
+            const newPankbaseLinks = data.pankbase_links.map((item) => item.map((i) => replaceVariables(i, variables)));
+            const newExternalLinks = data.external_links.map((item) => item.map((i) => replaceVariables(i, variables)));
             setReferenceData({
                 ...data,
                 pankbase_links: newPankbaseLinks,
@@ -111,8 +111,8 @@ function SearchResult() {
         const sourceTerm = params.get('sourceTerm');
         const relationship = params.get('relationship');
         const targetTerm = params.get('targetTerm');
-        let targetSymbol = params.get('targetSymbol');
-        let sourceSymbol = params.get('sourceSymbol');
+        const targetSymbol = params.get('targetSymbol');
+        const sourceSymbol = params.get('sourceSymbol');
 
         if (sourceTerm && relationship && targetTerm) {
             dispatch(setSearchTerms({
@@ -156,30 +156,39 @@ function SearchResult() {
                         dispatch(queryQueryResultPage({ core_cypher, neighbor_cypher })).then((response) => {
                             console.log('Query result:', response.payload);
                             const coreNodes = response?.payload?.core_nodes || [];
-                            const coreRelationship = response?.payload?.combined_query_result?.edges?.find(
+                            const results = response?.payload?.combined_query_result || {};
+                            const coreRelationship = results.edges?.find(
                                 edge => (edge["~start"] === coreNodes[0] && edge["~end"] === coreNodes[1])
                                     || (edge["~end"] === coreNodes[0] && edge["~start"] === coreNodes[1])
                             );
-                            sourceSymbol = response?.payload?.combined_query_result?.nodes?.find(
-                                node => node["~id"] === coreNodes[0]
-                            )?.["~properties"]?.name || sourceSymbol;
-                            targetSymbol = response?.payload?.combined_query_result?.nodes?.find(
-                                node => node["~id"] === coreNodes[1]
-                            )?.["~properties"]?.name || targetSymbol;
+
                             const dataSource = coreRelationship?.["~properties"]?.data_source || '';
                             const tissueKey = coreRelationship?.["~properties"]?.tissue_name || '';
-                            let newVariables = {
+
+                            const newVariables = {
                                 sourceTerm,
                                 relationship,
                                 targetTerm,
-                                sourceSymbol,
-                                targetSymbol,
+                                sourceSymbol: results.nodes?.find(
+                                    node => node["~id"] === coreNodes[0]
+                                )?.["~properties"]?.name || sourceSymbol,
+                                targetSymbol: results.nodes?.find(
+                                    node => node["~id"] === coreNodes[1]
+                                )?.["~properties"]?.name || targetSymbol,
                                 tissueKey,
                                 dataSource,
                             };
                             if (newVariables) { setVariables(newVariables); }
-                            let processedCurrentQuestion = addHighlight(replaceVariables(question_for_result, newVariables, true));
-                            let nextVariables = newVariables;
+                            const nextVariables = newVariables;
+
+                            const processedCurrentQuestion =
+                                addHighlight(
+                                    replaceVariables(
+                                        question_for_result,
+                                        newVariables,
+                                        true
+                                    )
+                                );
                             // nextVariables = {
                             //     sourceTerm: 'snp:rs177069',
                             //     targetTerm: 'gene:ENSG00000001626',
@@ -187,9 +196,19 @@ function SearchResult() {
                             //     tissueKey: 'pancreas',
                             //     targetSymbol: 'CFTR'
                             // };
-                            let processedNextQuestions = addHighlight(replaceVariables(question_for_result, nextVariables, true), true);
-
-                            const processedAiQuestions = ai_question_for_result?.map(question => replaceVariables(question, newVariables, true)) || [];
+                            const processedNextQuestions =
+                                addHighlight(
+                                    replaceVariables(
+                                        question_for_result,
+                                        nextVariables,
+                                        true
+                                    ),
+                                    true
+                                );
+                            const processedAiQuestions =
+                                ai_question_for_result?.map(
+                                    question => replaceVariables(question, newVariables, true)
+                                ) || [];
 
                             // 更新 Redux store
                             dispatch(setProcessedQuestion({

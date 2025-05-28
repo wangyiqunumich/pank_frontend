@@ -206,56 +206,31 @@ function IntermediatePage({ onContinue }) {
     ))
     : 'Loading...';
 
-  const handleSNPClick = async (item) => {
+  const handleSNPClick = (item) => {
+    if (!viewSchema.question_for_result) return;
     const {
-      question_for_result,
-      next_questions,
-    } = viewSchema;
-    console.log(1);
-    let {
       sourceTerm,
       targetTerm,
       relationship
     } = searchState;
-    if (!question_for_result)
-      return;
-
-    // 从 searchTerms 中获取 geneId
-    if (!sourceTerm.includes(":")) {
-      sourceTerm = sourceTerm + ":" + (item[sourceTerm] || item[`${sourceTerm}_id`] || sourceTerm);
-    }
-    if (!targetTerm.includes(":")) {
-      targetTerm = targetTerm + ":" + (item[targetTerm] || item[`${targetTerm}_id`] || targetTerm);
-    }
 
     const params = new URLSearchParams({
-      sourceTerm,
-      targetTerm,
+      sourceTerm: sourceTerm.includes(":") ? sourceTerm : `${sourceTerm}:${item[sourceTerm]}`,
+      targetTerm: targetTerm.includes(":") ? targetTerm : `${targetTerm}:${item[targetTerm]}`,
       relationship,
     });
-
     window.location.href = `/result?${params.toString()}`;
   };
 
   // 添加一个新的辅助函数来获取 credibleSet 的显示标签
   const getCredibleSetLabel = (credibleSet) => {
-    let prefix = "";
-    switch (credibleSet.data_source) {
-      case "GTEx; SusieR":
-        prefix = "A";
-        break;
-      case "INSPIRE; SusieR":
-        prefix = "B";
-        break;
-      case "splicing; GTEx":
-        prefix = "C";
-        break;
-      case "exon; INSPIRE":
-        prefix = "D";
-        break;
-      default:
-        return credibleSet.credible_set_id;
-    }
+    const prefix = {
+      "GTEx; SusieR": "A",
+      "INSPIRE; SusieR": "B",
+      "splicing; GTEx": "C",
+      "exon; INSPIRE": "D",
+    }[credibleSet.data_source] || "";
+    if (!prefix) return credibleSet.credible_set_id;
 
     const setNumber = credibleSet.credible_set_id.split('_').pop().slice(11);
     return `CredibleSet_${prefix}${setNumber}`;
@@ -272,11 +247,11 @@ function IntermediatePage({ onContinue }) {
   // 添加从 URL 读取参数的逻辑
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    let sourceTerm = params.get('sourceTerm');
+    const sourceTerm = params.get('sourceTerm');
     const relationship = params.get('relationship');
-    let targetTerm = params.get('targetTerm');
-    let sourceSymbol = params.get('sourceSymbol') || "";
-    let targetSymbol = params.get('targetSymbol') || "";
+    const targetTerm = params.get('targetTerm');
+    const sourceSymbol = params.get('sourceSymbol') || "";
+    const targetSymbol = params.get('targetSymbol') || "";
     console.log(sourceTerm, relationship, targetTerm);
     setRootLabel(targetSymbol || "");
     if (sourceTerm && relationship && targetTerm) {
@@ -300,8 +275,8 @@ function IntermediatePage({ onContinue }) {
         })
       );
 
-      let questionType = `${sourceTerm.split(":")[0]} - ${relationship} - ${targetTerm.split(":")[0]}`;
-      let specificType = `${sourceTerm.includes(":") ? "specific" : "general"} - relationship - ${targetTerm.includes(":") ? "specific" : "general"}`;
+      const questionType = `${sourceTerm.split(":")[0]} - ${relationship} - ${targetTerm.split(":")[0]}`;
+      const specificType = `${sourceTerm.includes(":") ? "specific" : "general"} - relationship - ${targetTerm.includes(":") ? "specific" : "general"}`;
       setToolTipsData(tooltipsSchema[questionType]?.[specificType]);
     }
   }, []);
@@ -330,10 +305,10 @@ function IntermediatePage({ onContinue }) {
   }, [viewSchema]);
 
   useEffect(() => {
-    if (queryResult?.results) {
+    if (queryData.length > 0) {
       setSelectedTab(queryData.find(group => group.result.length > 0)?.label || 'Pancreatic eQTL');
     }
-  }, [queryResult]);
+  }, [queryData]);
 
   // 添加错误提示组件
   if (error) {
