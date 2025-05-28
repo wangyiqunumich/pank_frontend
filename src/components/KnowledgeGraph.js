@@ -70,6 +70,11 @@ export default function KnowledgeGraph() {
         data: {
           id: node["~id"],
           ...node["~properties"],
+          label: (
+            node["~labels"].includes("gene") || node["~id"].slice(0, 2) === "CL_"
+              ? node["~properties"].name
+              : node["~properties"].id
+          ).replace('_', ' '),
           type,
           Level: posData.Level,
         },
@@ -164,12 +169,12 @@ export default function KnowledgeGraph() {
 
     cyRef.current.on("cxttap", "node", (evt) => {
       setTooltipVisible(false);
-      hideContextMenu();
-      contextNodeRef.current = evt.target;
-      const menu = document.getElementById("context-menu");
-      menu.style.left = `${evt.originalEvent.clientX}px`;
-      menu.style.top = `${evt.originalEvent.clientY}px`;
-      menu.style.display = "block";
+      // hideContextMenu();
+      // contextNodeRef.current = evt.target;
+      // const menu = document.getElementById("context-menu");
+      // menu.style.left = `${evt.originalEvent.clientX}px`;
+      // menu.style.top = `${evt.originalEvent.clientY}px`;
+      // menu.style.display = "block";
     });
 
     cyRef.current.on("mouseover", "node", (evt) => {
@@ -488,8 +493,12 @@ export default function KnowledgeGraph() {
           </div>
           <Collapse in={legendVisible} timeout="auto">
             <div style={{ width: "430px", paddingTop: "2px" }}>
-
-              {/* Search‑result pills */}
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingBottom: "4px", fontSize: "12px" }}>
+                <LegendItem type="　　" sx={{ backgroundColor: "#D9D9D9", color: "black", height: "10px" }} />
+                Core Nodes
+                <LegendItem type="　　" sx={{ backgroundColor: "white", color: "black", border: "1px solid #D9D9D9", height: "10px" }} />
+                Neighbor
+              </div>
               <div
                 style={{
                   display: "flex",
@@ -498,7 +507,6 @@ export default function KnowledgeGraph() {
                   flexWrap: "wrap",
                 }}
               >
-                {/* future todo: map these instead */}
                 {
                   Object.keys(nodeLabels).map((type) => (
                     <LegendItem
@@ -507,14 +515,6 @@ export default function KnowledgeGraph() {
                     />
                   ))
                 }
-              </div>
-
-              {/* Related‑concept indicator */}
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingTop: "4px", fontSize: "12px" }}>
-                <LegendItem type="　　" sx={{ backgroundColor: "#D9D9D9", color: "black", height: "10px" }} />
-                Core Nodes
-                <LegendItem type="　　" sx={{ backgroundColor: "white", color: "black", border: "1px solid #D9D9D9", height: "10px" }} />
-                Neighbor
               </div>
             </div>
           </Collapse>

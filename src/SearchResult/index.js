@@ -171,7 +171,7 @@ function SearchResult() {
                                 dataSource,
                             };
                             if (newVariables) { setVariables(newVariables); }
-                            let processedCurrentQuestion = addHighlight(replaceVariables(question_for_result, newVariables));
+                            let processedCurrentQuestion = addHighlight(replaceVariables(question_for_result, newVariables, true));
                             let nextVariables = newVariables;
                             // nextVariables = {
                             //     sourceTerm: 'snp:rs177069',
@@ -180,9 +180,9 @@ function SearchResult() {
                             //     tissueKey: 'pancreas',
                             //     targetSymbol: 'CFTR'
                             // };
-                            let processedNextQuestions = addHighlight(replaceVariables(question_for_result, nextVariables), true);
+                            let processedNextQuestions = addHighlight(replaceVariables(question_for_result, nextVariables, true), true);
 
-                            const processedAiQuestions = ai_question_for_result?.map(question => replaceVariables(question, newVariables)) || [];
+                            const processedAiQuestions = ai_question_for_result?.map(question => replaceVariables(question, newVariables, true)) || [];
 
                             // 更新 Redux store
                             dispatch(setProcessedQuestion({
