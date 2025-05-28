@@ -18,11 +18,7 @@ const nodeAutoWidth = (node) => {
   const weight = node.pstyle('font-weight').strValue;
 
   ctx.font = fStyle + ' ' + weight + ' ' + size + ' ' + family;
-  return ctx.measureText(
-    node.data('type') === "coding_elements"
-      ? node.data('name')
-      : node.data('id')
-  ).width;
+  return ctx.measureText(node.data('label')).width;
 };
 
 export const nodeColors = {
@@ -59,7 +55,7 @@ export const nodeStyle = nodeColorsList.map(({ color, type }) => ({
   style: {
     shape: "round-rectangle",
     "background-color": color,
-    label: type === "coding_elements" ? "data(name)" : "data(id)",
+    label: "data(label)",
     "font-size": "6px",
     "text-valign": "center",
     color: getContrastingColor(color),
@@ -79,7 +75,7 @@ export const nodeStyle = nodeColorsList.map(({ color, type }) => ({
       "background-opacity": 0,
       "border-width": 2,
       "border-color": color,
-      label: type === "coding_elements" ? "data(name)" : "data(id)",
+      label: "data(label)",
       "font-size": "6px",
       "text-valign": "center",
       color: "#333",

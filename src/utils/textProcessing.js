@@ -5,13 +5,20 @@ export function addHighlight(question, option = false) {
   ));
 }
 
-export function replaceVariables(text, variables) {
+export function replaceVariables(text, variables, replaceUnderscore = false) {
   if (!text || !variables?.sourceTerm || !variables?.targetTerm) {
     return text;
   }
-  const { sourceTerm, targetTerm, sourceSymbol, targetSymbol, tissueKey, dataSource } = variables;
-  const [sourceType, sourceId] = sourceTerm.split(':');
-  const [targetType, targetId] = targetTerm.split(':');
+  const { tissueKey, dataSource } = variables;
+  let { sourceTerm, targetTerm, sourceSymbol, targetSymbol } = variables;
+  let [sourceType, sourceId] = sourceTerm.split(':');
+  let [targetType, targetId] = targetTerm.split(':');
+  if (replaceUnderscore) {
+    sourceId = sourceId.replace(/_/g, ' ');
+    targetId = targetId.replace(/_/g, ' ');
+    sourceSymbol = sourceSymbol.replace(/_/g, ' ');
+    targetSymbol = targetSymbol.replace(/_/g, ' ');
+  }
   const replaceList = {
     [`@${sourceType}@`]: sourceId,
     [`@${sourceType}_id@`]: sourceId,

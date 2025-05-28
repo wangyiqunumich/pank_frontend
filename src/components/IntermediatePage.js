@@ -367,7 +367,7 @@ function IntermediatePage({ onContinue }) {
 
   return (<Container sx={{
     padding: 0, display: 'flex',
-    flexDirection: 'column', justifyContent: 'space-evenly',
+    justifyContent: 'space-evenly',
     alignSelf: 'center',
     maxWidth: '1440px',
     minWidth: '1000px',
@@ -486,7 +486,6 @@ function IntermediatePage({ onContinue }) {
                     border: "1px solid",
                     borderColor: "#23A6F0",
                     color: "#23A6F0",
-                    display: "flex",
                     alignItems: "center",
                     marginBottom: "10px",
                     padding: "6px 12px",

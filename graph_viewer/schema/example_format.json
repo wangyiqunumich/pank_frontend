@@ -1,10 +1,14 @@
+// deprecated
 cyRef.current = cytoscape({
   container: document.getElementById("cy-container"),
-  elements: { nodes, edges },
+  elements: { nodes, edges
+  },
   style: [
     // Protein Coding nodes: Core (filled)
     {
-      selector: 'node[type = "protein_coding"][Level = "C"]',
+      selector: 'node[type = "protein_coding"
+      ][Level = "C"
+      ]',
       style: {
         shape: "round-rectangle",
         "background-color": "#ABD0F1",
@@ -23,7 +27,9 @@ cyRef.current = cytoscape({
     },
     // Protein Coding nodes: Neighbor (transparent fill, colored border)
     {
-      selector: 'node[type = "protein_coding"][Level = "N"]',
+      selector: 'node[type = "protein_coding"
+      ][Level = "N"
+      ]',
       style: {
         shape: "round-rectangle",
         "background-opacity": 0,
@@ -44,7 +50,9 @@ cyRef.current = cytoscape({
     },
     // SNP nodes: Core (filled)
     {
-      selector: 'node[type = "SNP"][Level = "C"]',
+      selector: 'node[type = "SNP"
+      ][Level = "C"
+      ]',
       style: {
         shape: "round-rectangle",
         "background-color": "#FFB77F",
@@ -63,7 +71,9 @@ cyRef.current = cytoscape({
     },
     // SNP nodes: Neighbor (transparent fill, colored border)
     {
-      selector: 'node[type = "SNP"][Level = "N"]',
+      selector: 'node[type = "SNP"
+      ][Level = "N"
+      ]',
       style: {
         shape: "round-rectangle",
         "background-opacity": 0,
@@ -84,7 +94,9 @@ cyRef.current = cytoscape({
     },
     // Ontology nodes: Core (filled)
     {
-      selector: 'node[type = "ontology"][Level = "C"]',
+      selector: 'node[type = "ontology"
+      ][Level = "C"
+      ]',
       style: {
         shape: "round-rectangle",
         "background-color": "#B57E47",
@@ -103,7 +115,9 @@ cyRef.current = cytoscape({
     },
     // Ontology nodes: Neighbor (transparent fill, colored border)
     {
-      selector: 'node[type = "ontology"][Level = "N"]',
+      selector: 'node[type = "ontology"
+      ][Level = "N"
+      ]',
       style: {
         shape: "round-rectangle",
         "background-opacity": 0,
@@ -143,9 +157,11 @@ cyRef.current = cytoscape({
       },
     },
   ],
-  layout: { name: "preset" },
+  layout: { name: "preset"
+  },
   zoom: 0.01,
   minZoom: 0.2,
   maxZoom: 3,
-  pan: { x: 0, y: 0 },
+  pan: { x: 0, y: 0
+  },
 });
