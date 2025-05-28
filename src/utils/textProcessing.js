@@ -1,22 +1,12 @@
-const colorMap = {
-  // gene: '#43978F',
-  // sequence_variant: '#E56F5E',
-  // eQTL_of: '#FBE8D5',
-  // default: '#DCE9F4'
-  gene: '#3A838B',
-  sequence_variant: '#3A838B',
-  eQTL_of: '#3A838B',
-  default: '#3A838B'
-};
-
-export function addHighlight(question) {
-  return question.replace(/\{([^{}@]+)\}/g, (match, term) => {
-    return `<span style="color: #3A838B; font-weight: 700">${term}</span>`;
-  });
+export function addHighlight(question, option = false) {
+  return question.replace(/\{([^{}@]+)\}/g, (match, term) => (
+    option ? term :
+      `<span style="color: #3A838B; font-weight: 700">${term}</span>`
+  ));
 }
 
 export function replaceVariables(text, variables) {
-  if (!text || !variables || !variables.sourceTerm || !variables.targetTerm) {
+  if (!text || !variables?.sourceTerm || !variables?.targetTerm) {
     return text;
   }
   const { sourceTerm, targetTerm, sourceSymbol, targetSymbol, tissueKey, dataSource } = variables;
@@ -34,10 +24,9 @@ export function replaceVariables(text, variables) {
     '@tissue@': tissueKey,
     '@method@': dataSource?.includes('GTEx') ? 'GTEx' : 'INSPIRE'
   };
-  const replacedText = Object.entries(replaceList).reduce((acc, [key, value]) => {
-    const regex = new RegExp(key, 'g');
-    return acc.replace(regex, value);
-  }, text);
+  const replacedText = Object.entries(replaceList).reduce((acc, [key, value]) => (
+    key ? acc.replace(new RegExp(key, 'g'), value) : acc
+  ), text);
   return replacedText;
 }
 

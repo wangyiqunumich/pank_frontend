@@ -7,7 +7,7 @@ import KnowledgeGraph from '../components/KnowledgeGraph';
 import { queryAiAnswer } from '../redux/aiAnswerSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import { setProcessedQuestion } from '../redux/processedQuestionSlice';
-import { replaceVariables } from '../utils/textProcessing';
+import { replaceVariables, addHighlight } from '../utils/textProcessing';
 import { queryQueryResultPage } from '../redux/queryResultPage';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import InfoOutlineIcon from '@mui/icons-material/InfoOutlined';
@@ -86,8 +86,6 @@ function SearchResult() {
     const { viewSchema } = useSelector((state) => state.viewSchema);
     const [variables, setVariables] = useState({});
     const [referenceData, setReferenceData] = useState({});
-    const [dataSource, setDataSource] = useState('');
-    const [tissueKey, setTissueKey] = useState('');
     useEffect(() => {
         if (viewSchema?.resources_tabs) {
             let data = viewSchema.resources_tabs;
@@ -106,8 +104,8 @@ function SearchResult() {
         const sourceTerm = params.get('sourceTerm');
         const relationship = params.get('relationship');
         const targetTerm = params.get('targetTerm');
-        const targetSymbol = params.get('targetSymbol');
-        const sourceSymbol = params.get('sourceSymbol');
+        let targetSymbol = params.get('targetSymbol');
+        let sourceSymbol = params.get('sourceSymbol');
 
         if (sourceTerm && relationship && targetTerm) {
             dispatch(setSearchTerms({
@@ -125,13 +123,10 @@ function SearchResult() {
                 return term.split(':')[0] || term;
             };
 
-            const fixedSourceTerm = sourceTerm;
-            const fixedTargetTerm = targetTerm;
-
             dispatch(queryViewSchema({
-                sourceTerm: fixedSourceTerm,
+                sourceTerm,
                 relationship,
-                targetTerm: fixedTargetTerm
+                targetTerm
             })).then((response) => {
                 if (response.payload) {
                     // 处理 schema 数据
@@ -145,43 +140,47 @@ function SearchResult() {
                     } = response.payload;
 
                     if (cypher_for_result_page_core && cypher_for_result_page_nbr) {
-                        const core_cypher = cypher_for_result_page_core
-                            .replace(`@${getTypeFromTerm(sourceTerm)}@`, getIdFromTerm(sourceTerm))
-                            .replace(`@${getTypeFromTerm(targetTerm)}@`, getIdFromTerm(targetTerm));
-                        const neighbor_cypher = cypher_for_result_page_nbr
-                            .replace(`@${getTypeFromTerm(sourceTerm)}@`, getIdFromTerm(sourceTerm))
-                            .replace(`@${getTypeFromTerm(targetTerm)}@`, getIdFromTerm(targetTerm));
+                        const temporaryVariables = {
+                            sourceTerm,
+                            targetTerm,
+                        };
+                        const core_cypher = replaceVariables(cypher_for_result_page_core, temporaryVariables);
+                        const neighbor_cypher = replaceVariables(cypher_for_result_page_nbr, temporaryVariables);
                         dispatch(queryQueryResultPage({ core_cypher, neighbor_cypher })).then((response) => {
                             console.log('Query result:', response.payload);
                             const coreNodes = response?.payload?.core_nodes || [];
-                            const coreRelationship = response?.payload?.combined_query_result?.edges?.filter(
+                            const coreRelationship = response?.payload?.combined_query_result?.edges?.find(
                                 edge => (edge["~start"] === coreNodes[0] && edge["~end"] === coreNodes[1])
                                     || (edge["~end"] === coreNodes[0] && edge["~start"] === coreNodes[1])
-                            )?.[0];
-                            const newDataSource = coreRelationship?.["~properties"]?.data_source || '';
-                            const newTissueKey = coreRelationship?.["~properties"]?.tissue_name || '';
-                            setDataSource(newDataSource);
-                            setTissueKey(newTissueKey);
+                            );
+                            sourceSymbol = response?.payload?.combined_query_result?.nodes?.find(
+                                node => node["~id"] === coreNodes[0]
+                            )?.["~properties"]?.name || sourceSymbol;
+                            targetSymbol = response?.payload?.combined_query_result?.nodes?.find(
+                                node => node["~id"] === coreNodes[1]
+                            )?.["~properties"]?.name || targetSymbol;
+                            const dataSource = coreRelationship?.["~properties"]?.data_source || '';
+                            const tissueKey = coreRelationship?.["~properties"]?.tissue_name || '';
                             let newVariables = {
-                                sourceTerm: sourceTerm,
-                                relationship: relationship,
-                                targetTerm: targetTerm,
-                                sourceSymbol: sourceSymbol || '',
-                                targetSymbol: targetSymbol || '',
-                                tissueKey: newTissueKey,
-                                dataSource: newDataSource,
+                                sourceTerm,
+                                relationship,
+                                targetTerm,
+                                sourceSymbol,
+                                targetSymbol,
+                                tissueKey,
+                                dataSource,
                             };
                             if (newVariables) { setVariables(newVariables); }
-                            let processedCurrentQuestion = replaceVariables(question_for_result, newVariables);
-                            let nextVariables;
-                            nextVariables = {
-                                sourceTerm: 'snp:rs177069',
-                                targetTerm: 'gene:ENSG00000001626',
-                                dataSource: 'splicing; GTEx',
-                                tissueKey: 'pancreas',
-                                targetSymbol: 'CFTR'
-                            };
-                            let processedNextQuestions = replaceVariables(question_for_result, nextVariables);
+                            let processedCurrentQuestion = addHighlight(replaceVariables(question_for_result, newVariables));
+                            let nextVariables = newVariables;
+                            // nextVariables = {
+                            //     sourceTerm: 'snp:rs177069',
+                            //     targetTerm: 'gene:ENSG00000001626',
+                            //     dataSource: 'splicing; GTEx',
+                            //     tissueKey: 'pancreas',
+                            //     targetSymbol: 'CFTR'
+                            // };
+                            let processedNextQuestions = addHighlight(replaceVariables(question_for_result, nextVariables), true);
 
                             const processedAiQuestions = ai_question_for_result?.map(question => replaceVariables(question, newVariables)) || [];
 
@@ -191,7 +190,7 @@ function SearchResult() {
                                 nextQuestions: processedNextQuestions,
                                 aiQuestions: processedAiQuestions,
                                 aiAnswerSubtitle: ai_answer_sub_title,
-                                currentQuestionType: newDataSource + '; ' + newTissueKey + ' tissue'
+                                currentQuestionType: dataSource + '; ' + tissueKey + ' tissue'
                             }));
                         });
                     }
@@ -242,7 +241,7 @@ function SearchResult() {
             relationship: 'QTL',
             targetSymbol: 'CFTR'
         };
-        window.location.href = `/result?${new URLSearchParams()}`;
+        window.location.href = `/result?${new URLSearchParams(nextVariables)}`;
     };
 
     const processLinks = (text) => {
@@ -268,9 +267,6 @@ function SearchResult() {
             </Container>
         );
     }
-
-    // 获取 URL 参数
-    const params = new URLSearchParams(window.location.search);
 
     return (
         <Container sx={{

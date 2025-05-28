@@ -20,7 +20,7 @@
                               "#": "n_snp"
                         }
                   ],
-                  "question_for_result": "How does the SNP @snp_id@ influence the expression of @gene_symbol@(@gene_id@) in @tissue@ tissue, as reported by @method@?",
+                  "question_for_result": "How does the {SNP @snp_id@} influence the expression of {@gene_symbol@ (@gene_id@)} in @tissue@ tissue, as reported by @method@?",
                   "cypher_for_result_page_core": "MATCH (variant:sequence_variant:snp), (gene:coding_elements) WHERE ID(variant) = '@snp@' AND ID(gene) = '@gene@' MATCH (variant)-[r:fine_mapped_eQTL]-(gene) WITH collect(DISTINCT variant) + collect(DISTINCT gene) AS nodes, collect(DISTINCT r) AS edges RETURN { results: [ { nodes: nodes, edges: edges } ] } AS output;",
                   "cypher_for_result_page_nbr": "MATCH (variant:sequence_variant)-[r1]-(nbr1) WHERE ID(variant) = '@snp@' WITH r1, nbr1 MATCH (gene:coding_elements)-[r2]-(nbr2) WHERE ID(gene) = '@gene@'WITH collect(DISTINCT r1) + collect(DISTINCT r2) AS rels, collect(DISTINCT nbr1) + collect(DISTINCT nbr2) AS nbrs WITH rels, [n IN nbrs WHERE NOT id(n) IN ['@snp@','@gene@']] AS nodes RETURN { results: [ { nodes: nodes, edges: rels } ] } AS output;",
                   "ai_question_for_result": [
@@ -52,16 +52,16 @@
                               [
                                     "Link to Ensembl: ",
                                     "View the @gene_symbol@(@gene_id@) in Ensembl",
-                                    "https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000001626"
+                                    "https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=@gene_id@"
                               ]
                         ]
                   }
             },
             "specific - relationship - specific": {
                   "question": [
-                        "Does {SNP@snp@} serve as a {QTL} for {@gene_symbol@(@gene_id@)}?"
+                        "Does {SNP @snp@} serve as a {QTL} for {@gene_symbol@ (@gene_id@)}?"
                   ],
-                  "question_for_result": "How does the SNP @snp_id@ influence the expression of @gene_symbol@(@gene_id@) in @tissue@ tissue, as reported by @method@?",
+                  "question_for_result": "How does the {SNP @snp_id@} influence the expression of {@gene_symbol@ (@gene_id@)} in @tissue@ tissue, as reported by @method@?",
                   "cypher_for_result_page_core": "MATCH (variant:sequence_variant:snp), (gene:coding_elements) WHERE ID(variant) = '@snp@' AND ID(gene) = '@gene@' MATCH (variant)-[r:fine_mapped_eQTL]-(gene) WITH collect(DISTINCT variant) + collect(DISTINCT gene) AS nodes, collect(DISTINCT r) AS edges RETURN { results: [ { nodes: nodes, edges: edges } ] } AS output;",
                   "cypher_for_result_page_nbr": "MATCH (variant:sequence_variant)-[r1]-(nbr1) WHERE ID(variant) = '@snp@' WITH r1, nbr1 MATCH (gene:coding_elements)-[r2]-(nbr2) WHERE ID(gene) = '@gene@'WITH collect(DISTINCT r1) + collect(DISTINCT r2) AS rels, collect(DISTINCT nbr1) + collect(DISTINCT nbr2) AS nbrs WITH rels, [n IN nbrs WHERE NOT id(n) IN ['@snp@','@gene@']] AS nodes RETURN { results: [ { nodes: nodes, edges: rels } ] } AS output;",
                   "ai_question_for_result": [
@@ -92,8 +92,8 @@
                         "external_links": [
                               [
                                     "Link to Ensembl: ",
-                                    "View the @gene_symbol@(@gene_id@) in Ensembl",
-                                    "https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000001626"
+                                    "View the @gene_symbol@ (@gene_id@) in Ensembl",
+                                    "https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=@gene_id@"
                               ]
                         ]
                   }
@@ -102,9 +102,9 @@
       "gene - express_in - cell_type": {
             "specific - relationship - specific": {
                   "question": [
-                        "What is {@gene@}’s expression level in {@cell_type_name@(@cell_type_id@)} and its link to {T1D}?"
+                        "What is {@gene_symbol@ (@gene_id@)}’s expression level in {@cell_type_name@ (@cell_type_id@)} and its link to {T1D}?"
                   ],
-                  "question_for_result": "What is @gene@’s expression level in @cell_type_name@(@cell_type_id@) and its link to (T1D)?",
+                  "question_for_result": "What is {@gene_symbol@ (@gene_id@)}’s expression level in {@cell_type_name@ (@cell_type_id@)} and its link to {T1D}?",
                   "cypher_for_result_page_core": "MATCH (g:gene {id: '@gene@'})-[r:express_in]->(c:cell_type {id: '@cell_type@'}) WITH collect(DISTINCT g) + collect(DISTINCT c) AS nodes, collect(DISTINCT r) AS edges RETURN { results: [ { nodes: nodes, edges: edges } ] } AS output;",
                   "cypher_for_result_page_nbr": "MATCH (g:gene)-[r1]-(nbr1) WHERE ID(g) ='@gene@' WITH r1, nbr1 WITH collect(DISTINCT r1) AS rels, collect(DISTINCT nbr1)AS nbrs WITH rels, [n IN nbrs WHERE NOT id(n) IN ['@gene@','@cell_type@']] AS nodes  RETURN { results: [ { nodes: nodes, edges: rels } ] } AS output;",
                   "ai_question_for_result": [
@@ -125,8 +125,8 @@
                         "external_links": [
                               [
                                     "Link to Ensembl: ",
-                                    "View the @gene_symbol@(@gene_id@) in Ensembl",
-                                    "https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000001626"
+                                    "View the @gene_symbol@ (@gene_id@) in Ensembl",
+                                    "https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=@gene_id@"
                               ]
                         ]
                   }
