@@ -51,13 +51,11 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
       overflowY: 'auto',
       marginTop: '44px',
       marginBottom: '44px',
-      fontFamily: 'Open Sans',
     }}>
       <Typography sx={{ 
         fontSize: 28,
         fontWeight: 700,
         textAlign: 'left', 
-        marginBottom: 1, 
         color:'#4E4E4E',
         fontFamily: 'Open Sans',
       }}>
@@ -68,7 +66,6 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
           fontSize: 14,
           fontWeight: 400,
           textAlign: 'left',
-          marginBottom: 2,
           color:'#5A5555',
           fontFamily: 'Open Sans',
         }}>Click on a question to explore related data, knowledge, and insights
@@ -97,6 +94,8 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
 
       <List
         sx={{
+          marginTop: '16px',
+          marginBottom: '16px',
           width: '100%',
           maxHeight: '300px', // Limit the height of the list
           overflowY: 'auto', // Enable vertical scrolling if content exceeds maxHeight
@@ -127,6 +126,7 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
                   border: '1px solid #ccc',
                   borderRadius: '8px',
                   padding: '10px',
+                  paddingLeft: '0px',
                   backgroundColor: isRelated ? '#FBFFFF' : '#e0e0e0',
                   color: '#333',
                   transition: 'height 0.2s ease-in-out',
@@ -138,12 +138,12 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
               >
                 <Box classname="dot"
                   sx={{
-                    width: '8px',
-                    height: '8px',
+                    width: '11px',
+                    height: '11px',
                     borderRadius: '50%',
-                    backgroundColor: isRelated? '#49B9E4':'#B8CBC9',
-                    marginLeft: 2,
-                    marginRight: 2,
+                    backgroundColor: '#B8CBC9',//49B9E4',
+                    marginLeft: '20px',
+                    marginRight: '20px',
                     transition: 'background-color 0.1s',
                     '.question-box:hover &': {
                       backgroundColor: '#43978F',
@@ -158,12 +158,12 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
                 }}>
                   <ListItemText
                     primary={
-                      <Box >
+                      <Box sx={{fontFamily:'Open Sans'}}>
                         {question.question.split(/(\([^)]*\)|\{.*?\})/).map((part, i) => {
                           if (part.startsWith('(') && part.endsWith(')')) {
-                            return <span key={i} style={{ fontWeight: 600 ,fontStyle: 'italic',textTransform: 'uppercase'}}>{part.slice(1,-1)}</span>;
+                            return <span key={i} style={{ fontWeight: '600', fontStyle: 'italic', textTransform: 'uppercase'}}>{part.slice(1,-1)}</span>;
                           } else if (part.startsWith('{') && part.endsWith('}')) {
-                            return <span key={i} style={{ fontWeight: 600, textTransform: 'uppercase' }}>[{part.slice(1,-1).split('@')[0]}]</span>;
+                            return <span key={i} style={{ fontWeight: '600', textTransform: 'uppercase' }}>[{part.slice(1,-1).split('@')[0]}]</span>;
                           }
                           return <span key={i}>{part}</span>;
                         })}
@@ -181,7 +181,7 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
                       display: 'none',
                       transition: 'display 0.1s ease-in-out',
                       fontSize: 14,
-                      color: 'text.secondary',
+                      color: '#219197',
                       marginTop: 0,
                       '.question-box:hover &': {
                         display: 'block',
@@ -214,9 +214,9 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
       style={{  display: 'flex',alignItems: 'center'}}>
           <span style={{ backgroundColor: '#2aa198', color: 'white',
             fontWeight: '700',
-            padding: '4px 4px',
+            padding: '0px 5px',
             borderRadius: '4px',
-            marginRight: '10px',
+            marginRight: '6px',
             fontSize: '14px',}}>Example</span>
           <Link 
           to="https://dev.pankgraph.org/intermediate?qid=1&sourceTerm=snp&relationship=QTL&targetTerm=gene:ENSG00000001626&targetSymbol=CFTR"
