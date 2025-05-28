@@ -105,12 +105,12 @@
                         "What is {@gene_symbol@ (@gene_id@)}’s expression level in {@cell_type_name@ (@cell_type_id@)} and its link to {T1D}?"
                   ],
                   "question_for_result": "What is {@gene_symbol@ (@gene_id@)}’s expression level in {@cell_type_name@ (@cell_type_id@)} and its link to {T1D}?",
-                  "cypher_for_result_page_core": "MATCH (g:gene {id: '@gene@'})-[r:express_in]->(c:cell_type {id: '@cell_type@'}) WITH collect(DISTINCT g) + collect(DISTINCT c) AS nodes, collect(DISTINCT r) AS edges RETURN { results: [ { nodes: nodes, edges: edges } ] } AS output;",
+                  "cypher_for_result_page_core": "MATCH (g:gene {id: '@gene@'})-[r1:express_in]->(c:cell_type {id: '@cell_type@'}) MATCH (o:OCR)-[r2:OCR_locate_in]->(g) MATCH (o)-[r3:OCR_in_cell_type]->(c) WITH collect(DISTINCT g) + collect(DISTINCT c) + collect(DISTINCT o) AS nodes, collect(DISTINCT r1) + collect(DISTINCT r2) + collect(DISTINCT r3) AS edges RETURN { results: [ { nodes: nodes, edges: edges } ] } AS output;“
                   "cypher_for_result_page_nbr": "MATCH (g:gene)-[r1]-(nbr1) WHERE ID(g) ='@gene@' WITH r1, nbr1 WITH collect(DISTINCT r1) AS rels, collect(DISTINCT nbr1)AS nbrs WITH rels, [n IN nbrs WHERE NOT id(n) IN ['@gene@','@cell_type@']] AS nodes  RETURN { results: [ { nodes: nodes, edges: rels } ] } AS output;",
                   "ai_question_for_result": [
-                        "Based on the JSON data, describe the expression level of the gene @gene_id@ in the @cell_type@. Compare between Non-diabetes, T1D, and T2D data.",
-                        "ATAC not ready",
-                        "Considering the input JSON, discuss the association between the gene @gene_id@ and Type 1 diabetes, including any evidence linking genetic variants to the disease"
+                        "Based on the JSON data,summarize the expression levels of gene @gene_id@ in @cell_type@ across Non-diabetes, T1D, and T2D conditions.",
+                        "Based on the JSON data, summarize the ATAC/OCR activity of gene @gene_id@ in @cell_type@ across Non-diabetes, T1D, and T2D conditions.",
+                        "Evaluate evidence linking gene @gene_id@ to Type 1 Diabetes (T1D), highlighting any associated expression data."
                   ],
                   "ai_answer_sub_title": [
                         "Expression level overview: ",
