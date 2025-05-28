@@ -122,14 +122,6 @@ function SearchResult() {
                 targetTermSymbol: targetSymbol || ''
             }));
 
-            const getIdFromTerm = (term) => {
-                return term.split(':')[1] || term;
-            };
-
-            const getTypeFromTerm = (term) => {
-                return term.split(':')[0] || term;
-            };
-
             dispatch(queryViewSchema({
                 sourceTerm,
                 relationship,
@@ -220,8 +212,6 @@ function SearchResult() {
                             }));
                         });
                     }
-
-                    // 处理查询
                 }
             });
         }
@@ -238,6 +228,7 @@ function SearchResult() {
     const removeConsecutiveAsterisks = (text) => {
         return text.replace(/\*\*/g, '');
     };
+
     useEffect(() => {
         if (queryResultPage?.combined_query_result?.nodes?.length != 0 && queryResultPage?.core_nodes && aiQuestions?.length > 0) {
             const processedQuestions = aiQuestions.map(question =>
