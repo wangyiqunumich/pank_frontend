@@ -1,3 +1,15 @@
+export const getContrastingColor = (bgColor) => {
+  if (!/^#[0-9A-F]{6}$/i.test(bgColor)) {
+    return 'black';
+  }
+  const hex = bgColor.replace(/^#/, '');
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+  return yiq >= 128 ? 'black' : 'white';
+}
+
 const nodeAutoWidth = (node) => {
   const ctx = document.createElement('canvas').getContext("2d");
   const fStyle = node.pstyle('font-style').strValue;
@@ -6,22 +18,25 @@ const nodeAutoWidth = (node) => {
   const weight = node.pstyle('font-weight').strValue;
 
   ctx.font = fStyle + ' ' + weight + ' ' + size + ' ' + family;
-  return ctx.measureText(node.data('name')).width;
+  return ctx.measureText(
+    node.data('type') === "coding_elements"
+      ? node.data('name')
+      : node.data('id')
+  ).width;
 };
 
 export const nodeColors = {
-  "coding_elements;gene": "#A4D0F6",
-  "variants;sequence_variant;snp": "#FFB371",
-  "ontology;pathway": "#FFDE7D",
-  "ontology;cell_type": "#FFDE7D",
+  "coding_elements": "#A4D0F6",
+  "variants": "#FFB371",
+  "ontology": "#FFDE7D",
   "ocr": "#61ECBC",
   "article": "#F5BEFF"
 };
 
 export const nodeLabels = {
-  "coding_elements;gene": "Gene",
-  "variants;sequence_variant;snp": "SNP",
-  "ontology;pathway": "Ontology",
+  "coding_elements": "Gene",
+  "variants": "SNP",
+  "ontology": "Ontology",
   "ocr": "OCR",
   "article": "Literature",
 };
@@ -44,10 +59,10 @@ export const nodeStyle = nodeColorsList.map(({ color, type }) => ({
   style: {
     shape: "round-rectangle",
     "background-color": color,
-    label: type === "coding_elements;gene" ? "data(name)" : "data(id)",
+    label: type === "coding_elements" ? "data(name)" : "data(id)",
     "font-size": "6px",
     "text-valign": "center",
-    color: "#fff",
+    color: getContrastingColor(color),
     width: nodeAutoWidth,
     height: "6px",
     padding: "5px",
@@ -64,7 +79,7 @@ export const nodeStyle = nodeColorsList.map(({ color, type }) => ({
       "background-opacity": 0,
       "border-width": 2,
       "border-color": color,
-      label: type === "coding_elements;gene" ? "data(name)" : "data(id)",
+      label: type === "coding_elements" ? "data(name)" : "data(id)",
       "font-size": "6px",
       "text-valign": "center",
       color: "#333",

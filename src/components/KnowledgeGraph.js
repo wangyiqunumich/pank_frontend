@@ -5,28 +5,11 @@ import { useSelector } from 'react-redux';
 import cytoscape from "cytoscape";
 import zoomInIcon from "../image/zoomIn.png";
 import zoomOutIcon from "../image/zoomOut.png";
-import { nodeStyle, nodeColors, nodeLabels } from "./style.js";
+import { nodeStyle, nodeColors, nodeLabels, getContrastingColor } from "./style.js";
 import Collapse from "@mui/material/Collapse";
 import SouthWestIcon from '@mui/icons-material/SouthWest';
 import NorthEastIcon from '@mui/icons-material/NorthEast';
 import IconButton from '@mui/material/IconButton';
-
-// Define the node type colors for the legend
-const nodeTypeColors = {
-  gene: "#ABD0F1", // Blue color for protein_coding/gene nodes
-  sequence_variant: "#FFB77F", // Orange color for SNP/sequence_variant nodes
-  pathway: "#F6C957", // Yellow color for pathway nodes
-  article: "#e377c2", // Pink color for article nodes
-  ontology: "#B57E47", // Brown color for ontology nodes
-};
-
-const nodeTypeLabelColors = {
-  gene: "#fff",
-  sequence_variant: "#fff",
-  pathway: "#fff",
-  article: "#fff",
-  ontology: "#fff",
-};
 
 const LegendItem = ({ type, sx }) => (
   <span
@@ -35,7 +18,7 @@ const LegendItem = ({ type, sx }) => (
       borderRadius: "6px",
       backgroundColor: nodeColors[type],
       fontSize: "12px",
-      color: "white",
+      color: getContrastingColor(nodeColors[type]),
       ...sx,
     }}
   >
@@ -75,7 +58,7 @@ export default function KnowledgeGraph() {
     result.nodes.forEach((node) => (uniqueNodesMap[node["~id"]] = node));
     const nodes = Object.values(uniqueNodesMap).map((node) => {
       // Determine type based on the labels
-      const type = node["~labels"].join(";");
+      const type = node["~labels"].find((label) => nodeColors[label]) || "coding_elements";
       // Use the provided positionData and extract the Level property.
       const posData = positionData[node["~id"]] || {
         x: Math.random() * 250 - 125,

@@ -41,12 +41,18 @@ import tooltipsSchema from '../schema/tool_tips_schema.json';
 import './styles.css'
 
 import {
-  getDataSourceInfo,
   replaceVariables,
   addHighlight,
 } from '../utils/textProcessing';
 
+const tabsEnabled = true;
 
+const tabsQTL = [
+  { "label": "Pancreatic eQTL", "data_source": "GTEx; SusieR" },
+  { "label": "Islet eQTL", "data_source": "INSPIRE; SusieR" },
+  { "label": "Pancreatic splicing QTL", "data_source": "splicing; GTEx" },
+  { "label": "Islet exon QTL", "data_source": "exon; INSPIRE" }
+];
 
 function IntermediatePage({ onContinue }) {
   const [error, setError] = useState(false);
@@ -55,16 +61,16 @@ function IntermediatePage({ onContinue }) {
 
   const { viewSchema } = useSelector((state) => state.viewSchema);
   const { queryResult } = useSelector((state) => state.queryResult);
-  const conversionTable = require("../utils/conversion_table.json");
   const [rootLabel, setRootLabel] = useState("");
 
-  const [selectedTab, setSelectedTab] = useState('');
+  const [selectedTab, setSelectedTab] = useState('Pancreatic eQTL');
   const [currPage, setCurrPage] = useState(1);
 
   const [notification, setNotification] = useState(true);
   const [tableColumns, setTableColumns] = useState([]);
 
   const [toolTipsData, setToolTipsData] = useState({});
+  const [queryData, setQueryData] = useState([]);
 
   const HtmlTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} classes={{ popper: className }} />
@@ -114,65 +120,41 @@ function IntermediatePage({ onContinue }) {
     setCurrPage(newPage);
   };
 
-  const processDataSources = () => {
+  useEffect(() => {
     console.log("Query Result:", JSON.stringify(queryResult, null, 2));
-    if (!queryResult?.results || queryResult.results.length === 0) {
-      return {
-        Pancreatic: {
-          "eQTL GTEx": 0,
-          "eQTL InsPIRE": 0,
-          "Splicing QTL GTEx": 0,
-          "Exon QTL InsPIRE": 0,
-        },
-        Islet: {
-          "eQTL GTEx": 0,
-          "eQTL InsPIRE": 0,
-          "Splicing QTL GTEx": 0,
-          "Exon QTL InsPIRE": 0,
-        },
-      };
-    }
-
-    const counts = {
-      Pancreatic: {
-        "eQTL GTEx": 0,
-        "eQTL InsPIRE": 0,
-        "Splicing QTL GTEx": 0,
-        "Exon QTL InsPIRE": 0,
-      },
-      Islet: {
-        "eQTL GTEx": 0,
-        "eQTL InsPIRE": 0,
-        "Splicing QTL GTEx": 0,
-        "Exon QTL InsPIRE": 0,
-      },
-    };
-
-    const results = queryResult.results;
-
-    results.forEach(result => {
-      if (!result?.credible_sets) return;
-
-
-      const uniqueCredibleSets = Array.from(
-        new Map(result.credible_sets.map(item => [item.credible_set_id, item])).values()
-      );
-
-      uniqueCredibleSets.forEach((cs) => {
-        if (!cs?.data_source) return;
-
-        const { tissue, frontendKG } = getDataSourceInfo(cs.data_source, conversionTable);
-        if (tissue && frontendKG) {
-          const tissueKey = tissue === "pancreatic" ? "Pancreatic" : "Islet";
-          counts[tissueKey][frontendKG] =
-            (counts[tissueKey][frontendKG] || 0) + 1;
-        }
-      });
-      console.log(counts["Pancreatic"]["Exon QTL InsPIRE"]);
-    });
-
-    return counts;
-  };
+    const allResults = queryResult?.results?.flatMap(result =>
+      (result?.credible_sets || []).map(cs => ({
+        ...cs,
+        credible_set_id: getCredibleSetLabel(cs).replace('_', ' ')
+      }))
+    ) || [];
+    const groupedResults = allResults.reduce((acc, item) => (
+      {
+        ...acc,
+        [item.data_source]: [
+          ...(acc[item.data_source] || []),
+          item
+        ]
+      }
+    ), {});
+    const mappedResult = tabsEnabled ? tabsQTL.map(({ label, data_source }) => (
+      {
+        label,
+        result: groupedResults[data_source] || []
+      }
+    )) : [
+      {
+        label: "Pancreatic eQTL",
+        result: allResults
+      }
+    ];
+    const deduplicatedResults = mappedResult.map(({ label, result }) => ({
+      label,
+      result: [...new Map(result.map(cs => [cs.credible_set_id, cs])).values()]
+    }));
+    console.log("Grouped Results:", deduplicatedResults);
+    setQueryData(deduplicatedResults);
+  }, [queryResult]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -204,8 +186,6 @@ function IntermediatePage({ onContinue }) {
     return descriptions[name] || "";
   };
 
-  const items = processDataSources();
-
   const searchState = useSelector((state) => state.search) || {
     sourceTerm: '',
     relationship: '',
@@ -213,8 +193,6 @@ function IntermediatePage({ onContinue }) {
     targetTermSymbol: '',
     sourceTermSymbol: '',
   };
-  console.log(searchState);
-  console.log(viewSchema?.question);
 
   const processedQuestion = viewSchema?.question?.[0]
     ? addHighlight(replaceVariables(
@@ -237,15 +215,10 @@ function IntermediatePage({ onContinue }) {
     let {
       sourceTerm,
       targetTerm,
-      sourceTermSymbol,
-      targetTermSymbol,
       relationship
     } = searchState;
     if (!question_for_result)
       return;
-
-    let sourceSymbol = sourceTermSymbol;
-    let targetSymbol = targetTermSymbol;
 
     // 从 searchTerms 中获取 geneId
     if (!sourceTerm.includes(":")) {
@@ -258,8 +231,6 @@ function IntermediatePage({ onContinue }) {
     const params = new URLSearchParams({
       sourceTerm,
       targetTerm,
-      sourceSymbol,
-      targetSymbol,
       relationship,
     });
 
@@ -290,62 +261,12 @@ function IntermediatePage({ onContinue }) {
     return `CredibleSet_${prefix}${setNumber}`;
   };
 
-  const getFilteredResults = () => {
-    const allResults = queryResult?.results?.flatMap(result =>
-      (result?.credible_sets || []).map(cs => ({
-        ...cs,
-        credible_set_id: getCredibleSetLabel(cs).replace('_', ' ')  // 添加显示标签
-      }))
-    ) || [];
-
-    const selectedResults = allResults.filter(cs => {
-      switch (selectedTab) {
-        case 'Pancreatic eQTL':
-          return cs.data_source === 'GTEx; SusieR';
-        case 'Islet eQTL':
-          return cs.data_source === 'INSPIRE; SusieR';
-        case 'Pancreatic splicing QTL':
-          return cs.data_source === 'splicing; GTEx';
-        case 'Islet exon QTL':
-          return cs.data_source === 'exon; INSPIRE';
-        default:
-          return true;
-      }
-    });
-
-    return Array.from(
-      new Map(selectedResults.map(item => [item.credible_set_id, item])).values()
-    );
-  };
-
-  const handleCredibleSetClick = (credibleSet) => {
-    console.log(credibleSet);
-  };
+  const getFilteredResults = () => (
+    queryData.find(item => item.label === selectedTab)?.result || []
+  );
 
   const handleDownload = (credibleSet) => {
     console.log(credibleSet);
-  };
-
-  const getTabOptions = () => {
-    const counts = processDataSources();
-    return [
-      {
-        label: "Pancreatic eQTL",
-        count: counts.Pancreatic["eQTL GTEx"],
-      },
-      {
-        label: "Islet eQTL",
-        count: counts.Islet["eQTL InsPIRE"],
-      },
-      {
-        label: "Pancreatic splicing QTL",
-        count: counts.Pancreatic["Splicing QTL GTEx"],
-      },
-      {
-        label: "Islet exon QTL",
-        count: counts.Islet["Exon QTL InsPIRE"],
-      },
-    ];
   };
 
   // 添加从 URL 读取参数的逻辑
@@ -383,34 +304,16 @@ function IntermediatePage({ onContinue }) {
       let specificType = `${sourceTerm.includes(":") ? "specific" : "general"} - relationship - ${targetTerm.includes(":") ? "specific" : "general"}`;
       setToolTipsData(tooltipsSchema[questionType]?.[specificType]);
     }
-  }, []); // 仅在组件挂载时执行一次
-
-  function replaceCypherTerms(cypher, sourceTerm, targetTerm, sourceSymbol = "", targetSymbol = "") {
-    const sourceType = sourceTerm.split(":")[0];
-    const sourceValue = sourceTerm.split(":")[1] || sourceType;
-    const targetType = targetTerm.split(":")[0];
-    const targetValue = targetTerm.split(":")[1] || targetType;
-
-    return cypher.replace(/@([^@]+)@/g, (match, term) => {
-      if (term === sourceType || term === `${sourceType}_id`) {
-        return sourceValue;
-      } else if (term === targetType || term === `${targetType}_id`) {
-        return targetValue;
-      } else if (term === `${sourceType}_symbol`) {
-        return sourceSymbol;
-      } else if (term === `${targetType}_symbol`) {
-        return targetSymbol;
-      }
-      return match;
-    });
-  }
+  }, []);
 
   useEffect(() => {
     if (viewSchema.cyper_for_intermediate_page) {
-      const processedCypher = replaceCypherTerms(
+      const processedCypher = replaceVariables(
         viewSchema.cyper_for_intermediate_page,
-        searchState.sourceTerm,
-        searchState.targetTerm
+        {
+          sourceTerm: searchState.sourceTerm,
+          targetTerm: searchState.targetTerm
+        }
       );
       console.log("Processed Cypher:", processedCypher);
       dispatch(queryQueryResult({ query: processedCypher })).unwrap();
@@ -428,25 +331,7 @@ function IntermediatePage({ onContinue }) {
 
   useEffect(() => {
     if (queryResult?.results) {
-      const counts = processDataSources();
-      const tabOptions = [
-        { label: "Pancreatic eQTL", count: counts.Pancreatic["eQTL GTEx"] },
-        { label: "Islet eQTL", count: counts.Islet["eQTL InsPIRE"] },
-        {
-          label: "Pancreatic splicing QTL",
-          count: counts.Pancreatic["Splicing QTL GTEx"],
-        },
-        { label: "Islet Exon QTL", count: counts.Islet["Exon QTL InsPIRE"] },
-      ];
-
-
-      // 找到第一个计数不为 0 的选项
-      const firstNonZeroTab = tabOptions.find((tab) => tab.count > 0);
-      if (firstNonZeroTab) {
-        setSelectedTab(firstNonZeroTab.label);
-      } else {
-        setSelectedTab("Pancreatic eQTL"); // 默认值
-      }
+      setSelectedTab(queryData.find(group => group.result.length > 0)?.label || 'Pancreatic eQTL');
     }
   }, [queryResult]);
 
@@ -620,11 +505,12 @@ function IntermediatePage({ onContinue }) {
                 </Alert>
 
                 {/* 添加 Tabs */}
-                <Tabs
+                {tabsEnabled && <Tabs
                   value={selectedTab}
                   onChange={handleTabChange}
                   variant="scrollable"
                   scrollButtons={false}
+
                   sx={{
                     '& .MuiButtonBase-root': {
                       padding: '10px'
@@ -651,7 +537,7 @@ function IntermediatePage({ onContinue }) {
                     }
                   }}
                 >
-                  {getTabOptions().map((option) => (
+                  {queryData.map((option) => (
                     <Tab
                       sx={{
                         backgroundColor: 'none'
@@ -670,13 +556,13 @@ function IntermediatePage({ onContinue }) {
                             // wordWrap: 'break-word'
                           }}
                         >
-                          {option.label} ({option.count})
+                          {option.label} ({option.result.length})
                         </Typography>
                       }
                       value={option.label}
                     />
                   ))}
-                </Tabs>
+                </Tabs>}
 
                 {/* 详细结果表格 */}
                 <TableContainer component={Paper} sx={{
@@ -778,7 +664,7 @@ function IntermediatePage({ onContinue }) {
                               }}
                             >
                               {tableColumns.map((column, index) => (
-                                <TableCell sx={{ verticalAlign: 'middle', textAlign: 'center' }}>
+                                <TableCell sx={{ verticalAlign: 'middle', textAlign: 'center' }} key={column.key}>
                                   {index === 0
                                     ? (<Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                                       {item[column.key]}
@@ -831,7 +717,7 @@ function IntermediatePage({ onContinue }) {
                   fontWeight: 600,
                   fontSize: 16,
                 }}>
-                  Total rows: {getTabOptions().map((option) => (option.count)).reduce((a, b) => a + b, 0)}
+                  Total rows: {queryData.map((group) => (group.result.length)).reduce((a, b) => a + b, 0)}
                 </Typography>
               </Box>
             </div>
