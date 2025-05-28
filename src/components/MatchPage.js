@@ -193,10 +193,13 @@ function MatchPage() {
 
   return (
     <Container maxWidth={false} disableGutters sx={{
-      padding: 0, display: 'flex',
+      display: 'flex',
       flexDirection: {sm: 'column', md: 'row'}, justifyContent: 'center',
       flex: 1, alignItems: 'center',
-      marginBottom: '40px',
+      paddingTop: '40px',
+      paddingLeft: {sm: 0, md: '10%'},
+      paddingRight: {sm: 0, md: '10%'},
+      paddingBottom: '40px',
       gap: {sm: 0, md: '40px'},
     }}>
 
@@ -204,14 +207,14 @@ function MatchPage() {
       <Box sx={{ 
         width: {sm: '100%', md: '50%'},
         display: 'block',
-        textAlign: 'center',
+        textAlign: 'left',
         '& img': {
-          width: '75%',
+          width: '80%',
           objectFit: 'contain',
         }
       }}>
         <img src={landingPageLogo} alt="PanKgraph" />
-        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px', alignItems: 'center' }}>
+        <Box sx={{ width: '80%', display: 'flex', justifyContent: 'center', marginTop: '20px', alignItems: 'center' }}>
           <TerminalIcon sx={{ width: '30px', color: '#C48E25' }}/>
           <Typography sx={{ marginLeft: '10px', fontSize: '20px'}}>
             Access PanKgraph with <Link
@@ -222,15 +225,12 @@ function MatchPage() {
       </Box>
 
       {/* 右侧内容区域 */}
-      {/* 右侧内容区域 */}
       <Box sx={{ 
-        width: {sm: '80%', md: '44%'},
+        width: {sm: '80%', md: '50%'},
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
         gap: 3,
-        marginRight: {sm: 0, md: 20},
-        marginTop: {sm: 0, md: '40px'},
         backgroundColor: '#E4F0F1',
         borderRadius: '20px',
         padding:3,
@@ -240,6 +240,7 @@ function MatchPage() {
           fontSize: 28,
           fontWeight: 700,
           textAlign: 'left', 
+          fontFamily: 'Open Sans',
         }}>
           {questionData.matched_page_title}
         </Typography>
@@ -254,7 +255,7 @@ function MatchPage() {
             marginRight: 2,
           }}
         >
-          CANCEL/RETURN
+          CANCEL
         </Link>
       </Box>
       <Box sx={{ 
@@ -268,6 +269,7 @@ function MatchPage() {
           color: '#398289',
           fontSize: 17,
           fontWeight: 600,
+          fontFamily: 'Open Sans',
         }}>
         {questionData.matched_page_sub_title}
         </Typography>
@@ -284,11 +286,18 @@ function MatchPage() {
           {renderSequence()}
         </Box>
       </Box>
-      
+      <Box sx={{ 
+        display: 'flex',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
+        flexDirection: 'column',
+      }}>
       <Typography sx={{ 
           color: '#398289',
           fontSize: 17,
           fontWeight: 600,
+          fontFamily: 'Open Sans',
+          marginBottom: 2,
         }}>
         Graph visualization
       </Typography>
@@ -299,10 +308,11 @@ function MatchPage() {
         display: 'flex',
         flexWrap: 'wrap',
         padding: 2,
+        width: 'calc(100% - 32px)', 
       }}>
         {visualPattern}
       </Box>
-        
+      </Box>
       <Button
       variant="contained" // Use a contained button for emphasis
       color="primary" // Use the primary color
