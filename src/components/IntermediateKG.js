@@ -59,7 +59,7 @@ function IntermediateKG({ data }) {
     const branches = credible_sets.map((credible_set) => (
       {
         edge1: generateEdgeLabel(credible_set.data_source, conversionTable),
-        node1: getCredibleSetLabel(credible_set.credible_set_id, credible_set.data_source).replace('_', ' '),
+        node1: getCredibleSetLabel(credible_set.credible_set_id, credible_set.data_source).replace(/_/g, ' '),
         edge2: "lead SNP",
         node2: credible_set.snp
       }

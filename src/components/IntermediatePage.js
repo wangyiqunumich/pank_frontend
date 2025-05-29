@@ -125,7 +125,7 @@ function IntermediatePage({ onContinue }) {
     const allResults = queryResult?.results?.flatMap(result =>
       (result?.credible_sets || []).map(cs => ({
         ...cs,
-        credible_set_id: getCredibleSetLabel(cs).replace('_', ' ')
+        credible_set_id: getCredibleSetLabel(cs).replace(/_/g, ' ')
       }))
     ) || [];
     const groupedResults = allResults.reduce((acc, item) => (

@@ -72,7 +72,8 @@ export const nodeStyle = nodeColorsList.map(({ color, type }) => ({
     selector: `node[type = "${type}"][Level = "Neighbor"]`,
     style: {
       shape: "round-rectangle",
-      "background-opacity": 0,
+      "background-opacity": 1,
+      "background-color": "white",
       "border-width": 2,
       "border-color": color,
       label: "data(label)",
