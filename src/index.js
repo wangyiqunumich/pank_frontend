@@ -21,6 +21,7 @@ import { Container } from "@mui/material";
 import UsecasesPage from "./pages/UsecasePage";
 import QTLDataSource from "./pages/QTL_data_source";
 import Pipeline from "./pages/Pipeline";
+import DebugPage from "./components/Debug";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -45,6 +46,7 @@ root.render(
             <Route path="/docs/*" element={<DocPage />} />
             <Route path="/match" element={<MatchPage />} />
             <Route path="/" element={<LandingPage />} />
+            <Route path="/debug" element={<DebugPage />} />
           </Routes>
           <PkbFooter />
         </BrowserRouter>

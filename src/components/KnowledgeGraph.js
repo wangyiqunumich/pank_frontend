@@ -74,7 +74,7 @@ export default function KnowledgeGraph() {
             node["~labels"].includes("gene") || node["~id"].slice(0, 2) === "CL_"
               ? node["~properties"].name
               : node["~properties"].id
-          ).replace('_', ' '),
+          ).replace(/_/g, " "),
           type,
           Level: posData.Level,
         },
