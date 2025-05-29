@@ -8,19 +8,33 @@ import Question from './Question';
 import { useDispatch, useSelector } from 'react-redux';
 import { queryVocab } from '../redux/inputToVocabSlice'; // Import the action
 import Popper from '@mui/material/Popper';
+import './styles.css';
 
 function MatchPage() {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [selectedQuestion, setSelectedQuestion] = useState('');
   const [qid, setQid] = useState('');
-  const [visualPattern, setVisualPattern] = useState('');
   const dispatch = useDispatch();
   const [options, setOptions] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
+  const [geneId, setGeneId] = useState('');
+  const [cellId, setCellId] = useState('');
+  const [snpId, setSnpId] = useState('');
+
   const navigate = useNavigate();
   const location = useLocation();
   const questionData = location.state;
+  const [visualPattern, setVisualPattern] = useState(questionData.pattern_for_the_matched_page);
+
+  const partofquestion = questionData.question.split(/(\s+|\{.*?\}|\(.*?\))/); // 根据{} 或（）将字符串分割成部分，其余按照空格分割成部分
+  const dictionary = {};
+  partofquestion.forEach((part, index) => {
+    if (part.startsWith('{') && part.endsWith('}')) {
+      dictionary[index] = part.slice(1, -1).split('@')[0]; // Extract the type from the part
+    }
+  });
+  console.log('dictionary', dictionary);
 
   // Extract this page's question and qid from URL
   useEffect(() => {
@@ -28,7 +42,7 @@ function MatchPage() {
     const questionFromUrl = params.get('question'); // 获取'question'参数
     const qidFromUrl = params.get('qid'); // 获取'qid'参数
     if (questionFromUrl) {
-      setSelectedQuestion(decodeURIComponent(questionFromUrl)); // 解码问题并设置它
+      setSelectedQuestion(decodeURIComponent(questionFromUrl)); // 解码问题并设置它 
       setQid(qidFromUrl);
     }
   }, []);
@@ -46,24 +60,44 @@ function MatchPage() {
 
   // Handle submit button click
   const handleSubmit = () => {
+    if(selectedQuestion.startsWith('What is')){
+      const url = `/result?sourceTerm=gene:${geneId.split('(')[1].slice(0, -1)}&targetTerm=cell_type:CL_0002064&relationship=express_in`
+      navigate(url);
+    }
+    else{
     const consequenceMatch = selectedQuestion.match(/\{(.*?)\}|\(.*?\)/g);
     const sourceTerm = consequenceMatch[0] ? consequenceMatch[0].replace(/[{}()]/g, '') : '';
     const relationTerm = consequenceMatch[1] ? consequenceMatch[1].replace(/[{}()]/g, '') : '';
     const target = consequenceMatch[2] ? consequenceMatch[2].replace(/[{})]/g, '') : '';
     const [targetSymbol, targetTerm] = target.split('(');
-    const url = `/intermediate?qid=${qid}&sourceTerm=${sourceTerm.toLowerCase()}&relationship=${relationTerm}&targetTerm=gene:${targetTerm}&targetSymbol=${targetSymbol}&question=${selectedQuestion}`;
+    const url = `/intermediate?sourceTerm=${sourceTerm.toLowerCase()}&relationship=${relationTerm}&targetTerm=gene:${targetTerm}&targetSymbol=${targetSymbol}`;
     navigate(url);
+    }
   };
 
-  function updateSource(newInputValue) {
+  function updateSource(newInputValue,type,index) {
     const geneName = newInputValue;
     dispatch(queryVocab({input: geneName})).unwrap() 
     .then((response) => 
-      { if (response) {
-        console.log('response in updateSource', response);
-        console.log('geneName', geneName);
-        const geneId = response.replace('gene', geneName);
-        setOptions([geneId]);
+      { if (response && typeof response.result === 'string') {
+        const parsedResponse = response.result.split('@');
+        if (parsedResponse.length > 1) {
+          if(type === 'gene'&& parsedResponse[0] === 'gene'){
+            const geneId = `${geneName}(${parsedResponse[1]})`;
+            setGeneId(geneId);
+            setOptions([geneId]);
+          }
+          else if(type === 'cell'&& parsedResponse[0] === 'cell'){
+            const cellId = `${geneName}(${parsedResponse[1]})`;
+            setCellId(cellId);
+            setOptions([cellId]);
+          }
+          else if(type === 'snp'&& parsedResponse[0] === 'snp'){
+            const snpId = `${geneName}(${parsedResponse[1]})`;
+            setSnpId(snpId);
+            setOptions([snpId]);
+          }
+        }
       }});
   };
 
@@ -88,15 +122,16 @@ function MatchPage() {
           </Box>
         );
       } else if (part.startsWith('{') && part.endsWith('}')) {
+        const type = part.slice(1, -1).split('@')[0];
         return (
           <Box key={index} sx={{ display: 'inline-flex', alignItems: 'center',marginLeft: '-8px' }} >
             <Autocomplete
               freeSolo
-              options={options.map((option) => option.split('@').join('(').concat(')'))}
-              value={part.slice(1, -1)?part.slice(1, -1):''}
+              options={options}
+              className={dictionary[index]}
               onInputChange={(event, newInputValue) => {
                 if(newInputValue) {
-                  updateSource(newInputValue);
+                  updateSource(newInputValue,type);
                   setIsSubmitDisabled(!options.includes(newInputValue));
                 }else{
                   setOptions([]);
@@ -119,6 +154,7 @@ function MatchPage() {
               renderInput={(params) => (
                 <TextField
                   {...params}
+                  placeholder={part.slice(1, -1).split('@')[1]}
                   onChange={(e) => {
                     setInputValue(e.target.value);  // 更新输入值
                     if (e.target.value) {
@@ -126,9 +162,6 @@ function MatchPage() {
                     }
                   }}
                   sx={{
-                    backgroundColor: '#EFF5FF',
-                    border: '1px solid #71B9FA',
-                    borderRadius: '8px',
                     width: 'auto !important',
                     mx: 1,
                     '& .MuiAutocomplete-input':{
@@ -136,7 +169,7 @@ function MatchPage() {
                     },
                     '& .MuiOutlinedInput-root':{
                       width: '100%',
-                      padding: '0px 8px !important',
+                      padding: '0!important',
                       '& fieldset': {
                         border: 'none',
                       },
@@ -175,20 +208,20 @@ function MatchPage() {
 
   useEffect(() => {
     if (selectedQuestion) {
-      if (isSubmitDisabled) {
-        const tobeConnected = selectedQuestion.replace(/\{.*?\}/g, '{?}');
-        const connectedString = tobeConnected.match(/\(\s*.*?\s*\)|\{\s*.*?\s*\}/g).join('-');
+        let connectedString = visualPattern;
+        if (geneId) {
+          connectedString = connectedString.replace(/\{gene@.*?@}/, `{gene@${geneId}@}`);
+        }
+        if (cellId) {
+          connectedString = connectedString.replace(/\{ontology@.*?@}/, `{ontology@${cellId}@}`);
+        }
+        if (snpId) {
+          connectedString = connectedString.replace(/\{snp@.*?@}/, `{snp@${snpId}@}`);
+        }
         setVisualPattern(connectedString);
-      }
-      else{
-        const extractedParts = selectedQuestion.match(/\(\s*.*?\s*\)|\{\s*.*?\s*\}/g);
-        const connectedString = extractedParts.join('-');
-        setVisualPattern(connectedString);
-        console.log('visual pattern', connectedString);
-      }
       
     }
-  }, [selectedQuestion]);
+  }, [selectedQuestion, geneId, cellId, snpId]);
 
 
   return (

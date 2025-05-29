@@ -3,3 +3,22 @@
 body {
     font-family: 'Open Sans', sans-serif;
 }
+
+.gene{
+    background-color: #EFF5FF;
+    border: 1px solid  #71B9FA;
+    border-radius: 8px;
+}
+
+.cell{
+    border: 1px solid #f6c957;
+    background-color: rgba(246, 201, 87, 0.4);
+    border-radius: 8px;
+}
+
+.snp{
+    border: 1px solid #FFB77F;
+    background-color: rgba(255, 183, 127, 0.4);
+    border-radius: 8px;
+}
+
