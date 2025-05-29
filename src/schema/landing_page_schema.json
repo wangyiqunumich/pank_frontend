@@ -33,7 +33,7 @@
 	},
 	{
 	"question":
-		"Which (gene) is regulated by {SNP@snp@} as a (QTL)?",
+		"Which (gene) is regulated by {snp@snp@} as a (QTL)?",
 	"landing_page_subtitle":
 "The snp will be specified in the next step",
 	"terms":
