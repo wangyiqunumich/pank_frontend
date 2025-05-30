@@ -10,7 +10,6 @@ import Collapse from "@mui/material/Collapse";
 import SouthWestIcon from '@mui/icons-material/SouthWest';
 import NorthEastIcon from '@mui/icons-material/NorthEast';
 import IconButton from '@mui/material/IconButton';
-import { type } from "@testing-library/user-event/dist/type";
 
 const LegendItem = ({ type, sx }) => (
   <span
@@ -94,9 +93,6 @@ export default function KnowledgeGraph() {
         ...edge["~properties"],
       },
     }));
-    console.log("Edges:", edges);
-    console.log("Nodes:", nodes);
-    console.log(nodeStyle);
 
     cyRef.current = cytoscape({
       container: document.getElementById("cy-container"),
@@ -108,8 +104,7 @@ export default function KnowledgeGraph() {
       maxZoom: 4,
       pan: { x: 0, y: 0 },
     });
-
-    cyRef.current.on("mouseover", "node", (evt) => {
+    const handleHover = (evt) => {
       // Clear any existing timers immediately
       clearTimeout(hoverTimeoutRef.current);
       clearTimeout(fadeOutTimeoutRef.current);
@@ -122,7 +117,9 @@ export default function KnowledgeGraph() {
       const containerRect = container.getBoundingClientRect();
       const containerWidth = containerRect.width;
       const containerHeight = containerRect.height;
-      const { x: modelX, y: modelY } = cyRef.current.$(evt.target).position();
+      const ele = cyRef.current.$(evt.target);
+      const { x: modelX, y: modelY } =
+        ele.isNode() ? ele.position() : ele.midpoint();
       const x = modelX * cyRef.current.zoom() + cyRef.current.pan().x;
       const y = modelY * cyRef.current.zoom() + cyRef.current.pan().y;
 
@@ -149,9 +146,9 @@ export default function KnowledgeGraph() {
       hoverTimeoutRef.current = setTimeout(() => {
         setTooltipVisible(true);
       }, 80);
-    });
+    };
 
-    cyRef.current.on("mouseout", "node", (evt) => {
+    const handleOut = (evt) => {
       document.body.style.cursor = "default";
       clearTimeout(hoverTimeoutRef.current);
 
@@ -167,7 +164,12 @@ export default function KnowledgeGraph() {
           }
         }, 300);
       }
-    });
+    };
+
+    cyRef.current.on("mouseover", "node", handleHover);
+    cyRef.current.on("mouseout", "node", handleOut);
+    cyRef.current.on("mouseover", "edge", handleHover);
+    cyRef.current.on("mouseout", "edge", handleOut);
 
     cyRef.current.on("cxttap", "node", (evt) => {
       setTooltipVisible(false);
@@ -375,6 +377,7 @@ export default function KnowledgeGraph() {
             transition: "opacity 0.15s, display 0.15s, left 0.15s, top 0.15s",
             transitionBehavior: "allow-discrete",
             willChange: "transform, opacity", // Performance hint for smoother animations
+            wordWrap: "break-word",
           }}
         >
           <div style={{ fontWeight: "bold", marginBottom: "8px" }}>

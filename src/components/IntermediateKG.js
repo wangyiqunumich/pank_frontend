@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import Cytoscape from 'cytoscape';
 import coseBilkent from 'cytoscape-cose-bilkent';
-import { useSelector } from 'react-redux';
-import { generateEdgeLabel } from '../utils/textProcessing';
+import { getGeneSymbol, generateEdgeLabel } from '../utils/textProcessing';
+import { nodeAutoWidth } from './style.js';
 
 Cytoscape.use(coseBilkent);
 
@@ -26,108 +26,67 @@ function IntermediateKG({ data }) {
       return;
     }
     console.log('data', data);
-
-    const getCredibleSetLabel = (nodeId, dataSource) => {
-      let prefix = '';
-      switch (dataSource) {
-        case 'GTEx; SusieR':
-          prefix = 'A';
-          break;
-        case 'INSPIRE; SusieR':
-          prefix = 'B';
-          break;
-        case 'splicing; GTEx':
-          prefix = 'C';
-          break;
-        case 'exon; INSPIRE':
-          prefix = 'D';
-          break;
-        default:
-          return nodeId;
-      }
-
-      const setNumber = nodeId.split('_').pop().slice(11);
-      return `CredibleSet_${prefix}${setNumber}`;
-    };
-
+    const intersectPositions = data.intersectPositions || [];
     const credible_sets = data.credible_sets;
-
-    const root_label = data.root;
-
-    console.log('credible_sets', credible_sets);
-
-    const branches = credible_sets.map((credible_set) => (
+    const edgeOrientation = 'right';
+    const edgeLabels = {
+      left: generateEdgeLabel(credible_sets[0].data_source, conversionTable),
+      right: "lead SNP"
+    }
+    const graphPaths = credible_sets.map((credible_set) => (
       {
-        edge1: generateEdgeLabel(credible_set.data_source, conversionTable),
-        node1: getCredibleSetLabel(credible_set.credible_set_id, credible_set.data_source).replace(/_/g, ' '),
-        edge2: "lead SNP",
-        node2: credible_set.snp
+        left: getGeneSymbol(credible_set.credible_set_raw_id),
+        mid: credible_set.credible_set_id,
+        right: credible_set.snp
       }
     ));
 
-    console.log('branches', branches);
-
     const typesDetail = {
-      'root': 'gene',
+      'left': 'gene',
       'mid': 'credible_set',
-      'leaf': 'sequence_variant'
+      'right': 'sequence_variant'
     };
 
-    const nodes = branches.map((branch, index) => (
-      [
-        {
-          id: `node${index * 2}`,
-          index: index * 2,
-          type: 'mid',
-          label: branch.node1
-        },
-        {
-          id: `node${index * 2 + 1}`,
-          index: index * 2 + 1,
-          type: 'leaf',
-          label: branch.node2,
-        }
-      ]
-    )).flat().concat(
-      [{
-        id: 'node_root',
-        index: -1,
-        type: 'root',
-        label: root_label
-      }]
+    const nodes =
+      ["left", "mid", "right"].flatMap((type) => (
+        (intersectPositions.includes(type)
+          ? [graphPaths[0]]
+          : graphPaths
+        ).map((path, index) => (
+          {
+            id: `node_${type}_${index}`,
+            index: index,
+            type: type,
+            label: path[type]
+          }
+        ))
+      ));
+
+    const helper = (type, index) => (
+      intersectPositions.includes(type)
+        ? `node_${type}_0`
+        : `node_${type}_${index}`
     );
 
-    const edges = branches.map((branch, index) => (
-      [
-        {
-          id: `edge${index * 2}`,
-          start: `node_root`,
-          end: `node${index * 2}`,
-          label: branch.edge1
-        },
-        {
-          id: `edge${index * 2 + 1}`,
-          start: `node${index * 2}`,
-          end: `node${index * 2 + 1}`,
-          label: branch.edge2
-        }
-      ]
-    )).flat();
+    const edges = Array.from({ length: graphPaths.length }, (_, i) => ({
+      id: `edge_left_${i}`,
+      start: helper("left", i),
+      end: helper("mid", i),
+      label: edgeLabels.left
+    })).concat(
+      Array.from({ length: graphPaths.length }, (_, i) => ({
+        id: `edge_mid_${i}`,
+        start: helper("mid", i),
+        end: helper("right", i),
+        label: edgeLabels.right
+      }))
+    ).map((rel) => (
+      edgeOrientation === 'left'
+        ? { ...rel, start: rel.end, end: rel.start }
+        : rel
+    ));
 
-    // 计算每种类型节点的数量
-    // const typeCounts = nodes.reduce((acc, node) => {
-    //   if (node.type.includes('gene')) acc.gene++;
-    //   else if (node.type.includes('credible_set')) acc.credible_set++;
-    //   else if (node.type.includes('sequence_variant')) acc.variant++;
-    //   return acc;
-    // }, { gene: 0, credible_set: 0, variant: 0 });
-
-    // const typeCounts = nodes.reduce((acc, node) => ({
-    //   ...acc,
-    //   [node.type]: (acc[node.type] || 0) + 1
-    // }), { root: 0, mid: 0, leaf: 0 });
-
-    const totalHeight = (branches.length - 1) * 100;
+    const totalHeight = (graphPaths.length - 1) * 100;
     const startY = 250 - (totalHeight / 2);
 
     const cyNodes = nodes.map(node => {
@@ -137,33 +96,20 @@ function IntermediateKG({ data }) {
           id: node.id,
           label: node.label,
           color: colorMap[typesDetail[node.type]],
-          width: 170,
-          height: 46,
-          fontSize: '20px',
         },
         locked: true
       };
+      // 基因节点居中
+      return {
+        ...baseNodeConfig,
+        position: {
+          x: ({ left: 0, mid: 450, right: 800 })[node.type],
+          y: intersectPositions.includes(node.type)
+            ? 250
+            : (startY + node.index * 100)
+        }
+      };
 
-      let yOffset;
-      if (node.type === 'root') {
-        // 基因节点居中
-        return {
-          ...baseNodeConfig,
-          position: { x: 0, y: 250 }
-        };
-      } else if (node.type === 'mid') {
-        yOffset = startY + (node.index * 50);
-        return {
-          ...baseNodeConfig,
-          position: { x: 425, y: yOffset }
-        };
-      } else if (node.type === 'leaf') {
-        yOffset = startY + ((node.index - 1) * 50);
-        return {
-          ...baseNodeConfig,
-          position: { x: 725, y: yOffset }
-        };
-      }
     });
 
     // 创建边的数据
@@ -172,8 +118,8 @@ function IntermediateKG({ data }) {
         group: 'edges',
         data: {
           id: rel.id,
-          source: rel.end,  // 保持反转的方向
-          target: rel.start,
+          source: rel.start,
+          target: rel.end,
           label: rel.label,
         }
       }
@@ -186,20 +132,24 @@ function IntermediateKG({ data }) {
 
     const cy = Cytoscape({
       container: containerRef.current,
-      elements: [...cyNodes, ...cyEdges],
+      elements: {
+        nodes: cyNodes,
+        edges: cyEdges
+      },
       style: [
         {
           selector: 'node',
           style: {
             'shape': 'round-rectangle',
-            'width': 'data(width)',
-            'height': 'data(height)',
+            'height': '20px',
             'background-color': 'data(color)',
             'label': 'data(label)',
             'text-valign': 'center',
             'text-halign': 'center',
-            'font-size': 'data(fontSize)',
+            'font-size': '20px',
+            'padding': '15px',
             'color': 'white',
+            'width': nodeAutoWidth,
             'text-wrap': 'wrap'
           }
         },

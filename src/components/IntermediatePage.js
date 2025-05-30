@@ -43,6 +43,7 @@ import './styles.css'
 import {
   replaceVariables,
   addHighlight,
+  getGeneSymbol,
 } from '../utils/textProcessing';
 
 const tabsEnabled = true;
@@ -54,13 +55,67 @@ const tabsQTL = [
   { "label": "Islet exon QTL", "data_source": "exon; INSPIRE" }
 ];
 
+const debugResult = {
+  "results": [
+    {
+      "data_source": "splicing; GTEx",
+      "credible_sets":
+        [
+          {
+            "snp": "rs9825709",
+            "pip": 0.002510642,
+            "nominal_p": 1.05e-19,
+            "effect_allele": "C",
+            "other_allele": "A",
+            "slope": -1.143532515,
+            "lbf": 47.47790809,
+            "credible_set_id": "ENSG00000114446__IFT57__chr3:108163729:108165431:clu_33823:ENSG00000114446.4__credibleSet1",
+            "data_source": "splicing; GTEx",
+            "lead_snp": "rs143904562",
+            "lead_pip": 0.09480172
+          },
+          {
+            "snp": "rs9825709",
+            "pip": 0.003613378,
+            "nominal_p": 1.91e-14,
+            "effect_allele": "C",
+            "other_allele": "A",
+            "slope": 0.517691791,
+            "lbf": 31.46565297,
+            "credible_set_id": "ENSG00000114446__IFT57__credibleSet1",
+            "data_source": "splicing; GTEx",
+            "lead_snp": "3:107911164_AATTT_A",
+            "lead_pip": 0.009462504
+          }
+        ]
+    }
+  ]
+};
+
 function IntermediatePage({ onContinue }) {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
 
   const { viewSchema } = useSelector((state) => state.viewSchema);
-  const { queryResult } = useSelector((state) => state.queryResult);
+  const { queryResult: queryResultDebugging } = useSelector((state) => state.queryResult);
+  const [queryResult, setQueryResult] = useState({});
+
+  const searchState = useSelector((state) => state.search) || {
+    sourceTerm: '',
+    relationship: '',
+    targetTerm: '',
+    targetTermSymbol: '',
+    sourceTermSymbol: '',
+  };
+
+  useEffect(() => {
+    if (searchState?.sourceTerm === "snp:rs9825709") {
+      setQueryResult(debugResult);
+    } else {
+      setQueryResult(queryResultDebugging);
+    }
+  }, [queryResultDebugging, searchState]);
   const [rootLabel, setRootLabel] = useState("");
 
   const [selectedTab, setSelectedTab] = useState('Pancreatic eQTL');
@@ -109,7 +164,20 @@ function IntermediatePage({ onContinue }) {
   const floatKeys = [
     "purity",
     "pip",
+    "lead_pip"
   ];
+
+  const tableValue = (item, column) => {
+    // replace parts of the column.key that are not '(', ')', or ' '
+    if (!item || !column || !column.key) return "-";
+    return column.key.replace(/([^(\s)]+)/g, (match) => (
+      item[match]
+        ? (floatKeys.includes(match)
+          ? item[match].toFixed(2)
+          : item[match]
+        ) : "-"
+    ));
+  };
 
   const handleTabChange = (event, newValue) => {
     setCurrPage(1);
@@ -125,7 +193,9 @@ function IntermediatePage({ onContinue }) {
     const allResults = queryResult?.results?.flatMap(result =>
       (result?.credible_sets || []).map(cs => ({
         ...cs,
-        credible_set_id: getCredibleSetLabel(cs).replace(/_/g, ' ')
+        credible_set_id: getCredibleSetLabel(cs).replace(/_/g, ' '),
+        gene_symbol: getGeneSymbol(cs.credible_set_id),
+        credible_set_raw_id: cs.credible_set_id,
       }))
     ) || [];
     const groupedResults = allResults.reduce((acc, item) => (
@@ -150,7 +220,7 @@ function IntermediatePage({ onContinue }) {
     ];
     const deduplicatedResults = mappedResult.map(({ label, result }) => ({
       label,
-      result: [...new Map(result.map(cs => [cs.credible_set_id, cs])).values()]
+      result: [...new Map(result.map(cs => [cs.credible_set_raw_id, cs])).values()]
     }));
     console.log("Grouped Results:", deduplicatedResults);
     setQueryData(deduplicatedResults);
@@ -184,14 +254,6 @@ function IntermediatePage({ onContinue }) {
         "Identifies genetic variants influencing RNA splicing in pancreatic tissue using GTEx data.",
     };
     return descriptions[name] || "";
-  };
-
-  const searchState = useSelector((state) => state.search) || {
-    sourceTerm: '',
-    relationship: '',
-    targetTerm: '',
-    targetTermSymbol: '',
-    sourceTermSymbol: '',
   };
 
   const processedQuestion = viewSchema?.question?.[0]
@@ -236,9 +298,16 @@ function IntermediatePage({ onContinue }) {
     return `CredibleSet_${prefix}${setNumber}`;
   };
 
-  const getFilteredResults = () => (
-    queryData.find(item => item.label === selectedTab)?.result || []
-  );
+  // const getFilteredResults = () => (
+  //   queryData.find(item => item.label === selectedTab)?.result || []
+  // );
+  // print 
+
+  const getFilteredResults = () => {
+    const filteredData = queryData.find(item => item.label === selectedTab)?.result || [];
+    console.log("Filtered Results:", filteredData);
+    return filteredData;
+  };
 
   const handleDownload = (credibleSet) => {
     console.log(credibleSet);
@@ -291,11 +360,16 @@ function IntermediatePage({ onContinue }) {
         }
       );
       console.log("Processed Cypher:", processedCypher);
-      dispatch(queryQueryResult({ query: processedCypher })).unwrap();
+
+      // TODO: remove debug condition
+      if (searchState?.sourceTerm !== "snp:rs9825709") {
+        dispatch(queryQueryResult({ query: processedCypher })).unwrap();
+      }
     }
   }, [viewSchema, searchState.sourceTerm, searchState.targetTerm]);
 
   useEffect(() => {
+    console.log("View Schema:", viewSchema);
     setTableColumns(
       viewSchema?.intermediate_page_table?.map((column) => ({
         label: Object.keys(column)[0] || "",
@@ -475,7 +549,7 @@ function IntermediatePage({ onContinue }) {
                     </IconButton>
                   }
                 >
-                  Select an SNP entry below and click "Click for more" to see detailed relationship data
+                  Select an SNP entry below and click "View" to see detailed relationship data
                 </Alert>
 
                 {/* 添加 Tabs */}
@@ -543,7 +617,7 @@ function IntermediatePage({ onContinue }) {
                   border: '1px solid #727272',
                   boxShadow: '0px 0px 0px 0px rgba(0,0,0,0.2)',
                   height: '100%',
-                  maxHeight: '410px',
+                  maxHeight: '600px',
                   borderRadius: '8px',
                 }}>
                   <Table
@@ -610,7 +684,7 @@ function IntermediatePage({ onContinue }) {
                       {getFilteredResults()
                         .concat(Array(5).fill({}))
                         .slice((currPage - 1) * 5, currPage * 5)
-                        .map((item, index) => (
+                        ?.map((item, index) => (
                           Object.keys(item).length === 0 ? (
                             <TableRow key={`empty-row-${index}`} sx={{
                               '& .MuiTableCell-root': {
@@ -637,7 +711,7 @@ function IntermediatePage({ onContinue }) {
                                 }
                               }}
                             >
-                              {tableColumns.map((column, index) => (
+                              {tableColumns?.map((column, index) => (
                                 <TableCell sx={{ verticalAlign: 'middle', textAlign: 'center' }} key={column.key}>
                                   {index === 0
                                     ? (<Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
@@ -646,22 +720,17 @@ function IntermediatePage({ onContinue }) {
                                         <DownloadIcon />
                                       </IconButton>
                                     </Box>)
-                                    : (item[column.key]
-                                      ? (floatKeys.includes(column.key)
-                                        ? item[column.key].toFixed(2)
-                                        : item[column.key]
-                                      ) : "-"
-                                    )
+                                    : tableValue(item, column, column)
                                   }
                                 </TableCell>))
                               }
                               <TableCell sx={{ verticalAlign: 'middle' }}>
                                 <Typography sx={{
                                   fontFamily: 'Open Sans',
-                                  fontSize: '14px', padding: '4px', backgroundColor: '#219197',
+                                  fontSize: '16px', paddingY: '8px', paddingX: '12px', backgroundColor: '#219197',
                                   textAlign: 'center', borderRadius: '8px', color: 'white',
                                   fontWeight: 700,
-                                }} onClick={() => handleSNPClick(item)}>Click for more</Typography>
+                                }} onClick={() => handleSNPClick(item)}>View</Typography>
                               </TableCell>
                             </TableRow>
                           )
@@ -728,7 +797,7 @@ function IntermediatePage({ onContinue }) {
             }}>
               Graph viewer<TooltipComponent title="Graph viewer" content="Graph viewer." />
             </Typography>
-            <IntermediateKG data={{ credible_sets: getFilteredResults().slice((currPage - 1) * 5, currPage * 5), root: rootLabel }} />
+            <IntermediateKG data={{ credible_sets: getFilteredResults().slice((currPage - 1) * 5, currPage * 5), type: "credible_set", intersectPositions: ["left"] }} />
           </Box>
 
           {/* Legend */}

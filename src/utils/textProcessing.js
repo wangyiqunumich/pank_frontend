@@ -37,6 +37,13 @@ export function replaceVariables(text, variables, replaceUnderscore = false) {
   return replacedText;
 }
 
+export const getGeneSymbol = (nodeId) => {
+  if (!nodeId) return '';
+  const parts = nodeId.split('_');
+  if (parts?.length < 3) return '';
+  return parts[2];
+}
+
 // 从conversion table中获取数据源对应的前端显示和组织信息
 export const getDataSourceInfo = (dataSource, conversionTable) => {
   if (!dataSource || !conversionTable?.Conversion_table) {
