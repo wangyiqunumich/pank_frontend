@@ -111,12 +111,15 @@ function MatchPage() {
           <Box
             key={index}
             sx={{
-              backgroundColor: '#F2F6FC',
-              border: '1px dotted #95A6A6',
-              padding: '2px 8px',
-              borderRadius: '8px',
-              marginRight: '8px',
-              display: 'inline-block',
+              // backgroundColor: '#F2F6FC',
+              // border: '1px dotted #95A6A6',
+              // padding: '2px 8px',
+              // borderRadius: '8px',
+              // marginRight: '8px',
+              // display: 'inline-block',
+              fontStyle: 'italic',
+              fontFamily: 'Open Sans',
+              fontWeight: 600,
             }}
           >
             {part.slice(1, -1)} {/* Remove the enclosing parentheses */}
@@ -173,6 +176,8 @@ function MatchPage() {
                   }}
                   sx={{
                     width: 'auto !important',
+                    fontFamily: 'Open Sans',
+                    fontWeight: 600,
                     mx: 1,
                     '& .MuiAutocomplete-input':{
                       width: '60px !important',
@@ -207,6 +212,8 @@ function MatchPage() {
             sx={{
               marginRight: '4px',
               display: 'inline-block',
+              fontFamily: 'Open Sans',
+              fontWeight: 600,
             }}
           >
             {part}
@@ -238,7 +245,7 @@ function MatchPage() {
     <Container maxWidth={false} disableGutters sx={{
       display: 'flex',
       flexDirection: {sm: 'column', md: 'row'}, justifyContent: 'center',
-      flex: 1, alignItems: 'center',
+      flex: 1, alignItems: 'top',
       paddingTop: '40px',
       paddingLeft: {sm: 0, md: '10%'},
       paddingRight: {sm: 0, md: '10%'},
@@ -272,6 +279,7 @@ function MatchPage() {
       <Box sx={{ 
         width: {sm: '80%', md: '50%'},
         height: '100%',
+        marginTop: {sm: '0px', md: '20px'},
         display: 'flex',
         flexDirection: 'column',
         gap: 3,
@@ -295,6 +303,7 @@ function MatchPage() {
             color: '#398289',
             fontSize: 16,
             fontWeight: 600,
+            fontFamily: 'Open Sans',
             cursor: 'pointer',
             marginRight: 2,
           }}
@@ -353,6 +362,8 @@ function MatchPage() {
         flexWrap: 'wrap',
         padding: 2,
         width: 'calc(100% - 32px)', 
+        fontFamily: 'Open Sans',
+        fontWeight: 600,
       }}>
         {visualPattern}
       </Box>
@@ -368,6 +379,7 @@ function MatchPage() {
         fontWeight: 600, // Bold text
         borderRadius: '8px', // Rounded corners
         padding: '8px 16px', // Add padding
+        fontFamily: 'Open Sans',
         '&:hover': {
           backgroundColor: '#1A7A75', // Darker shade on hover
         },
