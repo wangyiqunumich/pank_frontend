@@ -6,6 +6,7 @@ import './scoped.css';
 import KnowledgeGraph from '../components/KnowledgeGraph';
 import { queryAiAnswer } from '../redux/aiAnswerSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
+import { queryArticles } from '../redux/articlesSlice';
 import { setProcessedQuestion } from '../redux/processedQuestionSlice';
 import { replaceVariables, addHighlight } from '../utils/textProcessing';
 import { queryQueryResultPage } from '../redux/queryResultPage';
@@ -91,9 +92,10 @@ function SearchResult() {
     const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
     const { aiAnswer, queryAiAnswerStatus } = useSelector((state) => state.aiAnswer);
     const { viewSchema } = useSelector((state) => state.viewSchema);
+    const { articles } = useSelector((state) => state.articles);
     const [variables, setVariables] = useState({});
     const [referenceData, setReferenceData] = useState({});
-    const [articleData, setArticleData] = useState([]);
+    const [articlesData, setArticlesData] = useState({});
     useEffect(() => {
         if (viewSchema?.resources_tabs) {
             const data = viewSchema.resources_tabs;
@@ -106,6 +108,34 @@ function SearchResult() {
             });
         }
     }, [viewSchema, variables]);
+
+    useEffect(() => {
+        console.log(articlesData);
+    }, [articlesData]);
+
+    useEffect(() => {
+        if (aiAnswer?.articles?.length > 0) {
+            const pmids = aiAnswer.articles.map(article => article.pmid);
+            dispatch(queryArticles({
+                db: 'pubmed',
+                id: pmids.join(','),
+                retmode: 'json',
+            })).then((response) => {
+                console.log("Articles data:", response.payload);
+                const sortedArticles = aiAnswer.articles.toSorted((a, b) => b.score - a.score);
+                setArticlesData(
+                    sortedArticles.map(article => ({
+                        pmid: article.pmid,
+                        title: article.title,
+                        score: article.score,
+                        data: response.payload.result[article.pmid] || {},
+                        doi: response.payload.result[article.pmid]?.articleids?.find(id => id.idtype === 'doi')?.value || ''
+                    }
+                    ))
+                );
+            });
+        }
+    }, [aiAnswer]);
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -232,18 +262,15 @@ function SearchResult() {
 
     useEffect(() => {
         if (queryResultPage?.combined_query_result?.nodes?.length != 0 && queryResultPage?.core_nodes && aiQuestions?.length > 0) {
-            const processedQuestions = aiQuestions.map(question =>
-                `${question} (answer the question in 50 words)`
-            );
-            console.log("processedQuestions", {
-                "question": processedQuestions,
+            console.log("aiQuestions", {
+                "question": aiQuestions,
                 "graph": {
                     combined_query_result: queryResultPage.combined_query_result,
                     core_nodes: queryResultPage.core_nodes,
                 }
             });
             dispatch(queryAiAnswer({
-                "question": processedQuestions,
+                "question": aiQuestions,
                 "graph": {
                     combined_query_result: queryResultPage.combined_query_result,
                     core_nodes: queryResultPage.core_nodes,
@@ -357,11 +384,10 @@ function SearchResult() {
                 </Grid>
             </Box>
             <Grid container spacing={4} height={"100%"} sx={{
-                alignItems: "stretch", marginBottom: '20px', marginTop: '-20px'
+                alignItems: "stretch", marginBottom: '48px', marginTop: '-4px'
             }}>
                 {/*left*/}
                 <Grid item xs={6} height={"740px"} display="flex">
-
                     <Box sx={{
                         display: 'flex',
                         flexDirection: 'column',
@@ -542,14 +568,14 @@ function SearchResult() {
                     <List sx={{
                         padding: '0px',
                         ".MuiListItem-root": {
-                            paddingTop: '10px',
+                            paddingTop: '15px',
                         },
                         ".MuiListItem-root:first-of-type": {
                             paddingTop: '0px',
                         }
                     }}>
                         {
-                            aiAnswer?.articles?.map((ref, index) => (
+                            articlesData?.map((ref, index) => (
                                 <ListItem sx={{ paddingY: '0px', marginLeft: '20px', flexDirection: "column", alignItems: "flex-start", position: "relative" }} key={index}>
                                     <Box sx={{
                                         position: 'absolute',
@@ -578,8 +604,33 @@ function SearchResult() {
                                                 wordWrap: 'break-word',
                                                 whiteSpace: 'normal',
                                             }}
-                                        >{ref.title}</Typography>
+                                        >PubMed ID:&nbsp;{ref.pmid}</Typography>
                                     </Link>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '16px',
+                                            fontWeight: 600,
+                                            textAlign: 'left',
+                                            wordWrap: 'break-word',
+                                            whiteSpace: 'normal',
+                                        }}
+                                    >{ref.title}</Typography>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '16px',
+                                            fontWeight: 400,
+                                            textAlign: 'left',
+                                            wordWrap: 'break-word',
+                                            whiteSpace: 'normal',
+                                        }}
+                                    >
+                                        {(() => {
+                                            const authors = ref.data.authors;
+                                            return authors.length <= 2 ?
+                                                authors.map((author) => (author.name)).join(', ') :
+                                                `${authors[0].name}, ... , ${authors[authors.length - 1].name}`;
+                                        })()}
+                                    </Typography>
                                     <Typography
                                         sx={{
                                             fontSize: '16px',
@@ -589,6 +640,15 @@ function SearchResult() {
                                             whiteSpace: 'normal',
                                         }}
                                     >Score:&nbsp;{ref.score}</Typography>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '16px',
+                                            fontWeight: 400,
+                                            textAlign: 'left',
+                                            wordWrap: 'break-word',
+                                            whiteSpace: 'normal',
+                                        }}
+                                    >{ref.data.fulljournalname}{ref.doi && <>&nbsp;doi: {ref.doi}</>}</Typography>
                                 </ListItem>
                             ))
                         }

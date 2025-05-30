@@ -5,11 +5,12 @@ import { useSelector } from 'react-redux';
 import cytoscape from "cytoscape";
 import zoomInIcon from "../image/zoomIn.png";
 import zoomOutIcon from "../image/zoomOut.png";
-import { nodeStyle, nodeColors, nodeLabels, getContrastingColor } from "./style.js";
+import { edgeLabels, nodeStyle, nodeColors, nodeLabels, getContrastingColor } from "./style.js";
 import Collapse from "@mui/material/Collapse";
 import SouthWestIcon from '@mui/icons-material/SouthWest';
 import NorthEastIcon from '@mui/icons-material/NorthEast';
 import IconButton from '@mui/material/IconButton';
+import { type } from "@testing-library/user-event/dist/type";
 
 const LegendItem = ({ type, sx }) => (
   <span
@@ -89,6 +90,7 @@ export default function KnowledgeGraph() {
         id: edge["~id"],
         source: edge["~start"],
         target: edge["~end"],
+        type: edgeLabels[edge["~type"]] || edge["~type"],
         ...edge["~properties"],
       },
     }));
@@ -464,7 +466,7 @@ export default function KnowledgeGraph() {
             display: "flex",
             flexDirection: "column",
             background: "#fff",
-            padding: "12px",
+            padding: "24px",
             borderRadius: "8px",
             boxShadow: legendVisible ? "0 1px 4px rgba(0,0,0,0.08)" : "0 1px 4px rgba(0,0,0,0.2)",
             zIndex: 10,
@@ -492,7 +494,7 @@ export default function KnowledgeGraph() {
             </IconButton>
           </div>
           <Collapse in={legendVisible} timeout="auto">
-            <div style={{ width: "430px", paddingTop: "2px" }}>
+            <div style={{ width: "430px", paddingTop: "10px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingBottom: "4px", fontSize: "12px" }}>
                 <LegendItem type="　　" sx={{ backgroundColor: "#D9D9D9", color: "black", height: "10px" }} />
                 Core Nodes
@@ -505,6 +507,7 @@ export default function KnowledgeGraph() {
                   alignItems: "center",
                   gap: "8px",
                   flexWrap: "wrap",
+                  paddingTop: "8px",
                 }}
               >
                 {

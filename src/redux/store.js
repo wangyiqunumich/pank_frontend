@@ -10,12 +10,14 @@ import searchReducer from './searchSlice'
 import variablesReducer from './variablesSlice'
 import queryVisResultReducer from './queryVisResultSlice'
 import queryResultPage from './queryResultPage'
+import articlesReducer from './articlesSlice'
 const store = configureStore({
     reducer: {
         viewSchema: viewSchemaReducer,
         catalog: catalogReducer,
         queryResult: queryResultReducer,
         aiAnswer: aiAnswerReducer,
+        articles: articlesReducer,
         processedQuestion: processedQuestionReducer,
         typeToImage: typeToImageReducer,
         inputToVocab: inputToVocabReducer,
