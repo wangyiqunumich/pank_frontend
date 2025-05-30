@@ -25,7 +25,7 @@ export const nodeColors = {
   "coding_elements": "#A4D0F6",
   "variants": "#FFB371",
   "ontology": "#FFDE7D",
-  "ocr": "#61ECBC",
+  "OCR": "#61ECBC",
   "article": "#F5BEFF"
 };
 
@@ -33,7 +33,7 @@ export const nodeLabels = {
   "coding_elements": "Gene",
   "variants": "SNP",
   "ontology": "Ontology",
-  "ocr": "OCR",
+  "OCR": "OCR",
   "article": "Literature",
 };
 

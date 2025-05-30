@@ -93,6 +93,7 @@ function SearchResult() {
     const { viewSchema } = useSelector((state) => state.viewSchema);
     const [variables, setVariables] = useState({});
     const [referenceData, setReferenceData] = useState({});
+    const [articleData, setArticleData] = useState([]);
     useEffect(() => {
         if (viewSchema?.resources_tabs) {
             const data = viewSchema.resources_tabs;
@@ -537,6 +538,62 @@ function SearchResult() {
                 border: '1px solid #EEEEEE',
                 transform: 'translateY(-1px)',
             }}>
+                <Collapse in={currTab === 'reference'}>
+                    <List sx={{
+                        padding: '0px',
+                        ".MuiListItem-root": {
+                            paddingTop: '10px',
+                        },
+                        ".MuiListItem-root:first-of-type": {
+                            paddingTop: '0px',
+                        }
+                    }}>
+                        {
+                            aiAnswer?.articles?.map((ref, index) => (
+                                <ListItem sx={{ paddingY: '0px', marginLeft: '20px', flexDirection: "column", alignItems: "flex-start", position: "relative" }} key={index}>
+                                    <Box sx={{
+                                        position: 'absolute',
+                                        left: '-20px',
+                                        width: '30px',
+                                        height: '100%',
+                                        flexDirection: "column",
+                                        alignItems: "flex-end"
+                                    }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '16px',
+                                                fontWeight: 400,
+                                                textAlign: 'right',
+                                                wordWrap: 'break-word',
+                                                whiteSpace: 'normal',
+                                            }}
+                                        >{index + 1}.</Typography>
+                                    </Box>
+                                    <Link href={"https://pubmed.gov/" + ref.pmid}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '16px',
+                                                fontWeight: 400,
+                                                textAlign: 'left',
+                                                wordWrap: 'break-word',
+                                                whiteSpace: 'normal',
+                                            }}
+                                        >{ref.title}</Typography>
+                                    </Link>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '16px',
+                                            fontWeight: 400,
+                                            textAlign: 'left',
+                                            wordWrap: 'break-word',
+                                            whiteSpace: 'normal',
+                                        }}
+                                    >Score:&nbsp;{ref.score}</Typography>
+                                </ListItem>
+                            ))
+                        }
+                    </List>
+                </Collapse>
                 <Collapse in={currTab === 'pankbase_links'}>
                     <List sx={{ padding: '0px' }}>
                         <ListItem sx={{ paddingY: '0px' }}>
