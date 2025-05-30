@@ -47,7 +47,7 @@
                         }
                   },
                   "resources_tabs": {
-                        "reference": {},
+                        "references": {},
                         "visualization": {},
                         "pankbase_links": [["QTL Data Source","https://pankgraph.org/qtldatasource"],["QTL Pipeline","https://pankgraph.org/pipeline"],["Integrated Cell Browser","https://pankbase.org:8000/single-cell.html?PKBdatasetId=islet_of_Langerhans_scRNA_v1"]],
                         "external_links": [
@@ -106,7 +106,7 @@
                         }
                   },
                   "resources_tabs": {
-                        "reference": {},
+                        "references": {},
                         "visualization": {},
                         "pankbase_links": [["QTL Data Source","https://pankgraph.org/qtldatasource"],["QTL Pipeline","https://pankgraph.org/pipeline"],["Integrated Cell Browser","https://pankbase.org:8000/single-cell.html?PKBdatasetId=islet_of_Langerhans_scRNA_v1"]],
                         "external_links": [
@@ -139,7 +139,7 @@
                   ],
                   "next_questions": {},
                   "resources_tabs": {
-                        "reference": {},
+                        "references": {},
                         "visualization": {},
                         "pankbase_links": [["Expression Data Source","https://pankbase.org:8000/metadata-data-standards.html"],["Integrated Cell Browser","https://pankbase.org:8000/single-cell.html?PKBdatasetId=islet_of_Langerhans_scRNA_v1"]],
                         "external_links": [
