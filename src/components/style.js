@@ -37,6 +37,15 @@ export const nodeLabels = {
   "article": "Literature",
 };
 
+export const edgeLabels = {
+  "OCR_in_cell_type": "accessible in",
+  "OCR_locate_in": "located in",
+  "express_in": "expressed in",
+  "function_annotation": "has function",
+  "fine_mapped_eQTL": "QTL for",
+  "regulation": "interact with"
+};
+
 const nodeColorsList = Object.keys(nodeColors).reduce(
   (acc, type) => (
     [
@@ -105,8 +114,12 @@ export const nodeStyle = nodeColorsList.map(({ color, type }) => ({
       "line-color": "#d3d3d3",
       "target-arrow-color": "#545454",
       "target-arrow-shape": "vee",
-      "arrow-scale": 0.8,
+      "arrow-scale": 0.4,
       "curve-style": "bezier",
+      "label": "data(type)",
+      "font-size": "4px",
+      "text-background-opacity": 1,
+      "text-background-color": "white",
     },
   },
 ]);
