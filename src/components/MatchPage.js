@@ -249,6 +249,7 @@ function MatchPage() {
       {/* 左侧图片 */}
       <Box sx={{ 
         width: {sm: '100%', md: '50%'},
+        marginTop: {sm: '0px', md: '60px'},
         display: 'block',
         textAlign: 'left',
         '& img': {

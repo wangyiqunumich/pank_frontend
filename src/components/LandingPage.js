@@ -40,7 +40,7 @@ function LandingPage() {
     <Container maxWidth={false} disableGutters sx={{
       display: 'flex',
       flexDirection: {sm: 'column', md: 'row'}, justifyContent: 'center',
-      flex: 1, alignItems: 'center',
+      flex: 1, alignItems: 'top',
       paddingTop: '40px',
       paddingLeft: {sm: 0, md: '10%'},
       paddingRight: {sm: 0, md: '10%'},
@@ -70,6 +70,7 @@ function LandingPage() {
       <Box sx={{ 
         width: {sm: '100%', md: '50%'},
         display: 'block',
+        marginTop: {sm: '0px', md: '60px'},
         textAlign: 'left',
         '& img': {
           width: '80%',

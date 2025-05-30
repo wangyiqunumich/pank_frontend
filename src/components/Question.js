@@ -120,7 +120,7 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
                 onClick={() => handleQuestionClick(question)}
                 sx={{
                   display: 'flex',
-                  alignItems: 'center',
+                  alignItems: 'top',
                   width: '100%',
                   textDecoration: 'none',
                   border: '1px solid #ccc',
