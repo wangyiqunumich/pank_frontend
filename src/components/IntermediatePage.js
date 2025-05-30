@@ -72,7 +72,8 @@ const debugResult = {
             "credible_set_id": "ENSG00000114446__IFT57__chr3:108163729:108165431:clu_33823:ENSG00000114446.4__credibleSet1",
             "data_source": "splicing; GTEx",
             "lead_snp": "rs143904562",
-            "lead_pip": 0.09480172
+            "lead_pip": 0.09480172,
+            "n_snp": 1,
           },
           {
             "snp": "rs9825709",
@@ -85,7 +86,8 @@ const debugResult = {
             "credible_set_id": "ENSG00000114446__IFT57__credibleSet1",
             "data_source": "splicing; GTEx",
             "lead_snp": "3:107911164_AATTT_A",
-            "lead_pip": 0.009462504
+            "lead_pip": 0.009462504,
+            "n_snp": 1,
           }
         ]
     }
@@ -223,6 +225,22 @@ function IntermediatePage({ onContinue }) {
       result: [...new Map(result.map(cs => [cs.credible_set_raw_id, cs])).values()]
     }));
     console.log("Grouped Results:", deduplicatedResults);
+    if (deduplicatedResults.flatMap((group) => (group.result)).length === 1) {
+      console.log(deduplicatedResults.flatMap((group) => (group.result)).length);
+      const firstResult = deduplicatedResults.flatMap((group) => (group.result))[0];
+      const {
+        sourceTerm,
+        targetTerm,
+        relationship
+      } = searchState;
+      const params = new URLSearchParams({
+        sourceTerm: sourceTerm.includes(":") ? sourceTerm : `${sourceTerm}:${firstResult[sourceTerm]}`,
+        targetTerm: targetTerm.includes(":") ? targetTerm : `${targetTerm}:${firstResult[targetTerm]}`,
+        relationship: searchState.relationship,
+      });
+      window.location.href = `/result?${params.toString()}`;
+      return;
+    }
     setQueryData(deduplicatedResults);
   }, [queryResult]);
 
@@ -303,11 +321,9 @@ function IntermediatePage({ onContinue }) {
   // );
   // print 
 
-  const getFilteredResults = () => {
-    const filteredData = queryData.find(item => item.label === selectedTab)?.result || [];
-    console.log("Filtered Results:", filteredData);
-    return filteredData;
-  };
+  const getFilteredResults = () => (
+    queryData.find(item => item.label === selectedTab)?.result || []
+  );
 
   const handleDownload = (credibleSet) => {
     console.log(credibleSet);
@@ -797,7 +813,14 @@ function IntermediatePage({ onContinue }) {
             }}>
               Graph viewer<TooltipComponent title="Graph viewer" content="Graph viewer." />
             </Typography>
-            <IntermediateKG data={{ credible_sets: getFilteredResults().slice((currPage - 1) * 5, currPage * 5), type: "credible_set", intersectPositions: ["left"] }} />
+            <IntermediateKG data={{
+              credible_sets: getFilteredResults().slice((currPage - 1) * 5, currPage * 5),
+              type: "credible_set",
+              intersectPositions: [
+                searchState.sourceTerm.includes(":") ? ["right"] : [],
+                searchState.targetTerm.includes(":") ? ["left"] : []
+              ].flat(),
+            }} />
           </Box>
 
           {/* Legend */}
