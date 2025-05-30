@@ -10,7 +10,7 @@ export const getContrastingColor = (bgColor) => {
   return yiq >= 128 ? 'black' : 'white';
 }
 
-const nodeAutoWidth = (node) => {
+export const nodeAutoWidth = (node) => {
   const ctx = document.createElement('canvas').getContext("2d");
   const fStyle = node.pstyle('font-style').strValue;
   const size = node.pstyle('font-size').pfValue + 'px';

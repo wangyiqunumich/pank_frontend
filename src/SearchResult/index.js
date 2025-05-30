@@ -95,7 +95,7 @@ function SearchResult() {
     const { articles } = useSelector((state) => state.articles);
     const [variables, setVariables] = useState({});
     const [referenceData, setReferenceData] = useState({});
-    const [articlesData, setArticlesData] = useState({});
+    const [articlesData, setArticlesData] = useState([]);
     useEffect(() => {
         if (viewSchema?.resources_tabs) {
             const data = viewSchema.resources_tabs;
@@ -110,10 +110,6 @@ function SearchResult() {
     }, [viewSchema, variables]);
 
     useEffect(() => {
-        console.log(articlesData);
-    }, [articlesData]);
-
-    useEffect(() => {
         if (aiAnswer?.articles?.length > 0) {
             const pmids = aiAnswer.articles.map(article => article.pmid);
             dispatch(queryArticles({
@@ -121,7 +117,6 @@ function SearchResult() {
                 id: pmids.join(','),
                 retmode: 'json',
             })).then((response) => {
-                console.log("Articles data:", response.payload);
                 const sortedArticles = aiAnswer.articles.toSorted((a, b) => b.score - a.score);
                 setArticlesData(
                     sortedArticles.map(article => ({
@@ -262,13 +257,6 @@ function SearchResult() {
 
     useEffect(() => {
         if (queryResultPage?.combined_query_result?.nodes?.length != 0 && queryResultPage?.core_nodes && aiQuestions?.length > 0) {
-            console.log("aiQuestions", {
-                "question": aiQuestions,
-                "graph": {
-                    combined_query_result: queryResultPage.combined_query_result,
-                    core_nodes: queryResultPage.core_nodes,
-                }
-            });
             dispatch(queryAiAnswer({
                 "question": aiQuestions,
                 "graph": {
@@ -491,10 +479,10 @@ function SearchResult() {
                             alignItems: 'flex-start'
                         }
                     },
-                    '& .MuiTab-root:first-child': {
+                    '& .MuiTab-root:first-of-type': {
                         borderTopLeftRadius: '20px',
                     },
-                    '& .MuiTab-root:last-child': {
+                    '& .MuiTab-root:last-of-type': {
                         borderTopRightRadius: '20px',
                     },
                     '& .MuiTabs-indicator': {
@@ -576,79 +564,59 @@ function SearchResult() {
                     }}>
                         {
                             articlesData?.map((ref, index) => (
-                                <ListItem sx={{ paddingY: '0px', marginLeft: '20px', flexDirection: "column", alignItems: "flex-start", position: "relative" }} key={index}>
+                                <ListItem sx={{
+                                    paddingY: '0px',
+                                    marginLeft: '20px',
+                                    flexDirection: "column",
+                                    alignItems: "flex-start",
+                                    position: "relative",
+                                    fontSize: '12px',
+                                    fontWeight: 400,
+                                    textAlign: 'left',
+                                    wordWrap: 'break-word',
+                                    whiteSpace: 'normal',
+
+                                }} key={index}>
                                     <Box sx={{
                                         position: 'absolute',
+                                        fontSize: '16px',
                                         left: '-20px',
                                         width: '30px',
                                         height: '100%',
-                                        flexDirection: "column",
                                         alignItems: "flex-end"
                                     }}>
                                         <Typography
-                                            sx={{
-                                                fontSize: '16px',
-                                                fontWeight: 400,
-                                                textAlign: 'right',
-                                                wordWrap: 'break-word',
-                                                whiteSpace: 'normal',
-                                            }}
+                                            sx={{ textAlign: 'right', }}
                                         >{index + 1}.</Typography>
                                     </Box>
-                                    <Link href={"https://pubmed.gov/" + ref.pmid}>
-                                        <Typography
-                                            sx={{
-                                                fontSize: '16px',
-                                                fontWeight: 400,
-                                                textAlign: 'left',
-                                                wordWrap: 'break-word',
-                                                whiteSpace: 'normal',
-                                            }}
-                                        >PubMed ID:&nbsp;{ref.pmid}</Typography>
+                                    <Link
+                                        href={"https://pubmed.gov/" + ref.pmid}
+                                        sx={{ textDecoration: 'none', color: '#1976d2' }}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        <Typography sx={{ fontWeight: 400 }} >PubMed ID:&nbsp;{ref.pmid}</Typography>
                                     </Link>
                                     <Typography
-                                        sx={{
-                                            fontSize: '16px',
-                                            fontWeight: 600,
-                                            textAlign: 'left',
-                                            wordWrap: 'break-word',
-                                            whiteSpace: 'normal',
-                                        }}
+                                        sx={{ fontWeight: 600 }}
                                     >{ref.title}</Typography>
-                                    <Typography
-                                        sx={{
-                                            fontSize: '16px',
-                                            fontWeight: 400,
-                                            textAlign: 'left',
-                                            wordWrap: 'break-word',
-                                            whiteSpace: 'normal',
-                                        }}
-                                    >
+                                    <Typography>
                                         {(() => {
                                             const authors = ref.data.authors;
                                             return authors.length <= 2 ?
                                                 authors.map((author) => (author.name)).join(', ') :
-                                                `${authors[0].name}, ... , ${authors[authors.length - 1].name}`;
+                                                `${authors[0].name}, ..., ${authors[authors.length - 1].name}`;
                                         })()}
                                     </Typography>
-                                    <Typography
-                                        sx={{
-                                            fontSize: '16px',
-                                            fontWeight: 400,
-                                            textAlign: 'left',
-                                            wordWrap: 'break-word',
-                                            whiteSpace: 'normal',
-                                        }}
-                                    >Score:&nbsp;{ref.score}</Typography>
-                                    <Typography
-                                        sx={{
-                                            fontSize: '16px',
-                                            fontWeight: 400,
-                                            textAlign: 'left',
-                                            wordWrap: 'break-word',
-                                            whiteSpace: 'normal',
-                                        }}
-                                    >{ref.data.fulljournalname}{ref.doi && <>&nbsp;doi: {ref.doi}</>}</Typography>
+                                    <Typography sx={{ color: "grey" }}>
+                                        <i>{ref.data.fulljournalname}</i>.&nbsp;
+                                        {ref.data.pubdate.slice(0, 4)}
+                                        {(ref.data.volume || ref.data.issue || ref.data.pages) && <>;</>}
+                                        {ref.data.volume}
+                                        {ref.data.issue && <>({ref.data.issue})</>}
+                                        {ref.data.pages && <>:{ref.data.pages}</>}.
+                                        {ref.doi && <>&nbsp;doi:{ref.doi}.</>}
+                                    </Typography>
                                 </ListItem>
                             ))
                         }
