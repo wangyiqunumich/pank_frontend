@@ -16,7 +16,9 @@
                               "Lead SNP": "snp"
                         },
                         {
-                              "PIP": "pip",
+                              "PIP": "pip"
+                        },
+											{
                               "#": "n_snp"
                         }
                   ],
@@ -47,7 +49,7 @@
                   "resources_tabs": {
                         "reference": {},
                         "visualization": {},
-                        "pankbase_links": [],
+                        "pankbase_links": [["QTL Data Source","https://pankgraph.org/qtldatasource"],["QTL Pipeline","https://pankgraph.org/pipeline"],["Integrated Cell Browser","https://pankbase.org:8000/single-cell.html?PKBdatasetId=islet_of_Langerhans_scRNA_v1"]],
                         "external_links": [
                               [
                                     "Link to Ensembl: ",
@@ -61,6 +63,24 @@
                   "question": [
                         "Does {SNP @snp@} serve as a {QTL} for {@gene_symbol@ (@gene_id@)}?"
                   ],
+"intermediate_page_table": [
+                        {
+                              "Credible set": "compute based on cresible_set. Just use 1/2/3..."
+                        },
+                        {
+                              "Gene": "compute based on cresible_set. For 'credible_set': 'ENSG00000137878__GCOM1__credibleSet1;, the Gene should be GCOM1 (.split('_')[1]. same format for all)"
+                        },
+                        {
+                              "Lead SNP(PIP)": "lea_snp(lead_pip)"
+                        },
+                        {
+                              "#": "n_snp"
+                        },
+											{
+                              "Searched SNP(PIP)": "snp(pip)"
+                        }
+                  ],
+
                   "question_for_result": "How does the {SNP @snp_id@} influence the expression of {@gene_symbol@ (@gene_id@)} in @tissue@ tissue, as reported by @method@?",
                   "cypher_for_result_page_core": "MATCH (variant:sequence_variant:snp), (gene:coding_elements) WHERE ID(variant) = '@snp@' AND ID(gene) = '@gene@' MATCH (variant)-[r:fine_mapped_eQTL]-(gene) WITH collect(DISTINCT variant) + collect(DISTINCT gene) AS nodes, collect(DISTINCT r) AS edges RETURN { results: [ { nodes: nodes, edges: edges } ] } AS output;",
                   "cypher_for_result_page_nbr": "MATCH (variant:sequence_variant)-[r1]-(nbr1) WHERE ID(variant) = '@snp@' WITH r1, nbr1 MATCH (gene:coding_elements)-[r2]-(nbr2) WHERE ID(gene) = '@gene@'WITH collect(DISTINCT r1) + collect(DISTINCT r2) AS rels, collect(DISTINCT nbr1) + collect(DISTINCT nbr2) AS nbrs WITH rels, [n IN nbrs WHERE NOT id(n) IN ['@snp@','@gene@']] AS nodes RETURN { results: [ { nodes: nodes, edges: rels } ] } AS output;",
@@ -88,7 +108,7 @@
                   "resources_tabs": {
                         "reference": {},
                         "visualization": {},
-                        "pankbase_links": [],
+                        "pankbase_links": [["QTL Data Source","https://pankgraph.org/qtldatasource"],["QTL Pipeline","https://pankgraph.org/pipeline"],["Integrated Cell Browser","https://pankbase.org:8000/single-cell.html?PKBdatasetId=islet_of_Langerhans_scRNA_v1"]],
                         "external_links": [
                               [
                                     "Link to Ensembl: ",
@@ -121,7 +141,7 @@
                   "resources_tabs": {
                         "reference": {},
                         "visualization": {},
-                        "pankbase_links": [],
+                        "pankbase_links": [["Expression Data Source","https://pankbase.org:8000/metadata-data-standards.html"],["Integrated Cell Browser","https://pankbase.org:8000/single-cell.html?PKBdatasetId=islet_of_Langerhans_scRNA_v1"]],
                         "external_links": [
                               [
                                     "Link to Ensembl: ",
