@@ -596,60 +596,30 @@ function SearchResult() {
                 </Collapse>
                 <Collapse in={currTab === 'pankbase_links'}>
                     <List sx={{ padding: '0px' }}>
-                        <ListItem sx={{ paddingY: '0px' }}>
-                            •&nbsp;<Link
-                                href={process.env.REACT_APP_PANKGRAPH_LINK + '/qtldatasource'}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                sx={{
-                                    color: '#1976d2',
-                                    textDecoration: 'none',
-                                    textSize: '16px',
-                                    '&:hover': {
-                                        textDecoration: 'underline'
-                                    }
-                                }}
-                            >QTL Data Source</Link>
-                        </ListItem>
-                        <ListItem sx={{ paddingY: '0px' }}>
-                            •&nbsp;<Link
-                                href={process.env.REACT_APP_PANKGRAPH_LINK + '/pipeline'}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                sx={{
-                                    color: '#1976d2',
-                                    textDecoration: 'none',
-                                    textSize: '16px',
-                                    '&:hover': {
-                                        textDecoration: 'underline'
-                                    }
-                                }}
-                            >QTL Pipeline</Link>
-                        </ListItem>
-                        <ListItem sx={{ paddingY: '0px' }}>
-                            •&nbsp;<Link
-                                href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                sx={{
-                                    color: '#1976d2',
-                                    textDecoration: 'none',
-                                    textSize: '16px',
-                                    '&:hover': {
-                                        textDecoration: 'underline'
-                                    }
-                                }}
-                            >
-                                Integrated Cell Browser
-                            </Link>
-                        </ListItem>
+                        {referenceData?.pankbase_links?.map((link, index) => (
+                            <ListItem sx={{ paddingY: '0px' }} key={index}>
+                                •&nbsp;<Link
+                                    href={link[1]}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    sx={{
+                                        color: '#1976d2',
+                                        textDecoration: 'none',
+                                        textSize: '16px',
+                                        '&:hover': {
+                                            textDecoration: 'underline'
+                                        }
+                                    }}
+                                > {link[0]}</Link>
+                            </ListItem>))
+                        }
                     </List>
                 </Collapse>
                 <Collapse in={currTab === 'external_links'}>
                     <List sx={{ padding: '0px' }}>
                         {referenceData?.external_links?.map((link, index) => (
                             <ListItem sx={{ paddingY: '0px' }} key={index}>
-                                • {link[0]}&nbsp;<Link
+                                •&nbsp;{link[0]}&nbsp;<Link
                                     href={link[2]}
                                     target="_blank"
                                     rel="noopener noreferrer"
