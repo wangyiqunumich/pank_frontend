@@ -21,6 +21,9 @@ function MatchPage() {
   const [geneId, setGeneId] = useState('');
   const [cellId, setCellId] = useState('');
   const [snpId, setSnpId] = useState('');
+  const [geneOptions, setGeneOptions] = useState([]);
+  const [cellOptions, setCellOptions] = useState([]);
+  const [snpOptions, setSnpOptions] = useState([]);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -28,13 +31,13 @@ function MatchPage() {
   const [visualPattern, setVisualPattern] = useState(questionData.pattern_for_the_matched_page);
 
   const partofquestion = questionData.question.split(/(\s+|\{.*?\}|\(.*?\))/); // 根据{} 或（）将字符串分割成部分，其余按照空格分割成部分
-  const dictionary = {};
-  partofquestion.forEach((part, index) => {
+  const dictionary = partofquestion.reduce((acc, part, index) => {
     if (part.startsWith('{') && part.endsWith('}')) {
-      dictionary[index] = part.slice(1, -1).split('@')[0]; // Extract the type from the part
+      acc[index] = part.slice(1, -1).split('@')[0]; // Extract the type from the part
     }
-  });
-  console.log('dictionary', dictionary);
+    return acc;
+  }, {});
+  // console.log('dictionary', dictionary);
 
   // Extract this page's question and qid from URL
   useEffect(() => {
@@ -67,7 +70,7 @@ function MatchPage() {
     else{
     const consequenceMatch = selectedQuestion.match(/\{(.*?)\}|\(.*?\)/g);
     const sourceTerm = consequenceMatch[0] ? consequenceMatch[0].replace(/[{}()]/g, '') : '';
-    const relationTerm = consequenceMatch[1] ? consequenceMatch[1].replace(/[{}()]/g, '') : '';
+    const relationTerm = consequenceMatch[1] ? consequenceMatch[1].match(/\((.*?)\)/)[1] : '';
     const target = consequenceMatch[2] ? consequenceMatch[2].replace(/[{})]/g, '') : '';
     const [targetSymbol, targetTerm] = target.split('(');
     const url = `/intermediate?sourceTerm=${sourceTerm.toLowerCase()}&relationship=${relationTerm}&targetTerm=gene:${targetTerm}&targetSymbol=${targetSymbol}`;
@@ -80,22 +83,20 @@ function MatchPage() {
     dispatch(queryVocab({input: geneName})).unwrap() 
     .then((response) => 
       { if (response && typeof response.result === 'string') {
+        console.log('response', response);
         const parsedResponse = response.result.split('@');
         if (parsedResponse.length > 1) {
           if(type === 'gene'&& parsedResponse[0] === 'gene'){
             const geneId = `${geneName}(${parsedResponse[1]})`;
-            setGeneId(geneId);
-            setOptions([geneId]);
+            setGeneOptions([geneId]);
           }
-          else if(type === 'cell'&& parsedResponse[0] === 'cell'){
+          else if(type === 'cell'&& parsedResponse[0] === 'cell_type'){
             const cellId = `${geneName}(${parsedResponse[1]})`;
-            setCellId(cellId);
-            setOptions([cellId]);
+            setCellOptions([cellId]);
           }
           else if(type === 'snp'&& parsedResponse[0] === 'snp'){
             const snpId = `${geneName}(${parsedResponse[1]})`;
-            setSnpId(snpId);
-            setOptions([snpId]);
+            setSnpOptions([snpId]);
           }
         }
       }});
@@ -122,12 +123,12 @@ function MatchPage() {
           </Box>
         );
       } else if (part.startsWith('{') && part.endsWith('}')) {
-        const type = part.slice(1, -1).split('@')[0];
+        const type = dictionary[index];
         return (
           <Box key={index} sx={{ display: 'inline-flex', alignItems: 'center',marginLeft: '-8px' }} >
             <Autocomplete
               freeSolo
-              options={options}
+              options={type === 'gene' ? geneOptions : type === 'cell' ? cellOptions : snpOptions}
               className={dictionary[index]}
               onInputChange={(event, newInputValue) => {
                 if(newInputValue) {
@@ -140,6 +141,15 @@ function MatchPage() {
               }}
               onChange={(event, newValue) => {
                 if (newValue) {
+                  if(type === 'gene'){
+                    setGeneId(newValue);
+                  }
+                  else if(type === 'cell'){
+                    setCellId(newValue);
+                  }else if(type === 'snp'){
+                    setSnpId(newValue);
+                  }
+                  
                   if(selectedQuestion){
                   setSelectedQuestion((prevQuestion) => {
                     if (!prevQuestion) return '';
