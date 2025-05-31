@@ -86,18 +86,31 @@ function MatchPage() {
         console.log('response', response);
         const parsedResponse = response.result.split('@');
         if (parsedResponse.length > 1) {
+          let id;
+          if(parsedResponse[1]==parsedResponse[2]){
+            id = parsedResponse[1];
+          }else{
+            id = `${geneName}(${parsedResponse[1]})`
+          }
           if(type === 'gene'&& parsedResponse[0] === 'gene'){
-            const geneId = `${geneName}(${parsedResponse[1]})`;
-            setGeneOptions([geneId]);
+            setGeneOptions([id]);
           }
           else if(type === 'cell'&& parsedResponse[0] === 'cell_type'){
-            const cellId = `${geneName}(${parsedResponse[1]})`;
-            setCellOptions([cellId]);
+            setCellOptions([id]);
           }
           else if(type === 'snp'&& parsedResponse[0] === 'snp'){
-            const snpId = `${geneName}(${parsedResponse[1]})`;
-            setSnpOptions([snpId]);
+            setSnpOptions([id]);
+          }else{
+            const errorMessage = `Wrong input type`;
+            if (type === 'gene') {
+              setGeneOptions([{ label: errorMessage, disabled: true }]);
+            } else if (type === 'cell') {
+              setCellOptions([{ label: errorMessage, disabled: true }]);
+            } else if (type === 'snp') {
+              setSnpOptions([{ label: errorMessage, disabled: true }]);
+            }
           }
+          
         }
       }});
   };
@@ -132,13 +145,21 @@ function MatchPage() {
             <Autocomplete
               freeSolo
               options={type === 'gene' ? geneOptions : type === 'cell' ? cellOptions : snpOptions}
+              getOptionDisabled={(option) => option.disabled}
               className={dictionary[index]}
               onInputChange={(event, newInputValue) => {
                 if(newInputValue) {
                   updateSource(newInputValue,type);
                   setIsSubmitDisabled(!options.includes(newInputValue));
                 }else{
-                  setOptions([]);
+                  if(type === 'gene'){
+                    setGeneOptions([]);
+                  }
+                  else if(type === 'cell'){
+                    setCellOptions([]);
+                  }else if(type === 'snp'){
+                    setSnpOptions([]);
+                  }
                   setIsSubmitDisabled(true);
                 }
               }}
