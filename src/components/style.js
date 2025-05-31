@@ -33,7 +33,7 @@ export const nodeLabels = {
   "coding_elements": "Gene",
   "variants": "SNP",
   "ontology": "Ontology",
-  "OCR": "OCR",
+  "OCR": "Open Chromatin Region",
   "article": "Literature",
 };
 
