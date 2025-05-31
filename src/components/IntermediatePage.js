@@ -28,6 +28,8 @@ import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 import InfoOutlineIcon from '@mui/icons-material/InfoOutlined';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import WarningIcon from '@mui/icons-material/Warning';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import CloseIcon from '@mui/icons-material/Close';
 import DownloadIcon from '@mui/icons-material/Download';
 
@@ -93,6 +95,28 @@ const debugResult = {
     }
   ]
 };
+
+const WarningSNP = (
+  <Alert
+    variant="outlined"
+    severity="warning"
+    icon={<WarningAmberIcon fontSize="small" />}
+    sx={{
+      backgroundColor: "#FFF6EF",
+      border: "1px solid #E77C40",
+      color: "#E77C40",
+      alignItems: "center",
+      marginBottom: "10px",
+      padding: "6px 12px",
+      display: 'flex',
+      fontSize: '15px',
+      fontFamily: 'Open Sans',
+      borderRadius: '8px',
+    }}
+  >
+    Warning: The lead SNP of this credible set is not the SNP you searched for.
+  </Alert>
+);
 
 function IntermediatePage({ onContinue }) {
   const [error, setError] = useState(false);
@@ -172,13 +196,32 @@ function IntermediatePage({ onContinue }) {
   const tableValue = (item, column) => {
     // replace parts of the column.key that are not '(', ')', or ' '
     if (!item || !column || !column.key) return "-";
-    return column.key.replace(/([^(\s)]+)/g, (match) => (
+    const resultText = column.key.replace(/([^(\s)]+)/g, (match) => (
       item[match]
         ? (floatKeys.includes(match)
           ? item[match].toFixed(2)
           : item[match]
         ) : "-"
     ));
+    if (column.key === "snp (pip)" && item.lead_snp && item.lead_snp !== item.snp) {
+      return (
+        <Box sx={{
+          display: 'flex', flexDirection: 'row', alignItems: 'center', color: '#E77C40'
+        }}>
+          {resultText}
+          <Tooltip title={WarningSNP} slotProps={{
+            tooltip: {
+              sx: {
+                background: "none",
+              },
+            },
+          }}>
+            <WarningIcon />
+          </Tooltip>
+        </Box>
+      );
+    }
+    return resultText;
   };
 
   const handleTabChange = (event, newValue) => {
