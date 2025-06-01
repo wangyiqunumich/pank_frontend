@@ -73,9 +73,9 @@ const debugResult = {
             "lbf": 47.47790809,
             "credible_set_id": "ENSG00000114446__IFT57__chr3:108163729:108165431:clu_33823:ENSG00000114446.4__credibleSet1",
             "data_source": "splicing; GTEx",
+            "n_snp": 251,
             "lead_snp": "rs143904562",
-            "lead_pip": 0.09480172,
-            "n_snp": 1,
+            "lead_pip": 0.09480172
           },
           {
             "snp": "rs9825709",
@@ -86,10 +86,10 @@ const debugResult = {
             "slope": 0.517691791,
             "lbf": 31.46565297,
             "credible_set_id": "ENSG00000114446__IFT57__credibleSet1",
-            "data_source": "splicing; GTEx",
+            "data_source": "GTEx; SusieR",
+            "n_snp": 257,
             "lead_snp": "3:107911164_AATTT_A",
-            "lead_pip": 0.009462504,
-            "n_snp": 1,
+            "lead_pip": 0.009462504
           }
         ]
     }

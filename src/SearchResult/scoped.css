@@ -91,11 +91,11 @@
 
 .styled-paper[data-title="Question"] .MuiTypography-root,
 .styled-paper[data-title="Next Questions"] .MuiTypography-root {
-    text-align: left;
+  text-align: left;
 }
 
 .next-questions-list {
-    text-align: left;
+  text-align: left;
 }
 
 .styled-paper[data-title="Legend"] {
@@ -106,4 +106,14 @@
 
 .styled-paper[data-title="Legend"]::before {
   font-size: 1.5rem;
+}
+
+.reference-item-active {
+  animation: highlight 1s;
+}
+
+@keyframes highlight {
+  from {
+    background-color: #E4F0F1;
+  }
 }
