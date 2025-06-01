@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Container, Typography, Box, Grid, List, ListItem, Link, Tab, Tabs, CircularProgress, Collapse } from '@mui/material';
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import { useSelector, useDispatch } from 'react-redux';
@@ -14,8 +14,6 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import InfoOutlineIcon from '@mui/icons-material/InfoOutlined';
 import { styled } from '@mui/material/styles';
 import { setSearchTerms } from '../redux/searchSlice';
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 
 const tabOptions = [
@@ -92,10 +90,35 @@ function SearchResult() {
     const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
     const { aiAnswer, queryAiAnswerStatus } = useSelector((state) => state.aiAnswer);
     const { viewSchema } = useSelector((state) => state.viewSchema);
-    const { articles } = useSelector((state) => state.articles);
     const [variables, setVariables] = useState({});
     const [referenceData, setReferenceData] = useState({});
     const [articlesData, setArticlesData] = useState([]);
+    const [activeReference, setActiveReference] = useState(null);
+
+    // scroll to active reference after it is set
+    const timeoutRef = useRef(null);
+    useEffect(() => {
+        if (activeReference) {
+            const el = document.getElementById(`reference-item-${activeReference}`);
+            if (el) {
+                if (timeoutRef.current) {
+                    clearTimeout(timeoutRef.current);
+                }
+                el.scrollIntoView({ behavior: "smooth" });
+                timeoutRef.current = setTimeout(() => {
+                    setActiveReference(null);
+                    timeoutRef.current = null; // clear ref after done
+                }, 1000);
+            }
+        }
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+        };
+    }, [activeReference]);
+
+    // initialize the reference data from viewSchema w/ replacements
     useEffect(() => {
         if (viewSchema?.resources_tabs) {
             const data = viewSchema.resources_tabs;
@@ -109,6 +132,7 @@ function SearchResult() {
         }
     }, [viewSchema, variables]);
 
+    // Fetch articles data based on aiAnswer
     useEffect(() => {
         if (aiAnswer?.articles?.length > 0) {
             const pmids = aiAnswer.articles.map(article => article.pmid);
@@ -132,6 +156,7 @@ function SearchResult() {
         }
     }, [aiAnswer]);
 
+    // init: get URL parameters and dispatch actions
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const sourceTerm = params.get('sourceTerm');
@@ -139,7 +164,6 @@ function SearchResult() {
         const targetTerm = params.get('targetTerm');
         const targetSymbol = params.get('targetSymbol');
         const sourceSymbol = params.get('sourceSymbol');
-
         if (sourceTerm && relationship && targetTerm) {
             dispatch(setSearchTerms({
                 sourceTerm,
@@ -147,7 +171,6 @@ function SearchResult() {
                 targetTerm,
                 targetTermSymbol: targetSymbol || ''
             }));
-
             dispatch(queryViewSchema({
                 sourceTerm,
                 relationship,
@@ -234,7 +257,8 @@ function SearchResult() {
                                 nextQuestions: processedNextQuestions,
                                 aiQuestions: processedAiQuestions,
                                 aiAnswerSubtitle: ai_answer_sub_title,
-                                currentQuestionType: dataSource + '; ' + tissueKey + ' tissue'
+                                currentQuestionType: relationship === "QTL"
+                                    && (dataSource + '; ' + tissueKey + ' tissue')
                             }));
                         });
                     }
@@ -255,8 +279,10 @@ function SearchResult() {
         return text.replace(/\*\*/g, '');
     };
 
+    // query AI answer when queryResultPage and aiQuestions are available
     useEffect(() => {
         if (queryResultPage?.combined_query_result?.nodes?.length != 0 && queryResultPage?.core_nodes && aiQuestions?.length > 0) {
+            console.log('Querying AI answer with questions: ', aiQuestions);
             dispatch(queryAiAnswer({
                 "question": aiQuestions,
                 "graph": {
@@ -267,6 +293,7 @@ function SearchResult() {
         }
     }, [queryResultPage, aiQuestions]);
 
+    // Handle next question click
     const handleNextQuestionClick = (question) => {
         const nextVariables = {
             sourceTerm: 'snp:rs177069',
@@ -277,12 +304,38 @@ function SearchResult() {
         window.location.href = `/result?${new URLSearchParams(nextVariables)}`;
     };
 
-    const processLinks = (text) => {
-        // replace (aaa)[bbb] with <a href="bbb">aaa</a>
-        const regex = /\[(.*?)\]\((.*?)\)/g;
-        return text.replace(regex, (match, p1, p2) => {
-            return `<a href="${p2}" target="_blank" style="color: #0069c2; text-decoration: none">${p1}</a>`;
-        });
+    // process links in the AI answer text
+    const ProcessLinks = ({ text }) => {
+        // replace [aaa](bbb) with <a href="bbb">aaa</a>
+        if (!text) return <></>;
+        return (<>
+            {text
+                .replace(
+                    /\[(.*?)\]\((.*?)\)/g, (match, p1, p2) =>
+                    `<a href="${p2}" target="_blank" style="color: #0069c2; text-decoration: none">${p1}</a>`
+                )
+                .split(/(\[PubMed[^\]]+\]|\(PubMed[^\)]+\))/g)
+                .map((part, index) =>
+                    part.match(/^\[.*\]$|^\(.*\)$/)
+                        ? <span key={`part-${index}`}>{
+                            part.split(/(\d+)/g).map((subPart, subIndex) =>
+                                //if all digit?
+                                subPart.match(/^\d+$/)
+                                    ? <a
+                                        href={`#reference-item-${subPart}`}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            setCurrTab('reference');
+                                            setActiveReference(subPart);
+                                        }}
+                                        key={`subpart-${index}-${subIndex}`}>
+                                        {subPart}
+                                    </a>
+                                    : <span key={`subpart-${index}-${subIndex}`}>{subPart}</span>
+                            )}</span>
+                        : <span key={`part-${index}`}>{part}</span>
+                )}
+        </>);
     }
 
     // 如果正在加载答案或答案为空，显示加载状态
@@ -375,7 +428,7 @@ function SearchResult() {
                 alignItems: "stretch", marginBottom: '48px', marginTop: '-4px'
             }}>
                 {/*left*/}
-                <Grid item xs={6} height={"740px"} display="flex">
+                <Grid item xs={6} minHeight={"740px"} display="flex">
                     <Box sx={{
                         display: 'flex',
                         flexDirection: 'column',
@@ -407,11 +460,11 @@ function SearchResult() {
                                         </Typography>
                                     )}
                                     <Typography sx={{
-                                        textAlign: 'justify',
+                                        textAlign: 'left',
                                         fontSize: '14px',
                                         fontWeight: 100
                                     }}>
-                                        <span dangerouslySetInnerHTML={{ __html: processLinks(removeConsecutiveAsterisks(answer)) }} />
+                                        <ProcessLinks text={removeConsecutiveAsterisks(answer)} />
                                     </Typography>
                                     {/*{index < aiAnswer.answers.length - 1 && <Divider sx={{ my: 2 }} />}*/}
                                 </div>
@@ -421,7 +474,7 @@ function SearchResult() {
                 </Grid>
 
                 {/*graph viewer, right*/}
-                <Grid item xs={6} height={"740px"} display="flex">
+                <Grid item xs={6} minHeight={"740px"} display="flex">
                     <Box sx={{
                         display: 'flex',
                         flexDirection: 'column',
@@ -564,19 +617,24 @@ function SearchResult() {
                     }}>
                         {
                             articlesData?.map((ref, index) => (
-                                <ListItem sx={{
-                                    paddingY: '0px',
-                                    marginLeft: '20px',
-                                    flexDirection: "column",
-                                    alignItems: "flex-start",
-                                    position: "relative",
-                                    fontSize: '12px',
-                                    fontWeight: 400,
-                                    textAlign: 'left',
-                                    wordWrap: 'break-word',
-                                    whiteSpace: 'normal',
-
-                                }} key={index}>
+                                <ListItem
+                                    sx={{
+                                        paddingY: '0px',
+                                        marginLeft: '20px',
+                                        flexDirection: "column",
+                                        alignItems: "flex-start",
+                                        position: "relative",
+                                        fontSize: '12px',
+                                        fontWeight: 400,
+                                        textAlign: 'left',
+                                        wordWrap: 'break-word',
+                                        whiteSpace: 'normal',
+                                        maxWidth: 'calc(100% - 20px)',
+                                    }}
+                                    key={index}
+                                    id={`reference-item-${ref.pmid}`}
+                                    className={`reference-item${activeReference === ref.pmid ? '-active' : ''}`}
+                                >
                                     <Box sx={{
                                         position: 'absolute',
                                         fontSize: '16px',

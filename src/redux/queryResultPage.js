@@ -12,6 +12,34 @@ export const queryQueryResultPage = createAsyncThunk('/pank2ResultPage',
                 }
             })
             .then((response) => response.data)
+            .then((data) => {
+                const isCoreNode = (node) => data.core_nodes.includes(node['~id']);
+                const ocrList =
+                    data.combined_query_result.nodes.filter(
+                        (node) => node["~labels"].includes("OCR")
+                    ).sort((a, b) => isCoreNode(a) - isCoreNode(b));
+                // number the OCR nodes
+                const ocrLabelMap = new Map(ocrList.map((node, index) => [node['~id'], `Open Chromatin Region ${index + 1}`]));
+                // update the labels of OCR nodes
+                return {
+                    ...data,
+                    combined_query_result: {
+                        ...data.combined_query_result,
+                        nodes: data.combined_query_result.nodes.map((node) => {
+                            if (node["~labels"].includes("OCR")) {
+                                return {
+                                    ...node,
+                                    "~properties": {
+                                        ...node["~properties"],
+                                        "name": ocrLabelMap.get(node['~id'])
+                                    },
+                                };
+                            }
+                            return node;
+                        })
+                    }
+                }
+            })
             .catch((response) => {
                 console.log(response);
             });

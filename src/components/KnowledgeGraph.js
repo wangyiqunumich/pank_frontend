@@ -71,7 +71,7 @@ export default function KnowledgeGraph() {
           id: node["~id"],
           ...node["~properties"],
           label: (
-            node["~labels"].includes("gene") || node["~id"].slice(0, 2) === "CL_"
+            node["~labels"].includes("gene") || node["~labels"].includes("OCR") || node["~id"].slice(0, 2) === "CL_"
               ? node["~properties"].name
               : node["~properties"].id
           ).replace(/_/g, " "),
