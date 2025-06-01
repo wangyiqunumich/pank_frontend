@@ -68,12 +68,39 @@ function MatchPage() {
       navigate(url);
     }
     else{
-    const consequenceMatch = selectedQuestion.match(/\{(.*?)\}|\(.*?\)/g);
-    const sourceTerm = consequenceMatch[0] ? consequenceMatch[0].replace(/[{}()]/g, '') : '';
-    const relationTerm = consequenceMatch[1] ? consequenceMatch[1].match(/\((.*?)\)/)[1] : '';
-    const target = consequenceMatch[2] ? consequenceMatch[2].replace(/[{})]/g, '') : '';
-    const [targetSymbol, targetTerm] = target.split('(');
-    const url = `/intermediate?sourceTerm=${sourceTerm.toLowerCase()}&relationship=${relationTerm}&targetTerm=gene:${targetTerm}&targetSymbol=${targetSymbol}`;
+    let updatedTerms = questionData.terms;
+    if(geneId){
+      updatedTerms = updatedTerms.replace('gene', `gene:${geneId}`);
+    }
+    if (cellId) {
+      updatedTerms = updatedTerms.replace('cell_type', `cell_type:${cellId}`);
+    }
+    if (snpId) {
+      updatedTerms = updatedTerms.replace('snp', `snp:${snpId}`);
+    }
+    const parts = updatedTerms.split('-') 
+    console.log('visualPatternParts', parts);
+    const sourceTerm = parts[0].trim();
+    const relationTerm = parts[1].trim(); 
+    const target = parts[2].trim(); 
+    let targetSymbol = '';
+    let targetTerm = '';
+    if (target.includes('(')) {
+      targetSymbol = target.split('(')[0].split(':')[1];
+      targetTerm = `gene:${target.split('(')[1].slice(0, -1)}`;
+    }
+    else{
+      targetSymbol = '';
+      targetTerm = target;
+    }
+    // const consequenceMatch = selectedQuestion.match(/\{(.*?)\}|\(.*?\)/g);
+    // const sourceTerm = consequenceMatch[0] ? consequenceMatch[0].replace(/[{}()]/g, '') : '';
+    // const relationTerm = consequenceMatch[1] ? consequenceMatch[1].match(/\((.*?)\)/)[1] : '';
+    // const target = consequenceMatch[2] ? consequenceMatch[2].replace(/[{})]/g, '') : '';
+    let url = `/intermediate?sourceTerm=${sourceTerm.toLowerCase()}&relationship=${relationTerm}&targetTerm=${targetTerm}`;
+    if (targetSymbol) {
+      url += `&targetSymbol=${targetSymbol}`;
+    }
     navigate(url);
     }
   };
@@ -98,7 +125,7 @@ function MatchPage() {
           else if(type === 'cell'&& parsedResponse[0] === 'cell_type'){
             setCellOptions([id]);
           }
-          else if(type === 'snp'&& parsedResponse[0] === 'snp'){
+          else if(type === 'snp'&& parsedResponse[0] === 'sequence_variant'){
             setSnpOptions([id]);
           }else{
             const errorMessage = `Wrong input type`;
