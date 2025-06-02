@@ -19,7 +19,10 @@ export const queryQueryResult = createAsyncThunk('/openCypherToQueryResult',
                     ? response.data
                     : {
                         results: [{
-                            credible_sets: response.data.results
+                            credible_sets: response.data.results.map((result) => ({
+                                ...result,
+                                credible_set_id: result.credible_set
+                            }))
                         }]
                     }
             )

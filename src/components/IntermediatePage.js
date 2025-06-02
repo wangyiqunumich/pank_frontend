@@ -224,17 +224,7 @@ function IntermediatePage({ onContinue }) {
     if (deduplicatedResults.flatMap((group) => (group.result)).length === 1) {
       console.log(deduplicatedResults.flatMap((group) => (group.result)).length);
       const firstResult = deduplicatedResults.flatMap((group) => (group.result))[0];
-      const {
-        sourceTerm,
-        targetTerm,
-        relationship
-      } = searchState;
-      const params = new URLSearchParams({
-        sourceTerm: sourceTerm.includes(":") ? sourceTerm : `${sourceTerm}:${firstResult[sourceTerm]}`,
-        targetTerm: targetTerm.includes(":") ? targetTerm : `${targetTerm}:${firstResult[targetTerm]}`,
-        relationship: searchState.relationship,
-      });
-      window.location.href = `/result?${params.toString()}`;
+      handleSNPClick(firstResult);
       return;
     }
     setQueryData(deduplicatedResults);
