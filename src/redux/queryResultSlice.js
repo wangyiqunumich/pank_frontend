@@ -6,14 +6,23 @@ import axios from "axios";
 
 export const queryQueryResult = createAsyncThunk('/openCypherToQueryResult',
     async (payload) => {
+        console.log("queryQueryResult payload", payload);
         return await flaskBackendAxiosInstanceNew
-            .post(payload.isNeptune ? '/openCypherToQueryResult' : '/openCypherToQueryResultNew',
+            .post(payload.isNeptune ? '/openCypherToQueryResult' : '/RDSLambda',
                 { query: payload.query }, {
                 headers: {
                     "Content-Type": "application/json"
                 }
             })
-            .then((response) => response.data)
+            .then((response) =>
+                payload.isNeptune
+                    ? response.data
+                    : {
+                        results: [{
+                            credible_sets: response.data.results
+                        }]
+                    }
+            )
             .catch((response) => {
                 console.log(response);
             });

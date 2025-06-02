@@ -311,6 +311,7 @@ function IntermediatePage({ onContinue }) {
       "splicing; GTEx": "C",
       "exon; INSPIRE": "D",
     }[credibleSet.data_source] || "";
+    console.log("Credible Set", credibleSet);
     if (!prefix) return credibleSet.credible_set_id;
 
     const setNumber = credibleSet.credible_set_id.split('_').pop().slice(11);
