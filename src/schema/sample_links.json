@@ -12,13 +12,14 @@
             "$comment": "targetSymbol is mandatory for intermediate pages."
         },
         {
-            "link": "/intermediate?sourceTerm=snp:rs9825709&relationship=QTL&targetTerm=gene:ENSG00000001626&targetSymbol=CFTR",
+            "link": "/intermediate?sourceTerm=snp:rs9825709&relationship=QTL&targetTerm=gene:ENSG00000114446&targetSymbol=IFT57",
             "dictionary": {
                 "sourceTerm": "snp:rs9825709",
                 "relationship": "QTL",
-                "targetTerm": "gene:ENSG00000001626",
-                "targetSymbol": "CFTR"
-            }
+                "targetTerm": "gene:ENSG00000114446",
+                "targetSymbol": "IFT57"
+            },
+            "$comment": "targetSymbol is mandatory for intermediate pages."
         }
     ],
     "result_page": [

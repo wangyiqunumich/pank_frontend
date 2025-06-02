@@ -7,8 +7,8 @@ import zoomInIcon from "../image/zoomIn.png";
 import zoomOutIcon from "../image/zoomOut.png";
 import { edgeLabels, nodeStyle, nodeColors, nodeLabels, getContrastingColor } from "./style.js";
 import Collapse from "@mui/material/Collapse";
-import SouthWestIcon from '@mui/icons-material/SouthWest';
-import NorthEastIcon from '@mui/icons-material/NorthEast';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import IconButton from '@mui/material/IconButton';
 
 const LegendItem = ({ type, sx }) => (
@@ -490,9 +490,9 @@ export default function KnowledgeGraph() {
               style={{ padding: "0px 4px" }}
             >
               {legendVisible ? (
-                <SouthWestIcon style={{ color: "#172A3A", fontSize: "20px" }} />
+                <KeyboardArrowLeftIcon style={{ color: "#172A3A", fontSize: "20px" }} />
               ) : (
-                <NorthEastIcon style={{ color: "#172A3A", fontSize: "20px" }} />
+                <KeyboardArrowRightIcon style={{ color: "#172A3A", fontSize: "20px" }} />
               )}
             </IconButton>
           </div>
