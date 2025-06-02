@@ -219,7 +219,7 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
             marginRight: '6px',
             fontSize: '14px',}}>Example</span>
           <Link 
-          to="https://dev.pankgraph.org/result?sourceTerm=snp%3Ars2402203&targetTerm=gene%3AENSG00000001626&relationship=QTL"
+          to="/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene:ENSG00000001626&targetSymbol=CFTR"
           style={{      fontSize: '14px',
             textDecoration: 'underline',
             color: '#333',}}>
