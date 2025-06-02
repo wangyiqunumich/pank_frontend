@@ -423,7 +423,7 @@ const MatchGraphViewer = ({ visualPattern, selectedQuestion }) => {
     const parseVisualPattern = (pattern) => {
       const nodes = (pattern.match(/\{[^\}]+\}|\([^\)]+\)/g) || [])
         .map(
-          (node) => (node.match(/\{(?<type>[^@]+)@(?<id>[^@]+)@\}/)?.groups
+          (node) => (node.match(/\{(?<type>[^@]+)@(?<id>[^@^\(]+)(\(.+\))?@\}/)?.groups
             || node.match(/\((?<type>[^\}]+)\)/)?.groups) || {}
         );
       const edge = pattern.match(/- (.+) ->/)?.[1] || '';
@@ -488,7 +488,7 @@ const MatchGraphViewer = ({ visualPattern, selectedQuestion }) => {
             'text-valign': 'center',
             'text-halign': 'center',
             'font-size': '20px',
-            'padding': '16px',
+            'padding': '15px',
             'corner-radius': '16px',
             'color': 'black',
             'width': nodeAutoWidth,
@@ -504,17 +504,18 @@ const MatchGraphViewer = ({ visualPattern, selectedQuestion }) => {
             'target-arrow-shape': 'triangle',
             'curve-style': 'bezier',
             'label': 'data(label)',
-            'font-size': '18px',
+            'font-size': '20px',
             'text-rotation': 'autorotate',
-            'text-margin-y': -10
+            'text-margin-y': -15
           }
         }
       ],
       layout: {
         name: 'preset',  // 使用preset布局以保持固定位置
-        fit: true,
-        padding: 50
       },
+      zoom: 1,
+      minZoom: 1,
+      maxZoom: 1,
       userZoomingEnabled: false,
       userPanningEnabled: false,
     });
@@ -533,7 +534,7 @@ const MatchGraphViewer = ({ visualPattern, selectedQuestion }) => {
       ref={containerRef}
       style={{
         width: "100%",
-        height: "220px",
+        height: "120px",
         backgroundColor: "#F7F7F74D",
         borderRadius: "8px",
         border: "1px solid #E0E0E0",
@@ -950,7 +951,6 @@ function MatchPage() {
             fontFamily: 'Open Sans',
             fontWeight: 600,
           }}>
-            {visualPattern}
             {visualPattern ? (
               <MatchGraphViewer
                 visualPattern={visualPattern}

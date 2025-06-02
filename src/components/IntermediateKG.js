@@ -148,6 +148,7 @@ function IntermediateKG({ data }) {
             'text-halign': 'center',
             'font-size': '20px',
             'padding': '15px',
+            'corner-radius': '16px',
             'color': 'white',
             'width': nodeAutoWidth,
             'text-wrap': 'wrap'
