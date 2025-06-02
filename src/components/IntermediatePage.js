@@ -768,7 +768,7 @@ function IntermediatePage({ onContinue }) {
                   fontWeight: 600,
                   fontSize: 16,
                 }}>
-                  Total rows: {queryData.map((group) => (group.result.length)).reduce((a, b) => a + b, 0)}
+                  Total rows: {getFilteredResults().length}
                 </Typography>
               </Box>
             </div>
