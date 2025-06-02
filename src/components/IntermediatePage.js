@@ -57,45 +57,6 @@ const tabsQTL = [
   { "label": "Islet exon QTL", "data_source": "exon; INSPIRE" }
 ];
 
-const debugResult = {
-  "results": [
-    {
-      "data_source": "splicing; GTEx",
-      "credible_sets":
-        [
-          {
-            "snp": "rs9825709",
-            "pip": 0.002510642,
-            "nominal_p": 1.05e-19,
-            "effect_allele": "C",
-            "other_allele": "A",
-            "slope": -1.143532515,
-            "lbf": 47.47790809,
-            "credible_set_id": "ENSG00000114446__IFT57__chr3:108163729:108165431:clu_33823:ENSG00000114446.4__credibleSet1",
-            "data_source": "splicing; GTEx",
-            "n_snp": 251,
-            "lead_snp": "rs143904562",
-            "lead_pip": 0.09480172
-          },
-          {
-            "snp": "rs9825709",
-            "pip": 0.003613378,
-            "nominal_p": 1.91e-14,
-            "effect_allele": "C",
-            "other_allele": "A",
-            "slope": 0.517691791,
-            "lbf": 31.46565297,
-            "credible_set_id": "ENSG00000114446__IFT57__credibleSet1",
-            "data_source": "GTEx; SusieR",
-            "n_snp": 257,
-            "lead_snp": "3:107911164_AATTT_A",
-            "lead_pip": 0.009462504
-          }
-        ]
-    }
-  ]
-};
-
 const WarningSNP = (
   <Alert
     variant="outlined"
@@ -124,8 +85,7 @@ function IntermediatePage({ onContinue }) {
   const dispatch = useDispatch();
 
   const { viewSchema } = useSelector((state) => state.viewSchema);
-  const { queryResult: queryResultDebugging } = useSelector((state) => state.queryResult);
-  const [queryResult, setQueryResult] = useState({});
+  const { queryResult } = useSelector((state) => state.queryResult);
 
   const searchState = useSelector((state) => state.search) || {
     sourceTerm: '',
@@ -135,13 +95,6 @@ function IntermediatePage({ onContinue }) {
     sourceTermSymbol: '',
   };
 
-  useEffect(() => {
-    if (searchState?.sourceTerm === "snp:rs9825709") {
-      setQueryResult(debugResult);
-    } else {
-      setQueryResult(queryResultDebugging);
-    }
-  }, [queryResultDebugging, searchState]);
   const [rootLabel, setRootLabel] = useState("");
 
   const [selectedTab, setSelectedTab] = useState('Pancreatic eQTL');
@@ -338,7 +291,12 @@ function IntermediatePage({ onContinue }) {
     } = searchState;
 
     const params = new URLSearchParams({
-      sourceTerm: sourceTerm.includes(":") ? sourceTerm : `${sourceTerm}:${item[sourceTerm]}`,
+      sourceTerm:
+        sourceTerm.includes("snp:")
+          ? `snp:${item.lead_snp}`
+          : sourceTerm.includes(":")
+            ? sourceTerm
+            : `${sourceTerm}:${item[sourceTerm]}`,
       targetTerm: targetTerm.includes(":") ? targetTerm : `${targetTerm}:${item[targetTerm]}`,
       relationship,
     });
@@ -420,10 +378,10 @@ function IntermediatePage({ onContinue }) {
       );
       console.log("Processed Cypher:", processedCypher);
 
-      // TODO: remove debug condition
-      if (searchState?.sourceTerm !== "snp:rs9825709") {
-        dispatch(queryQueryResult({ query: processedCypher })).unwrap();
-      }
+      dispatch(queryQueryResult({
+        query: processedCypher,
+        isNeptune: !searchState.sourceTerm.includes("snp:"),
+      })).unwrap();
     }
   }, [viewSchema, searchState.sourceTerm, searchState.targetTerm]);
 
@@ -747,7 +705,7 @@ function IntermediatePage({ onContinue }) {
                           Object.keys(item).length === 0 ? (
                             <TableRow key={`empty-row-${index}`} sx={{
                               '& .MuiTableCell-root': {
-                                padding: '16.25px'
+                                padding: '21.75px'
                               }
                             }}>
                               <TableCell colSpan={6} sx={{ textAlign: 'center', padding: '16px' }}>

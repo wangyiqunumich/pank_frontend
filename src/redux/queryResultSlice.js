@@ -7,7 +7,8 @@ import axios from "axios";
 export const queryQueryResult = createAsyncThunk('/openCypherToQueryResult',
     async (payload) => {
         return await flaskBackendAxiosInstanceNew
-            .post('/openCypherToQueryResult', payload, {
+            .post(payload.isNeptune ? '/openCypherToQueryResult' : '/openCypherToQueryResultNew',
+                { query: payload.query }, {
                 headers: {
                     "Content-Type": "application/json"
                 }
