@@ -599,7 +599,7 @@ function MatchPage() {
   // Handle submit button click
   const handleSubmit = () => {
     if (selectedQuestion.startsWith('What is')) {
-      const url = `/result?sourceTerm=gene:${geneId.split('(')[1].slice(0, -1)}&targetTerm=cell_type:CL_0002064&relationship=express_in`
+      const url = `/result?sourceTerm=gene:${geneId.split('(')[1].slice(0, -1)}&targetTerm=cell_type:${cellId.split('(')[1].slice(0,-1)}&relationship=express_in`
       navigate(url);
     }
     else {
