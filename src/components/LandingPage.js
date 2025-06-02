@@ -38,9 +38,13 @@ function LandingPage() {
 
   return (
     <Container maxWidth={false} disableGutters sx={{
-      padding: 0, display: 'flex',
-      flexDirection: 'row', justifyContent: 'space-evenly',
-      flex: 1, alignItems: 'center'
+      display: 'flex',
+      flexDirection: {sm: 'column', md: 'row'}, justifyContent: 'center',
+      flex: 1, alignItems: 'top',
+      paddingTop: '40px',
+      paddingLeft: {sm: 0, md: '10%'},
+      paddingRight: {sm: 0, md: '10%'},
+      paddingBottom: '40px',
     }}>
       {/* <Snackbar
         open={openSnackbar}
@@ -64,16 +68,17 @@ function LandingPage() {
 
       {/* 左侧图片 */}
       <Box sx={{ 
-        width: '50%',
+        width: {sm: '100%', md: '50%'},
         display: 'block',
-        padding: '2 auto',
+        marginTop: {sm: '0px', md: '60px'},
+        textAlign: 'left',
         '& img': {
-          width: '100%',
-          objectFit: 'contain'
+          width: '80%',
+          objectFit: 'contain',
         }
       }}>
         <img src={landingPageLogo} alt="PanKgraph" />
-        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px', alignItems: 'center' }}>
+        <Box sx={{ width: '80%', display: 'flex', justifyContent: 'center', marginTop: '20px', alignItems: 'center' }}>
           <TerminalIcon sx={{ width: '30px', color: '#C48E25' }}/>
           <Typography sx={{ marginLeft: '10px', fontSize: '20px'}}>
             Access PanKgraph with <Link
@@ -85,12 +90,12 @@ function LandingPage() {
 
       {/* 右侧内容区域 */}
       <Box sx={{ 
-        width: '50%',
+        width: {sm: '80%', md: '50%'},
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
         gap: 3,
-        margin: 2,
+        marginRight: 1,
       }}>
         
         {/* 更新 Question 组件，传入 setSelectedQuestion */}

@@ -418,19 +418,27 @@ function MatchPage() {
   const [selectedQuestion, setSelectedQuestion] = useState("");
   const [visualPattern, setVisualPattern] = useState("");
   const dispatch = useDispatch();
-
   const navigate = useNavigate();
-  const [openSnackbar, setOpenSnackbar] = useState(true);
+  const location = useLocation();
+  const questionData = location.state;
+  const [visualPattern, setVisualPattern] = useState(questionData.pattern_for_the_matched_page);
 
-  const isSearchBarDisabled = !selectedQuestion;
-  const dropdownOptions = {};
+  const partofquestion = questionData.question.split(/(\s+|\{.*?\}|\(.*?\))/); // 根据{} 或（）将字符串分割成部分，其余按照空格分割成部分
+  const dictionary = partofquestion.reduce((acc, part, index) => {
+    if (part.startsWith('{') && part.endsWith('}')) {
+      acc[index] = part.slice(1, -1).split('@')[0]; // Extract the type from the part
+    }
+    return acc;
+  }, {});
+  // console.log('dictionary', dictionary);
 
-  // Extract the question from the URL
+  // Extract this page's question and qid from URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const questionFromUrl = params.get("question"); // Get the 'question' parameter
     if (questionFromUrl) {
-      setSelectedQuestion(decodeURIComponent(questionFromUrl)); // Decode the question and set it
+      setSelectedQuestion(decodeURIComponent(questionFromUrl)); // 解码问题并设置它 
+      setQid(qidFromUrl);
     }
   }, []);
 
@@ -442,7 +450,8 @@ function MatchPage() {
     return (_) => {
       window.removeEventListener("resize", handleResize);
     };
-  });
+  },[]);
+
 
   // Handle dropdown value change
   const handleDropdownChange = (value, placeholder) => {
@@ -451,9 +460,86 @@ function MatchPage() {
     );
   };
 
+
   // Handle submit button click
   const handleSubmit = () => {
-    navigate(`/intermediate?question=${encodeURIComponent(selectedQuestion)}`); // Navigate to the intermediate page with the updated question
+    if(selectedQuestion.startsWith('What is')){
+      const url = `/result?sourceTerm=gene:${geneId.split('(')[1].slice(0, -1)}&targetTerm=cell_type:CL_0002064&relationship=express_in`
+      navigate(url);
+    }
+    else{
+    let updatedTerms = questionData.terms;
+    if(geneId){
+      updatedTerms = updatedTerms.replace('gene', `gene:${geneId}`);
+    }
+    if (cellId) {
+      updatedTerms = updatedTerms.replace('cell_type', `cell_type:${cellId}`);
+    }
+    if (snpId) {
+      updatedTerms = updatedTerms.replace('snp', `snp:${snpId}`);
+    }
+    const parts = updatedTerms.split('-') 
+    console.log('visualPatternParts', parts);
+    const sourceTerm = parts[0].trim();
+    const relationTerm = parts[1].trim(); 
+    const target = parts[2].trim(); 
+    let targetSymbol = '';
+    let targetTerm = '';
+    if (target.includes('(')) {
+      targetSymbol = target.split('(')[0].split(':')[1];
+      targetTerm = `gene:${target.split('(')[1].slice(0, -1)}`;
+    }
+    else{
+      targetSymbol = '';
+      targetTerm = target;
+    }
+    // const consequenceMatch = selectedQuestion.match(/\{(.*?)\}|\(.*?\)/g);
+    // const sourceTerm = consequenceMatch[0] ? consequenceMatch[0].replace(/[{}()]/g, '') : '';
+    // const relationTerm = consequenceMatch[1] ? consequenceMatch[1].match(/\((.*?)\)/)[1] : '';
+    // const target = consequenceMatch[2] ? consequenceMatch[2].replace(/[{})]/g, '') : '';
+    let url = `/intermediate?sourceTerm=${sourceTerm.toLowerCase()}&relationship=${relationTerm}&targetTerm=${targetTerm}`;
+    if (targetSymbol) {
+      url += `&targetSymbol=${targetSymbol}`;
+    }
+    navigate(url);
+    }
+  };
+
+  function updateSource(newInputValue,type,index) {
+    const geneName = newInputValue;
+    dispatch(queryVocab({input: geneName})).unwrap() 
+    .then((response) => 
+      { if (response && typeof response.result === 'string') {
+        console.log('response', response);
+        const parsedResponse = response.result.split('@');
+        if (parsedResponse.length > 1) {
+          let id;
+          if(parsedResponse[1]==parsedResponse[2]){
+            id = parsedResponse[1];
+          }else{
+            id = `${geneName}(${parsedResponse[1]})`
+          }
+          if(type === 'gene'&& parsedResponse[0] === 'gene'){
+            setGeneOptions([id]);
+          }
+          else if(type === 'cell'&& parsedResponse[0] === 'cell_type'){
+            setCellOptions([id]);
+          }
+          else if(type === 'snp'&& parsedResponse[0] === 'sequence_variant'){
+            setSnpOptions([id]);
+          }else{
+            const errorMessage = `Wrong input type`;
+            if (type === 'gene') {
+              setGeneOptions([{ label: errorMessage, disabled: true }]);
+            } else if (type === 'cell') {
+              setCellOptions([{ label: errorMessage, disabled: true }]);
+            } else if (type === 'snp') {
+              setSnpOptions([{ label: errorMessage, disabled: true }]);
+            }
+          }
+          
+        }
+      }});
   };
 
   function renderSequence() {
@@ -463,6 +549,7 @@ function MatchPage() {
     return parts.map((part, index) => {
       if (part.startsWith("(") && part.endsWith(")")) {
         // Render grey box for items enclosed in ()
+
         return (
           <Box
             key={index}
@@ -478,6 +565,7 @@ function MatchPage() {
             {part.slice(1, -1)} {/* Remove the enclosing parentheses */}
           </Box>
         );
+  
       } else if (part.startsWith("{") && part.endsWith("}")) {
         // Render dropdown for items enclosed in {}
         const placeholder = part.slice(1, -1);
@@ -558,6 +646,7 @@ function MatchPage() {
             sx={{
               marginRight: "8px",
               display: "inline-block",
+
             }}
           >
             {part}
@@ -565,6 +654,7 @@ function MatchPage() {
         );
       }
     });
+
   }
   // Function to fetch the gene pattern
   const fetchGenePattern = async (question) => {
@@ -604,11 +694,23 @@ function MatchPage() {
   };
 
   // Update the gene pattern whenever selectedQuestion changes
+
   useEffect(() => {
     if (selectedQuestion) {
-      fetchGenePattern(selectedQuestion);
+        let connectedString = visualPattern;
+        if (geneId) {
+          connectedString = connectedString.replace(/\{gene@.*?@}/, `{gene@${geneId}@}`);
+        }
+        if (cellId) {
+          connectedString = connectedString.replace(/\{ontology@.*?@}/, `{ontology@${cellId}@}`);
+        }
+        if (snpId) {
+          connectedString = connectedString.replace(/\{snp@.*?@}/, `{snp@${snpId}@}`);
+        }
+        setVisualPattern(connectedString);
+      
     }
-  }, [selectedQuestion]);
+  }, [selectedQuestion, geneId, cellId, snpId]);
 
   // useEffect(() => {
   //   if (selectedQuestion) {
@@ -800,6 +902,7 @@ function MatchPage() {
           )}
         </Box>
 
+
         <Button
           variant="contained" // Use a contained button for emphasis
           color="primary" // Use the primary color
@@ -822,6 +925,7 @@ function MatchPage() {
       </Box>
     </Container>
   );
-}
+};
+
 
 export default MatchPage;

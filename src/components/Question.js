@@ -3,52 +3,46 @@ import { Box, Typography, Select, MenuItem,List,ListItem,ListItemText,TextField,
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import landingPageSchema from '../schema/landing_page_schema.json';
 
 function Question({ selectedQuestion, setSelectedQuestion }) {
-  const [questions, setQuestions] = useState([
-    'Which (SNP) serves as the quantitative trait locus (QTL) for {CFTR}?',
-    'Is {Gene} has GWAS signal associated with (T1D)?',
-    'Find the GWAS-QTL co-localization contribute to T1D?',
-    'How is {CFTR}’s expression in {β cells} and it’s link to T1D?',
-  ]);
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const handleSearch = (e) => {
-    const query = e.target.value.toLowerCase();
-    setSearchQuery(query);
-  
-    const matchingQuestions = questions.filter((q) =>
-      q.toLowerCase().includes(query)
-    );
-    const nonMatchingQuestions = questions.filter(
-      (q) => !q.toLowerCase().includes(query)
-    );
-  
-    setQuestions([...matchingQuestions, ...nonMatchingQuestions]);
+  const [questions, setQuestions] = useState([]);
+  useEffect(() => {
+    setQuestions(landingPageSchema); // Load questions into state
+  }, []);
+  const navigate = useNavigate();
+  const handleQuestionClick = (questionData) => {
+    // Navigate to the next page and pass the question data
+    navigate(`/match?question=${encodeURIComponent(questionData.question)}&qid=${questionData.index}`, { state: questionData });
   };
 
+  // const [searchQuery, setSearchQuery] = useState('');
+
   // const handleSearch = (e) => {
-  //   if (e.key === 'Enter') {
-  //     const query = searchQuery.toLowerCase();
-  //     const matchingQuestions = questions.filter((q) =>
-  //       q.toLowerCase().includes(query)
-  //     );
-  //     const nonMatchingQuestions = questions.filter(
-  //       (q) => !q.toLowerCase().includes(query)
-  //     );
-  //     setQuestions([...matchingQuestions, ...nonMatchingQuestions]);
-  //   }
+  //   const query = e.target.value.toLowerCase();
+  //   setSearchQuery(query);
+  
+  //   const matchingQuestions = questions.filter((q) =>
+  //     q.toLowerCase().includes(query)
+  //   );
+  //   const nonMatchingQuestions = questions.filter(
+  //     (q) => !q.toLowerCase().includes(query)
+  //   );
+  
+  //   setQuestions([...matchingQuestions, ...nonMatchingQuestions]);
   // };
+
   // 当 selectedQuestion 改变时，确保它在 questions 数组中
-  useEffect(() => {
-    if (selectedQuestion && !questions.includes(selectedQuestion)) {
-      setQuestions(prevQuestions => {
-        // 移除第一个问题并在数组开头添加新的问题
-        const newQuestions = prevQuestions.slice(1);
-        return [selectedQuestion, ...newQuestions];
-      });
-    }
-  }, [selectedQuestion]);
+  // useEffect(() => {
+  //   if (selectedQuestion && !questions.includes(selectedQuestion)) {
+  //     setQuestions(prevQuestions => {
+  //       // 移除第一个问题并在数组开头添加新的问题
+  //       const newQuestions = prevQuestions.slice(1);
+  //       return [selectedQuestion, ...newQuestions];
+  //     });
+  //   }
+  // }, [selectedQuestion]);
 
   return (
     <Box sx={{ 
@@ -56,28 +50,28 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
       height: '100%',
       overflowY: 'auto',
       marginTop: '44px',
-      marginBottom: '44px'
+      marginBottom: '44px',
     }}>
       <Typography sx={{ 
         fontSize: 28,
         fontWeight: 700,
         textAlign: 'left', 
-        marginBottom: 1, 
         color:'#4E4E4E',
+        fontFamily: 'Open Sans',
       }}>
-        Question List
+        You can ask:
       </Typography>
       <Typography
         sx={{
           fontSize: 14,
           fontWeight: 400,
           textAlign: 'left',
-          marginBottom: 2,
           color:'#5A5555',
-        }}>Click on a question to explore related data and insights
+          fontFamily: 'Open Sans',
+        }}>Click on a question to explore related data, knowledge, and insights
         </Typography>
 
-        <TextField
+        {/* <TextField
         fullWidth
         variant="outlined"
         placeholder="Search Questions by Keyword..."
@@ -96,17 +90,21 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
             borderRadius: '8px',
           },
         }}
-      />
+      /> */}
 
       <List
         sx={{
+          marginTop: '16px',
+          marginBottom: '16px',
           width: '100%',
           maxHeight: '300px', // Limit the height of the list
           overflowY: 'auto', // Enable vertical scrolling if content exceeds maxHeight
         }}
       >
         {questions.map((question, index) => {
-          const isRelated = question.toLowerCase().includes(searchQuery.toLowerCase());
+          // const isRelated = question.toLowerCase().includes(searchQuery.toLowerCase());
+          const isRelated = true;
+          // const [qid, questionContent] = question.split('@');
           return (
             <ListItem
               key={index}
@@ -119,62 +117,90 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
             >
               <Box className='question-box'
                 fullWidth
-                component="a"
-                href={
-                  isRelated
-                  ? `/match?question=${encodeURIComponent(question)}` // Encode the question as a query parameter
-                  : undefined
-                } 
+                onClick={() => handleQuestionClick(question)}
                 sx={{
                   display: 'flex',
-                  alignItems: 'center',
+                  alignItems: 'top',
                   width: '100%',
-                  height:'52px',
                   textDecoration: 'none',
                   border: '1px solid #ccc',
                   borderRadius: '8px',
-                  backgroundColor: isRelated ? '#FBFFFF' : '#e0e0e0', // Different background for unrelated questions
+                  padding: '10px',
+                  paddingLeft: '0px',
+                  backgroundColor: isRelated ? '#FBFFFF' : '#e0e0e0',
                   color: '#333',
-                  color: '#333',
+                  transition: 'height 0.2s ease-in-out',
                   '&:hover': {
-                    border: '1px solid #219197', // Change border color on hover
-                    backgroundColor: '#E4F0F1', // Change background color on hover
+                    border: '1px solid #219197',
+                    backgroundColor: '#E4F0F1',
                   },
-                  
                 }}
               >
-                  {/* Solid dot */}
                 <Box classname="dot"
                   sx={{
-                    width: '8px',
-                    height: '8px',
+                    width: '11px',
+                    height: '11px',
                     borderRadius: '50%',
-                    backgroundColor: isRelated? '#49B9E4':'#B8CBC9',
-                    marginLeft: 2,
-                    marginRight: 2, // Space between the dot and the text
-                    transition: 'background-color 0.1s', // Smooth transition for hover effect
+                    backgroundColor: '#B8CBC9',//49B9E4',
+                    marginLeft: '20px',
+                    marginRight: '20px',
+                    transition: 'background-color 0.1s',
                     '.question-box:hover &': {
-                    backgroundColor: '#43978F', // Change dot color on hover
-                  },
+                      backgroundColor: '#43978F',
+                    },
                   }}
                 />
-                <ListItemText
-                  primary={question}
-                  sx={{
-                    fontSize: 16,
-                    textAlign: 'left',
-                  }}
-                />
-                {/* Arrow */}
+                <Box sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  flex: 1,
+                }}>
+                  <ListItemText
+                    primary={
+                      <Box sx={{fontFamily:'Open Sans'}}>
+                        {question.question.split(/(\([^)]*\)|\{.*?\})/).map((part, i) => {
+                          if (part.startsWith('(') && part.endsWith(')')) {
+                            return <span key={i} style={{ fontWeight: '600', fontStyle: 'italic', textTransform: 'uppercase'}}>{part.slice(1,-1)}</span>;
+                          } else if (part.startsWith('{') && part.endsWith('}')) {
+                            return <span key={i} style={{ fontWeight: '600', textTransform: 'uppercase' }}>[{part.slice(1,-1).split('@')[0]}]</span>;
+                          }
+                          return <span key={i}>{part}</span>;
+                        })}
+                      </Box>
+                    }
+                    sx={{
+                      fontSize: 16,
+                      textAlign: 'left',
+                      margin: 0,
+                      fontFamily: 'Open Sans',
+                    }}
+                  />
+                  <Typography
+                    sx={{
+                      display: 'none',
+                      transition: 'display 0.1s ease-in-out',
+                      fontSize: 14,
+                      color: '#219197',
+                      marginTop: 0,
+                      '.question-box:hover &': {
+                        display: 'block',
+                      },
+                      fontFamily: 'Open Sans',
+                    }}
+                  >
+                    {question.landing_page_subtitle}
+                  </Typography>
+                </Box>
                 {isRelated && (
                   <ArrowOutwardIcon
                     sx={{
                       fontSize: 20,
                       color: '#7F7D7D',
-                      opacity:0,
-                      marginRight: 2, // Space between the arrow and the edge
+                      opacity: 0,
+                      marginRight: 2,
                       '.question-box:hover &': {
-                        opacity: 1, // Show the arrow when the parent Box is hovered
+                        opacity: 1,
                       },
                     }}
                   />
@@ -184,13 +210,22 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
           );
         })}
       </List>
-      <Link 
-      to="/result?snpId=rs2402203&leadSnp=rs2402203&geneId=ENSG00000001626&relationship=fine_mapped_QTL&tissueKey=pancreas&dataSource=splicing%3B+GTEx&geneSymbol=CFTR"
-      style={{ textDecoration: 'underline', color: 'grey' }}>
-          <Typography>
-            Example: Which SNP serves as the expressive quantitative trait locus (eQTL) for CFTR?
-          </Typography>
-        </Link>
+      <Typography
+      style={{  display: 'flex',alignItems: 'center'}}>
+          <span style={{ backgroundColor: '#2aa198', color: 'white',
+            fontWeight: '700',
+            padding: '0px 5px',
+            borderRadius: '4px',
+            marginRight: '6px',
+            fontSize: '14px',}}>Example</span>
+          <Link 
+          to="https://dev.pankgraph.org/intermediate?qid=1&sourceTerm=snp&relationship=QTL&targetTerm=gene:ENSG00000001626&targetSymbol=CFTR"
+          style={{      fontSize: '14px',
+            textDecoration: 'underline',
+            color: '#333',}}>
+            Which SNP serves as the expression quantitative trait locus (eQTL) for CFTR?
+          </Link>
+        </Typography>
     </Box>
   );
 }

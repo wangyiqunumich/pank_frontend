@@ -1,51 +1,47 @@
-const colorMap = {
-  // gene: '#43978F',
-  // sequence_variant: '#E56F5E',
-  // eQTL_of: '#FBE8D5',
-  // default: '#DCE9F4'
-  gene: '#3A838B',
-  sequence_variant: '#3A838B',
-  eQTL_of: '#3A838B',
-  default: '#3A838B'
-};
-
-export function replaceTerms(question, sourceTerm, relationship, targetTerm, targetTermSymbol, isNextQuestion = false, addStyle = true) {
-  const [sourceType, ...sourceRest] = sourceTerm.split(':');
-  const sourceValue = sourceRest.join(':') || sourceType;
-
-  const [targetType, ...targetRest] = targetTerm.split(':');
-  const targetValue = targetTermSymbol ? targetTermSymbol + ' (' + targetRest.join(':') + ')' : targetRest.join(':') || targetType;
-
-  const replaceValue = sourceType !== sourceValue ? sourceValue : targetValue;
-
-  return question.replace(/\{([^{}@]+)(@([^{}@]+)@)?\}/g, (match, term, fullType, type) => {
-    let replacedTerm;
-
-    if (isNextQuestion) {
-      replacedTerm = term;
-    } else if (fullType) {
-      replacedTerm = replaceValue;
-    } else {
-      replacedTerm = term;
-    }
-
-    if (addStyle) {
-      const color = colorMap[type || term] || colorMap.default;
-      return `<span style="color: ${color}; font-weight: 700">${replacedTerm}</span>`;
-    } else {
-      return replacedTerm;
-    }
-  });
+export function addHighlight(question, option = false) {
+  return question.replace(/\{([^{}@]+)\}/g, (match, term) => (
+    option ? term :
+      `<span style="color: #3A838B; font-weight: 700">${term}</span>`
+  ));
 }
 
-export function replaceVariables(text, variables) {
-  const { leadSnp, geneId, tissueKey, dataSource, snpId, geneSymbol } = variables;
-  return text
-    .replace(/@lead_snp_node@/g, leadSnp)
-    .replace(/@gene_node@/g, geneSymbol + ' (' + geneId + ')')
-    .replace(/@tissue@/g, tissueKey)
-    .replace(/@data_source@/g, dataSource)
-    .replace(/@snp_node@/g, snpId);
+export function replaceVariables(text, variables, replaceUnderscore = false) {
+  if (!text || !variables?.sourceTerm || !variables?.targetTerm) {
+    return text;
+  }
+  const { tissueKey, dataSource } = variables;
+  let { sourceTerm, targetTerm, sourceSymbol, targetSymbol } = variables;
+  let [sourceType, sourceId] = sourceTerm.split(':');
+  let [targetType, targetId] = targetTerm.split(':');
+  if (replaceUnderscore) {
+    sourceId = sourceId?.replace(/_/g, ' ');
+    targetId = targetId?.replace(/_/g, ' ');
+    sourceSymbol = sourceSymbol?.replace(/_/g, ' ');
+    targetSymbol = targetSymbol?.replace(/_/g, ' ');
+  }
+  const replaceList = {
+    [`@${sourceType}@`]: sourceId,
+    [`@${sourceType}_id@`]: sourceId,
+    [`@${sourceType}_name@`]: sourceSymbol,
+    [`@${sourceType}_symbol@`]: sourceSymbol,
+    [`@${targetType}@`]: targetId,
+    [`@${targetType}_id@`]: targetId,
+    [`@${targetType}_name@`]: targetSymbol,
+    [`@${targetType}_symbol@`]: targetSymbol,
+    '@tissue@': tissueKey,
+    '@method@': dataSource?.includes('GTEx') ? 'GTEx' : 'INSPIRE'
+  };
+  const replacedText = Object.entries(replaceList).reduce((acc, [key, value]) => (
+    key ? acc.replace(new RegExp(key, 'g'), value) : acc
+  ), text);
+  return replacedText;
+}
+
+export const getGeneSymbol = (nodeId) => {
+  if (!nodeId) return '';
+  const parts = nodeId.split('_');
+  if (parts?.length < 3) return '';
+  return parts[2];
 }
 
 // 从conversion table中获取数据源对应的前端显示和组织信息

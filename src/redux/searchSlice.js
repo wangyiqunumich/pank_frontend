@@ -12,7 +12,10 @@ const searchSlice = createSlice({
     fallbackRelationship: 'fine_mapped_eQTL',
     fallbackTargetTerm: 'gene:ENSG00000134242',
     fallbackTargetTermSymbol: 'ptpn22',
-    targetTermSymbol: ''
+    targetTermSymbol: '',
+    sourceTermSymbol: '',
+    replaceListSymbol: {},
+    replaceListId: {},
   },
   reducers: {
     setSearchTerms: (state, action) => {
@@ -21,6 +24,7 @@ const searchSlice = createSlice({
         state.relationship = action.payload.relationship;
         state.targetTerm = action.payload.targetTerm;
         state.targetTermSymbol = action.payload.targetTermSymbol;
+        state.sourceTermSymbol = action.payload.sourceTermSymbol;
       }
     },
     setNextQuestionClicked: (state, action) => {
@@ -31,7 +35,10 @@ const searchSlice = createSlice({
     },
     setTargetTermSymbol: (state, action) => {
       state.targetTermSymbol = action.payload;
-    } 
+    },
+    setSourceTermSymbol: (state, action) => {
+      state.sourceTermSymbol = action.payload;
+    },
   }
 });
 
