@@ -11,15 +11,27 @@ export function replaceVariables(text, variables, replaceUnderscore = false) {
   }
   const { tissueKey, dataSource } = variables;
   let { sourceTerm, targetTerm, sourceSymbol, targetSymbol } = variables;
-  let [sourceType, sourceId] = sourceTerm.split(':');
-  let [targetType, targetId] = targetTerm.split(':');
+  let additionalParams = (variables.additionalParams || []).map(param => param.split('@'));
+  let [sourceType, sourceId] = sourceTerm.split('@');
+  let [targetType, targetId] = targetTerm.split('@');
   if (replaceUnderscore) {
     sourceId = sourceId?.replace(/_/g, ' ');
     targetId = targetId?.replace(/_/g, ' ');
     sourceSymbol = sourceSymbol?.replace(/_/g, ' ');
     targetSymbol = targetSymbol?.replace(/_/g, ' ');
+    additionalParams = additionalParams.map(([key, value]) => [
+      key,
+      value?.replace(/_/g, ' ')
+    ]);
   }
+  const additionalParamsList = additionalParams.reduce((acc, [key, value]) => {
+    if (key && value) {
+      acc[`@${key}@`] = value;
+    }
+    return acc;
+  }, {});
   const replaceList = {
+    ...additionalParamsList,
     [`@${sourceType}@`]: sourceId,
     [`@${sourceType}_id@`]: sourceId,
     [`@${sourceType}_name@`]: sourceSymbol,
