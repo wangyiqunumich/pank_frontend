@@ -51,362 +51,6 @@ const edgeLabels = {
   regulation: "interact with",
 };
 
-// Add a simple graph viewer component for the match page
-// const MatchGraphViewer = ({ visualPattern, selectedQuestion }) => {
-//   const containerRef = useRef(null);
-//   const cyRef = useRef(null);
-
-//   useEffect(() => {
-//     if (!containerRef.current || !selectedQuestion) {
-//       return;
-//     }
-
-//     // Parse the question to determine the visualization structure
-//     const parseQuestionStructure = (question) => {
-//       // Different question patterns and their corresponding visualizations
-
-//       // Pattern 1: "Which (SNP) serves as the quantitative trait locus (QTL) for {CFTR}?"
-//       if (question.includes("(SNP)") && question.includes("(QTL)")) {
-//         let geneMatch = question.match(/\{([^}]+)\}/);
-//         let geneName = geneMatch ? geneMatch[1] : "Gene";
-//         if(geneName.includes('(')){
-//           geneName = geneName.split('(')[0];
-//         }
-//         return {
-//           type: "snp_qtl_gene",
-//           nodes: [
-//             {
-//               id: "snp",
-//               label: "SNP",
-//               color: nodeColors.variants,
-//               nodeType: "variants",
-//               position: { x: 100, y: 150 },
-//             },
-//             {
-//               id: "gene",
-//               label: geneName,
-//               color: nodeColors.coding_elements,
-//               nodeType: "coding_elements",
-//               position: { x: 400, y: 150 },
-//             },
-//           ],
-//           edges: [
-//             { id: "qtl_rel", source: "snp", target: "gene", label: "QTL of" },
-//           ],
-//         };
-//       }
-
-//       // Pattern 2: "Is {Gene} has GWAS signal associated with (T1D)?"
-//       else if (question.includes("GWAS") && question.includes("(T1D)")) {
-//         const geneMatch = question.match(/\{([^}]+)\}/);
-//         const geneName = geneMatch ? geneMatch[1] : "Gene";
-//         return {
-//           type: "gene_gwas_t1d",
-//           nodes: [
-//             {
-//               id: "gene",
-//               label: geneName,
-//               color: nodeColors.coding_elements,
-//               nodeType: "coding_elements",
-//               position: { x: 100, y: 150 },
-//             },
-//             {
-//               id: "t1d",
-//               label: "T1D",
-//               color: nodeColors.ontology,
-//               nodeType: "ontology",
-//               position: { x: 400, y: 150 },
-//             },
-//           ],
-//           edges: [
-//             {
-//               id: "gwas_rel",
-//               source: "gene",
-//               target: "t1d",
-//               label: "GWAS signal",
-//             },
-//           ],
-//         };
-//       }
-
-//       // Pattern 3: "Find the GWAS-QTL co-localization contribute to T1D?"
-//       else if (
-//         question.includes("GWAS-QTL") &&
-//         question.includes("co-localization")
-//       ) {
-//         return {
-//           type: "gwas_qtl_colocalization",
-//           nodes: [
-//             {
-//               id: "gwas",
-//               label: "GWAS\nSignal",
-//               color: nodeColors.article,
-//               nodeType: "article",
-//               position: { x: 50, y: 100 },
-//             },
-//             {
-//               id: "qtl",
-//               label: "QTL\nSignal",
-//               color: nodeColors.variants,
-//               nodeType: "variants",
-//               position: { x: 50, y: 200 },
-//             },
-//             {
-//               id: "colocalization",
-//               label: "Co-localization",
-//               color: nodeColors.OCR,
-//               nodeType: "OCR",
-//               position: { x: 250, y: 150 },
-//             },
-//             {
-//               id: "t1d",
-//               label: "T1D",
-//               color: nodeColors.ontology,
-//               nodeType: "ontology",
-//               position: { x: 450, y: 150 },
-//             },
-//           ],
-//           edges: [
-//             {
-//               id: "gwas_coloc",
-//               source: "gwas",
-//               target: "colocalization",
-//               label: "contributes to",
-//             },
-//             {
-//               id: "qtl_coloc",
-//               source: "qtl",
-//               target: "colocalization",
-//               label: "contributes to",
-//             },
-//             {
-//               id: "coloc_t1d",
-//               source: "colocalization",
-//               target: "t1d",
-//               label: "contributes to",
-//             },
-//           ],
-//         };
-//       }
-
-//       // Pattern 4: "How is {CFTR}'s expression in {β cells} and it's link to T1D?"
-//       else if (
-//         question.includes("expression") &&
-//         question.includes("link to T1D")
-//       ) {
-//         const geneMatch = question.match(/\{([^}]+)\}/);
-//         const cellMatch = question.match(/\{([^}]+)\}/g);
-//         const geneName = geneMatch ? geneMatch[1] : "Gene";
-//         const cellType =
-//           cellMatch && cellMatch[1]
-//             ? cellMatch[1].replace(/[{}]/g, "")
-//             : "β cells";
-
-//         return {
-//           type: "gene_expression_cells_t1d",
-//           nodes: [
-//             {
-//               id: "gene",
-//               label: geneName,
-//               color: nodeColors.coding_elements,
-//               nodeType: "coding_elements",
-//               position: { x: 80, y: 150 },
-//             },
-//             {
-//               id: "expression",
-//               label: "Gene\nExpression",
-//               color: nodeColors.OCR,
-//               nodeType: "OCR",
-//               position: { x: 250, y: 100 },
-//             },
-//             {
-//               id: "cells",
-//               label: cellType,
-//               color: nodeColors.article,
-//               nodeType: "article",
-//               position: { x: 250, y: 200 },
-//             },
-//             {
-//               id: "t1d",
-//               label: "T1D",
-//               color: nodeColors.ontology,
-//               nodeType: "ontology",
-//               position: { x: 420, y: 150 },
-//             },
-//           ],
-//           edges: [
-//             {
-//               id: "gene_expr",
-//               source: "gene",
-//               target: "expression",
-//               label: "expressed as",
-//             },
-//             {
-//               id: "expr_cells",
-//               source: "expression",
-//               target: "cells",
-//               label: "in",
-//             },
-//             {
-//               id: "expr_t1d",
-//               source: "expression",
-//               target: "t1d",
-//               label: "linked to",
-//             },
-//           ],
-//         };
-//       }
-
-//       // Default pattern - simple SNP -> Gene relationship
-//       else {
-//         const geneMatch = question.match(/\{([^}]+)\}/);
-//         const geneName = geneMatch ? geneMatch[1] : "Gene";
-//         let geneId = "";
-
-//         // Extract gene ID from visual pattern if available
-//         if (visualPattern) {
-//           const geneIdMatch = visualPattern.match(/@([^@]+)@/);
-//           geneId = geneIdMatch ? geneIdMatch[1] : "";
-//         }
-
-//         return {
-//           type: "default_snp_gene",
-//           nodes: [
-//             {
-//               id: "snp",
-//               label: "SNP",
-//               color: nodeColors.variants,
-//               nodeType: "variants",
-//               position: { x: 100, y: 150 },
-//             },
-//             {
-//               id: "gene",
-//               label: geneId ? `${geneName}\n(${geneId})` : geneName,
-//               color: nodeColors.coding_elements,
-//               nodeType: "coding_elements",
-//               position: { x: 400, y: 150 },
-//             },
-//           ],
-//           edges: [
-//             { id: "eqtl", source: "snp", target: "gene", label: "eQTL of" },
-//           ],
-//         };
-//       }
-//     };
-
-//     const structure = parseQuestionStructure(selectedQuestion);
-
-//     // Create Cytoscape nodes
-//     const cyNodes = structure.nodes.map((node) => ({
-//       group: "nodes",
-//       data: {
-//         id: node.id,
-//         label: node.label,
-//         color: node.color,
-//         textColor: getContrastingColor(node.color),
-//         nodeType: node.nodeType,
-//         width: node.label.includes("\n") ? 140 : 120,
-//         height: node.label.includes("\n") ? 60 : 46,
-//         fontSize: node.label.length > 15 ? "14px" : "16px",
-//       },
-//       position: node.position,
-//       locked: true,
-//     }));
-
-//     // Create Cytoscape edges
-//     const cyEdges = structure.edges.map((edge) => ({
-//       group: "edges",
-//       data: {
-//         id: edge.id,
-//         source: edge.source,
-//         target: edge.target,
-//         label: edge.label,
-//       },
-//     }));
-
-//     // Destroy previous instance if exists
-//     if (cyRef.current) {
-//       cyRef.current.destroy();
-//     }
-
-//     const cy = Cytoscape({
-//       container: containerRef.current,
-//       elements: [...cyNodes, ...cyEdges],
-//       style: [
-//         {
-//           selector: "node",
-//           style: {
-//             shape: "roundrectangle",
-//             width: "data(width)",
-//             height: "data(height)",
-//             "background-color": "data(color)",
-//             label: "data(label)",
-//             "text-valign": "center",
-//             "text-halign": "center",
-//             "font-size": "data(fontSize)",
-//             color: "data(textColor)",
-//             "text-wrap": "wrap",
-//             "font-weight": "bold",
-//             "border-width": 2,
-//             "border-color": "data(color)",
-//             "corner-radius": 16,
-//             padding: "5px",
-//           },
-//         },
-//         {
-//           selector: "edge",
-//           style: {
-//             width: 3,
-//             "line-color": "#666",
-//             "target-arrow-color": "#666",
-//             "target-arrow-shape": "triangle",
-//             "curve-style":
-//               structure.type === "gwas_qtl_colocalization"
-//                 ? "bezier"
-//                 : "straight",
-//             label: "data(label)",
-//             "font-size": "14px",
-//             "text-margin-y": -20,
-//             "font-weight": "bold",
-//             color: "#333",
-//             "text-background-opacity": 1,
-//             "text-background-color": "white",
-//             "text-background-padding": "2px",
-//           },
-//         },
-//       ],
-//       layout: {
-//         name: "preset",
-//         fit: true,
-//         padding: 30,
-//       },
-//       userZoomingEnabled: false,
-//       userPanningEnabled: false,
-//     });
-
-//     cyRef.current = cy;
-
-//     return () => {
-//       if (cyRef.current) {
-//         cyRef.current.destroy();
-//       }
-//     };
-//   }, [visualPattern, selectedQuestion]);
-
-//   return (
-//     <div
-//       ref={containerRef}
-//       style={{
-//         width: "100%",
-//         height: "220px",
-//         backgroundColor: "#F7F7F74D",
-//         borderRadius: "8px",
-//         border: "1px solid #E0E0E0",
-//       }}
-//     />
-//   );
-// };
-
 // match string "{aaa@bbb@} - xxx -> {ccc@ddd@}" to {
 // sourceType: aaa, sourceId: bbb, targetType: ccc, targetId: ddd, relationship: xxx
 // and then render a graph with Cytoscape
@@ -713,17 +357,19 @@ function MatchPage() {
               onInputChange={(event, newInputValue) => {
                 if (newInputValue) {
                   updateSource(newInputValue, type);
-                  setIsSubmitDisabled(!options.includes(newInputValue));
+                  // setIsSubmitDisabled(!options.includes(newInputValue));
                 } else {
                   if (type === 'gene') {
+                    setGeneId('');
                     setGeneOptions([]);
                   }
                   else if (type === 'cell') {
+                    setCellId('');
                     setCellOptions([]);
                   } else if (type === 'snp') {
+                    setSnpId('');
                     setSnpOptions([]);
                   }
-                  setIsSubmitDisabled(true);
                 }
               }}
               onChange={(event, newValue) => {
@@ -743,7 +389,6 @@ function MatchPage() {
                       return prevQuestion.replace(`{${part.slice(1, -1)}}`, `{${newValue}}`);
                     });
                   }
-                  setIsSubmitDisabled(!newValue);
                 }
               }}
               PopperComponent={(props) => (
@@ -825,6 +470,24 @@ function MatchPage() {
     }
   }, [selectedQuestion, geneId, cellId, snpId]);
 
+  useEffect(() => {
+    let isabled = true;
+    for (const [key, value] of Object.entries(dictionary)) {
+      if (value === 'gene' && !geneId) {
+        isabled = false;
+        continue;
+      }
+      if (value === 'cell' && !cellId) {
+        isabled = false;
+        continue;
+      }
+      if (value === 'snp' && !snpId) {
+        isabled = false;
+        continue;
+      }
+    }
+    setIsSubmitDisabled(!isabled);
+  }, [geneId, cellId, snpId]);
 
 
   return (
