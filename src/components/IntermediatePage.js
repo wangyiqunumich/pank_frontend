@@ -445,7 +445,7 @@ function IntermediatePage({ onContinue }) {
             </Typography>
             {/*a link*/}
             <a href={"/"} style={{ color: "#398289", textDecoration: "none" }}>
-              <Typography sx={{ color: "#398289", textDecoration: "underline", textUnderlineOffset: "3px", fontSize: "16px", marginBottom: "20px", fontWeight: 600 }}>
+              <Typography sx={{ fontFamily: 'Open Sans', color: "#398289", textDecoration: "underline", textUnderlineOffset: "3px", fontSize: "17px", marginBottom: "20px", fontWeight: 600 }}>
                 CANCEL
               </Typography>
             </a>
@@ -532,7 +532,7 @@ function IntermediatePage({ onContinue }) {
             </Typography>
             <div className="styled-paper" style={{ padding: '10px 32px' }}>
               <div className="answer-content">
-                <Typography sx={{ mb: 2, fontSize: 16, fontFamily: 'Open Sans' }}>
+                <Typography sx={{ mb: 2, fontSize: 16, fontFamily: 'Open Sans', fontWeight: "400" }}>
                   Found <span style={{ color: "#3A838B", fontWeight: "700" }}>four</span> categories of Quantitative Trait Loci (QTL) data, derived from pancreatic and islet tissue samples.
                 </Typography>
 
@@ -773,7 +773,7 @@ function IntermediatePage({ onContinue }) {
                   fontWeight: 600,
                   fontSize: 16,
                 }}>
-                  Total rows: {getFilteredResults().length}
+                  Total records: {getFilteredResults().length}
                 </Typography>
               </Box>
             </div>

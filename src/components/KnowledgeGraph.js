@@ -285,7 +285,7 @@ export default function KnowledgeGraph() {
         position: "absolute",
         bottom: "35px",
         right: "10px",
-        height: "30px",
+        height: "40px",
         width: "60px",
         display: "flex",
         background: "white",
@@ -312,6 +312,8 @@ export default function KnowledgeGraph() {
           }, 200);
         }}
         style={{
+          fontFamily: "Open Sans",
+          fontWeight: 400,
           position: "absolute",
           left: tooltipPosition.x,
           top: tooltipPosition.y,
@@ -368,20 +370,19 @@ export default function KnowledgeGraph() {
             display: "flex",
             flexDirection: "column",
             background: "#fff",
-            padding: "24px",
+            padding: "20px",
             borderRadius: "8px",
-            boxShadow: legendVisible ? "0px 4px 15px -3px rgba(100,100,100,0.25)" : "0px 4px 15px -3px rgba(100,100,100,0.5)",
+            boxShadow: "0px 4px 15px -3px rgba(100,100,100,0.25)",
             zIndex: 10,
             userSelect: "none",
             height: "fit-content",
             width: legendVisible ? "450px" : "100px",
-            opacity: legendVisible ? 1 : 0.5,
             transition: "width 0.3s, height 0.3s, opacity 0.3s, box-shadow 0.3s",
           }}
         >
           {/* Title */}
           <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-            <div style={{ fontSize: "14px", fontWeight: 600, color: "#172A3A" }}>
+            <div style={{ fontSize: "14px", fontWeight: 700, color: "#172A3A", fontFamily: "Open Sans" }}>
               Legend
             </div>
             <IconButton
@@ -396,7 +397,7 @@ export default function KnowledgeGraph() {
             </IconButton>
           </div>
           <Collapse in={legendVisible} timeout="auto">
-            <div style={{ width: "430px", paddingTop: "10px" }}>
+            <div style={{ width: "430px", paddingTop: "10px", fontSize: "16px", fontFamily: "Open Sans", fontWeight: 400 }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingBottom: "4px", fontSize: "12px" }}>
                 <LegendItem type="　　" sx={{ backgroundColor: "#D9D9D9", color: "black", height: "10px" }} />
                 Core Nodes

@@ -32,14 +32,6 @@
             }
         },
         {
-            "link": "/result?sourceTerm=gene@ENSG00000186092&targetTerm=cell_type@CL_0002064&relationship=express_in",
-            "dictionary": {
-                "sourceTerm": "gene@ENSG00000186092",
-                "relationship": "express_in",
-                "targetTerm": "cell_type@CL_0002064"
-            }
-        },
-        {
             "link": "/result?sourceTerm=gene@ENSG00000001626&targetTerm=cell_type@CL_0002064&relationship=express_in",
             "dictionary": {
                 "sourceTerm": "gene@ENSG00000001626",

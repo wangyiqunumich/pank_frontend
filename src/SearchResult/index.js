@@ -195,7 +195,7 @@ function SearchResult() {
                             lead_snp && credible_set_id ? [
                                 `lead_snp@${lead_snp}`,
                                 `credible_set_id@${credible_set_id}`
-                            ] : [];
+                            ] : [`lead_${sourceTerm}`];
                         const temporaryVariables = {
                             additionalParams,
                             sourceTerm,
@@ -322,30 +322,40 @@ function SearchResult() {
         // replace [aaa](bbb) with <a href="bbb">aaa</a>
         if (!text) return <></>;
         return (<>
-            {text
-                .replace(
-                    /\[(.*?)\]\((.*?)\)/g, (match, p1, p2) =>
-                    `<a href="${p2}" target="_blank" style="color: #0069c2; text-decoration: none">${p1}</a>`
-                )
-                .split(/(\[PubMed[^\]]+\]|\(PubMed[^\)]+\))/g)
-                .map((part, index) =>
-                    part.match(/^\[.*\]$|^\(.*\)$/)
-                        ? <span key={`part-${index}`}>{
-                            part.split(/(\d+)/g).map((subPart, subIndex) =>
-                                //if all digit?
-                                subPart.match(/^\d+$/)
-                                    ? <a
-                                        href={`#reference-item-${subPart}`}
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            setCurrTab('reference');
-                                            setActiveReference(subPart);
-                                        }}
-                                        key={`subpart-${index}-${subIndex}`}>
-                                        {subPart}
-                                    </a>
-                                    : <span key={`subpart-${index}-${subIndex}`}>{subPart}</span>
-                            )}</span>
+            {text.split(/(\[[^\]]+\]\([^)]+\)|\[[^\]]+\])/)
+                .map((part, index) => part.match(/^\[[^\]]+\]$/) // if [text]
+                    ? <span key={`part-${index}`}>{
+                        part.split(/(\d+)/g).map((subPart, subIndex) =>
+                            subPart.match(/^\d{8}$/) //if all digit
+                                ? <Link
+                                    href={`#reference-item-${subPart}`}
+                                    sx={{
+                                        color: '#1976d2',
+                                        fontWeight: 400,
+                                        textDecoration: 'none',
+                                        '&:hover': {
+                                            textDecoration: 'underline'
+                                        }
+                                    }}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        setCurrTab('reference');
+                                        setActiveReference(subPart);
+                                    }}
+                                    key={`subpart-${index}-${subIndex}`}
+                                >{subPart}</Link>
+                                : <span key={`subpart-${index}-${subIndex}`}>{subPart}</span>
+                        )}
+                    </span>
+                    : part.match(/^\[[^\]]+\]\([^)]+\)$/)  // if [text](url)
+                        ? <a
+                            href={part.split("(")[1].slice(0, -1)}
+                            target="_blank"
+                            style={{ color: "#0069c2", textDecoration: "none" }}
+                            key={`part-${index}`}
+                        >
+                            {part.split("]")[0].substr(1)}
+                        </a>
                         : <span key={`part-${index}`}>{part}</span>
                 )}
         </>);
@@ -371,6 +381,7 @@ function SearchResult() {
         <Container sx={{
             padding: 0, display: 'flex',
             flexDirection: 'column', justifyContent: 'space-evenly',
+            fontFamily: 'Open Sans', fontWeight: 600,
             alignSelf: 'center',
             maxWidth: '1440px',
             minWidth: '1000px',
@@ -385,27 +396,28 @@ function SearchResult() {
                 <Grid container spacing={4} height={"100%"} sx={{ alignItems: "stretch" }}>
                     <Grid item xs={6} height={"100%"}>
                         <Box sx={{ width: "100%", justifyContent: "space-between", display: "flex", alignItems: "center" }}>
-                            <Typography sx={{ fontWeight: 600, fontSize: 20, width: 685, textAlign: 'left', marginBottom: '10px' }}>
+                            <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: 20, width: 685, textAlign: 'left', marginBottom: '10px' }}>
                                 Question <TooltipComponent title="Question" content="The question of the current search result." />
                             </Typography>
                             {/*a link*/}
-                            <a href={"/"} style={{ color: "#398289", textUnderlineOffset: "3px", fontSize: "16px", marginBottom: "20px" }}>
+                            <a href={"/"} style={{ color: "#398289", fontWeight: 600, textUnderlineOffset: "3px", fontSize: "17px", marginBottom: "10px" }}>
                                 CANCEL
                             </a>
                         </Box>
                         {currentQuestionType && (
-                            <Typography sx={{ fontSize: 14, textAlign: 'left' }}>
+                            <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: 16, textAlign: 'left' }}>
                                 (Your selection belongs to: {currentQuestionType})
                             </Typography>
                         )}
                         <Typography
                             sx={{
+                                fontFamily: 'Open Sans',
                                 flex: 1,
                                 textAlign: 'left',
                                 wordWrap: 'break-word',
                                 whiteSpace: 'normal',
                                 fontSize: 16,
-                                // fontWeight: 300
+                                fontWeight: 600,
                             }}
                             dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }}
                         />
@@ -413,7 +425,7 @@ function SearchResult() {
                     </Grid>
                     <Grid item xs={6} height={"100%"}>
                         {/*you may also ask*/}
-                        <Typography sx={{ fontWeight: 600, fontSize: 20, width: 685, textAlign: 'left', marginBottom: '10px' }}>
+                        <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: 20, width: 685, textAlign: 'left', marginBottom: '10px' }}>
                             You May Also Ask<TooltipComponent title="You May Also Ask" content="Links to other problems." />
                         </Typography>
                         <ul className="next-questions-list">
@@ -424,14 +436,15 @@ function SearchResult() {
                                         display: 'flex',
                                     }}>
                                         <Typography sx={{
-                                            fontSize: 14,
-                                            fontFamily: 'Open Sans'
+                                            fontFamily: 'Open Sans',
+                                            fontWeight: 400,
+                                            fontSize: 16,
                                         }} dangerouslySetInnerHTML={{ __html: nextQuestions }} />
                                         <span style={{ alignContent: 'center' }}><ChevronRightIcon /></span>
                                     </Box>
                                 </li>
                             ) : (
-                                <Typography sx={{ fontSize: 16 }}>No next questions available</Typography>
+                                <Typography sx={{ fontFamily: 'Open Sans', fontSize: 16 }}>No next questions available</Typography>
                             )}
                         </ul>
                     </Grid>
@@ -455,27 +468,30 @@ function SearchResult() {
                         borderRadius: '20px'
                     }}>
                         <Typography sx={{
-                            fontWeight: 'bold', fontSize: 20
+                            fontFamily: 'Open Sans', fontWeight: 800, fontSize: 22
                         }}>
-                            AI's Overview<TooltipComponent title="AI's Overview" content="AI's overview of the current search result." />
+                            AI's Overview<TooltipComponent title="AI's Overview" />
                         </Typography>
-                        <Typography component="div">
+                        <Typography component="div" sx={{ fontFamily: 'Open Sans', }}>
                             {Array.isArray(aiAnswer?.answers) && aiAnswer.answers.map((answer, index) => (
                                 <div key={index} style={{ marginBottom: index < aiAnswer.answers.length - 1 ? '20px' : '0' }}>
                                     {aiAnswerSubtitle && aiAnswerSubtitle[index] && (
                                         <Typography sx={{
+                                            fontFamily: 'Open Sans',
                                             textAlign: 'left',
                                             gap: 1,
-                                            fontSize: '18px'
+                                            fontWeight: 400,
+                                            fontSize: '20px'
                                         }}>
                                             <span style={{ color: '#FFD700' }}>✨</span>
                                             {aiAnswerSubtitle[index]}
                                         </Typography>
                                     )}
                                     <Typography sx={{
+                                        fontFamily: 'Open Sans',
                                         textAlign: 'left',
-                                        fontSize: '14px',
-                                        fontWeight: 100
+                                        fontSize: '16px',
+                                        fontWeight: 300
                                     }}>
                                         <ProcessLinks text={removeConsecutiveAsterisks(answer)} />
                                     </Typography>
@@ -502,10 +518,11 @@ function SearchResult() {
                         borderRadius: '20px'
                     }}>
                         <Typography sx={{
-                            fontWeight: 'bold',
-                            fontSize: 20
+                            fontFamily: 'Open Sans',
+                            fontWeight: 800,
+                            fontSize: 22
                         }}>
-                            Graph Viewer<TooltipComponent title="Graph Viewer" content="The graph showing the relationship between the SNP and the gene." />
+                            Graph Viewer<TooltipComponent title="Graph Viewer" />
                         </Typography>
                         <Box sx={{
                             position: 'relative',
@@ -570,7 +587,7 @@ function SearchResult() {
                 }}></div>
                 {[
                     { value: 'reference', label: 'Reference' },
-                    { value: 'visualization', label: 'Visualization' },
+                    // { value: 'visualization', label: 'Visualization' },
                     { value: 'pankbase_links', label: 'PanKbase Links' },
                     { value: 'external_links', label: 'External Links' }
                 ].map((option, index) => (
@@ -644,7 +661,7 @@ function SearchResult() {
                                             alignItems: "flex-start",
                                             position: "relative",
                                             fontSize: '12px',
-                                            fontWeight: 400,
+                                            fontWeight: 300,
                                             textAlign: 'left',
                                             wordWrap: 'break-word',
                                             whiteSpace: 'normal',
@@ -663,13 +680,13 @@ function SearchResult() {
                                             alignItems: "flex-end"
                                         }}>
                                             <Typography
-                                                sx={{ textAlign: 'right', }}
+                                                sx={{ fontFamily: 'Open Sans', textAlign: 'right', fontWeight: 400 }}
                                             >{index + 1}.</Typography>
                                         </Box>
                                         <Typography
-                                            sx={{ fontWeight: 600 }}
+                                            sx={{ fontFamily: 'Open Sans', fontWeight: 700 }}
                                         >{ref.title}</Typography>
-                                        <Typography>
+                                        <Typography sx={{ fontFamily: 'Open Sans', }}>
                                             {(() => {
                                                 const authors = ref.data.authors;
                                                 return authors.length <= 2 ?
@@ -677,7 +694,7 @@ function SearchResult() {
                                                     `${authors[0].name}, ..., ${authors[authors.length - 1].name}`;
                                             })()}
                                         </Typography>
-                                        <Typography sx={{ color: "grey" }}>
+                                        <Typography sx={{ fontFamily: 'Open Sans', color: "grey" }}>
                                             <i>{ref.data.fulljournalname}</i>.&nbsp;
                                             {ref.data.pubdate.slice(0, 4)}
                                             {(ref.data.volume || ref.data.issue || ref.data.pages) && <>;</>}
@@ -686,7 +703,14 @@ function SearchResult() {
                                             {ref.data.pages && <>:{ref.data.pages}</>}.
                                             &nbsp;<Link
                                                 href={"https://pubmed.gov/" + ref.pmid}
-                                                sx={{ color: '#1976d2' }}
+                                                sx={{
+                                                    color: '#1976d2',
+                                                    fontWeight: 400,
+                                                    textDecoration: 'none',
+                                                    '&:hover': {
+                                                        textDecoration: 'underline'
+                                                    }
+                                                }}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                             ><span>PMID: {ref.pmid}</span></Link>
