@@ -632,7 +632,7 @@ function SearchResult() {
                             articlesData?.map((ref, index) => (
                                 <Link
                                     href={"https://pubmed.gov/" + ref.pmid}
-                                    sx={{ textDecoration: 'none', color: '#1976d2' }}
+                                    sx={{ textDecoration: 'none', color: 'black' }}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                 >
@@ -684,12 +684,12 @@ function SearchResult() {
                                             {ref.data.volume}
                                             {ref.data.issue && <>({ref.data.issue})</>}
                                             {ref.data.pages && <>:{ref.data.pages}</>}.
-                                            <Link
+                                            &nbsp;<Link
                                                 href={"https://pubmed.gov/" + ref.pmid}
-                                                sx={{ textDecoration: 'none', color: '#1976d2' }}
+                                                sx={{ color: '#1976d2' }}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                            ><span>&nbsp;PMID: {ref.pmid}</span></Link>
+                                            ><span>PMID: {ref.pmid}</span></Link>
                                         </Typography>
                                     </ListItem>
                                 </Link>
