@@ -22,7 +22,7 @@
                               "#": "n_snp"
                         }
                   ],
-                  "question_for_result": "How does the {SNP @snp_id@} influence the expression of {@gene_symbol@ (@gene_id@)} in @tissue@ tissue, as reported by @method@?",
+                  "question_for_result": "How does the {SNP @snp_id@} influence the expression of {@gene_symbol@} in @tissue@ tissue, as reported by @method@?",
                   "cypher_for_result_page_core": "MATCH (variant:sequence_variant:snp), (gene:coding_elements) WHERE ID(variant) = '@snp@' AND ID(gene) = '@gene@' MATCH (variant)-[r:fine_mapped_eQTL]-(gene) WITH collect(DISTINCT variant) + collect(DISTINCT gene) AS nodes, collect(DISTINCT r) AS edges RETURN { results: [ { nodes: nodes, edges: edges } ] } AS output;",
                   "cypher_for_result_page_nbr": "MATCH (variant:sequence_variant)-[r1]-(nbr1) WHERE ID(variant) = '@snp@' WITH r1, nbr1 MATCH (gene:coding_elements)-[r2]-(nbr2) WHERE ID(gene) = '@gene@'WITH collect(DISTINCT r1) + collect(DISTINCT r2) AS rels, collect(DISTINCT nbr1) + collect(DISTINCT nbr2) AS nbrs WITH rels, [n IN nbrs WHERE NOT id(n) IN ['@snp@','@gene@']] AS nodes RETURN { results: [ { nodes: nodes, edges: rels } ] } AS output;",
                   "ai_question_for_result": [
@@ -94,7 +94,7 @@
                         }
                   ],
                   "cyper_for_intermediate_page": "SELECT * FROM QTL_DATA WHERE snp = '@snp@' AND gene = '@gene@'",
-                  "question_for_result": "How does the {SNP @snp_id@} influence the expression of {@gene_symbol@ (@gene_id@)} in @tissue@ tissue, as reported by @method@?",
+                  "question_for_result": "How does the {SNP @snp_id@} influence the expression of {@gene_symbol@} in @tissue@ tissue, as reported by @method@?",
                   "cypher_for_result_page_core": "MATCH (variant:sequence_variant:snp), (gene:coding_elements) WHERE ID(variant) = '@snp@' AND ID(gene) = '@gene@' MATCH (variant)-[r:fine_mapped_eQTL]-(gene) WITH collect(DISTINCT variant) + collect(DISTINCT gene) AS nodes, collect(DISTINCT r) AS edges RETURN { results: [ { nodes: nodes, edges: edges } ] } AS output;",
                   "cypher_for_result_page_nbr": "MATCH (variant:sequence_variant)-[r1]-(nbr1) WHERE ID(variant) = '@snp@' WITH r1, nbr1 MATCH (gene:coding_elements)-[r2]-(nbr2) WHERE ID(gene) = '@gene@'WITH collect(DISTINCT r1) + collect(DISTINCT r2) AS rels, collect(DISTINCT nbr1) + collect(DISTINCT nbr2) AS nbrs WITH rels, [n IN nbrs WHERE NOT id(n) IN ['@snp@','@gene@']] AS nodes RETURN { results: [ { nodes: nodes, edges: rels } ] } AS output;",
                   "ai_question_for_result": [
@@ -150,7 +150,7 @@
                   "question": [
                         "What is {@gene_symbol@ (@gene_id@)}’s expression level in {@cell_type_name@ (@cell_type_id@)} and its link to {T1D}?"
                   ],
-                  "question_for_result": "What is {@gene_symbol@ (@gene_id@)}’s expression level in {@cell_type_name@ (@cell_type_id@)} and its link to {T1D}?",
+                  "question_for_result": "What is {@gene_symbol@}’s expression level in {@cell_type_name@ (@cell_type_id@)} and its link to {T1D}?",
                   "cypher_for_result_page_core": "MATCH (g:gene {id: '@gene@'})-[r1:express_in]->(c:cell_type {id: '@cell_type@'}) MATCH (o:OCR)-[r2:OCR_locate_in]->(g), (o)-[r3:OCR_in_cell_type]->(c) WITH g, c, collect(DISTINCT o)[0] AS o_single, r1, collect(DISTINCT r2)[0] AS r2_single, collect(DISTINCT r3)[0] AS r3_single WITH [g, c, o_single] AS nodes, [r1, r2_single, r3_single] AS edges RETURN { results: [{ nodes: nodes, edges: edges }] } AS output;",
                   "cypher_for_result_page_nbr": "MATCH (g:gene)-[r1]-(nbr1) WHERE ID(g) ='@gene@' WITH r1, nbr1 WITH collect(DISTINCT r1) AS rels, collect(DISTINCT nbr1)AS nbrs WITH rels, [n IN nbrs WHERE NOT id(n) IN ['@gene@','@cell_type@']] AS nodes  RETURN { results: [ { nodes: nodes, edges: rels } ] } AS output;",
                   "ai_question_for_result": [
