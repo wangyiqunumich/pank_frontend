@@ -3,13 +3,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from 'react-redux';
 import cytoscape from "cytoscape";
-import zoomInIcon from "../image/zoomIn.png";
-import zoomOutIcon from "../image/zoomOut.png";
 import { edgeLabels, nodeStyle, nodeColors, nodeLabels, getContrastingColor } from "./style.js";
-import Collapse from "@mui/material/Collapse";
+import { Box, Collapse, Typography } from "@mui/material";
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import ZoomInMapIcon from '@mui/icons-material/ZoomInMap';
 import IconButton from '@mui/material/IconButton';
+import zoomInIcon from "../image/fontisto--zoom-minus.svg";
+import zoomOutIcon from "../image/fontisto--zoom-plus.svg";
+import downloadIcon from "../image/material-symbols--download-rounded.svg";
+import recenterIcon from "../image/material-symbols--recenter-rounded.svg";
 
 const LegendItem = ({ type, sx }) => (
   <span
@@ -39,6 +42,8 @@ export default function KnowledgeGraph() {
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
   const [legendVisible, setLegendVisible] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1.5);
+  const [initZoom, setInitZoom] = useState(1.5);
 
   const hideContextMenu = () => {
     const menu = document.getElementById("context-menu");
@@ -50,6 +55,30 @@ export default function KnowledgeGraph() {
     cyRef.current && cyRef.current.zoom(cyRef.current.zoom() + 0.2);
   const handleZoomOut = () =>
     cyRef.current && cyRef.current.zoom(cyRef.current.zoom() - 0.2);
+
+  const handleRecenter = () => {
+    if (cyRef.current) {
+      cyRef.current.reset();
+      cyRef.current.center();
+      setZoomLevel(cyRef.current.zoom());
+      setInitZoom(cyRef.current.zoom());
+    }
+  };
+
+  const handleDownload = () => {
+    if (cyRef.current) {
+      const png = cyRef.current.png({
+        full: true,
+        scale: 10,
+      });
+      const link = document.createElement("a");
+      link.href = png;
+      link.download = "knowledge_graph.png";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
 
   useEffect(() => {
     const result = queryResultPage?.combined_query_result;
@@ -171,14 +200,18 @@ export default function KnowledgeGraph() {
     cyRef.current.on("mouseover", "edge", handleHover);
     cyRef.current.on("mouseout", "edge", handleOut);
 
+    cyRef.current.on("layoutstop", () => {
+      cyRef.current.reset();
+      cyRef.current.center();
+      setZoomLevel(cyRef.current.zoom());
+      setInitZoom(cyRef.current.zoom());
+    });
+    cyRef.current.on("zoom", () => {
+      setZoomLevel(cyRef.current.zoom());
+    });
+
     cyRef.current.on("cxttap", "node", (evt) => {
       setTooltipVisible(false);
-      // hideContextMenu();
-      // contextNodeRef.current = evt.target;
-      // const menu = document.getElementById("context-menu");
-      // menu.style.left = `${evt.originalEvent.clientX}px`;
-      // menu.style.top = `${evt.originalEvent.clientY}px`;
-      // menu.style.display = "block";
     });
 
     cyRef.current.on("mouseover", "node", (evt) => {
@@ -199,7 +232,7 @@ export default function KnowledgeGraph() {
         style={{
           width: "100%",
           height: "600px",
-          backgroundColor: "#fff", // Restored to white as requested
+          backgroundColor: "#FBFBFB", // Restored to white as requested
           // border: "1px solid #ddd",
           border: "none",
           borderRadius: "8px",
@@ -207,259 +240,125 @@ export default function KnowledgeGraph() {
           overflow: "hidden", // To keep contents within rounded corners
         }}
       >
-        {/* <div
-          style={{
-            position: "absolute",
-            bottom: "20px",
-            left: "20px",
-            backgroundColor: "#fff",
-            borderRadius: "8px",
-            padding: "16px 20px",
-            boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
-            zIndex: 10,
-            fontSize: "13px",
-            width: "auto",
-            border: "1px solid rgba(0,0,0,0.05)",
-          }}
-        >
-          <div
-            style={{
-              fontWeight: "bold",
-              marginBottom: "12px",
-              fontSize: "14px",
-            }}
-          >
-            Legend
-          </div>
-
-          <div style={{ marginBottom: "10px" }}>
-            <div
-              style={{ color: "#666", fontSize: "12px", marginBottom: "8px" }}
-            >
-              Search result:
-            </div>
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "16px",
-                marginBottom: "4px",
-              }}
-            >
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "6px" }}
-              >
-                <div
-                  style={{
-                    width: "20px",
-                    height: "20px",
-                    backgroundColor: nodeTypeColors.gene,
-                    borderRadius: "4px",
-                  }}
-                />
-                <div style={{ fontSize: "13px", color: "#333" }}>Gene</div>
-              </div>
-
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "6px" }}
-              >
-                <div
-                  style={{
-                    width: "20px",
-                    height: "20px",
-                    backgroundColor: nodeTypeColors.sequence_variant,
-                    borderRadius: "4px",
-                  }}
-                />
-                <div style={{ fontSize: "13px", color: "#333" }}>
-                  Sequence variant
-                </div>
-              </div>
-
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "6px" }}
-              >
-                <div
-                  style={{
-                    width: "20px",
-                    height: "20px",
-                    backgroundColor: nodeTypeColors.article,
-                    borderRadius: "4px",
-                  }}
-                />
-                <div style={{ fontSize: "13px", color: "#333" }}>Article</div>
-              </div>
-
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "6px" }}
-              >
-                <div
-                  style={{
-                    width: "20px",
-                    height: "20px",
-                    backgroundColor: nodeTypeColors.pathway,
-                    borderRadius: "4px",
-                  }}
-                />
-                <div style={{ fontSize: "13px", color: "#333" }}>Pathway</div>
-              </div>
-
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "6px" }}
-              >
-                <div
-                  style={{
-                    width: "20px",
-                    height: "20px",
-                    backgroundColor: nodeTypeColors.ontology,
-                    borderRadius: "4px",
-                  }}
-                />
-                <div style={{ fontSize: "13px", color: "#333" }}>Ontology</div>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <div
-              style={{ color: "#666", fontSize: "12px", marginBottom: "8px" }}
-            >
-              Concepts related to current search result presented in
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <div
-                style={{
-                  width: "16px",
-                  height: "16px",
-                  border: "1px solid #ccc",
-                  borderRadius: "3px",
-                  backgroundColor: "white",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              />
-            </div>
-          </div>
-        </div> */}
       </div>
-
-      {(
-        <div
-          id="tooltip"
-          ref={tooltipRef}
-          onMouseEnter={() => {
-            clearTimeout(fadeOutTimeoutRef.current);
-          }}
-          onMouseLeave={() => {
-            // More responsive hide on mouse leave
-            fadeOutTimeoutRef.current = setTimeout(() => {
-              setTooltipVisible(false);
-              activeNodeRef.current = null;
-            }, 200);
-          }}
-          style={{
-            position: "absolute",
-            left: tooltipPosition.x,
-            top: tooltipPosition.y,
-            background: "#fff",
-            borderRadius: "8px",
-            padding: "12px",
-            fontSize: "13px",
-            color: "#333",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-            zIndex: 1000,
-            width: "200px",
-            pointerEvents: "auto",
-            opacity: tooltipVisible ? 1 : 0,
-            display: tooltipVisible ? "block" : "none",
-            transform: "translateY(0px)",
-            transition: "opacity 0.15s, display 0.15s, left 0.15s, top 0.15s",
-            transitionBehavior: "allow-discrete",
-            willChange: "transform, opacity", // Performance hint for smoother animations
-            wordWrap: "break-word",
-          }}
+      <Box sx={{
+        position: "absolute",
+        top: "10px",
+        right: "10px",
+        width: "50px",
+        height: "150px",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "white",
+        borderRadius: "8px",
+        boxShadow: "0px 4px 15px -3px rgba(100,100,100,0.25)",
+      }}>
+        {/* button for zooming */}
+        <IconButton
+          onClick={handleZoomOut}
+          style={{ padding: "8px", background: "none", borderRadius: "4px" }}
         >
-          <div style={{ fontWeight: "bold", marginBottom: "8px" }}>
-            {hoveredData?.HGNC_symbol || hoveredData?.id}
-          </div>
-          {Object.entries(hoveredData || {})?.map(
-            ([key, value]) =>
-              key !== "type" &&
-              (key === "link" || key === "url" ? (
-                <div key={key}>
-                  <span style={{ fontWeight: 500 }}>{key}:</span>{" "}
-                  <a
-                    href={value}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: "#007bff" }}
-                  >
-                    Open Link ↗
-                  </a>
-                </div>
-              ) : (
-                <div key={key}>
-                  <span style={{ fontWeight: 500 }}>{key}:</span> {value}
-                </div>
-              ))
-          )}
+          <img src={zoomOutIcon} alt="Zoom Out" width={20} height={20} />
+        </IconButton>
+        <IconButton
+          onClick={handleZoomIn}
+          style={{ padding: "8px", background: "none", borderRadius: "4px" }}
+        >
+          <img src={zoomInIcon} alt="Zoom In" width={20} height={20} />
+        </IconButton>
+        <IconButton
+          onClick={handleRecenter}
+          style={{ padding: "8px", background: "none", borderRadius: "4px" }}
+        >
+          <img src={recenterIcon} alt="Zoom Out" width={20} height={20} />
+        </IconButton>
+        <IconButton
+          onClick={handleDownload}
+          style={{ padding: "8px", background: "none", borderRadius: "4px" }}
+        >
+          <img src={downloadIcon} alt="Zoom Out" width={20} height={20} />
+        </IconButton>
+      </Box>
+      <Box sx={{
+        position: "absolute",
+        bottom: "35px",
+        right: "10px",
+        height: "30px",
+        width: "60px",
+        display: "flex",
+        background: "white",
+        borderRadius: "6px",
+        alignItems: "center",
+        justifyContent: "center",
+        boxShadow: "0px 4px 15px -3px rgba(100,100,100,0.25)",
+      }}>
+        <Typography sx={{ fontSize: "16px", color: "#333" }}>
+          {Math.round(zoomLevel / initZoom * 100)}%
+        </Typography>
+      </Box>
+      <div
+        id="tooltip"
+        ref={tooltipRef}
+        onMouseEnter={() => {
+          clearTimeout(fadeOutTimeoutRef.current);
+        }}
+        onMouseLeave={() => {
+          // More responsive hide on mouse leave
+          fadeOutTimeoutRef.current = setTimeout(() => {
+            setTooltipVisible(false);
+            activeNodeRef.current = null;
+          }, 200);
+        }}
+        style={{
+          position: "absolute",
+          left: tooltipPosition.x,
+          top: tooltipPosition.y,
+          background: "#fff",
+          borderRadius: "8px",
+          padding: "12px",
+          fontSize: "13px",
+          color: "#333",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+          zIndex: 1000,
+          width: "200px",
+          pointerEvents: "auto",
+          opacity: tooltipVisible ? 1 : 0,
+          display: tooltipVisible ? "block" : "none",
+          transform: "translateY(0px)",
+          transition: "opacity 0.15s, display 0.15s, left 0.15s, top 0.15s",
+          transitionBehavior: "allow-discrete",
+          willChange: "transform, opacity", // Performance hint for smoother animations
+          wordWrap: "break-word",
+        }}
+      >
+        <div style={{ fontWeight: "bold", marginBottom: "8px" }}>
+          {hoveredData?.HGNC_symbol || hoveredData?.id}
         </div>
-      )}
+        {Object.entries(hoveredData || {})?.map(
+          ([key, value]) =>
+            key !== "type" &&
+            (key === "link" || key === "url" ? (
+              <div key={key}>
+                <span style={{ fontWeight: 500 }}>{key}:</span>{" "}
+                <a
+                  href={value}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "#007bff" }}
+                >
+                  Open Link ↗
+                </a>
+              </div>
+            ) : (
+              <div key={key}>
+                <span style={{ fontWeight: 500 }}>{key}:</span> {value}
+              </div>
+            ))
+        )}
+      </div>
       <div style={{ display: "flex", flexDirection: "row", gap: "200px" }}>
-        {/* Zoom buttons */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: "20px",
-            right: "0px",
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "10px",
-            borderRadius: "8px",
-          }}
-        >
-          <button
-            onClick={handleZoomIn}
-            className="zoom-button"
-            style={{
-              marginBottom: "8px",
-              backgroundColor: "#ffffff",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-            }}
-          >
-            <img
-              src={zoomInIcon}
-              alt="Zoom In"
-              width={40}
-              height={40}
-              style={{ display: "block" }}
-            />
-          </button>
-          <button
-            onClick={handleZoomOut}
-            className="zoom-button"
-            style={{
-              backgroundColor: "#ffffff",
-              border: "none",
-              borderRadius: "4px",
-
-              cursor: "pointer",
-            }}
-          >
-            <img
-              src={zoomOutIcon}
-              alt="Zoom Out"
-              width={40}
-              height={40}
-              style={{ display: "block" }}
-            />
-          </button>
-        </div>
-
         {/* Legend */}
         <div
           style={{
@@ -471,7 +370,7 @@ export default function KnowledgeGraph() {
             background: "#fff",
             padding: "24px",
             borderRadius: "8px",
-            boxShadow: legendVisible ? "0 1px 4px rgba(0,0,0,0.08)" : "0 1px 4px rgba(0,0,0,0.2)",
+            boxShadow: legendVisible ? "0px 4px 15px -3px rgba(100,100,100,0.25)" : "0px 4px 15px -3px rgba(100,100,100,0.5)",
             zIndex: 10,
             userSelect: "none",
             height: "fit-content",

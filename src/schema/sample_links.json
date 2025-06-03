@@ -2,21 +2,21 @@
     "$comment": "Explanary file, not for use in production.",
     "intermediate_page": [
         {
-            "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene:ENSG00000001626&targetSymbol=CFTR",
+            "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000001626&targetSymbol=CFTR",
             "dictionary": {
                 "sourceTerm": "snp",
                 "relationship": "QTL",
-                "targetTerm": "gene:ENSG00000001626",
+                "targetTerm": "gene@ENSG00000001626",
                 "targetSymbol": "CFTR"
             },
             "$comment": "targetSymbol is mandatory for intermediate pages."
         },
         {
-            "link": "/intermediate?sourceTerm=snp:rs9825709&relationship=QTL&targetTerm=gene:ENSG00000114446&targetSymbol=IFT57",
+            "link": "/intermediate?sourceTerm=snp@rs9825709&relationship=QTL&targetTerm=gene@ENSG00000114446&targetSymbol=IFT57",
             "dictionary": {
-                "sourceTerm": "snp:rs9825709",
+                "sourceTerm": "snp@rs9825709",
                 "relationship": "QTL",
-                "targetTerm": "gene:ENSG00000114446",
+                "targetTerm": "gene@ENSG00000114446",
                 "targetSymbol": "IFT57"
             },
             "$comment": "targetSymbol is mandatory for intermediate pages."
@@ -24,27 +24,27 @@
     ],
     "result_page": [
         {
-            "link": "/result?sourceTerm=snp:rs2402203&targetTerm=gene:ENSG00000001626&relationship=QTL",
+            "link": "/result?sourceTerm=snp@rs2402203&targetTerm=gene@ENSG00000001626&relationship=QTL",
             "dictionary": {
-                "sourceTerm": "snp:rs2402203",
+                "sourceTerm": "snp@rs2402203",
                 "relationship": "QTL",
-                "targetTerm": "gene:ENSG00000001626"
+                "targetTerm": "gene@ENSG00000001626"
             }
         },
         {
-            "link": "/result?sourceTerm=gene:ENSG00000186092&targetTerm=cell_type:CL_0002064&relationship=express_in",
+            "link": "/result?sourceTerm=gene@ENSG00000186092&targetTerm=cell_type@CL_0002064&relationship=express_in",
             "dictionary": {
-                "sourceTerm": "gene:ENSG00000186092",
+                "sourceTerm": "gene@ENSG00000186092",
                 "relationship": "express_in",
-                "targetTerm": "cell_type:CL_0002064"
+                "targetTerm": "cell_type@CL_0002064"
             }
         },
         {
-            "link": "/result?sourceTerm=gene:ENSG00000001626&targetTerm=cell_type:CL_0002064&relationship=express_in",
+            "link": "/result?sourceTerm=gene@ENSG00000001626&targetTerm=cell_type@CL_0002064&relationship=express_in",
             "dictionary": {
-                "sourceTerm": "gene:ENSG00000001626",
+                "sourceTerm": "gene@ENSG00000001626",
                 "relationship": "express_in",
-                "targetTerm": "cell_type:CL_0002064"
+                "targetTerm": "cell_type@CL_0002064"
             }
         }
     ]

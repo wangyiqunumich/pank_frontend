@@ -280,14 +280,16 @@ function IntermediatePage({ onContinue }) {
       relationship
     } = searchState;
 
+    const additionalParams = sourceTerm.includes("snp@") ?
+      {
+        lead_snp: item.lead_snp,
+        credible_set_id: item.credible_set_raw_id,
+      } : {};
+
     const params = new URLSearchParams({
-      sourceTerm:
-        sourceTerm.includes("snp:")
-          ? `snp:${item.lead_snp}`
-          : sourceTerm.includes(":")
-            ? sourceTerm
-            : `${sourceTerm}:${item[sourceTerm]}`,
-      targetTerm: targetTerm.includes(":") ? targetTerm : `${targetTerm}:${item[targetTerm]}`,
+      ...additionalParams,
+      sourceTerm: sourceTerm.includes("@") ? sourceTerm : `${sourceTerm}@${item[sourceTerm]}`,
+      targetTerm: targetTerm.includes("@") ? targetTerm : `${targetTerm}@${item[targetTerm]}`,
       relationship,
     });
     window.location.href = `/result?${params.toString()}`;
@@ -352,8 +354,8 @@ function IntermediatePage({ onContinue }) {
         })
       );
 
-      const questionType = `${sourceTerm.split(":")[0]} - ${relationship} - ${targetTerm.split(":")[0]}`;
-      const specificType = `${sourceTerm.includes(":") ? "specific" : "general"} - relationship - ${targetTerm.includes(":") ? "specific" : "general"}`;
+      const questionType = `${sourceTerm.split("@")[0]} - ${relationship} - ${targetTerm.split("@")[0]}`;
+      const specificType = `${sourceTerm.includes("@") ? "specific" : "general"} - relationship - ${targetTerm.includes("@") ? "specific" : "general"}`;
       setToolTipsData(tooltipsSchema[questionType]?.[specificType]);
     }
   }, []);
@@ -371,7 +373,7 @@ function IntermediatePage({ onContinue }) {
 
       dispatch(queryQueryResult({
         query: processedCypher,
-        isNeptune: !searchState.sourceTerm.includes("snp:"),
+        isNeptune: !searchState.sourceTerm.includes("snp@"),
       })).unwrap();
     }
   }, [viewSchema, searchState.sourceTerm, searchState.targetTerm]);
@@ -590,6 +592,9 @@ function IntermediatePage({ onContinue }) {
                     '& .MuiTabs-flexContainer': {
                       gap: '0px',
                       justifyContent: 'space-between'
+                    },
+                    '& .MuiTabs-indicator': {
+                      backgroundColor: '#3A838B',
                     }
                   }}
                 >
@@ -809,8 +814,8 @@ function IntermediatePage({ onContinue }) {
               credible_sets: getFilteredResults().slice((currPage - 1) * 5, currPage * 5),
               type: "credible_set",
               intersectPositions: [
-                searchState.sourceTerm.includes(":") ? ["right"] : [],
-                searchState.targetTerm.includes(":") ? ["left"] : []
+                searchState.sourceTerm.includes("@") ? ["right"] : [],
+                searchState.targetTerm.includes("@") ? ["left"] : []
               ].flat(),
             }} />
           </Box>

@@ -11,6 +11,10 @@ export const queryQueryResultPage = createAsyncThunk('/pank2ResultPage',
                     "Content-Type": "application/json"
                 }
             })
+            .then((response) => {
+                console.log("queryQueryResultPage response", response);
+                return response;
+            })
             .then((response) => response.data)
             .then((data) => {
                 const isCoreNode = (node) => data.core_nodes.includes(node['~id']);

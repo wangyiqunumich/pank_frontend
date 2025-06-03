@@ -164,6 +164,8 @@ function SearchResult() {
         const targetTerm = params.get('targetTerm');
         const targetSymbol = params.get('targetSymbol');
         const sourceSymbol = params.get('sourceSymbol');
+        const lead_snp = params.get('lead_snp');
+        const credible_set_id = params.get('credible_set_id');
         if (sourceTerm && relationship && targetTerm) {
             dispatch(setSearchTerms({
                 sourceTerm,
@@ -185,16 +187,26 @@ function SearchResult() {
                         ai_answer_sub_title,
                         cypher_for_result_page_core,
                         cypher_for_result_page_nbr,
+                        rdb_query_for_result_page
                     } = response.payload;
 
                     if (cypher_for_result_page_core && cypher_for_result_page_nbr) {
+                        const additionalParams =
+                            lead_snp && credible_set_id ? [
+                                `lead_snp@${lead_snp}`,
+                                `credible_set_id@${credible_set_id}`
+                            ] : [];
                         const temporaryVariables = {
+                            additionalParams,
                             sourceTerm,
                             targetTerm,
                         };
                         const core_cypher = replaceVariables(cypher_for_result_page_core, temporaryVariables);
                         const neighbor_cypher = replaceVariables(cypher_for_result_page_nbr, temporaryVariables);
-                        dispatch(queryQueryResultPage({ core_cypher, neighbor_cypher })).then((response) => {
+                        const rdb_query =
+                            lead_snp && credible_set_id ? { rdb_query: replaceVariables(rdb_query_for_result_page, temporaryVariables) } : {};
+
+                        dispatch(queryQueryResultPage({ ...rdb_query, core_cypher, neighbor_cypher })).then((response) => {
                             console.log('Query result:', response.payload);
                             const coreNodes = response?.payload?.core_nodes || [];
                             const results = response?.payload?.combined_query_result || {};
@@ -207,6 +219,7 @@ function SearchResult() {
                             const tissueKey = coreRelationship?.["~properties"]?.tissue_name || '';
 
                             const newVariables = {
+                                additionalParams,
                                 sourceTerm,
                                 relationship,
                                 targetTerm,
@@ -296,8 +309,8 @@ function SearchResult() {
     // Handle next question click
     const handleNextQuestionClick = (question) => {
         const nextVariables = {
-            sourceTerm: 'snp:rs177069',
-            targetTerm: 'gene:ENSG00000001626',
+            sourceTerm: 'snp@rs177069',
+            targetTerm: 'gene@ENSG00000001626',
             relationship: 'QTL',
             targetSymbol: 'CFTR'
         };
@@ -339,7 +352,7 @@ function SearchResult() {
     }
 
     // 如果正在加载答案或答案为空，显示加载状态
-    if (queryAiAnswerStatus === "pending" || !aiAnswer?.answers) {
+    if (!queryResultPage?.combined_query_result) {
         return (
             <Container
                 sx={{
@@ -617,65 +630,69 @@ function SearchResult() {
                     }}>
                         {
                             articlesData?.map((ref, index) => (
-                                <ListItem
-                                    sx={{
-                                        paddingY: '0px',
-                                        marginLeft: '20px',
-                                        flexDirection: "column",
-                                        alignItems: "flex-start",
-                                        position: "relative",
-                                        fontSize: '12px',
-                                        fontWeight: 400,
-                                        textAlign: 'left',
-                                        wordWrap: 'break-word',
-                                        whiteSpace: 'normal',
-                                        maxWidth: 'calc(100% - 20px)',
-                                    }}
-                                    key={index}
-                                    id={`reference-item-${ref.pmid}`}
-                                    className={`reference-item${activeReference === ref.pmid ? '-active' : ''}`}
+                                <Link
+                                    href={"https://pubmed.gov/" + ref.pmid}
+                                    sx={{ textDecoration: 'none', color: '#1976d2' }}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                 >
-                                    <Box sx={{
-                                        position: 'absolute',
-                                        fontSize: '16px',
-                                        left: '-20px',
-                                        width: '30px',
-                                        height: '100%',
-                                        alignItems: "flex-end"
-                                    }}>
-                                        <Typography
-                                            sx={{ textAlign: 'right', }}
-                                        >{index + 1}.</Typography>
-                                    </Box>
-                                    <Link
-                                        href={"https://pubmed.gov/" + ref.pmid}
-                                        sx={{ textDecoration: 'none', color: '#1976d2' }}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                    <ListItem
+                                        sx={{
+                                            paddingY: '0px',
+                                            marginLeft: '20px',
+                                            flexDirection: "column",
+                                            alignItems: "flex-start",
+                                            position: "relative",
+                                            fontSize: '12px',
+                                            fontWeight: 400,
+                                            textAlign: 'left',
+                                            wordWrap: 'break-word',
+                                            whiteSpace: 'normal',
+                                            maxWidth: 'calc(100% - 20px)',
+                                        }}
+                                        key={index}
+                                        id={`reference-item-${ref.pmid}`}
+                                        className={`reference-item${activeReference === ref.pmid ? '-active' : ''}`}
                                     >
-                                        <Typography sx={{ fontWeight: 400 }} >PubMed ID:&nbsp;{ref.pmid}</Typography>
-                                    </Link>
-                                    <Typography
-                                        sx={{ fontWeight: 600 }}
-                                    >{ref.title}</Typography>
-                                    <Typography>
-                                        {(() => {
-                                            const authors = ref.data.authors;
-                                            return authors.length <= 2 ?
-                                                authors.map((author) => (author.name)).join(', ') :
-                                                `${authors[0].name}, ..., ${authors[authors.length - 1].name}`;
-                                        })()}
-                                    </Typography>
-                                    <Typography sx={{ color: "grey" }}>
-                                        <i>{ref.data.fulljournalname}</i>.&nbsp;
-                                        {ref.data.pubdate.slice(0, 4)}
-                                        {(ref.data.volume || ref.data.issue || ref.data.pages) && <>;</>}
-                                        {ref.data.volume}
-                                        {ref.data.issue && <>({ref.data.issue})</>}
-                                        {ref.data.pages && <>:{ref.data.pages}</>}.
-                                        {ref.doi && <>&nbsp;doi:{ref.doi}.</>}
-                                    </Typography>
-                                </ListItem>
+                                        <Box sx={{
+                                            position: 'absolute',
+                                            fontSize: '16px',
+                                            left: '-20px',
+                                            width: '30px',
+                                            height: '100%',
+                                            alignItems: "flex-end"
+                                        }}>
+                                            <Typography
+                                                sx={{ textAlign: 'right', }}
+                                            >{index + 1}.</Typography>
+                                        </Box>
+                                        <Typography
+                                            sx={{ fontWeight: 600 }}
+                                        >{ref.title}</Typography>
+                                        <Typography>
+                                            {(() => {
+                                                const authors = ref.data.authors;
+                                                return authors.length <= 2 ?
+                                                    authors.map((author) => (author.name)).join(', ') :
+                                                    `${authors[0].name}, ..., ${authors[authors.length - 1].name}`;
+                                            })()}
+                                        </Typography>
+                                        <Typography sx={{ color: "grey" }}>
+                                            <i>{ref.data.fulljournalname}</i>.&nbsp;
+                                            {ref.data.pubdate.slice(0, 4)}
+                                            {(ref.data.volume || ref.data.issue || ref.data.pages) && <>;</>}
+                                            {ref.data.volume}
+                                            {ref.data.issue && <>({ref.data.issue})</>}
+                                            {ref.data.pages && <>:{ref.data.pages}</>}.
+                                            <Link
+                                                href={"https://pubmed.gov/" + ref.pmid}
+                                                sx={{ textDecoration: 'none', color: '#1976d2' }}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            ><span>&nbsp;PMID: {ref.pmid}</span></Link>
+                                        </Typography>
+                                    </ListItem>
+                                </Link>
                             ))
                         }
                     </List>
