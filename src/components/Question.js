@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Select, MenuItem,List,ListItem,ListItemText,TextField, InputAdornment } from '@mui/material';
+import { Box, Typography, Select, MenuItem, List, ListItem, ListItemText, TextField, InputAdornment } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import { Link } from 'react-router-dom';
@@ -22,14 +22,14 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
   // const handleSearch = (e) => {
   //   const query = e.target.value.toLowerCase();
   //   setSearchQuery(query);
-  
+
   //   const matchingQuestions = questions.filter((q) =>
   //     q.toLowerCase().includes(query)
   //   );
   //   const nonMatchingQuestions = questions.filter(
   //     (q) => !q.toLowerCase().includes(query)
   //   );
-  
+
   //   setQuestions([...matchingQuestions, ...nonMatchingQuestions]);
   // };
 
@@ -45,18 +45,18 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
   // }, [selectedQuestion]);
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       width: '100%',
       height: '100%',
       overflowY: 'auto',
       marginTop: '44px',
       marginBottom: '44px',
     }}>
-      <Typography sx={{ 
+      <Typography sx={{
         fontSize: 28,
         fontWeight: 700,
-        textAlign: 'left', 
-        color:'#4E4E4E',
+        textAlign: 'left',
+        color: '#4E4E4E',
         fontFamily: 'Open Sans',
       }}>
         You can ask:
@@ -66,12 +66,12 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
           fontSize: 14,
           fontWeight: 400,
           textAlign: 'left',
-          color:'#5A5555',
+          color: '#5A5555',
           fontFamily: 'Open Sans',
         }}>Click on a question to explore related data, knowledge, and insights
-        </Typography>
+      </Typography>
 
-        {/* <TextField
+      {/* <TextField
         fullWidth
         variant="outlined"
         placeholder="Search Questions by Keyword..."
@@ -110,7 +110,7 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
               key={index}
               sx={{
                 padding: 0,
-                marginBottom:1,
+                marginBottom: 1,
                 opacity: isRelated ? 1 : 0.5, // Dim unrelated questions
                 pointerEvents: isRelated ? 'auto' : 'none', // Disable unrelated questions
               }}
@@ -148,22 +148,23 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
                     '.question-box:hover &': {
                       backgroundColor: '#43978F',
                     },
+                    marginTop: '7px',
                   }}
                 />
-                <Box sx={{ 
-                  display: 'flex', 
+                <Box sx={{
+                  display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'center',
                   flex: 1,
                 }}>
                   <ListItemText
                     primary={
-                      <Box sx={{fontFamily:'Open Sans'}}>
+                      <Box sx={{ fontFamily: 'Open Sans' }}>
                         {question.question.split(/(\([^)]*\)|\{.*?\})/).map((part, i) => {
                           if (part.startsWith('(') && part.endsWith(')')) {
-                            return <span key={i} style={{ fontWeight: '600', fontStyle: 'italic', textTransform: 'uppercase'}}>{part.slice(1,-1)}</span>;
+                            return <span key={i} style={{ fontWeight: '600', fontStyle: 'italic', textTransform: 'uppercase' }}>{part.slice(1, -1)}</span>;
                           } else if (part.startsWith('{') && part.endsWith('}')) {
-                            return <span key={i} style={{ fontWeight: '600', textTransform: 'uppercase' }}>[{part.slice(1,-1).split('@')[0]}]</span>;
+                            return <span key={i} style={{ fontWeight: '600', textTransform: 'uppercase' }}>[{part.slice(1, -1).split('@')[0]}]</span>;
                           }
                           return <span key={i}>{part}</span>;
                         })}
@@ -211,21 +212,25 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
         })}
       </List>
       <Typography
-      style={{  display: 'flex',alignItems: 'center'}}>
-          <span style={{ backgroundColor: '#2aa198', color: 'white',
-            fontWeight: '700',
-            padding: '0px 5px',
-            borderRadius: '4px',
-            marginRight: '6px',
-            fontSize: '14px',}}>Example</span>
-          <Link 
+        style={{ display: 'flex', alignItems: 'center' }}>
+        <span style={{
+          backgroundColor: '#2aa198', color: 'white',
+          fontWeight: '700',
+          padding: '0px 5px',
+          borderRadius: '4px',
+          marginRight: '6px',
+          fontSize: '14px',
+        }}>Example</span>
+        <Link
           to="https://dev.pankgraph.org/result?sourceTerm=snp%3Ars2402203&targetTerm=gene%3AENSG00000001626&relationship=QT"
-          style={{      fontSize: '14px',
+          style={{
+            fontSize: '14px',
             textDecoration: 'underline',
-            color: '#333',}}>
-            Which SNP serves as the expression quantitative trait locus (eQTL) for CFTR?
-          </Link>
-        </Typography>
+            color: '#333',
+          }}>
+          Which SNP serves as the expression quantitative trait locus (eQTL) for CFTR?
+        </Link>
+      </Typography>
     </Box>
   );
 }
