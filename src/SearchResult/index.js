@@ -405,7 +405,7 @@ function SearchResult() {
                             </a>
                         </Box>
                         {currentQuestionType && (
-                            <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: 16, textAlign: 'left' }}>
+                            <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: 16, textAlign: 'left', color: '#7F7D7D' }}>
                                 (Your selection belongs to: {currentQuestionType})
                             </Typography>
                         )}
@@ -416,7 +416,7 @@ function SearchResult() {
                                 textAlign: 'left',
                                 wordWrap: 'break-word',
                                 whiteSpace: 'normal',
-                                fontSize: 16,
+                                fontSize: 20,
                                 fontWeight: 600,
                             }}
                             dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }}
@@ -473,7 +473,7 @@ function SearchResult() {
                             AI's Overview<TooltipComponent title="AI's Overview" />
                         </Typography>
                         <Typography component="div" sx={{ fontFamily: 'Open Sans', }}>
-                            {Array.isArray(aiAnswer?.answers) && aiAnswer.answers.map((answer, index) => (
+                            {(aiAnswer?.answers?.length) ? aiAnswer.answers.map((answer, index) => (
                                 <div key={index} style={{ marginBottom: index < aiAnswer.answers.length - 1 ? '20px' : '0' }}>
                                     {aiAnswerSubtitle && aiAnswerSubtitle[index] && (
                                         <Typography sx={{
@@ -497,7 +497,15 @@ function SearchResult() {
                                     </Typography>
                                     {/*{index < aiAnswer.answers.length - 1 && <Divider sx={{ my: 2 }} />}*/}
                                 </div>
-                            ))}
+                            )) : <Typography sx={{
+                                fontFamily: 'Open Sans',
+                                textAlign: 'left',
+                                gap: 1,
+                                fontWeight: 400,
+                                fontSize: '20px'
+                            }}>
+                                Loading AI's overview...
+                            </Typography>}
                         </Typography>
                     </Box>
                 </Grid>
