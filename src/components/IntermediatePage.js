@@ -95,8 +95,6 @@ function IntermediatePage({ onContinue }) {
     sourceTermSymbol: '',
   };
 
-  const [rootLabel, setRootLabel] = useState("");
-
   const [selectedTab, setSelectedTab] = useState('Pancreatic eQTL');
   const [currPage, setCurrPage] = useState(1);
 
@@ -191,9 +189,7 @@ function IntermediatePage({ onContinue }) {
     const allResults = queryResult?.results?.flatMap(result =>
       (result?.credible_sets || []).map(cs => ({
         ...cs,
-        credible_set_id: getCredibleSetLabel(cs).replace(/_/g, ' '),
         gene_symbol: getGeneSymbol(cs.credible_set_id),
-        credible_set_raw_id: cs.credible_set_id,
       }))
     ) || [];
     const groupedResults = allResults.reduce((acc, item) => (
@@ -218,7 +214,16 @@ function IntermediatePage({ onContinue }) {
     ];
     const deduplicatedResults = mappedResult.map(({ label, result }) => ({
       label,
-      result: [...new Map(result.map(cs => [cs.credible_set_raw_id, cs])).values()]
+      result: [
+        ...new Map(
+          result.map(
+            (cs, index) =>
+              [cs.credible_set_id,
+              { ...cs, credible_set: getCredibleSetLabel(cs, index + 1) }
+              ]
+          )
+        ).values()
+      ]
     }));
     console.log("Grouped Results:", deduplicatedResults);
     if (deduplicatedResults.flatMap((group) => (group.result)).length === 1) {
@@ -283,7 +288,7 @@ function IntermediatePage({ onContinue }) {
     const additionalParams = sourceTerm.includes("snp@") ?
       {
         lead_snp: item.lead_snp,
-        credible_set_id: item.credible_set_raw_id,
+        credible_set_id: item.credible_set_id,
       } : {};
 
     const params = new URLSearchParams({
@@ -296,7 +301,7 @@ function IntermediatePage({ onContinue }) {
   };
 
   // 添加一个新的辅助函数来获取 credibleSet 的显示标签
-  const getCredibleSetLabel = (credibleSet) => {
+  const getCredibleSetLabel = (credibleSet, num) => {
     const prefix = {
       "GTEx; SusieR": "A",
       "INSPIRE; SusieR": "B",
@@ -305,9 +310,7 @@ function IntermediatePage({ onContinue }) {
     }[credibleSet.data_source] || "";
     console.log("Credible Set", credibleSet);
     if (!prefix) return credibleSet.credible_set_id;
-
-    const setNumber = credibleSet.credible_set_id.split('_').pop().slice(11);
-    return `CredibleSet_${prefix}${setNumber}`;
+    return `CredibleSet_${prefix}${num}`;
   };
 
   // const getFilteredResults = () => (
@@ -332,7 +335,6 @@ function IntermediatePage({ onContinue }) {
     const sourceSymbol = params.get('sourceSymbol') || "";
     const targetSymbol = params.get('targetSymbol') || "";
     console.log(sourceTerm, relationship, targetTerm);
-    setRootLabel(targetSymbol || "");
     if (sourceTerm && relationship && targetTerm) {
       // 更新 Redux store 中的搜索条件
       dispatch(
