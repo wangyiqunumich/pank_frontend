@@ -222,7 +222,7 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
           fontSize: '14px',
         }}>Example</span>
         <Link
-          to="https://dev.pankgraph.org/result?sourceTerm=snp%3Ars2402203&targetTerm=gene%3AENSG00000001626&relationship=QT"
+          to="https://dev.pankgraph.org/result?sourceTerm=snp%40rs2402203&targetTerm=gene%40ENSG00000001626&relationship=QTL"
           style={{
             fontSize: '14px',
             textDecoration: 'underline',
