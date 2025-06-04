@@ -20,6 +20,14 @@
                 "targetSymbol": "IFT57"
             },
             "$comment": "targetSymbol is mandatory for intermediate pages."
+        },
+        {
+            "link": "/intermediate?sourceTerm=snp@rs174547&relationship=QTL&targetTerm=gene",
+            "dictionary": {
+                "sourceTerm": "snp@rs174547",
+                "relationship": "QTL",
+                "targetTerm": "gene"
+            }
         }
     ],
     "result_page": [
