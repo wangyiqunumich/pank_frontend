@@ -243,19 +243,19 @@ function MatchPage() {
   // Handle submit button click
   const handleSubmit = () => {
     if (selectedQuestion.startsWith('What is')) {
-      const url = `/result?sourceTerm=gene:${geneId.split('(')[1].slice(0, -1)}&targetTerm=cell_type:${cellId.split('(')[1].slice(0,-1)}&relationship=express_in`
+      const url = `/result?sourceTerm=gene@${geneId.split('(')[1].slice(0, -1)}&targetTerm=cell_type@${cellId.split('(')[1].slice(0,-1)}&relationship=express_in`
       navigate(url);
     }
     else {
       let updatedTerms = questionData.terms;
       if (geneId) {
-        updatedTerms = updatedTerms.replace('gene', `gene:${geneId}`);
+        updatedTerms = updatedTerms.replace('gene', `gene@${geneId}`);
       }
       if (cellId) {
-        updatedTerms = updatedTerms.replace('cell_type', `cell_type:${cellId}`);
+        updatedTerms = updatedTerms.replace('cell_type', `cell_type@${cellId}`);
       }
       if (snpId) {
-        updatedTerms = updatedTerms.replace('snp', `snp:${snpId}`);
+        updatedTerms = updatedTerms.replace('snp', `snp@${snpId}`);
       }
       const parts = updatedTerms.split('-')
       console.log('visualPatternParts', parts);
@@ -266,7 +266,7 @@ function MatchPage() {
       let targetTerm = '';
       if (target.includes('(')) {
         targetSymbol = target.split('(')[0].split(':')[1];
-        targetTerm = `gene:${target.split('(')[1].slice(0, -1)}`;
+        targetTerm = `gene@${target.split('(')[1].slice(0, -1)}`;
       }
       else {
         targetSymbol = '';
@@ -454,21 +454,18 @@ function MatchPage() {
   };
 
   useEffect(() => {
-    if (selectedQuestion) {
-      let connectedString = visualPattern;
-      if (geneId) {
-        connectedString = connectedString.replace(/\{gene@.*?@}/, `{gene@${geneId}@}`);
-      }
-      if (cellId) {
-        connectedString = connectedString.replace(/\{ontology@.*?@}/, `{ontology@${cellId}@}`);
-      }
-      if (snpId) {
-        connectedString = connectedString.replace(/\{snp@.*?@}/, `{snp@${snpId}@}`);
-      }
-      setVisualPattern(connectedString);
-
+    let connectedString = visualPattern;
+    if (geneId) {
+      connectedString = connectedString.replace(/\{gene@.*?@}/, `{gene@${geneId}@}`);
     }
-  }, [selectedQuestion, geneId, cellId, snpId]);
+    if (cellId) {
+      connectedString = connectedString.replace(/\{ontology@.*?@}/, `{ontology@${cellId}@}`);
+    }
+    if (snpId) {
+      connectedString = connectedString.replace(/\{snp@.*?@}/, `{snp@${snpId}@}`);
+    }
+    setVisualPattern(connectedString);
+  }, [geneId, cellId, snpId]);
 
   useEffect(() => {
     let isabled = true;
