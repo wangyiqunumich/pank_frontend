@@ -31,7 +31,7 @@ function IntermediateKG({ data }) {
     const edgeOrientation = 'right';
     const edgeLabels = {
       left: generateEdgeLabel(credible_sets[0].data_source, conversionTable),
-      right: "lead SNP"
+      right: data.type === "qtl_lead" ? "lead SNP" : "SNP"
     }
     const graphPaths = credible_sets.map((credible_set) => (
       {
