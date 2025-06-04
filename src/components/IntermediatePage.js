@@ -812,7 +812,7 @@ function IntermediatePage({ onContinue }) {
             </Typography>
             <IntermediateKG data={{
               credible_sets: getFilteredResults().slice((currPage - 1) * 5, currPage * 5),
-              type: "credible_set",
+              type: searchState.sourceTerm.includes("snp@") ? "qtl" : "qtl_lead",
               intersectPositions: [
                 searchState.sourceTerm.includes("@") ? ["right"] : [],
                 searchState.targetTerm.includes("@") ? ["left"] : []

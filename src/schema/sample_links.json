@@ -12,6 +12,16 @@
             "$comment": "targetSymbol is mandatory for intermediate pages."
         },
         {
+            "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000149485&targetSymbol=FADS1",
+            "dictionary": {
+                "sourceTerm": "snp",
+                "relationship": "QTL",
+                "targetTerm": "gene@ENSG00000149485",
+                "targetSymbol": "FADS1"
+            },
+            "$comment": "targetSymbol is mandatory for intermediate pages."
+        },
+        {
             "link": "/intermediate?sourceTerm=snp@rs9825709&relationship=QTL&targetTerm=gene@ENSG00000114446&targetSymbol=IFT57",
             "dictionary": {
                 "sourceTerm": "snp@rs9825709",
@@ -22,9 +32,9 @@
             "$comment": "targetSymbol is mandatory for intermediate pages."
         },
         {
-            "link": "/intermediate?sourceTerm=snp@rs174547&relationship=QTL&targetTerm=gene",
+            "link": "/intermediate?sourceTerm=snp@rs174574&relationship=QTL&targetTerm=gene",
             "dictionary": {
-                "sourceTerm": "snp@rs174547",
+                "sourceTerm": "snp@rs174574",
                 "relationship": "QTL",
                 "targetTerm": "gene"
             }
