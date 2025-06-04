@@ -35,8 +35,8 @@ function IntermediateKG({ data }) {
     }
     const graphPaths = credible_sets.map((credible_set) => (
       {
-        left: getGeneSymbol(credible_set.credible_set_raw_id),
-        mid: credible_set.credible_set_id,
+        left: getGeneSymbol(credible_set.credible_set_id),
+        mid: credible_set.credible_set,
         right: credible_set.snp
       }
     ));
