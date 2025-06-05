@@ -27,6 +27,20 @@
                 "#": "# (Number of Variants) indicates the total count of genetic variants included in the credible set, encompassing all variants contributing to the signal.",
                 "Lead SNP(PIP)": "Lead SNP refers to the genetic variant with the strongest association signal within the credible set, often considered the most likely causal variant.PIP (Posterior Inclusion Probability) quantifies the probability of a specific variant being the causal driver of the observed genetic signal; a higher PIP suggests greater confidence in causality."
             }
+        },
+        "specific - relationship - general": {
+            "intermediate": {
+                "Question": "Tooltip for 'Question' section",
+                "Graph Viewer": "Tooltip for 'Graph Viewer' section",
+                "Result": "Tooltip for 'Result' section"
+            },
+            "intermediate_page_table": {
+                "Credible set": "Credible set represents a group of genetic variants within a genomic region associated with a trait, identified through statistical fine-mapping. Each variant in the set is assigned a posterior probability, indicating its likelihood of being linked to the observed trait, with the entire set typically capturing a predefined confidence level.",
+                "Gene": "The gene associated with the QTL signal, typically representing the locus affected by the genetic variation.",
+                "Searched SNP(PIP)": "This is the SNP you searched for, along with its PIP (Posterior Inclusion Probability) value. PIP quantifies the probability of a specific variant being the causal driver of the observed genetic signal; a higher PIP suggests greater confidence in causality.If it is not the lead SNP, its significance may be lower.",
+                "#": "# (Number of Variants) indicates the total count of genetic variants included in the credible set, encompassing all variants contributing to the signal.",
+                "Lead SNP(PIP)": "Lead SNP refers to the genetic variant with the strongest association signal within the credible set, often considered the most likely causal variant.PIP (Posterior Inclusion Probability) quantifies the probability of a specific variant being the causal driver of the observed genetic signal; a higher PIP suggests greater confidence in causality."
+            }
         }
     },
     "result": {
