@@ -52,14 +52,15 @@ export default function KnowledgeGraph() {
   };
 
   const handleZoomIn = () =>
-    cyRef.current && cyRef.current.zoom(cyRef.current.zoom() + 0.2);
-  const handleZoomOut = () =>
     cyRef.current && cyRef.current.zoom(cyRef.current.zoom() - 0.2);
+  const handleZoomOut = () =>
+    cyRef.current && cyRef.current.zoom(cyRef.current.zoom() + 0.2);
 
   const handleRecenter = () => {
     if (cyRef.current) {
       cyRef.current.reset();
       cyRef.current.center();
+      cyRef.current.fit();
       setZoomLevel(cyRef.current.zoom());
       setInitZoom(cyRef.current.zoom());
     }

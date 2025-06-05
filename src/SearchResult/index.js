@@ -17,7 +17,7 @@ import { setSearchTerms } from '../redux/searchSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 
 const tabOptions = [
-    { value: 'reference', label: 'Reference' },
+    { value: 'references', label: 'References' },
     { value: 'visualization', label: 'Visualization' },
     { value: 'pankbase_links', label: 'PanKbase Links' },
     { value: 'external_links', label: 'External Links' }
@@ -84,7 +84,7 @@ const SNPPlotImage = ({ imageSrc }) => {
 };
 
 function SearchResult() {
-    const [currTab, setCurrTab] = useState('reference');
+    const [currTab, setCurrTab] = useState('references');
     const dispatch = useDispatch();
 
     const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
@@ -339,7 +339,7 @@ function SearchResult() {
                                     }}
                                     onClick={(e) => {
                                         e.preventDefault();
-                                        setCurrTab('reference');
+                                        setCurrTab('references');
                                         setActiveReference(subPart);
                                     }}
                                     key={`subpart-${index}-${subIndex}`}
@@ -593,12 +593,7 @@ function SearchResult() {
                     borderStyle: 'solid',
                     borderColor: "#E5E5E5",
                 }}></div>
-                {[
-                    { value: 'reference', label: 'Reference' },
-                    // { value: 'visualization', label: 'Visualization' },
-                    { value: 'pankbase_links', label: 'PanKbase Links' },
-                    { value: 'external_links', label: 'External Links' }
-                ].map((option, index) => (
+                {tabOptions.map((option, index) => (
                     <Tab
                         sx={{
                             minHeight: '48px',
@@ -643,15 +638,9 @@ function SearchResult() {
                 border: '1px solid #EEEEEE',
                 transform: 'translateY(-1px)',
             }}>
-                <Collapse in={currTab === 'reference'}>
+                <Collapse in={currTab === 'references'}>
                     <List sx={{
                         padding: '0px',
-                        ".MuiListItem-root": {
-                            paddingTop: '15px',
-                        },
-                        ".MuiListItem-root:first-of-type": {
-                            paddingTop: '0px',
-                        }
                     }}>
                         {
                             articlesData?.map((ref, index) => (
@@ -674,6 +663,7 @@ function SearchResult() {
                                             wordWrap: 'break-word',
                                             whiteSpace: 'normal',
                                             maxWidth: 'calc(100% - 20px)',
+                                            paddingTop: index === 0 ? '0px' : '15px',
                                         }}
                                         key={index}
                                         id={`reference-item-${ref.pmid}`}
@@ -694,7 +684,7 @@ function SearchResult() {
                                         <Typography
                                             sx={{ fontFamily: 'Open Sans', fontWeight: 700 }}
                                         >{ref.title}</Typography>
-                                        <Typography sx={{ fontFamily: 'Open Sans', }}>
+                                        <Typography sx={{ fontFamily: 'Open Sans', color: "grey" }}>
                                             {(() => {
                                                 const authors = ref.data.authors;
                                                 return authors.length <= 2 ?
