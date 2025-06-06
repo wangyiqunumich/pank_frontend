@@ -11,8 +11,10 @@ import {
   useSelector,
 } from 'react-redux';
 
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import InfoOutlineIcon from '@mui/icons-material/InfoOutlined';
+import {
+  ChevronRight as ChevronRightIcon,
+  InfoOutlined as InfoOutlineIcon,
+} from '@mui/icons-material';
 import {
   Box,
   Collapse,
@@ -22,12 +24,13 @@ import {
   List,
   ListItem,
   Skeleton,
+  styled,
   Tab,
   Tabs,
+  Tooltip,
+  tooltipClasses,
   Typography,
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 
 import { tabsQTL } from '../components/IntermediatePage';
 import KnowledgeGraph from '../components/KnowledgeGraph';
@@ -93,7 +96,6 @@ const LoadingSkeleton = () => (
         minWidth: '1000px',
         marginLeft: '20px',
         marginRight: '20px',
-        flexDirection: 'column',
         flexGrow: 1,
     }} disableGutters maxWidth={false}>
         <Skeleton variant="rectangular" width={"100%"} height={"150px"} sx={{
@@ -126,38 +128,12 @@ const LoadingSkeleton = () => (
     </Container>
 )
 
-const SNPPlotImage = ({ imageSrc }) => {
-    if (!imageSrc) return null;
-
-    return (
-        <div style={{
-            position: 'relative',
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            overflow: 'hidden'
-        }}>
-            <img
-                src={`data:image/jpeg;base64,${imageSrc}`}
-                alt="SNP p-values Plot"
-                style={{
-                    maxWidth: '100%',
-                    maxHeight: '100%',
-                    objectFit: 'contain'
-                }}
-            />
-        </div>
-    );
-};
-
 function SearchResult() {
     const [currTab, setCurrTab] = useState('references');
     const dispatch = useDispatch();
 
     const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
-    const { aiAnswer, queryAiAnswerStatus } = useSelector((state) => state.aiAnswer);
+    const { aiAnswer } = useSelector((state) => state.aiAnswer);
     const { viewSchema } = useSelector((state) => state.viewSchema);
     const [variables, setVariables] = useState({});
     const [referenceData, setReferenceData] = useState({});
@@ -248,10 +224,9 @@ function SearchResult() {
                 targetTerm
             })).then((response) => {
                 if (response.payload) {
-                    // 处理 schema 数据
+                    // handle schema data
                     const {
                         question_for_result,
-                        next_questions,
                         ai_question_for_result,
                         ai_answer_sub_title,
                         cypher_for_result_page_core,
@@ -333,7 +308,7 @@ function SearchResult() {
                                     question => replaceVariables(question, newVariables, true)
                                 ) || [];
 
-                            // 更新 Redux store
+                            // update Redux store
                             dispatch(setProcessedQuestion({
                                 currentQuestion: processedCurrentQuestion,
                                 nextQuestions: processedNextQuestions,
@@ -364,7 +339,7 @@ function SearchResult() {
 
     // query AI answer when queryResultPage and aiQuestions are available
     useEffect(() => {
-        if (queryResultPage?.combined_query_result?.nodes?.length != 0 && queryResultPage?.core_nodes && aiQuestions?.length > 0) {
+        if (queryResultPage?.combined_query_result?.nodes?.length !== 0 && queryResultPage?.core_nodes && aiQuestions?.length > 0) {
             console.log('Querying AI answer with questions: ', aiQuestions);
             dispatch(queryAiAnswer({
                 "question": aiQuestions,
@@ -377,7 +352,7 @@ function SearchResult() {
     }, [queryResultPage, aiQuestions]);
 
     // Handle next question click
-    const handleNextQuestionClick = (question) => {
+    const handleNextQuestionClick = (_) => {
         const nextVariables = {
             sourceTerm: 'snp@rs177069',
             targetTerm: 'gene@ENSG00000001626',
@@ -421,6 +396,7 @@ function SearchResult() {
                         ? <a
                             href={part.split("(")[1].slice(0, -1)}
                             target="_blank"
+                            rel="noreferrer"
                             style={{ color: "#0069c2", textDecoration: "none" }}
                             key={`part-${index}`}
                         >
@@ -431,15 +407,9 @@ function SearchResult() {
         </>);
     }
 
-    // 如果正在加载答案或答案为空，显示加载状态
-    if (!queryResultPage?.combined_query_result) {
-        return (
-            <LoadingSkeleton />
-        );
-    }
-
-    return (
-        <Container sx={{
+    // Show loading skeleton if queryResultPage is not ready
+    return !queryResultPage?.combined_query_result ? <LoadingSkeleton /> :
+        (<Container sx={{
             padding: 0, display: 'flex',
             flexDirection: 'column', justifyContent: 'space-evenly',
             fontFamily: 'Open Sans', fontWeight: 600,
@@ -448,7 +418,6 @@ function SearchResult() {
             minWidth: '1000px',
             marginLeft: '20px',
             marginRight: '20px',
-            flexDirection: 'column',
             flexGrow: 1,
         }} disableGutters maxWidth={false}>
             <Box sx={{ padding: '20px', backgroundColor: '#E4F0F1', marginBottom: '20px', marginTop: '60px', borderRadius: '20px' }}>
@@ -706,81 +675,80 @@ function SearchResult() {
                     <List sx={{
                         padding: '0px',
                     }}>
-                        {
-                            articlesData?.map((ref, index) => (
-                                <Link
-                                    href={"https://pubmed.gov/" + ref.pmid}
-                                    sx={{ textDecoration: 'none', color: 'black' }}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                        {articlesData?.map((ref, index) => (
+                            <Link
+                                href={"https://pubmed.gov/" + ref.pmid}
+                                sx={{
+                                    color: 'black',
+                                    textDecoration: 'none',
+                                    '& .pmid-link:hover': {
+                                        textDecoration: 'underline'
+                                    }
+                                }}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                key={index}
+                            >
+                                <ListItem
+                                    sx={{
+                                        paddingY: '0px',
+                                        marginLeft: '20px',
+                                        flexDirection: "column",
+                                        alignItems: "flex-start",
+                                        position: "relative",
+                                        fontSize: '12px',
+                                        fontWeight: 300,
+                                        textAlign: 'left',
+                                        wordWrap: 'break-word',
+                                        whiteSpace: 'normal',
+                                        maxWidth: 'calc(100% - 20px)',
+                                        paddingTop: index === 0 ? '0px' : '15px',
+                                    }}
+                                    key={index}
+                                    id={`reference-item-${ref.pmid}`}
+                                    className={`reference-item${activeReference === ref.pmid ? '-active' : ''}`}
                                 >
-                                    <ListItem
-                                        sx={{
-                                            paddingY: '0px',
-                                            marginLeft: '20px',
-                                            flexDirection: "column",
-                                            alignItems: "flex-start",
-                                            position: "relative",
-                                            fontSize: '12px',
-                                            fontWeight: 300,
-                                            textAlign: 'left',
-                                            wordWrap: 'break-word',
-                                            whiteSpace: 'normal',
-                                            maxWidth: 'calc(100% - 20px)',
-                                            paddingTop: index === 0 ? '0px' : '15px',
-                                        }}
-                                        key={index}
-                                        id={`reference-item-${ref.pmid}`}
-                                        className={`reference-item${activeReference === ref.pmid ? '-active' : ''}`}
-                                    >
-                                        <Box sx={{
-                                            position: 'absolute',
-                                            fontSize: '16px',
-                                            left: '-20px',
-                                            width: '30px',
-                                            height: '100%',
-                                            alignItems: "flex-end"
-                                        }}>
-                                            <Typography
-                                                sx={{ fontFamily: 'Open Sans', textAlign: 'right', fontWeight: 400 }}
-                                            >{index + 1}.</Typography>
-                                        </Box>
+                                    <Box sx={{
+                                        position: 'absolute',
+                                        fontSize: '16px',
+                                        left: '-20px',
+                                        width: '30px',
+                                        height: '100%',
+                                        alignItems: "flex-end",
+                                    }}>
                                         <Typography
-                                            sx={{ fontFamily: 'Open Sans', fontWeight: 700 }}
-                                        >{ref.title}</Typography>
-                                        <Typography sx={{ fontFamily: 'Open Sans', color: "grey" }}>
-                                            {(() => {
-                                                const authors = ref.data.authors;
-                                                return authors.length <= 2 ?
-                                                    authors.map((author) => (author.name)).join(', ') :
-                                                    `${authors[0].name}, ..., ${authors[authors.length - 1].name}`;
-                                            })()}
-                                        </Typography>
-                                        <Typography sx={{ fontFamily: 'Open Sans', color: "grey" }}>
-                                            <i>{ref.data.fulljournalname}</i>.&nbsp;
-                                            {ref.data.pubdate.slice(0, 4)}
-                                            {(ref.data.volume || ref.data.issue || ref.data.pages) && <>;</>}
-                                            {ref.data.volume}
-                                            {ref.data.issue && <>({ref.data.issue})</>}
-                                            {ref.data.pages && <>:{ref.data.pages}</>}.
-                                            &nbsp;<Link
-                                                href={"https://pubmed.gov/" + ref.pmid}
-                                                sx={{
-                                                    color: '#1976d2',
-                                                    fontWeight: 400,
-                                                    textDecoration: 'none',
-                                                    '&:hover': {
-                                                        textDecoration: 'underline'
-                                                    }
-                                                }}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            ><span>PMID: {ref.pmid}</span></Link>
-                                        </Typography>
-                                    </ListItem>
-                                </Link>
-                            ))
-                        }
+                                            sx={{ fontFamily: 'Open Sans', textAlign: 'right', fontWeight: 400 }}
+                                        >{index + 1}.</Typography>
+                                    </Box>
+                                    <Typography
+                                        sx={{ fontFamily: 'Open Sans', fontWeight: 700 }}
+                                    >{ref.title}</Typography>
+                                    <Typography sx={{ fontFamily: 'Open Sans', color: "grey" }}>
+                                        {(() => {
+                                            const authors = ref.data.authors;
+                                            return authors.length <= 2 ?
+                                                authors.map((author) => (author.name)).join(', ') :
+                                                `${authors[0].name}, ..., ${authors[authors.length - 1].name}`;
+                                        })()}
+                                    </Typography>
+                                    <Typography sx={{ fontFamily: 'Open Sans', color: "grey" }}>
+                                        <i>{ref.data.fulljournalname}</i>.&nbsp;
+                                        {ref.data.pubdate.slice(0, 4)}
+                                        {(ref.data.volume || ref.data.issue || ref.data.pages) && <>;</>}
+                                        {ref.data.volume}
+                                        {ref.data.issue && <>({ref.data.issue})</>}
+                                        {ref.data.pages && <>:{ref.data.pages}</>}.
+                                        &nbsp;<span
+                                            className="pmid-link"
+                                            style={{
+                                                color: '#1976d2',
+                                                fontWeight: 400,
+                                            }}
+                                        >PMID: {ref.pmid}</span>
+                                    </Typography>
+                                </ListItem>
+                            </Link>
+                        ))}
                     </List>
                 </Collapse>
                 <Collapse in={currTab === 'pankbase_links'}>
@@ -827,7 +795,7 @@ function SearchResult() {
                 </Collapse>
             </Box>
         </Container>
-    );
+        );
 }
 
 export default SearchResult;

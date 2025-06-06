@@ -67,18 +67,23 @@ export default function KnowledgeGraph() {
     contextNodeRef.current = null;
   };
 
+  const center =
+    cyRef.current
+      ? {
+        x: (cyRef.current.width() / 2),
+        y: (cyRef.current.height() / 2),
+      }
+      : { x: 0, y: 0 };
+
   const handleZoomIn = () =>
-    cyRef.current && cyRef.current.zoom(cyRef.current.zoom() - 0.2);
+    cyRef.current && cyRef.current.zoom({ level: cyRef.current.zoom() / 1.2, renderedPosition: center });
   const handleZoomOut = () =>
-    cyRef.current && cyRef.current.zoom(cyRef.current.zoom() + 0.2);
+    cyRef.current && cyRef.current.zoom({ level: cyRef.current.zoom() * 1.2, renderedPosition: center });
 
   const handleRecenter = () => {
     if (cyRef.current) {
-      cyRef.current.reset();
+      cyRef.current.zoom(initZoom);
       cyRef.current.center();
-      cyRef.current.fit();
-      setZoomLevel(cyRef.current.zoom());
-      setInitZoom(cyRef.current.zoom());
     }
   };
 
@@ -150,6 +155,8 @@ export default function KnowledgeGraph() {
       maxZoom: 4,
       pan: { x: 0, y: 0 },
     });
+
+
     const handleHover = (evt) => {
       // Clear any existing timers immediately
       clearTimeout(hoverTimeoutRef.current);
@@ -217,12 +224,11 @@ export default function KnowledgeGraph() {
     cyRef.current.on("mouseover", "edge", handleHover);
     cyRef.current.on("mouseout", "edge", handleOut);
 
-    cyRef.current.on("layoutstop", () => {
-      cyRef.current.reset();
-      cyRef.current.center();
-      setZoomLevel(cyRef.current.zoom());
-      setInitZoom(cyRef.current.zoom());
-    });
+    cyRef.current.reset();
+    cyRef.current.center();
+    setZoomLevel(cyRef.current.zoom());
+    setInitZoom(cyRef.current.zoom());
+
     cyRef.current.on("zoom", () => {
       setZoomLevel(cyRef.current.zoom());
     });

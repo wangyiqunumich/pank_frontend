@@ -10,13 +10,15 @@ import {
   useSelector,
 } from 'react-redux';
 
-import CloseIcon from '@mui/icons-material/Close';
-import DownloadIcon from '@mui/icons-material/Download';
-import InfoIcon from '@mui/icons-material/Info';
-import InfoOutlineIcon from '@mui/icons-material/InfoOutlined';
-import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
-import WarningIcon from '@mui/icons-material/Warning';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import {
+  Close as CloseIcon,
+  Download as DownloadIcon,
+  Info as InfoIcon,
+  InfoOutlined as InfoOutlineIcon,
+  NotificationsNone as NotificationsNoneIcon,
+  Warning as WarningIcon,
+  WarningAmber as WarningAmberIcon,
+} from '@mui/icons-material';
 import {
   Alert,
   Box,
@@ -26,6 +28,7 @@ import {
   IconButton,
   Pagination,
   Paper,
+  styled,
   Tab,
   Table,
   TableBody,
@@ -35,10 +38,10 @@ import {
   TableHead,
   TableRow,
   Tabs,
+  Tooltip,
+  tooltipClasses,
   Typography,
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 
 import { queryQueryResult } from '../redux/queryResultSlice';
 import { setSearchTerms } from '../redux/searchSlice';
@@ -126,7 +129,7 @@ function IntermediatePage({ onContinue }) {
         title={
           <React.Fragment>
             <Typography color="inherit" sx={{ fontFamily: 'Open Sans' }}>{title}</Typography>
-            {toolTipsData?.intermediate?.[title] || ""}
+            {content || toolTipsData?.intermediate?.[title] || ""}
           </React.Fragment>
         }
       >
@@ -178,12 +181,12 @@ function IntermediatePage({ onContinue }) {
     return resultText;
   };
 
-  const handleTabChange = (event, newValue) => {
+  const handleTabChange = (_, newValue) => {
     setCurrPage(1);
     setSelectedTab(newValue);
   };
 
-  const handlePageChange = (event, newPage) => {
+  const handlePageChange = (_, newPage) => {
     setCurrPage(newPage);
   };
 
@@ -195,6 +198,7 @@ function IntermediatePage({ onContinue }) {
         gene_symbol: getGeneSymbol(cs.credible_set_id),
       }))
     ) || [];
+    // Group by data_source
     const groupedResults = allResults.reduce((acc, item) => (
       {
         ...acc,
@@ -204,6 +208,7 @@ function IntermediatePage({ onContinue }) {
         ]
       }
     ), {});
+    // Map to tabs or single result
     const mappedResult = tabsEnabled ? tabsQTL.map(({ label, data_source }) => (
       {
         label,
@@ -215,6 +220,7 @@ function IntermediatePage({ onContinue }) {
         result: allResults
       }
     ];
+    // deduplicate results within each group
     const deduplicatedResults = mappedResult.map(({ label, result }) => ({
       label,
       result: [
@@ -228,7 +234,8 @@ function IntermediatePage({ onContinue }) {
         ).values()
       ]
     }));
-    console.log("Grouped Results:", deduplicatedResults);
+    console.log("Final Results:", deduplicatedResults);
+    // Jump to first SNP if only one result
     if (deduplicatedResults.flatMap((group) => (group.result)).length === 1) {
       console.log(deduplicatedResults.flatMap((group) => (group.result)).length);
       const firstResult = deduplicatedResults.flatMap((group) => (group.result))[0];
@@ -246,7 +253,7 @@ function IntermediatePage({ onContinue }) {
       setLoading(false);
     }, 3000);
 
-    // 如果在 3s 内获取到了数据,清除错误状态
+    // Clear error if results are found in 3 seconds
     if (queryResult?.results && queryResult.results.length > 0) {
       setError(false);
       setLoading(false);
@@ -256,17 +263,17 @@ function IntermediatePage({ onContinue }) {
     return () => clearTimeout(timer);
   }, [queryResult]);
 
-  const getDescription = (name) => {
-    const descriptions = {
-      "eQTL GTEx":
-        "Identifies genetic variants regulating gene expression in pancreatic tissue using GTEx data.",
-      "eQTL Gene-level InsPIRE":
-        "Identifies genetic variants regulating gene expression in islet tissue using InsPIRE data.",
-      "splicing QTL GTEx":
-        "Identifies genetic variants influencing RNA splicing in pancreatic tissue using GTEx data.",
-    };
-    return descriptions[name] || "";
-  };
+  // const getDescription = (name) => {
+  //   const descriptions = {
+  //     "eQTL GTEx":
+  //       "Identifies genetic variants regulating gene expression in pancreatic tissue using GTEx data.",
+  //     "eQTL Gene-level InsPIRE":
+  //       "Identifies genetic variants regulating gene expression in islet tissue using InsPIRE data.",
+  //     "splicing QTL GTEx":
+  //       "Identifies genetic variants influencing RNA splicing in pancreatic tissue using GTEx data.",
+  //   };
+  //   return descriptions[name] || "";
+  // };
 
   const processedQuestion = viewSchema?.question?.[0]
     ? addHighlight(replaceVariables(
@@ -303,7 +310,7 @@ function IntermediatePage({ onContinue }) {
     window.location.href = `/result?${params.toString()}`;
   };
 
-  // 添加一个新的辅助函数来获取 credibleSet 的显示标签
+  // function to get the credible set label based on the data source and index
   const getCredibleSetLabel = (credibleSet, num) => {
     const prefix = {
       "GTEx; SusieR": "A",
@@ -311,25 +318,19 @@ function IntermediatePage({ onContinue }) {
       "splicing; GTEx": "C",
       "exon; INSPIRE": "D",
     }[credibleSet.data_source] || "";
-    console.log("Credible Set", credibleSet);
     if (!prefix) return credibleSet.credible_set_id;
     return `CredibleSet_${prefix}${num}`;
   };
-
-  // const getFilteredResults = () => (
-  //   queryData.find(item => item.label === selectedTab)?.result || []
-  // );
-  // print 
 
   const getFilteredResults = () => (
     queryData.find(item => item.label === selectedTab)?.result || []
   );
 
-  const handleDownload = (credibleSet) => {
-    console.log(credibleSet);
-  };
+  // const handleDownload = (credibleSet) => {
+  //   console.log(credibleSet);
+  // };
 
-  // 添加从 URL 读取参数的逻辑
+  // read URL parameters and update Redux store
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const sourceTerm = params.get('sourceTerm');
@@ -339,7 +340,6 @@ function IntermediatePage({ onContinue }) {
     const targetSymbol = params.get('targetSymbol') || "";
     console.log(sourceTerm, relationship, targetTerm);
     if (sourceTerm && relationship && targetTerm) {
-      // 更新 Redux store 中的搜索条件
       dispatch(
         setSearchTerms({
           sourceTerm,
@@ -350,7 +350,6 @@ function IntermediatePage({ onContinue }) {
         })
       );
 
-      // 使用这些参数执行查询
       dispatch(
         queryViewSchema({
           sourceTerm,
@@ -378,6 +377,8 @@ function IntermediatePage({ onContinue }) {
 
       dispatch(queryQueryResult({
         query: processedCypher,
+        // query rds if sourceTerm is a SNP
+        // otherwise query neptune db
         isNeptune: !searchState.sourceTerm.includes("snp@"),
       })).unwrap();
     }
@@ -399,7 +400,7 @@ function IntermediatePage({ onContinue }) {
     }
   }, [queryData]);
 
-  // 添加错误提示组件
+  // error component for no data found
   if (error) {
     return (
       <Box sx={{
@@ -440,13 +441,13 @@ function IntermediatePage({ onContinue }) {
     flexDirection: 'column',
     flexGrow: 1,
   }} disableGutters maxWidth={false}>
-    {/* 问题显示区域 */}
+    {/* Question box */}
     <Grid container spacing={2} height={"100%"} sx={{ alignItems: "stretch" }}>
       <Grid item xs={12} height={"100%"}>
         <Box sx={{ padding: '32px', backgroundColor: '#F2FAFB', marginTop: '60px', borderRadius: '20px' }}>
           <Box sx={{ width: "100%", justifyContent: "space-between", display: "flex", alignItems: "center" }}>
             <Typography sx={{ fontFamily: 'Open Sans', fontSize: '20px', textAlign: 'left', marginBottom: '10px', fontWeight: 600 }}>
-              Question<TooltipComponent title="Question" content="User's question." />
+              Question<TooltipComponent title="Question" />
             </Typography>
             {/*a link*/}
             <a href={"/"} style={{ color: "#398289", textDecoration: "none" }}>
@@ -467,8 +468,8 @@ function IntermediatePage({ onContinue }) {
         </Box>
       </Grid>
     </Grid>
+    {/* Result and KG Viewer */}
     <Grid container spacing={4} height={"100%"} sx={{ alignItems: "stretch", marginBottom: '20px' }}>
-
       {!loading && error && (
         <Grid item xs={12} height={"100%"}>
           <Box
@@ -514,7 +515,7 @@ function IntermediatePage({ onContinue }) {
           flex: 1,
         }}>
 
-          {/* 搜索结果 */}
+          {/* search result */}
 
           <Box sx={{
             backgroundColor: '#F9FAFB',
@@ -528,12 +529,8 @@ function IntermediatePage({ onContinue }) {
               fontWeight: 800,
               fontSize: 22,
               paddingLeft: '30px', paddingTop: '30px'
-              // position: 'absolute',
-              // top: -44,
-              // left: 0,
-              // zIndex: 1
             }}>
-              Result<TooltipComponent title="Result" content="Search result." />
+              Result<TooltipComponent title="Result" />
             </Typography>
             <div className="styled-paper" style={{ padding: '10px 32px' }}>
               <div className="answer-content">
@@ -567,7 +564,7 @@ function IntermediatePage({ onContinue }) {
                   Select an SNP entry below and click "View" to see detailed relationship data
                 </Alert>
 
-                {/* 添加 Tabs */}
+                {/* Tabs */}
                 {tabsEnabled && <Tabs
                   value={selectedTab}
                   onChange={handleTabChange}
@@ -579,14 +576,9 @@ function IntermediatePage({ onContinue }) {
                       padding: '10px'
                     },
                     '& .MuiTab-root': {
-                      // minHeight: '60px',
                       textTransform: 'none',
                       fontSize: '16px',
                       whiteSpace: 'normal',
-                      // lineHeight: '1.2',
-                      // width: '120px',
-                      // minWidth: '120px',
-                      // maxWidth: '120px',
                       margin: '0px',
                       '& .MuiTab-wrapper': {
                         flexDirection: 'row',
@@ -618,8 +610,6 @@ function IntermediatePage({ onContinue }) {
                             fontSize: '16px',
                             color: selectedTab === option.label ? '#3A838B' : 'black',
                             fontWeight: selectedTab === option.label ? '800' : '500',
-                            // lineHeight: 1.2,
-                            // wordWrap: 'break-word'
                           }}
                         >
                           {option.label} ({option.result.length})
@@ -630,7 +620,7 @@ function IntermediatePage({ onContinue }) {
                   ))}
                 </Tabs>}
 
-                {/* 详细结果表格 */}
+                {/* table */}
                 <TableContainer component={Paper} sx={{
                   border: '1px solid #727272',
                   boxShadow: '0px 0px 0px 0px rgba(0,0,0,0.2)',
@@ -640,7 +630,6 @@ function IntermediatePage({ onContinue }) {
                 }}>
                   <Table
                     size={getFilteredResults().length > 0 ? "small" : "medium"}
-                    // size={'small'}
                     stickyHeader={true}
                     sx={{ minWidth: '600px' }}
                   >
@@ -676,7 +665,6 @@ function IntermediatePage({ onContinue }) {
                           fontWeight: 'bold',
                           padding: '16px 8px',
                           alignItems: 'center',
-                          // display: 'flex',
                           width: 'fit-content',
                           verticalAlign: 'middle',
                           textAlign: 'center',
@@ -691,8 +679,9 @@ function IntermediatePage({ onContinue }) {
                               }
                             }}
                             title={<Typography sx={{ fontFamily: 'Open Sans', fontSize: '14px' }}>
-                              TBD
-                            </Typography>}>
+                              {toolTipsData?.intermediate_page_table?.["Action"] || "TBD"}
+                            </Typography>
+                            }>
                             <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
                           </Tooltip>
                         </TableCell>
@@ -786,7 +775,7 @@ function IntermediatePage({ onContinue }) {
         </Box>
       </Grid>
 
-      {/* right侧知识图谱区域 */}
+      {/* right intermediate KG */}
       <Grid item xs={6} display="flex">
         <Box sx={{
           width: "100%",
@@ -813,7 +802,7 @@ function IntermediatePage({ onContinue }) {
               fontSize: 22,
               marginBottom: '16px', paddingLeft: '30px', paddingTop: '30px',
             }}>
-              Graph viewer<TooltipComponent title="Graph viewer" content="Graph viewer." />
+              Graph Viewer<TooltipComponent title="Graph Viewer" />
             </Typography>
             <IntermediateKG data={{
               credible_sets: getFilteredResults().slice((currPage - 1) * 5, currPage * 5),
@@ -824,52 +813,7 @@ function IntermediatePage({ onContinue }) {
               ].flat(),
             }} />
           </Box>
-
-          {/* Legend */}
-          {/* <Box sx={{
-          position: 'relative',
-          padding: '20px',
-          backgroundColor: '#F9FAFB',
-          border: 1,
-          borderColor: '#EEEEEE',
-          marginBottom: '40px'
-        }}>
-          <Typography sx={{
-            fontWeight: 800,
-            fontSize: 20,
-            position: 'absolute',
-            top: -44,
-            left: 0,
-            zIndex: 1
-          }}>
-            Legend
-          </Typography>
-          <Box sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2
-          }}>
-            {/* 第一行 
-            <Box sx={{
-              display: 'flex',
-              // gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: 2
-            }}>
-              <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Box sx={{ width: 20, height: 20, backgroundColor: '#ABD0F1', borderRadius: '4px' }} />
-                <Typography variant="body2">Gene</Typography>
-              </Box>
-              <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Box sx={{ width: 20, height: 20, backgroundColor: '#FFB77F', borderRadius: '4px' }} />
-                <Typography variant="body2">Sequence variant</Typography>
-              </Box>
-              <Box sx={{ flex: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Box sx={{ width: 20, height: 20, backgroundColor: '#43978F', borderRadius: '4px' }} />
-                <Typography variant="body2">Credible set</Typography>
-              </Box>
-            </Box>
-          </Box>
-        </Box> */}
+          {/* Legend TBD */}
         </Box>
       </Grid>
     </Grid>
