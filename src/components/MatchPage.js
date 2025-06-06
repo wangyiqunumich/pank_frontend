@@ -179,9 +179,7 @@ const MatchGraphViewer = ({ visualPattern, selectedQuestion }) => {
       style={{
         width: "100%",
         height: "120px",
-        backgroundColor: "#F7F7F74D",
         borderRadius: "8px",
-        border: "1px solid #E0E0E0",
       }}
     />
   );
@@ -243,7 +241,7 @@ function MatchPage() {
   // Handle submit button click
   const handleSubmit = () => {
     if (selectedQuestion.startsWith('What is')) {
-      const url = `/result?sourceTerm=gene@${geneId.split('(')[1].slice(0, -1)}&targetTerm=cell_type@${cellId.split('(')[1].slice(0,-1)}&relationship=express_in`
+      const url = `/result?sourceTerm=gene@${geneId.split('(')[1].slice(0, -1)}&targetTerm=cell_type@${cellId.split('(')[1].slice(0, -1)}&relationship=express_in`
       navigate(url);
     }
     else {
