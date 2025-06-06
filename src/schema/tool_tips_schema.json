@@ -11,7 +11,8 @@
                 "Purity": "Purity represents the proportion of the genetic association signal captured by the credible set; higher purity indicates higher confidence and quality of the set.",
                 "Lead SNP": "Lead SNP refers to the genetic variant with the strongest association signal within the credible set, often considered the most likely causal variant.",
                 "PIP": "PIP (Posterior Inclusion Probability) quantifies the probability of a specific variant being the causal driver of the observed genetic signal; a higher PIP suggests greater confidence in causality.",
-                "#": "# (Number of Variants) indicates the total count of genetic variants included in the credible set, encompassing all variants contributing to the signal."
+                "#": "# (Number of Variants) indicates the total count of genetic variants included in the credible set, encompassing all variants contributing to the signal.",
+                "Action": "TBD"
             }
         },
         "specific - relationship - specific": {
@@ -25,7 +26,8 @@
                 "Gene": "The gene associated with the QTL signal, typically representing the locus affected by the genetic variation.",
                 "Searched SNP (PIP)": "This is the SNP you searched for, along with its PIP (Posterior Inclusion Probability) value. PIP quantifies the probability of a specific variant being the causal driver of the observed genetic signal; a higher PIP suggests greater confidence in causality.If it is not the lead SNP, its significance may be lower.",
                 "#": "# (Number of Variants) indicates the total count of genetic variants included in the credible set, encompassing all variants contributing to the signal.",
-                "Lead SNP (PIP)": "Lead SNP refers to the genetic variant with the strongest association signal within the credible set, often considered the most likely causal variant.PIP (Posterior Inclusion Probability) quantifies the probability of a specific variant being the causal driver of the observed genetic signal; a higher PIP suggests greater confidence in causality."
+                "Lead SNP (PIP)": "Lead SNP refers to the genetic variant with the strongest association signal within the credible set, often considered the most likely causal variant.PIP (Posterior Inclusion Probability) quantifies the probability of a specific variant being the causal driver of the observed genetic signal; a higher PIP suggests greater confidence in causality.",
+                "Action": "TBD"
             }
         },
         "specific - relationship - general": {
@@ -39,7 +41,8 @@
                 "Gene": "The gene associated with the QTL signal, typically representing the locus affected by the genetic variation.",
                 "Searched SNP (PIP)": "This is the SNP you searched for, along with its PIP (Posterior Inclusion Probability) value. PIP quantifies the probability of a specific variant being the causal driver of the observed genetic signal; a higher PIP suggests greater confidence in causality.If it is not the lead SNP, its significance may be lower.",
                 "#": "# (Number of Variants) indicates the total count of genetic variants included in the credible set, encompassing all variants contributing to the signal.",
-                "Lead SNP (PIP)": "Lead SNP refers to the genetic variant with the strongest association signal within the credible set, often considered the most likely causal variant.PIP (Posterior Inclusion Probability) quantifies the probability of a specific variant being the causal driver of the observed genetic signal; a higher PIP suggests greater confidence in causality."
+                "Lead SNP (PIP)": "Lead SNP refers to the genetic variant with the strongest association signal within the credible set, often considered the most likely causal variant.PIP (Posterior Inclusion Probability) quantifies the probability of a specific variant being the causal driver of the observed genetic signal; a higher PIP suggests greater confidence in causality.",
+                "Action": "TBD"
             }
         }
     },
