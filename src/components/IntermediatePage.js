@@ -1,6 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import './styles.css';
 
+import React, {
+  useEffect,
+  useState,
+} from 'react';
+
+import {
+  useDispatch,
+  useSelector,
+} from 'react-redux';
+
+import CloseIcon from '@mui/icons-material/Close';
+import DownloadIcon from '@mui/icons-material/Download';
+import InfoIcon from '@mui/icons-material/Info';
+import InfoOutlineIcon from '@mui/icons-material/InfoOutlined';
+import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import WarningIcon from '@mui/icons-material/Warning';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import {
   Alert,
   Box,
@@ -8,49 +24,36 @@ import {
   Container,
   Grid,
   IconButton,
-  Paper,
   Pagination,
+  Paper,
   Tab,
   Table,
   TableBody,
   TableCell,
   TableContainer,
+  TableFooter,
   TableHead,
   TableRow,
-  TableFooter,
   Tabs,
   Typography,
 } from '@mui/material';
-
 import { styled } from '@mui/material/styles';
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 
-import InfoIcon from '@mui/icons-material/Info';
-import InfoOutlineIcon from '@mui/icons-material/InfoOutlined';
-import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
-import WarningIcon from '@mui/icons-material/Warning';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import CloseIcon from '@mui/icons-material/Close';
-import DownloadIcon from '@mui/icons-material/Download';
-
-import IntermediateKG from './IntermediateKG';
-
 import { queryQueryResult } from '../redux/queryResultSlice';
-import { queryViewSchema } from '../redux/viewSchemaSlice';
 import { setSearchTerms } from '../redux/searchSlice';
+import { queryViewSchema } from '../redux/viewSchemaSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
-
-import './styles.css'
-
 import {
-  replaceVariables,
   addHighlight,
   getGeneSymbol,
+  replaceVariables,
 } from '../utils/textProcessing';
+import IntermediateKG from './IntermediateKG';
 
 const tabsEnabled = true;
 
-const tabsQTL = [
+export const tabsQTL = [
   { "label": "Pancreatic eQTL", "data_source": "GTEx; SusieR" },
   { "label": "Islet eQTL", "data_source": "INSPIRE; SusieR" },
   { "label": "Pancreatic splicing QTL", "data_source": "splicing; GTEx" },
@@ -514,7 +517,7 @@ function IntermediatePage({ onContinue }) {
           {/* 搜索结果 */}
 
           <Box sx={{
-            backgroundColor: '#FBFBFB',
+            backgroundColor: '#F9FAFB',
             border: 1,
             borderColor: '#EEEEEE',
             borderRadius: '20px',
@@ -799,7 +802,7 @@ function IntermediatePage({ onContinue }) {
             minHeight: '472px',
             height: '100%',
             overflow: 'visible',
-            backgroundColor: '#FBFBFB',
+            backgroundColor: '#F9FAFB',
             border: 1,
             borderColor: '#EEEEEE',
             borderRadius: '20px'
@@ -826,7 +829,7 @@ function IntermediatePage({ onContinue }) {
           {/* <Box sx={{
           position: 'relative',
           padding: '20px',
-          backgroundColor: '#FBFBFB',
+          backgroundColor: '#F9FAFB',
           border: 1,
           borderColor: '#EEEEEE',
           marginBottom: '40px'

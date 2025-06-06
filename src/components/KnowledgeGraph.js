@@ -1,18 +1,34 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+
+import cytoscape from 'cytoscape';
 import { useSelector } from 'react-redux';
-import cytoscape from "cytoscape";
-import { edgeLabels, nodeStyle, nodeColors, nodeLabels, getContrastingColor } from "./style.js";
-import { Box, Collapse, Typography } from "@mui/material";
+
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import ZoomInMapIcon from '@mui/icons-material/ZoomInMap';
+import {
+  Box,
+  Collapse,
+  Typography,
+} from '@mui/material';
 import IconButton from '@mui/material/IconButton';
-import zoomInIcon from "../image/fontisto--zoom-minus.svg";
-import zoomOutIcon from "../image/fontisto--zoom-plus.svg";
-import downloadIcon from "../image/material-symbols--download-rounded.svg";
-import recenterIcon from "../image/material-symbols--recenter-rounded.svg";
+
+import zoomInIcon from '../image/fontisto--zoom-minus.svg';
+import zoomOutIcon from '../image/fontisto--zoom-plus.svg';
+import downloadIcon from '../image/material-symbols--download-rounded.svg';
+import recenterIcon from '../image/material-symbols--recenter-rounded.svg';
+import {
+  edgeLabels,
+  getContrastingColor,
+  nodeColors,
+  nodeLabels,
+  nodeStyle,
+} from './style.js';
 
 const LegendItem = ({ type, sx }) => (
   <span
@@ -233,7 +249,7 @@ export default function KnowledgeGraph() {
         style={{
           width: "100%",
           height: "600px",
-          backgroundColor: "#FBFBFB", // Restored to white as requested
+          backgroundColor: "#F9FAFB", // Restored to white as requested
           // border: "1px solid #ddd",
           border: "none",
           borderRadius: "8px",
@@ -382,13 +398,13 @@ export default function KnowledgeGraph() {
           }}
         >
           {/* Title */}
-          <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
             <div style={{ fontSize: "14px", fontWeight: 700, color: "#172A3A", fontFamily: "Open Sans" }}>
               Legend
             </div>
             <IconButton
               onClick={() => setLegendVisible(!legendVisible)}
-              style={{ padding: "0px 4px" }}
+              style={{ padding: "8px", margin: "-8px" }}
             >
               {legendVisible ? (
                 <KeyboardArrowLeftIcon style={{ color: "#172A3A", fontSize: "20px" }} />
@@ -400,9 +416,9 @@ export default function KnowledgeGraph() {
           <Collapse in={legendVisible} timeout="auto">
             <div style={{ width: "430px", paddingTop: "10px", fontSize: "16px", fontFamily: "Open Sans", fontWeight: 400 }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingBottom: "4px", fontSize: "12px" }}>
-                <LegendItem type="　　" sx={{ backgroundColor: "#D9D9D9", color: "black", height: "10px" }} />
+                <LegendItem type="　　" sx={{ backgroundColor: "#D9D9D9", color: "black", border: "2px solid #D9D9D9", height: "8px" }} />
                 Core Nodes
-                <LegendItem type="　　" sx={{ backgroundColor: "white", color: "black", border: "1px solid #D9D9D9", height: "10px" }} />
+                <LegendItem type="　　" sx={{ backgroundColor: "white", color: "black", border: "2px solid #7F7D7D", height: "8px" }} />
                 Neighbor
               </div>
               <div

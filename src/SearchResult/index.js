@@ -1,24 +1,50 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Container, Typography, Box, Grid, List, ListItem, Link, Tab, Tabs, CircularProgress, Collapse } from '@mui/material';
-import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
-import { useSelector, useDispatch } from 'react-redux';
 import './scoped.css';
-import KnowledgeGraph from '../components/KnowledgeGraph';
-import { queryAiAnswer } from '../redux/aiAnswerSlice';
-import { queryViewSchema } from '../redux/viewSchemaSlice';
-import { queryArticles } from '../redux/articlesSlice';
-import { setProcessedQuestion } from '../redux/processedQuestionSlice';
-import { replaceVariables, addHighlight } from '../utils/textProcessing';
-import { queryQueryResultPage } from '../redux/queryResultPage';
+
+import React, {
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+
+import {
+  useDispatch,
+  useSelector,
+} from 'react-redux';
+
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import InfoOutlineIcon from '@mui/icons-material/InfoOutlined';
+import {
+  Box,
+  Collapse,
+  Container,
+  Grid,
+  Link,
+  List,
+  ListItem,
+  Skeleton,
+  Tab,
+  Tabs,
+  Typography,
+} from '@mui/material';
 import { styled } from '@mui/material/styles';
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
+
+import { tabsQTL } from '../components/IntermediatePage';
+import KnowledgeGraph from '../components/KnowledgeGraph';
+import { queryAiAnswer } from '../redux/aiAnswerSlice';
+import { queryArticles } from '../redux/articlesSlice';
+import { setProcessedQuestion } from '../redux/processedQuestionSlice';
+import { queryQueryResultPage } from '../redux/queryResultPage';
 import { setSearchTerms } from '../redux/searchSlice';
+import { queryViewSchema } from '../redux/viewSchemaSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
+import {
+  addHighlight,
+  replaceVariables,
+} from '../utils/textProcessing';
 
 const tabOptions = [
     { value: 'references', label: 'References' },
-    { value: 'visualization', label: 'Visualization' },
     { value: 'pankbase_links', label: 'PanKbase Links' },
     { value: 'external_links', label: 'External Links' }
 ];
@@ -56,6 +82,49 @@ const TooltipComponent = ({ title, content }) => (
             }} />
         </HtmlTooltip>
     </>);
+
+const LoadingSkeleton = () => (
+    <Container sx={{
+        padding: 0, display: 'flex',
+        flexDirection: 'column', justifyContent: 'space-evenly',
+        fontFamily: 'Open Sans', fontWeight: 600,
+        alignSelf: 'center',
+        maxWidth: '1440px',
+        minWidth: '1000px',
+        marginLeft: '20px',
+        marginRight: '20px',
+        flexDirection: 'column',
+        flexGrow: 1,
+    }} disableGutters maxWidth={false}>
+        <Skeleton variant="rectangular" width={"100%"} height={"150px"} sx={{
+            backgroundColor: '#E4F0F1',
+            marginBottom: '20px',
+            marginTop: '60px',
+            borderRadius: '20px'
+        }} />
+        <Grid container spacing={4} height={"100%"} sx={{
+            alignItems: "stretch", marginBottom: '48px', marginTop: '-4px'
+        }}>
+            <Grid item xs={6} height={"740px"} display="flex">
+                <Skeleton variant="rectangular" width={"100%"} height={"100%"} sx={{
+                    backgroundColor: '#F9FAFB',
+                    borderRadius: '20px',
+                }} />
+            </Grid>
+            <Grid item xs={6} height={"740px"} display="flex">
+                <Skeleton variant="rectangular" width={"100%"} height={"100%"} sx={{
+                    backgroundColor: '#F9FAFB',
+                    borderRadius: '20px',
+                }} />
+            </Grid>
+        </Grid>
+        <Skeleton variant="rectangular" width={"100%"} height={"200px"} sx={{
+            backgroundColor: '#F9FAFB',
+            marginBottom: '20px',
+            borderRadius: '0px 20px 20px 20px',
+        }} />
+    </Container>
+)
 
 const SNPPlotImage = ({ imageSrc }) => {
     if (!imageSrc) return null;
@@ -270,8 +339,9 @@ function SearchResult() {
                                 nextQuestions: processedNextQuestions,
                                 aiQuestions: processedAiQuestions,
                                 aiAnswerSubtitle: ai_answer_sub_title,
-                                currentQuestionType: relationship === "QTL"
-                                    && (dataSource + '; ' + tissueKey + ' tissue')
+                                currentQuestionType: tabsQTL.find(
+                                    tab => tab.data_source === dataSource
+                                )?.label || 'Unknown',
                             }));
                         });
                     }
@@ -364,16 +434,7 @@ function SearchResult() {
     // 如果正在加载答案或答案为空，显示加载状态
     if (!queryResultPage?.combined_query_result) {
         return (
-            <Container
-                sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "100vh",
-                }}
-            >
-                <CircularProgress />
-            </Container>
+            <LoadingSkeleton />
         );
     }
 
@@ -390,8 +451,6 @@ function SearchResult() {
             flexDirection: 'column',
             flexGrow: 1,
         }} disableGutters maxWidth={false}>
-            {/*test question block*/}
-
             <Box sx={{ padding: '20px', backgroundColor: '#E4F0F1', marginBottom: '20px', marginTop: '60px', borderRadius: '20px' }}>
                 <Grid container spacing={4} height={"100%"} sx={{ alignItems: "stretch" }}>
                     <Grid item xs={6} height={"100%"}>
@@ -454,25 +513,30 @@ function SearchResult() {
                 alignItems: "stretch", marginBottom: '48px', marginTop: '-4px'
             }}>
                 {/*left*/}
-                <Grid item xs={6} minHeight={"740px"} display="flex">
+                <Grid item xs={6} height={"740px"} display="flex">
                     <Box sx={{
                         display: 'flex',
                         flexDirection: 'column',
                         gap: '20px',
                         width: "100%",
-                        backgroundColor: '#FBFBFB',
+                        backgroundColor: '#F9FAFB',
                         border: 1,
                         borderColor: '#EEEEEE',
-                        padding: '20px',
+                        paddingY: '20px',
                         position: 'relative',
                         borderRadius: '20px'
                     }}>
                         <Typography sx={{
-                            fontFamily: 'Open Sans', fontWeight: 800, fontSize: 22
+                            fontFamily: 'Open Sans', fontWeight: 800, fontSize: 22,
+                            paddingX: '20px',
                         }}>
                             AI's Overview<TooltipComponent title="AI's Overview" />
                         </Typography>
-                        <Typography component="div" sx={{ fontFamily: 'Open Sans', }}>
+                        <Typography component="div" sx={{
+                            fontFamily: 'Open Sans',
+                            overflowY: 'auto',
+                            paddingX: '20px',
+                        }}>
                             {(aiAnswer?.answers?.length) ? aiAnswer.answers.map((answer, index) => (
                                 <div key={index} style={{ marginBottom: index < aiAnswer.answers.length - 1 ? '20px' : '0' }}>
                                     {aiAnswerSubtitle && aiAnswerSubtitle[index] && (
@@ -511,14 +575,14 @@ function SearchResult() {
                 </Grid>
 
                 {/*graph viewer, right*/}
-                <Grid item xs={6} minHeight={"740px"} display="flex">
+                <Grid item xs={6} height={"740px"} display="flex">
                     <Box sx={{
                         display: 'flex',
                         flexDirection: 'column',
                         gap: '32px',
                         width: "calc(100% - 40px)",
                         maxWidth: 'calc(100% - 40px)',
-                        backgroundColor: '#FBFBFB',
+                        backgroundColor: '#F9FAFB',
                         border: 1,
                         borderColor: '#EEEEEE',
                         padding: '20px',
@@ -536,7 +600,7 @@ function SearchResult() {
                             position: 'relative',
                             minHeight: '450px',
                             overflow: 'visible',
-                            backgroundColor: '#FBFBFB',
+                            backgroundColor: '#F9FAFB',
                             border: "none",
                             borderColor: '#EEEEEE',
                             textAlign: 'left',
@@ -632,7 +696,7 @@ function SearchResult() {
             <Box sx={{
                 position: 'relative',
                 padding: '20px',
-                backgroundColor: '#FBFBFB',
+                backgroundColor: '#F9FAFB',
                 marginBottom: '20px',
                 borderRadius: '0px 20px 20px 20px',
                 border: '1px solid #EEEEEE',
