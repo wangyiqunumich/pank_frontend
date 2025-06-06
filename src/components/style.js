@@ -21,12 +21,24 @@ export const nodeAutoWidth = (node) => {
   return ctx.measureText(node.data('label')).width;
 };
 
+export const nodeAutoHeight = (node) => {
+  const ctx = document.createElement('canvas').getContext("2d");
+  const fStyle = node.pstyle('font-style').strValue;
+  const size = node.pstyle('font-size').pfValue + 'px';
+  const family = node.pstyle('font-family').strValue;
+  const weight = node.pstyle('font-weight').strValue;
+
+  ctx.font = fStyle + ' ' + weight + ' ' + size + ' ' + family;
+  const metrics = ctx.measureText(node.data('label'));
+  return metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+};
+
 export const nodeColors = {
   "coding_elements": "#A4D0F6",
   "variants": "#FFB371",
-  "ontology": "#FFDE7D",
-  "OCR": "#61ECBC",
-  "article": "#F5BEFF"
+  "ontology": "#D5F6AA",
+  "OCR": "#C8935D",
+  "article": "#8B8BE3"
 };
 
 export const nodeLabels = {
@@ -64,13 +76,16 @@ export const nodeStyle = nodeColorsList.map(({ color, type }) => ({
   style: {
     shape: "round-rectangle",
     "background-color": color,
+    "border-width": "1px",
+    "border-color": color,
     label: "data(label)",
     "font-size": "6px",
     "text-valign": "center",
     color: getContrastingColor(color),
     width: nodeAutoWidth,
-    height: "6px",
-    padding: "5px",
+    height: nodeAutoHeight,
+    "text-margin-y": "0.5px",
+    padding: "4px",
     "text-outline-width": 0,
     "text-outline-color": "#fff",
     "text-outline-opacity": 0,
@@ -83,15 +98,16 @@ export const nodeStyle = nodeColorsList.map(({ color, type }) => ({
       shape: "round-rectangle",
       "background-opacity": 1,
       "background-color": "white",
-      "border-width": 2,
+      "border-width": "1px",
       "border-color": color,
       label: "data(label)",
       "font-size": "6px",
       "text-valign": "center",
       color: "#333",
       width: nodeAutoWidth,
-      height: "6px",
-      padding: "5px",
+      height: nodeAutoHeight,
+      "text-margin-y": "0.5px",
+      padding: "4px",
       "text-outline-width": 0,
       "text-outline-color": "#fff",
       "text-outline-opacity": 0,
@@ -119,7 +135,7 @@ export const nodeStyle = nodeColorsList.map(({ color, type }) => ({
       "label": "data(type)",
       "font-size": "4px",
       "text-background-opacity": 1,
-      "text-background-color": "white",
+      "text-background-color": "#F9FAFB",
     },
   },
 ]);
