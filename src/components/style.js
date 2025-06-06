@@ -36,9 +36,9 @@ export const nodeAutoHeight = (node) => {
 export const nodeColors = {
   "coding_elements": "#A4D0F6",
   "variants": "#FFB371",
-  "ontology": "#D5F6AA",
-  "OCR": "#C8935D",
-  "article": "#8B8BE3"
+  "ontology": "#FFDE7D",
+  "OCR": "#61ECBC",
+  "article": "#F5BEFF"
 };
 
 export const nodeLabels = {
