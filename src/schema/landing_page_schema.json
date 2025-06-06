@@ -27,7 +27,9 @@
 "matched_page_title":
 			"Search for QTL",
 	"matched_page_sub_title":
-	"Pick a specific gene",
+		"Pick a specific gene",
+	"matched_page_tips":
+		"in human pancreatic and islet tissues, encompassing expression-, exon-, and splicing-level QTLs",
 	"pattern_for_the_matched_page":
 		"(snp) - eqtl of -> {gene@gene@}"
 	},
@@ -43,7 +45,9 @@
 "matched_page_title":
 			"Search for QTL",
 	"matched_page_sub_title":
-	"Pick a specific snp",
+		"Pick a specific snp",
+	"matched_page_tips":
+		"in human pancreatic and islet tissues, encompassing expression-, exon-, and splicing-level QTLs",
 	"pattern_for_the_matched_page":
 		"{snp@snp@} - eqtl of -> (gene)"
 	},
@@ -59,7 +63,9 @@
 "matched_page_title":
 			"Search for QTL",
 	"matched_page_sub_title":
-	"Pick a specific gene and snp",
+		"Pick a specific gene and snp",
+	"matched_page_tips":
+		"in human pancreatic and islet tissues, encompassing expression-, exon-, and splicing-level QTLs",
 	"pattern_for_the_matched_page":
 		"{snp@snp@} - eqtl of -> {gene@gene@}"
 	}
