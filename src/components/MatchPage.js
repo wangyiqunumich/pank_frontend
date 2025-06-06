@@ -265,7 +265,7 @@ function MatchPage() {
       let targetSymbol = '';
       let targetTerm = '';
       if (target.includes('(')) {
-        targetSymbol = target.split('(')[0].split(':')[1];
+        targetSymbol = target.split('(')[0].split('@')[1];
         targetTerm = `gene@${target.split('(')[1].slice(0, -1)}`;
       }
       else {
@@ -354,6 +354,14 @@ function MatchPage() {
               options={type === 'gene' ? geneOptions : type === 'cell' ? cellOptions : snpOptions}
               getOptionDisabled={(option) => option.disabled}
               className={dictionary[index]}
+              sx={{
+                '& .MuiAutocomplete-endAdornment': {
+                  right: '-4px !important', // Adjust the position of the end adornment (clear button)
+                },
+                '& .MuiOutlinedInput-root': {
+                  paddingRight: '-12px', // Ensure enough space for the clear button
+                },
+              }}
               onInputChange={(event, newInputValue) => {
                 if (newInputValue) {
                   updateSource(newInputValue, type);
