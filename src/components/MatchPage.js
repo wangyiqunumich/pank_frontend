@@ -340,13 +340,13 @@ function MatchPage() {
               fontWeight: 600,
             }}
           >
-            {part.slice(1, -1)} {/* Remove the enclosing parentheses */}
+            {part.slice(1, -1)}
           </Box>
         );
       } else if (part.startsWith('{') && part.endsWith('}')) {
         const type = dictionary[index];
         return (
-          <Box key={index} sx={{ display: 'inline-flex', alignItems: 'center', marginLeft: '-8px' }} >
+          <Box key={index} sx={{ display: 'inline-flex', alignItems: 'center', }} >
             <Autocomplete
               freeSolo
               options={type === 'gene' ? geneOptions : type === 'cell' ? cellOptions : snpOptions}
@@ -403,7 +403,7 @@ function MatchPage() {
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  placeholder={part.slice(1, -1).split('@')[1]}
+                  placeholder={type === 'gene' ? 'GENE' : type === 'cell' ? 'CELL' : 'SNP'}
                   onChange={(e) => {
                     setInputValue(e.target.value);  // 更新输入值
                     if (e.target.value) {
@@ -446,7 +446,6 @@ function MatchPage() {
           <Typography
             key={index}
             sx={{
-              marginRight: '4px',
               display: 'inline-block',
               fontFamily: 'Open Sans',
               fontWeight: 600,
@@ -495,24 +494,24 @@ function MatchPage() {
 
   return (
     <Container maxWidth={false} disableGutters sx={{
+      width: '100%',
       display: 'flex',
-      flexDirection: { sm: 'column', md: 'row' }, justifyContent: 'center',
+      flexDirection: { sm: 'column', md: 'row' }, justifyContent: 'flex-start',
       flex: 1, alignItems: 'top',
       paddingTop: '40px',
       paddingLeft: { sm: 0, md: '10%' },
       paddingRight: { sm: 0, md: '10%' },
       paddingBottom: '40px',
-      gap: { sm: 0, md: '40px' },
     }}>
 
       {/* 左侧图片 */}
       <Box sx={{
-        width: { sm: '100%', md: '50%' },
+        width: { sm: '80%', md: '50%' },
         marginTop: { sm: '0px', md: '60px' },
         display: 'block',
         textAlign: 'left',
         '& img': {
-          width: '80%',
+          width: '87%',
           objectFit: 'contain',
         }
       }}>
@@ -586,10 +585,21 @@ function MatchPage() {
             flexWrap: 'wrap',
             padding: 2,
             width: 'calc(100% - 32px)',
-            gap: 0,
+            gap: '2px',
           }}>
             {renderSequence()}
           </Box>
+          <Typography sx={{
+            color: '#4E4E4E',
+            fontSize: 12,
+            fontWeight: 600,
+            fontFamily: 'Open Sans',
+            fontStyle: 'italic',
+            marginTop: '4px',
+            marginBottom: 2,
+          }}>
+            {questionData.matched_page_tips}
+          </Typography>
         </Box>
         <Box sx={{
           display: 'flex',
@@ -638,17 +648,23 @@ function MatchPage() {
             textTransform: 'none', // Prevent uppercase text
             fontSize: '16px', // Adjust font size
             fontWeight: 600, // Bold text
+            height: '64px',
             borderRadius: '8px', // Rounded corners
             padding: '8px 16px', // Add padding
             fontFamily: 'Open Sans',
+            boxShadow: '0px 2px 2px 0px rgba(0, 0, 0, 0.40)', 
             '&:hover': {
               backgroundColor: '#1A7A75', // Darker shade on hover
+            },
+            '&[disabled]': {
+              backgroundColor: '#F0F0F0', // Lighter shade when disabled
+              boxShadow: '0px 2px 2px 0px rgba(0, 0, 0, 0.40)', // Shadow for disabled state
             },
           }}
           onClick={handleSubmit}
           disabled={isSubmitDisabled}
         >
-          Submit
+          SUBMIT
         </Button>
 
 
