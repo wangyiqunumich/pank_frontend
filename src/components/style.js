@@ -1,3 +1,5 @@
+import graphTooltips from '../schema/graph_viewer_schema.json';
+
 export const getContrastingColor = (bgColor) => {
   if (!/^#[0-9A-F]{6}$/i.test(bgColor)) {
     return 'black';
@@ -33,21 +35,33 @@ export const nodeAutoHeight = (node) => {
   return metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
 };
 
-export const nodeColors = {
-  "coding_elements": "#A4D0F6",
-  "variants": "#FFB371",
-  "ontology": "#FFDE7D",
-  "OCR": "#61ECBC",
-  "article": "#F5BEFF"
-};
+// export const nodeColors = {
+//   "coding_elements": "#A4D0F6",
+//   "variants": "#FFB371",
+//   "ontology": "#FFDE7D",
+//   "OCR": "#61ECBC",
+//   "article": "#F5BEFF"
+// };
 
-export const nodeLabels = {
-  "coding_elements": "Gene",
-  "variants": "SNP",
-  "ontology": "Ontology",
-  "OCR": "Open Chromatin Region",
-  "article": "Literature",
-};
+export const nodeColors = Object.fromEntries(
+  Object.entries(graphTooltips).map(([key, value]) => [key, value.node_color])
+);
+
+export const nodeTextColors = Object.fromEntries(
+  Object.entries(graphTooltips).map(([key, value]) => [key, value.text_color])
+);
+
+// export const nodeLabels = {
+//   "coding_elements": "Gene",
+//   "variants": "SNP",
+//   "ontology": "Ontology",
+//   "OCR": "Open Chromatin Region",
+//   "article": "Literature",
+// };
+
+export const nodeLabels = Object.fromEntries(
+  Object.entries(graphTooltips).map(([key, value]) => [key, value.node_label])
+);
 
 export const edgeLabels = {
   "OCR_in_cell_type": "accessible in",
@@ -81,7 +95,7 @@ export const nodeStyle = nodeColorsList.map(({ color, type }) => ({
     label: "data(label)",
     "font-size": "6px",
     "text-valign": "center",
-    color: getContrastingColor(color),
+    color: nodeTextColors[type] || "#000",
     width: nodeAutoWidth,
     height: nodeAutoHeight,
     "text-margin-y": "0.5px",
