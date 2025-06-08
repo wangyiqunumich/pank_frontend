@@ -375,7 +375,7 @@ export default function KnowledgeGraph() {
 
       // Calculate tooltip x position
       const tooltipX = isRightSide
-        ? x - 230 - 20 * cyRef.current.zoom() // Tooltip appears left of the node
+        ? x - 20 - (338 - 24) - 20 * cyRef.current.zoom() // Tooltip appears left of the node
         : x + 20 * cyRef.current.zoom(); // Tooltip appears right of the node
 
       // Calculate tooltip y position
@@ -430,7 +430,7 @@ export default function KnowledgeGraph() {
     cyRef.current.on("mouseover", "node", handleHover);
     cyRef.current.on("mouseout", "node", handleOut);
     cyRef.current.on("mousemove", "edge", handleEdge(handleHover));
-    cyRef.current.on("mouseout", "edge", handleEdge(handleOut));
+    cyRef.current.on("mouseout", "edge", handleOut);
 
     cyRef.current.reset();
     cyRef.current.center();
