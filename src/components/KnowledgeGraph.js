@@ -1,5 +1,7 @@
 "use client";
 
+import './styles.css';
+
 import React, {
   useEffect,
   useRef,
@@ -14,6 +16,7 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {
   Box,
   Collapse,
+  Link,
   Typography,
 } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
@@ -22,6 +25,7 @@ import zoomInIcon from '../image/fontisto--zoom-minus.svg';
 import zoomOutIcon from '../image/fontisto--zoom-plus.svg';
 import downloadIcon from '../image/material-symbols--download-rounded.svg';
 import recenterIcon from '../image/material-symbols--recenter-rounded.svg';
+import graphTooltips from '../schema/graph_viewer_schema.json';
 import {
   edgeLabels,
   getContrastingColor,
@@ -101,6 +105,190 @@ export default function KnowledgeGraph() {
       document.body.removeChild(link);
     }
   };
+
+  const TooltipData = ({ value, config }) => {
+    // config can be either just a type or the form "type(setting)""
+    const setting = config?.match(/\(([^)]+)\)/);
+    const type = setting ? config.split('(')[0] : config;
+    return !type ? (<>{value}</>) :
+      type === "int" ? (
+        <>{parseInt(value).toLocaleString()}</>
+      ) :
+        type === "float" ? (
+          <>{parseFloat(value).toFixed(1)}</>
+        ) : type === "link" ? (
+          <Link href={value} target="_blank" rel="noopener noreferrer" sx={{
+            fontFamily: "Open Sans",
+            fontWeight: "600",
+            fontSize: "12px",
+            textDecoration: "none",
+            "&:hover": {
+              textDecoration: "underline",
+            },
+          }}>
+            Open Link ↗
+          </Link>
+        ) : ["label", "label_percentage"].includes(type) ? (
+          <Box sx={{
+            backgroundColor: setting || "#0FB47D",
+            height: "9px",
+            padding: "4px 4px",
+            borderRadius: "8.5px",
+            textDecoration: "none",
+            color: "white",
+            fontFamily: "Open Sans",
+            fontWeight: "700",
+            fontSize: "12px"
+          }}>
+            {type === "label" ? value : `${parseFloat(value).toFixed(1)}%`}
+          </Box>
+        ) : (
+          <span style={{ color: "#263238", ...config?.style }}>{value}</span>
+        );
+  }
+
+  const TooltipMenu = () => {
+    const schema = graphTooltips?.[hoveredData?.type]?.info_panel;
+    const titleKey = schema?.find(([label, _]) => label === "Title")?.[1];
+    const footerInfo = schema?.find(([label, _]) => label === "Footer")?.[1] || [];
+    return (
+      hoveredData && (schema?.length > 0
+        ? (
+          <>
+            <Box sx={{
+              display: "flex",
+              height: "54px",
+              textAlign: "center",
+              backgroundColor: "#E4F0F1",
+              alignItems: "center",
+              justifyContent: "center",
+            }}>
+              <Typography sx={{
+                fontFamily: "Open Sans",
+                fontWeight: "700",
+                fontSize: "20px"
+              }}>
+                {hoveredData?.[titleKey]}
+              </Typography>
+            </Box>
+            {
+              schema.map(([title, content]) => (
+                ["Title", "Footer"].includes(title) ? <></> : (
+                  <Box key={title} sx={{
+                    width: "calc(100% - 32px)",
+                    display: "flex",
+                    flexDirection: "column",
+                    padding: "16px",
+                    borderBottom: "1px solid #F0F0F0",
+                    gap: "12px",
+                  }}>
+                    <Typography sx={{
+                      alignSelf: "center",
+                      fontFamily: "Open Sans",
+                      fontWeight: "600",
+                      fontSize: "10px",
+                      color: "#6B7880",
+                      lineHeight: "7px",
+                    }}>
+                      {title}
+                    </Typography>
+                    {
+                      Array.isArray(content) ? (
+                        content.map(([label, key, config]) => (
+                          <Box key={key} sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                            <Typography sx={{
+                              fontFamily: "Open Sans",
+                              fontWeight: "600",
+                              fontSize: "12px",
+                              color: "#6B7880",
+                              lineHeight: "9px",
+                            }}>
+                              {label}
+                            </Typography>
+                            <Typography
+                              sx={{
+                                fontFamily: "Open Sans",
+                                fontWeight: "600",
+                                fontSize: "12px",
+                                color: "#263238",
+                                marginLeft: "8px",
+                                lineHeight: "9px",
+                              }}
+                            >
+                              <TooltipData value={
+                                key === "chr" ? `Chr${hoveredData[key]}` : hoveredData[key]
+                              } config={config} />
+                            </Typography>
+                          </Box>
+                        )))
+                        : (
+                          <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                            <Typography
+                              sx={{
+                                fontFamily: "Open Sans",
+                                fontWeight: "600",
+                                fontSize: "10px",
+                                lineHeight: "24px",
+                                wordWrap: "break-word",
+                                color: "#263238",
+                              }}
+                            >
+                              {hoveredData[content]}
+                            </Typography>
+                          </Box>
+                        )
+                    }
+                  </Box>
+                )
+              ))
+            }
+            <Box sx={{
+              display: "flex",
+              height: "30px",
+              textAlign: "center",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "linear-gradient(360deg, #CACFD5 -73.08%, #F4F6F8 75%)",
+            }}>
+              <Typography sx={{ fontWeight: "600", fontSize: "11px", color: "#5F7885" }}>
+                {footerInfo?.map(([label, key]) => `${label}: ${hoveredData[key]}`).join(" | ")}
+              </Typography>
+            </Box>
+          </>
+        )
+        : (<div style={{
+          padding: "16px",
+          fontFamily: "Open Sans",
+          fontWeight: "600",
+          alignContent: "center",
+        }}>
+          <div style={{ fontWeight: "bold", marginBottom: "8px" }}>
+            {hoveredData?.HGNC_symbol || hoveredData?.id}
+          </div>
+          {Object.entries(hoveredData || {})?.map(
+            ([key, value]) =>
+              key !== "type" &&
+              (key === "link" || key === "url" ? (
+                <div key={key}>
+                  <span style={{ fontWeight: 500 }}>{key}:</span>{" "}
+                  <a
+                    href={value}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: "#007bff" }}
+                  >
+                    Open Link ↗
+                  </a>
+                </div>
+              ) : (
+                <div key={key}>
+                  <span style={{ fontWeight: 500 }}>{key}:</span> {value}
+                </div>
+              ))
+          )}
+        </div>))
+    );
+  }
 
   useEffect(() => {
     const result = queryResultPage?.combined_query_result;
@@ -219,10 +407,27 @@ export default function KnowledgeGraph() {
       }
     };
 
+    const handleEdge = (handler) => ((evt) => {
+      // compare mouse position with edge midpoint
+      const ele = cyRef.current.$(evt.target);
+      const midpoint = ele.midpoint();
+      const mouseRendered = cyRef.current.renderer().projectIntoViewport(evt.originalEvent.clientX, evt.originalEvent.clientY);
+      console.log("Mouse position:", mouseRendered);
+      console.log("Edge midpoint:", midpoint);
+      const dist = Math.sqrt(
+        Math.pow(midpoint.x - mouseRendered[0], 2) +
+        Math.pow(midpoint.y - mouseRendered[1], 2)
+      );
+      console.log("Edge hover distance:", dist, "px");
+      if (dist < 20) {
+        handler(evt);
+      }
+    })
+
     cyRef.current.on("mouseover", "node", handleHover);
     cyRef.current.on("mouseout", "node", handleOut);
-    cyRef.current.on("mouseover", "edge", handleHover);
-    cyRef.current.on("mouseout", "edge", handleOut);
+    cyRef.current.on("mousemove", "edge", handleEdge(handleHover));
+    cyRef.current.on("mouseout", "edge", handleEdge(handleOut));
 
     cyRef.current.reset();
     cyRef.current.center();
@@ -342,12 +547,11 @@ export default function KnowledgeGraph() {
           top: tooltipPosition.y,
           background: "#fff",
           borderRadius: "8px",
-          padding: "12px",
-          fontSize: "13px",
+          overflow: "hidden",
           color: "#333",
           boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
           zIndex: 1000,
-          width: "200px",
+          width: "338px",
           pointerEvents: "auto",
           opacity: tooltipVisible ? 1 : 0,
           display: tooltipVisible ? "block" : "none",
@@ -358,30 +562,7 @@ export default function KnowledgeGraph() {
           wordWrap: "break-word",
         }}
       >
-        <div style={{ fontWeight: "bold", marginBottom: "8px" }}>
-          {hoveredData?.HGNC_symbol || hoveredData?.id}
-        </div>
-        {Object.entries(hoveredData || {})?.map(
-          ([key, value]) =>
-            key !== "type" &&
-            (key === "link" || key === "url" ? (
-              <div key={key}>
-                <span style={{ fontWeight: 500 }}>{key}:</span>{" "}
-                <a
-                  href={value}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: "#007bff" }}
-                >
-                  Open Link ↗
-                </a>
-              </div>
-            ) : (
-              <div key={key}>
-                <span style={{ fontWeight: 500 }}>{key}:</span> {value}
-              </div>
-            ))
-        )}
+        <TooltipMenu />
       </div>
       <div style={{ display: "flex", flexDirection: "row", gap: "200px" }}>
         {/* Legend */}
