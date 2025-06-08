@@ -115,7 +115,7 @@ export default function KnowledgeGraph() {
         <>{parseInt(value).toLocaleString()}</>
       ) :
         type === "float" ? (
-          <>{parseFloat(value).toFixed(1)}</>
+          <>{parseFloat(value).toFixed(setting || 1)}</>
         ) : type === "link" ? (
           <Link href={value} target="_blank" rel="noopener noreferrer" sx={{
             fontFamily: "Open Sans",
@@ -128,11 +128,12 @@ export default function KnowledgeGraph() {
           }}>
             Open Link ↗
           </Link>
-        ) : ["label", "label_percentage"].includes(type) ? (
+        ) : ["label_chr", "label_percentage"].includes(type) ? (
           <Box sx={{
             backgroundColor: setting || "#0FB47D",
             height: "9px",
             padding: "4px 4px",
+            marginY: "-4px",
             borderRadius: "8.5px",
             textDecoration: "none",
             color: "white",
@@ -140,10 +141,10 @@ export default function KnowledgeGraph() {
             fontWeight: "700",
             fontSize: "12px"
           }}>
-            {type === "label" ? value : `${parseFloat(value).toFixed(1)}%`}
+            {type === "label_chr" ? `Chr${value}` : `${parseFloat(value).toFixed(1)}%`}
           </Box>
         ) : (
-          <span style={{ color: "#263238", ...config?.style }}>{value}</span>
+          <span>{value}</span>
         );
   }
 
@@ -155,6 +156,7 @@ export default function KnowledgeGraph() {
       hoveredData && (schema?.length > 0
         ? (
           <>
+            {/* Title Bar */}
             <Box sx={{
               display: "flex",
               height: "54px",
@@ -182,6 +184,7 @@ export default function KnowledgeGraph() {
                     borderBottom: "1px solid #F0F0F0",
                     gap: "12px",
                   }}>
+                    {/* Part Subtitle */}
                     <Typography sx={{
                       alignSelf: "center",
                       fontFamily: "Open Sans",
@@ -189,12 +192,13 @@ export default function KnowledgeGraph() {
                       fontSize: "10px",
                       color: "#6B7880",
                       lineHeight: "7px",
+                      textTransform: "uppercase",
                     }}>
                       {title}
                     </Typography>
                     {
                       Array.isArray(content) ? (
-                        content.map(([label, key, config]) => (
+                        content.map(([label, key, config]) => ( // Data Row
                           <Box key={key} sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
                             <Typography sx={{
                               fontFamily: "Open Sans",
@@ -215,13 +219,11 @@ export default function KnowledgeGraph() {
                                 lineHeight: "9px",
                               }}
                             >
-                              <TooltipData value={
-                                key === "chr" ? `Chr${hoveredData[key]}` : hoveredData[key]
-                              } config={config} />
+                              <TooltipData value={hoveredData[key]} config={config} />
                             </Typography>
                           </Box>
                         )))
-                        : (
+                        : ( // Text Content
                           <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                             <Typography
                               sx={{
@@ -242,6 +244,7 @@ export default function KnowledgeGraph() {
                 )
               ))
             }
+            {/* Footer */}
             <Box sx={{
               display: "flex",
               height: "30px",

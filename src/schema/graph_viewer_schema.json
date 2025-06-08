@@ -1,8 +1,18 @@
 {
     "coding_elements": {
+        "$comment": {
+            "valid_datatypes": [
+                "link",
+                "label_chr(#color)",
+                "label_percentage(#color)",
+                "int",
+                "float(number_of_decimals)"
+            ],
+            "description": "All others are strings."
+        },
         "node_color": "#A4D0F6",
         "text_color": "#000000",
-        "nodeLabels": "Gene",
+        "node_label": "Gene",
         "info_panel": [
             [
                 "Title",
@@ -32,7 +42,7 @@
                     [
                         "Chromosome",
                         "chr",
-                        "label(#0FB47D)"
+                        "label_chr(#0FB47D)"
                     ],
                     [
                         "Start",
@@ -79,25 +89,25 @@
     "variants": {
         "node_color": "#FFB371",
         "text_color": "#000000",
-        "nodeLabels": "SNP",
+        "node_label": "SNP",
         "info_panel": []
     },
     "ontology": {
         "node_color": "#FFDE7D",
         "text_color": "#000000",
-        "nodeLabels": "Ontology",
+        "node_label": "Ontology",
         "info_panel ": []
     },
     "OCR": {
         "node_color": "#61ECBC",
         "text_color": "#000000",
-        "nodeLabels": "Open Chromatin Region",
+        "node_label": "Open Chromatin Region",
         "info_panel": []
     },
     "article": {
         "node_color": "#F5BEFF",
         "text_color": "#000000",
-        "nodeLabels": "Literature",
+        "node_label": "Literature",
         "info_panel": []
     }
 }
