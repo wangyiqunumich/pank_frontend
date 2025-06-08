@@ -1,73 +1,103 @@
-{"coding_elements": 
-    {
-        "node_color":"#A4D0F6", 
-        "text_color":"#000000", 
+{
+    "coding_elements": {
+        "node_color": "#A4D0F6",
+        "text_color": "#000000",
         "nodeLabels": "Gene",
-        "info_panel":
+        "info_panel": [
             [
+                "Title",
+                "name"
+            ],
+            [
+                "Gene Identity",
                 [
-                    "Title", "name"
-                ],
-                [
-                    "Gene Identity", [
-                        ["ENSG ID", "id"],
-                        ["Ensembl", "link","link"],
+                    [
+                        "ENSG ID",
+                        "id"
+                    ],
+                    [
+                        "Ensembl",
+                        "link",
+                        "link"
                     ]
-                ],
+                ]
+            ],
+            [
+                "Description",
+                "description"
+            ],
+            [
+                "Chromosomal Location",
                 [
-                    "Description", "description"
-                ],
-                [
-                    "Chromosomal Location", [
-                        ["Chromosome", "chr", "label(#0FB47D)"],
-                        ["Start", "start_loc","int" ],
-                        ["End", "end_loc","int"],
-                        ["Strand", "strand","int"]
+                    [
+                        "Chromosome",
+                        "chr",
+                        "label(#0FB47D)"
+                    ],
+                    [
+                        "Start",
+                        "start_loc",
+                        "int"
+                    ],
+                    [
+                        "End",
+                        "end_loc",
+                        "int"
+                    ],
+                    [
+                        "Strand",
+                        "strand",
+                        "int"
                     ]
-                ],
+                ]
+            ],
+            [
+                "Sequence Features",
                 [
-                    "Sequence Features", [
-                        ["GC Content", "GC_percentage","label_percentage(#F0960B)"]
+                    [
+                        "GC Content",
+                        "GC_percentage",
+                        "label_percentage(#F0960B)"
                     ]
-                ],
+                ]
+            ],
+            [
+                "Footer",
                 [
-                    "Footer", [
-                        ["Data Version", "data_version" ],
-                        ["Data Source", "data_source" ]
+                    [
+                        "Data Version",
+                        "data_version"
+                    ],
+                    [
+                        "Data Source",
+                        "data_source"
                     ]
                 ]
             ]
+        ]
     },
-    "variants":
-    {
-        "node_color":"#FFB371", 
-        "text_color":"#000000", 
+    "variants": {
+        "node_color": "#FFB371",
+        "text_color": "#000000",
         "nodeLabels": "SNP",
-        "info_panel":
-            [ ]
+        "info_panel": []
     },
-    "ontology":
-    {
-        "node_color":"#FFDE7D", 
-        "text_color":"#000000", 
+    "ontology": {
+        "node_color": "#FFDE7D",
+        "text_color": "#000000",
         "nodeLabels": "Ontology",
-        "info_panel ":
-            [ ]
+        "info_panel ": []
     },
-    "OCR":
-    {
-        "node_color":"#61ECBC", 
-        "text_color":"#000000", 
+    "OCR": {
+        "node_color": "#61ECBC",
+        "text_color": "#000000",
         "nodeLabels": "Open Chromatin Region",
-        "info_panel":
-            [ ]
+        "info_panel": []
     },
-    "article":
-    {
-        "node_color":"#F5BEFF", 
-        "text_color":"#000000", 
+    "article": {
+        "node_color": "#F5BEFF",
+        "text_color": "#000000",
         "nodeLabels": "Literature",
-        "info_panel":
-            [ ]
+        "info_panel": []
     }
 }

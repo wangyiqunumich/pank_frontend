@@ -41,7 +41,7 @@ export function replaceVariables(text, variables, replaceUnderscore = false) {
     [`@${targetType}_name@`]: targetSymbol,
     [`@${targetType}_symbol@`]: targetSymbol,
     '@tissue@': tissueKey,
-    '@method@': dataSource?.includes('GTEx') ? 'GTEx' : 'INSPIRE'
+    '@method@': dataSource?.includes('GTEx') ? 'GTEx' : 'InsPIRE'
   };
   const replacedText = Object.entries(replaceList).reduce((acc, [key, value]) => (
     key ? acc.replace(new RegExp(key, 'g'), value) : acc
