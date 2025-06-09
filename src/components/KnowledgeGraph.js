@@ -375,7 +375,7 @@ export default function KnowledgeGraph() {
 
       // Calculate tooltip x position
       const tooltipX = isRightSide
-        ? x - 230 - 20 * cyRef.current.zoom() // Tooltip appears left of the node
+        ? x - 20 - (338 - 24) - 20 * cyRef.current.zoom() // Tooltip appears left of the node
         : x + 20 * cyRef.current.zoom(); // Tooltip appears right of the node
 
       // Calculate tooltip y position
@@ -415,13 +415,10 @@ export default function KnowledgeGraph() {
       const ele = cyRef.current.$(evt.target);
       const midpoint = ele.midpoint();
       const mouseRendered = cyRef.current.renderer().projectIntoViewport(evt.originalEvent.clientX, evt.originalEvent.clientY);
-      console.log("Mouse position:", mouseRendered);
-      console.log("Edge midpoint:", midpoint);
       const dist = Math.sqrt(
         Math.pow(midpoint.x - mouseRendered[0], 2) +
         Math.pow(midpoint.y - mouseRendered[1], 2)
       );
-      console.log("Edge hover distance:", dist, "px");
       if (dist < 20) {
         handler(evt);
       }
@@ -430,7 +427,7 @@ export default function KnowledgeGraph() {
     cyRef.current.on("mouseover", "node", handleHover);
     cyRef.current.on("mouseout", "node", handleOut);
     cyRef.current.on("mousemove", "edge", handleEdge(handleHover));
-    cyRef.current.on("mouseout", "edge", handleEdge(handleOut));
+    cyRef.current.on("mouseout", "edge", handleOut);
 
     cyRef.current.reset();
     cyRef.current.center();
@@ -463,12 +460,10 @@ export default function KnowledgeGraph() {
         style={{
           width: "100%",
           height: "600px",
-          backgroundColor: "#F9FAFB", // Restored to white as requested
-          // border: "1px solid #ddd",
+          backgroundColor: "#F9FAFB",
           border: "none",
           borderRadius: "8px",
-          position: "relative", // Add this for absolute positioning inside
-          overflow: "hidden", // To keep contents within rounded corners
+          position: "relative",
         }}
       >
       </div>
@@ -536,7 +531,6 @@ export default function KnowledgeGraph() {
           clearTimeout(fadeOutTimeoutRef.current);
         }}
         onMouseLeave={() => {
-          // More responsive hide on mouse leave
           fadeOutTimeoutRef.current = setTimeout(() => {
             setTooltipVisible(false);
             activeNodeRef.current = null;
@@ -561,7 +555,7 @@ export default function KnowledgeGraph() {
           transform: "translateY(0px)",
           transition: "opacity 0.15s, display 0.15s, left 0.15s, top 0.15s",
           transitionBehavior: "allow-discrete",
-          willChange: "transform, opacity", // Performance hint for smoother animations
+          willChange: "transform, opacity",
           wordWrap: "break-word",
         }}
       >
@@ -620,14 +614,12 @@ export default function KnowledgeGraph() {
                   paddingTop: "8px",
                 }}
               >
-                {
-                  Object.keys(nodeLabels).map((type) => (
-                    <LegendItem
-                      type={type}
-                      key={type}
-                    />
-                  ))
-                }
+                {Object.keys(nodeLabels).map((type) => (
+                  <LegendItem
+                    type={type}
+                    key={type}
+                  />
+                ))}
               </div>
             </div>
           </Collapse>
