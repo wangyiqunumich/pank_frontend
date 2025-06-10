@@ -9,7 +9,7 @@
                 "targetTerm": "gene@ENSG00000001626",
                 "targetSymbol": "CFTR"
             },
-            "$comment": ":The targetSymbol is mandatory for intermediate pages."
+            "$comment": ":The targetSymbol for the gene is mandatory in intermediate pages."
         },
         {
             "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000149485&targetSymbol=FADS1",
