@@ -470,13 +470,15 @@ export default function KnowledgeGraph() {
         {/* button for zooming */}
         <IconButton
           onClick={handleZoomOut}
-          style={{ padding: "8px", background: "none", borderRadius: "4px" }}
+          style={{ padding: "8px", background: "none", borderRadius: "4px", opacity: zoomLevel >= 4 ? 0.5 : 1 }}
+          disabled={zoomLevel >= 4}
         >
           <img src={zoomOutIcon} alt="Zoom Out" width={20} height={20} />
         </IconButton>
         <IconButton
           onClick={handleZoomIn}
-          style={{ padding: "8px", background: "none", borderRadius: "4px" }}
+          style={{ padding: "8px", background: "none", borderRadius: "4px", opacity: zoomLevel <= 1.2 ? 0.5 : 1 }}
+          disabled={zoomLevel <= 1.2}
         >
           <img src={zoomInIcon} alt="Zoom In" width={20} height={20} />
         </IconButton>
