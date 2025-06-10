@@ -316,7 +316,7 @@ function SearchResult() {
                                 aiAnswerSubtitle: ai_answer_sub_title,
                                 currentQuestionType: tabsQTL.find(
                                     tab => tab.data_source === dataSource
-                                )?.label || 'Unknown',
+                                )?.label,
                             }));
                         });
                     }
@@ -409,7 +409,7 @@ function SearchResult() {
 
     // Show loading skeleton if queryResultPage is not ready
     return !queryResultPage?.combined_query_result ? <LoadingSkeleton /> :
-        (<Container sx={{ width: '100%', overflowX: 'auto', maxWidth: '1440px', marginX: '20px', alignSelf: 'center' }} maxWidth={false}>
+        (<Container sx={{ width: '100%', overflowX: 'auto', maxWidth: '1440px', marginX: '20px', alignSelf: 'center', overflow: 'visible' }} maxWidth={false}>
             <Container sx={{
                 padding: 0, display: 'flex',
                 flexDirection: 'column', justifyContent: 'space-evenly',
@@ -418,9 +418,14 @@ function SearchResult() {
                 maxWidth: '1440px',
                 minWidth: '1000px',
                 flexGrow: 1,
-                overflowX: 'hidden',
             }} disableGutters maxWidth={false}>
-                <Box sx={{ padding: '20px', backgroundColor: '#E4F0F1', marginBottom: '20px', marginTop: '60px', borderRadius: '20px' }}>
+                <Box sx={{
+                    padding: '20px',
+                    backgroundColor: '#E4F0F1',
+                    marginBottom: '20px',
+                    marginTop: '60px',
+                    borderRadius: '20px'
+                }}>
                     <Grid container spacing={4} height={"100%"} sx={{ alignItems: "stretch" }}>
                         <Grid item xs={6} height={"100%"}>
                             <Box sx={{ width: "100%", justifyContent: "space-between", display: "flex", alignItems: "center" }}>

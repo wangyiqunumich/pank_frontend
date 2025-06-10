@@ -314,7 +314,7 @@ export default function KnowledgeGraph() {
           ...node["~properties"],
           label: (
             (node["~labels"].includes("gene") || node["~labels"].includes("OCR") || node["~id"].startsWith("CL_"))
-              ? node["~properties"].name
+              ? (node["~properties"].name || node["~properties"].id)
               : node["~properties"].id
           ).replace(/_/g, " "),
           type,
@@ -358,35 +358,36 @@ export default function KnowledgeGraph() {
 
       const nodeData = evt.target.data();
       const container = document.getElementById("cy-container");
-      const containerRect = container.getBoundingClientRect();
-      const containerWidth = containerRect.width;
-      const containerHeight = containerRect.height;
+      const { width: containerWidth, top: containerTop } = container.getBoundingClientRect();
+
       const ele = cyRef.current.$(evt.target);
       const { x: modelX, y: modelY } =
         ele.isNode() ? ele.position() : ele.midpoint();
+      const nodeWidth = ele.isNode() ? ele.outerWidth() * cyRef.current.zoom() : 20;
+      const nodeHeight = ele.isNode() ? ele.outerHeight() * cyRef.current.zoom() : 20;
       const x = modelX * cyRef.current.zoom() + cyRef.current.pan().x;
       const y = modelY * cyRef.current.zoom() + cyRef.current.pan().y;
 
-      // Calculate tooltip offset based on node position
-      // If node is in the right half of the screen, show tooltip to the left
-      // If node is in the bottom half of the screen, show tooltip above
-      const isRightSide = x > containerWidth / 2;
-      const isBottomSide = y > containerHeight / 2;
+      const tooltip = document.getElementById("tooltip");
+      if (!tooltip) return;
+      tooltip.style.display = "block";
+      tooltip.style.opacity = "1";
+      const { width: tooltipWidth, height: tooltipHeight } = tooltip.getBoundingClientRect();
 
-      // Calculate tooltip x position
-      const tooltipX = isRightSide
-        ? x - 20 - (338 - 24) - 20 * cyRef.current.zoom() // Tooltip appears left of the node
-        : x + 20 * cyRef.current.zoom(); // Tooltip appears right of the node
+      let top = y - tooltipHeight - nodeHeight / 2 - 2;
+      let left = x + nodeWidth / 2 + 2;
 
-      // Calculate tooltip y position
-      const tooltipY = isBottomSide
-        ? y - 100 - 10 * cyRef.current.zoom() // Tooltip appears above the node
-        : y + 10 * cyRef.current.zoom(); // Tooltip appears below the node
+      if (left + tooltipWidth > containerWidth) {
+        left = x - tooltipWidth - nodeWidth / 2 - 2;
+      }
+
+      if (top + containerTop < 0) {
+        top = y + nodeHeight / 2 + 2;
+      }
 
       setHoveredData(nodeData);
-      setTooltipPosition({ x: tooltipX, y: tooltipY });
+      setTooltipPosition({ x: left, y: top });
 
-      // Use a shorter delay for better responsiveness
       hoverTimeoutRef.current = setTimeout(() => {
         setTooltipVisible(true);
       }, 80);
