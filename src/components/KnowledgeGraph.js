@@ -294,6 +294,46 @@ export default function KnowledgeGraph() {
   }
 
   useEffect(() => {
+    const container = document.getElementById("cy-container");
+    const { width: containerWidth, top: containerTop } = container.getBoundingClientRect();
+
+    const ele = activeNodeRef.current;
+    if (!ele || !cyRef.current) {
+      return;
+    }
+    document.body.style.cursor = "pointer";
+    const { x: modelX, y: modelY } =
+      ele.isNode() ? ele.position() : ele.midpoint();
+    const nodeWidth = ele.isNode() ? ele.outerWidth() * cyRef.current.zoom() : 20;
+    const nodeHeight = ele.isNode() ? ele.outerHeight() * cyRef.current.zoom() : 20;
+    const x = modelX * cyRef.current.zoom() + cyRef.current.pan().x;
+    const y = modelY * cyRef.current.zoom() + cyRef.current.pan().y;
+
+    const tooltip = document.getElementById("tooltip");
+    if (!tooltip) return;
+    tooltip.style.display = "block";
+    tooltip.style.opacity = "1";
+    const { width: tooltipWidth, height: tooltipHeight } = tooltip.getBoundingClientRect();
+
+    let top = y - tooltipHeight - nodeHeight / 2 - 2;
+    let left = x + nodeWidth / 2 + 2;
+
+    if (left + tooltipWidth > containerWidth) {
+      left = x - tooltipWidth - nodeWidth / 2 - 2;
+    }
+
+    if (top + containerTop < 0) {
+      top = y + nodeHeight / 2 + 2;
+    }
+
+    setTooltipPosition({ x: left, y: top });
+    hoverTimeoutRef.current = setTimeout(() => {
+      setTooltipVisible(true);
+    }, 80);
+  }, [hoveredData]);
+
+
+  useEffect(() => {
     const result = queryResultPage?.combined_query_result;
     const positionData = queryResultPage?.xy_json || {};
     const uniqueNodesMap = {};
@@ -352,45 +392,9 @@ export default function KnowledgeGraph() {
       // Clear any existing timers immediately
       clearTimeout(hoverTimeoutRef.current);
       clearTimeout(fadeOutTimeoutRef.current);
-
-      document.body.style.cursor = "pointer";
-      activeNodeRef.current = evt.target;
-
       const nodeData = evt.target.data();
-      const container = document.getElementById("cy-container");
-      const { width: containerWidth, top: containerTop } = container.getBoundingClientRect();
-
-      const ele = cyRef.current.$(evt.target);
-      const { x: modelX, y: modelY } =
-        ele.isNode() ? ele.position() : ele.midpoint();
-      const nodeWidth = ele.isNode() ? ele.outerWidth() * cyRef.current.zoom() : 20;
-      const nodeHeight = ele.isNode() ? ele.outerHeight() * cyRef.current.zoom() : 20;
-      const x = modelX * cyRef.current.zoom() + cyRef.current.pan().x;
-      const y = modelY * cyRef.current.zoom() + cyRef.current.pan().y;
-
-      const tooltip = document.getElementById("tooltip");
-      if (!tooltip) return;
-      tooltip.style.display = "block";
-      tooltip.style.opacity = "1";
-      const { width: tooltipWidth, height: tooltipHeight } = tooltip.getBoundingClientRect();
-
-      let top = y - tooltipHeight - nodeHeight / 2 - 2;
-      let left = x + nodeWidth / 2 + 2;
-
-      if (left + tooltipWidth > containerWidth) {
-        left = x - tooltipWidth - nodeWidth / 2 - 2;
-      }
-
-      if (top + containerTop < 0) {
-        top = y + nodeHeight / 2 + 2;
-      }
-
       setHoveredData(nodeData);
-      setTooltipPosition({ x: left, y: top });
-
-      hoverTimeoutRef.current = setTimeout(() => {
-        setTooltipVisible(true);
-      }, 80);
+      activeNodeRef.current = evt.target;
     };
 
     const handleOut = (evt) => {
