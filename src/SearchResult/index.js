@@ -1,35 +1,35 @@
 import './scoped.css';
 
 import React, {
-  useEffect,
-  useRef,
-  useState,
+    useEffect,
+    useRef,
+    useState,
 } from 'react';
 
 import {
-  useDispatch,
-  useSelector,
+    useDispatch,
+    useSelector,
 } from 'react-redux';
 
 import {
-  ChevronRight as ChevronRightIcon,
-  InfoOutlined as InfoOutlineIcon,
+    ChevronRight as ChevronRightIcon,
+    InfoOutlined as InfoOutlineIcon,
 } from '@mui/icons-material';
 import {
-  Box,
-  Collapse,
-  Container,
-  Grid,
-  Link,
-  List,
-  ListItem,
-  Skeleton,
-  styled,
-  Tab,
-  Tabs,
-  Tooltip,
-  tooltipClasses,
-  Typography,
+    Box,
+    Collapse,
+    Container,
+    Grid,
+    Link,
+    List,
+    ListItem,
+    Skeleton,
+    styled,
+    Tab,
+    Tabs,
+    Tooltip,
+    tooltipClasses,
+    Typography,
 } from '@mui/material';
 
 import { tabsQTL } from '../components/IntermediatePage';
@@ -42,8 +42,8 @@ import { setSearchTerms } from '../redux/searchSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import {
-  addHighlight,
-  replaceVariables,
+    addHighlight,
+    replaceVariables,
 } from '../utils/textProcessing';
 
 const tabOptions = [
@@ -268,10 +268,10 @@ function SearchResult() {
                                 relationship,
                                 targetTerm,
                                 sourceSymbol: results.nodes?.find(
-                                    node => node["~id"] === coreNodes[0]
+                                    node => node["~id"] === (sourceTerm.split('@')[1] || sourceTerm)
                                 )?.["~properties"]?.name || sourceSymbol,
                                 targetSymbol: results.nodes?.find(
-                                    node => node["~id"] === coreNodes[1]
+                                    node => node["~id"] === (targetTerm.split('@')[1] || targetTerm)
                                 )?.["~properties"]?.name || targetSymbol,
                                 tissueKey,
                                 dataSource,

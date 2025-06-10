@@ -57,10 +57,26 @@ import IntermediateKG from './IntermediateKG';
 const tabsEnabled = true;
 
 export const tabsQTL = [
-  { "label": "Pancreatic eQTL", "data_source": "GTEx; SusieR" },
-  { "label": "Islet eQTL", "data_source": "INSPIRE; SusieR" },
-  { "label": "Pancreatic splicing QTL", "data_source": "splicing; GTEx" },
-  { "label": "Islet exon QTL", "data_source": "exon; INSPIRE" }
+  {
+    "label": "Pancreatic eQTL",
+    "data_source": "GTEx; SusieR",
+    "folder": "1_eQTL-gtex-susie"
+  },
+  {
+    "label": "Islet eQTL",
+    "data_source": "INSPIRE; SusieR",
+    "folder": "1_eQTL-inspire-susie"
+  },
+  {
+    "label": "Pancreatic splicing QTL",
+    "data_source": "splicing; GTEx",
+    "folder": "1_sQTL-gtex-susie"
+  },
+  {
+    "label": "Islet exon QTL",
+    "data_source": "exon; INSPIRE",
+    "folder": "1_exonQTL-inspire-susie"
+  }
 ];
 
 const WarningSNP = (
@@ -326,9 +342,32 @@ function IntermediatePage({ onContinue }) {
     queryData.find(item => item.label === selectedTab)?.result || []
   );
 
-  // const handleDownload = (credibleSet) => {
-  //   console.log(credibleSet);
-  // };
+  const handleDownload = (category, credibleSet) => {
+    const folder = tabsQTL.find(tab => tab.label === category)?.folder || "";
+    console.log(`Downloading ${credibleSet} from folder ${folder}`);
+    // https://pank-s3-to-share.s3.us-east-1.amazonaws.com/1_eQTL-gtex-susie/${credibleSet}__ld.txt
+    const url = `https://pank-s3-to-share.s3.us-east-1.amazonaws.com/${folder}/${credibleSet}__ld.txt`;
+    window.open(url, "_blank");
+    // fetch(url)
+    //   .then(response => {
+    //     if (!response.ok) {
+    //       throw new Error('Network response was not ok');
+    //     }
+    //     return response.text();
+    //   })
+    //   .then(data => {
+    //     const blob = new Blob([data], { type: 'text/plain' });
+    //     const link = document.createElement('a');
+    //     link.href = window.URL.createObjectURL(blob);
+    //     link.download = `${credibleSet}__ld.txt`;
+    //     document.body.appendChild(link);
+    //     link.click();
+    //     document.body.removeChild(link);
+    //   })
+    //   .catch(error => {
+    //     console.error('There was a problem with the fetch operation:', error);
+    //   });
+  };
 
   // read URL parameters and update Redux store
   useEffect(() => {
@@ -707,9 +746,7 @@ function IntermediatePage({ onContinue }) {
                           ) : (
                             <TableRow
                               key={`credible-set-${index}`}
-                              onClick={() => handleSNPClick(item)}
                               sx={{
-                                cursor: 'pointer',
                                 '& .MuiTableCell-root': {
                                   padding: '16px'
                                 },
@@ -723,7 +760,11 @@ function IntermediatePage({ onContinue }) {
                                   {index === 0
                                     ? (<Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                                       {item[column.key]}
-                                      <IconButton aria-label="download" sx={{ color: '#3A838B', padding: '2px' }}>
+                                      <IconButton
+                                        aria-label="download"
+                                        sx={{ color: '#3A838B', padding: '2px' }}
+                                        onClick={() => handleDownload(selectedTab, item.credible_set_id)}
+                                      >
                                         <DownloadIcon />
                                       </IconButton>
                                     </Box>)
@@ -733,6 +774,7 @@ function IntermediatePage({ onContinue }) {
                               }
                               <TableCell sx={{ verticalAlign: 'middle' }}>
                                 <Typography sx={{
+                                  cursor: 'pointer',
                                   fontFamily: 'Open Sans',
                                   fontSize: '16px', paddingY: '8px', paddingX: '12px', backgroundColor: '#219197',
                                   textAlign: 'center', borderRadius: '8px', color: 'white',
