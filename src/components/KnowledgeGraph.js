@@ -53,7 +53,6 @@ const LegendItem = ({ type, sx }) => (
 export default function KnowledgeGraph() {
   const cyRef = useRef(null);
   const contextNodeRef = useRef(null);
-  const hoverTimeoutRef = useRef(null);
   const fadeOutTimeoutRef = useRef(null);
   const tooltipRef = useRef(null);
   const activeNodeRef = useRef(null);
@@ -64,12 +63,8 @@ export default function KnowledgeGraph() {
   const [legendVisible, setLegendVisible] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1.5);
   const [initZoom, setInitZoom] = useState(1.5);
-
-  const hideContextMenu = () => {
-    const menu = document.getElementById("context-menu");
-    if (menu) menu.style.display = "none";
-    contextNodeRef.current = null;
-  };
+  const [tooltipHovered, setTooltipHovered] = useState(false);
+  const [nodeHovered, setNodeHovered] = useState(false);
 
   const center =
     cyRef.current
@@ -327,15 +322,28 @@ export default function KnowledgeGraph() {
     }
 
     setTooltipPosition({ x: left, y: top });
-    hoverTimeoutRef.current = setTimeout(() => {
+  }, [hoveredData, nodeHovered]);
+
+  useEffect(() => {
+    if (!tooltipHovered && !nodeHovered) {
+      fadeOutTimeoutRef.current = setTimeout(() => {
+        setTooltipVisible(false);
+        activeNodeRef.current = null;
+      }, 200);
+    } else {
+      clearTimeout(fadeOutTimeoutRef.current);
       setTooltipVisible(true);
-    }, 80);
-  }, [hoveredData]);
+    }
+    return () => {
+      clearTimeout(fadeOutTimeoutRef.current);
+    }
+  }, [tooltipHovered, nodeHovered]);
 
 
   useEffect(() => {
     const result = queryResultPage?.combined_query_result;
     const positionData = queryResultPage?.xy_json || {};
+
     const uniqueNodesMap = {};
     result.nodes.forEach((node) => (uniqueNodesMap[node["~id"]] = node));
     const nodes = Object.values(uniqueNodesMap).map((node) => {
@@ -387,31 +395,18 @@ export default function KnowledgeGraph() {
       pan: { x: 0, y: 0 },
     });
 
-
     const handleHover = (evt) => {
-      // Clear any existing timers immediately
-      clearTimeout(hoverTimeoutRef.current);
-      clearTimeout(fadeOutTimeoutRef.current);
-      const nodeData = evt.target.data();
-      setHoveredData(nodeData);
+      document.body.style.cursor = "pointer";
+      setNodeHovered(true);
+      setHoveredData(evt.target.data());
       activeNodeRef.current = evt.target;
     };
 
     const handleOut = (evt) => {
-      document.body.style.cursor = "default";
-      clearTimeout(hoverTimeoutRef.current);
-
       // Only proceed with hiding if we're leaving the active node
       if (evt.target === activeNodeRef.current) {
-        // Use a shorter delay for hiding to feel more responsive
-        fadeOutTimeoutRef.current = setTimeout(() => {
-          // More reliable way to check if mouse is over tooltip
-          const tooltip = document.getElementById("tooltip");
-          if (tooltip && !tooltip.matches(":hover")) {
-            setTooltipVisible(false);
-            activeNodeRef.current = null;
-          }
-        }, 300);
+        document.body.style.cursor = "default";
+        setNodeHovered(false);
       }
     };
 
@@ -424,6 +419,7 @@ export default function KnowledgeGraph() {
         Math.pow(midpoint.x - mouseRendered[0], 2) +
         Math.pow(midpoint.y - mouseRendered[1], 2)
       );
+      // Only trigger the handler if the distance is less than 20 pixels
       if (dist < 20) {
         handler(evt);
       }
@@ -438,24 +434,9 @@ export default function KnowledgeGraph() {
     cyRef.current.center();
     setZoomLevel(cyRef.current.zoom());
     setInitZoom(cyRef.current.zoom());
-
     cyRef.current.on("zoom", () => {
       setZoomLevel(cyRef.current.zoom());
     });
-
-    cyRef.current.on("cxttap", "node", (evt) => {
-      setTooltipVisible(false);
-    });
-
-    cyRef.current.on("mouseover", "node", (evt) => {
-      document.body.style.cursor = "pointer";
-    });
-
-    document.addEventListener("click", hideContextMenu);
-    return () => {
-      if (cyRef.current) cyRef.current.destroy();
-      document.removeEventListener("click", hideContextMenu);
-    };
   }, [queryResultPage]);
 
   return (
@@ -533,13 +514,10 @@ export default function KnowledgeGraph() {
         id="tooltip"
         ref={tooltipRef}
         onMouseEnter={() => {
-          clearTimeout(fadeOutTimeoutRef.current);
+          setTooltipHovered(true);
         }}
         onMouseLeave={() => {
-          fadeOutTimeoutRef.current = setTimeout(() => {
-            setTooltipVisible(false);
-            activeNodeRef.current = null;
-          }, 200);
+          setTooltipHovered(false);
         }}
         style={{
           fontFamily: "Open Sans",

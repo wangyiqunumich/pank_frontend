@@ -345,8 +345,7 @@ function IntermediatePage({ onContinue }) {
   const handleDownload = (category, credibleSet) => {
     const folder = tabsQTL.find(tab => tab.label === category)?.folder || "";
     console.log(`Downloading ${credibleSet} from folder ${folder}`);
-    // https://pank-s3-to-share.s3.us-east-1.amazonaws.com/1_eQTL-gtex-susie/${credibleSet}__ld.txt
-    const url = `https://pank-s3-to-share.s3.us-east-1.amazonaws.com/${folder}/${credibleSet}__ld.txt`;
+    const url = `https://pank-s3-to-share.s3.us-east-1.amazonaws.com/${folder}/${credibleSet}.txt`;
     window.open(url, "_blank");
     // fetch(url)
     //   .then(response => {
