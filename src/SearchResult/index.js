@@ -1,35 +1,35 @@
 import './scoped.css';
 
 import React, {
-  useEffect,
-  useRef,
-  useState,
+    useEffect,
+    useRef,
+    useState,
 } from 'react';
 
 import {
-  useDispatch,
-  useSelector,
+    useDispatch,
+    useSelector,
 } from 'react-redux';
 
 import {
-  ChevronRight as ChevronRightIcon,
-  InfoOutlined as InfoOutlineIcon,
+    ChevronRight as ChevronRightIcon,
+    InfoOutlined as InfoOutlineIcon,
 } from '@mui/icons-material';
 import {
-  Box,
-  Collapse,
-  Container,
-  Grid,
-  Link,
-  List,
-  ListItem,
-  Skeleton,
-  styled,
-  Tab,
-  Tabs,
-  Tooltip,
-  tooltipClasses,
-  Typography,
+    Box,
+    Collapse,
+    Container,
+    Grid,
+    Link,
+    List,
+    ListItem,
+    Skeleton,
+    styled,
+    Tab,
+    Tabs,
+    Tooltip,
+    tooltipClasses,
+    Typography,
 } from '@mui/material';
 
 import { tabsQTL } from '../components/IntermediatePage';
@@ -42,8 +42,8 @@ import { setSearchTerms } from '../redux/searchSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import {
-  addHighlight,
-  replaceVariables,
+    addHighlight,
+    replaceVariables,
 } from '../utils/textProcessing';
 
 const tabOptions = [
@@ -268,10 +268,10 @@ function SearchResult() {
                                 relationship,
                                 targetTerm,
                                 sourceSymbol: results.nodes?.find(
-                                    node => node["~id"] === coreNodes[0]
+                                    node => node["~id"] === (sourceTerm.split('@')[1] || sourceTerm)
                                 )?.["~properties"]?.name || sourceSymbol,
                                 targetSymbol: results.nodes?.find(
-                                    node => node["~id"] === coreNodes[1]
+                                    node => node["~id"] === (targetTerm.split('@')[1] || targetTerm)
                                 )?.["~properties"]?.name || targetSymbol,
                                 tissueKey,
                                 dataSource,
@@ -316,7 +316,7 @@ function SearchResult() {
                                 aiAnswerSubtitle: ai_answer_sub_title,
                                 currentQuestionType: tabsQTL.find(
                                     tab => tab.data_source === dataSource
-                                )?.label || 'Unknown',
+                                )?.label,
                             }));
                         });
                     }
@@ -409,7 +409,7 @@ function SearchResult() {
 
     // Show loading skeleton if queryResultPage is not ready
     return !queryResultPage?.combined_query_result ? <LoadingSkeleton /> :
-        (<Container sx={{ width: '100%', overflowX: 'auto', maxWidth: '1440px', marginX: '20px', alignSelf: 'center' }} maxWidth={false}>
+        (<Container sx={{ width: '100%', overflowX: 'auto', maxWidth: '1440px', marginX: '20px', alignSelf: 'center', overflow: 'visible' }} maxWidth={false}>
             <Container sx={{
                 padding: 0, display: 'flex',
                 flexDirection: 'column', justifyContent: 'space-evenly',
@@ -418,9 +418,14 @@ function SearchResult() {
                 maxWidth: '1440px',
                 minWidth: '1000px',
                 flexGrow: 1,
-                overflowX: 'hidden',
             }} disableGutters maxWidth={false}>
-                <Box sx={{ padding: '20px', backgroundColor: '#E4F0F1', marginBottom: '20px', marginTop: '60px', borderRadius: '20px' }}>
+                <Box sx={{
+                    padding: '20px',
+                    backgroundColor: '#E4F0F1',
+                    marginBottom: '20px',
+                    marginTop: '60px',
+                    borderRadius: '20px'
+                }}>
                     <Grid container spacing={4} height={"100%"} sx={{ alignItems: "stretch" }}>
                         <Grid item xs={6} height={"100%"}>
                             <Box sx={{ width: "100%", justifyContent: "space-between", display: "flex", alignItems: "center" }}>

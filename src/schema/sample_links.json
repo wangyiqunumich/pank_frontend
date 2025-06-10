@@ -9,7 +9,7 @@
                 "targetTerm": "gene@ENSG00000001626",
                 "targetSymbol": "CFTR"
             },
-            "$comment": "targetSymbol is mandatory for intermediate pages."
+            "$comment": ":The targetSymbol is mandatory for intermediate pages."
         },
         {
             "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000149485&targetSymbol=FADS1",
@@ -18,8 +18,7 @@
                 "relationship": "QTL",
                 "targetTerm": "gene@ENSG00000149485",
                 "targetSymbol": "FADS1"
-            },
-            "$comment": "targetSymbol is mandatory for intermediate pages."
+            }
         },
         {
             "link": "/intermediate?sourceTerm=snp@rs9825709&relationship=QTL&targetTerm=gene@ENSG00000114446&targetSymbol=IFT57",
@@ -28,8 +27,7 @@
                 "relationship": "QTL",
                 "targetTerm": "gene@ENSG00000114446",
                 "targetSymbol": "IFT57"
-            },
-            "$comment": "targetSymbol is mandatory for intermediate pages."
+            }
         },
         {
             "link": "/intermediate?sourceTerm=snp@rs174574&relationship=QTL&targetTerm=gene",
@@ -56,6 +54,36 @@
                 "relationship": "express_in",
                 "targetTerm": "cell_type@CL_0002064"
             }
+        },
+        {
+            "link": "/result?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type@CL_0000169&relationship=express_in",
+            "dictionary": {
+                "sourceTerm": "gene@ENSG00000254647",
+                "relationship": "express_in",
+                "targetTerm": "cell_type@CL_0000169"
+            }
+        },
+        {
+            "link": "/result?lead_snp=rs174559&credible_set_id=ENSG00000134824__FADS2__chr11%3A61828597%3A61837778%3Aclu_5774%3AENSG00000134824.13__credibleSet1&sourceTerm=snp%40rs174574&targetTerm=gene%40ENSG00000134824&relationship=QTL",
+            "dictionary": {
+                "sourceTerm": "snp@rs174574",
+                "targetTerm": "gene@ENSG00000134824",
+                "relationship": "QTL",
+                "lead_snp": "rs174559",
+                "credible_set_id": "ENSG00000134824__FADS2__chr11:61828597:61837778:clu_5774:ENSG00000134824.13__credibleSet1"
+            },
+            "$comment": ":In case of redirecting from intermediate page where snp is specified."
+        },
+        {
+            "link": "/result?lead_snp=rs174574&credible_set_id=ENSG00000149485__FADS1__credibleSet1&sourceTerm=snp%40rs174574&targetTerm=gene%40ENSG00000149485&relationship=QTL",
+            "dictionary": {
+                "sourceTerm": "snp@rs174574",
+                "targetTerm": "gene@ENSG00000149485",
+                "relationship": "QTL",
+                "lead_snp": "rs174574",
+                "credible_set_id": "ENSG00000149485__FADS1__credibleSet1"
+            },
+            "$comment": ":In case of redirecting from intermediate page where the specified snp *is* the lead snp."
         }
     ]
 }
