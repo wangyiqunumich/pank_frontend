@@ -23,9 +23,13 @@ import IconButton from '@mui/material/IconButton';
 
 import zoomInIcon from '../image/fontisto--zoom-minus.svg';
 import zoomOutIcon from '../image/fontisto--zoom-plus.svg';
+import InfoDisableIcon
+  from '../image/material-symbols--ad-group-off-outline-rounded.svg';
+import InfoEnableIcon
+  from '../image/material-symbols--ad-group-outline-rounded.svg';
 import downloadIcon from '../image/material-symbols--download-rounded.svg';
 import recenterIcon from '../image/material-symbols--recenter-rounded.svg';
-import graphTooltips from '../schema/graph_viewer_schema.json';
+import graphInfocard from '../schema/graph_viewer_schema.json';
 import {
   edgeLabels,
   getContrastingColor,
@@ -52,19 +56,19 @@ const LegendItem = ({ type, sx }) => (
 // Main KnowledgeGraph component
 export default function KnowledgeGraph() {
   const cyRef = useRef(null);
-  const contextNodeRef = useRef(null);
   const fadeOutTimeoutRef = useRef(null);
-  const tooltipRef = useRef(null);
+  const infocardRef = useRef(null);
   const activeNodeRef = useRef(null);
   const [hoveredData, setHoveredData] = useState(null);
-  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
-  const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [infocardPosition, setInfocardPosition] = useState({ x: 0, y: 0 });
+  const [infocardVisible, setInfocardVisible] = useState(false);
   const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
   const [legendVisible, setLegendVisible] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1.5);
   const [initZoom, setInitZoom] = useState(1.5);
-  const [tooltipHovered, setTooltipHovered] = useState(false);
+  const [infocardHovered, setInfocardHovered] = useState(false);
   const [nodeHovered, setNodeHovered] = useState(false);
+  const [infocardEnabled, setInfocardEnabled] = useState(true);
 
   const center =
     cyRef.current
@@ -101,7 +105,7 @@ export default function KnowledgeGraph() {
     }
   };
 
-  const TooltipData = ({ value, config }) => {
+  const InfocardData = ({ value, config }) => {
     // config can be either just a type or the form "type(setting)""
     const setting = config?.match(/\(([^)]+)\)/);
     const type = setting ? config.split('(')[0] : config;
@@ -143,8 +147,8 @@ export default function KnowledgeGraph() {
         );
   }
 
-  const TooltipMenu = () => {
-    const schema = graphTooltips?.[hoveredData?.type]?.info_panel;
+  const InfocardMenu = () => {
+    const schema = graphInfocard?.[hoveredData?.type]?.info_panel;
     const titleKey = schema?.find(([label, _]) => label === "Title")?.[1];
     const footerInfo = schema?.find(([label, _]) => label === "Footer")?.[1] || [];
     return (
@@ -214,7 +218,7 @@ export default function KnowledgeGraph() {
                                 lineHeight: "9px",
                               }}
                             >
-                              <TooltipData value={hoveredData[key]} config={config} />
+                              <InfocardData value={hoveredData[key]} config={config} />
                             </Typography>
                           </Box>
                         )))
@@ -293,10 +297,9 @@ export default function KnowledgeGraph() {
     const { width: containerWidth, top: containerTop } = container.getBoundingClientRect();
 
     const ele = activeNodeRef.current;
-    if (!ele || !cyRef.current) {
+    if (!ele || !cyRef.current || !infocardEnabled) {
       return;
     }
-    document.body.style.cursor = "pointer";
     const { x: modelX, y: modelY } =
       ele.isNode() ? ele.position() : ele.midpoint();
     const nodeWidth = ele.isNode() ? ele.outerWidth() * cyRef.current.zoom() : 20;
@@ -304,40 +307,40 @@ export default function KnowledgeGraph() {
     const x = modelX * cyRef.current.zoom() + cyRef.current.pan().x;
     const y = modelY * cyRef.current.zoom() + cyRef.current.pan().y;
 
-    const tooltip = document.getElementById("tooltip");
-    if (!tooltip) return;
-    tooltip.style.display = "block";
-    tooltip.style.opacity = "1";
-    const { width: tooltipWidth, height: tooltipHeight } = tooltip.getBoundingClientRect();
+    const infocard = document.getElementById("infocard");
+    if (!infocard) return;
+    infocard.style.display = "block";
+    infocard.style.opacity = "1";
+    const { width: infocardWidth, height: infocardHeight } = infocard.getBoundingClientRect();
 
-    let top = y - tooltipHeight - nodeHeight / 2 - 2;
+    let top = y - infocardHeight - nodeHeight / 2 - 2;
     let left = x + nodeWidth / 2 + 2;
 
-    if (left + tooltipWidth > containerWidth) {
-      left = x - tooltipWidth - nodeWidth / 2 - 2;
+    if (left + infocardWidth > containerWidth) {
+      left = x - infocardWidth - nodeWidth / 2 - 2;
     }
 
     if (top + containerTop < 0) {
       top = y + nodeHeight / 2 + 2;
     }
 
-    setTooltipPosition({ x: left, y: top });
-  }, [hoveredData, nodeHovered]);
+    setInfocardPosition({ x: left, y: top });
+  }, [hoveredData, nodeHovered, infocardEnabled]);
 
   useEffect(() => {
-    if (!tooltipHovered && !nodeHovered) {
+    if (!infocardHovered && !nodeHovered) {
       fadeOutTimeoutRef.current = setTimeout(() => {
-        setTooltipVisible(false);
+        setInfocardVisible(false);
         activeNodeRef.current = null;
       }, 200);
-    } else {
+    } else if (infocardEnabled) {
       clearTimeout(fadeOutTimeoutRef.current);
-      setTooltipVisible(true);
+      setInfocardVisible(true);
     }
     return () => {
       clearTimeout(fadeOutTimeoutRef.current);
     }
-  }, [tooltipHovered, nodeHovered]);
+  }, [infocardHovered, nodeHovered, infocardEnabled]);
 
 
   useEffect(() => {
@@ -392,14 +395,15 @@ export default function KnowledgeGraph() {
       zoom: 1.5,
       minZoom: 1.2,
       maxZoom: 4,
+      wheelSensitivity: 0.25,
       pan: { x: 0, y: 0 },
     });
 
     const handleHover = (evt) => {
       document.body.style.cursor = "pointer";
+      activeNodeRef.current = evt.target;
       setNodeHovered(true);
       setHoveredData(evt.target.data());
-      activeNodeRef.current = evt.target;
     };
 
     const handleOut = (evt) => {
@@ -457,8 +461,7 @@ export default function KnowledgeGraph() {
         position: "absolute",
         top: "10px",
         right: "10px",
-        width: "50px",
-        height: "150px",
+        padding: "7px",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
@@ -494,6 +497,13 @@ export default function KnowledgeGraph() {
         >
           <img src={downloadIcon} alt="Zoom Out" width={20} height={20} />
         </IconButton>
+        <IconButton
+          onClick={() => setInfocardEnabled(!infocardEnabled)}
+          style={{ padding: "8px", background: "none", borderRadius: "4px" }}
+        >
+          <img src={infocardEnabled ? InfoEnableIcon : InfoDisableIcon}
+            alt="Enable/Disable Info Card" width={20} height={20} />
+        </IconButton>
       </Box>
       <Box sx={{
         position: "absolute",
@@ -513,20 +523,20 @@ export default function KnowledgeGraph() {
         </Typography>
       </Box>
       <div
-        id="tooltip"
-        ref={tooltipRef}
+        id="infocard"
+        ref={infocardRef}
         onMouseEnter={() => {
-          setTooltipHovered(true);
+          setInfocardHovered(true);
         }}
         onMouseLeave={() => {
-          setTooltipHovered(false);
+          setInfocardHovered(false);
         }}
         style={{
           fontFamily: "Open Sans",
           fontWeight: 400,
           position: "absolute",
-          left: tooltipPosition.x,
-          top: tooltipPosition.y,
+          left: infocardPosition.x,
+          top: infocardPosition.y,
           background: "#fff",
           borderRadius: "8px",
           overflow: "hidden",
@@ -535,8 +545,8 @@ export default function KnowledgeGraph() {
           zIndex: 1000,
           width: "338px",
           pointerEvents: "auto",
-          opacity: tooltipVisible ? 1 : 0,
-          display: tooltipVisible ? "block" : "none",
+          opacity: infocardVisible ? 1 : 0,
+          display: infocardVisible ? "block" : "none",
           transform: "translateY(0px)",
           transition: "opacity 0.15s, display 0.15s, left 0.15s, top 0.15s",
           transitionBehavior: "allow-discrete",
@@ -544,7 +554,7 @@ export default function KnowledgeGraph() {
           wordWrap: "break-word",
         }}
       >
-        <TooltipMenu />
+        <InfocardMenu />
       </div>
       <div style={{ display: "flex", flexDirection: "row", gap: "200px" }}>
         {/* Legend */}
