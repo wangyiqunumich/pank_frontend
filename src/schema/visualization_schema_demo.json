@@ -217,7 +217,7 @@
           }
     },
     "gene - express_in - cell_type": {
-          "specific - relationship - specific": {
+          "specific - relationship - general": {
                 "question": [
                       "How does {@gene_symbol@} expression change in T1D versus non-diabetic samples?"
                 ],
