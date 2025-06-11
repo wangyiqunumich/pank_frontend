@@ -260,10 +260,20 @@ function SearchResult() {
                             );
 
                             const dataSource = coreRelationship?.["~properties"]?.data_source || '';
+                            const celltypeName = results.nodes
+                                ?.filter(node => node["~labels"].includes('cell_type'))
+                                ?.map(node => node["~properties"]?.name)
+                                .join(', ')
+                                .toLowerCase()
+                                .replace(/, ([^,]*)$/, ', and $1') || '';
+                            console.log('Cell type name:', celltypeName);
                             const tissueKey = coreRelationship?.["~properties"]?.tissue_name || '';
 
                             const newVariables = {
-                                additionalParams,
+                                additionalParams: [
+                                    ...additionalParams,
+                                    `tissue_name@${celltypeName}`,
+                                ],
                                 sourceTerm,
                                 relationship,
                                 targetTerm,
