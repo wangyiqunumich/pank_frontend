@@ -1,5 +1,5 @@
 export function addHighlight(question, option = false) {
-  return question.replace(/\{([^{}@]+)\}/g, (match, term) => (
+  return question?.replace(/\{([^{}@]+)\}/g, (_, term) => (
     option ? term :
       `<span style="color: #3A838B; font-weight: 700">${term}</span>`
   ));
@@ -14,20 +14,8 @@ export function replaceVariables(text, variables, replaceUnderscore = false) {
   let additionalParams = (variables.additionalParams || []).map(param => param.split('@'));
   let [sourceType, sourceId] = sourceTerm.split('@');
   let [targetType, targetId] = targetTerm.split('@');
-  if (replaceUnderscore) {
-    sourceId = sourceId?.replace(/_/g, ' ');
-    targetId = targetId?.replace(/_/g, ' ');
-    sourceSymbol = sourceSymbol?.replace(/_/g, ' ');
-    targetSymbol = targetSymbol?.replace(/_/g, ' ');
-    additionalParams = additionalParams.map(([key, value]) => [
-      key,
-      value?.replace(/_/g, ' ')
-    ]);
-  }
   const additionalParamsList = additionalParams.reduce((acc, [key, value]) => {
-    if (key && value) {
-      acc[`@${key}@`] = value;
-    }
+    acc[`@${key}@`] = value;
     return acc;
   }, {});
   const replaceList = {
@@ -43,8 +31,18 @@ export function replaceVariables(text, variables, replaceUnderscore = false) {
     '@tissue@': tissueKey,
     '@method@': dataSource?.includes('GTEx') ? 'GTEx' : 'InsPIRE'
   };
-  const replacedText = Object.entries(replaceList).reduce((acc, [key, value]) => (
-    key ? acc.replace(new RegExp(key, 'g'), value) : acc
+  const replaceUnderscoreList = replaceUnderscore ?
+    Object.entries(replaceList)
+      .reduce((acc, [key, value]) => {
+        acc[key] = value?.replace(/_/g, ' ');
+        return acc;
+      }, {}) :
+    replaceList;
+  const replacedText = Object.entries(replaceUnderscoreList).reduce((acc, [key, value]) => (
+    key && acc?.includes(key) ?
+      value && value?.trim()?.length >= 1 ? acc?.replace(new RegExp(key, 'g'), value)
+        : (() => { console.log(key); return undefined; })()
+      : acc
   ), text);
   return replacedText;
 }

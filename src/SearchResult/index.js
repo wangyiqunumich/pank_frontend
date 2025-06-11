@@ -17,6 +17,7 @@ import {
 } from '@mui/icons-material';
 import {
   Box,
+  Button,
   Collapse,
   Container,
   Grid,
@@ -139,6 +140,7 @@ function SearchResult() {
     const [referenceData, setReferenceData] = useState({});
     const [articlesData, setArticlesData] = useState([]);
     const [activeReference, setActiveReference] = useState(null);
+    const [error, setError] = useState(false);
 
     // scroll to active reference after it is set
     const timeoutRef = useRef(null);
@@ -266,7 +268,6 @@ function SearchResult() {
                                 .join(', ')
                                 .toLowerCase()
                                 .replace(/, ([^,]*)$/, ', and $1') || '';
-                            console.log('Cell type name:', celltypeName);
                             const tissueKey = coreRelationship?.["~properties"]?.tissue_name || '';
 
                             const newVariables = {
@@ -297,6 +298,11 @@ function SearchResult() {
                                         true
                                     )
                                 );
+
+                            if (!processedCurrentQuestion) {
+                                setError(true);
+                                return;
+                            }
                             // nextVariables = {
                             //     sourceTerm: 'snp:rs177069',
                             //     targetTerm: 'gene:ENSG00000001626',
@@ -415,6 +421,35 @@ function SearchResult() {
                 )
         }</>
     )
+
+    if (error) {
+        return (
+            <Box sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100vh',
+                gap: 2
+            }}>
+                <Typography variant="h6" color="error" sx={{ fontFamily: 'Open Sans' }}>
+                    No data found. Please try different search terms.
+                </Typography>
+                <Button
+                    variant="contained"
+                    onClick={() => window.location.href = '/'}
+                    sx={{
+                        backgroundColor: "#219197",
+                        "&:hover": {
+                            backgroundColor: "#1A747A",
+                        },
+                    }}
+                >
+                    Back to Home
+                </Button>
+            </Box>
+        );
+    }
 
     // Show loading skeleton if queryResultPage is not ready
     return !queryResultPage?.combined_query_result ? <LoadingSkeleton /> :

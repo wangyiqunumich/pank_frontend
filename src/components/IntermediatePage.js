@@ -450,7 +450,7 @@ function IntermediatePage({ onContinue }) {
         gap: 2
       }}>
         <Typography variant="h6" color="error" sx={{ fontFamily: 'Open Sans' }}>
-          No data found. Please try another gene.
+          No data found. Please try different search terms.
         </Typography>
         <Button
           variant="contained"
