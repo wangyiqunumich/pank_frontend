@@ -1,19 +1,19 @@
 [
 	{
 	"question":
-		"What is {gene@gene@}’s expression level in {cell@cell_type@} and its link to (T1D)?",
+		"How does {@gene_symbol@} expression change in T1D versus non-diabetic samples?",
 	"landing_page_subtitle":
-"The gene and cell type will be specified in the next step",
+"The gene will be specified in the next step",
 	"terms":
 		"gene - express_in - cell_type",
 	"config_condition":
-		"specific - relationship - specific",
+		"specific - relationship - general",
 	"matched_page_title":
-			"Search for Expression",
+			"Search for DEG",
 	"matched_page_sub_title":
-	"Pick a specific gene and cell type",
+	"Pick a specific gene",
 	"pattern_for_the_matched_page":
-		"{gene@gene@} - express in -> {ontology@cell_type@}"
+		"{gene@gene@} - express in -> {ontology}"
 	},
 	{
 	"question":
