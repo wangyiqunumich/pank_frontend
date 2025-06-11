@@ -221,7 +221,7 @@
                   "question": [
                         "How does {@gene_symbol@} expression change in T1D versus non-diabetic samples?"
                   ],
-                  "question_for_result": "How does {@gene_symbol@} expression change in {@tissue_name@} in T1D vs non-diabetic samples??",
+                  "question_for_result": "How does {@gene_symbol@} expression change in {@tissue_name@} in T1D vs non-diabetic samples?",
                   "cypher_for_result_page_core": "MATCH (g:gene {id: '@gene@'}) OPTIONAL MATCH (g)-[r4:Differential_Expression]->(ct:cell_type) OPTIONAL MATCH (g)-[r1:expression_level]->(ct) OPTIONAL MATCH (o:OCR)-[r2:OCR_locate_in]->(g) OPTIONAL MATCH (o)-[r3:OCR_activity]->(ct) WITH collect(DISTINCT g) AS g_nodes, collect(DISTINCT ct) AS ct_nodes, collect(DISTINCT o) AS o_nodes, collect(DISTINCT r4) AS r4_edges, collect(DISTINCT r1) AS r1_edges, collect(DISTINCT r2) AS r2_edges, collect(DISTINCT r3) AS r3_edges WITH g_nodes + ct_nodes + o_nodes AS nodes, r4_edges + r1_edges + r2_edges + r3_edges AS edges RETURN { results: [{ nodes: nodes, edges: edges }] } AS output;",
                   "cypher_for_result_page_nbr": "MATCH (g:gene)-[r1:effector_gene]-(nbr1) WHERE ID(g) ='@gene@' WITH r1, nbr1 WITH collect(DISTINCT r1) AS rels, collect(DISTINCT nbr1)AS nbrs WITH rels, [n IN nbrs WHERE NOT id(n) IN ['@gene@']] AS nodes RETURN { results: [ { nodes: nodes, edges: rels } ] } AS output;",
                   "ai_question_for_result": [
