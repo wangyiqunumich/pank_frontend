@@ -1,7 +1,7 @@
 [
 	{
 	"question":
-		"How does {@gene_symbol@} expression change in T1D versus non-diabetic samples?",
+		"How does {gene@gene@} expression change in T1D versus non-diabetic samples?",
 	"landing_page_subtitle":
 "The gene will be specified in the next step",
 	"terms":
