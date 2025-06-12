@@ -36,14 +36,11 @@
                         "Specific relation to Type 1 Diabetes:"
                   ],
                   "next_questions": {
-                        "How does the lead SNP @snp_node1@ influence the quantitative trait locus of @gene_node1@ in @tissue1@ tissue, as reported by @data_source1@?": {
-                              "source_term": "sequence_variant",
-                              "relationship": "fine_mapped_QTL",
-                              "target_term": "gene",
-                              "@snp_node1@": "another snp from json",
-                              "@gene_node1@": "gene_node",
-                              "@tissue1@": "another tissue from json",
-                              "@data_source1@": "another data_source from json"
+                        "Which {SNP} serves as the lead {QTL} for {@nbr_gene_symbol@}": 
+                        {
+                              "@nbr_gene_symbol@": "another gene from json",
+                              "@nbr_gene_id@": "another gene id from json",
+                              "link":["/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@","@nbr_gene_id@","&targetSymbol=","@nbr_gene_symbol@"]
                         }
                   },
                   "resources_tabs": {
@@ -108,14 +105,11 @@
                         "Specific relation to Type 1 Diabetes:"
                   ],
                   "next_questions": {
-                        "How does the lead SNP @snp_node1@ influence the quantitative trait locus of @gene_node1@ in @tissue1@ tissue, as reported by @data_source1@?": {
-                              "source_term": "sequence_variant",
-                              "relationship": "fine_mapped_QTL",
-                              "target_term": "gene",
-                              "@snp_node1@": "another snp from json",
-                              "@gene_node1@": "gene_node",
-                              "@tissue1@": "another tissue from json",
-                              "@data_source1@": "another data_source from json"
+                        "Which {SNP} serves as the lead {QTL} for {@nbr_gene_symbol@}": 
+                        {
+                              "@nbr_gene_symbol@": "another gene from json",
+                              "@nbr_gene_id@": "another gene id from json",
+                              "link":["/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@","@nbr_gene_id@","&targetSymbol=","@nbr_gene_symbol@"]
                         }
                   },
                   "resources_tabs": {
@@ -180,14 +174,11 @@
                         "Specific relation to Type 1 Diabetes:"
                   ],
                   "next_questions": {
-                        "How does the lead SNP @snp_node1@ influence the quantitative trait locus of @gene_node1@ in @tissue1@ tissue, as reported by @data_source1@?": {
-                              "source_term": "sequence_variant",
-                              "relationship": "fine_mapped_QTL",
-                              "target_term": "gene",
-                              "@snp_node1@": "another snp from json",
-                              "@gene_node1@": "gene_node",
-                              "@tissue1@": "another tissue from json",
-                              "@data_source1@": "another data_source from json"
+                        "Which {SNP} serves as the lead {QTL} for {@nbr_gene_symbol@}": 
+                        {
+                              "@nbr_gene_symbol@": "another gene from json",
+                              "@nbr_gene_id@": "another gene id from json",
+                              "link":["/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@","@nbr_gene_id@","&targetSymbol=","@nbr_gene_symbol@"]
                         }
                   },
                   "resources_tabs": {
@@ -232,7 +223,14 @@
                         "Differential expression state overview: ",
                         "Specific relation to Type 1 Diabetes:"
                   ],
-                  "next_questions": {},
+                  "next_questions": {
+                        "Which {SNP} serves as the lead {QTL} for {@nbr_gene_symbol@}": 
+                        {
+                              "@nbr_gene_symbol@": "another gene from json",
+                              "@nbr_gene_id@": "another gene id from json",
+                              "link":["/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@","@nbr_gene_id@","&targetSymbol=","@nbr_gene_symbol@"]
+                        }
+                  },
                   "resources_tabs": {
                         "references": {},
                         "empirical_evidence": {
