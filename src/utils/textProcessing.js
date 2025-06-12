@@ -9,7 +9,7 @@ export function replaceVariables(text, variables, replaceUnderscore = false) {
   if (!text || !variables?.sourceTerm || !variables?.targetTerm) {
     return text;
   }
-  const { tissueKey, dataSource } = variables;
+  const { tissueKey, dataSource, neighbors } = variables;
   let { sourceTerm, targetTerm, sourceSymbol, targetSymbol } = variables;
   let additionalParams = (variables.additionalParams || []).map(param => param.split('@'));
   let [sourceType, sourceId] = sourceTerm.split('@');
@@ -28,6 +28,10 @@ export function replaceVariables(text, variables, replaceUnderscore = false) {
     [`@${targetType}_id@`]: targetId,
     [`@${targetType}_name@`]: targetSymbol,
     [`@${targetType}_symbol@`]: targetSymbol,
+    [`@nbr_${sourceType}_id@`]: neighbors?.sourceTerm,
+    [`@nbr_${sourceType}_symbol@`]: neighbors?.sourceSymbol,
+    [`@nbr_${targetType}_id@`]: neighbors?.targetTerm,
+    [`@nbr_${targetType}_symbol@`]: neighbors?.targetSymbol,
     '@tissue@': tissueKey,
     '@method@': dataSource?.includes('GTEx') ? 'GTEx' : 'InsPIRE'
   };

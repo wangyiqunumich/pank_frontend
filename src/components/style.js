@@ -1,16 +1,4 @@
-import graphTooltips from '../schema/graph_viewer_schema.json';
-
-export const getContrastingColor = (bgColor) => {
-  if (!/^#[0-9A-F]{6}$/i.test(bgColor)) {
-    return 'black';
-  }
-  const hex = bgColor.replace(/^#/, '');
-  const r = parseInt(hex.substr(0, 2), 16);
-  const g = parseInt(hex.substr(2, 2), 16);
-  const b = parseInt(hex.substr(4, 2), 16);
-  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
-  return yiq >= 128 ? 'black' : 'white';
-}
+import graphSchema from '../schema/graph_viewer_schema.json';
 
 export const nodeAutoWidth = (node) => {
   const ctx = document.createElement('canvas').getContext("2d");
@@ -35,42 +23,73 @@ export const nodeAutoHeight = (node) => {
   return metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
 };
 
-// export const nodeColors = {
-//   "coding_elements": "#A4D0F6",
-//   "variants": "#FFB371",
-//   "ontology": "#FFDE7D",
-//   "OCR": "#61ECBC",
-//   "article": "#F5BEFF"
-// };
+const defaultNodeStyle = {
+  shape: "round-rectangle",
+  "background-color": "white",
+  "border-width": "1px",
+  "border-color": "black",
+  label: "data(label)",
+  "font-size": "6px",
+  "text-valign": "center",
+  color: "#fff",
+  width: nodeAutoWidth,
+  height: nodeAutoHeight,
+  "text-margin-y": "0.5px",
+  padding: "4px",
+  "text-outline-width": 0,
+  "text-outline-color": "#fff",
+  "text-outline-opacity": 0,
+}
+
+const defaultEdgeStyle = {
+  width: 1,
+  "line-color": "#d3d3d3",
+  "target-arrow-color": "#545454",
+  "target-arrow-shape": "vee",
+  "arrow-scale": 0.4,
+  "curve-style": "bezier",
+  "label": "data(label)",
+  "font-size": "4px",
+  "text-background-opacity": 1,
+  "text-background-color": "#F9FAFB",
+  "color": "#000",
+}
+
+export const getContrastingColor = (bgColor) => {
+  if (!/^#[0-9A-F]{6}$/i.test(bgColor)) {
+    return 'black';
+  }
+  const hex = bgColor.replace(/^#/, '');
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+  return yiq >= 128 ? 'black' : 'white';
+}
 
 export const nodeColors = Object.fromEntries(
-  Object.entries(graphTooltips).map(([key, value]) => [key, value.node_color])
+  Object.entries(graphSchema.nodes).map(([key, value]) => [key, value.node_color])
 );
 
 export const nodeTextColors = Object.fromEntries(
-  Object.entries(graphTooltips).map(([key, value]) => [key, value.text_color])
+  Object.entries(graphSchema.nodes).map(([key, value]) => [key, value.text_color])
 );
-
-// export const nodeLabels = {
-//   "coding_elements": "Gene",
-//   "variants": "SNP",
-//   "ontology": "Ontology",
-//   "OCR": "Open Chromatin Region",
-//   "article": "Literature",
-// };
 
 export const nodeLabels = Object.fromEntries(
-  Object.entries(graphTooltips).map(([key, value]) => [key, value.node_label])
+  Object.entries(graphSchema.nodes).map(([key, value]) => [key, value.node_label])
 );
 
-export const edgeLabels = {
-  "OCR_in_cell_type": "accessible in",
-  "OCR_locate_in": "located in",
-  "express_in": "expressed in",
-  "function_annotation": "has function",
-  "fine_mapped_eQTL": "QTL for",
-  "regulation": "interact with"
-};
+export const edgeLabels = Object.fromEntries(
+  Object.entries(graphSchema.edges).map(([key, value]) => [key, value.edge_label])
+);
+
+export const edgeLabelColors = Object.fromEntries(
+  Object.entries(graphSchema.edges).map(([key, value]) => [key, value.text_color])
+);
+
+export const edgeIsInverted = Object.fromEntries(
+  Object.entries(graphSchema.edges).map(([key, value]) => [key, value.inverted === "TRUE"])
+);
 
 const nodeColorsList = Object.keys(nodeColors).reduce(
   (acc, type) => (
@@ -82,76 +101,60 @@ const nodeColorsList = Object.keys(nodeColors).reduce(
       }
     ]
   ), []);
-console.log("nodeColorsList", nodeColorsList);
+
+const edgeColorsList = Object.keys(edgeLabels).reduce(
+  (acc, type) => (
+    [
+      ...acc,
+      {
+        type,
+        color: edgeLabelColors[type] || "#000",
+      }
+    ]
+  ), []);
 
 export const nodeStyle = nodeColorsList.map(({ color, type }) => ({
   // Core nodes style
   selector: `node[type = "${type}"][Level = "Core"]`,
   style: {
-    shape: "round-rectangle",
+    ...defaultNodeStyle,
     "background-color": color,
-    "border-width": "1px",
     "border-color": color,
-    label: "data(label)",
-    "font-size": "6px",
-    "text-valign": "center",
     color: nodeTextColors[type] || "#000",
-    width: nodeAutoWidth,
-    height: nodeAutoHeight,
-    "text-margin-y": "0.5px",
-    padding: "4px",
-    "text-outline-width": 0,
-    "text-outline-color": "#fff",
-    "text-outline-opacity": 0,
-  },
+  }
 })).concat(
   nodeColorsList.map(({ color, type }) => ({
     // Neighbor nodes style
     selector: `node[type = "${type}"][Level = "Neighbor"]`,
     style: {
-      shape: "round-rectangle",
-      "background-opacity": 1,
-      "background-color": "white",
-      "border-width": "1px",
+      ...defaultNodeStyle,
       "border-color": color,
-      label: "data(label)",
-      "font-size": "6px",
-      "text-valign": "center",
       color: "#333",
-      width: nodeAutoWidth,
-      height: nodeAutoHeight,
-      "text-margin-y": "0.5px",
-      padding: "4px",
-      "text-outline-width": 0,
-      "text-outline-color": "#fff",
-      "text-outline-opacity": 0,
-    },
+    }
   }))
-).concat([
-  // Node active state
-  {
-    selector: "node:active",
-    style: {
-      "overlay-padding": "0px",
-      "overlay-opacity": 0,
+).concat([{
+  selector: "edge",
+  style: defaultEdgeStyle,
+}])
+  .concat(
+    edgeColorsList.map(({ color, type }) => ({
+      // Edge style
+      selector: `edge[type = "${type}"]`,
+      style: {
+        ...defaultEdgeStyle,
+        "color": color,
+      },
+    }))
+  )
+  .concat([
+    // Node active state
+    {
+      selector: "node:active",
+      style: {
+        "overlay-padding": "0px",
+        "overlay-opacity": 0,
+      },
     },
-  },
-  // Edge style
-  {
-    selector: "edge",
-    style: {
-      width: 1,
-      "line-color": "#d3d3d3",
-      "target-arrow-color": "#545454",
-      "target-arrow-shape": "vee",
-      "arrow-scale": 0.4,
-      "curve-style": "bezier",
-      "label": "data(type)",
-      "font-size": "4px",
-      "text-background-opacity": 1,
-      "text-background-color": "#F9FAFB",
-    },
-  },
-]);
+  ]);
 
 console.log("nodeStyle", nodeStyle);

@@ -35,14 +35,12 @@
                         "QTL overview:",
                         "Specific relation to Type 1 Diabetes:"
                   ],
-                  "next_questions": {
-                        "Which {SNP} serves as the lead {QTL} for {@nbr_gene_symbol@}": 
+                  "next_questions": [
                         {
-                              "@nbr_gene_symbol@": "another gene from json",
-                              "@nbr_gene_id@": "another gene id from json",
-                              "link":["/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@","@nbr_gene_id@","&targetSymbol=","@nbr_gene_symbol@"]
+                              "question": "Which {SNP} serves as the lead {QTL} for {@nbr_gene_symbol@}",
+                              "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@@nbr_gene_id@&targetSymbol=@nbr_gene_symbol@?"
                         }
-                  },
+                  ],
                   "resources_tabs": {
                         "references": {},
                         "pankbase_links": [
@@ -104,14 +102,12 @@
                         "QTL overview:",
                         "Specific relation to Type 1 Diabetes:"
                   ],
-                  "next_questions": {
-                        "Which {SNP} serves as the lead {QTL} for {@nbr_gene_symbol@}": 
+                  "next_questions": [
                         {
-                              "@nbr_gene_symbol@": "another gene from json",
-                              "@nbr_gene_id@": "another gene id from json",
-                              "link":["/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@","@nbr_gene_id@","&targetSymbol=","@nbr_gene_symbol@"]
+                              "question": "Which {SNP} serves as the lead {QTL} for {@nbr_gene_symbol@}",
+                              "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@@nbr_gene_id@&targetSymbol=@nbr_gene_symbol@?"
                         }
-                  },
+                  ],
                   "resources_tabs": {
                         "references": {},
                         "pankbase_links": [
@@ -173,14 +169,12 @@
                         "QTL overview:",
                         "Specific relation to Type 1 Diabetes:"
                   ],
-                  "next_questions": {
-                        "Which {SNP} serves as the lead {QTL} for {@nbr_gene_symbol@}": 
+                  "next_questions": [
                         {
-                              "@nbr_gene_symbol@": "another gene from json",
-                              "@nbr_gene_id@": "another gene id from json",
-                              "link":["/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@","@nbr_gene_id@","&targetSymbol=","@nbr_gene_symbol@"]
+                              "question": "Which {SNP} serves as the lead {QTL} for {@nbr_gene_symbol@}",
+                              "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@@nbr_gene_id@&targetSymbol=@nbr_gene_symbol@?"
                         }
-                  },
+                  ],
                   "resources_tabs": {
                         "references": {},
                         "pankbase_links": [
@@ -223,14 +217,12 @@
                         "Differential expression state overview: ",
                         "Specific relation to Type 1 Diabetes:"
                   ],
-                  "next_questions": {
-                        "Which {SNP} serves as the lead {QTL} for {@nbr_gene_symbol@}": 
+                  "next_questions": [
                         {
-                              "@nbr_gene_symbol@": "another gene from json",
-                              "@nbr_gene_id@": "another gene id from json",
-                              "link":["/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@","@nbr_gene_id@","&targetSymbol=","@nbr_gene_symbol@"]
+                              "question": "Which {SNP} serves as the lead {QTL} for {@nbr_gene_symbol@}",
+                              "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@@nbr_gene_id@&targetSymbol=@nbr_gene_symbol@?"
                         }
-                  },
+                  ],
                   "resources_tabs": {
                         "references": {},
                         "empirical_evidence": {

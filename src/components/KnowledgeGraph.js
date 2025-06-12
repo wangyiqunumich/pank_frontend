@@ -31,6 +31,7 @@ import downloadIcon from '../image/material-symbols--download-rounded.svg';
 import recenterIcon from '../image/material-symbols--recenter-rounded.svg';
 import graphInfocard from '../schema/graph_viewer_schema.json';
 import {
+  edgeIsInverted,
   edgeLabels,
   getContrastingColor,
   nodeColors,
@@ -105,51 +106,55 @@ export default function KnowledgeGraph() {
     }
   };
 
-  const InfocardData = ({ value, config }) => {
+  const InfocardData = ({ value, config, dataKey }) => {
     // config can be either just a type or the form "type(setting)""
     const setting = config?.match(/\(([^)]+)\)/);
     const type = setting ? config.split('(')[0] : config;
     return !type ? (<>{value}</>) :
-      type === "int" ? (
-        <>{parseInt(value).toLocaleString()}</>
+      type === "string" ? (
+        <>{dataKey}</>
       ) :
-        type === "float" ? (
-          <>{parseFloat(value).toFixed(setting || 1)}</>
-        ) : type === "link" ? (
-          <Link href={value} target="_blank" rel="noopener noreferrer" sx={{
-            fontFamily: "Open Sans",
-            fontWeight: "600",
-            fontSize: "12px",
-            textDecoration: "none",
-            "&:hover": {
-              textDecoration: "underline",
-            },
-          }}>
-            Open Link ↗
-          </Link>
-        ) : ["label_chr", "label_percentage"].includes(type) ? (
-          <Box sx={{
-            backgroundColor: setting || "#0FB47D",
-            height: "9px",
-            padding: "4px 4px",
-            marginY: "-4px",
-            borderRadius: "8.5px",
-            textDecoration: "none",
-            color: "white",
-            fontFamily: "Open Sans",
-            fontWeight: "700",
-            fontSize: "12px"
-          }}>
-            {type === "label_chr" ? `Chr${value}` : `${parseFloat(value).toFixed(1)}%`}
-          </Box>
-        ) : (
-          <span>{value}</span>
-        );
+        type === "int" ? (
+          <>{parseInt(value).toLocaleString()}</>
+        ) :
+          type === "float" ? (
+            <>{parseFloat(value).toFixed(setting || 1)}</>
+          ) : type === "link" ? (
+            <Link href={value} target="_blank" rel="noopener noreferrer" sx={{
+              fontFamily: "Open Sans",
+              fontWeight: "600",
+              fontSize: "12px",
+              textDecoration: "none",
+              "&:hover": {
+                textDecoration: "underline",
+              },
+            }}>
+              Open Link ↗
+            </Link>
+          ) : ["label_chr", "label_percentage"].includes(type) ? (
+            <Box sx={{
+              backgroundColor: setting || "#0FB47D",
+              height: "9px",
+              padding: "4px 4px",
+              marginY: "-4px",
+              borderRadius: "8.5px",
+              textDecoration: "none",
+              color: "white",
+              fontFamily: "Open Sans",
+              fontWeight: "700",
+              fontSize: "12px"
+            }}>
+              {type === "label_chr" ? `Chr${value}` : `${parseFloat(value).toFixed(1)}%`}
+            </Box>
+          ) : (
+            <span>{value}</span>
+          );
   }
 
   const InfocardMenu = () => {
-    const schema = graphInfocard?.[hoveredData?.type]?.info_panel;
-    const titleKey = schema?.find(([label, _]) => label === "Title")?.[1];
+    const isEdge = hoveredData?.source && hoveredData?.target;
+    const schema = (isEdge ? graphInfocard?.edges : graphInfocard?.nodes)?.[hoveredData?.type]?.info_panel;
+    const titleColumn = schema?.find(([label, _]) => label === "Title");
     const footerInfo = schema?.find(([label, _]) => label === "Footer")?.[1] || [];
     return (
       hoveredData && (schema?.length > 0
@@ -158,7 +163,7 @@ export default function KnowledgeGraph() {
             {/* Title Bar */}
             <Box sx={{
               display: "flex",
-              height: "54px",
+              paddingY: "17px",
               textAlign: "center",
               backgroundColor: "#E4F0F1",
               alignItems: "center",
@@ -167,9 +172,10 @@ export default function KnowledgeGraph() {
               <Typography sx={{
                 fontFamily: "Open Sans",
                 fontWeight: "700",
-                fontSize: "20px"
+                fontSize: "20px",
+                lineHeight: "20px",
               }}>
-                {hoveredData?.[titleKey]}
+                <InfocardData value={hoveredData[titleColumn?.[1]]} dataKey={titleColumn?.[1]} config={titleColumn?.[2]} />
               </Typography>
             </Box>
             {
@@ -218,7 +224,7 @@ export default function KnowledgeGraph() {
                                 lineHeight: "9px",
                               }}
                             >
-                              <InfocardData value={hoveredData[key]} config={config} />
+                              <InfocardData value={hoveredData[key]} dataKey={key} config={config} />
                             </Typography>
                           </Box>
                         )))
@@ -381,9 +387,10 @@ export default function KnowledgeGraph() {
     const edges = Object.values(uniqueEdgesMap).map((edge) => ({
       data: {
         id: edge["~id"],
-        source: edge["~start"],
-        target: edge["~end"],
-        type: edgeLabels[edge["~type"]] || edge["~type"],
+        source: edgeIsInverted[edge["~type"]] ? edge["~end"] : edge["~start"],
+        target: edgeIsInverted[edge["~type"]] ? edge["~start"] : edge["~end"],
+        type: edge["~type"],
+        label: edgeLabels[edge["~type"]] || edge["~type"],
         ...edge["~properties"],
       },
     }));
@@ -404,6 +411,7 @@ export default function KnowledgeGraph() {
       document.body.style.cursor = "pointer";
       activeNodeRef.current = evt.target;
       setNodeHovered(true);
+      console.log("Hovered node:", evt.target.data());
       setHoveredData(evt.target.data());
     };
 
