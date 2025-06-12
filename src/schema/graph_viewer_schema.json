@@ -1,113 +1,173 @@
-{
-    "coding_elements": {
-        "$comment": {
-            "valid_datatypes": [
-                "link",
-                "label_chr(#color)",
-                "label_percentage(#color)",
-                "int",
-                "float(number_of_decimals)"
-            ],
-            "description": "All others are strings."
-        },
-        "node_color": "#A4D0F6",
-        "text_color": "#000000",
-        "node_label": "Gene",
-        "info_panel": [
-            [
-                "Title",
-                "name"
-            ],
-            [
-                "Gene Identity",
+{   "nodes":
+        {
+        "coding_elements": {
+            "$comment": {
+                "valid_datatypes": [
+                    "link",
+                    "label_chr(#color)",
+                    "label_percentage(#color)",
+                    "int",
+                    "float(number_of_decimals)"
+                ],
+                "description": "All others are strings."
+            },
+            "node_color": "#A4D0F6",
+            "text_color": "#000000",
+            "node_label": "Gene",
+            "info_panel": [
                 [
+                    "Title",
+                    "name"
+                ],
+                [
+                    "Gene Identity",
                     [
-                        "ENSG ID",
-                        "id"
-                    ],
-                    [
-                        "Ensembl",
-                        "link",
-                        "link"
+                        [
+                            "ENSG ID",
+                            "id"
+                        ],
+                        [
+                            "Ensembl",
+                            "link",
+                            "link"
+                        ]
                     ]
-                ]
-            ],
-            [
-                "Description",
-                "description"
-            ],
-            [
-                "Chromosomal Location",
+                ],
                 [
+                    "Description",
+                    "description"
+                ],
+                [
+                    "Chromosomal Location",
                     [
-                        "Chromosome",
-                        "chr",
-                        "label_chr(#0FB47D)"
-                    ],
-                    [
-                        "Start",
-                        "start_loc",
-                        "int"
-                    ],
-                    [
-                        "End",
-                        "end_loc",
-                        "int"
-                    ],
-                    [
-                        "Strand",
-                        "strand",
-                        "int"
+                        [
+                            "Chromosome",
+                            "chr",
+                            "label_chr(#0FB47D)"
+                        ],
+                        [
+                            "Start",
+                            "start_loc",
+                            "int"
+                        ],
+                        [
+                            "End",
+                            "end_loc",
+                            "int"
+                        ],
+                        [
+                            "Strand",
+                            "strand",
+                            "int"
+                        ]
                     ]
-                ]
-            ],
-            [
-                "Sequence Features",
+                ],
                 [
+                    "Sequence Features",
                     [
-                        "GC Content",
-                        "GC_percentage",
-                        "label_percentage(#F0960B)"
+                        [
+                            "GC Content",
+                            "GC_percentage",
+                            "label_percentage(#F0960B)"
+                        ]
                     ]
-                ]
-            ],
-            [
-                "Footer",
+                ],
                 [
+                    "Footer",
                     [
-                        "Data Version",
-                        "data_version"
-                    ],
-                    [
-                        "Data Source",
-                        "data_source"
+                        [
+                            "Data Version",
+                            "data_version"
+                        ],
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
                     ]
                 ]
             ]
-        ]
+        },
+        "variants": {
+            "node_color": "#FFB371",
+            "text_color": "#000000",
+            "node_label": "SNP",
+            "info_panel": []
+        },
+        "ontology": {
+            "node_color": "#FFDE7D",
+            "text_color": "#000000",
+            "node_label": "Ontology",
+            "info_panel ": []
+        },
+        "OCR": {
+            "node_color": "#61ECBC",
+            "text_color": "#000000",
+            "node_label": "Open Chromatin Region",
+            "info_panel": []
+        },
+        "article": {
+            "node_color": "#F5BEFF",
+            "text_color": "#000000",
+            "node_label": "Literature",
+            "info_panel": []
+        }
     },
-    "variants": {
-        "node_color": "#FFB371",
-        "text_color": "#000000",
-        "node_label": "SNP",
-        "info_panel": []
-    },
-    "ontology": {
-        "node_color": "#FFDE7D",
-        "text_color": "#000000",
-        "node_label": "Ontology",
-        "info_panel ": []
-    },
-    "OCR": {
-        "node_color": "#61ECBC",
-        "text_color": "#000000",
-        "node_label": "Open Chromatin Region",
-        "info_panel": []
-    },
-    "article": {
-        "node_color": "#F5BEFF",
-        "text_color": "#000000",
-        "node_label": "Literature",
-        "info_panel": []
+    "edges":{
+        "OCR_locate_in": {
+            "text_color": "#000000",
+            "edge_label": "located in ",
+            "info_panel": [
+                [
+                    "Title",
+                    "Located in Open Chromatin Region"
+                ],
+                ["Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },  
+        "express_in": {
+            "text_color": "#000000",
+            "edge_label": "expressed in",
+            "info_panel": []
+        },
+        "function_annotation": {
+            "text_color": "#000000",
+            "edge_label": "has function",
+            "info_panel": []
+        },
+        "fine_mapped_eQTL": {
+            "text_color": "#000000",
+            "edge_label": "QTL for",
+            "info_panel": []
+        },
+        "regulation": {
+            "text_color": "#000000",
+            "edge_label": "interact with",
+            "info_panel": []
+        },
+        "OCR_in_cell_type": {
+            "text_color": "#000000",
+            "edge_label": "accessible in",
+            "info_panel": []
+        }
     }
 }
