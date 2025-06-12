@@ -13,7 +13,7 @@
 	"matched_page_sub_title":
 	"Pick a specific gene",
 	"pattern_for_the_matched_page":
-		"{gene@gene@} - express in -> {ontology}"
+		"{gene@gene@} - express in -> (ontology)"
 	},
 	{
 	"question":
