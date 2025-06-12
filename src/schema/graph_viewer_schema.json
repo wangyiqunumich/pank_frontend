@@ -116,6 +116,7 @@
         "OCR_locate_in": {
             "text_color": "#000000",
             "edge_label": "located in ",
+            "inverted": "FALSE",
             "info_panel": [
                 [
                     "Title",
@@ -147,26 +148,31 @@
         "express_in": {
             "text_color": "#000000",
             "edge_label": "expressed in",
+            "inverted": "FALSE",
             "info_panel": []
         },
         "function_annotation": {
             "text_color": "#000000",
             "edge_label": "has function",
+            "inverted": "FALSE",    
             "info_panel": []
         },
         "fine_mapped_eQTL": {
             "text_color": "#000000",
             "edge_label": "QTL for",
+            "inverted": "FALSE",
             "info_panel": []
         },
         "regulation": {
             "text_color": "#000000",
             "edge_label": "interact with",
+            "inverted": "FALSE",
             "info_panel": []
         },
         "OCR_in_cell_type": {
             "text_color": "#000000",
             "edge_label": "accessible in",
+            "inverted": "FALSE",
             "info_panel": []
         }
     }
