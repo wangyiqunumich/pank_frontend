@@ -12,7 +12,7 @@
                 "Lead SNP": "Lead SNP refers to the genetic variant with the strongest association signal within the credible set, often considered the most likely causal variant.",
                 "PIP": "PIP (Posterior Inclusion Probability) quantifies the probability of a specific variant being the causal driver of the observed genetic signal; a higher PIP suggests greater confidence in causality.",
                 "#": "# (Number of Variants) indicates the total count of genetic variants included in the credible set, encompassing all variants contributing to the signal.",
-                "Action": "TBD"
+                "Action": "Go to result page for more detail"
             }
         },
         "specific - relationship - specific": {
@@ -27,7 +27,7 @@
                 "Searched SNP (PIP)": "This is the SNP you searched for, along with its PIP (Posterior Inclusion Probability) value. PIP quantifies the probability of a specific variant being the causal driver of the observed genetic signal; a higher PIP suggests greater confidence in causality.If it is not the lead SNP, its significance may be lower.",
                 "#": "# (Number of Variants) indicates the total count of genetic variants included in the credible set, encompassing all variants contributing to the signal.",
                 "Lead SNP (PIP)": "Lead SNP refers to the genetic variant with the strongest association signal within the credible set, often considered the most likely causal variant.PIP (Posterior Inclusion Probability) quantifies the probability of a specific variant being the causal driver of the observed genetic signal; a higher PIP suggests greater confidence in causality.",
-                "Action": "TBD"
+                "Action": "Go to result page for more detail"
             }
         },
         "specific - relationship - general": {
@@ -42,15 +42,14 @@
                 "Searched SNP (PIP)": "This is the SNP you searched for, along with its PIP (Posterior Inclusion Probability) value. PIP quantifies the probability of a specific variant being the causal driver of the observed genetic signal; a higher PIP suggests greater confidence in causality.If it is not the lead SNP, its significance may be lower.",
                 "#": "# (Number of Variants) indicates the total count of genetic variants included in the credible set, encompassing all variants contributing to the signal.",
                 "Lead SNP (PIP)": "Lead SNP refers to the genetic variant with the strongest association signal within the credible set, often considered the most likely causal variant.PIP (Posterior Inclusion Probability) quantifies the probability of a specific variant being the causal driver of the observed genetic signal; a higher PIP suggests greater confidence in causality.",
-                "Action": "TBD"
+                "Action": "Go to result page for more detail"
             }
         }
     },
     "result": {
-        "You May Also Ask": "Tooltip for 'You May Also Ask' section",
-        "Legend": "Tooltip for 'Legend' section",
-        "Question": "Tooltip for 'Question' section",
-        "AI's Overview": "Tooltip for 'AI's Overview' section",
-        "Graph Viewer": "Tooltip for 'Graph Viewer' section"
-    }
+        "You May Also Ask": "See suggested follow-up questions related to this topic.",
+        "Question": "The specific question you’re exploring right now.",
+        "AI's Overview": "AI-generated summary of key insights, backed by HIRN literature references.",
+        "Graph Viewer": "Interactive network view of the knowledge graph behind the answer— hover over nodes or edges for more details."
+  }
 }
