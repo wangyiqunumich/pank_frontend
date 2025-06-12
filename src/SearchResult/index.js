@@ -16,6 +16,7 @@ import {
   InfoOutlined as InfoOutlineIcon,
 } from '@mui/icons-material';
 import {
+  Backdrop,
   Box,
   Button,
   Collapse,
@@ -41,6 +42,7 @@ import { queryArticles } from '../redux/articlesSlice';
 import { setProcessedQuestion } from '../redux/processedQuestionSlice';
 import { queryQueryResultPage } from '../redux/queryResultPage';
 import { setSearchTerms } from '../redux/searchSlice';
+import { queryImage } from '../redux/typeToImageSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import {
@@ -138,10 +140,12 @@ function SearchResult() {
     const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
     const { aiAnswer } = useSelector((state) => state.aiAnswer);
     const { viewSchema } = useSelector((state) => state.viewSchema);
+    const { typeToImage } = useSelector((state) => state.typeToImage);
     const [variables, setVariables] = useState({});
     const [referenceData, setReferenceData] = useState({});
     const [articlesData, setArticlesData] = useState([]);
     const [activeReference, setActiveReference] = useState(null);
+    const [imagePopupOpen, setImagePopupOpen] = useState(false);
     const [error, setError] = useState(false);
 
     // scroll to active reference after it is set
@@ -240,7 +244,8 @@ function SearchResult() {
                         cypher_for_result_page_core,
                         cypher_for_result_page_nbr,
                         rdb_query_for_result_page,
-                        next_questions
+                        next_questions,
+                        resources_tabs
                     } = response.payload;
 
                     if (cypher_for_result_page_core && cypher_for_result_page_nbr) {
@@ -272,6 +277,13 @@ function SearchResult() {
                             );
 
                             const dataSource = coreRelationship?.["~properties"]?.data_source || '';
+                            if (resources_tabs?.empirical_evidence?.lambda_function &&
+                                coreRelationship?.["~properties"]?.["credible_set"]) {
+                                dispatch(queryImage({
+                                    imageType: 'manhattan',
+                                    link: `${tabsQTL.find(tab => tab.data_source === dataSource)?.folder || ''}/${coreRelationship["~properties"]["credible_set"]}`
+                                }));
+                            }
                             const celltypeName = results.nodes
                                 ?.filter(node => node["~labels"].includes('cell_type'))
                                 ?.map(node => node["~properties"]?.name)
@@ -473,6 +485,19 @@ function SearchResult() {
     // Show loading skeleton if queryResultPage is not ready
     return !queryResultPage?.combined_query_result ? <LoadingSkeleton /> :
         (<Container sx={{ width: '100%', overflowX: 'auto', maxWidth: '1440px', marginX: '20px', alignSelf: 'center', overflow: 'visible' }} maxWidth={false}>
+            <Backdrop
+                sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+                open={imagePopupOpen}
+                onClick={() => setImagePopupOpen(false)}
+            >
+                <Box
+                    component="img"
+                    src={referenceData.empirical_evidence.lambda_function ? (typeToImage?.length && `data:image/jpeg;base64,${typeToImage}`) : VisuImage}
+                    alt="Empirical Evidence"
+                    sx={{
+                    }}
+                />
+            </Backdrop>
             <Container sx={{
                 padding: 0, display: 'flex',
                 flexDirection: 'column', justifyContent: 'space-evenly',
@@ -841,7 +866,7 @@ function SearchResult() {
                                         <Box sx={{ position: 'relative' }}>
                                             <Box
                                                 component="img"
-                                                src={VisuImage}
+                                                src={referenceData.empirical_evidence.lambda_function ? (typeToImage?.length && `data:image/jpeg;base64,${typeToImage}`) : VisuImage}
                                                 alt="Empirical Evidence"
                                                 sx={{
                                                     height: '235px',
@@ -851,20 +876,32 @@ function SearchResult() {
                                                     marginRight: '10px',
                                                 }}
                                             />
-                                            <Typography sx={{
-                                                position: 'absolute',
-                                                top: '26px',
-                                                left: '35px',
-                                                borderRadius: '6px',
-                                                padding: '4px 12px',
-                                                background: '#4A4A4BB2',
-                                                fontFamily: 'Open Sans',
-                                                fontSize: '13px',
-                                                fontWeight: 600,
-                                                color: 'white'
+                                            <Link sx={{
+                                                textDecoration: 'none',
+                                                "& .MuiTypography-root:hover": {
+                                                    background: '#4A4A4B66',
+                                                    color: 'white',
+                                                    cursor: 'pointer',
+                                                },
                                             }}>
-                                                Example
-                                            </Typography>
+                                                <Typography sx={{
+                                                    position: 'absolute',
+                                                    top: '26px',
+                                                    left: '35px',
+                                                    borderRadius: '6px',
+                                                    padding: '4px 12px',
+                                                    background: '#4A4A4BB2',
+                                                    fontFamily: 'Open Sans',
+                                                    fontSize: '13px',
+                                                    fontWeight: 600,
+                                                    color: 'white',
+                                                    transition: 'background 0.2s ease',
+                                                }} onClick={
+                                                    referenceData.empirical_evidence.legend === "View" ? () => setImagePopupOpen(true) : () => { }
+                                                }>
+                                                    {referenceData.empirical_evidence.legend}
+                                                </Typography>
+                                            </Link>
                                         </Box>
                                         <Typography>
                                             <Typography sx={{ fontFamily: 'Open Sans', fontSize: '20px', fontWeight: 700 }}>
@@ -873,7 +910,7 @@ function SearchResult() {
                                             <Typography sx={{ fontFamily: 'Open Sans', fontSize: '16px', fontWeight: 400, color: "#263238", paddingY: '24px' }}>
                                                 {referenceData.empirical_evidence.description}
                                             </Typography>
-                                            <Link href={referenceData.empirical_evidence.link} target="_blank" rel="noopener noreferrer" sx={{ textDecoration: "none" }}>
+                                            {referenceData.empirical_evidence.link && <Link href={referenceData.empirical_evidence.link} target="_blank" rel="noopener noreferrer" sx={{ textDecoration: "none" }}>
                                                 <Typography sx={{
                                                     cursor: 'pointer',
                                                     fontFamily: 'Open Sans',
@@ -882,7 +919,7 @@ function SearchResult() {
                                                     fontWeight: 600, width: 'fit-content',
                                                 }}>{referenceData.empirical_evidence.link_text}
                                                 </Typography>
-                                            </Link>
+                                            </Link>}
                                         </Typography>
                                     </Box>
                                 )
