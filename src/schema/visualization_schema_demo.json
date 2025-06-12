@@ -43,6 +43,12 @@
                 ],
                 "resources_tabs": {
                       "references": {},
+                      "empirical_evidence": {
+                            "title": "Manhattan Plot",
+                            "description": "This three-row scatter view condenses QTL evidence.\nRow 1 shows −log₁₀ P for classical association strength.\nRow 2 reports the posterior inclusion probability (PIP) from Bayesian fine-mapping.\nRow 3 displays the log Bayes factor (LBF) for complementary Bayes support.\nPoint colour encodes LD R² relative to the lead SNP (red dashed line), allowing you to gauge how neighbouring variants track the core signal.\nTogether these layers highlight candidate causal variants and their statistical weight at a glance.",
+                            "Legend": ["View","click to pop up full screen"],
+                            "lambda_function": "type_to_image"
+                      },
                       "pankbase_links": [
                             [
                                   "QTL Data Source",
@@ -110,6 +116,12 @@
                 ],
                 "resources_tabs": {
                       "references": {},
+                      "empirical_evidence": {
+                            "title": "Manhattan Plot",
+                            "description": "This three-row scatter view condenses QTL evidence.\nRow 1 shows −log₁₀ P for classical association strength.\nRow 2 reports the posterior inclusion probability (PIP) from Bayesian fine-mapping.\nRow 3 displays the log Bayes factor (LBF) for complementary Bayes support.\nPoint colour encodes LD R² relative to the lead SNP (red dashed line), allowing you to gauge how neighbouring variants track the core signal.\nTogether these layers highlight candidate causal variants and their statistical weight at a glance.",
+                            "Legend": ["View","click to pop up full screen"],
+                            "lambda_function": "type_to_image"
+                      },
                       "pankbase_links": [
                             [
                                   "QTL Data Source",
@@ -177,6 +189,12 @@
                 ],
                 "resources_tabs": {
                       "references": {},
+                      "empirical_evidence": {
+                            "title": "Manhattan Plot",
+                            "description": "This three-row scatter view condenses QTL evidence.\nRow 1 shows −log₁₀ P for classical association strength.\nRow 2 reports the posterior inclusion probability (PIP) from Bayesian fine-mapping.\nRow 3 displays the log Bayes factor (LBF) for complementary Bayes support.\nPoint colour encodes LD R² relative to the lead SNP (red dashed line), allowing you to gauge how neighbouring variants track the core signal.\nTogether these layers highlight candidate causal variants and their statistical weight at a glance.",
+                            "Legend": ["View","click to pop up full screen"],
+                            "lambda_function": "type_to_image"
+                      },
                       "pankbase_links": [
                             [
                                   "QTL Data Source",
@@ -228,6 +246,7 @@
                       "empirical_evidence": {
                             "title": "Expression Distribution: Violin Plot",
                             "description": "The violin plot displays the distribution of normalized gene expression across various pancreatic cell types, including Ductal, Active Stellate, Alpha, Acinar, MUC5B+ Ductal, Beta, Endothelial, Gamma + Epsilon, Delta, Immune, Quiescent Stellate, and Cycling Alpha. Each violin shape represents the density of expression values within a cell type, with wider sections indicating higher frequencies. Boxplots within the violins show the median and interquartile range.",
+                            "legend": "Example",
                             "link": "https://pankbase.org:8000/single-cell.html?datasetId=islet_of_Langerhans_scRNA_v3-3&gene=@gene_symbol@",
                             "link_text": "Visit Pankbase to explore violin plots ↗"
                       },
