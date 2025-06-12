@@ -120,7 +120,8 @@
             "info_panel": [
                 [
                     "Title",
-                    "Located in Open Chromatin Region"
+                    "Located in Open Chromatin Region",
+                    "String"
                 ],
                 ["Relationship identity",
                     [
