@@ -35,6 +35,7 @@ import {
 
 import { tabsQTL } from '../components/IntermediatePage';
 import KnowledgeGraph from '../components/KnowledgeGraph';
+import VisuImage from '../image/output.png';
 import { queryAiAnswer } from '../redux/aiAnswerSlice';
 import { queryArticles } from '../redux/articlesSlice';
 import { setProcessedQuestion } from '../redux/processedQuestionSlice';
@@ -49,6 +50,7 @@ import {
 
 const tabOptions = [
     { value: 'references', label: 'References' },
+    { value: 'empirical_evidence', label: 'Empirical Evidence' },
     { value: 'pankbase_links', label: 'PanKbase Links' },
     { value: 'external_links', label: 'External Links' }
 ];
@@ -173,6 +175,10 @@ function SearchResult() {
             const newExternalLinks = data.external_links.map((item) => item.map((i) => replaceVariables(i, variables)));
             setReferenceData({
                 ...data,
+                empirical_evidence: {
+                    ...data.empirical_evidence,
+                    link: replaceVariables(data.empirical_evidence.link, variables)
+                },
                 pankbase_links: newPankbaseLinks,
                 external_links: newExternalLinks
             });
@@ -800,6 +806,69 @@ function SearchResult() {
                                     </ListItem>
                                 </Link>
                             ))}
+                        </List>
+                    </Collapse>
+                    <Collapse in={currTab === 'empirical_evidence'}>
+                        <List sx={{ padding: '0px' }}>
+                            {referenceData?.empirical_evidence &&
+                                (
+                                    <Box sx={{ flexDirection: 'row', display: 'flex', gap: '45px' }}>
+                                        {/* <Image
+                                            src={VisuImage}
+                                            alt="Empirical Evidence"
+                                            width={100}
+                                            height={100}
+                                            style={{ borderRadius: '10px', marginRight: '10px' }}
+                                        /> */}
+                                        <Box sx={{ position: 'relative' }}>
+                                            <Box
+                                                component="img"
+                                                src={VisuImage}
+                                                alt="Empirical Evidence"
+                                                sx={{
+                                                    height: '235px',
+                                                    marginY: '14px',
+                                                    marginX: '25px',
+                                                    borderRadius: '10px',
+                                                    marginRight: '10px',
+                                                }}
+                                            />
+                                            <Typography sx={{
+                                                position: 'absolute',
+                                                top: '26px',
+                                                left: '35px',
+                                                borderRadius: '6px',
+                                                padding: '4px 12px',
+                                                background: '#4A4A4BB2',
+                                                fontFamily: 'Open Sans',
+                                                fontSize: '13px',
+                                                fontWeight: 600,
+                                                color: 'white'
+                                            }}>
+                                                Example
+                                            </Typography>
+                                        </Box>
+                                        <Typography>
+                                            <Typography sx={{ fontFamily: 'Open Sans', fontSize: '20px', fontWeight: 700 }}>
+                                                {referenceData.empirical_evidence.title}
+                                            </Typography>
+                                            <Typography sx={{ fontFamily: 'Open Sans', fontSize: '16px', fontWeight: 400, color: "#263238", paddingY: '24px' }}>
+                                                {referenceData.empirical_evidence.description}
+                                            </Typography>
+                                            <Link href={referenceData.empirical_evidence.link} target="_blank" rel="noopener noreferrer" sx={{ textDecoration: "none" }}>
+                                                <Typography sx={{
+                                                    cursor: 'pointer',
+                                                    fontFamily: 'Open Sans',
+                                                    fontSize: '16px', paddingY: '10px', paddingX: '20px', backgroundColor: '#219197',
+                                                    textAlign: 'center', borderRadius: '10px', color: 'white',
+                                                    fontWeight: 600, width: 'fit-content',
+                                                }}>{referenceData.empirical_evidence.link_text}
+                                                </Typography>
+                                            </Link>
+                                        </Typography>
+                                    </Box>
+                                )
+                            }
                         </List>
                     </Collapse>
                     <Collapse in={currTab === 'pankbase_links'}>
