@@ -235,6 +235,11 @@
                   "next_questions": {},
                   "resources_tabs": {
                         "references": {},
+                        "Empirical evidence": {
+                              "title": "Expression Distrbution: Violin Plot",
+                              "description":"The violin plot displays the distribution of normalized gene expression across various pancreatic cell types, including Ductal, Active Stellate, Alpha, Acinar, MUC5B+ Ductal, Beta, Endothelial, Gamma + Epsilon, Delta, Immune, Quiescent Stellate, and Cycling Alpha. Each violin shape represents the density of expression values within a cell type, with wider sections indicating higher frequencies. Boxplots within the violins show the median and interquartile range.",
+                              "link": https://pankbase.org:8000/single-cell.html?datasetId=islet_of_Langerhans_scRNA_v3-3&gene=@gene_syumbol@"
+                        },
                         "pankbase_links": [
                               [
                                     "Expression Data Source",
