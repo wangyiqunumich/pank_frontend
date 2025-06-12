@@ -37,8 +37,8 @@
                   ],
                   "next_questions": [
                         {
-                              "question": "Which {SNP} serves as the lead {QTL} for {@nbr_gene_symbol@}",
-                              "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@@nbr_gene_id@&targetSymbol=@nbr_gene_symbol@?"
+                              "question": "Which {SNP} serves as the lead {QTL} for {@nbr_gene_symbol@}?",
+                              "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@@nbr_gene_id@&targetSymbol=@nbr_gene_symbol@"
                         }
                   ],
                   "resources_tabs": {
@@ -104,8 +104,8 @@
                   ],
                   "next_questions": [
                         {
-                              "question": "Which {SNP} serves as the lead {QTL} for {@nbr_gene_symbol@}",
-                              "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@@nbr_gene_id@&targetSymbol=@nbr_gene_symbol@?"
+                              "question": "Which {SNP} serves as the lead {QTL} for {@nbr_gene_symbol@}?",
+                              "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@@nbr_gene_id@&targetSymbol=@nbr_gene_symbol@"
                         }
                   ],
                   "resources_tabs": {
@@ -171,8 +171,8 @@
                   ],
                   "next_questions": [
                         {
-                              "question": "Which {SNP} serves as the lead {QTL} for {@nbr_gene_symbol@}",
-                              "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@@nbr_gene_id@&targetSymbol=@nbr_gene_symbol@?"
+                              "question": "Which {SNP} serves as the lead {QTL} for {@nbr_gene_symbol@}?",
+                              "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@@nbr_gene_id@&targetSymbol=@nbr_gene_symbol@"
                         }
                   ],
                   "resources_tabs": {
@@ -210,7 +210,7 @@
                   "cypher_for_result_page_core": "MATCH (g:gene {id: '@gene@'}) OPTIONAL MATCH (g)-[r4:Differential_Expression]->(ct:cell_type) OPTIONAL MATCH (g)-[r1:expression_level]->(ct) OPTIONAL MATCH (o:OCR)-[r2:OCR_locate_in]->(g) OPTIONAL MATCH (o)-[r3:OCR_activity]->(ct) WITH collect(DISTINCT g) AS g_nodes, collect(DISTINCT ct) AS ct_nodes, collect(DISTINCT o) AS o_nodes, collect(DISTINCT r4) AS r4_edges, collect(DISTINCT r1) AS r1_edges, collect(DISTINCT r2) AS r2_edges, collect(DISTINCT r3) AS r3_edges WITH g_nodes + ct_nodes + o_nodes AS nodes, r4_edges + r1_edges + r2_edges + r3_edges AS edges RETURN { results: [{ nodes: nodes, edges: edges }] } AS output;",
                   "cypher_for_result_page_nbr": "MATCH (g:gene)-[r1:effector_gene]-(nbr1) WHERE ID(g) ='@gene@' WITH r1, nbr1 WITH collect(DISTINCT r1) AS rels, collect(DISTINCT nbr1)AS nbrs WITH rels, [n IN nbrs WHERE NOT id(n) IN ['@gene@']] AS nodes RETURN { results: [ { nodes: nodes, edges: rels } ] } AS output;",
                   "ai_question_for_result": [
-                        "Based on the JSON data, Summarize the differential expression and absolute expression level of gene @gene_id@ related to T1D. Highlight key statistics: adjusted p-value (only <0.05 is significant), log2 fold-change (only abs > 1 is significant), and median expression in T1D vs non-diabetic conditions.",
+                        "Based on the JSON data, summarize the differential expression and absolute expression level of gene @gene_id@ related to T1D. Highlight key statistics: adjusted p-value (only <0.05 is significant), log2 fold-change (only abs > 1 is significant), and median expression in T1D vs non-diabetic conditions.",
                         "Evaluate evidence linking gene @gene_id@ to Type 1 Diabetes (T1D), highlighting any associated expression data."
                   ],
                   "ai_answer_sub_title": [
@@ -219,14 +219,14 @@
                   ],
                   "next_questions": [
                         {
-                              "question": "Which {SNP} serves as the lead {QTL} for {@nbr_gene_symbol@}",
-                              "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@@nbr_gene_id@&targetSymbol=@nbr_gene_symbol@?"
+                              "question": "Which {SNP} serves as the lead {QTL} for {@nbr_gene_symbol@}?",
+                              "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@@nbr_gene_id@&targetSymbol=@nbr_gene_symbol@"
                         }
                   ],
                   "resources_tabs": {
                         "references": {},
                         "empirical_evidence": {
-                              "title": "Expression Distrbution: Violin Plot",
+                              "title": "Expression Distribution: Violin Plot",
                               "description": "The violin plot displays the distribution of normalized gene expression across various pancreatic cell types, including Ductal, Active Stellate, Alpha, Acinar, MUC5B+ Ductal, Beta, Endothelial, Gamma + Epsilon, Delta, Immune, Quiescent Stellate, and Cycling Alpha. Each violin shape represents the density of expression values within a cell type, with wider sections indicating higher frequencies. Boxplots within the violins show the median and interquartile range.",
                               "link": "https://pankbase.org:8000/single-cell.html?datasetId=islet_of_Langerhans_scRNA_v3-3&gene=@gene_symbol@",
                               "link_text": "Visit Pankbase to explore violin plots ↗"
