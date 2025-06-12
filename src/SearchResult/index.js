@@ -175,7 +175,7 @@ function SearchResult() {
             const newExternalLinks = data.external_links.map((item) => item.map((i) => replaceVariables(i, variables)));
             setReferenceData({
                 ...data,
-                empirical_evidence: {
+                empirical_evidence: data.empirical_evidence && {
                     ...data.empirical_evidence,
                     link: replaceVariables(data.empirical_evidence.link, variables)
                 },

@@ -226,10 +226,11 @@ export default function KnowledgeGraph() {
                           <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                             <Typography
                               sx={{
+                                marginTop: "-5px",
                                 fontFamily: "Open Sans",
                                 fontWeight: "600",
                                 fontSize: "10px",
-                                lineHeight: "24px",
+                                lineHeight: "15px",
                                 wordWrap: "break-word",
                                 color: "#263238",
                               }}
@@ -252,7 +253,7 @@ export default function KnowledgeGraph() {
               justifyContent: "center",
               background: "linear-gradient(360deg, #CACFD5 -73.08%, #F4F6F8 75%)",
             }}>
-              <Typography sx={{ fontWeight: "600", fontSize: "11px", color: "#5F7885" }}>
+              <Typography sx={{ fontWeight: "600", fontSize: "9px", color: "#5F7885" }}>
                 {footerInfo?.map(([label, key]) => `${label}: ${hoveredData[key]}`).join(" | ")}
               </Typography>
             </Box>
@@ -543,7 +544,7 @@ export default function KnowledgeGraph() {
           color: "#333",
           boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
           zIndex: 1000,
-          width: "338px",
+          width: "240px",
           pointerEvents: "auto",
           opacity: infocardVisible ? 1 : 0,
           display: infocardVisible ? "block" : "none",
