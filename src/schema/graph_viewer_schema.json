@@ -1,5 +1,5 @@
-{   "nodes":
-        {
+{
+    "nodes": {
         "coding_elements": {
             "$comment": {
                 "valid_datatypes": [
@@ -7,9 +7,10 @@
                     "label_chr(#color)",
                     "label_percentage(#color)",
                     "int",
-                    "float(number_of_decimals)"
+                    "float(number_of_decimals)",
+                    "string"
                 ],
-                "description": "All others are strings."
+                "description": "All others are directly displayed"
             },
             "node_color": "#A4D0F6",
             "text_color": "#000000",
@@ -112,7 +113,7 @@
             "info_panel": []
         }
     },
-    "edges":{
+    "edges": {
         "OCR_locate_in": {
             "text_color": "#000000",
             "edge_label": "located in ",
@@ -121,9 +122,10 @@
                 [
                     "Title",
                     "Located in Open Chromatin Region",
-                    "String"
+                    "string"
                 ],
-                ["Relationship identity",
+                [
+                    "Relationship identity",
                     [
                         [
                             "From",
@@ -145,7 +147,7 @@
                     ]
                 ]
             ]
-        },  
+        },
         "express_in": {
             "text_color": "#000000",
             "edge_label": "expressed in",
@@ -155,7 +157,7 @@
         "function_annotation": {
             "text_color": "#000000",
             "edge_label": "has function",
-            "inverted": "FALSE",    
+            "inverted": "FALSE",
             "info_panel": []
         },
         "fine_mapped_eQTL": {

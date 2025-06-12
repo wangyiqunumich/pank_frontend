@@ -239,7 +239,8 @@ function SearchResult() {
                         ai_answer_sub_title,
                         cypher_for_result_page_core,
                         cypher_for_result_page_nbr,
-                        rdb_query_for_result_page
+                        rdb_query_for_result_page,
+                        next_questions
                     } = response.payload;
 
                     if (cypher_for_result_page_core && cypher_for_result_page_nbr) {
@@ -262,6 +263,9 @@ function SearchResult() {
                             console.log('Query result:', response.payload);
                             const coreNodes = response?.payload?.core_nodes || [];
                             const results = response?.payload?.combined_query_result || {};
+                            const neighborNodes = results?.nodes?.filter(
+                                node => !coreNodes.includes(node["~id"])
+                            ) || [];
                             const coreRelationship = results.edges?.find(
                                 edge => (edge["~start"] === coreNodes[0] && edge["~end"] === coreNodes[1])
                                     || (edge["~end"] === coreNodes[0] && edge["~start"] === coreNodes[1])
@@ -276,6 +280,19 @@ function SearchResult() {
                                 .replace(/, ([^,]*)$/, ', and $1') || '';
                             const tissueKey = coreRelationship?.["~properties"]?.tissue_name || '';
 
+                            const neighborSource = neighborNodes.find(
+                                node => node["~labels"].includes(sourceTerm.split('@')[0])
+                            ) || {};
+                            const neighborTarget = neighborNodes.find(
+                                node => node["~labels"].includes(targetTerm.split('@')[0])
+                            ) || {};
+                            const neighbors = {
+                                sourceTerm: neighborSource["~id"],
+                                targetTerm: neighborTarget["~id"],
+                                sourceSymbol: neighborSource["~properties"]?.name || sourceSymbol,
+                                targetSymbol: neighborTarget["~properties"]?.name || targetSymbol,
+                            }
+                            console.log('Neighbors:', neighbors);
                             const newVariables = {
                                 additionalParams: [
                                     ...additionalParams,
@@ -284,6 +301,7 @@ function SearchResult() {
                                 sourceTerm,
                                 relationship,
                                 targetTerm,
+                                neighbors,
                                 sourceSymbol: results.nodes?.find(
                                     node => node["~id"] === (sourceTerm.split('@')[1] || sourceTerm)
                                 )?.["~properties"]?.name || sourceSymbol,
@@ -294,8 +312,6 @@ function SearchResult() {
                                 dataSource,
                             };
                             if (newVariables) { setVariables(newVariables); }
-                            const nextVariables = newVariables;
-
                             const processedCurrentQuestion =
                                 addHighlight(
                                     replaceVariables(
@@ -304,7 +320,6 @@ function SearchResult() {
                                         true
                                     )
                                 );
-
                             if (!processedCurrentQuestion) {
                                 setError(true);
                                 return;
@@ -316,15 +331,13 @@ function SearchResult() {
                             //     tissueKey: 'pancreas',
                             //     targetSymbol: 'CFTR'
                             // };
-                            const processedNextQuestions =
-                                addHighlight(
-                                    replaceVariables(
-                                        question_for_result,
-                                        nextVariables,
-                                        true
-                                    ),
-                                    true
-                                );
+                            const processedNextQuestions = next_questions.map(
+                                next_question => ({
+                                    question: addHighlight(replaceVariables(next_question.question, newVariables, true)),
+                                    link: replaceVariables(next_question.link, newVariables)
+                                })
+                            );
+                            console.log('Processed next questions:', processedNextQuestions);
                             const processedAiQuestions =
                                 ai_question_for_result?.map(
                                     question => replaceVariables(question, newVariables, true)
@@ -512,21 +525,26 @@ function SearchResult() {
                                 You May Also Ask<TooltipComponent title="You May Also Ask" content="Links to other problems." />
                             </Typography>
                             <ul className="next-questions-list">
-                                {nextQuestions ? (
-                                    <li onClick={() => handleNextQuestionClick(nextQuestions)}
-                                        style={{ cursor: 'pointer' }}>
-                                        <Box sx={{
-                                            display: 'flex',
-                                        }}>
-                                            <Typography sx={{
-                                                fontFamily: 'Open Sans',
-                                                fontWeight: 400,
-                                                fontSize: 16,
-                                            }} dangerouslySetInnerHTML={{ __html: nextQuestions }} />
-                                            <span style={{ alignContent: 'center' }}><ChevronRightIcon /></span>
-                                        </Box>
+                                {nextQuestions ? nextQuestions.map((nextQuestion, index) => nextQuestion.question && (
+                                    <li key={index}>
+                                        <Link
+                                            href={nextQuestion.link}
+                                            style={{ textDecoration: 'none', color: 'black' }}
+                                            target="_blank"
+                                            rel="noopener noreferrer">
+                                            <Box sx={{
+                                                display: 'flex',
+                                            }}>
+                                                <Typography sx={{
+                                                    fontFamily: 'Open Sans',
+                                                    fontWeight: 400,
+                                                    fontSize: 16,
+                                                }} dangerouslySetInnerHTML={{ __html: nextQuestion.question }} />
+                                                <span style={{ alignContent: 'center' }}><ChevronRightIcon /></span>
+                                            </Box>
+                                        </Link>
                                     </li>
-                                ) : (
+                                )) : (
                                     <Typography sx={{ fontFamily: 'Open Sans', fontSize: 16 }}>No next questions available</Typography>
                                 )}
                             </ul>
