@@ -30,6 +30,7 @@ import InfoEnableIcon
 import downloadIcon from '../image/material-symbols--download-rounded.svg';
 import recenterIcon from '../image/material-symbols--recenter-rounded.svg';
 import graphInfocard from '../schema/graph_viewer_schema.json';
+import { addWhitespace } from '../utils/textProcessing';
 import {
   edgeIsInverted,
   edgeLabels,
@@ -239,9 +240,10 @@ export default function KnowledgeGraph() {
                                 lineHeight: "15px",
                                 wordWrap: "break-word",
                                 color: "#263238",
+                                textAlign: "justify",
                               }}
                             >
-                              {hoveredData[content]}
+                              {addWhitespace(hoveredData[content])}
                             </Typography>
                           </Box>
                         )
@@ -371,7 +373,11 @@ export default function KnowledgeGraph() {
           id: node["~id"],
           ...node["~properties"],
           label: (
-            (node["~labels"].includes("gene") || node["~labels"].includes("OCR") || node["~id"].startsWith("CL_"))
+            (node["~labels"].includes("gene") ||
+              node["~labels"].includes("OCR") ||
+              node["~labels"].includes("disease") ||
+              node["~id"].startsWith("CL_")
+            )
               ? (node["~properties"].name || node["~properties"].id)
               : node["~properties"].id
           ).replace(/_/g, " "),
@@ -411,7 +417,6 @@ export default function KnowledgeGraph() {
       document.body.style.cursor = "pointer";
       activeNodeRef.current = evt.target;
       setNodeHovered(true);
-      console.log("Hovered node:", evt.target.data());
       setHoveredData(evt.target.data());
     };
 
@@ -581,7 +586,7 @@ export default function KnowledgeGraph() {
             zIndex: 10,
             userSelect: "none",
             height: "fit-content",
-            width: legendVisible ? "450px" : "100px",
+            width: legendVisible ? "380px" : "100px",
             transition: "width 0.3s, height 0.3s, opacity 0.3s, box-shadow 0.3s",
           }}
         >
@@ -604,9 +609,9 @@ export default function KnowledgeGraph() {
           <Collapse in={legendVisible} timeout="auto">
             <div style={{ width: "430px", paddingTop: "10px", fontSize: "16px", fontFamily: "Open Sans", fontWeight: 400 }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingBottom: "4px", fontSize: "12px" }}>
-                <LegendItem label="　　" sx={{ backgroundColor: "#D9D9D9", color: "black", border: "2px solid #D9D9D9", height: "8px" }} />
+                <LegendItem label="　　　　" sx={{ backgroundColor: "#D9D9D9", color: "black", border: "2px solid #D9D9D9", height: "8px" }} />
                 Core Nodes
-                <LegendItem label="　　" sx={{ backgroundColor: "white", color: "black", border: "2px solid #7F7D7D", height: "8px" }} />
+                <LegendItem label="　　　　" sx={{ backgroundColor: "white", color: "black", border: "2px solid #7F7D7D", height: "8px" }} />
                 Neighbor
               </div>
               <div
