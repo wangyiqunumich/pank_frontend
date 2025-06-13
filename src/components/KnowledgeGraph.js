@@ -34,23 +34,23 @@ import {
   edgeIsInverted,
   edgeLabels,
   getContrastingColor,
+  legendSchema,
   nodeColors,
-  nodeLabels,
   nodeStyle,
 } from './style.js';
 
-const LegendItem = ({ type, sx }) => (
+const LegendItem = ({ label, color, sx }) => (
   <span
     style={{
       padding: "4px 8px",
       borderRadius: "6px",
-      backgroundColor: nodeColors[type],
+      backgroundColor: color || "white",
       fontSize: "12px",
-      color: getContrastingColor(nodeColors[type]),
+      color: getContrastingColor(color) || "black",
       ...sx,
     }}
   >
-    {nodeLabels[type] || type}
+    {label}
   </span>
 );
 
@@ -604,9 +604,9 @@ export default function KnowledgeGraph() {
           <Collapse in={legendVisible} timeout="auto">
             <div style={{ width: "430px", paddingTop: "10px", fontSize: "16px", fontFamily: "Open Sans", fontWeight: 400 }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingBottom: "4px", fontSize: "12px" }}>
-                <LegendItem type="　　" sx={{ backgroundColor: "#D9D9D9", color: "black", border: "2px solid #D9D9D9", height: "8px" }} />
+                <LegendItem label="　　" sx={{ backgroundColor: "#D9D9D9", color: "black", border: "2px solid #D9D9D9", height: "8px" }} />
                 Core Nodes
-                <LegendItem type="　　" sx={{ backgroundColor: "white", color: "black", border: "2px solid #7F7D7D", height: "8px" }} />
+                <LegendItem label="　　" sx={{ backgroundColor: "white", color: "black", border: "2px solid #7F7D7D", height: "8px" }} />
                 Neighbor
               </div>
               <div
@@ -618,10 +618,10 @@ export default function KnowledgeGraph() {
                   paddingTop: "8px",
                 }}
               >
-                {Object.keys(nodeLabels).map((type) => (
+                {legendSchema.map(({ label, color }) => (
                   <LegendItem
-                    type={type}
-                    key={type}
+                    label={label}
+                    color={color}
                   />
                 ))}
               </div>

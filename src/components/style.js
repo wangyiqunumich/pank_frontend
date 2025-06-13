@@ -91,6 +91,8 @@ export const edgeIsInverted = Object.fromEntries(
   Object.entries(graphSchema.edges).map(([key, value]) => [key, value.inverted === "TRUE"])
 );
 
+export const legendSchema = graphSchema.legend;
+
 const nodeColorsList = Object.keys(nodeColors).reduce(
   (acc, type) => (
     [

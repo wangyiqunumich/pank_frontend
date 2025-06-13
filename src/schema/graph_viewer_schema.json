@@ -102,6 +102,7 @@
                     [
                         [
                             "Link",
+                            "link",
                             "link"
                         ]
                     ]
@@ -121,7 +122,7 @@
             "node_color": "#FFDE7D",
             "text_color": "#000000",
             "node_label": "Cell Type",
-            "info_panel ": [
+            "info_panel": [
                 [
                     "Title",
                     "id"
@@ -131,6 +132,7 @@
                     [
                         [
                             "Link",
+                            "link",
                             "link"
                         ]
                     ]
@@ -150,17 +152,18 @@
             "node_color": "#FFDE7D",
             "text_color": "#000000",
             "node_label": "Disease",
-            "info_panel ": [
+            "info_panel": [
                 [
                     "Title",
                     "T1D",
-                    "String"
+                    "string"
                 ],
                 [
                     "Disease Identity",
-                    [   [
-                        "Disease Name",
-                        "name"
+                    [
+                        [
+                            "Disease Name",
+                            "name"
                         ],
                         [
                             "Disease Ontology ID",
@@ -170,8 +173,9 @@
                             "Disease Synonym",
                             "synonyms"
                         ],
-                        [   
+                        [
                             "Link",
+                            "link",
                             "link"
                         ]
                     ]
@@ -269,5 +273,27 @@
             "inverted": "FALSE",
             "info_panel": []
         }
-    }
+    },
+    "legend": [
+        {
+            "label": "Gene",
+            "color": "#A4D0F6"
+        },
+        {
+            "label": "SNP",
+            "color": "#FFB371"
+        },
+        {
+            "label": "Pathway",
+            "color": "#FFDE7D"
+        },
+        {
+            "label": "OCR Cluster",
+            "color": "#61ECBC"
+        },
+        {
+            "label": "Literature",
+            "color": "#F5BEFF"
+        }
+    ]
 }
