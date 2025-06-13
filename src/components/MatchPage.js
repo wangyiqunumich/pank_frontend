@@ -1,17 +1,33 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Box, Typography, Container, Link, Autocomplete, TextField, MenuItem, Button, FormControl, InputLabel, Snackbar, Alert } from '@mui/material';
-import landingPageLogo from '../image/landing image cropped.png';
-import SearchBar from '../SearchBar';
-import { useNavigate, useLocation } from 'react-router-dom';
-import TerminalIcon from '@mui/icons-material/Terminal';
-import Question from './Question';
-import { useDispatch, useSelector } from 'react-redux';
-import { queryVocab } from '../redux/inputToVocabSlice'; // Import the action
-import Popper from '@mui/material/Popper';
-import { nodeAutoWidth } from './style.js';
 import './styles.css';
 
-import Cytoscape from "cytoscape";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+
+import Cytoscape from 'cytoscape';
+import { useDispatch } from 'react-redux';
+import {
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
+
+import TerminalIcon from '@mui/icons-material/Terminal';
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Container,
+  Link,
+  TextField,
+  Typography,
+} from '@mui/material';
+import Popper from '@mui/material/Popper';
+
+import landingPageLogo from '../image/landing image cropped.png';
+import { queryVocab } from '../redux/inputToVocabSlice'; // Import the action
+import { nodeAutoWidth } from './style.js';
 
 // Color utilities and constants
 const getContrastingColor = (bgColor) => {
@@ -38,7 +54,7 @@ const nodeLabels = {
   gene: "Gene",
   snp: "SNP",
   ontology: "Ontology",
-  OCR: "Open Chromatin Region",
+  OCR: "OCR Cluster",
   article: "Literature",
 };
 
@@ -652,7 +668,7 @@ function MatchPage() {
             borderRadius: '8px', // Rounded corners
             padding: '8px 16px', // Add padding
             fontFamily: 'Open Sans',
-            boxShadow: '0px 2px 2px 0px rgba(0, 0, 0, 0.40)', 
+            boxShadow: '0px 2px 2px 0px rgba(0, 0, 0, 0.40)',
             '&:hover': {
               backgroundColor: '#1A7A75', // Darker shade on hover
             },
