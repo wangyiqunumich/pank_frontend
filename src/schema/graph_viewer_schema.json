@@ -199,7 +199,21 @@
             "node_color": "#61ECBC",
             "text_color": "#000000",
             "node_label": "OCR Cluster",
-            "info_panel": []
+            "info_panel": [
+                [
+                    "Title",
+                    "name"
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
         },
         "article": {
             "node_color": "#F5BEFF",
@@ -216,7 +230,7 @@
             "info_panel": [
                 [
                     "Title",
-                    "Located in OCR Cluster",
+                    "Has OCR Cluster",
                     "string"
                 ],
                 [
@@ -237,41 +251,429 @@
                     [
                         [
                             "Data Source",
-                            "data_source"
+                            "https://data.pankbase.org/workflows/PKBWF1943AUOL/",
+                            "link"
                         ]
                     ]
                 ]
             ]
         },
-        "express_in": {
+        "expression_level": {
             "text_color": "#000000",
-            "edge_label": "expressed in",
+            "edge_label": "has expression level",
             "inverted": "FALSE",
-            "info_panel": []
+            "info_panel": [
+                [
+                    "Title",
+                    "Has Expression Level",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Expression Level",
+                    [
+                        [
+                            "NonDiabetic median",
+                            "NonDiabetic__expression_median",
+                            "float(2)"
+                        ],
+                        [
+                            "T1D median",
+                            "Type1Diabetic__expression_median",
+                            "float(2)"
+                        ],
+                        [
+                            "All sample median",
+                            "All__expression_median",
+                            "float(2)"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "https://pankgraph.org/scRNAseq_data_source",
+                            "link"
+                        ]
+                    ]
+                ]
+            ]
         },
         "function_annotation": {
             "text_color": "#000000",
             "edge_label": "has function",
             "inverted": "FALSE",
-            "info_panel": []
+            "info_panel": [
+                [
+                    "Title",
+                    "Has Function",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Version",
+                            "data_version"
+                        ],
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]   
+            ]
         },
         "fine_mapped_eQTL": {
             "text_color": "#000000",
             "edge_label": "QTL for",
             "inverted": "FALSE",
-            "info_panel": []
+            "info_panel": 
+            [
+                [
+                    "Title",
+                    "Has QTL",
+                    "string"
+                ],
+                [       
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ],
+                        [
+                            "Tissue",
+                            "tissue_name"
+                        ],
+                        [
+                            "Tissue ID",
+                            "tissue_id"
+                        ],
+                        [
+                            "QTL Type",
+                            "qtl_type"
+                        ]
+                    ]
+                ],
+                [
+                    "QTL statistics",
+                    [
+                        [
+                            "NonDiabetic median",
+                            "pip",
+                            "float(2)"
+                        ],
+                        [
+                            "Nominal P value",
+                            "nominal_p",
+                            "float(2)"
+                        ],
+                        [
+                            "FDR",
+                            "fdr",
+                            "float(2)"
+                        ],
+                        [
+                            "LBF",
+                            "lbf",
+                            "float(2)"
+                        ],
+                        [
+                            "Effect Allele",
+                            "effect_allele",
+                            "float(2)"
+                        ],
+                        [
+                            "Other Allele",
+                            "other_allele",
+                            "float(2)"
+                        ]
+                    ]
+                ],
+                [
+                    "Credible Set Information",
+                    [
+                        [
+                            "Slope",
+                            "slope",
+                            "float(2)"
+                        ],
+                        [
+                            "Number of SNPs",
+                            "n_snp",
+                            "int"
+                        ],
+                        [
+                            "Purity",
+                            "purity",
+                            "float(2)"
+                        ]
+                    ]
+                ],
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "https://data.pankbase.org/workflows/PKBWF1943AUOL/",
+                            "link"
+                        ]
+                    ]
+                ]   
         },
-        "regulation": {
+        " interact with": {
             "text_color": "#000000",
             "edge_label": "interact with",
             "inverted": "FALSE",
-            "info_panel": []
+            "info_panel": [
+                [
+                    "Title",
+                    "Has Interactio n",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ],
+                        [
+                            "BIOGRID ID",
+                            "biogrid_interaction_id"
+                        ]
+                    ]
+                ],
+                [
+                    "Evidence",
+                    [
+                        [
+                            "Publication Source",
+                            "publication_source"
+                        ],
+                        [
+                            "Author",
+                            "author"
+                        ],
+                        [
+                            "Experimental System",
+                            "experimental_system"
+                        ],
+                        [
+                            "System Type",
+                            "experimental_system_type"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "BIOGRID",
+                            "link"
+                        ]
+                    ]
+                ]
+            ]
         },
-        "OCR_in_cell_type": {
+        "OCR_activity": {
             "text_color": "#000000",
-            "edge_label": "accessible in",
+            "edge_label": "OCR activity in",
             "inverted": "FALSE",
-            "info_panel": []
+            "info_panel": [
+                [
+                    "Title",
+                    "Has OCR Activity",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "OCR Activity",
+                    [
+                        [
+                            "T1D activity median",
+                            "type_1_diabetes__OCR_GeneActivityScore_median",
+                            "float(2)"
+                        ],
+                        [
+                            "Non-T1D activity median",
+                            "non_diabetic__OCR_GeneActivityScore_median",
+                            "float(2)"
+                        ],
+                        [
+                            "All activity median",
+                            "OCR_GeneActivityScore_median",
+                            "float(2)"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "https://data.pankbase.org/workflows/PKBWF1943AUOL/",
+                            "link"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "effector_gene": {
+            "text_color": "#000000",
+            "edge_label": "effect gene of",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Has Effector Gene",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Coding Variant Evidence",
+                    "CodingVariantEvidence"
+                ],
+                [
+                    "Confidence Level",
+                    "ConfidenceLevel"
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "data_source_url",
+                            "link"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "Differential_Expression": {
+            "text_color": "#000000",
+            "edge_label": "DEG of",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Differentially Expressed",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]   
+                    ]
+                ],
+                [
+                    "Differential Expression",
+                    [
+                        [
+                            "Up or Down Regulation",
+                            "UpOrDownRegulation",
+                            "string"
+                        ],
+                        [
+                            "P value",
+                            "P_value",
+                            "float(2)"
+                        ],
+                        [
+                            "Adjusted P value",
+                            "Adjusted_P_value",
+                            "float(2)"
+                        ],
+                        [
+                            "Log2 Fold Change",
+                            "Log2FoldChange",
+                            "float(2)"
+                        ],
+                        [
+                            "SE of Log2FC",
+                            "SE_of_Log2FoldChange",
+                            "float(2)"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "https://pankgraph.org/scRNAseq_data_source",
+                            "link"
+                        ]
+                    ]
+                ]
+            ]
         }
     },
     "legend": [
