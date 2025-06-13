@@ -103,7 +103,7 @@
         "OCR": {
             "node_color": "#61ECBC",
             "text_color": "#000000",
-            "node_label": "Open Chromatin Region",
+            "node_label": "OCR Cluster",
             "info_panel": []
         },
         "article": {
@@ -121,7 +121,7 @@
             "info_panel": [
                 [
                     "Title",
-                    "Located in Open Chromatin Region",
+                    "Located in OCR Cluster",
                     "string"
                 ],
                 [

@@ -1,7 +1,10 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { QueryStatus } from "@reduxjs/toolkit/query";
-import { flaskBackendAxiosInstanceNew } from "../axios/axios";
-import { viewSchemaSlice } from "./viewSchemaSlice";
+import {
+    createAsyncThunk,
+    createSlice,
+} from '@reduxjs/toolkit';
+import { QueryStatus } from '@reduxjs/toolkit/query';
+
+import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 
 export const queryQueryResultPage = createAsyncThunk('/pank2ResultPage',
     async (payload) => {
@@ -23,7 +26,7 @@ export const queryQueryResultPage = createAsyncThunk('/pank2ResultPage',
                         (node) => node["~labels"].includes("OCR")
                     ).sort((a, b) => isCoreNode(a) - isCoreNode(b));
                 // number the OCR nodes
-                const ocrLabelMap = new Map(ocrList.map((node, index) => [node['~id'], `Open Chromatin Region ${index + 1}`]));
+                const ocrLabelMap = new Map(ocrList.map((node, index) => [node['~id'], `OCR Cluster ${index + 1}`]));
                 // update the labels of OCR nodes
                 return {
                     ...data,
