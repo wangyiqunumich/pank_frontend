@@ -609,9 +609,9 @@ export default function KnowledgeGraph() {
           <Collapse in={legendVisible} timeout="auto">
             <div style={{ width: "430px", paddingTop: "10px", fontSize: "16px", fontFamily: "Open Sans", fontWeight: 400 }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingBottom: "4px", fontSize: "12px" }}>
-                <LegendItem label="　　　　" sx={{ backgroundColor: "#D9D9D9", color: "black", border: "2px solid #D9D9D9", height: "8px" }} />
+                <LegendItem label="　　　　" sx={{ backgroundColor: "#D9D9D9", color: "black", border: "1.5px solid #D9D9D9", height: "8px" }} />
                 Core Nodes
-                <LegendItem label="　　　　" sx={{ backgroundColor: "white", color: "black", border: "2px solid #7F7D7D", height: "8px" }} />
+                <LegendItem label="　　　　" sx={{ backgroundColor: "white", color: "black", border: "1.5px solid #7F7D7D", height: "8px", marginLeft: "16px" }} />
                 Neighbor
               </div>
               <div
@@ -625,6 +625,7 @@ export default function KnowledgeGraph() {
               >
                 {legendSchema.map(({ label, color }) => (
                   <LegendItem
+                    key={label}
                     label={label}
                     color={color}
                   />
