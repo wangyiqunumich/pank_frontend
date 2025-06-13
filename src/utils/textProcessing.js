@@ -82,3 +82,9 @@ export const generateEdgeLabel = (dataSource, conversionTable) => {
 
   return `${tissue} ${frontendKG}`;
 };
+
+//manually add whitespace after ":" and ";" if not already present
+export const addWhitespace = (text) => {
+  if (!text) return text;
+  return text.replace(/([:;.,&])(?=\S)/g, '$1 ');
+}

@@ -1,37 +1,36 @@
-import React, { useCallback, useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router';
-import { useLocation } from 'react-router-dom';
-
-import {
-    Container,
-    Typography,
-    Box,
-    Autocomplete,
-    TextField
-} from '@mui/material';
-
-import {
-    SimpleTreeView
-} from '@mui/x-tree-view/SimpleTreeView';
-import {
-    TreeItem
-} from '@mui/x-tree-view/TreeItem';
-
-import ReactMarkdown from 'react-markdown';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { materialLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
-
-import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
-import lunr from 'lunr';
-import ReactDOMServer from 'react-dom/server';
-import Mark from 'mark.js';
-
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
-
 import './Ontology.css';
 import './github-markdown-light.css';
+
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+
+import lunr from 'lunr';
+import Mark from 'mark.js';
+import ReactDOMServer from 'react-dom/server';
+import ReactMarkdown from 'react-markdown';
+import { useNavigate } from 'react-router';
+import { useLocation } from 'react-router-dom';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { materialLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import rehypeRaw from 'rehype-raw';
+import remarkGfm from 'remark-gfm';
+
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import {
+  Autocomplete,
+  Box,
+  Container,
+  TextField,
+  Typography,
+} from '@mui/material';
+import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
+import { TreeItem } from '@mui/x-tree-view/TreeItem';
+
 import pageHierarchy from '../schema/doc/documentation.json';
 
 // const Pages = {
@@ -73,7 +72,6 @@ const Folders = (() => {
         }
     }
     traverse(pageHierarchy.root);
-    console.log('folders', folders);
     return folders;
 })();
 
