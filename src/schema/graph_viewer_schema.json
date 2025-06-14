@@ -215,6 +215,40 @@
                 ]
             ]
         },
+        "gene_ontology": {
+            "node_color": "#61ECBC",
+            "text_color": "#000000",
+            "node_label": "Gene Ontology",
+            "info_panel": [
+                [
+                    "Title",
+                    "name"
+                ],
+                [
+                    "GO Identity",
+                    [
+                        [
+                            "GO ID",
+                            "id"
+                        ],
+                        [
+                            "Link",
+                            "link",
+                            "link"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
         "article": {
             "node_color": "#F5BEFF",
             "text_color": "#000000",
