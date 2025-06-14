@@ -177,7 +177,7 @@ export default function KnowledgeGraph() {
                 fontSize: "20px",
                 lineHeight: "20px",
               }}>
-                <InfocardData value={hoveredData[titleColumn?.[1]]} dataKey={titleColumn?.[1]} config={titleColumn?.[2]} />
+                <InfocardData value={hoveredData[titleColumn?.[1]]?.replace(/_/g, " ")} dataKey={titleColumn?.[1]} config={titleColumn?.[2]} />
               </Typography>
             </Box>
             {
