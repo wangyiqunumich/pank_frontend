@@ -166,11 +166,11 @@
                             "name"
                         ],
                         [
-                            "Disease Ontology ID",
+                            "Ontology ID",
                             "id"
                         ],
                         [
-                            "Disease Synonym",
+                            "Synonyms",
                             "synonyms"
                         ],
                         [
