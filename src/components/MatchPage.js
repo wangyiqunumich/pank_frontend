@@ -256,8 +256,8 @@ function MatchPage() {
 
   // Handle submit button click
   const handleSubmit = () => {
-    if (selectedQuestion.startsWith('What is')) {
-      const url = `/result?sourceTerm=gene@${geneId.split('(')[1].slice(0, -1)}&targetTerm=cell_type@${cellId.split('(')[1].slice(0, -1)}&relationship=express_in`
+    if (selectedQuestion.startsWith('How does')) {
+      const url = `/result?sourceTerm=gene@${geneId.split('(')[1].slice(0, -1)}&targetTerm=cell_type&relationship=express_in`
       navigate(url);
     }
     else {
@@ -304,6 +304,7 @@ function MatchPage() {
       .then((response) => {
         if (response && typeof response.result === 'string') {
           console.log('response', response);
+          
           const parsedResponse = response.result.split('@');
           if (parsedResponse.length > 1) {
             let id;
