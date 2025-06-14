@@ -385,7 +385,7 @@
                 ]   
             ]
         },
-        "fine_mapped_eQTL": {
+        "fine_mapped_QTL": {
             "text_color": "#000000",
             "edge_label": "QTL for",
             "inverted": "FALSE",
@@ -486,7 +486,7 @@
                     ]
                 ]   
         },
-        " interact with": {
+        "regulation": {
             "text_color": "#000000",
             "edge_label": "interact with",
             "inverted": "FALSE",
