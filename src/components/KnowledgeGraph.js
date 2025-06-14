@@ -40,6 +40,8 @@ import {
   nodeStyle,
 } from './style.js';
 
+const DisableInfocardDisappear = false;
+
 const LegendItem = ({ label, color, sx }) => (
   <span
     style={{
@@ -61,7 +63,7 @@ export default function KnowledgeGraph() {
   const fadeOutTimeoutRef = useRef(null);
   const infocardRef = useRef(null);
   const activeNodeRef = useRef(null);
-  const [hoveredData, setHoveredData] = useState(null);
+  const [hoveredId, setHoveredId] = useState(null);
   const [infocardPosition, setInfocardPosition] = useState({ x: 0, y: 0 });
   const [infocardVisible, setInfocardVisible] = useState(false);
   const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
@@ -109,7 +111,7 @@ export default function KnowledgeGraph() {
 
   const InfocardData = ({ value, config, dataKey }) => {
     // config can be either just a type or the form "type(setting)""
-    const setting = config?.match(/\(([^)]+)\)/);
+    const setting = config?.match(/\(([^)]+)\)/)?.[1];
     const type = setting ? config.split('(')[0] : config;
     return !type ? (<>{value}</>) :
       type === "string" ? (
@@ -122,18 +124,16 @@ export default function KnowledgeGraph() {
             <>{parseFloat(value).toFixed(setting || 1)}</>
           ) : type === "link" ? (
             <Link href={value} target="_blank" rel="noopener noreferrer" sx={{
-              fontFamily: "Open Sans",
-              fontWeight: "600",
-              fontSize: "12px",
               textDecoration: "none",
               "&:hover": {
                 textDecoration: "underline",
+                cursor: "pointer",
               },
             }}>
               Open Link ↗
             </Link>
           ) : ["label_chr", "label_percentage"].includes(type) ? (
-            <Box sx={{
+            <div style={{
               backgroundColor: setting || "#0FB47D",
               height: "9px",
               padding: "4px 4px",
@@ -146,13 +146,14 @@ export default function KnowledgeGraph() {
               fontSize: "12px"
             }}>
               {type === "label_chr" ? `Chr${value}` : `${parseFloat(value).toFixed(1)}%`}
-            </Box>
+            </div>
           ) : (
             <span>{value}</span>
           );
   }
 
   const InfocardMenu = () => {
+    const hoveredData = cyRef.current?.getElementById(hoveredId)?.data();
     const isEdge = hoveredData?.source && hoveredData?.target;
     const schema = (isEdge ? graphInfocard?.edges : graphInfocard?.nodes)?.[hoveredData?.type]?.info_panel;
     const titleColumn = schema?.find(([label, _]) => label === "Title");
@@ -181,7 +182,7 @@ export default function KnowledgeGraph() {
             </Box>
             {
               schema.map(([title, content]) => (
-                ["Title", "Footer"].includes(title) ? <></> : (
+                ["Title", "Footer"].includes(title) ? "" : (
                   <Box key={title} sx={{
                     width: "calc(100% - 32px)",
                     display: "flex",
@@ -216,7 +217,9 @@ export default function KnowledgeGraph() {
                               {label}
                             </Typography>
                             <Typography
+                              component="span"
                               sx={{
+                                textAlign: "right",
                                 fontFamily: "Open Sans",
                                 fontWeight: "600",
                                 fontSize: "12px",
@@ -262,7 +265,18 @@ export default function KnowledgeGraph() {
               background: "linear-gradient(360deg, #CACFD5 -73.08%, #F4F6F8 75%)",
             }}>
               <Typography sx={{ fontWeight: "600", fontSize: "9px", color: "#5F7885" }}>
-                {footerInfo?.map(([label, key]) => `${label}: ${hoveredData[key]}`).join(" | ")}
+                {footerInfo?.map(
+                  ([label, key, config], index) =>
+                    index === 0
+                      ? <span key={index}>
+                        {`${label}: `}
+                        <InfocardData value={hoveredData[key]} dataKey={key} config={config} />
+                      </span>
+                      : <span key={index}>
+                        {` | ${label}: `}
+                        <InfocardData value={hoveredData[key]} dataKey={key} config={config} />
+                      </span>
+                )}
               </Typography>
             </Box>
           </>
@@ -334,10 +348,11 @@ export default function KnowledgeGraph() {
     }
 
     setInfocardPosition({ x: left, y: top });
-  }, [hoveredData, nodeHovered, infocardEnabled]);
+  }, [hoveredId, nodeHovered, infocardEnabled]);
 
   useEffect(() => {
     if (!infocardHovered && !nodeHovered) {
+      if (DisableInfocardDisappear) return;
       fadeOutTimeoutRef.current = setTimeout(() => {
         setInfocardVisible(false);
         activeNodeRef.current = null;
@@ -373,13 +388,14 @@ export default function KnowledgeGraph() {
           id: node["~id"],
           ...node["~properties"],
           label: (
-            (node["~labels"].includes("gene") ||
-              node["~labels"].includes("OCR") ||
-              node["~labels"].includes("disease") ||
-              node["~id"].startsWith("CL_")
-            )
-              ? (node["~properties"].name || node["~properties"].id)
-              : node["~properties"].id
+            node["~labels"].includes("disease")
+              ? "T1D"
+              : (node["~labels"].includes("gene") ||
+                node["~labels"].includes("OCR") ||
+                node["~id"].startsWith("CL_")
+              )
+                ? (node["~properties"].name || node["~properties"].id)
+                : node["~properties"].id
           ).replace(/_/g, " "),
           type,
           Level: posData.Level,
@@ -409,7 +425,6 @@ export default function KnowledgeGraph() {
       zoom: 1.5,
       minZoom: 1.2,
       maxZoom: 4,
-      wheelSensitivity: 0.25,
       pan: { x: 0, y: 0 },
     });
 
@@ -417,7 +432,7 @@ export default function KnowledgeGraph() {
       document.body.style.cursor = "pointer";
       activeNodeRef.current = evt.target;
       setNodeHovered(true);
-      setHoveredData(evt.target.data());
+      setHoveredId(evt.target.id());
     };
 
     const handleOut = (evt) => {
@@ -426,6 +441,11 @@ export default function KnowledgeGraph() {
         document.body.style.cursor = "default";
         setNodeHovered(false);
       }
+    };
+
+    const handleLeave = (_) => {
+      document.body.style.cursor = "default";
+      setNodeHovered(false);
     };
 
     const handleEdge = (handler) => ((evt) => {
@@ -443,18 +463,26 @@ export default function KnowledgeGraph() {
       }
     })
 
-    cyRef.current.on("mouseover", "node", handleHover);
-    cyRef.current.on("mouseout", "node", handleOut);
-    cyRef.current.on("mousemove", "edge", handleEdge(handleHover));
-    cyRef.current.on("mouseout", "edge", handleOut);
+    const cy = cyRef.current;
+    cy.reset();
+    cy.center();
+    setZoomLevel(cy.zoom());
+    setInitZoom(cy.zoom());
 
-    cyRef.current.reset();
-    cyRef.current.center();
-    setZoomLevel(cyRef.current.zoom());
-    setInitZoom(cyRef.current.zoom());
-    cyRef.current.on("zoom", () => {
+    cy.container().addEventListener("mouseleave", handleLeave);
+    cy.on("mousemove", "node", handleHover);
+    cy.on("mouseout", "node", handleOut);
+    cy.on("mousemove", "edge", handleEdge(handleHover));
+    cy.on("mouseout", "edge", handleOut);
+    cy.on("zoom", () => {
       setZoomLevel(cyRef.current.zoom());
     });
+
+    return () => {
+      document.body.style.cursor = "default";
+      cyRef.current.removeAllListeners();
+      cyRef.current?.container().removeEventListener("mouseleave", handleLeave);
+    };
   }, [queryResultPage]);
 
   return (

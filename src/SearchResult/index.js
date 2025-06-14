@@ -1,37 +1,37 @@
 import './scoped.css';
 
 import React, {
-  useEffect,
-  useRef,
-  useState,
+    useEffect,
+    useRef,
+    useState,
 } from 'react';
 
 import {
-  useDispatch,
-  useSelector,
+    useDispatch,
+    useSelector,
 } from 'react-redux';
 
 import {
-  ChevronRight as ChevronRightIcon,
-  InfoOutlined as InfoOutlineIcon,
+    ChevronRight as ChevronRightIcon,
+    InfoOutlined as InfoOutlineIcon,
 } from '@mui/icons-material';
 import {
-  Backdrop,
-  Box,
-  Button,
-  Collapse,
-  Container,
-  Grid,
-  Link,
-  List,
-  ListItem,
-  Skeleton,
-  styled,
-  Tab,
-  Tabs,
-  Tooltip,
-  tooltipClasses,
-  Typography,
+    Backdrop,
+    Box,
+    Button,
+    Collapse,
+    Container,
+    Grid,
+    Link,
+    List,
+    ListItem,
+    Skeleton,
+    styled,
+    Tab,
+    Tabs,
+    Tooltip,
+    tooltipClasses,
+    Typography,
 } from '@mui/material';
 
 import { tabsQTL } from '../components/IntermediatePage';
@@ -46,8 +46,8 @@ import { queryImage } from '../redux/typeToImageSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import {
-  addHighlight,
-  replaceVariables,
+    addHighlight,
+    replaceVariables,
 } from '../utils/textProcessing';
 
 const tabOptions = [
@@ -304,7 +304,6 @@ function SearchResult() {
                                 sourceSymbol: neighborSource["~properties"]?.name || sourceSymbol,
                                 targetSymbol: neighborTarget["~properties"]?.name || targetSymbol,
                             }
-                            console.log('Neighbors:', neighbors);
                             const newVariables = {
                                 additionalParams: [
                                     ...additionalParams,
@@ -670,41 +669,7 @@ function SearchResult() {
                     </Grid>
                 </Box>
                 {(aiAnswer?.answers?.length) ? (<>
-                    <Tabs
-                        value={currTab}
-                        onChange={(e, value) => setCurrTab(value)}
-                        variant="scrollable"
-                        scrollButtons={false}
-                        sx={{
-                            minHeight: '48px',
-                            height: '48px',
-                            width: 'fit-content',
-                            backgroundColor: '#F2FAFB',
-                            borderRadius: '20px 20px 0px 0px',
-                            border: 'none',
-                            '& .MuiTab-root': {
-                                textTransform: 'none',
-                                fontSize: '16px',
-                                whiteSpace: 'normal',
-                                margin: '0px',
-                                '& .MuiTab-wrapper': {
-                                    flexDirection: 'row',
-                                    justifyContent: 'flex-start',
-                                    alignItems: 'flex-start'
-                                }
-                            },
-                            '& .MuiTab-root:first-of-type': {
-                                borderTopLeftRadius: '20px',
-                            },
-                            '& .MuiTab-root:last-of-type': {
-                                borderTopRightRadius: '20px',
-                            },
-                            '& .MuiTabs-indicator': {
-                                backgroundColor: '#398289',
-                            },
-                            zIndex: 2,
-                        }}
-                    >
+                    <div style={{ position: 'relative', width: 'fit-content' }}>
                         <div style={{
                             position: 'absolute',
                             top: '0px',
@@ -712,46 +677,84 @@ function SearchResult() {
                             width: '100%',
                             height: '100%',
                             borderRadius: '20px 20px 0px 0px',
-                            borderWidth: '1px 1px 0px 1px',
+                            borderWidth: '1px 0px 0px',
                             borderStyle: 'solid',
                             borderColor: "#E5E5E5",
+                            zIndex: 1,
+                            pointerEvents: 'none',
                         }}></div>
-                        {tabOptions.map((option, index) => (
-                            <Tab
-                                sx={{
-                                    minHeight: '48px',
-                                    height: '48px',
-                                    backgroundColor: currTab === option.value ? 'white' : '#F2FAFB',
-                                    borderWidth:
-                                        currTab === option.value ? '1px 1px 0px 1px' :
-                                            tabOptions.findIndex((tab) => tab.value === currTab) > index ?
-                                                '1px 0px 0px 1px' : '1px 1px 0px 0px',
-                                    borderStyle: 'solid',
-                                    borderColor: '#E5E5E5',
-                                    borderRadius:
-                                        currTab === option.value ? '20px 20px 0px 0px' :
-                                            tabOptions.findIndex((tab) => tab.value === currTab) > index ?
-                                                '20px 0px 0px 0px' : '0px 20px 0px 0px',
-                                }}
-                                key={option.value}
-                                label={
-                                    <Typography
-                                        component="span"
-                                        sx={{
-                                            textAlign: 'left',
-                                            fontFamily: 'Open Sans',
-                                            fontSize: '16px',
-                                            color: currTab === option.value ? '#398289' : 'black',
-                                            fontWeight: currTab === option.value ? '600' : '400',
-                                            marginX: '20px',
-                                        }}
-                                    >
-                                        {option.label}
-                                    </Typography>
-                                }
-                                value={option.value}
-                            />))}
-                    </Tabs>
+                        <Tabs
+                            value={currTab}
+                            onChange={(e, value) => setCurrTab(value)}
+                            variant="scrollable"
+                            scrollButtons={false}
+                            sx={{
+                                minHeight: '48px',
+                                height: '48px',
+                                width: 'fit-content',
+                                backgroundColor: '#F2FAFB',
+                                borderRadius: '20px 20px 0px 0px',
+                                border: 'none',
+                                '& .MuiTab-root': {
+                                    textTransform: 'none',
+                                    fontSize: '16px',
+                                    whiteSpace: 'normal',
+                                    margin: '0px',
+                                    '& .MuiTab-wrapper': {
+                                        flexDirection: 'row',
+                                        justifyContent: 'flex-start',
+                                        alignItems: 'flex-start'
+                                    }
+                                },
+                                '& .MuiTab-root:first-of-type': {
+                                    borderTopLeftRadius: '20px',
+                                },
+                                '& .MuiTab-root:last-of-type': {
+                                    borderTopRightRadius: '20px',
+                                },
+                                '& .MuiTabs-indicator': {
+                                    backgroundColor: '#398289',
+                                },
+                            }}
+                        >
+
+                            {tabOptions.map((option, index) => (
+                                <Tab
+                                    sx={{
+                                        minHeight: '48px',
+                                        height: '48px',
+                                        backgroundColor: currTab === option.value ? 'white' : '#F2FAFB',
+                                        borderWidth:
+                                            currTab === option.value ? '1px 1px 0px 1px' :
+                                                tabOptions.findIndex((tab) => tab.value === currTab) > index ?
+                                                    '1px 0px 0px 1px' : '1px 1px 0px 0px',
+                                        borderStyle: 'solid',
+                                        borderColor: '#E5E5E5',
+                                        borderRadius:
+                                            currTab === option.value ? '20px 20px 0px 0px' :
+                                                tabOptions.findIndex((tab) => tab.value === currTab) > index ?
+                                                    '20px 0px 0px 0px' : '0px 20px 0px 0px',
+                                    }}
+                                    key={option.value}
+                                    label={
+                                        <Typography
+                                            component="span"
+                                            sx={{
+                                                textAlign: 'left',
+                                                fontFamily: 'Open Sans',
+                                                fontSize: '16px',
+                                                color: currTab === option.value ? '#398289' : 'black',
+                                                fontWeight: currTab === option.value ? '600' : '400',
+                                                marginX: '20px',
+                                            }}
+                                        >
+                                            {option.label}
+                                        </Typography>
+                                    }
+                                    value={option.value}
+                                />))}
+                        </Tabs>
+                    </div>
                     <Box sx={{
                         position: 'relative',
                         padding: '20px',
@@ -893,7 +896,7 @@ function SearchResult() {
                                                     </Typography>
                                                 </Link>
                                             </Box>
-                                            <Typography>
+                                            <div>
                                                 <Typography sx={{ fontFamily: 'Open Sans', fontSize: '20px', fontWeight: 700 }}>
                                                     {referenceData.empirical_evidence.title}
                                                 </Typography>
@@ -910,7 +913,7 @@ function SearchResult() {
                                                     }}>{referenceData.empirical_evidence.link_text}
                                                     </Typography>
                                                 </Link>}
-                                            </Typography>
+                                            </div>
                                         </Box>
                                     )
                                 }

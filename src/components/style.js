@@ -11,7 +11,7 @@ export const nodeAutoWidth = (node) => {
   return ctx.measureText(node.data('label')).width;
 };
 
-export const nodeAutoHeight = (node) => {
+const nodeAutoHeight = (node) => {
   const ctx = document.createElement('canvas').getContext("2d");
   const fStyle = node.pstyle('font-style').strValue;
   const size = node.pstyle('font-size').pfValue + 'px';
@@ -67,25 +67,15 @@ export const getContrastingColor = (bgColor) => {
   return yiq >= 128 ? 'black' : 'white';
 }
 
-export const nodeColors = Object.fromEntries(
-  Object.entries(graphSchema.nodes).map(([key, value]) => [key, value.node_color])
-);
+const mapSchemaProps = (schemaSection, prop) =>
+  Object.fromEntries(
+    Object.entries(schemaSection).map(([key, value]) => [key, value[prop]])
+  );
 
-export const nodeTextColors = Object.fromEntries(
-  Object.entries(graphSchema.nodes).map(([key, value]) => [key, value.text_color])
-);
-
-export const nodeLabels = Object.fromEntries(
-  Object.entries(graphSchema.nodes).map(([key, value]) => [key, value.node_label])
-);
-
-export const edgeLabels = Object.fromEntries(
-  Object.entries(graphSchema.edges).map(([key, value]) => [key, value.edge_label])
-);
-
-export const edgeLabelColors = Object.fromEntries(
-  Object.entries(graphSchema.edges).map(([key, value]) => [key, value.text_color])
-);
+export const nodeColors = mapSchemaProps(graphSchema.nodes, "node_color");
+const nodeTextColors = mapSchemaProps(graphSchema.nodes, "text_color");
+export const edgeLabels = mapSchemaProps(graphSchema.edges, "edge_label");
+const edgeLabelColors = mapSchemaProps(graphSchema.edges, "text_color");
 
 export const edgeIsInverted = Object.fromEntries(
   Object.entries(graphSchema.edges).map(([key, value]) => [key, value.inverted === "TRUE"])
@@ -158,5 +148,3 @@ export const nodeStyle = nodeColorsList.map(({ color, type }) => ({
       },
     },
   ]);
-
-console.log("nodeStyle", nodeStyle);
