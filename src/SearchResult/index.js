@@ -1,40 +1,42 @@
 import './scoped.css';
 
 import React, {
-    useEffect,
-    useRef,
-    useState,
+  useEffect,
+  useRef,
+  useState,
 } from 'react';
 
 import {
-    useDispatch,
-    useSelector,
+  useDispatch,
+  useSelector,
 } from 'react-redux';
 
 import {
-    ChevronRight as ChevronRightIcon,
-    InfoOutlined as InfoOutlineIcon,
+  ChevronRight as ChevronRightIcon,
+  InfoOutlined as InfoOutlineIcon,
 } from '@mui/icons-material';
 import {
-    Backdrop,
-    Box,
-    Button,
-    Collapse,
-    Container,
-    Grid,
-    Link,
-    List,
-    ListItem,
-    Skeleton,
-    styled,
-    Tab,
-    Tabs,
-    Tooltip,
-    tooltipClasses,
-    Typography,
+  Backdrop,
+  Box,
+  Collapse,
+  Container,
+  Grid,
+  Link,
+  List,
+  ListItem,
+  Skeleton,
+  styled,
+  Tab,
+  Tabs,
+  Tooltip,
+  tooltipClasses,
+  Typography,
 } from '@mui/material';
 
-import { tabsQTL } from '../components/IntermediatePage';
+import {
+  ErrorComponent,
+  tabsQTL,
+} from '../components/IntermediatePage';
 import KnowledgeGraph from '../components/KnowledgeGraph';
 import VisuImage from '../image/output.png';
 import { queryAiAnswer } from '../redux/aiAnswerSlice';
@@ -46,8 +48,8 @@ import { queryImage } from '../redux/typeToImageSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import {
-    addHighlight,
-    replaceVariables,
+  addHighlight,
+  replaceVariables,
 } from '../utils/textProcessing';
 
 const tabOptions = [
@@ -441,34 +443,7 @@ function SearchResult() {
         }</>
     )
 
-    if (error) {
-        return (
-            <Box sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '100vh',
-                gap: 2
-            }}>
-                <Typography variant="h6" color="error" sx={{ fontFamily: 'Open Sans' }}>
-                    No data found. Please try different search terms.
-                </Typography>
-                <Button
-                    variant="contained"
-                    onClick={() => window.location.href = '/'}
-                    sx={{
-                        backgroundColor: "#219197",
-                        "&:hover": {
-                            backgroundColor: "#1A747A",
-                        },
-                    }}
-                >
-                    Back to Home
-                </Button>
-            </Box>
-        );
-    }
+    if (error) return <ErrorComponent errorTitle={viewSchema?.result_error_title} errorMessage={viewSchema?.result_error_message} />;
 
     // Show loading skeleton if queryResultPage is not ready
     return !queryResultPage?.combined_query_result ? <LoadingSkeleton /> :
