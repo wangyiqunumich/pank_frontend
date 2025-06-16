@@ -155,8 +155,10 @@ export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "
                 height: "50px",
                 borderRadius: "25px",
                 paddingX: "32px",
+                boxShadow: "none",
                 "&:hover": {
                   backgroundColor: "#1A747A",
+                  boxShadow: "none",
                 },
               }}
             >
