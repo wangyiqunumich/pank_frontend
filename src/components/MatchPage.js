@@ -28,6 +28,7 @@ import Popper from '@mui/material/Popper';
 import landingPageLogo from '../image/landing image cropped.png';
 import { queryVocab } from '../redux/inputToVocabSlice'; // Import the action
 import { nodeAutoWidth } from './style.js';
+import { queryQueryResult } from '../redux/queryResultSlice';
 
 // Color utilities and constants
 const getContrastingColor = (bgColor) => {
@@ -286,10 +287,6 @@ function MatchPage() {
         targetSymbol = '';
         targetTerm = target;
       }
-      // const consequenceMatch = selectedQuestion.match(/\{(.*?)\}|\(.*?\)/g);
-      // const sourceTerm = consequenceMatch[0] ? consequenceMatch[0].replace(/[{}()]/g, '') : '';
-      // const relationTerm = consequenceMatch[1] ? consequenceMatch[1].match(/\((.*?)\)/)[1] : '';
-      // const target = consequenceMatch[2] ? consequenceMatch[2].replace(/[{})]/g, '') : '';
       let url = `/intermediate?sourceTerm=${sourceTerm.toLowerCase()}&relationship=${relationTerm}&targetTerm=${targetTerm}`;
       if (targetSymbol) {
         url += `&targetSymbol=${targetSymbol}`;
@@ -298,7 +295,22 @@ function MatchPage() {
     }
   };
 
-  function updateSource(newInputValue, type, index) {
+  function updateSource(newInputValue,type) {
+    const keyWord = newInputValue;
+    dispatch(queryQueryResult({ isNeptune: false,
+      query: "SELECT id, name FROM gene_name WHERE name_tsv @@to_tsquery('simple','" + keyWord + ":*') LIMIT 5;" })).unwrap()
+      .then((response) => {
+        if (response) {
+          console.log('response from queryQueryResult', response.results[0].credible_sets);
+          const parsedResponse = response.results[0].credible_sets.map((item, index) => {
+            return `${item.name}(${item.id})`;
+          });
+          setGeneOptions(parsedResponse);
+        }
+      });
+  }
+
+  function updateValidation(newInputValue, type) {
     const geneName = newInputValue;
     dispatch(queryVocab({ input: geneName })).unwrap()
       .then((response) => {
@@ -314,13 +326,16 @@ function MatchPage() {
               id = `${geneName}(${parsedResponse[1]})`
             }
             if (type === 'gene' && parsedResponse[0] === 'gene') {
-              setGeneOptions([id]);
+              setGeneId(id);
+              console.log('geneId', geneId);
             }
             else if (type === 'cell' && parsedResponse[0] === 'cell_type') {
-              setCellOptions([id]);
+              setCellId(id);
+              console.log('cellId', cellId);
             }
             else if (type === 'snp' && parsedResponse[0] === 'sequence_variant') {
-              setSnpOptions([id]);
+              setSnpId(id);
+              console.log('snpId', snpId);  
             } else {
               const errorMessage = `Wrong input type`;
               if (type === 'gene') {
@@ -379,6 +394,7 @@ function MatchPage() {
               }}
               onInputChange={(event, newInputValue) => {
                 if (newInputValue) {
+                  updateValidation(newInputValue, type);
                   updateSource(newInputValue, type);
                   // setIsSubmitDisabled(!options.includes(newInputValue));
                 } else {
