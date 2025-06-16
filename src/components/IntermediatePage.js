@@ -15,6 +15,7 @@ import {
   Download as DownloadIcon,
   Info as InfoIcon,
   InfoOutlined as InfoOutlineIcon,
+  Mail as MailIcon,
   NotificationsNone as NotificationsNoneIcon,
   Warning as WarningIcon,
   WarningAmber as WarningAmberIcon,
@@ -43,6 +44,7 @@ import {
   Typography,
 } from '@mui/material';
 
+import errorImage from '../image/datanotfound.png';
 import { queryQueryResult } from '../redux/queryResultSlice';
 import { setSearchTerms } from '../redux/searchSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
@@ -100,6 +102,144 @@ const WarningSNP = (
     Warning: The lead SNP of this credible set is not the SNP you searched for.
   </Alert>
 );
+
+export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "No answer for your question in PanKgraph" }) {
+  return (
+    <Container sx={{
+      padding: 0, display: 'flex',
+      justifyContent: 'space-evenly',
+      alignSelf: 'center',
+      width: '100%',
+      minWidth: '1000px',
+      marginLeft: '20px',
+      marginRight: '20px',
+      flexDirection: 'column',
+      flexGrow: 1,
+      transform: 'translateY(-21px)',
+      marginBottom: '-21px',
+    }} disableGutters maxWidth={false}>
+      <Box sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '700px',
+        gap: 2,
+        backgroundColor: '#F2FAFB'
+      }}>
+        <Box sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '36px',
+          width: '530px',
+          paddingY: '75px',
+          borderRadius: '32px',
+          justifyContent: 'center',
+          backgroundColor: 'white',
+        }}>
+          <Box component="img" src={errorImage} alt="Error" />
+          <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '36px', color: '#43AABA', marginBottom: '-12px', }}>
+            {errorTitle}
+          </Typography>
+          <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 400, fontSize: '17px', color: '#6C6C6C' }}>
+            {errorMessage}
+          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '24px' }}>
+            <Button
+              variant="contained"
+              onClick={() => window.location.href = '/'}
+              sx={{
+                backgroundColor: "#219197",
+                border: "1px solid #219197",
+                height: "50px",
+                borderRadius: "25px",
+                paddingX: "32px",
+                "&:hover": {
+                  backgroundColor: "#1A747A",
+                },
+              }}
+            >
+              <Typography sx={{
+                color: "white",
+                fontFamily: 'Open Sans',
+                fontSize: "17px",
+                fontWeight: "600",
+                textTransform: "none",
+              }}>
+                Back to Home
+              </Typography>
+            </Button>
+            <Button
+              onClick={() => window.location.href = '/docs/tutorial'}
+              sx={{
+                backgroundColor: "white",
+                border: "1px solid #219197",
+                height: "50px",
+                borderRadius: "25px",
+                paddingX: "32px",
+                "&:hover": {
+                  backgroundColor: "#CAD4DA",
+                },
+              }}
+            >
+              <Typography sx={{
+                color: "#219197",
+                fontFamily: 'Open Sans',
+                fontSize: "17px",
+                fontWeight: "600",
+                textTransform: "none",
+              }}>
+                View Tutorial
+              </Typography>
+            </Button>
+          </Box>
+        </Box>
+      </Box>
+      <Box sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '150px',
+        paddingY: '50px',
+        justifyContent: 'space-between',
+        backgroundColor: '#D4E9EA'
+      }}>
+        <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '20px', color: 'black' }}>
+          Need Assistance?
+        </Typography>
+        <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 400, fontSize: '20px', color: '#6C6C6C' }}>
+          Our support team is here to assist you with any questions or technical issues
+        </Typography>
+        <Button
+          onClick={() => window.location.href = 'mailto:wyq@umich.edu, runbomao@umich.edu, drjieliu@umich.edu'}
+          sx={{
+            backgroundColor: "white",
+            border: "1px solid #219197",
+            height: "50px",
+            borderRadius: "25px",
+            paddingX: "32px",
+            "&:hover": {
+              backgroundColor: "#CAD4DA",
+            },
+          }}
+          startIcon={<MailIcon sx={{ color: "#219197", }} />}
+        >
+          <Typography sx={{
+            color: "#219197",
+            fontFamily: 'Open Sans',
+            fontSize: "17px",
+            fontWeight: "600",
+            textTransform: "none",
+          }}>
+            Email Support
+          </Typography>
+        </Button>
+      </Box>
+    </Container>
+  );
+}
 
 function IntermediatePage({ onContinue }) {
   const [error, setError] = useState(false);
@@ -403,7 +543,7 @@ function IntermediatePage({ onContinue }) {
   }, []);
 
   useEffect(() => {
-    if (viewSchema.cyper_for_intermediate_page) {
+    if (viewSchema?.cyper_for_intermediate_page) {
       const processedCypher = replaceVariables(
         viewSchema.cyper_for_intermediate_page,
         {
@@ -439,34 +579,7 @@ function IntermediatePage({ onContinue }) {
   }, [queryData]);
 
   // error component for no data found
-  if (error) {
-    return (
-      <Box sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        gap: 2
-      }}>
-        <Typography variant="h6" color="error" sx={{ fontFamily: 'Open Sans' }}>
-          No data found. Please try different search terms.
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => window.location.href = '/'}
-          sx={{
-            backgroundColor: "#219197",
-            "&:hover": {
-              backgroundColor: "#1A747A",
-            },
-          }}
-        >
-          Back to Home
-        </Button>
-      </Box>
-    );
-  }
+  if (error) return <ErrorComponent errorTitle={viewSchema?.inter_error_title} errorMessage={viewSchema?.inter_error_message} />;
 
   return (<Container sx={{
     padding: 0, display: 'flex',
