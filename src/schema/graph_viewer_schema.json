@@ -435,11 +435,6 @@
                             "float(2)"
                         ],
                         [
-                            "FDR",
-                            "fdr",
-                            "float(2)"
-                        ],
-                        [
                             "LBF",
                             "lbf",
                             "float(2)"
