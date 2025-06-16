@@ -113,17 +113,17 @@ export default function KnowledgeGraph() {
     // config can be either just a type or the form "type(setting)""
     const setting = config?.match(/\(([^)]+)\)/)?.[1];
     const type = setting ? config.split('(')[0] : config;
-    return !type ? (<>{value}</>) :
+    return !type ? (<>{value || "No Data"}</>) :
       type === "string" ? (
-        <>{dataKey}</>
+        <>{dataKey || "No Data"}</>
       ) :
         type === "int" ? (
-          <>{parseInt(value).toLocaleString()}</>
+          <>{value ? parseInt(value).toLocaleString() : "No Data"}</>
         ) :
           type === "float" ? (
-            <>{parseFloat(value).toFixed(setting || 1)}</>
-          ) : type === "link" ? (
-            <Link href={value} target="_blank" rel="noopener noreferrer" sx={{
+            <>{value ? parseFloat(value).toFixed(setting || 1) : "No Data"}</>
+          ) : ["link", "link_static"].includes(type) ? (
+            <Link href={type === "link" ? value : dataKey} target="_blank" rel="noopener noreferrer" sx={{
               textDecoration: "none",
               "&:hover": {
                 textDecoration: "underline",
@@ -145,7 +145,7 @@ export default function KnowledgeGraph() {
               fontWeight: "700",
               fontSize: "12px"
             }}>
-              {type === "label_chr" ? `Chr${value}` : `${parseFloat(value).toFixed(1)}%`}
+              {value ? (type === "label_chr" ? `Chr${value}` : `${parseFloat(value).toFixed(1)}%`) : "No Data"}
             </div>
           ) : (
             <span>{value}</span>
@@ -177,7 +177,7 @@ export default function KnowledgeGraph() {
                 fontSize: "20px",
                 lineHeight: "20px",
               }}>
-                <InfocardData value={hoveredData[titleColumn?.[1]]} dataKey={titleColumn?.[1]} config={titleColumn?.[2]} />
+                <InfocardData value={hoveredData[titleColumn?.[1]]?.replace(/_/g, " ")} dataKey={titleColumn?.[1]} config={titleColumn?.[2]} />
               </Typography>
             </Box>
             {

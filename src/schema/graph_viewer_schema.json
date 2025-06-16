@@ -1,17 +1,18 @@
 {
+    "$comment": {
+        "valid_datatypes": [
+            "link",
+            "link_static",
+            "label_chr(#color)",
+            "label_percentage(#color)",
+            "int",
+            "float(number_of_decimals)",
+            "string"
+        ],
+        "description": "All others are directly displayed"
+    },
     "nodes": {
         "coding_elements": {
-            "$comment": {
-                "valid_datatypes": [
-                    "link",
-                    "label_chr(#color)",
-                    "label_percentage(#color)",
-                    "int",
-                    "float(number_of_decimals)",
-                    "string"
-                ],
-                "description": "All others are directly displayed"
-            },
             "node_color": "#A4D0F6",
             "text_color": "#000000",
             "node_label": "Gene",
@@ -216,13 +217,13 @@
             ]
         },
         "gene_ontology": {
-            "node_color": "#61ECBC",
+            "node_color": "#FFDE7D",
             "text_color": "#000000",
             "node_label": "Gene Ontology",
             "info_panel": [
                 [
                     "Title",
-                    "name"
+                    "id"
                 ],
                 [
                     "GO Identity",
@@ -243,7 +244,7 @@
                     [
                         [
                             "Data Source",
-                            "data_source"
+                            "data_version"
                         ]
                     ]
                 ]
@@ -286,7 +287,7 @@
                         [
                             "Data Source",
                             "https://data.pankbase.org/workflows/PKBWF1943AUOL/",
-                            "link"
+                            "link_static"
                         ]
                     ]
                 ]
@@ -341,7 +342,7 @@
                         [
                             "Data Source",
                             "https://pankgraph.org/scRNAseq_data_source",
-                            "link"
+                            "link_static"
                         ]
                     ]
                 ]
@@ -382,21 +383,20 @@
                             "data_source"
                         ]
                     ]
-                ]   
+                ]
             ]
         },
-        "fine_mapped_eQTL": {
+        "fine_mapped_QTL": {
             "text_color": "#000000",
             "edge_label": "QTL for",
             "inverted": "FALSE",
-            "info_panel": 
-            [
+            "info_panel": [
                 [
                     "Title",
                     "Has QTL",
                     "string"
                 ],
-                [       
+                [
                     "Relationship identity",
                     [
                         [
@@ -435,24 +435,17 @@
                             "float(2)"
                         ],
                         [
-                            "FDR",
-                            "fdr",
-                            "float(2)"
-                        ],
-                        [
                             "LBF",
                             "lbf",
                             "float(2)"
                         ],
                         [
                             "Effect Allele",
-                            "effect_allele",
-                            "float(2)"
+                            "effect_allele"
                         ],
                         [
                             "Other Allele",
-                            "other_allele",
-                            "float(2)"
+                            "other_allele"
                         ]
                     ]
                 ],
@@ -476,24 +469,26 @@
                         ]
                     ]
                 ],
+                [
                     "Footer",
                     [
                         [
                             "Data Source",
                             "https://data.pankbase.org/workflows/PKBWF1943AUOL/",
-                            "link"
+                            "link_static"
                         ]
                     ]
-                ]   
+                ]
+            ]
         },
-        " interact with": {
+        "regulation": {
             "text_color": "#000000",
             "edge_label": "interact with",
             "inverted": "FALSE",
             "info_panel": [
                 [
                     "Title",
-                    "Has Interactio n",
+                    "Has Interaction",
                     "string"
                 ],
                 [
@@ -539,8 +534,7 @@
                     [
                         [
                             "Data Source",
-                            "BIOGRID",
-                            "link"
+                            "data_source"
                         ]
                     ]
                 ]
@@ -595,7 +589,7 @@
                         [
                             "Data Source",
                             "https://data.pankbase.org/workflows/PKBWF1943AUOL/",
-                            "link"
+                            "link_static"
                         ]
                     ]
                 ]
@@ -664,7 +658,7 @@
                         [
                             "To",
                             "target"
-                        ]   
+                        ]
                     ]
                 ],
                 [
@@ -672,8 +666,7 @@
                     [
                         [
                             "Up or Down Regulation",
-                            "UpOrDownRegulation",
-                            "string"
+                            "UpOrDownRegulation"
                         ],
                         [
                             "P value",
@@ -703,7 +696,7 @@
                         [
                             "Data Source",
                             "https://pankgraph.org/scRNAseq_data_source",
-                            "link"
+                            "link_static"
                         ]
                     ]
                 ]
@@ -720,7 +713,7 @@
             "color": "#FFB371"
         },
         {
-            "label": "Pathway",
+            "label": "Ontology",
             "color": "#FFDE7D"
         },
         {
