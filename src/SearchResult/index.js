@@ -184,8 +184,8 @@ function SearchResult() {
     const [articlesData, setArticlesData] = useState([]);
     const [activeReference, setActiveReference] = useState(null);
     const [imagePopupOpen, setImagePopupOpen] = useState(false);
-    const [nextQuestions, setNextQuestions] = useState([]);
-    const [allNextQuestions, setAllNextQuestions] = useState([]);
+    const [nextQuestions, setNextQuestions] = useState([{ question: 'Loading...' }]);
+    const [allNextQuestions, setAllNextQuestions] = useState(null);
     const [error, setError] = useState(false);
 
     // scroll to active reference after it is set
@@ -213,6 +213,9 @@ function SearchResult() {
 
     useEffect(() => {
         const helperFunction = async () => {
+            if (!allNextQuestions) {
+                return;
+            }
             const validatedList = (await Promise.all(
                 allNextQuestions.map(async (nextQuestion) =>
                     await validateQuestions(nextQuestion)
@@ -496,7 +499,7 @@ function SearchResult() {
     if (error) return <ErrorComponent errorTitle={viewSchema?.result_error_title} errorMessage={viewSchema?.result_error_message} />;
 
     // Show loading skeleton if queryResultPage is not ready
-    return !queryResultPage?.combined_query_result ? <LoadingSkeleton /> :
+    return !(queryResultPage?.combined_query_result) ? <LoadingSkeleton /> :
         (<Container sx={{ width: '100%', overflowX: 'auto', maxWidth: '1440px', marginX: '20px', alignSelf: 'center', overflow: 'visible' }} maxWidth={false}>
             <Backdrop
                 sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
@@ -908,11 +911,12 @@ function SearchResult() {
                                             />
                                             <Link sx={{
                                                 textDecoration: 'none',
-                                                "& .MuiTypography-root:hover": {
-                                                    background: '#4A4A4B66',
-                                                    color: 'white',
-                                                    cursor: 'pointer',
-                                                },
+                                                "& .MuiTypography-root:hover":
+                                                    referenceData.empirical_evidence.legend === "View" ? {
+                                                        background: '#4A4A4B66',
+                                                        color: 'white',
+                                                        cursor: 'pointer',
+                                                    } : {},
                                             }}>
                                                 <Typography sx={{
                                                     position: 'absolute',
