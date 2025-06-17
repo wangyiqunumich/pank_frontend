@@ -41,8 +41,9 @@
                   ],
                   "next_questions": [
                         {
-                              "question": "Which {SNP} serves as the lead {QTL} for {PDHX}?",
-                              "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000110435&targetSymbol=PDHX"
+                              "question": "Which {SNP} serves as the lead {QTL} for {@nbr_gene_symbol@}?",
+                              "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000110435&targetSymbol=@nbr_gene_id@",
+                              "query": "MATCH (variant:sequence_variant:snp)-[r:fine_mapped_eQTL]->(gene:coding_elements {id:'@nbr_gene_id@'}) WITH CASE WHEN r.data_source='GTEx; SusieR' THEN 'GTEx; SusieR' WHEN r.data_source='INSPIRE; SusieR' THEN 'INSPIRE; SusieR' WHEN r.data_source='splicing; GTEx' THEN 'splicing; GTEx' WHEN r.data_source='exon; INSPIRE' THEN 'exon; INSPIRE' ELSE 'Other' END AS data_source, r, variant WITH data_source, COLLECT({snp: id(variant), credible_set_id: r.credible_set, data_source: r.data_source, pip: r.pip, n_snp: r.n_snp, purity: r.purity, nominal_p: r.nominal_p, lbf: r.lbf, effect_allele: r.effect_allele}) AS credible_sets RETURN data_source, credible_sets ORDER BY data_source;"
                         }
                   ],
                   "resources_tabs": {
@@ -118,8 +119,9 @@
                   ],
                   "next_questions": [
                         {
-                              "question": "Which {SNP} serves as the lead {QTL} for {CFTR}?",
-                              "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000001626&targetSymbol=CFTR"
+                              "question": "Which {SNP} serves as the lead {QTL} for {@nbr_gene_symbol@}?",
+                              "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000110435&targetSymbol=@nbr_gene_id@",
+                              "query": "MATCH (variant:sequence_variant:snp)-[r:fine_mapped_eQTL]->(gene:coding_elements {id:'@nbr_gene_id@'}) WITH CASE WHEN r.data_source='GTEx; SusieR' THEN 'GTEx; SusieR' WHEN r.data_source='INSPIRE; SusieR' THEN 'INSPIRE; SusieR' WHEN r.data_source='splicing; GTEx' THEN 'splicing; GTEx' WHEN r.data_source='exon; INSPIRE' THEN 'exon; INSPIRE' ELSE 'Other' END AS data_source, r, variant WITH data_source, COLLECT({snp: id(variant), credible_set_id: r.credible_set, data_source: r.data_source, pip: r.pip, n_snp: r.n_snp, purity: r.purity, nominal_p: r.nominal_p, lbf: r.lbf, effect_allele: r.effect_allele}) AS credible_sets RETURN data_source, credible_sets ORDER BY data_source;"
                         }
                   ],
                   "resources_tabs": {
@@ -195,8 +197,9 @@
                   ],
                   "next_questions": [
                         {
-                              "question": "Which {SNP} serves as the lead {QTL} for {CFTR}?",
-                              "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000001626&targetSymbol=CFTR"
+                              "question": "Which {SNP} serves as the lead {QTL} for {@nbr_gene_symbol@}?",
+                              "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000110435&targetSymbol=@nbr_gene_id@",
+                              "query": "MATCH (variant:sequence_variant:snp)-[r:fine_mapped_eQTL]->(gene:coding_elements {id:'@nbr_gene_id@'}) WITH CASE WHEN r.data_source='GTEx; SusieR' THEN 'GTEx; SusieR' WHEN r.data_source='INSPIRE; SusieR' THEN 'INSPIRE; SusieR' WHEN r.data_source='splicing; GTEx' THEN 'splicing; GTEx' WHEN r.data_source='exon; INSPIRE' THEN 'exon; INSPIRE' ELSE 'Other' END AS data_source, r, variant WITH data_source, COLLECT({snp: id(variant), credible_set_id: r.credible_set, data_source: r.data_source, pip: r.pip, n_snp: r.n_snp, purity: r.purity, nominal_p: r.nominal_p, lbf: r.lbf, effect_allele: r.effect_allele}) AS credible_sets RETURN data_source, credible_sets ORDER BY data_source;"
                         }
                   ],
                   "resources_tabs": {
@@ -253,8 +256,9 @@
                   ],
                   "next_questions": [
                         {
-                              "question": "Which {SNP} serves as the lead {QTL} for {CFTR}?",
-                              "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000001626&targetSymbol=CFTR"
+                              "question": "Which {SNP} serves as the lead {QTL} for {@nbr_gene_symbol@}?",
+                              "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000110435&targetSymbol=@nbr_gene_id@",
+                              "query": "MATCH (variant:sequence_variant:snp)-[r:fine_mapped_eQTL]->(gene:coding_elements {id:'@nbr_gene_id@'}) WITH CASE WHEN r.data_source='GTEx; SusieR' THEN 'GTEx; SusieR' WHEN r.data_source='INSPIRE; SusieR' THEN 'INSPIRE; SusieR' WHEN r.data_source='splicing; GTEx' THEN 'splicing; GTEx' WHEN r.data_source='exon; INSPIRE' THEN 'exon; INSPIRE' ELSE 'Other' END AS data_source, r, variant WITH data_source, COLLECT({snp: id(variant), credible_set_id: r.credible_set, data_source: r.data_source, pip: r.pip, n_snp: r.n_snp, purity: r.purity, nominal_p: r.nominal_p, lbf: r.lbf, effect_allele: r.effect_allele}) AS credible_sets RETURN data_source, credible_sets ORDER BY data_source;"
                         }
                   ],
                   "resources_tabs": {
