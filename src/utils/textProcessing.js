@@ -9,7 +9,7 @@ export function replaceVariables(text, variables, replaceUnderscore = false) {
   if (!text || !variables?.sourceTerm || !variables?.targetTerm) {
     return text;
   }
-  const { tissueKey, dataSource, neighbors } = variables;
+  const { tissueKey, dataSource, neighbor } = variables;
   let { sourceTerm, targetTerm, sourceSymbol, targetSymbol } = variables;
   let additionalParams = (variables.additionalParams || []).map(param => param.split('@'));
   let [sourceType, sourceId] = sourceTerm.split('@');
@@ -26,10 +26,10 @@ export function replaceVariables(text, variables, replaceUnderscore = false) {
     [`@${targetType}@`]: targetId,
     [`@${targetType}_id@`]: targetId,
     [`@${targetType}_symbol@`]: targetSymbol,
-    [`@nbr_${sourceType}_id@`]: neighbors?.sourceTerm,
-    [`@nbr_${sourceType}_symbol@`]: neighbors?.sourceSymbol,
-    [`@nbr_${targetType}_id@`]: neighbors?.targetTerm,
-    [`@nbr_${targetType}_symbol@`]: neighbors?.targetSymbol,
+    [`@nbr_${sourceType}_id@`]: neighbor?.sourceTerm,
+    [`@nbr_${sourceType}_symbol@`]: neighbor?.sourceSymbol,
+    [`@nbr_${targetType}_id@`]: neighbor?.targetTerm,
+    [`@nbr_${targetType}_symbol@`]: neighbor?.targetSymbol,
     '@tissue@': tissueKey,
     '@method@': dataSource?.includes('GTEx') ? 'GTEx' : 'InsPIRE'
   };
@@ -47,6 +47,44 @@ export function replaceVariables(text, variables, replaceUnderscore = false) {
       : acc
   ), text);
   return replacedText;
+}
+
+export function replaceVariablesNextQuestion(text, variables, neighbors, replaceUnderscore = false) {
+  if (!variables || !text) {
+    return text;
+  }
+  const sourceReplace =
+    neighbors?.source?.map(nbr => replaceVariables(text, {
+      ...variables,
+      neighbor: {
+        sourceTerm: nbr['~id'],
+        sourceSymbol: nbr['~properties']?.name,
+      }
+    }, replaceUnderscore)) || [];
+  const targetReplace =
+    neighbors?.target?.map(nbr => replaceVariables(text, {
+      ...variables,
+      neighbor: {
+        targetTerm: nbr['~id'],
+        targetSymbol: nbr['~properties']?.name,
+      }
+    }, replaceUnderscore)) || [];
+  return [...sourceReplace, ...targetReplace];
+}
+
+export function replaceNextQuestion(question, variables, neighbors) {
+  if (!question || !variables) {
+    return question;
+  }
+  const replacedQuery = replaceVariablesNextQuestion(question.query, variables, neighbors, true);
+  const replacedLink = replaceVariablesNextQuestion(question.link, variables, neighbors);
+  const replacedQuestion = replaceVariablesNextQuestion(question.question, variables, neighbors, true);
+  const questions = replacedQuery?.map((q, index) => ({
+    query: q,
+    link: replacedLink[index] || '',
+    question: replacedQuestion[index] || '',
+  })).filter(q => q?.link && q?.query && q?.question) || [];
+  return questions;
 }
 
 export const getGeneSymbol = (nodeId) => {
