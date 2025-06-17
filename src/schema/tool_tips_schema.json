@@ -2,9 +2,9 @@
     "snp - QTL - gene": {
         "general - relationship - specific": {
             "intermediate": {
-                "Question": "Tooltip for 'Question' section",
-                "Graph Viewer": "Tooltip for 'Graph Viewer' section",
-                "Result": "Tooltip for 'Result' section"
+                "Question": "The specific question you’re exploring right now.",
+                "Graph Viewer": "Interactive network view of the knowledge graph behind the answer— hover over nodes or edges for more details.",
+                "Result": "Results in the knowledge graph corresponding to the question."
             },
             "intermediate_page_table": {
                 "Credible set": "Credible set represents a group of genetic variants within a genomic region associated with a trait, identified through statistical fine-mapping. Each variant in the set is assigned a posterior probability, indicating its likelihood of being linked to the observed trait, with the entire set typically capturing a predefined confidence level.",
@@ -17,9 +17,9 @@
         },
         "specific - relationship - specific": {
             "intermediate": {
-                "Question": "Tooltip for 'Question' section",
-                "Graph Viewer": "Tooltip for 'Graph Viewer' section",
-                "Result": "Tooltip for 'Result' section"
+                "Question": "The specific question you’re exploring right now.",
+                "Graph Viewer": "Interactive network view of the knowledge graph behind the answer— hover over nodes or edges for more details.",
+                "Result": "Results in the knowledge graph corresponding to the question."
             },
             "intermediate_page_table": {
                 "Credible set": "Credible set represents a group of genetic variants within a genomic region associated with a trait, identified through statistical fine-mapping. Each variant in the set is assigned a posterior probability, indicating its likelihood of being linked to the observed trait, with the entire set typically capturing a predefined confidence level.",
@@ -32,9 +32,9 @@
         },
         "specific - relationship - general": {
             "intermediate": {
-                "Question": "Tooltip for 'Question' section",
-                "Graph Viewer": "Tooltip for 'Graph Viewer' section",
-                "Result": "Tooltip for 'Result' section"
+                "Question": "The specific question you’re exploring right now.",
+                "Graph Viewer": "Interactive network view of the knowledge graph behind the answer— hover over nodes or edges for more details.",
+                "Result": "Results in the knowledge graph corresponding to the question."
             },
             "intermediate_page_table": {
                 "Credible set": "Credible set represents a group of genetic variants within a genomic region associated with a trait, identified through statistical fine-mapping. Each variant in the set is assigned a posterior probability, indicating its likelihood of being linked to the observed trait, with the entire set typically capturing a predefined confidence level.",
