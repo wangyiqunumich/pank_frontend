@@ -203,7 +203,6 @@ export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
         height: '150px',
         paddingY: '50px',
         justifyContent: 'space-between',
@@ -598,7 +597,7 @@ function IntermediatePage({ onContinue }) {
     {/* Question box */}
     <Grid container spacing={2} height={"100%"} sx={{ alignItems: "stretch" }}>
       <Grid item xs={12} height={"100%"}>
-        <Box sx={{ padding: '32px', backgroundColor: '#F2FAFB', marginTop: '60px', borderRadius: '20px' }}>
+        <Box sx={{ padding: '32px', backgroundColor: '#F2FAFB', marginTop: '30px', borderRadius: '20px' }}>
           <Box sx={{ width: "100%", justifyContent: "space-between", display: "flex", alignItems: "center" }}>
             <Typography sx={{ fontFamily: 'Open Sans', fontSize: '20px', textAlign: 'left', marginBottom: '10px', fontWeight: 600 }}>
               Question<TooltipComponent title="Question" />

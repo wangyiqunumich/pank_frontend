@@ -18,6 +18,7 @@ import {
 import {
   Backdrop,
   Box,
+  CircularProgress,
   Collapse,
   Container,
   Grid,
@@ -88,6 +89,12 @@ const validateQuestions = async (questions) => {
         .map(result => result.question);
 };
 
+const handleDownload = (data_source, credibleSet) => {
+    const folder = tabsQTL.find(tab => tab.data_source === data_source)?.folder || "";
+    console.log(`Downloading ${credibleSet} from folder ${folder}`);
+    return `https://pank-s3-to-share.s3.us-east-1.amazonaws.com/${folder}/${credibleSet}.txt`;
+};
+
 const HtmlTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} classes={{ popper: className }} />
 ))(({ theme }) => ({
@@ -137,7 +144,7 @@ const LoadingSkeleton = () => (
         <Skeleton variant="rectangular" width={"100%"} height={"150px"} sx={{
             backgroundColor: '#E4F0F1',
             marginBottom: '20px',
-            marginTop: '60px',
+            marginTop: '30px',
             borderRadius: '20px'
         }} />
         <Grid container spacing={4} height={"100%"} sx={{
@@ -333,6 +340,7 @@ function SearchResult() {
                             );
 
                             const dataSource = coreRelationship?.["~properties"]?.data_source || '';
+                            const credibleSetId = coreRelationship?.["~properties"]?.credible_set || '';
                             if (resources_tabs?.empirical_evidence?.lambda_function &&
                                 coreRelationship?.["~properties"]?.["credible_set"]) {
                                 dispatch(queryImage({
@@ -374,6 +382,7 @@ function SearchResult() {
                                 )?.["~properties"]?.name || targetSymbol,
                                 tissueKey,
                                 dataSource,
+                                credibleSetId,
                             };
                             if (newVariables) { setVariables(newVariables); }
                             const processedCurrentQuestion =
@@ -499,6 +508,8 @@ function SearchResult() {
                     src={referenceData.empirical_evidence?.lambda_function ? (typeToImage?.length && `data:image/jpeg;base64,${typeToImage}`) : VisuImage}
                     alt="Empirical Evidence"
                     sx={{
+                        maxWidth: '100%',
+                        maxHeight: '100%',
                     }}
                 />
             </Backdrop>
@@ -515,7 +526,7 @@ function SearchResult() {
                     padding: '20px',
                     backgroundColor: '#E4F0F1',
                     marginBottom: '20px',
-                    marginTop: '60px',
+                    marginTop: '30px',
                     borderRadius: '20px'
                 }}>
                     <Grid container spacing={4} height={"100%"} sx={{ alignItems: "stretch" }}>
@@ -733,7 +744,6 @@ function SearchResult() {
                                 },
                             }}
                         >
-
                             {tabOptions.map((option, index) => (
                                 <Tab
                                     sx={{
@@ -863,23 +873,35 @@ function SearchResult() {
                         <Collapse in={currTab === 'empirical_evidence'}>
                             <List sx={{ padding: '0px' }}>
                                 {referenceData?.empirical_evidence &&
-                                    (<Box sx={{ flexDirection: 'row', display: 'flex', gap: '45px' }}>
-                                        {/* <Image
-                                            src={VisuImage}
-                                            alt="Empirical Evidence"
-                                            width={100}
-                                            height={100}
-                                            style={{ borderRadius: '10px', marginRight: '10px' }}
-                                        /> */}
-                                        <Box sx={{ position: 'relative' }}>
+                                    (<Box sx={{ flexDirection: 'row', display: 'flex', gap: '45px', alignItems: 'center' }}>
+                                        {(referenceData.empirical_evidence.lambda_function && !(typeToImage?.length)) ? (
+                                            <Box sx={{
+                                                backgroundColor: '#F2FAFB',
+                                                marginY: '14px',
+                                                marginLeft: '25px',
+                                                borderRadius: '10px',
+                                                marginRight: '10px',
+                                                minWidth: '250px',
+                                                minHeight: '250px',
+                                                position: 'relative',
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                            }} >
+                                                <CircularProgress sx={{}} />
+                                            </Box>
+                                        ) : (<Box sx={{ position: 'relative' }}>
                                             <Box
                                                 component="img"
-                                                src={referenceData.empirical_evidence.lambda_function ? (typeToImage?.length && `data:image/jpeg;base64,${typeToImage}`) : VisuImage}
+                                                src={referenceData.empirical_evidence.lambda_function ?
+                                                    (typeToImage?.length ? `data:image/jpeg;base64,${typeToImage}` : "")
+                                                    : VisuImage}
                                                 alt="Empirical Evidence"
                                                 sx={{
-                                                    height: '235px',
+                                                    maxHeight: '235px',
+                                                    maxWidth: '500px',
                                                     marginY: '14px',
-                                                    marginX: '25px',
+                                                    marginLeft: '25px',
                                                     borderRadius: '10px',
                                                     marginRight: '10px',
                                                 }}
@@ -910,25 +932,30 @@ function SearchResult() {
                                                     {referenceData.empirical_evidence.legend}
                                                 </Typography>
                                             </Link>
-                                        </Box>
-                                        <div>
+                                        </Box>)}
+                                        <Box>
                                             <Typography sx={{ fontFamily: 'Open Sans', fontSize: '20px', fontWeight: 700 }}>
                                                 {referenceData.empirical_evidence.title}
                                             </Typography>
                                             <Typography sx={{ fontFamily: 'Open Sans', fontSize: '16px', fontWeight: 400, color: "#263238", paddingY: '24px' }}>
                                                 {referenceData.empirical_evidence.description}
                                             </Typography>
-                                            {referenceData.empirical_evidence.link && <Link href={referenceData.empirical_evidence.link} target="_blank" rel="noopener noreferrer" sx={{ textDecoration: "none" }}>
-                                                <Typography sx={{
-                                                    cursor: 'pointer',
-                                                    fontFamily: 'Open Sans',
-                                                    fontSize: '16px', paddingY: '10px', paddingX: '20px', backgroundColor: '#219197',
-                                                    textAlign: 'center', borderRadius: '10px', color: 'white',
-                                                    fontWeight: 600, width: 'fit-content',
-                                                }}>{referenceData.empirical_evidence.link_text}
-                                                </Typography>
-                                            </Link>}
-                                        </div>
+                                            {referenceData.empirical_evidence.link_text &&
+                                                <Link
+                                                    href={referenceData.empirical_evidence.link || handleDownload(variables.dataSource, variables.credibleSetId)}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    sx={{ textDecoration: "none" }}>
+                                                    <Typography sx={{
+                                                        cursor: 'pointer',
+                                                        fontFamily: 'Open Sans',
+                                                        fontSize: '16px', paddingY: '10px', paddingX: '20px', backgroundColor: '#219197',
+                                                        textAlign: 'center', borderRadius: '10px', color: 'white',
+                                                        fontWeight: 600, width: 'fit-content',
+                                                    }}>{referenceData.empirical_evidence.link_text}
+                                                    </Typography>
+                                                </Link>}
+                                        </Box>
                                     </Box>
                                     )
                                 }
