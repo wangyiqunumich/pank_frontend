@@ -298,7 +298,7 @@ function MatchPage() {
   function updateSource(newInputValue,type) {
     const keyWord = newInputValue;
     dispatch(queryQueryResult({ isNeptune: false,
-      query: "SELECT id, name FROM gene_name WHERE name_tsv @@to_tsquery('simple','" + keyWord + ":*') LIMIT 5;" })).unwrap()
+      query: "SELECT id, name FROM gene_name WHERE name % '" + keyWord + "'ORDER BY similarity(name, '"+keyWord+"') DESC LIMIT 5;" })).unwrap()
       .then((response) => {
         if (response) {
           console.log('response from queryQueryResult', response.results[0].credible_sets);

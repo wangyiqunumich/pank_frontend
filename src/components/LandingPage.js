@@ -73,7 +73,7 @@ function LandingPage() {
         marginTop: {sm: '0px', md: '60px'},
         textAlign: 'left',
         '& img': {
-          width: '80%',
+          maxWidth: '80%',
           objectFit: 'contain',
         }
       }}>
