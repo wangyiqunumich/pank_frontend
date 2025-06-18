@@ -9,7 +9,7 @@ Welcome to **PanKgraph**, your intuitive data portal for exploring comprehensive
 
 -  *“Which SNP serves as the quantitative trait locus (QTL) for [gene]?”*
 
-![Step1 Image](s3://pank-s3-to-share/docs/tut/1.png)
+![Step1 Image](https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/tut/1.png)
 
 ### 2. **Step 2: Refine Your question**
 
@@ -19,7 +19,7 @@ In this case, specify your gene by typing its official symbol or Ensembl ID — 
 
   
 
-![Step2 Image](s3://pank-s3-to-share/docs/tut/2.png)
+![Step2 Image](https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/tut/2.png)
 
   
   
@@ -32,7 +32,7 @@ In this case, specify your gene by typing its official symbol or Ensembl ID — 
 
   
 
-![Step3 Image](s3://pank-s3-to-share/docs/tut/3.png)
+![Step3 Image](https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/tut/3.png)
 
   
   
@@ -50,7 +50,7 @@ In this case, specify your gene by typing its official symbol or Ensembl ID — 
   
 In this case, we select CredibleSet_C1, which includes rs2402203 as the lead SNP.
 
-![Step4 Image](s3://pank-s3-to-share/docs/tut/4.png)
+![Step4 Image](https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/tut/4.png)
 
   
 
@@ -74,7 +74,7 @@ The result page includes your finalized question, an interactive knowledge graph
 
   
 
-![Step5 Image](s3://pank-s3-to-share/docs/tut/5.png)
+![Step5 Image](https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/tut/5.png)
 
   
 

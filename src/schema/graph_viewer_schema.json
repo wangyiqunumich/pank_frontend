@@ -207,7 +207,8 @@
                 ],
                 [
                     "Description",
-                    "Open chromatin region cluster containing gene activity scores rather than actual peaks"
+                    "Open chromatin region cluster containing gene activity scores rather than actual peaks",
+                    "string"
                 ],
                 [
                     "Footer",

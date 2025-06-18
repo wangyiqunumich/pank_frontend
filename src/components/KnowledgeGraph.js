@@ -181,7 +181,7 @@ export default function KnowledgeGraph() {
               </Typography>
             </Box>
             {
-              schema.map(([title, content]) => (
+              schema.map(([title, content, config]) => (
                 ["Title", "Footer"].includes(title) ? "" : (
                   <Box key={title} sx={{
                     width: "calc(100% - 32px)",
@@ -248,7 +248,11 @@ export default function KnowledgeGraph() {
                                 textAlign: "justify",
                               }}
                             >
-                              {addWhitespace(hoveredData[content])}
+                              {(() => {
+                                const processedData = config !== "string" ? addWhitespace(hoveredData[content]) : hoveredData[content];
+                                const processedKey = config === "string" ? addWhitespace(content) : content;
+                                return <InfocardData value={processedData} dataKey={processedKey} config={config} />
+                              })()}
                             </Typography>
                           </Box>
                         )
@@ -641,7 +645,7 @@ export default function KnowledgeGraph() {
               <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingBottom: "4px", fontSize: "12px" }}>
                 <LegendItem label="　　　　" sx={{ backgroundColor: "#D9D9D9", color: "black", border: "1.5px solid #E9E9E9", height: "8px" }} />
                 Core Nodes
-                <LegendItem label="　　　　" sx={{ backgroundColor: "white", color: "black", border: "1.5px solid #BFBDBD", height: "8px", marginLeft: "16px" }} />
+                <LegendItem label="　　　　" sx={{ backgroundColor: "white", color: "black", border: "1.5px solid #E9E9E9", height: "8px", marginLeft: "16px" }} />
                 Neighbor
               </div>
               <div
