@@ -215,7 +215,7 @@ export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "
           Our support team is here to assist you with any questions or technical issues
         </Typography>
         <Button
-          onClick={() => window.location.href = 'mailto:wyq@umich.edu, runbomao@umich.edu, drjieliu@umich.edu'}
+          onClick={() => window.location.href = 'mailto:wyq@umich.edu, runbomao@umich.edu, drjieliu@umich.edu, fan.feng@vumc.org, help@pankbase.org'}
           sx={{
             backgroundColor: "white",
             border: "1px solid #219197",
