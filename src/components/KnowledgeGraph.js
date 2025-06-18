@@ -40,7 +40,7 @@ import {
   nodeStyle,
 } from './style.js';
 
-const DisableInfocardDisappear = true;
+const DisableInfocardDisappear = false;
 
 const LegendItem = ({ label, color, sx }) => (
   <span
@@ -67,7 +67,7 @@ export default function KnowledgeGraph() {
   const [infocardPosition, setInfocardPosition] = useState({ x: 0, y: 0 });
   const [infocardVisible, setInfocardVisible] = useState(false);
   const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
-  const [legendVisible, setLegendVisible] = useState(false);
+  const [legendVisible, setLegendVisible] = useState(true);
   const [zoomLevel, setZoomLevel] = useState(1.5);
   const [initZoom, setInitZoom] = useState(1.5);
   const [infocardHovered, setInfocardHovered] = useState(false);
@@ -639,9 +639,9 @@ export default function KnowledgeGraph() {
           <Collapse in={legendVisible} timeout="auto">
             <div style={{ width: "430px", paddingTop: "10px", fontSize: "16px", fontFamily: "Open Sans", fontWeight: 400 }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingBottom: "4px", fontSize: "12px" }}>
-                <LegendItem label="　　　　" sx={{ backgroundColor: "#D9D9D9", color: "black", border: "1.5px solid #D9D9D9", height: "8px" }} />
+                <LegendItem label="　　　　" sx={{ backgroundColor: "#D9D9D9", color: "black", border: "1.5px solid #E9E9E9", height: "8px" }} />
                 Core Nodes
-                <LegendItem label="　　　　" sx={{ backgroundColor: "white", color: "black", border: "1.5px solid #7F7D7D", height: "8px", marginLeft: "16px" }} />
+                <LegendItem label="　　　　" sx={{ backgroundColor: "white", color: "black", border: "1.5px solid #BFBDBD", height: "8px", marginLeft: "16px" }} />
                 Neighbor
               </div>
               <div
