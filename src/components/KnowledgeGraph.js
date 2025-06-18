@@ -40,7 +40,7 @@ import {
   nodeStyle,
 } from './style.js';
 
-const DisableInfocardDisappear = false;
+const DisableInfocardDisappear = true;
 
 const LegendItem = ({ label, color, sx }) => (
   <span
@@ -135,8 +135,8 @@ export default function KnowledgeGraph() {
           ) : ["label_chr", "label_percentage"].includes(type) ? (
             <div style={{
               backgroundColor: setting || "#0FB47D",
-              height: "9px",
-              padding: "4px 4px",
+              height: "14px",
+              padding: "1.5px 4px",
               marginY: "-4px",
               borderRadius: "8.5px",
               textDecoration: "none",
@@ -212,7 +212,8 @@ export default function KnowledgeGraph() {
                               fontWeight: "600",
                               fontSize: "12px",
                               color: "#6B7880",
-                              lineHeight: "9px",
+                              lineHeight: "14px",
+                              marginTop: "-5px",
                             }}>
                               {label}
                             </Typography>
@@ -225,7 +226,8 @@ export default function KnowledgeGraph() {
                                 fontSize: "12px",
                                 color: "#263238",
                                 marginLeft: "8px",
-                                lineHeight: "9px",
+                                lineHeight: "14px",
+                                marginTop: "-5px",
                               }}
                             >
                               <InfocardData value={hoveredData[key]} dataKey={key} config={config} />
