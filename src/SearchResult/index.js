@@ -1,40 +1,44 @@
 import './scoped.css';
 
 import React, {
-    useEffect,
-    useRef,
-    useState,
+  useEffect,
+  useRef,
+  useState,
 } from 'react';
 
 import {
-    useDispatch,
-    useSelector,
+  useDispatch,
+  useSelector,
 } from 'react-redux';
 
 import {
-    ChevronRight as ChevronRightIcon,
-    InfoOutlined as InfoOutlineIcon,
+  ChevronRight as ChevronRightIcon,
+  InfoOutlined as InfoOutlineIcon,
 } from '@mui/icons-material';
 import {
-    Backdrop,
-    Box,
-    Button,
-    Collapse,
-    Container,
-    Grid,
-    Link,
-    List,
-    ListItem,
-    Skeleton,
-    styled,
-    Tab,
-    Tabs,
-    Tooltip,
-    tooltipClasses,
-    Typography,
+  Backdrop,
+  Box,
+  CircularProgress,
+  Collapse,
+  Container,
+  Grid,
+  Link,
+  List,
+  ListItem,
+  Skeleton,
+  styled,
+  Tab,
+  Tabs,
+  Tooltip,
+  tooltipClasses,
+  Typography,
 } from '@mui/material';
 
-import { tabsQTL } from '../components/IntermediatePage';
+import { flaskBackendAxiosInstanceNew } from '../axios/axios';
+import {
+  ErrorComponent,
+  tabsQTL,
+} from '../components/IntermediatePage';
 import KnowledgeGraph from '../components/KnowledgeGraph';
 import VisuImage from '../image/output.png';
 import { queryAiAnswer } from '../redux/aiAnswerSlice';
@@ -46,8 +50,9 @@ import { queryImage } from '../redux/typeToImageSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import {
-    addHighlight,
-    replaceVariables,
+  addHighlight,
+  replaceNextQuestion,
+  replaceVariables,
 } from '../utils/textProcessing';
 
 const tabOptions = [
@@ -56,6 +61,39 @@ const tabOptions = [
     { value: 'pankbase_links', label: 'PanKbase Links' },
     { value: 'external_links', label: 'External Links' }
 ];
+
+const defaultNextQuestion = {
+    question: 'How does {INS} expression change in {beta cell} in T1D vs non-diabetic samples?',
+    link: '/result?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type&relationship=express_in'
+}
+
+const validateQuestions = async (questions) => {
+    const fetchQueryResults = async (question) => {
+        const response = flaskBackendAxiosInstanceNew
+            .post('/openCypherToQueryResult',
+                { query: question.query }, {
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+            .then((response) => response.data?.results?.[0]?.credible_sets)
+        const data = await response;
+        console.log('fetchQueryResults', question, data?.length > 0);
+        return { valid: data?.length > 0, question };
+    };
+
+    const validationResults = await Promise.all(questions.map(fetchQueryResults));
+
+    return validationResults
+        .filter(result => result.valid)
+        .map(result => result.question);
+};
+
+const handleDownload = (data_source, credibleSet) => {
+    const folder = tabsQTL.find(tab => tab.data_source === data_source)?.folder || "";
+    console.log(`Downloading ${credibleSet} from folder ${folder}`);
+    return `https://pank-s3-to-share.s3.us-east-1.amazonaws.com/${folder}/${credibleSet}.txt`;
+};
 
 const HtmlTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} classes={{ popper: className }} />
@@ -106,7 +144,7 @@ const LoadingSkeleton = () => (
         <Skeleton variant="rectangular" width={"100%"} height={"150px"} sx={{
             backgroundColor: '#E4F0F1',
             marginBottom: '20px',
-            marginTop: '60px',
+            marginTop: '30px',
             borderRadius: '20px'
         }} />
         <Grid container spacing={4} height={"100%"} sx={{
@@ -146,6 +184,8 @@ function SearchResult() {
     const [articlesData, setArticlesData] = useState([]);
     const [activeReference, setActiveReference] = useState(null);
     const [imagePopupOpen, setImagePopupOpen] = useState(false);
+    const [nextQuestions, setNextQuestions] = useState([{ question: 'Loading...' }]);
+    const [allNextQuestions, setAllNextQuestions] = useState(null);
     const [error, setError] = useState(false);
 
     // scroll to active reference after it is set
@@ -170,6 +210,32 @@ function SearchResult() {
             }
         };
     }, [activeReference]);
+
+    useEffect(() => {
+        const helperFunction = async () => {
+            if (!allNextQuestions) {
+                return;
+            }
+            const validatedList = (await Promise.all(
+                allNextQuestions.map(async (nextQuestion) =>
+                    await validateQuestions(nextQuestion)
+                )
+            )).flatMap(
+                (validatedQuestion) =>
+                    validatedQuestion[0] ? [validatedQuestion[0]] : []
+            )
+
+            const replacedList = (validatedList?.length > 0 ? validatedList : [defaultNextQuestion])
+                .map(
+                    (validatedQuestion) => ({
+                        ...validatedQuestion,
+                        question: addHighlight(validatedQuestion.question),
+                    })
+                )
+            setNextQuestions(replacedList);
+        }
+        helperFunction();
+    }, [allNextQuestions]);
 
     // initialize the reference data from viewSchema w/ replacements
     useEffect(() => {
@@ -277,6 +343,7 @@ function SearchResult() {
                             );
 
                             const dataSource = coreRelationship?.["~properties"]?.data_source || '';
+                            const credibleSetId = coreRelationship?.["~properties"]?.credible_set || '';
                             if (resources_tabs?.empirical_evidence?.lambda_function &&
                                 coreRelationship?.["~properties"]?.["credible_set"]) {
                                 dispatch(queryImage({
@@ -292,17 +359,15 @@ function SearchResult() {
                                 .replace(/, ([^,]*)$/, ', and $1') || '';
                             const tissueKey = coreRelationship?.["~properties"]?.tissue_name || '';
 
-                            const neighborSource = neighborNodes.find(
+                            const neighborSource = neighborNodes.filter(
                                 node => node["~labels"].includes(sourceTerm.split('@')[0])
-                            ) || {};
-                            const neighborTarget = neighborNodes.find(
+                            );
+                            const neighborTarget = neighborNodes.filter(
                                 node => node["~labels"].includes(targetTerm.split('@')[0])
-                            ) || {};
+                            );
                             const neighbors = {
-                                sourceTerm: neighborSource["~id"],
-                                targetTerm: neighborTarget["~id"],
-                                sourceSymbol: neighborSource["~properties"]?.name || sourceSymbol,
-                                targetSymbol: neighborTarget["~properties"]?.name || targetSymbol,
+                                source: neighborSource,
+                                target: neighborTarget,
                             }
                             const newVariables = {
                                 additionalParams: [
@@ -312,7 +377,6 @@ function SearchResult() {
                                 sourceTerm,
                                 relationship,
                                 targetTerm,
-                                neighbors,
                                 sourceSymbol: results.nodes?.find(
                                     node => node["~id"] === (sourceTerm.split('@')[1] || sourceTerm)
                                 )?.["~properties"]?.name || sourceSymbol,
@@ -321,6 +385,7 @@ function SearchResult() {
                                 )?.["~properties"]?.name || targetSymbol,
                                 tissueKey,
                                 dataSource,
+                                credibleSetId,
                             };
                             if (newVariables) { setVariables(newVariables); }
                             const processedCurrentQuestion =
@@ -335,20 +400,12 @@ function SearchResult() {
                                 setError(true);
                                 return;
                             }
-                            // nextVariables = {
-                            //     sourceTerm: 'snp:rs177069',
-                            //     targetTerm: 'gene:ENSG00000001626',
-                            //     dataSource: 'splicing; GTEx',
-                            //     tissueKey: 'pancreas',
-                            //     targetSymbol: 'CFTR'
-                            // };
-                            const processedNextQuestions = next_questions.map(
-                                next_question => ({
-                                    question: addHighlight(replaceVariables(next_question.question, newVariables, true)),
-                                    link: replaceVariables(next_question.link, newVariables)
-                                })
-                            );
-                            console.log('Processed next questions:', processedNextQuestions);
+
+                            setAllNextQuestions(next_questions.map((next_question) => replaceNextQuestion(
+                                next_question,
+                                newVariables,
+                                neighbors
+                            )));
                             const processedAiQuestions =
                                 ai_question_for_result?.map(
                                     question => replaceVariables(question, newVariables, true)
@@ -357,7 +414,6 @@ function SearchResult() {
                             // update Redux store
                             dispatch(setProcessedQuestion({
                                 currentQuestion: processedCurrentQuestion,
-                                nextQuestions: processedNextQuestions,
                                 aiQuestions: processedAiQuestions,
                                 aiAnswerSubtitle: ai_answer_sub_title,
                                 currentQuestionType: tabsQTL.find(
@@ -373,7 +429,6 @@ function SearchResult() {
 
     const {
         currentQuestion,
-        nextQuestions,
         aiQuestions,
         aiAnswerSubtitle,
         currentQuestionType,
@@ -441,37 +496,10 @@ function SearchResult() {
         }</>
     )
 
-    if (error) {
-        return (
-            <Box sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '100vh',
-                gap: 2
-            }}>
-                <Typography variant="h6" color="error" sx={{ fontFamily: 'Open Sans' }}>
-                    No data found. Please try different search terms.
-                </Typography>
-                <Button
-                    variant="contained"
-                    onClick={() => window.location.href = '/'}
-                    sx={{
-                        backgroundColor: "#219197",
-                        "&:hover": {
-                            backgroundColor: "#1A747A",
-                        },
-                    }}
-                >
-                    Back to Home
-                </Button>
-            </Box>
-        );
-    }
+    if (error) return <ErrorComponent errorTitle={viewSchema?.result_error_title} errorMessage={viewSchema?.result_error_message} />;
 
     // Show loading skeleton if queryResultPage is not ready
-    return !queryResultPage?.combined_query_result ? <LoadingSkeleton /> :
+    return !(queryResultPage?.combined_query_result) ? <LoadingSkeleton /> :
         (<Container sx={{ width: '100%', overflowX: 'auto', maxWidth: '1440px', marginX: '20px', alignSelf: 'center', overflow: 'visible' }} maxWidth={false}>
             <Backdrop
                 sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
@@ -480,9 +508,11 @@ function SearchResult() {
             >
                 <Box
                     component="img"
-                    src={referenceData.empirical_evidence.lambda_function ? (typeToImage?.length && `data:image/jpeg;base64,${typeToImage}`) : VisuImage}
+                    src={referenceData.empirical_evidence?.lambda_function ? (typeToImage?.length && `data:image/jpeg;base64,${typeToImage}`) : VisuImage}
                     alt="Empirical Evidence"
                     sx={{
+                        maxWidth: '100%',
+                        maxHeight: '100%',
                     }}
                 />
             </Backdrop>
@@ -499,7 +529,7 @@ function SearchResult() {
                     padding: '20px',
                     backgroundColor: '#E4F0F1',
                     marginBottom: '20px',
-                    marginTop: '60px',
+                    marginTop: '30px',
                     borderRadius: '20px'
                 }}>
                     <Grid container spacing={4} height={"100%"} sx={{ alignItems: "stretch" }}>
@@ -717,7 +747,6 @@ function SearchResult() {
                                 },
                             }}
                         >
-
                             {tabOptions.map((option, index) => (
                                 <Tab
                                     sx={{
@@ -847,63 +876,80 @@ function SearchResult() {
                         <Collapse in={currTab === 'empirical_evidence'}>
                             <List sx={{ padding: '0px' }}>
                                 {referenceData?.empirical_evidence &&
-                                    (
-                                        <Box sx={{ flexDirection: 'row', display: 'flex', gap: '45px' }}>
-                                            {/* <Image
-                                            src={VisuImage}
-                                            alt="Empirical Evidence"
-                                            width={100}
-                                            height={100}
-                                            style={{ borderRadius: '10px', marginRight: '10px' }}
-                                        /> */}
-                                            <Box sx={{ position: 'relative' }}>
-                                                <Box
-                                                    component="img"
-                                                    src={referenceData.empirical_evidence.lambda_function ? (typeToImage?.length && `data:image/jpeg;base64,${typeToImage}`) : VisuImage}
-                                                    alt="Empirical Evidence"
-                                                    sx={{
-                                                        height: '235px',
-                                                        marginY: '14px',
-                                                        marginX: '25px',
-                                                        borderRadius: '10px',
-                                                        marginRight: '10px',
-                                                    }}
-                                                />
-                                                <Link sx={{
-                                                    textDecoration: 'none',
-                                                    "& .MuiTypography-root:hover": {
+                                    (<Box sx={{ flexDirection: 'row', display: 'flex', gap: '45px', alignItems: 'center' }}>
+                                        {(referenceData.empirical_evidence.lambda_function && !(typeToImage?.length)) ? (
+                                            <Box sx={{
+                                                backgroundColor: '#F2FAFB',
+                                                marginY: '14px',
+                                                marginLeft: '25px',
+                                                borderRadius: '10px',
+                                                marginRight: '10px',
+                                                minWidth: '250px',
+                                                minHeight: '250px',
+                                                position: 'relative',
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                            }} >
+                                                <CircularProgress sx={{}} />
+                                            </Box>
+                                        ) : (<Box sx={{ position: 'relative' }}>
+                                            <Box
+                                                component="img"
+                                                src={referenceData.empirical_evidence.lambda_function ?
+                                                    (typeToImage?.length ? `data:image/jpeg;base64,${typeToImage}` : "")
+                                                    : VisuImage}
+                                                alt="Empirical Evidence"
+                                                sx={{
+                                                    maxHeight: '235px',
+                                                    maxWidth: '500px',
+                                                    marginY: '14px',
+                                                    marginLeft: '25px',
+                                                    borderRadius: '10px',
+                                                    marginRight: '10px',
+                                                }}
+                                            />
+                                            <Link sx={{
+                                                textDecoration: 'none',
+                                                "& .MuiTypography-root:hover":
+                                                    referenceData.empirical_evidence.legend === "View" ? {
                                                         background: '#4A4A4B66',
                                                         color: 'white',
                                                         cursor: 'pointer',
-                                                    },
-                                                }}>
-                                                    <Typography sx={{
-                                                        position: 'absolute',
-                                                        top: '26px',
-                                                        left: '35px',
-                                                        borderRadius: '6px',
-                                                        padding: '4px 12px',
-                                                        background: '#4A4A4BB2',
-                                                        fontFamily: 'Open Sans',
-                                                        fontSize: '13px',
-                                                        fontWeight: 600,
-                                                        color: 'white',
-                                                        transition: 'background 0.2s ease',
-                                                    }} onClick={
-                                                        referenceData.empirical_evidence.legend === "View" ? () => setImagePopupOpen(true) : () => { }
-                                                    }>
-                                                        {referenceData.empirical_evidence.legend}
-                                                    </Typography>
-                                                </Link>
-                                            </Box>
-                                            <div>
-                                                <Typography sx={{ fontFamily: 'Open Sans', fontSize: '20px', fontWeight: 700 }}>
-                                                    {referenceData.empirical_evidence.title}
+                                                    } : {},
+                                            }}>
+                                                <Typography sx={{
+                                                    position: 'absolute',
+                                                    top: '26px',
+                                                    left: '35px',
+                                                    borderRadius: '6px',
+                                                    padding: '4px 12px',
+                                                    background: '#4A4A4BB2',
+                                                    fontFamily: 'Open Sans',
+                                                    fontSize: '13px',
+                                                    fontWeight: 600,
+                                                    color: 'white',
+                                                    transition: 'background 0.2s ease',
+                                                }} onClick={
+                                                    referenceData.empirical_evidence.legend === "View" ? () => setImagePopupOpen(true) : () => { }
+                                                }>
+                                                    {referenceData.empirical_evidence.legend}
                                                 </Typography>
-                                                <Typography sx={{ fontFamily: 'Open Sans', fontSize: '16px', fontWeight: 400, color: "#263238", paddingY: '24px' }}>
-                                                    {referenceData.empirical_evidence.description}
-                                                </Typography>
-                                                {referenceData.empirical_evidence.link && <Link href={referenceData.empirical_evidence.link} target="_blank" rel="noopener noreferrer" sx={{ textDecoration: "none" }}>
+                                            </Link>
+                                        </Box>)}
+                                        <Box>
+                                            <Typography sx={{ fontFamily: 'Open Sans', fontSize: '20px', fontWeight: 700 }}>
+                                                {referenceData.empirical_evidence.title}
+                                            </Typography>
+                                            <Typography sx={{ fontFamily: 'Open Sans', fontSize: '16px', fontWeight: 400, color: "#263238", paddingY: '24px' }}>
+                                                {referenceData.empirical_evidence.description}
+                                            </Typography>
+                                            {referenceData.empirical_evidence.link_text &&
+                                                <Link
+                                                    href={referenceData.empirical_evidence.link || handleDownload(variables.dataSource, variables.credibleSetId)}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    sx={{ textDecoration: "none" }}>
                                                     <Typography sx={{
                                                         cursor: 'pointer',
                                                         fontFamily: 'Open Sans',
@@ -913,8 +959,8 @@ function SearchResult() {
                                                     }}>{referenceData.empirical_evidence.link_text}
                                                     </Typography>
                                                 </Link>}
-                                            </div>
                                         </Box>
+                                    </Box>
                                     )
                                 }
                             </List>

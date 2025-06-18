@@ -1,10 +1,82 @@
-import React, { useEffect, useState } from 'react';
-import Slider from "react-slick";
-import { Card, CardContent, Typography, IconButton, Box, Container, Stack, Grid, Paper, Fade, Stepper, Step, StepButton } from "@mui/material";
-import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import { KeyboardArrowUp, KeyboardArrowDown, FiberManualRecord, Link, Description, Equalizer } from '@mui/icons-material';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
+
+import React, {
+  useEffect,
+  useState,
+} from 'react';
+
+import Slider from 'react-slick';
+
+import {
+  ArrowBackIos,
+  ArrowForwardIos,
+  CheckCircle,
+  Close,
+  Description,
+  Equalizer,
+  Error,
+  FiberManualRecord,
+  Info,
+  KeyboardArrowDown,
+  KeyboardArrowUp,
+  Link,
+  Notifications,
+  Warning,
+} from '@mui/icons-material';
+import {
+  Box,
+  Card,
+  CardContent,
+  Container,
+  Fade,
+  IconButton,
+  Stack,
+  Typography,
+} from '@mui/material';
+
+const iconMap = {
+  success: <CheckCircle fontSize="inherit" />,
+  error: <Error fontSize="inherit" />,
+  warning: <Warning fontSize="inherit" />,
+  info: <Info fontSize="inherit" />,
+  notification: <Notifications fontSize="inherit" />,
+};
+
+const bgColors = {
+  success: "#E6F4EA", // Light green
+  error: "#FCE8E6", // Light red
+  warning: "#FEF7E0", // Light yellow
+  info: "#E8F0FE", // Light blue
+  notification: "#F3F4F6", // Light gray
+};
+
+export const AlertMessage = ({ type = "info", content, sx = {}, open = true, onClose = () => { } }) => {
+  return (
+    <Snackbar open={open} onClose={() => { }} autoHideDuration={5000} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+      <Alert
+        variant="outlined"
+        severity={type === "notification" ? "info" : type}
+        icon={iconMap[type]}
+        action={
+          <IconButton size="small" color="inherit" onClick={onClose}>
+            <Close fontSize="small" />
+          </IconButton>
+        }
+        sx={{
+          backgroundColor: bgColors[type],
+          border: "1px solid",
+          borderColor: "inherit",
+          display: "flex",
+          alignItems: "center",
+          ...sx,
+        }}
+      >
+        {content}
+      </Alert>
+    </Snackbar>
+  );
+};
 
 
 // const cardData = [
