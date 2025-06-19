@@ -49,8 +49,6 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
       width: '100%',
       height: '100%',
       overflowY: 'auto',
-      marginTop: '44px',
-      marginBottom: '44px',
     }}>
       <Typography sx={{
         fontSize: 28,
@@ -95,10 +93,9 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
       <List
         sx={{
           marginTop: '16px',
-          marginBottom: '16px',
+          marginBottom: '10px',
           width: '100%',
-          maxHeight: '300px', // Limit the height of the list
-          overflowY: 'auto', // Enable vertical scrolling if content exceeds maxHeight
+          overflowY: 'auto',
         }}
       >
         {questions.map((question, index) => {
@@ -125,7 +122,7 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
                   textDecoration: 'none',
                   border: '1px solid #ccc',
                   borderRadius: '8px',
-                  padding: '10px',
+                  padding: '16px',
                   paddingLeft: '0px',
                   backgroundColor: isRelated ? '#FBFFFF' : '#e0e0e0',
                   color: '#333',

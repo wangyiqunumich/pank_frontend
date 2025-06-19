@@ -21,3 +21,30 @@ body {
     background-color: rgba(255, 183, 127, 0.4);
     border-radius: 8px;
 }
+
+@keyframes blink-gene {
+    0%   { background-color: #EFF5FF; }
+    50%  { background-color: #71B9FA; }
+    100% { background-color: #EFF5FF; }
+  }
+  .blinking-gene {
+    animation: blink-gene 1s linear infinite;
+  }
+
+@keyframes blink-cell {
+    0%   { background-color: #FFDE7D66; }
+    50%  { background-color: #FAC323; }
+    100% { background-color: #FFDE7D66; }
+    }
+    .blinking-cell {
+    animation: blink-cell 1s linear infinite;
+}
+
+@keyframes blink-snp {
+    0%   { background-color: #FFB77F66; }
+    50%  { background-color: #FFB77F; }
+    100% { background-color: #FFB77F66; }
+  }
+  .blinking-snp {
+    animation: blink-snp 1s linear infinite;
+  }

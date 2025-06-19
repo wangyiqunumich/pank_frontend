@@ -29,6 +29,7 @@ import landingPageLogo from '../image/landing image cropped.png';
 import { queryVocab } from '../redux/inputToVocabSlice'; // Import the action
 import { nodeAutoWidth } from './style.js';
 import { queryQueryResult } from '../redux/queryResultSlice';
+import { AlertMessage } from './SupportingMaterial';
 
 // Color utilities and constants
 const getContrastingColor = (bgColor) => {
@@ -218,6 +219,9 @@ function MatchPage() {
   const [geneOptions, setGeneOptions] = useState([]);
   const [cellOptions, setCellOptions] = useState([]);
   const [snpOptions, setSnpOptions] = useState([]);
+  const [showBoxEmptyWarning, setShowBoxEmptyWarning] = useState(false);
+  const [showBoxFilledWarning, setShowBoxFilledWarning] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -257,6 +261,16 @@ function MatchPage() {
 
   // Handle submit button click
   const handleSubmit = () => {
+    if (isSubmitDisabled) {
+      if(inputValue){
+        setShowBoxFilledWarning(true);
+      }
+      else{
+        setShowBoxEmptyWarning(true);
+      }
+      return;
+    }
+    
     if (selectedQuestion.startsWith('How does')) {
       const url = `/result?sourceTerm=gene@${geneId.split('(')[1].slice(0, -1)}&targetTerm=cell_type&relationship=express_in`
       navigate(url);
@@ -297,6 +311,7 @@ function MatchPage() {
 
   function updateSource(newInputValue,type) {
     const keyWord = newInputValue;
+    setIsLoading(true);
     dispatch(queryQueryResult({ isNeptune: false,
       query: "SELECT id, name FROM gene_name WHERE name % '" + keyWord + "'ORDER BY similarity(name, '"+keyWord+"') DESC LIMIT 5;" })).unwrap()
       .then((response) => {
@@ -305,8 +320,14 @@ function MatchPage() {
           const parsedResponse = response.results[0].credible_sets.map((item, index) => {
             return `${item.name}(${item.id})`;
           });
-          setGeneOptions(parsedResponse);
+          if (parsedResponse.length === 0) {
+            setGeneOptions([{ label: `${type} not found`, disabled: true, notFound: true }]);
+          } else {
+            setGeneOptions(parsedResponse);
+          }
         }
+      }).finally(() => {
+        setIsLoading(false);
       });
   }
 
@@ -339,11 +360,11 @@ function MatchPage() {
             } else {
               const errorMessage = `Wrong input type`;
               if (type === 'gene') {
-                setGeneOptions([{ label: errorMessage, disabled: true }]);
+                setGeneOptions([{ label: `${type} not found`, disabled: true , notFound: true }]);
               } else if (type === 'cell') {
-                setCellOptions([{ label: errorMessage, disabled: true }]);
+                setCellOptions([{ label: `${type} not found`, disabled: true , notFound: true }]);
               } else if (type === 'snp') {
-                setSnpOptions([{ label: errorMessage, disabled: true }]);
+                setSnpOptions([{ label: `${type} not found`, disabled: true , notFound: true }]);
               }
             }
 
@@ -394,10 +415,11 @@ function MatchPage() {
               }}
               onInputChange={(event, newInputValue) => {
                 if (newInputValue) {
-                  updateValidation(newInputValue, type);
                   updateSource(newInputValue, type);
+                  updateValidation(newInputValue, type);
                   // setIsSubmitDisabled(!options.includes(newInputValue));
                 } else {
+                  setInputValue(''); // Clear inputValue when input is cleared
                   if (type === 'gene') {
                     setGeneId('');
                     setGeneOptions([]);
@@ -427,6 +449,17 @@ function MatchPage() {
                       if (!prevQuestion) return '';
                       return prevQuestion.replace(`{${part.slice(1, -1)}}`, `{${newValue}}`);
                     });
+                  }
+                } else {
+                  // Clear inputValue when user clicks the clear button
+                  setInputValue('');
+                  if (type === 'gene') {
+                    setGeneId('');
+                  }
+                  else if (type === 'cell') {
+                    setCellId('');
+                  } else if (type === 'snp') {
+                    setSnpId('');
                   }
                 }
               }}
@@ -469,6 +502,18 @@ function MatchPage() {
                     },
                   }}
                 />
+              )}
+              renderOption={(props, option) => (
+                <li
+                  {...props}
+                  style={{
+                    color: option.notFound ? 'red' : 'inherit',
+                    cursor: option.disabled ? 'not-allowed' : 'pointer',
+                    fontStyle: option.notFound ? 'italic' : 'normal'
+                  }}
+                >
+                  {option.label || option}
+                </li>
               )}
             />
           </Box>
@@ -524,49 +569,69 @@ function MatchPage() {
     setIsSubmitDisabled(!isabled);
   }, [geneId, cellId, snpId]);
 
+  useEffect(() => {
+    if (showBoxEmptyWarning) {
+      const timer = setTimeout(() => {
+        setShowBoxEmptyWarning(false);
+      }, 5000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [showBoxEmptyWarning]);
 
   return (
     <Container maxWidth={false} disableGutters sx={{
-      width: '100%',
       display: 'flex',
-      flexDirection: { sm: 'column', md: 'row' }, justifyContent: 'flex-start',
-      flex: 1, alignItems: 'top',
+      flexDirection: {sm: 'column', md: 'row'}, justifyContent: 'center',
+      alignItems: 'top',
       paddingTop: '40px',
-      paddingLeft: { sm: 0, md: '10%' },
-      paddingRight: { sm: 0, md: '10%' },
+      paddingLeft: {sm: 0, md: '6%'},
+      paddingRight: {sm: 0, md: '6%'},
       paddingBottom: '40px',
     }}>
 
       {/* 左侧图片 */}
       <Box sx={{
-        width: { sm: '80%', md: '50%' },
-        marginTop: { sm: '0px', md: '60px' },
+        flex: 1, 
+        position: 'relative',
         display: 'block',
-        textAlign: 'left',
         '& img': {
-          width: '87%',
+          width: '100%',
+          maxHeight: '40vh',
           objectFit: 'contain',
         }
       }}>
+        <Box sx={{
+          position: {sm: 'relative', md: 'absolute'},
+          top: {sm: '0', md: '2.4vh'},
+          left: 0,
+          right: 0,
+          bottom: 0,
+          margin: 'auto',
+          display: 'flex', flexDirection: 'column', justifyContent: 'top', alignItems: 'center',
+        }}>
         <img src={landingPageLogo} alt="PanKgraph" />
-        <Box sx={{ width: '80%', display: 'flex', justifyContent: 'center', marginTop: '20px', alignItems: 'center' }}>
+        <Box sx={{  display: 'flex', justifyContent: 'center', marginTop: '20px', alignItems: 'center' }}>
           <TerminalIcon sx={{ width: '30px', color: '#C48E25' }} />
           <Typography sx={{ marginLeft: '10px', fontSize: '20px' }}>
             Access PanKgraph with <Link
               href={process.env.REACT_APP_PANKGRAPH_LINK + '/api'}
               sx={{ textDecoration: 'underline', color: 'black', textAlign: 'right' }}>API</Link>
           </Typography>
+          </Box>
         </Box>
       </Box>
 
       {/* 右侧内容区域 */}
       <Box sx={{
-        width: { sm: '80%', md: '50%' },
-        height: '100%',
+        width: { sm: '90%', md: '40vw' },
+        minHeight: '60vh',
         marginTop: { sm: '0px', md: '20px' },
+        marginRight: 1,
+        marginLeft: {sm: '5%', md: 0},
         display: 'flex',
         flexDirection: 'column',
-        gap: 3,
+        gap: 2,
         backgroundColor: '#E4F0F1',
         borderRadius: '20px',
         padding: 3,
@@ -672,12 +737,50 @@ function MatchPage() {
             )}
           </Box>
         </Box>
+        <AlertMessage
+          type="warning"
+          content="Please ensure all boxes are filled out before submitting"
+          open={showBoxEmptyWarning}
+          onClose={() => setShowBoxEmptyWarning(false)}
+          sx={{
+            '& .MuiSnackbar-root': {
+              position: 'static',
+              transform: 'none',
+              top: 'auto',
+              left: 'auto',
+              right: 'auto',
+              bottom: 'auto',
+            },
+            '& .MuiAlert-root': {
+              marginBottom: '10px',
+            }
+          }}
+        />
+        <AlertMessage
+          type="warning"
+          content="We couldn't find one or more entities from our database. Try use a different gene or SNP."
+          open={showBoxFilledWarning}
+          onClose={() => setShowBoxFilledWarning(false)}
+          sx={{
+            '& .MuiSnackbar-root': {
+              position: 'static',
+              transform: 'none',
+              top: 'auto',
+              left: 'auto',
+              right: 'auto',
+              bottom: 'auto',
+            },
+            '& .MuiAlert-root': {
+              marginBottom: '10px',
+            }
+          }}
+        />
         <Button
           variant="contained" // Use a contained button for emphasis
           color="primary" // Use the primary color
           sx={{
-            backgroundColor: '#219197', // Custom background color
-            color: '#FFFFFF', // Text color
+            backgroundColor: isSubmitDisabled ? '#F0F0F0' : '#219197', // Custom background color
+            color: isSubmitDisabled ? 'rgba(57, 130, 137, 0.4)' : 'rgba(255, 255, 255)', // Text color
             textTransform: 'none', // Prevent uppercase text
             fontSize: '16px', // Adjust font size
             fontWeight: 600, // Bold text
@@ -687,7 +790,7 @@ function MatchPage() {
             fontFamily: 'Open Sans',
             boxShadow: '0px 2px 2px 0px rgba(0, 0, 0, 0.40)',
             '&:hover': {
-              backgroundColor: '#1A7A75', // Darker shade on hover
+              backgroundColor: isSubmitDisabled ? '#F0F0F0' : '#1A7A75', // Darker shade on hover
             },
             '&[disabled]': {
               backgroundColor: '#F0F0F0', // Lighter shade when disabled
@@ -695,7 +798,6 @@ function MatchPage() {
             },
           }}
           onClick={handleSubmit}
-          disabled={isSubmitDisabled}
         >
           SUBMIT
         </Button>

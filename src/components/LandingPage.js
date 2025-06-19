@@ -40,10 +40,10 @@ function LandingPage() {
     <Container maxWidth={false} disableGutters sx={{
       display: 'flex',
       flexDirection: {sm: 'column', md: 'row'}, justifyContent: 'center',
-      flex: 1, alignItems: 'top',
+      alignItems: 'top',
       paddingTop: '40px',
-      paddingLeft: {sm: 0, md: '10%'},
-      paddingRight: {sm: 0, md: '10%'},
+      paddingLeft: {sm: 0, md: '6%'},
+      paddingRight: {sm: 0, md: '6%'},
       paddingBottom: '40px',
     }}>
       {/* <Snackbar
@@ -67,35 +67,47 @@ function LandingPage() {
       </Snackbar> */}
 
       {/* 左侧图片 */}
-      <Box sx={{ 
-        width: {sm: '100%', md: '50%'},
+      <Box sx={{
+        flex: 1, 
+        position: 'relative',
         display: 'block',
-        marginTop: {sm: '0px', md: '60px'},
-        textAlign: 'left',
         '& img': {
-          maxWidth: '80%',
+          width: '100%',
+          maxHeight: '40vh',
           objectFit: 'contain',
         }
       }}>
+        <Box sx={{
+          position: {sm: 'relative', md: 'absolute'},
+          top: {sm: '0', md: '2.4vh'},
+          left: 0,
+          right: 0,
+          bottom: 0,
+          margin: 'auto',
+          display: 'flex', flexDirection: 'column', justifyContent: 'top', alignItems: 'center',
+        }}>
         <img src={landingPageLogo} alt="PanKgraph" />
-        <Box sx={{ width: '80%', display: 'flex', justifyContent: 'center', marginTop: '20px', alignItems: 'center' }}>
-          <TerminalIcon sx={{ width: '30px', color: '#C48E25' }}/>
-          <Typography sx={{ marginLeft: '10px', fontSize: '20px'}}>
+        <Box sx={{  display: 'flex', justifyContent: 'center', marginTop: '20px', alignItems: 'center' }}>
+          <TerminalIcon sx={{ width: '30px', color: '#C48E25' }} />
+          <Typography sx={{ marginLeft: '10px', fontSize: '20px' }}>
             Access PanKgraph with <Link
               href={process.env.REACT_APP_PANKGRAPH_LINK + '/api'}
-              sx={{ textDecoration: 'underline', color: 'black', textAlign: 'right'}}>API</Link>
+              sx={{ textDecoration: 'underline', color: 'black', textAlign: 'right' }}>API</Link>
           </Typography>
+          </Box>
         </Box>
       </Box>
 
+
       {/* 右侧内容区域 */}
       <Box sx={{ 
-        width: {sm: '80%', md: '50%'},
-        height: '100%',
+        width: {sm: '90%', md: '50%'},
+        height: '60vh',
         display: 'flex',
         flexDirection: 'column',
         gap: 3,
         marginRight: 1,
+        marginLeft: {sm: '5%', md: 0},
       }}>
         
         {/* 更新 Question 组件，传入 setSelectedQuestion */}
