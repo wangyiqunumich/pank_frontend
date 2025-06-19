@@ -67,7 +67,7 @@ export default function KnowledgeGraph() {
   const [infocardPosition, setInfocardPosition] = useState({ x: 0, y: 0 });
   const [infocardVisible, setInfocardVisible] = useState(false);
   const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
-  const [legendVisible, setLegendVisible] = useState(false);
+  const [legendVisible, setLegendVisible] = useState(true);
   const [zoomLevel, setZoomLevel] = useState(1.5);
   const [initZoom, setInitZoom] = useState(1.5);
   const [infocardHovered, setInfocardHovered] = useState(false);
@@ -135,8 +135,8 @@ export default function KnowledgeGraph() {
           ) : ["label_chr", "label_percentage"].includes(type) ? (
             <div style={{
               backgroundColor: setting || "#0FB47D",
-              height: "9px",
-              padding: "4px 4px",
+              height: "14px",
+              padding: "1.5px 4px",
               marginY: "-4px",
               borderRadius: "8.5px",
               textDecoration: "none",
@@ -181,7 +181,7 @@ export default function KnowledgeGraph() {
               </Typography>
             </Box>
             {
-              schema.map(([title, content]) => (
+              schema.map(([title, content, config]) => (
                 ["Title", "Footer"].includes(title) ? "" : (
                   <Box key={title} sx={{
                     width: "calc(100% - 32px)",
@@ -212,7 +212,8 @@ export default function KnowledgeGraph() {
                               fontWeight: "600",
                               fontSize: "12px",
                               color: "#6B7880",
-                              lineHeight: "9px",
+                              lineHeight: "14px",
+                              marginTop: "-5px",
                             }}>
                               {label}
                             </Typography>
@@ -225,7 +226,8 @@ export default function KnowledgeGraph() {
                                 fontSize: "12px",
                                 color: "#263238",
                                 marginLeft: "8px",
-                                lineHeight: "9px",
+                                lineHeight: "14px",
+                                marginTop: "-5px",
                               }}
                             >
                               <InfocardData value={hoveredData[key]} dataKey={key} config={config} />
@@ -246,7 +248,11 @@ export default function KnowledgeGraph() {
                                 textAlign: "justify",
                               }}
                             >
-                              {addWhitespace(hoveredData[content])}
+                              {(() => {
+                                const processedData = config !== "string" ? addWhitespace(hoveredData[content]) : hoveredData[content];
+                                const processedKey = config === "string" ? addWhitespace(content) : content;
+                                return <InfocardData value={processedData} dataKey={processedKey} config={config} />
+                              })()}
                             </Typography>
                           </Box>
                         )
@@ -637,9 +643,9 @@ export default function KnowledgeGraph() {
           <Collapse in={legendVisible} timeout="auto">
             <div style={{ width: "430px", paddingTop: "10px", fontSize: "16px", fontFamily: "Open Sans", fontWeight: 400 }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingBottom: "4px", fontSize: "12px" }}>
-                <LegendItem label="　　　　" sx={{ backgroundColor: "#D9D9D9", color: "black", border: "1.5px solid #D9D9D9", height: "8px" }} />
+                <LegendItem label="　　　　" sx={{ backgroundColor: "#E9E9E9", color: "black", border: "1.5px solid #E9E9E9", height: "8px" }} />
                 Core Nodes
-                <LegendItem label="　　　　" sx={{ backgroundColor: "white", color: "black", border: "1.5px solid #7F7D7D", height: "8px", marginLeft: "16px" }} />
+                <LegendItem label="　　　　" sx={{ backgroundColor: "white", color: "black", border: "1.5px solid #E9E9E9", height: "8px", marginLeft: "16px" }} />
                 Neighbor
               </div>
               <div

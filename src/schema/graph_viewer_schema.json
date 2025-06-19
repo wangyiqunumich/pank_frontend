@@ -206,11 +206,17 @@
                     "name"
                 ],
                 [
+                    "Description",
+                    "Open chromatin region cluster containing gene activity scores rather than actual peaks",
+                    "string"
+                ],
+                [
                     "Footer",
                     [
                         [
                             "Data Source",
-                            "data_source"
+                            "https://data.pankbase.org/analysis-sets/PKBDS0470WCHR/",
+                            "link_static"
                         ]
                     ]
                 ]

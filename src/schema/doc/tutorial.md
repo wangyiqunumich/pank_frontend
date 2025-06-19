@@ -1,83 +1,98 @@
 # PanKgraph Tutorial
 
-## Landing Page Overview
-Welcome to **PanKgraph**, your gateway to an intuitive and comprehensive data portal designed for Type 1 Diabetes (T1D) research. Seamlessly explore our integrated multi-omics knowledge graph to uncover valuable genetic, molecular, and clinical insights that drive discoveries in T1D.
+Welcome to **PanKgraph**, your intuitive data portal for exploring comprehensive genetic, molecular, and clinical insights into Type 1 Diabetes (T1D).
 
-### Key Features of PanKgraph's Knowledge Graph Search
+### 1. **Step 1: Select Your Question of Interest**
 
-### 1. **Select Your Question of Interest**
-- Start by selecting a question from the predefined list of commonly asked queries. 
-- Example includes:
-  - *“Which SNP serves as the quantitative trait locus (QTL) for \<gene\>?”*
+**Start by selecting a predefined question to guide your exploration.**
+ In this case, we choose:
 
-This step ensures your query is contextualized and tailored for specific scientific exploration.
+-  *“Which SNP serves as the quantitative trait locus (QTL) for [gene]?”*
 
-### 2. **Natural Language-Based Query Refinement**
-After selecting your question, refine it further step-by-step:
-- **Source Term**: Start with your point of interest (e.g., *sequence variant*).
-- **Relationship**: Define how entities are connected (e.g., *eQTL of*, *co-expressed with*).
-- **Target Term**: Specify the target entity for your query (e.g., *CFTR gene*).
+![Step1 Image](https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/tut/1.png)
 
-As you refine each term, the interface dynamically updates the natural-language representation of your query. For instance:  
-- *“Which SNP serves as the quantitative trait locus (QTL) for CFTR?”*
+### 2. **Step 2: Refine Your question**
 
-### 3. **Dynamic Query Formation**
-- **Real-Time Updates**: 
-  - The displayed question dynamically evolves as you refine the Source Term, Relationship, or Target Term.
-  - Example: Changing the Target Term from "CFTR" to another gene updates the question instantly.
-- Once you click **Search**, the question becomes fixed and serves as the basis for result exploration.
 
-### 4. **Search Button: Triggering Data Retrieval**
+**Enter a specific gene or SNP to complete the question.**
+In this case, specify your gene by typing its official symbol or Ensembl ID — here, we enter CFTR.
 
-### Tips for Experts
-- Use **specific gene names or IDs** (e.g., ENSG00000001626) to enhance the precision of your queries.
-- Refer to the example query link for additional context:  
-  *How does SNP rs2402203 influence the splicing of CFTR in the pancreas, as reported by GTEx?*
+  
 
----
+![Step2 Image](https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/tut/2.png)
+
+  
+  
+
+### 3. **Step 3: Submit Your question**
+
+  
+
+**After finalizing your input, click ' <u>Submit </u>' to launch your question.**
+
+  
+
+![Step3 Image](https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/tut/3.png)
+
+  
+  
+
 ## Intermediate Selection Page Overview
 
-### Current Question (Top Section)
-- **Displayed Question**  
-  PanKgraph automatically forms a question based on your selections (e.g., *“Which SNP is the lead variant for the QTL signal associated with CENPP?”*).
+  
 
-### Results Display Section
-Results are shown in collapsible panels, each representing a QTL data subtype (e.g., *eQTL GTEx*, *Splicing QTL*, *Exon QTL*).
+### 4. **Step 4:Review Your Preliminary Results**
 
-- **Collapsible Data Panels**  
-  - Each panel title (e.g., **“Pancreatic eQTL (2)”**) shows the tissue and the number of QTL signals available.
-- **Detailed SNP Listings**  
-  - **Interactive Links**  
-    Clicking a SNP navigates to a comprehensive **Result Page** with in-depth data.
+  <!--Misleading title-->
 
-### How to Use This Page
-1. Confirm your question aligns with what you intended to ask.  
-2. Scan the overview of QTL data types and see how many signals are available.  
-3. Identify SNPs of interest for deeper exploration on the **Result Page**.
----
+**Explore credible sets displayed by category (e.g., Pancreatic eQTL, Splicing QTL). Each credible set contains SNP details including purity, lead SNP, and PIP.**
+  <!--need to tell the user that a selection is required at this step.-->
+  
+In this case, we select CredibleSet_C1, which includes rs2402203 as the lead SNP.
+
+![Step4 Image](https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/tut/4.png)
+
+  
+
 ## Result Page Overview
-The **Result Page** shows your finalized question, a knowledge graph visualization, and an AI-generated summary of findings.
 
-### Current Question
-- **Locked Question**  
-  Now that you’ve clicked a SNP, the question is fixed (e.g., *“How does the lead SNP rs75511728 influence the eQTL of PTPN22 in pancreatic tissue?”*). Use this as a reference while exploring the results.
+  
 
-### Knowledge Graph Viewer
-- **Visual Representation of Results**  
-  Places the SNP or gene at the center, highlighting relationships to other entities (genes, SNPs, pathways).
-- **Consistent Color Coding**  
-  Each entity type (Gene, Sequence Variant, Pathway, etc.) is color-coded, matching text highlights in the AI overview.
-- **Extended Connections**  
-  Semi-transparent nodes represent related concepts not directly specified in your query, providing avenues for further investigation.
+The result page includes your finalized question, an interactive knowledge graph, and an AI-generated summary.
 
-### AI’s Overview
-- **Summarized Insight**  
-  An AI-generated summary explains how the discovered relationships may influence T1D.  
-- **Emphasis on Key Entities**  
-  Relevant genes, SNPs, or pathways are highlighted in the same colors shown in the Knowledge Graph for clarity.
-- **Data-Driven Details**  
-  Includes crucial metrics (p-values, Posterior Inclusion Probability, etc.), along with references (PMIDs) and external resource links (Ensembl, PanKbase).
+  
 
-### You May Also Ask
-- **Suggested Follow-Up Queries**  
-  Based on the observed relationships, this section provides additional questions (e.g., investigating related variants, genes, or regulatory pathways), guiding your continued exploration of T1D genetics.
+### 5. **Detailed Exploration**
+ <!--Step5: View Your Results-->
+  
+
+-  **Locked Question**: The finalized question appears at the top for your reference.
+
+-  **Interactive Graph Viewer**: Visually represents the knowledge graph in PanKgraph to answer the question
+
+-  **AI-generated Overview**: Provides concise summaries of gene and SNP relevance to T1D.
+
+  
+
+![Step5 Image](https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/tut/5.png)
+
+  
+
+### Step6: Further Exploration
+
+**Use the **"<u>You May Also Ask</u>"** section for related queries or access the **PanKgraph API** for batch queries.**
+
+
+<!--The hierarchy is incorrect — either "You May Also Ask" and "Reference" should be at the same level, or "Reference" should be moved into Step 5. Some of the content in the "Reference" section is simply supporting material for the summary.-->
+
+### Quick Reference Tabs
+
+-  **References**: Supporting literature.
+
+-  **Empircal Evidence**: Key statistical summaries.
+
+-  **PanKbase Links**: Related resources.
+
+-  **External Links**: Additional databases (e.g., Ensembl, GTEx).
+
+Explore confidently with PanKgraph, accelerating your T1D research discoveries.
