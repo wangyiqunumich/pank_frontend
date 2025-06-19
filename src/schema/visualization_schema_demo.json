@@ -65,6 +65,10 @@
                                     "https://pankgraph.org/pipeline"
                               ],
                               [
+                                    "QTL Code",
+                                    "https://github.com/PanKbase/PanKgraph-finemap-coloc"
+                              ],
+                              [
                                     "Integrated Cell Browser",
                                     "https://pankbase.org:8000/single-cell.html?PKBdatasetId=islet_of_Langerhans_scRNA_v1"
                               ]
@@ -142,6 +146,10 @@
                               [
                                     "QTL Pipeline",
                                     "https://pankgraph.org/pipeline"
+                              ],
+                              [
+                                    "QTL Code",
+                                    "https://github.com/PanKbase/PanKgraph-finemap-coloc"
                               ],
                               [
                                     "Integrated Cell Browser",
@@ -223,6 +231,10 @@
                                     "https://pankgraph.org/pipeline"
                               ],
                               [
+                                    "QTL Code",
+                                    "https://github.com/PanKbase/PanKgraph-finemap-coloc"
+                              ],
+                              [
                                     "Integrated Cell Browser",
                                     "https://pankbase.org:8000/single-cell.html?PKBdatasetId=islet_of_Langerhans_scRNA_v1"
                               ]
@@ -275,12 +287,36 @@
                         },
                         "pankbase_links": [
                               [
-                                    "Expression Data Source",
-                                    "https://pankbase.org:8000/metadata-data-standards.html"
+                                    "snATAC Data Source",
+                                    "https://data.pankbase.org/analysis-sets/PKBDS0470WCHR/"
                               ],
                               [
-                                    "Integrated Cell Browser",
-                                    "https://pankbase.org:8000/single-cell.html?PKBdatasetId=islet_of_Langerhans_scRNA_v1"
+                                    "snATAC Pipeline",
+                                    "https://hugeampkpncms.org/sites/default/files/images/pankbase/pipelines/snATACprocessingpipeline_parul_pankbase.pdf"
+                              ],
+                              [
+                                    "snATAC Code",
+                                    "https://github.com/PanKbase/HPAP-scATAC-seq/blob/main/clustering_notebooks/query_snatac.ipynb"
+                              ],
+                              [
+                                    "scRNAseq Data Source",
+                                    "https://data.pankbase.org/analysis-sets/PKBDS1349YHGQ/"
+                              ],
+                              [
+                                    "scRNAseq Pipeline",
+                                    "https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/expression_pipeline.pdf"
+                              ],
+                              [
+                                    "scRNAseq Code",
+                                    "https://github.com/PanKbase/PanKbase-scRNA-seq"
+                              ],
+                              [
+                                    "DEG Pipeline",
+                                    "https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/deg_pipeline.pdf"
+                              ],
+                              [
+                                    "DEG Code",
+                                    "https://github.com/PanKbase/PanKbase-DEG-analysis"
                               ]
                         ],
                         "external_links": [
