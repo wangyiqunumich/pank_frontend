@@ -1,10 +1,15 @@
-import React from 'react';
-import { AppBar, Toolbar, Box, Typography, Container } from '@mui/material';
-import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { setSearchTerms } from '../redux/searchSlice';
 import './scoped-shared.scss';
+
+import React from 'react';
+
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+
+import { Typography } from '@mui/material';
+
 import hirnLogo from '../image/logo-hirn.svg';
+import { setSearchTerms } from '../redux/searchSlice';
+
 function NavBar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -75,8 +80,8 @@ function NavBar() {
                 <a className="menu-item" href="/">Data</a>
                 <div className="submenu">
                   {/*<a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/data-browser.html'}>Data Browser</a>*/}
+                  <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/donor-metadata.html'}>Donor Summary</a>
                   <a className="submenu-item" href={process.env.REACT_APP_DATA_LIB_LINK}>Data Library</a>
-                  <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/donor-metadata.html'}>Donor Metadata</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/apis.html'}>APIs</a>
                 </div>
               </div>
@@ -84,27 +89,30 @@ function NavBar() {
                 <a className="menu-item" href="/">Resources</a>
                 <div className="submenu">
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}>Integrated Cell Browser</a>
+                  <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/diff-exp.html'}>Differential Gene Expression Browser</a>
+                  <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/pca-explorer.html'}>PCA Explorer</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/analytical-library.html'}>Analytical Library</a>
+                  <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/metadata-data-standards.html'}>Metadata Standards</a>
+                  <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/tools-pipelines.html'}>Tools | Pipelines</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/publications.html'}>Publications</a>
                 </div>
               </div>
               <div className="menu-item-wrapper">
                 <a className="menu-item" href="/">About</a>
                 <div className="submenu">
-                  <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/projects.html'}>Project</a>
+                  <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/projects.html'}>PanKbase Program</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/people.html'}>People</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/policies.html'}>Policies</a>
-                  <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/programs.html'}>Programs</a>
+                  <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/programs.html'}>Related Programs</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/collaborate.html'}>Collaborate</a>
                 </div>
               </div>
               <div className="menu-item-wrapper">
                 <a className="menu-item" href="/">Help</a>
                 <div className="submenu">
-                  <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/contact.html'}>Contact</a>
-                  <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/metadata-data-standards.html'}>Metadata | Data Standards</a>
-                  <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/tools-pipelines.html'}>Tools | Pipelines</a>
+                  <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/contact.html'}>Contact | Feedback</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/tutorials.html'}>Tutorials</a>
+                  <a className="submenu-item" href={process.env.REACT_APP_GITHUB_LINK}>GitHub</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/news.html'}>News</a>
                 </div>
               </div>
