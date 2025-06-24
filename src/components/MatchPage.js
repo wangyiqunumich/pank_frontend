@@ -310,25 +310,27 @@ function MatchPage() {
   };
 
   function updateSource(newInputValue,type) {
-    const keyWord = newInputValue;
+    const keyWord = newInputValue.split('(')[0].trim();
     setIsLoading(true);
+    if (type === 'gene'){
     dispatch(queryQueryResult({ isNeptune: false,
       query: "SELECT id, name FROM gene_name WHERE name % '" + keyWord + "'ORDER BY similarity(name, '"+keyWord+"') DESC LIMIT 5;" })).unwrap()
       .then((response) => {
-        if (response) {
+        if (response ) {
           console.log('response from queryQueryResult', response.results[0].credible_sets);
           const parsedResponse = response.results[0].credible_sets.map((item, index) => {
             return `${item.name}(${item.id})`;
           });
           if (parsedResponse.length === 0) {
             setGeneOptions([{ label: `${type} not found`, disabled: true, notFound: true }]);
-          } else {
+          } else{
             setGeneOptions(parsedResponse);
           }
         }
       }).finally(() => {
         setIsLoading(false);
       });
+    }
   }
 
   function updateValidation(newInputValue, type) {
@@ -358,12 +360,12 @@ function MatchPage() {
               setSnpId(id);
               console.log('snpId', snpId);  
             } else {
-              const errorMessage = `Wrong input type`;
-              if (type === 'gene') {
+              console.log('Wrong input type', type);
+              if (type === 'gene'&& geneOptions.length === 0) {
                 setGeneOptions([{ label: `${type} not found`, disabled: true , notFound: true }]);
-              } else if (type === 'cell') {
+              } else if (type === 'cell'&& cellOptions.length === 0) {
                 setCellOptions([{ label: `${type} not found`, disabled: true , notFound: true }]);
-              } else if (type === 'snp') {
+              } else if (type === 'snp'&& snpOptions.length === 0) {
                 setSnpOptions([{ label: `${type} not found`, disabled: true , notFound: true }]);
               }
             }
@@ -402,6 +404,8 @@ function MatchPage() {
           <Box key={index} sx={{ display: 'inline-flex', alignItems: 'center', }} >
             <Autocomplete
               freeSolo
+              open={true}
+              autoFocus
               options={type === 'gene' ? geneOptions : type === 'cell' ? cellOptions : snpOptions}
               getOptionDisabled={(option) => option.disabled}
               className={dictionary[index]}
@@ -412,6 +416,7 @@ function MatchPage() {
                 '& .MuiOutlinedInput-root': {
                   paddingRight: '-12px', // Ensure enough space for the clear button
                 },
+                zIndex: 1000,
               }}
               onInputChange={(event, newInputValue) => {
                 if (newInputValue) {
