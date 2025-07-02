@@ -310,29 +310,32 @@ function MatchPage() {
   };
 
   function updateSource(newInputValue,type) {
-    const keyWord = newInputValue;
+    const keyWord = newInputValue.split('(')[0].trim();
     setIsLoading(true);
+    if (type === 'gene'){
     dispatch(queryQueryResult({ isNeptune: false,
       query: "SELECT id, name FROM gene_name WHERE name % '" + keyWord + "'ORDER BY similarity(name, '"+keyWord+"') DESC LIMIT 5;" })).unwrap()
       .then((response) => {
-        if (response) {
+        if (response ) {
           console.log('response from queryQueryResult', response.results[0].credible_sets);
           const parsedResponse = response.results[0].credible_sets.map((item, index) => {
             return `${item.name}(${item.id})`;
           });
           if (parsedResponse.length === 0) {
+          console.log('parsedResponse length', parsedResponse.length);
             setGeneOptions([{ label: `${type} not found`, disabled: true, notFound: true }]);
-          } else {
+          } else{
             setGeneOptions(parsedResponse);
           }
         }
       }).finally(() => {
         setIsLoading(false);
       });
+    }
   }
 
   function updateValidation(newInputValue, type) {
-    const geneName = newInputValue;
+    const geneName = newInputValue.split('(')[0].trim();
     dispatch(queryVocab({ input: geneName })).unwrap()
       .then((response) => {
         if (response && typeof response.result === 'string') {
@@ -358,20 +361,33 @@ function MatchPage() {
               setSnpId(id);
               console.log('snpId', snpId);  
             } else {
-              const errorMessage = `Wrong input type`;
-              if (type === 'gene') {
+              if (type === 'gene'&& geneOptions.length === 0) {
                 setGeneOptions([{ label: `${type} not found`, disabled: true , notFound: true }]);
-              } else if (type === 'cell') {
+              } else if (type === 'cell'&& cellOptions.length === 0) {
                 setCellOptions([{ label: `${type} not found`, disabled: true , notFound: true }]);
-              } else if (type === 'snp') {
+              } else if (type === 'snp'&& snpOptions.length === 0) {
+              console.log('Wrong input type', type,snpOptions.length);
                 setSnpOptions([{ label: `${type} not found`, disabled: true , notFound: true }]);
               }
             }
 
           }
+        }else{
+          console.log('response not exist', type, geneOptions.length, cellOptions.length, snpOptions.length);
+          if (type === 'gene') {
+            setGeneId('');
+          } else if (type === 'cell') {
+            setCellId('');
+          } else if (type === 'snp') {
+            setSnpId('');
+          }
         }
       });
   };
+
+  useEffect(() => {
+    console.log('snpOptions changed to:', snpOptions);
+  }, [snpOptions]);
 
   function renderSequence() {
     const sequence = selectedQuestion || ''; // 使用选定的问题或空字符串
@@ -402,6 +418,7 @@ function MatchPage() {
           <Box key={index} sx={{ display: 'inline-flex', alignItems: 'center', }} >
             <Autocomplete
               freeSolo
+              autoFocus
               options={type === 'gene' ? geneOptions : type === 'cell' ? cellOptions : snpOptions}
               getOptionDisabled={(option) => option.disabled}
               className={dictionary[index]}
@@ -412,6 +429,7 @@ function MatchPage() {
                 '& .MuiOutlinedInput-root': {
                   paddingRight: '-12px', // Ensure enough space for the clear button
                 },
+                zIndex: 9999,
               }}
               onInputChange={(event, newInputValue) => {
                 if (newInputValue) {
@@ -421,13 +439,16 @@ function MatchPage() {
                 } else {
                   setInputValue(''); // Clear inputValue when input is cleared
                   if (type === 'gene') {
+                    console.log('clear geneOptions', geneOptions);
                     setGeneId('');
                     setGeneOptions([]);
                   }
                   else if (type === 'cell') {
+                    console.log('clear cellOptions', cellOptions);
                     setCellId('');
                     setCellOptions([]);
                   } else if (type === 'snp') {
+                    console.log('clear snpOptions', snpOptions);
                     setSnpId('');
                     setSnpOptions([]);
                   }
@@ -435,14 +456,7 @@ function MatchPage() {
               }}
               onChange={(event, newValue) => {
                 if (newValue) {
-                  if (type === 'gene') {
-                    setGeneId(newValue);
-                  }
-                  else if (type === 'cell') {
-                    setCellId(newValue);
-                  } else if (type === 'snp') {
-                    setSnpId(newValue);
-                  }
+                  updateValidation(newValue, type);
 
                   if (selectedQuestion) {
                     setSelectedQuestion((prevQuestion) => {
@@ -474,6 +488,7 @@ function MatchPage() {
                     setInputValue(e.target.value);  // 更新输入值
                     if (e.target.value) {
                       updateSource(e.target.value);
+                      updateValidation(e.target.value, type);
                     }
                   }}
                   sx={{
@@ -503,18 +518,21 @@ function MatchPage() {
                   }}
                 />
               )}
-              renderOption={(props, option) => (
-                <li
-                  {...props}
-                  style={{
-                    color: option.notFound ? 'red' : 'inherit',
-                    cursor: option.disabled ? 'not-allowed' : 'pointer',
-                    fontStyle: option.notFound ? 'italic' : 'normal'
-                  }}
-                >
-                  {option.label || option}
-                </li>
-              )}
+              renderOption={(props, option) => {
+                console.log('Rendering option:', option);
+                return (
+                  <li
+                    {...props}
+                    style={{
+                      color: option.notFound ? '#E0232E' : 'inherit',
+                      cursor: option.disabled ? 'not-allowed' : 'pointer',
+                      fontStyle: option.notFound ? 'italic' : 'normal'
+                    }}
+                  >
+                    {option.label || option}
+                  </li>
+                );
+              }}
             />
           </Box>
         );
