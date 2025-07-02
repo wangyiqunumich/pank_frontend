@@ -560,6 +560,7 @@ function DocPage() {
                                 '&.Mui-selected': {
                                     fontWeight: 'bold !important',
                                     color: '#24767F',
+                                    backgroundColor: '#21919726',
                                 }
                             },
                         }} >
