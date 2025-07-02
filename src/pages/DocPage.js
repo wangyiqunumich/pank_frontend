@@ -2,10 +2,10 @@ import './Ontology.css';
 import './github-markdown-light.css';
 
 import React, {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
 } from 'react';
 
 import lunr from 'lunr';
@@ -21,12 +21,13 @@ import remarkGfm from 'remark-gfm';
 
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import SearchIcon from '@mui/icons-material/Search';
 import {
-  Autocomplete,
-  Box,
-  Container,
-  TextField,
-  Typography,
+    Autocomplete,
+    Box,
+    Container,
+    TextField,
+    Typography,
 } from '@mui/material';
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
@@ -80,14 +81,23 @@ const defaultPage = pageHierarchy.default;
 const treeNodes = (() => {
     function traverse(node) {
         if (node.children) {
-            return <TreeItem itemId={node.id} label={node.name} key={node.id}>
+            return <TreeItem itemId={node.id} label={node.name} key={node.id} sx={{
+                '.MuiTreeItem-content.Mui-selected': {
+                    '.MuiTreeItem-label': {
+                        fontWeight: 'bold !important',
+                        color: '#24767F',
+                    }
+                }
+            }}>
                 {node.children.map(child => traverse(child))}
             </TreeItem>
         } else {
             return <TreeItem itemId={node.id} label={node.name} key={node.id} />
         }
     }
-    return traverse(pageHierarchy.root);
+    return (<>
+        {pageHierarchy.root?.children.map(child => traverse(child))}
+    </>);
 })();
 
 export function CodeCopyBtn({ children }) {
@@ -374,7 +384,6 @@ function DocPage() {
 
 
     function SearchDropdown() {
-
         return (
             <Autocomplete
                 id="search"
@@ -411,12 +420,23 @@ function DocPage() {
                 renderInput={(params) => (
                     <TextField
                         {...params}
-                        id="searchbartextfield"
-                        label="Search"
-                        variant="outlined"
-                        fullWidth
+                        placeholder="Search"
+                        InputProps={{
+                            ...params.InputProps,
+                            startAdornment: (
+                                <SearchIcon />
+                            ),
+                        }}
+                        sx={{
+                            '& .MuiOutlinedInput-root': {
+                                height: '40px',
+                                borderRadius: '20px',
+                                backgroundColor: '#fff',
+                            },
+                        }}
                     />
                 )}
+
             />
         );
     }
@@ -488,12 +508,36 @@ function DocPage() {
 
     return (
         <div className="App">
-            <Container maxWidth="100%" sx={{ mt: 4, mb: 4, display: 'flex', flexDirection: 'row' }}>
+            <Container maxWidth="100%"
+                sx={{
+                    mt: 4,
+                    mb: 4,
+                    display: 'flex',
+                    flexDirection: 'row',
+                    position: 'relative',
+                    minHeight: 'calc(100vh - 400px)'
+                }}
+            >
+                <Box
+                    sx={{
+                        width: '370px',
+                        textAlign: 'left',
+                        height: 'calc(100% + 100px)',
+                        minHeight: 'calc(100vh + 20px)',
+                        position: 'absolute',
+                        top: "-50px",
+                        left: "-24px",
+                        zIndex: -1,
+                        mr: 10,
+                        backgroundColor: "#E9F4F580"
+                    }}
+                >
+                </Box>
                 <Box
                     sx={{
                         width: '300px',
                         textAlign: 'left',
-                        maxHeight: 'calc(100vh - 420px)',
+                        height: 'fit-content',
                         overflowY: 'auto',
                         position: 'sticky',
                         top: '30px',
@@ -502,8 +546,23 @@ function DocPage() {
                 >
                     <Box sx={{ height: "10px" }} />
                     {SearchDropdown()}
+                    <Box sx={{ height: "10px" }} />
                     <SimpleTreeView selectedItems={[selectedPage]} onSelectedItemsChange={handlePageChange}
-                        expandedItems={expandedItems} onExpandedItemsChange={handleExpandedItemsChange}>
+                        expandedItems={expandedItems} onExpandedItemsChange={handleExpandedItemsChange}
+                        itemChildrenIndentation={24}
+                        sx={{
+                            '.MuiTreeItem-content': {
+                                flexDirection: 'row-reverse',
+                                justifyContent: 'space-between',
+                                height: '40px',
+                                fontSize: '18px',
+                                paddingLeft: '20px',
+                                '&.Mui-selected': {
+                                    fontWeight: 'bold !important',
+                                    color: '#24767F',
+                                }
+                            },
+                        }} >
                         {/* <TreeItem itemId='documentation' label="Documentation">
                             <TreeItem itemId="overview" label="Overview" />
                             <TreeItem itemId="ontology" label="Ontology" />
@@ -520,7 +579,6 @@ function DocPage() {
                 <Box
                     ref={scrollRef}
                     sx={{
-                        width: 'calc(70% - 380px)',
                         textAlign: 'left',
                     }}
                     className={'markdown-body'}
@@ -530,7 +588,7 @@ function DocPage() {
                     </div>
                 </Box>
             </Container>
-        </div>
+        </div >
     );
 }
 
