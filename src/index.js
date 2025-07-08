@@ -1,56 +1,60 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+
+import React from 'react';
+
+import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
-import { store } from './redux/store';
-import Ontology from './pages/Ontology';
-import ApiPage from './pages/ApiPage';
-import AIAnswer from './pages/AIAnswer';
-import StatPage from './pages/StatPage';
-import DocPage from './pages/DocPage';
-import Tutorial from './pages/Tutorial';
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+} from 'react-router-dom';
+
+import { Container } from '@mui/material';
+
+import DebugPage from './components/Debug';
+import IntermediatePage from './components/IntermediatePage';
 import LandingPage from './components/LandingPage';
 import MatchPage from './components/MatchPage';
-import IntermediatePage from './components/IntermediatePage';
+import PkbFooter from './Footer/footer';
+import NavBar from './NavBar';
+import ApiPage from './pages/ApiPage';
+import DocPage from './pages/DocPage';
+import Ontology from './pages/Ontology';
+import Pipeline from './pages/Pipeline';
+import QTLDataSource from './pages/QTL_data_source';
+import StatPage from './pages/StatPage';
+import Tutorial from './pages/Tutorial';
+import UsecasesPage from './pages/UsecasePage';
+import { store } from './redux/store';
 import ResultPage from './SearchResult';
-import NavBar from "./NavBar";
-import PkbFooter from "./Footer/footer";
-import { Container } from "@mui/material";
-import UsecasesPage from "./pages/UsecasePage";
-import QTLDataSource from "./pages/QTL_data_source";
-import Pipeline from "./pages/Pipeline";
-import DebugPage from "./components/Debug";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <Container disableGutters maxWidth={false} sx={{
-        padding: 0, margin: 0, minHeight: '100vh',
-        display: 'flex', flexDirection: 'column'
-      }}>
-        <BrowserRouter>
-          <NavBar />
-          <Routes>
-            <Route path="/pipeline" element={<Pipeline />} />
-            <Route path="/qtldatasource" element={<QTLDataSource />} />
-            <Route path="/intermediate" element={<IntermediatePage />} />
-            <Route path="/ontology" element={<Ontology />} />
-            <Route path="/statistics" element={<StatPage />} />
-            <Route path="/api" element={<ApiPage />} />
-            <Route path="/tutorial" element={<Tutorial />} />
-            <Route path="/result" element={<ResultPage />} />
-            <Route path="/usecases" element={<UsecasesPage />} />
-            <Route path="/docs/*" element={<DocPage />} />
-            <Route path="/match" element={<MatchPage />} />
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/debug" element={<DebugPage />} />
-          </Routes>
-          <PkbFooter />
-        </BrowserRouter>
-      </Container>
-    </Provider>
-  </React.StrictMode>
+  <Provider store={store}>
+    <Container disableGutters maxWidth={false} sx={{
+      padding: 0, margin: 0, minHeight: '100vh',
+      display: 'flex', flexDirection: 'column'
+    }}>
+      <BrowserRouter>
+        <NavBar />
+        <Routes>
+          <Route path="/pipeline" element={<Pipeline />} />
+          <Route path="/qtldatasource" element={<QTLDataSource />} />
+          <Route path="/intermediate" element={<IntermediatePage />} />
+          <Route path="/ontology" element={<Ontology />} />
+          <Route path="/statistics" element={<StatPage />} />
+          <Route path="/api" element={<ApiPage />} />
+          <Route path="/tutorial" element={<Tutorial />} />
+          <Route path="/result" element={<ResultPage />} />
+          <Route path="/usecases" element={<UsecasesPage />} />
+          <Route path="/docs/*" element={<DocPage />} />
+          <Route path="/match" element={<MatchPage />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/debug" element={<DebugPage />} />
+        </Routes>
+        <PkbFooter />
+      </BrowserRouter>
+    </Container>
+  </Provider>
 );

@@ -1,7 +1,15 @@
-import React, { useEffect, useRef } from 'react';
+import React, {
+  useEffect,
+  useRef,
+} from 'react';
+
 import Cytoscape from 'cytoscape';
 import coseBilkent from 'cytoscape-cose-bilkent';
-import { getGeneSymbol, generateEdgeLabel } from '../utils/textProcessing';
+
+import {
+  generateEdgeLabel,
+  getGeneSymbol,
+} from '../utils/textProcessing';
 import { nodeAutoWidth } from './style.js';
 
 Cytoscape.use(coseBilkent);
@@ -25,7 +33,6 @@ function IntermediateKG({ data }) {
     if (!containerRef.current || !data?.credible_sets?.[0]) {
       return;
     }
-    console.log('data', data);
     const intersectPositions = data.intersectPositions || [];
     const credible_sets = data.credible_sets;
     const edgeOrientation = 'right';

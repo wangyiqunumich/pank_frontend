@@ -480,7 +480,7 @@ function DocPage() {
                 element.scrollIntoView({ behavior: 'smooth' });
             }
             else {
-                console.log('no such element', frag);
+                // console.log('no such element', frag);
             }
         }
     }, [page, frag]);
