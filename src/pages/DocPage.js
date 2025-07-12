@@ -21,6 +21,8 @@ import remarkGfm from 'remark-gfm';
 
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SearchIcon from '@mui/icons-material/Search';
 import {
     Autocomplete,
@@ -478,7 +480,7 @@ function DocPage() {
                 element.scrollIntoView({ behavior: 'smooth' });
             }
             else {
-                console.log('no such element', frag);
+                // console.log('no such element', frag);
             }
         }
     }, [page, frag]);
@@ -550,6 +552,10 @@ function DocPage() {
                     <SimpleTreeView selectedItems={[selectedPage]} onSelectedItemsChange={handlePageChange}
                         expandedItems={expandedItems} onExpandedItemsChange={handleExpandedItemsChange}
                         itemChildrenIndentation={24}
+                        slots={{
+                            expandIcon: ExpandMoreIcon,
+                            collapseIcon: ExpandLessIcon,
+                        }}
                         sx={{
                             '.MuiTreeItem-content': {
                                 flexDirection: 'row-reverse',

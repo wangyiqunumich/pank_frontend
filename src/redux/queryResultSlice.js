@@ -1,12 +1,13 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { flaskBackendAxiosInstance, flaskBackendAxiosInstanceNew } from "../axios/axios";
-import { QueryStatus } from "@reduxjs/toolkit/query";
-import { viewSchemaSlice } from "./viewSchemaSlice";
-import axios from "axios";
+import {
+  createAsyncThunk,
+  createSlice,
+} from '@reduxjs/toolkit';
+import { QueryStatus } from '@reduxjs/toolkit/query';
+
+import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 
 export const queryQueryResult = createAsyncThunk('/openCypherToQueryResult',
     async (payload) => {
-        console.log("queryQueryResult payload", payload);
         return await flaskBackendAxiosInstanceNew
             .post(payload.isNeptune ? '/openCypherToQueryResult' : '/RDSLambda',
                 { query: payload.query }, {
@@ -15,7 +16,7 @@ export const queryQueryResult = createAsyncThunk('/openCypherToQueryResult',
                 }
             })
             .then((response) =>
-                payload.isNeptune
+                payload.isNeptune || payload.rawResponse
                     ? response.data
                     : {
                         results: [{

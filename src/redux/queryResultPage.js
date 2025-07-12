@@ -1,6 +1,6 @@
 import {
-    createAsyncThunk,
-    createSlice,
+  createAsyncThunk,
+  createSlice,
 } from '@reduxjs/toolkit';
 import { QueryStatus } from '@reduxjs/toolkit/query';
 
@@ -13,10 +13,6 @@ export const queryQueryResultPage = createAsyncThunk('/pank2ResultPage',
                 headers: {
                     "Content-Type": "application/json"
                 }
-            })
-            .then((response) => {
-                console.log("queryQueryResultPage response", response);
-                return response;
             })
             .then((response) => response.data)
             .then((data) => {

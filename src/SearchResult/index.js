@@ -1,43 +1,43 @@
 import './scoped.css';
 
 import React, {
-  useEffect,
-  useRef,
-  useState,
+    useEffect,
+    useRef,
+    useState,
 } from 'react';
 
 import {
-  useDispatch,
-  useSelector,
+    useDispatch,
+    useSelector,
 } from 'react-redux';
 
 import {
-  ChevronRight as ChevronRightIcon,
-  InfoOutlined as InfoOutlineIcon,
+    ChevronRight as ChevronRightIcon,
+    InfoOutlined as InfoOutlineIcon,
 } from '@mui/icons-material';
 import {
-  Backdrop,
-  Box,
-  CircularProgress,
-  Collapse,
-  Container,
-  Grid,
-  Link,
-  List,
-  ListItem,
-  Skeleton,
-  styled,
-  Tab,
-  Tabs,
-  Tooltip,
-  tooltipClasses,
-  Typography,
+    Backdrop,
+    Box,
+    CircularProgress,
+    Collapse,
+    Container,
+    Grid,
+    Link,
+    List,
+    ListItem,
+    Skeleton,
+    styled,
+    Tab,
+    Tabs,
+    Tooltip,
+    tooltipClasses,
+    Typography,
 } from '@mui/material';
 
 import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 import {
-  ErrorComponent,
-  tabsQTL,
+    ErrorComponent,
+    tabsQTL,
 } from '../components/IntermediatePage';
 import KnowledgeGraph from '../components/KnowledgeGraph';
 import VisuImage from '../image/output.png';
@@ -50,9 +50,9 @@ import { queryImage } from '../redux/typeToImageSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import {
-  addHighlight,
-  replaceNextQuestion,
-  replaceVariables,
+    addHighlight,
+    replaceNextQuestion,
+    replaceVariables,
 } from '../utils/textProcessing';
 
 const tabOptions = [
@@ -78,7 +78,6 @@ const validateQuestions = async (questions) => {
             })
             .then((response) => response.data?.results?.[0]?.credible_sets)
         const data = await response;
-        console.log('fetchQueryResults', question, data?.length > 0);
         return { valid: data?.length > 0, question };
     };
 
@@ -91,7 +90,6 @@ const validateQuestions = async (questions) => {
 
 const handleDownload = (data_source, credibleSet) => {
     const folder = tabsQTL.find(tab => tab.data_source === data_source)?.folder || "";
-    console.log(`Downloading ${credibleSet} from folder ${folder}`);
     return `https://pank-s3-to-share.s3.us-east-1.amazonaws.com/${folder}/${credibleSet}.txt`;
 };
 
@@ -331,7 +329,6 @@ function SearchResult() {
                             lead_snp && credible_set_id ? { rdb_query: replaceVariables(rdb_query_for_result_page, temporaryVariables) } : {};
 
                         dispatch(queryQueryResultPage({ ...rdb_query, core_cypher, neighbor_cypher })).then((response) => {
-                            console.log('Query result:', response.payload);
                             const coreNodes = response?.payload?.core_nodes || [];
                             const results = response?.payload?.combined_query_result || {};
                             const neighborNodes = results?.nodes?.filter(
@@ -441,7 +438,6 @@ function SearchResult() {
     // query AI answer when queryResultPage and aiQuestions are available
     useEffect(() => {
         if (queryResultPage?.combined_query_result?.nodes?.length !== 0 && queryResultPage?.core_nodes && aiQuestions?.length > 0) {
-            console.log('Querying AI answer with questions: ', aiQuestions);
             dispatch(queryAiAnswer({
                 "question": aiQuestions,
                 "graph": {
