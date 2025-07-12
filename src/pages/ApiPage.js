@@ -1,14 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { Container, Box } from '@mui/material';
+import './github-markdown-light.css';
+import './ApiPage.css';
+
+import React, {
+  useEffect,
+  useState,
+} from 'react';
+
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { materialLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import apiContent from '../schema/doc/API.md';
-import "./github-markdown-light.css";
-import remarkGfm from "remark-gfm";
-import rehypeRaw from "rehype-raw";
-import './ApiPage.css'
+import rehypeRaw from 'rehype-raw';
+import remarkGfm from 'remark-gfm';
+
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import {
+  Box,
+  Container,
+} from '@mui/material';
+
+import apiContent from '../schema/doc/API.md';
 
 export function CodeCopyBtn({ children }) {
   const [copyOk, setCopyOk] = React.useState(false);
@@ -18,7 +28,6 @@ export function CodeCopyBtn({ children }) {
 
   const handleClick = (e) => {
     navigator.clipboard.writeText(children.props.children);
-    console.log(children)
 
     setCopyOk(true);
     setTimeout(() => {

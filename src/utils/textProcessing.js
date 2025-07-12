@@ -43,7 +43,7 @@ export function replaceVariables(text, variables, replaceUnderscore = false) {
   const replacedText = Object.entries(replaceUnderscoreList).reduce((acc, [key, value]) => (
     key && acc?.includes(key) ?
       value && value?.trim()?.length >= 1 ? acc?.replace(new RegExp(key, 'g'), value)
-        : (() => { console.log(key); return undefined; })()
+        : (() => { console.log("Mismatch key:", key); return undefined; })()
       : acc
   ), text);
   return replacedText;

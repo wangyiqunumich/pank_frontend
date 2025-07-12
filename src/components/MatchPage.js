@@ -189,24 +189,255 @@ const MatchGraphViewer = ({ visualPattern, selectedQuestion }) => {
   );
 };
 
+function InputComponent({ type, setValue, setInputStatus }) { // input state: valid, mismatch, empty
+  const dispatch = useDispatch();
+  const [selfOptions, setSelfOptions] = useState([]);
 
+  const [simIsLoading, setSimIsLoading] = useState(false); //similarity search loading state
+  const [valIsLoading, setValIsLoading] = useState(false); // validation loading state
+
+  const [validatedValue, setValidatedValue] = useState(''); // validated value after checking with vocab
+  useEffect(() => {
+    setValue(validatedValue);
+  }, [validatedValue]);
+
+  const [inputValue, setInputValue] = useState('');
+  const inputValueRef = useRef(inputValue); // to keep the latest input value for async validation
+  useEffect(() => {
+    inputValueRef.current = inputValue;
+  }, [inputValue]);
+
+  const inputChangeTimer = useRef(null);
+
+  function updateSource(newInputValue) { // similarity match, specific for gene
+    const keyWord = newInputValue.split('(')[0].trim();
+    if (newInputValue === '') {
+      setSelfOptions([]);
+      setSimIsLoading(false);
+      return;
+    }
+    dispatch(queryQueryResult({
+      isNeptune: false,
+      query: "SELECT id, name FROM gene_name WHERE name % '" + keyWord + "'ORDER BY similarity(name, '" + keyWord + "') DESC LIMIT 5;"
+    })).unwrap()
+      .then((response) => {
+        if (response && newInputValue === inputValueRef.current) {
+          const parsedResponse = response.results[0].credible_sets.map((item, index) => {
+            return `${item.name}(${item.id})`;
+          });
+          if (parsedResponse.length === 0) {
+            setSelfOptions([{ label: `${type} not found`, disabled: true, notFound: true }]);
+          } else {
+            setSelfOptions(parsedResponse);
+          }
+        }
+      }).finally(() => {
+        if (newInputValue === inputValueRef.current) {
+          setSimIsLoading(false);
+        }
+      });
+  }
+
+  function updateValidation(newInputValue, type) { // validate the input value with vocab
+    const geneName = newInputValue.split('(')[0].trim();
+    const typeMap = {
+      gene: 'gene',
+      cell: 'cell_type',
+      snp: 'sequence_variant'
+    };
+    Promise.all(
+      [dispatch(queryVocab({ input: geneName })).unwrap(),
+      ...(type === 'snp' ? [dispatch(queryQueryResult({
+        isNeptune: false,
+        rawResponse: true,
+        query: `SELECT snp FROM QTL_DATA WHERE snp = '${geneName}' LIMIT 1;`
+      })).unwrap()] : [])
+      ]
+    ).then(([response, response2]) => {
+      if (newInputValue !== inputValueRef.current) return; // discard outdated response
+      if (validatedValue === newInputValue) {
+        setValidatedValue(newInputValue);
+        setInputStatus('valid');
+        return;
+      } // skip repeated response
+      const responseList = (response?.result || '').split('@') || [''];
+      const id1 = typeMap[type] === responseList[0] ?
+        (type === 'gene' ? `${geneName}(${responseList[1]})` : responseList[1]) :
+        '';
+      const id2 = response2?.results?.[0]?.[type];
+      const id = id1 || id2 || '';
+      if (id) {
+        if (type === 'gene') {
+          setInputStatus('valid');
+          setValidatedValue(id.toUpperCase());
+        }
+        else if (type === 'cell' || type === 'snp') {
+          setInputStatus('valid');
+          setValidatedValue(id);
+        }
+        else {
+          setValidatedValue('');
+        }
+      } else {
+        setValidatedValue('');
+      }
+    }).finally(() => {
+      if (newInputValue === inputValueRef.current) {
+        setValIsLoading(false);
+      }
+    });
+  };
+
+  return (
+    <Box sx={{ display: 'inline-flex', alignItems: 'center' }} >
+      <Autocomplete
+        freeSolo
+        autoFocus
+        options={(() => {
+          const options = [...(validatedValue ? [validatedValue] : []), ...selfOptions];
+          const uniqueOptions = [...new Set(options.map(option => option.label || option))];
+          return uniqueOptions.length > 0 ? (type === 'gene' ? uniqueOptions : []) : [{ label: `No ${type} found`, disabled: true, notFound: true }];
+        })()}
+        getOptionDisabled={(option) => option.disabled}
+        className={type}
+        filterOptions={(options) => options}
+        sx={{
+          '& .MuiAutocomplete-endAdornment': {
+            right: '-4px !important', // Adjust the position of the end adornment (clear button)
+          },
+          '& .MuiOutlinedInput-root': {
+            paddingRight: '-12px', // Ensure enough space for the clear button
+          },
+          zIndex: 9999,
+        }}
+        onInputChange={(event, newInputValue, reason) => {
+          if (inputChangeTimer.current) {
+            clearTimeout(inputChangeTimer.current);
+          }
+          if (reason === 'reset') {
+            if (newInputValue) {
+              setInputStatus('valid');
+              setValidatedValue(newInputValue);
+            } else {
+              setInputStatus('empty');
+              setValidatedValue('');
+            }
+          } else {
+            setValidatedValue('');
+            setInputValue(newInputValue);
+            if (newInputValue) {
+              setInputStatus('mismatch');
+              inputChangeTimer.current = setTimeout(() => {
+                setSelfOptions([]); // to trigger rendering the dropdown
+                if (type === 'gene') {
+                  setSimIsLoading(true);
+                  updateSource(newInputValue, type);
+                }
+                setValIsLoading(true);
+                updateValidation(newInputValue, type);
+              }, 300); // Delay the input change handling
+            } else {
+              setInputStatus('empty');
+              setSimIsLoading(false);
+              setValIsLoading(false);
+              setSelfOptions([]);
+            }
+
+          }
+        }}
+        onChange={() => { }}
+        ListboxComponent={(props) => {
+          if (!inputValue) {
+            return <></>;
+          }
+          const loading = simIsLoading || valIsLoading;
+          if (loading) {
+            return (
+              <ul {...props}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    padding: type === 'gene' ? 2 : 1,
+                    width: type === 'gene' ? '200px' : '115px'
+                  }}
+                >
+                  <CircularProgress size={20} />
+                </Box>
+              </ul>
+              // <ul {...props} style={{ ...props.style, padding: 0, margin: 0, height: 'fit-content', weight: 'fit-content' }}>
+              //   <Skeleton variant="rectangular" width={200} height={50} />
+              // </ul>
+            );
+          }
+          return <ul {...props} />;
+        }}
+        PopperComponent={(props) => (
+          <Popper {...props} style={{ width: 'fit-content !important' }} />
+        )}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            placeholder={type === 'gene' ? 'GENE' : type === 'cell' ? 'CELL' : 'SNP'}
+            sx={{
+              width: 'auto !important',
+              fontFamily: 'Open Sans',
+              fontWeight: 600,
+              mx: 1,
+              '& .MuiAutocomplete-input': {
+                width: '60px !important',
+              },
+              '& .MuiOutlinedInput-root': {
+                width: '100%',
+                padding: '0!important',
+                '& fieldset': {
+                  border: 'none',
+                },
+                '&:hover fieldset': {
+                  border: 'none',
+                },
+                '&.Mui-focused fieldset': {
+                  border: 'none',
+                },
+              },
+              '& .MuiInputBase-input': {
+                padding: '2px 18px 2px 8px !important',
+              },
+            }}
+          />
+        )}
+        renderOption={(props, option) => {
+          return (
+            <li
+              {...props}
+              key={option.label || option}
+              style={{
+                color: option.notFound ? '#E0232E' : 'inherit',
+                cursor: option.disabled ? 'not-allowed' : 'pointer',
+                fontStyle: option.notFound ? 'italic' : 'normal'
+              }}
+            >
+              {option.label || option}
+            </li>
+          );
+        }}
+      />
+    </Box>
+  );
+}
 
 function MatchPage() {
   // const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [selectedQuestion, setSelectedQuestion] = useState('');
   // const [qid, setQid] = useState('');
-  const dispatch = useDispatch();
-  const [inputValue, setInputValue] = useState('');
+  const [inputStatus, setInputStatus] = useState({});
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const [geneId, setGeneId] = useState('');
   const [cellId, setCellId] = useState('');
   const [snpId, setSnpId] = useState('');
-  const [geneOptions, setGeneOptions] = useState([]);
-  const [cellOptions, setCellOptions] = useState([]);
-  const [snpOptions, setSnpOptions] = useState([]);
   const [showBoxEmptyWarning, setShowBoxEmptyWarning] = useState(false);
   const [showBoxFilledWarning, setShowBoxFilledWarning] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -247,11 +478,11 @@ function MatchPage() {
   // Handle submit button click
   const handleSubmit = () => {
     if (isSubmitDisabled) {
-      if (inputValue) {
-        setShowBoxFilledWarning(true);
-      }
-      else {
+      if (Object.entries(inputStatus).reduce((acc, curr) => acc + (curr[1] === 'empty' ? 1 : 0), 0) > 0) {
         setShowBoxEmptyWarning(true);
+      }
+      else if (Object.entries(inputStatus).reduce((acc, curr) => acc + (curr[1] === 'mismatch' ? 1 : 0), 0) > 0) {
+        setShowBoxFilledWarning(true);
       }
       return;
     }
@@ -293,79 +524,6 @@ function MatchPage() {
     }
   };
 
-  function updateSource(newInputValue, type) {
-    const keyWord = newInputValue.split('(')[0].trim();
-    if (type === 'gene') {
-      if (newInputValue === '') {
-        setGeneOptions([]);
-        setIsLoading(false);
-        return;
-      }
-      dispatch(queryQueryResult({
-        isNeptune: false,
-        query: "SELECT id, name FROM gene_name WHERE name % '" + keyWord + "'ORDER BY similarity(name, '" + keyWord + "') DESC LIMIT 5;"
-      })).unwrap()
-        .then((response) => {
-          if (response) {
-            const parsedResponse = response.results[0].credible_sets.map((item, index) => {
-              return `${item.name}(${item.id})`;
-            });
-            if (parsedResponse.length === 0) {
-              setGeneOptions([{ label: `${type} not found`, disabled: true, notFound: true }]);
-            } else {
-              setGeneOptions(parsedResponse);
-            }
-          }
-        }).finally(() => {
-          setIsLoading(false);
-        });
-    }
-  }
-
-  function updateValidation(newInputValue, type) {
-    const geneName = newInputValue.split('(')[0].trim();
-    dispatch(queryVocab({ input: geneName })).unwrap()
-      .then((response) => {
-        if (response && typeof response.result === 'string') {
-          const parsedResponse = response.result.split('@');
-          if (parsedResponse.length > 1) {
-            let id;
-            if (parsedResponse[1] === parsedResponse[2]) {
-              id = parsedResponse[1];
-            } else {
-              id = `${geneName}(${parsedResponse[1]})`
-            }
-            if (type === 'gene' && parsedResponse[0] === 'gene') {
-              setGeneId(id);
-            }
-            else if (type === 'cell' && parsedResponse[0] === 'cell_type') {
-              setCellId(id);
-            }
-            else if (type === 'snp' && parsedResponse[0] === 'sequence_variant') {
-              setSnpId(id);
-            } else {
-              if (type === 'gene' && geneOptions.length === 0) {
-                setGeneOptions([{ label: `${type} not found`, disabled: true, notFound: true }]);
-              } else if (type === 'cell' && cellOptions.length === 0) {
-                setCellOptions([{ label: `${type} not found`, disabled: true, notFound: true }]);
-              } else if (type === 'snp' && snpOptions.length === 0) {
-                setSnpOptions([{ label: `${type} not found`, disabled: true, notFound: true }]);
-              }
-            }
-
-          }
-        } else {
-          if (type === 'gene') {
-            setGeneId('');
-          } else if (type === 'cell') {
-            setCellId('');
-          } else if (type === 'snp') {
-            setSnpId('');
-          }
-        }
-      });
-  };
-
   function renderSequence() {
     const sequence = selectedQuestion || ''; // 使用选定的问题或空字符串
     const parts = sequence.split(/(\s+|\{.*?\}|\(.*?\))/); // 根据{} 或（）将字符串分割成部分，其余按照空格分割成部分
@@ -391,157 +549,22 @@ function MatchPage() {
         );
       } else if (part.startsWith('{') && part.endsWith('}')) {
         const type = dictionary[index];
-        return (
-          <Box key={index} sx={{ display: 'inline-flex', alignItems: 'center', }} >
-            <Autocomplete
-              freeSolo
-              autoFocus
-              options={type === 'gene' ? geneOptions : type === 'cell' ? cellOptions : snpOptions}
-              getOptionDisabled={(option) => option.disabled}
-              className={dictionary[index]}
-              filterOptions={(options) => options}
-              sx={{
-                '& .MuiAutocomplete-endAdornment': {
-                  right: '-4px !important', // Adjust the position of the end adornment (clear button)
-                },
-                '& .MuiOutlinedInput-root': {
-                  paddingRight: '-12px', // Ensure enough space for the clear button
-                },
-                zIndex: 9999,
-              }}
-              onInputChange={(event, newInputValue, reason) => {
-                if (newInputValue || type === 'gene') {
-                  if (type === 'gene') {
-                    setGeneOptions([{ label: `Loading...`, disabled: true, notFound: true }])
-                    setIsLoading(true);
-                  }
-                  updateSource(newInputValue, type);
-                  updateValidation(newInputValue, type);
-                  // setIsSubmitDisabled(!options.includes(newInputValue));
-                } else {
-                  setIsLoading(false);
-                  setInputValue(''); // Clear inputValue when input is cleared
-                  if (type === 'gene') {
-                    setGeneId('');
-                    setGeneOptions([]);
-                  }
-                  else if (type === 'cell') {
-                    setCellId('');
-                    setCellOptions([]);
-                  } else if (type === 'snp') {
-                    setSnpId('');
-                    setSnpOptions([]);
-                  }
-                }
-              }}
-              onChange={(event, newValue) => {
-                if (newValue) {
-                  updateValidation(newValue, type);
-                  if (selectedQuestion) {
-                    setSelectedQuestion((prevQuestion) => {
-                      if (!prevQuestion) return '';
-                      return prevQuestion.replace(`{${part.slice(1, -1)}}`, `{${newValue}}`);
-                    });
-                  }
-                } else {
-                  // Clear inputValue when user clicks the clear button
-                  setInputValue('');
-                  if (type === 'gene') {
-                    setGeneId('');
-                  }
-                  else if (type === 'cell') {
-                    setCellId('');
-                  } else if (type === 'snp') {
-                    setSnpId('');
-                  }
-                }
-              }}
-              ListboxComponent={(props) => {
-                const loading = type === 'gene' && isLoading;
-                if (loading) {
-                  return (
-                    <ul {...props}>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          padding: 2,
-                          width: '200px'
-                        }}
-                      >
-                        <CircularProgress size={20} />
-                      </Box>
-                      {/* <ul {...props} style={{ ...props.style, padding: 0, margin: 0, height: 'fit-content', weight: 'fit-content' }}>
-                          <Skeleton variant="rectangular" width={200} height={50} />
-                         </ul> */}
-                    </ul>
-                  );
-                }
-                return <ul {...props} />;
-              }}
-              PopperComponent={(props) => (
-                <Popper {...props} style={{ width: 'fit-content !important' }} />
-              )}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  placeholder={type === 'gene' ? 'GENE' : type === 'cell' ? 'CELL' : 'SNP'}
-                  onChange={(e) => {
-                    setInputValue(e.target.value);  // 更新输入值
-                    if (e.target.value) {
-                      if (type === 'gene') {
-                        setIsLoading(true);
-                      }
-                      updateSource(e.target.value);
-                      updateValidation(e.target.value, type);
-                    }
-                  }}
-                  sx={{
-                    width: 'auto !important',
-                    fontFamily: 'Open Sans',
-                    fontWeight: 600,
-                    mx: 1,
-                    '& .MuiAutocomplete-input': {
-                      width: '60px !important',
-                    },
-                    '& .MuiOutlinedInput-root': {
-                      width: '100%',
-                      padding: '0!important',
-                      '& fieldset': {
-                        border: 'none',
-                      },
-                      '&:hover fieldset': {
-                        border: 'none',
-                      },
-                      '&.Mui-focused fieldset': {
-                        border: 'none',
-                      },
-                    },
-                    '& .MuiInputBase-input': {
-                      padding: '2px 18px 2px 8px !important',
-                    },
-                  }}
-                />
-              )}
-              renderOption={(props, option) => {
-                return (
-                  <li
-                    key={option.label || option}
-                    {...props}
-                    style={{
-                      color: option.notFound ? '#E0232E' : 'inherit',
-                      cursor: option.disabled ? 'not-allowed' : 'pointer',
-                      fontStyle: option.notFound ? 'italic' : 'normal'
-                    }}
-                  >
-                    {option.label || option}
-                  </li>
-                );
-              }}
-            />
-          </Box>
-        );
+        return (<InputComponent
+          key={index}
+          type={type}
+          setValue={(value) => {
+            if (type === 'gene') {
+              setGeneId(value);
+            } else if (type === 'cell') {
+              setCellId(value);
+            } else if (type === 'snp') {
+              setSnpId(value);
+            }
+          }}
+          setInputStatus={(status) => {
+            setInputStatus((prevStatus) => ({ ...prevStatus, [index]: status }));
+          }}
+        />);
       } else {
         // Render plain text for other parts
         return (
@@ -561,7 +584,7 @@ function MatchPage() {
   };
 
   useEffect(() => {
-    let connectedString = visualPattern;
+    let connectedString = questionData.pattern_for_the_matched_page;
     if (geneId) {
       connectedString = connectedString.replace(/\{gene@.*?@}/, `{gene@${geneId}@}`);
     }
