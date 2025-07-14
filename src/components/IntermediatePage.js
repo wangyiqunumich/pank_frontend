@@ -349,7 +349,6 @@ function IntermediatePage({ onContinue }) {
   };
 
   useEffect(() => {
-    console.log("Query Result:", JSON.stringify(queryResult, null, 2));
     const allResults = queryResult?.results?.flatMap(result =>
       (result?.credible_sets || []).map(cs => ({
         ...cs,
@@ -392,10 +391,8 @@ function IntermediatePage({ onContinue }) {
         ).values()
       ]
     }));
-    console.log("Final Results:", deduplicatedResults);
     // Jump to first SNP if only one result
     if (deduplicatedResults.flatMap((group) => (group.result)).length === 1) {
-      console.log(deduplicatedResults.flatMap((group) => (group.result)).length);
       const firstResult = deduplicatedResults.flatMap((group) => (group.result))[0];
       handleSNPClick(firstResult);
       return;
@@ -486,7 +483,6 @@ function IntermediatePage({ onContinue }) {
 
   const handleDownload = (category, credibleSet) => {
     const folder = tabsQTL.find(tab => tab.label === category)?.folder || "";
-    console.log(`Downloading ${credibleSet} from folder ${folder}`);
     const url = `https://pank-s3-to-share.s3.us-east-1.amazonaws.com/${folder}/${credibleSet}.txt`;
     window.open(url, "_blank");
     // fetch(url)
@@ -518,7 +514,6 @@ function IntermediatePage({ onContinue }) {
     const targetTerm = params.get('targetTerm');
     const sourceSymbol = params.get('sourceSymbol') || "";
     const targetSymbol = params.get('targetSymbol') || "";
-    console.log(sourceTerm, relationship, targetTerm);
     if (sourceTerm && relationship && targetTerm) {
       dispatch(
         setSearchTerms({
@@ -553,7 +548,6 @@ function IntermediatePage({ onContinue }) {
           targetTerm: searchState.targetTerm
         }
       );
-      console.log("Processed Cypher:", processedCypher);
 
       dispatch(queryQueryResult({
         query: processedCypher,
@@ -565,7 +559,6 @@ function IntermediatePage({ onContinue }) {
   }, [viewSchema, searchState.sourceTerm, searchState.targetTerm]);
 
   useEffect(() => {
-    console.log("View Schema:", viewSchema);
     setTableColumns(
       viewSchema?.intermediate_page_table?.map((column) => ({
         label: Object.keys(column)[0] || "",

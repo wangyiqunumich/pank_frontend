@@ -1,35 +1,47 @@
 {
     "root": {
-        "name": "Documentation",
-        "id": "documentation",
+        "name": "Root",
+        "id": "root",
         "children": [
             {
-                "name": "Overview",
-                "id": "overview"
-            },
-            {
-                "name": "API",
-                "id": "API"
-            },
-            {
-                "name": "Ontology",
-                "id": "ontology"
-            },
-            {
-                "name": "Use cases",
-                "id": "usecase"
-            },
-            {
-                "name": "Tutorials",
-                "id": "tutorial"
-            },
-            {
-                "name": "Data",
-                "id": "data",
+                "name": "Quick Start",
+                "id": "quick_start",
                 "children": [
                     {
-                        "name": "Statistics",
-                        "id": "statistics"
+                        "name": "Overview",
+                        "id": "overview"
+                    },
+                    {
+                        "name": "Use cases",
+                        "id": "usecase"
+                    },
+                    {
+                        "name": "Tutorials",
+                        "id": "tutorial"
+                    }
+                ]
+            },
+            {
+                "name": "Resources",
+                "id": "resources",
+                "children": [
+                    {
+                        "name": "Data",
+                        "id": "data",
+                        "children": [
+                            {
+                                "name": "Statistics",
+                                "id": "statistics"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Ontology",
+                        "id": "ontology"
+                    },
+                    {
+                        "name": "API",
+                        "id": "API"
                     }
                 ]
             }
@@ -37,7 +49,8 @@
     },
     "default": "overview",
     "defaultExpanded": [
-        "documentation"
+        "quick_start",
+        "resources"
     ],
     "__comment": "nodes with children cannot have content in themselves."
 }
