@@ -43,7 +43,7 @@ const nodeColors = {
 const nodeLabels = {
   gene: "Gene",
   snp: "SNP",
-  ontology: "Ontology",
+  ontology: "Cell Type",
   OCR: "OCR Cluster",
   article: "Literature",
 };
@@ -93,7 +93,7 @@ const MatchGraphViewer = ({ visualPattern, selectedQuestion }) => {
       group: "nodes",
       data: {
         id: `node${index}`,
-        label: node.id || nodeLabels[node.type],
+        label: node.id === node.type ? nodeLabels[node.type] : (node.id || nodeLabels[node.type]),
         color: nodeColors[node.type] || "#CCCCCC",
       },
       locked: true,
