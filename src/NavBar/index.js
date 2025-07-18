@@ -36,6 +36,13 @@ function NavBar() {
         <div className="nav-right">
           <div className="menu-wrapper">
             <div className="topmenu">
+              <a className="topmenu-item" href={
+                process.env.REACT_APP_API_GATEWAY_STAGE_NAME === "development"
+                  ? "https://dev.pankbase.org/funding.html"
+                  : "https://pankbase.org/funding.html"}>
+                {" Funding Opportunities "}
+                <img src="https://hugeampkpncms.org/sites/default/files/images/pankbase/icons/funding_icon_black.svg" style={{ height: '15px', width: '15px' }} alt="Funding Icon" />
+              </a>
               <a className="topmenu-item" href="#" style={{ color: '#d9d9d9' }}>
                 Search
                 <img

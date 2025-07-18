@@ -12,7 +12,6 @@ import {
 
 import { Container } from '@mui/material';
 
-import DebugPage from './components/Debug';
 import IntermediatePage from './components/IntermediatePage';
 import LandingPage from './components/LandingPage';
 import MatchPage from './components/MatchPage';
@@ -51,7 +50,7 @@ root.render(
           <Route path="/docs/*" element={<DocPage />} />
           <Route path="/match" element={<MatchPage />} />
           <Route path="/" element={<LandingPage />} />
-          <Route path="/debug" element={<DebugPage />} />
+          {/* <Route path="/debug" element={<DebugPage />} /> */}
         </Routes>
         <PkbFooter />
       </BrowserRouter>
