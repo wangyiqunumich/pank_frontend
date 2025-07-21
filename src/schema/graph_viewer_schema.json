@@ -261,6 +261,30 @@
             "text_color": "#000000",
             "node_label": "Literature",
             "info_panel": []
+        },
+        "gene": {
+            "node_color": "#A4D0F6",
+            "text_color": "#000000"
+        },
+        "enhancer": {
+            "node_color": "#A4D0F6",
+            "text_color": "#000000"
+        },
+        "sequence_SNP": {
+            "node_color": "#FFB371",
+            "text_color": "#000000"
+        },
+        "region": {
+            "node_color": "#61ECBC",
+            "text_color": "#000000"
+        },
+        "phenotype_or_disease": {
+            "node_color": "#FFDE7D",
+            "text_color": "#000000"
+        },
+        "loop": {
+            "node_color": "#A4D0F6",
+            "text_color": "#000000"
         }
     },
     "edges": {
@@ -707,6 +731,16 @@
                     ]
                 ]
             ]
+        },
+        "locate_in": {
+            "text_color": "#000000",
+            "edge_label": "located in ",
+            "inverted": "FALSE"
+        },
+        "eQTL_of": {
+            "text_color": "#000000",
+            "edge_label": "QTL for",
+            "inverted": "FALSE"
         }
     },
     "legend": [

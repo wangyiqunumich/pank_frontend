@@ -139,7 +139,7 @@ export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "
           justifyContent: 'center',
           backgroundColor: 'white',
         }}>
-          <Box component="img" src={errorImage} alt="Error" />
+          <Box component="img" src={errorImage} alt="Error" sx={{ width: "200px", marginTop: "-20px", marginBottom: '-20px' }} />
           <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '36px', color: '#43AABA', marginBottom: '-12px', }}>
             {errorTitle}
           </Typography>
