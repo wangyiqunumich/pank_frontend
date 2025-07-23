@@ -1,82 +1,32 @@
-/*.navigation-bar {*/
-/*    display: flex;*/
-/*    justify-content: space-between;*/
-/*    align-items: center;*/
-/*    padding: 0.5rem 1rem;*/
-/*    !*background-color: #fff; !* Change this as per your color scheme *!*!*/
-/*    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); !* Optional: for a slight shadow under the nav bar *!*/
-/*    background-color: #C5D9B1; !* Change this as per your color scheme *!*/
+.pkb-nav {
+    height: 99px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
 
-/*}*/
+.pkb-nav .logo {
+    margin-left: 90px;
+}
 
-/*.navigation-bar .logo a{*/
-/*    font-size: 30px;*/
-/*    color: #3D739C;*/
-/*    margin-left: 30px;*/
-/*    align-items: center;*/
-/*    text-decoration: none;*/
-/*}*/
+.nav-right {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-right: 90px;
+    gap: 50px;
+}
 
-/*.navigation-bar .nav-links{*/
-/*    margin-right: 30px;*/
-/*    font-size: 30px;*/
-/*}*/
+.menu-item {
+    font-family: Inter;
+    font-weight: 400;
+    font-size: 16px;
+    text-decoration: none;
+    color: #656565;
+}
 
-/*.navigation-bar .nav-links a {*/
-/*    text-decoration: none;*/
-/*    margin-left: 20px;*/
-/*    color: #3D739C;*/
-/*    font-size: 20px;*/
-/*    font-weight: 800;*/
-/*     !* Change this as per your color scheme *!*/
-/*    !* Additional styles for the links can go here *!*/
-/*}*/
-
-/*.navigation-bar .nav-links a:hover {*/
-/*    color: #555; !* Change for hover effect *!*/
-/*}*/
-
-/*.MuiMenu-paper {*/
-/*  background-color: #f5f5f5; !* 浅灰色背景 *!*/
-/*}*/
-
-/*.MuiMenuItem-root {*/
-/*  color: #333; !* 深灰色文字，确保在浅灰色背景上可读 *!*/
-/*}*/
-
-/*.MuiMenuItem-root:hover {*/
-/*  background-color: #e0e0e0; !* 鼠标悬停时的颜色 *!*/
-/*}*/
-
-/*.logo {*/
-/*  color: #000000;*/
-/*  text-decoration: none;*/
-/*  font-size: 24px;*/
-/*  font-weight: bold;*/
-/*}*/
-
-/*.nav-links {*/
-/*  display: flex;*/
-/*  align-items: center;*/
-/*}*/
-
-/*.nav-links a {*/
-/*  color: #000000;*/
-/*  text-decoration: none;*/
-/*  margin: 0 10px;*/
-/*  font-size: 16px;*/
-/*}*/
-
-/*.nav-links button {*/
-/*  text-transform: none;*/
-/*  color: #000000;*/
-/*}*/
-
-/*.nav-links button:disabled {*/
-/*  color: grey !important;*/
-/*  opacity: 0.6;*/
-/*}*/
-
-/*.nav-links button:hover {*/
-/*  background-color: rgba(0, 0, 0, 0.1);*/
-/*}*/
+.main-menu-item {
+    color: #1C3D5E;
+    font-weight: 700;
+}

@@ -33,7 +33,8 @@ root.render(
   <Provider store={store}>
     <Container disableGutters maxWidth={false} sx={{
       padding: 0, margin: 0, minHeight: '100vh',
-      display: 'flex', flexDirection: 'column'
+      display: 'flex', flexDirection: 'column',
+      background: "linear-gradient(270deg, #F4F9FF 0%, #EEF6FF 100%)"
     }}>
       <BrowserRouter>
         <NavBar />
