@@ -1,6 +1,6 @@
 import React, {
-  useEffect,
-  useState,
+    useEffect,
+    useState,
 } from 'react';
 
 import { useNavigate } from 'react-router-dom';
@@ -9,14 +9,14 @@ import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 import {
-  Autocomplete,
-  Box,
-  Button,
-  Container,
-  Link,
-  Paper,
-  TextField,
-  Typography,
+    Autocomplete,
+    Box,
+    Button,
+    Container,
+    Link,
+    Paper,
+    TextField,
+    Typography,
 } from '@mui/material';
 
 import apiImage from '../image/api.svg';
@@ -25,6 +25,11 @@ import complexImage from '../image/complex.svg';
 import dumpImage from '../image/dump.svg';
 import geneImage from '../image/gene.svg';
 import regulationImage from '../image/regulation.svg';
+import {
+    AlertMessage,
+    LandingPageCard,
+    LoadingMessage,
+} from './SupportingMaterial';
 
 const ExampleQueries = {
     "default": [
@@ -38,6 +43,12 @@ const ExampleQueries = {
         "What SNPs are annotated in the enhancer region on chr6:32000000–32100000?",
         "What variants are located within 5kb upstream of the CFTR gene?",
         "Is rs123456 located in a known cis-regulatory element?"
+    ],
+    "regulation": [
+    ],
+    "chromatin": [
+    ],
+    "complex": [
     ]
 }
 
@@ -72,6 +83,9 @@ function LandingPage() {
     const [query, setQuery] = useState('');
     const [focused, setFocused] = useState(false);
     const [showExamples, setShowExamples] = useState(undefined);
+    const [showWarning, setShowWarning] = useState(false);
+    const [showLoading, setShowLoading] = useState(false);
+    const [showCard, setShowCard] = useState(true);
 
     const navigate = useNavigate();
 
@@ -115,6 +129,30 @@ function LandingPage() {
             }}>
                 Ask a question about human genome
             </Typography>
+            <AlertMessage
+                type="warning"
+                content="Please ensure all boxes are filled out before submitting"
+                open={showWarning}
+                onClose={() => setShowWarning(false)}
+                sx={{
+                    '& .MuiSnackbar-root': {
+                        position: 'static',
+                        transform: 'none',
+                        top: 'auto',
+                        left: 'auto',
+                        right: 'auto',
+                        bottom: 'auto',
+                    },
+                    '& .MuiAlert-root': {
+                        marginBottom: '10px',
+                    }
+                }}
+            />
+            <LoadingMessage
+                open={showLoading}
+                onClose={() => setShowLoading(false)}
+                onCancel={() => setShowLoading(false)}
+            />
             <Box className="content-wrapper" sx={{
                 width: '100%',
                 maxWidth: '1200px',
@@ -220,17 +258,24 @@ function LandingPage() {
                                                     display: 'flex',
                                                     alignItems: 'center',
                                                     justifyContent: 'center',
+
+                                                    cursor: !query.trim() ? 'not-allowed' : 'pointer',
                                                 }}
+                                                onClick={!query.trim()
+                                                    ? () => { setShowWarning(true) }
+                                                    : () => {
+                                                        setShowLoading(true);
+                                                        handleSearch(query.trim());
+                                                    }}
                                             >
                                                 <Typography
                                                     className="search-button"
-                                                    onClick={!query.trim() ? () => { } : () => handleSearch(query.trim())}
+
                                                     sx={{
                                                         color: 'white',
                                                         fontFamily: 'Inter',
                                                         fontSize: '20px',
                                                         fontWeight: 600,
-                                                        cursor: !query.trim() ? 'not-allowed' : 'pointer',
                                                     }}
                                                 >
                                                     Search
@@ -307,9 +352,14 @@ function LandingPage() {
                             </Box>
                         )}
                         onKeyDown={(e) => {
-                            if (e.key === 'Enter' && query !== "") {
-                                e.preventDefault();
-                                handleSearch(query.trim());
+                            if (e.key === 'Enter') {
+                                if (query.trim() === '') {
+                                    setShowWarning(true);
+                                } else {
+                                    e.preventDefault();
+                                    setShowLoading(true);
+                                    handleSearch(query.trim());
+                                }
                             }
                         }}
                     />
@@ -335,7 +385,7 @@ function LandingPage() {
                                     fontSize: '18px',
                                     color: '#1F66EA',
                                 }}>
-                                    {ExampleClasses[showExamples].label}
+                                    {ExampleClasses[showExamples].hint}
                                 </Typography>
                             </Box>
                             <CloseIcon
@@ -420,6 +470,7 @@ function LandingPage() {
                         ))
                     }
                 </Box>
+                <LandingPageCard open={showCard} onToggle={() => setShowCard(!showCard)} sx={{ marginTop: '24px' }} />
             </Box>
             <Box className="landing-page-footer" sx={{
                 position: 'absolute',
@@ -432,6 +483,15 @@ function LandingPage() {
                 alignItems: 'center',
                 flexDirection: 'row'
             }}>
+                <div style={{
+                    position: 'absolute',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: '0px',
+                    height: '32px',
+                    border: '1px solid #000000',
+                    opacity: 0.2,
+                }}></div>
                 <Box sx={{ width: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <img src={apiImage} alt="API" style={{ marginRight: '8px' }} />
                     <Link href="/api" sx={{

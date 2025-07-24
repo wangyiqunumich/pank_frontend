@@ -20,19 +20,23 @@ import {
   Info,
   KeyboardArrowDown,
   KeyboardArrowUp,
-  Link,
+  Link as LinkIcon,
   Notifications,
   Warning,
 } from '@mui/icons-material';
 import {
-  Box,
   Alert,
-  Snackbar,
+  Box,
+  Button,
   Card,
   CardContent,
+  Collapse,
   Container,
   Fade,
   IconButton,
+  Link,
+  Modal,
+  Snackbar,
   Stack,
   Typography,
 } from '@mui/material';
@@ -79,6 +83,115 @@ export const AlertMessage = ({ type = "info", content, sx = {}, open = true, onC
     </Snackbar>
   );
 };
+
+export const LoadingMessage = ({ sx = {}, open = true, onClose = () => { }, onCancel = () => { } }) => {
+  const [duration, setDuration] = useState(5000);
+  const [timer, setTimer] = useState(null);
+  useEffect(() => {
+    // when closed
+    if (!open) {
+      setDuration(5000);
+      if (timer) {
+        clearTimeout(timer);
+      }
+      return;
+    }
+    if (timer) {
+      clearTimeout(timer);
+    }
+    setTimer(setTimeout(() => {
+      if (duration - 1000 <= 0) {
+        onClose();
+        return;
+      }
+      setDuration(duration - 1000);
+    }, 1000));
+
+    return () => clearTimeout(timer);
+  }, [duration, onClose]);
+
+  return (
+    <Modal open={open} onClose={() => { }}>
+      <Box sx={{
+        ...sx,
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        bgcolor: 'white',
+        display: 'flex',
+        flexDirection: 'column',
+        borderRadius: '20px',
+        padding: '24px',
+        minWidth: '600px',
+        boxShadow: "0px 0px 8px 0px #00000033, 0px 32px 64px 0px #0000003D",
+      }}>
+        <IconButton
+          sx={{ color: 'black', position: 'absolute', top: 10, right: 10 }}
+          onClick={() => { onCancel(); }}
+        >
+          <Close sx={{ color: 'black', position: 'absolute', top: 10, right: 10 }} />
+        </IconButton>
+        <Typography sx={{ textAlign: 'left', fontFamily: 'Open Sans', fontWeight: '600', fontSize: '36px' }}>
+          Matching...
+        </Typography>
+        <Typography sx={{ textAlign: 'left', fontFamily: 'Open Sans', fontWeight: '600', fontSize: '20px' }}>
+          Relevant questions
+        </Typography>
+        <Typography sx={{ textAlign: 'left', fontFamily: 'Open Sans', fontWeight: '400', fontSize: '16px' }}>
+          The page will disappear in {Math.ceil(duration / 1000)} seconds
+        </Typography>
+        <Button onClick={() => { onCancel(); }} sx={{
+          alignSelf: 'flex-end', marginTop: '16px',
+          background: 'linear-gradient(142.59deg, #4A65F4 14.08%, #758BFF 78.33%)',
+          color: 'white',
+          borderRadius: '40px',
+          height: '30px',
+          paddingX: '20px',
+        }}>
+          Cancel
+        </Button>
+      </Box>
+    </Modal>
+  );
+};
+
+export const LandingPageCard = ({ sx = {}, open = true, onToggle = () => { } }) => {
+  return (
+    <Box sx={{
+      ...sx,
+      display: 'flex',
+      width: 'calc(100% - 48px)',
+      flexDirection: 'column',
+      borderRadius: '18px',
+      padding: '24px',
+      backgroundColor: '#F9FCFF',
+    }}>
+      <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+        <Typography sx={{ fontFamily: "Inter", fontWeight: 600, fontSize: "20px", color: "#516BF3" }}>With GenomicKB, you can easily search:</Typography>
+        {open ? <KeyboardArrowUp onClick={onToggle} sx={{ cursor: 'pointer', color: '#1A74FF' }} /> :
+          <KeyboardArrowDown onClick={onToggle} sx={{ cursor: 'pointer', color: '#1A74FF' }} />}
+      </Box>
+      <Collapse in={open} timeout="auto" unmountOnExit>
+        <Box sx={{}}>
+          <ul style={{ gap: "2px", fontFamily: "Inter", fontWeight: 400, fontSize: "14px", color: "#1C3C68", listStyleType: 'disc', paddingLeft: '20px', marginTop: '10px' }}>
+            <li>Genes, variants, Cis regulation elements</li>
+            <li>Gene regulation, variant-trait associations</li>
+            <li>Chromatin interactions (e.g., loops, contact)</li>
+            <li>Tissue–specific expression/ regulatory features</li>
+            <li>Cross-dataset links from 30+ genomic and epigenomic projects</li>
+          </ul>
+          <Typography sx={{ fontFamily: "Inter", fontWeight: 400, fontSize: "14px", color: "#1C3C68", marginBottom: '6px' }}>
+            All through an intuitive, coding-free interface built for flexible, multi-modal analysis.
+          </Typography>
+          <Link sx={{ fontFamily: "Inter", fontWeight: 400, fontSize: "14px", color: "#1A74FF" }} href="https://genomickb.org" target="_blank" rel="noopener noreferrer">
+            {"Learn more from the latest GenomicKB article >>"}
+          </Link>
+        </Box>
+      </Collapse>
+    </Box>
+  )
+}
 
 
 // const cardData = [
@@ -142,7 +255,7 @@ export const AlertMessage = ({ type = "info", content, sx = {}, open = true, onC
 const getIcon = (icon) => {
   switch (icon) {
     case "link":
-      return <Link sx={{ fontSize: 40 }} />;
+      return <LinkIcon sx={{ fontSize: 40 }} />;
     case "ref":
       return <Description sx={{ fontSize: 40 }} />;
     case "plot":
