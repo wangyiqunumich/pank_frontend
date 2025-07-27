@@ -1,6 +1,7 @@
 import React, {
-    useEffect,
-    useState,
+  useEffect,
+  useRef,
+  useState,
 } from 'react';
 
 import { useNavigate } from 'react-router-dom';
@@ -9,14 +10,14 @@ import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 import {
-    Autocomplete,
-    Box,
-    Button,
-    Container,
-    Link,
-    Paper,
-    TextField,
-    Typography,
+  Autocomplete,
+  Box,
+  Button,
+  Container,
+  Link,
+  Paper,
+  TextField,
+  Typography,
 } from '@mui/material';
 
 import apiImage from '../image/api.svg';
@@ -26,29 +27,34 @@ import dumpImage from '../image/dump.svg';
 import geneImage from '../image/gene.svg';
 import regulationImage from '../image/regulation.svg';
 import {
-    AlertMessage,
-    LandingPageCard,
-    LoadingMessage,
+  AlertMessage,
+  LandingPageCard,
+  LoadingMessage,
 } from './SupportingMaterial';
 
 const ExampleQueries = {
     "default": [
+        "[placeholder] These are major example questions",
         "Which cis-regulatory elements are found near the promoter of TP53?",
         "What SNPs are annotated in the enhancer region on chr6:32000000–32100000?",
         "What variants are located within 5kb upstream of the CFTR gene?",
         "Is rs123456 located in a known cis-regulatory element?",
     ],
     "gene": [
+        "[placeholder] These are example questions about genes and variants",
         "Which cis-regulatory elements are found near the promoter of TP53?",
         "What SNPs are annotated in the enhancer region on chr6:32000000–32100000?",
         "What variants are located within 5kb upstream of the CFTR gene?",
         "Is rs123456 located in a known cis-regulatory element?"
     ],
     "regulation": [
+        "[placeholder] These are example questions about regulation and traits",
     ],
     "chromatin": [
+        "[placeholder] These are example questions about chromatin interactions",
     ],
     "complex": [
+        "[placeholder] These are example questions about complex regulation",
     ]
 }
 
@@ -86,6 +92,20 @@ function LandingPage() {
     const [showWarning, setShowWarning] = useState(false);
     const [showLoading, setShowLoading] = useState(false);
     const [showCard, setShowCard] = useState(true);
+
+    const paperRef = useRef();
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (paperRef.current && !paperRef.current.contains(event.target)) {
+                setShowExamples(false);
+            }
+        }
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     const navigate = useNavigate();
 
@@ -366,16 +386,18 @@ function LandingPage() {
 
                 </Box>
                 <Box className="example-class" sx={{ height: '0px', width: '100%' }}>
-                    {showExamples && <Paper sx={{
-                        width: 'calc(100% - 32px)',
-                        maxWidth: '1200px',
-                        marginTop: '24px',
-                        padding: '16px',
-                        borderRadius: '16px',
-                        boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
-                        position: 'relative',
-                        zIndex: 1000,
-                    }}>
+                    {showExamples && <Paper
+                        ref={paperRef}
+                        sx={{
+                            width: 'calc(100% - 32px)',
+                            maxWidth: '1200px',
+                            marginTop: '24px',
+                            padding: '16px',
+                            borderRadius: '16px',
+                            boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
+                            position: 'relative',
+                            zIndex: 1000,
+                        }}>
                         <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '16px' }}>
                             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                                 <img src={ExampleClasses[showExamples].icon} alt={showExamples} style={{ width: '20px', height: '20px', marginRight: '8px' }} />
@@ -411,7 +433,7 @@ function LandingPage() {
                                             backgroundColor: '#c1caf7 !important',
                                         },
                                     },
-                                }}>
+                                }} onClick={(e) => { setQuery(example); setShowExamples(undefined); }}>
                                     <Box sx={{
                                         display: 'flex',
                                         padding: '12px',
