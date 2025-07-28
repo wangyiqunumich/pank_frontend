@@ -12,6 +12,7 @@ import {
 
 import { Container } from '@mui/material';
 
+import DebugPage from './components/Debug';
 import IntermediatePage from './components/IntermediatePage';
 import LandingPage from './components/LandingPage';
 import MatchPage from './components/MatchPage';
@@ -34,7 +35,7 @@ root.render(
     <Container disableGutters maxWidth={false} sx={{
       padding: 0, margin: 0, minHeight: '100vh',
       display: 'flex', flexDirection: 'column',
-      background: "linear-gradient(270deg, #F4F9FF 0%, #EEF6FF 100%)"
+      background: "linear-gradient(270deg, #F5F9FE 0%, #E7F1FE 100%)"
     }}>
       <BrowserRouter>
         <NavBar />
@@ -51,7 +52,7 @@ root.render(
           <Route path="/docs/*" element={<DocPage />} />
           <Route path="/match" element={<MatchPage />} />
           <Route path="/" element={<LandingPage />} />
-          {/* <Route path="/debug" element={<DebugPage />} /> */}
+          <Route path="/debug" element={<DebugPage />} />
         </Routes>
         <PkbFooter />
       </BrowserRouter>

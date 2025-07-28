@@ -55,7 +55,7 @@ function NavBar() {
     <>
       <div className="pkb-nav">
         <div className="logo">
-          <a href={process.env.REACT_APP_PANKBASE_LINK}>
+          <a href={"/"}>
             <img style={{ height: '50px' }}
               src="https://hugeampkpncms.org/sites/default/files/users/user32/pankbase/PanKbase_logo-black-tagline.svg" />
           </a>

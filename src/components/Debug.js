@@ -1,20 +1,9 @@
 import React, {
-    useEffect,
-    useRef,
-    useState,
+  useRef,
+  useState,
 } from 'react';
 
-import cytoscape from 'cytoscape';
-
-import Button from '@mui/material/Button';
-
-import Image from '../image/Pasted Graphic 1.png';
 import sampleLinks from '../schema/sample_links.json';
-import {
-    edgeIsInverted,
-    edgeLabels,
-    nodeStyle,
-} from './style.js';
 
 export default function DebugPage() {
     const [graphJson, setGraphJson] = useState("");
@@ -95,103 +84,104 @@ export default function DebugPage() {
     };
     const cyRef = useRef(null);
 
-    useEffect(() => {
-        if (!graphJson || !graphJson?.graph) {
-            return;
-        }
-        const result = graphJson?.graph;
-        const positionData =
-            Object.fromEntries(
-                Object.entries(graphJson?.coords || {}).map(([key, value]) => [
-                    key,
-                    {
-                        ...value,
-                        x: value.x / 2.0,
-                        y: value.y / 2.0,
-                    },
-                ])
-            ) || {};
+    // useEffect(() => {
+    //     if (!graphJson || !graphJson?.graph) {
+    //         return;
+    //     }
+    //     const result = graphJson?.graph;
+    //     const positionData =
+    //         Object.fromEntries(
+    //             Object.entries(graphJson?.coords || {}).map(([key, value]) => [
+    //                 key,
+    //                 {
+    //                     ...value,
+    //                     x: value.x / 2.0,
+    //                     y: value.y / 2.0,
+    //                 },
+    //             ])
+    //         ) || {};
 
-        const uniqueNodesMap = {};
-        result.nodes.forEach((node) => (uniqueNodesMap[node["~id"]] = node));
-        const nodes = Object.values(uniqueNodesMap).map((node) => {
-            // Determine type based on the labels
-            const type = node["~labels"][0];
-            // Use the provided positionData and extract the Level property.
-            const posData = positionData[node["~id"]] || {
-                x: Math.random() * 250 - 125,
-                y: Math.random() * 200 - 125,
-                Level: "Core",
-            };
-            const pos = { x: posData.x, y: posData.y };
-            return {
-                data: {
-                    id: node["~id"],
-                    label: (
-                        node["~id"]
-                    ).replace(/_/g, " "),
-                    type,
-                    Level: posData.Level,
-                },
-                position: pos,
-            };
-        });
+    //     const uniqueNodesMap = {};
+    //     result.nodes.forEach((node) => (uniqueNodesMap[node["~id"]] = node));
+    //     const nodes = Object.values(uniqueNodesMap).map((node) => {
+    //         // Determine type based on the labels
+    //         const type = node["~labels"][0];
+    //         // Use the provided positionData and extract the Level property.
+    //         const posData = positionData[node["~id"]] || {
+    //             x: Math.random() * 250 - 125,
+    //             y: Math.random() * 200 - 125,
+    //             Level: "Core",
+    //         };
+    //         const pos = { x: posData.x, y: posData.y };
+    //         return {
+    //             data: {
+    //                 id: node["~id"],
+    //                 label: (
+    //                     node["~id"]
+    //                 ).replace(/_/g, " "),
+    //                 type,
+    //                 Level: posData.Level,
+    //             },
+    //             position: pos,
+    //         };
+    //     });
 
-        const uniqueEdgesMap = {};
-        result.edges.forEach((edge, index) => (uniqueEdgesMap[edge["~id"] || index.toString()] = edge));
-        const edges = Object.values(uniqueEdgesMap).map((edge) => ({
-            data: {
-                id: edge["~id"],
-                source: edgeIsInverted[edge["~type"]] ? edge["~end"] : edge["~start"],
-                target: edgeIsInverted[edge["~type"]] ? edge["~start"] : edge["~end"],
-                type: edge["~type"],
-                label: edgeLabels[edge["~type"]] || edge["~type"],
-                ...edge["~properties"],
-            },
-        }));
+    //     const uniqueEdgesMap = {};
+    //     result.edges.forEach((edge, index) => (uniqueEdgesMap[edge["~id"] || index.toString()] = edge));
+    //     const edges = Object.values(uniqueEdgesMap).map((edge) => ({
+    //         data: {
+    //             id: edge["~id"],
+    //             source: edgeIsInverted[edge["~type"]] ? edge["~end"] : edge["~start"],
+    //             target: edgeIsInverted[edge["~type"]] ? edge["~start"] : edge["~end"],
+    //             type: edge["~type"],
+    //             label: edgeLabels[edge["~type"]] || edge["~type"],
+    //             ...edge["~properties"],
+    //         },
+    //     }));
 
-        cyRef.current = cytoscape({
-            container: document.getElementById("cy-container"),
-            elements: { nodes, edges },
-            style: nodeStyle.concat([{
-                selector: `node[type = "region"]`,
-                style: {
-                    "text-valign": "bottom",
-                    "border-width": "0px",
-                    'shape': 'rectangle',
-                    "text-margin-y": "-5px",
-                    "background-position-y": "0px",
-                    // height: 40,
-                    // width: 112,
-                    height: 15,
-                    width: 42,
-                    'background-opacity': 0,
-                    'background-image': Image,
-                    'background-fit': 'contain',
-                    'background-clip': 'none',
-                    'background-position-x': '0%',
-                    "font-size": "5px",
-                },
-            }]),
-            layout: { name: "preset" },
-            zoom: 1.5,
-            minZoom: 1.2,
-            maxZoom: 4,
-            pan: { x: 0, y: 0 },
-        });
+    //     cyRef.current = cytoscape({
+    //         container: document.getElementById("cy-container"),
+    //         elements: { nodes, edges },
+    //         style: nodeStyle.concat([{
+    //             selector: `node[type = "region"]`,
+    //             style: {
+    //                 "text-valign": "bottom",
+    //                 "border-width": "0px",
+    //                 'shape': 'rectangle',
+    //                 "text-margin-y": "-5px",
+    //                 "background-position-y": "0px",
+    //                 // height: 40,
+    //                 // width: 112,
+    //                 height: 15,
+    //                 width: 42,
+    //                 'background-opacity': 0,
+    //                 'background-image': Image,
+    //                 'background-fit': 'contain',
+    //                 'background-clip': 'none',
+    //                 'background-position-x': '0%',
+    //                 "font-size": "5px",
+    //             },
+    //         }]),
+    //         layout: { name: "preset" },
+    //         zoom: 1.5,
+    //         minZoom: 1.2,
+    //         maxZoom: 4,
+    //         pan: { x: 0, y: 0 },
+    //     });
 
-        const cy = cyRef.current;
-        cy.reset();
-        cy.center();
+    //     const cy = cyRef.current;
+    //     cy.reset();
+    //     cy.center();
 
-        return () => {
-            document.body.style.cursor = "default";
-            cyRef.current.removeAllListeners();
-        };
-    }, [graphJson]);
+    //     return () => {
+    //         document.body.style.cursor = "default";
+    //         cyRef.current.removeAllListeners();
+    //     };
+    // }, [graphJson]);
+
     return (
         <>
-            <div className="p-4 space-y-4">
+            {/* <div className="p-4 space-y-4">
                 <Button
                     onClick={() => {
                         cyRef.current.click();
@@ -219,59 +209,40 @@ export default function DebugPage() {
                     }}
                 >
                 </div>
-            </div>
+            </div> */}
             <div style={{ padding: '20px', width: '1440px' }}>
                 <h1>Links for Debug Quick Redirect</h1>
-                <h3>Intermediate Page:</h3>
-                {
-                    sampleLinks.intermediate_page.map((item, index) => (
-                        <div key={index}>
-                            <a href={item.link} target="_blank" rel="noopener noreferrer" style={{
-                                wordWrap: 'break-word',
-                                maxWidth: '100%',
-                            }}>
-                                {item.link}
-                            </a>
-                            <ul>
-                                {Object.entries(item.dictionary).map(([key, value], linkIndex) => (
-                                    <li key={linkIndex}>
-                                        {key}: {value}
-                                    </li>
-                                ))}
-                            </ul>
-                            {item['$comment'] && (
-                                <p style={{ color: 'red' }}>
-                                    {item['$comment']}
-                                </p>
-                            )}
-                        </div>
-                    ))
-                }
-                <h3>Result Page:</h3>
-                {
-                    sampleLinks.result_page.map((item, index) => (
-                        <div key={index}>
-                            <a href={item.link} target="_blank" rel="noopener noreferrer" style={{
-                                wordWrap: 'break-word',
-                                maxWidth: '100%',
-                            }}>
-                                {item.link}
-                            </a>
-                            <ul>
-                                {Object.entries(item.dictionary).map(([key, value], linkIndex) => (
-                                    <li key={linkIndex}>
-                                        {key}: {value}
-                                    </li>
-                                ))}
-                            </ul>
-                            {item['$comment'] && (
-                                <p style={{ color: 'red' }}>
-                                    {item['$comment']}
-                                </p>
-                            )}
-                        </div>
-                    ))
-                }
+                {[
+                    ["match_page", "Match Page"],
+                    ["intermediate_page", "Intermediate Page"],
+                    ["result_page", "Result Page"]
+                ].map(([key, title]) => (<>
+                    <h3 key={key}>{title}</h3>
+                    {
+                        sampleLinks[key].map((item, index) => (
+                            <div key={index}>
+                                <a href={item.link} target="_blank" rel="noopener noreferrer" style={{
+                                    wordWrap: 'break-word',
+                                    maxWidth: '100%',
+                                }}>
+                                    {item.link}
+                                </a>
+                                <ul>
+                                    {Object.entries(item.dictionary).map(([key, value], linkIndex) => (
+                                        <li key={linkIndex}>
+                                            {key}: {value}
+                                        </li>
+                                    ))}
+                                </ul>
+                                {item['$comment'] && (
+                                    <p style={{ color: 'red' }}>
+                                        {item['$comment']}
+                                    </p>
+                                )}
+                            </div>
+                        ))
+                    }</>
+                ))}
             </div>
         </>
     );

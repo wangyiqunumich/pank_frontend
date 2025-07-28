@@ -3,6 +3,7 @@ import 'slick-carousel/slick/slick-theme.css';
 
 import React, {
   useEffect,
+  useRef,
   useState,
 } from 'react';
 
@@ -58,9 +59,23 @@ const bgColors = {
 };
 
 export const AlertMessage = ({ type = "info", content, sx = {}, open = true, onClose = () => { } }) => {
+  const alertRef = useRef(null);
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (alertRef.current && !alertRef.current.contains(event.target)) {
+        onClose();
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
   return (
-    <Snackbar open={open} onClose={() => { }} autoHideDuration={5000} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+    <Snackbar open={open} autoHideDuration={5000} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
       <Alert
+        ref={alertRef}
         variant="outlined"
         severity={type === "notification" ? "info" : type}
         icon={iconMap[type]}
@@ -75,6 +90,7 @@ export const AlertMessage = ({ type = "info", content, sx = {}, open = true, onC
           borderColor: "inherit",
           display: "flex",
           alignItems: "center",
+          transition: "width 1s",
           ...sx,
         }}
       >

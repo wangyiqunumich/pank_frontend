@@ -8,12 +8,8 @@ import React, {
 
 import Cytoscape from 'cytoscape';
 import { useDispatch } from 'react-redux';
-import {
-  useLocation,
-  useNavigate,
-} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-import TerminalIcon from '@mui/icons-material/Terminal';
 import {
   Autocomplete,
   Box,
@@ -26,7 +22,6 @@ import {
 } from '@mui/material';
 import Popper from '@mui/material/Popper';
 
-import landingPageLogo from '../image/landing image cropped.png';
 import { queryVocab } from '../redux/inputToVocabSlice'; // Import the action
 import { queryQueryResult } from '../redux/queryResultSlice';
 import { nodeAutoWidth } from './style.js';
@@ -189,7 +184,7 @@ const MatchGraphViewer = ({ visualPattern, selectedQuestion }) => {
   );
 };
 
-function InputComponent({ type, setValue, setInputStatus }) { // input state: valid, mismatch, empty
+function InputComponent({ type, setValue, setInputStatus, disabled, clearTrigger }) { // input state: valid, mismatch, empty
   const dispatch = useDispatch();
   const [selfOptions, setSelfOptions] = useState([]);
 
@@ -208,6 +203,16 @@ function InputComponent({ type, setValue, setInputStatus }) { // input state: va
   }, [inputValue]);
 
   const inputChangeTimer = useRef(null);
+
+  useEffect(() => {
+    if (inputChangeTimer.current) {
+      clearTimeout(inputChangeTimer.current);
+    }
+    setValue('');
+    setInputValue('');
+    setInputStatus('empty');
+    setValidatedValue('');
+  }, [clearTrigger]);
 
   function updateSource(newInputValue) { // similarity match, specific for gene
     const keyWord = newInputValue.split('(')[0].trim();
@@ -298,19 +303,30 @@ function InputComponent({ type, setValue, setInputStatus }) { // input state: va
           const uniqueOptions = [...new Set(options.map(option => option.label || option))];
           return uniqueOptions.length > 0 ? (type === 'gene' ? uniqueOptions : []) : [{ label: `No ${type} found`, disabled: true, notFound: true }];
         })()}
+        disabled={disabled}
         getOptionDisabled={(option) => option.disabled}
         className={type}
         filterOptions={(options) => options}
         sx={{
-          '& .MuiAutocomplete-endAdornment': {
-            right: '-4px !important', // Adjust the position of the end adornment (clear button)
-          },
-          '& .MuiOutlinedInput-root': {
-            paddingRight: '-12px', // Ensure enough space for the clear button
+          ...(disabled ? { border: '1px dashed #ACB1B0' } : {
+            '& .MuiAutocomplete-endAdornment': {
+              right: '-4px !important', // Adjust the position of the end adornment (clear button)
+            },
+            '& .MuiOutlinedInput-root': {
+              paddingRight: '-12px', // Ensure enough space for the clear button
+            },
+          }),
+          margin: "0px 4px",
+          borderRadius: '8px',
+          '& .Mui-disabled .MuiAutocomplete-input::placeholder': {
+            color: 'black',
+            opacity: 1,
           },
           zIndex: 9999,
         }}
+        inputValue={inputValue}
         onInputChange={(event, newInputValue, reason) => {
+          setInputValue(newInputValue);
           if (inputChangeTimer.current) {
             clearTimeout(inputChangeTimer.current);
           }
@@ -324,7 +340,6 @@ function InputComponent({ type, setValue, setInputStatus }) { // input state: va
             }
           } else {
             setValidatedValue('');
-            setInputValue(newInputValue);
             if (newInputValue) {
               setInputStatus('mismatch');
               inputChangeTimer.current = setTimeout(() => {
@@ -379,14 +394,18 @@ function InputComponent({ type, setValue, setInputStatus }) { // input state: va
         renderInput={(params) => (
           <TextField
             {...params}
-            placeholder={type === 'gene' ? 'GENE' : type === 'cell' ? 'CELL' : 'SNP'}
+            disabled={disabled}
+            placeholder={
+              disabled ? type.toUpperCase() :
+                type === 'gene' ? 'GENE' : type === 'cell' ? 'CELL' : 'SNP'
+            }
             sx={{
               width: 'auto !important',
               fontFamily: 'Open Sans',
               fontWeight: 600,
               mx: 1,
               '& .MuiAutocomplete-input': {
-                width: '60px !important',
+                width: disabled ? '40px !important' : '80px !important',
               },
               '& .MuiOutlinedInput-root': {
                 width: '100%',
@@ -402,7 +421,7 @@ function InputComponent({ type, setValue, setInputStatus }) { // input state: va
                 },
               },
               '& .MuiInputBase-input': {
-                padding: '2px 18px 2px 8px !important',
+                padding: disabled ? '2px 0px 2px 0px !important' : '2px 18px 2px 0px !important',
               },
             }}
           />
@@ -428,39 +447,65 @@ function InputComponent({ type, setValue, setInputStatus }) { // input state: va
 }
 
 function MatchPage() {
-  // const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [selectedQuestion, setSelectedQuestion] = useState('');
-  // const [qid, setQid] = useState('');
   const [inputStatus, setInputStatus] = useState({});
-  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
+  const [existEmptyBox, setExistEmptyBox] = useState(true);
+  const [allEmptyBox, setAllEmptyBox] = useState(true);
+  const [existMismatchBox, setExistMismatchBox] = useState(false);
   const [geneId, setGeneId] = useState('');
   const [cellId, setCellId] = useState('');
   const [snpId, setSnpId] = useState('');
-  const [showBoxEmptyWarning, setShowBoxEmptyWarning] = useState(false);
-  const [showBoxFilledWarning, setShowBoxFilledWarning] = useState(false);
+  const [warningType, setWarningType] = useState('');
+  const warnings = {
+    empty: 'Please ensure all boxes are filled out before submitting',
+    mismatch: 'We couldn\'t find one or more entities from our database. Try use a different gene or SNP.',
+    allEmpty: 'All boxes are already empty.',
+  }
+  const [lastWarning, setLastWarning] = useState('');
+  useEffect(() => {
+    if (!!warningType) {
+      setLastWarning(warnings[warningType]);
+    }
+  }, [warningType]);
 
   const navigate = useNavigate();
-  const location = useLocation();
-  const questionData = location.state;
-  const [visualPattern, setVisualPattern] = useState(questionData.pattern_for_the_matched_page);
-
-  const partofquestion = questionData.question.split(/(\s+|\{.*?\}|\(.*?\))/); // 根据{} 或（）将字符串分割成部分，其余按照空格分割成部分
-  const dictionary = partofquestion.reduce((acc, part, index) => {
-    if (part.startsWith('{') && part.endsWith('}')) {
-      acc[index] = part.slice(1, -1).split('@')[0]; // Extract the type from the part
-    }
-    return acc;
-  }, {});
-  // console.log('dictionary', dictionary);
+  const [emptyPattern, setEmptyPattern] = useState('');
+  const [visualPattern, setVisualPattern] = useState("");
+  const [dictionary, setDictionary] = useState({});
+  const [searchInput, setSearchInput] = useState('');
+  const [clearTrigger, clearInputComponent] = useState(0);
 
   // Extract this page's question and qid from URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const questionFromUrl = params.get('question'); // 获取'question'参数
-    // const qidFromUrl = params.get('qid'); // 获取'qid'参数
-    if (questionFromUrl) {
-      setSelectedQuestion(decodeURIComponent(questionFromUrl)); // 解码问题并设置它
-      // setQid(qidFromUrl);
+    const question = params.get('question');
+    if (question) {
+      setSelectedQuestion(decodeURIComponent(question));
+      const partofquestion = question.split(/(\{.*?\}|\(.*?\))/); // 根据{} 或（）将字符串分割成部分，其余按照空格分割成部分
+      const dictionary = partofquestion.reduce((acc, part, index) => {
+        if (part.startsWith('{') && part.endsWith('}')) {
+          acc[index] = part.slice(1, -1).split('@')[0]; // Extract the type from the part
+        }
+        return acc;
+      }, {});
+      setDictionary(dictionary);
+    } else {
+      navigate('/');
+    }
+    if (params.get("pattern")) {
+      setEmptyPattern(decodeURIComponent(params.get("pattern")));
+    }
+    if (params.get("input")) {
+      const input = decodeURIComponent(params.get("input"));
+      //const styledInput = input.replace(/\(([^)]+)\)/g, (match, p1) => <span style={{ color: '#3872f6' }}>({p1})</span>);
+      const styledInput =
+        input.split(/(\s+|\{.*?\}|\(.*?\))/).map((part, index) => {
+          if (part.startsWith('(') && part.endsWith(')')) {
+            return <span key={index} style={{ color: '#3872f6' }}>{part.slice(1, -1)}</span>;
+          }
+          return part;
+        });
+      setSearchInput(styledInput);
     }
   }, []);
 
@@ -477,22 +522,22 @@ function MatchPage() {
 
   // Handle submit button click
   const handleSubmit = () => {
-    if (isSubmitDisabled) {
-      if (Object.entries(inputStatus).reduce((acc, curr) => acc + (curr[1] === 'empty' ? 1 : 0), 0) > 0) {
-        setShowBoxEmptyWarning(true);
-      }
-      else if (Object.entries(inputStatus).reduce((acc, curr) => acc + (curr[1] === 'mismatch' ? 1 : 0), 0) > 0) {
-        setShowBoxFilledWarning(true);
-      }
+    if (existEmptyBox) {
+      setWarningType('empty');
+      return;
+    }
+    if (existMismatchBox) {
+      setWarningType('mismatch');
       return;
     }
 
+    return; //disable for now
     if (selectedQuestion.startsWith('How does')) {
       const url = `/result?sourceTerm=gene@${geneId.split('(')[1].slice(0, -1)}&targetTerm=cell_type&relationship=express_in`
       navigate(url);
     }
     else {
-      let updatedTerms = questionData.terms;
+      let updatedTerms = "questionData.terms";
       if (geneId) {
         updatedTerms = updatedTerms.replace('gene', `gene@${geneId}`);
       }
@@ -526,32 +571,22 @@ function MatchPage() {
 
   function renderSequence() {
     const sequence = selectedQuestion || ''; // 使用选定的问题或空字符串
-    const parts = sequence.split(/(\s+|\{.*?\}|\(.*?\))/); // 根据{} 或（）将字符串分割成部分，其余按照空格分割成部分
+    const parts = sequence.split(/(\{.*?\}|\(.*?\))/); // 根据{} 或（）将字符串分割成部分，其余按照空格分割成部分
     return parts.map((part, index) => {
       if (part.startsWith('(') && part.endsWith(')')) {
-        return (
-          <Box
-            key={index}
-            sx={{
-              // backgroundColor: '#F2F6FC',
-              // border: '1px dotted #95A6A6',
-              // padding: '2px 8px',
-              // borderRadius: '8px',
-              // marginRight: '8px',
-              // display: 'inline-block',
-              fontStyle: 'italic',
-              fontFamily: 'Open Sans',
-              fontWeight: 600,
-            }}
-          >
-            {part.slice(1, -1)}
-          </Box>
-        );
+        return (<InputComponent
+          disabled={true}
+          key={index}
+          type={part.slice(1, -1)}
+          setValue={() => { }}
+          setInputStatus={() => { }}
+        />);
       } else if (part.startsWith('{') && part.endsWith('}')) {
         const type = dictionary[index];
         return (<InputComponent
           key={index}
           type={type}
+          clearTrigger={clearTrigger}
           setValue={(value) => {
             if (type === 'gene') {
               setGeneId(value);
@@ -584,7 +619,7 @@ function MatchPage() {
   };
 
   useEffect(() => {
-    let connectedString = questionData.pattern_for_the_matched_page;
+    let connectedString = emptyPattern || '';
     if (geneId) {
       connectedString = connectedString.replace(/\{gene@.*?@}/, `{gene@${geneId}@}`);
     }
@@ -595,188 +630,186 @@ function MatchPage() {
       connectedString = connectedString.replace(/\{snp@.*?@}/, `{snp@${snpId}@}`);
     }
     setVisualPattern(connectedString);
-  }, [geneId, cellId, snpId]);
+  }, [emptyPattern, geneId, cellId, snpId]);
 
   useEffect(() => {
-    let isabled = true;
-    for (const [key, value] of Object.entries(dictionary)) {
-      if (value === 'gene' && !geneId) {
-        isabled = false;
-        continue;
-      }
-      if (value === 'cell' && !cellId) {
-        isabled = false;
-        continue;
-      }
-      if (value === 'snp' && !snpId) {
-        isabled = false;
-        continue;
-      }
-    }
-    setIsSubmitDisabled(!isabled);
-  }, [geneId, cellId, snpId]);
+    setExistEmptyBox(
+      Object.entries(inputStatus).reduce((acc, curr) => acc + (curr[1] === 'empty' ? 1 : 0), 0) > 0
+    )
+    setAllEmptyBox(
+      Object.entries(inputStatus).reduce((acc, curr) => acc + (curr[1] === 'empty' ? 0 : 1), 0) === 0
+    )
+    setExistMismatchBox(
+      Object.entries(inputStatus).reduce((acc, curr) => acc + (curr[1] === 'mismatch' ? 1 : 0), 0) > 0
+    )
+  }, [inputStatus]);
 
+  const clearWarningsTimer = useRef(null);
   useEffect(() => {
-    if (showBoxEmptyWarning) {
-      const timer = setTimeout(() => {
-        setShowBoxEmptyWarning(false);
-      }, 5000);
-
-      return () => clearTimeout(timer);
+    if (!!warningType) {
+      clearWarningsTimer.current = setTimeout(() => {
+        setWarningType('');
+      }, 3000);
     }
-  }, [showBoxEmptyWarning]);
+    else {
+      clearTimeout(clearWarningsTimer.current);
+    }
+    return () => clearTimeout(clearWarningsTimer.current);
+  }, [warningType]);
 
   return (
     <Container maxWidth={false} disableGutters sx={{
       display: 'flex',
-      flexDirection: { sm: 'column', md: 'row' }, justifyContent: 'center',
-      alignItems: 'top',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
       paddingTop: '40px',
       paddingLeft: { sm: 0, md: '6%' },
       paddingRight: { sm: 0, md: '6%' },
       paddingBottom: '40px',
     }}>
-
-      {/* 左侧图片 */}
-      <Box sx={{
-        flex: 1,
-        position: 'relative',
-        display: 'block',
-        '& img': {
-          width: '100%',
-          maxHeight: '40vh',
-          objectFit: 'contain',
-        }
-      }}>
-        <Box sx={{
-          position: { sm: 'relative', md: 'absolute' },
-          top: { sm: '0', md: '2.4vh' },
-          left: 0,
-          right: 0,
-          bottom: 0,
-          margin: 'auto',
-          display: 'flex', flexDirection: 'column', justifyContent: 'top', alignItems: 'center',
-        }}>
-          <img src={landingPageLogo} alt="PanKgraph" />
-          <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px', alignItems: 'center' }}>
-            <TerminalIcon sx={{ width: '30px', color: '#C48E25' }} />
-            <Typography sx={{ marginLeft: '10px', fontSize: '20px' }}>
-              Access PanKgraph with <Link
-                href={process.env.REACT_APP_PANKGRAPH_LINK + '/api'}
-                sx={{ textDecoration: 'underline', color: 'black', textAlign: 'right' }}>API</Link>
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
-
-      {/* 右侧内容区域 */}
-      <Box sx={{
-        width: { sm: '90%', md: '40vw' },
-        minHeight: '60vh',
-        marginTop: { sm: '0px', md: '20px' },
-        marginRight: 1,
-        marginLeft: { sm: '5%', md: 0 },
+      <Box className="content-wrapper" sx={{
+        width: '100%',
+        maxWidth: '1200px',
+        justifyContent: 'center',
         display: 'flex',
         flexDirection: 'column',
-        gap: 2,
-        backgroundColor: '#E4F0F1',
-        borderRadius: '20px',
-        padding: 3,
+        alignItems: 'center',
       }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography sx={{
-            fontSize: 28,
-            fontWeight: 700,
-            textAlign: 'left',
-            fontFamily: 'Open Sans',
-          }}>
-            {questionData.matched_page_title}
-          </Typography>
-          <Link
-            href="/"
-            sx={{
-              textDecoration: 'underline',
-              color: '#398289',
-              fontSize: 16,
-              fontWeight: 600,
-              fontFamily: 'Open Sans',
-              cursor: 'pointer',
-              marginRight: 2,
-            }}
-          >
-            CANCEL
-          </Link>
-        </Box>
+        {/* Top Content Box */}
         <Box sx={{
+          width: "calc(100% - 72px)",
+          minHeight: '200px',
+          marginTop: { sm: '5px', md: '20px' },
+          marginRight: 1,
+          marginLeft: { sm: '5%', md: 0 },
           display: 'flex',
-          justifyContent: 'flex-start',
-          alignItems: 'flex-start',
           flexDirection: 'column',
+          gap: '18px',
+          background: 'linear-gradient(90.7deg, #F5FAFF 10.46%, #FCFCFC 82.06%)',
+          borderRadius: '20px',
+          boxShadow: '8px 6px 33px 0px #D8E6F8',
+          padding: '36px',
         }}>
-          <Typography sx={{
-            marginBottom: 2,
-            color: '#398289',
-            fontSize: 17,
-            fontWeight: 600,
-            fontFamily: 'Open Sans',
-          }}>
-            {questionData.matched_page_sub_title}
-          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography sx={{
+              fontSize: 28,
+              fontWeight: 700,
+              textAlign: 'left',
+              fontFamily: 'Inter',
+              color: '#1C3C68',
+            }}>
+              {"Please confirm we understand your query correctly:"}
+            </Typography>
+            <Link
+              href="/"
+              sx={{
+                textDecoration: 'underline',
+                color: '#398289',
+                fontSize: 16,
+                fontWeight: 600,
+                fontFamily: 'Open Sans',
+                cursor: 'pointer',
+                marginRight: 2,
+              }}
+            >
+              CANCEL
+            </Link>
+          </Box>
           <Box sx={{
-            backgroundColor: '#FFFFFF',
+            backgroundColor: '#EBF0FE',
             borderRadius: '12px',
             alignItems: 'center',
             display: 'flex',
             flexWrap: 'wrap',
             padding: 2,
             width: 'calc(100% - 32px)',
+            border: '1px solid #C2CCFF',
             gap: '2px',
           }}>
             {renderSequence()}
           </Box>
           <Typography sx={{
-            color: '#4E4E4E',
-            fontSize: 12,
-            fontWeight: 600,
-            fontFamily: 'Open Sans',
-            fontStyle: 'italic',
+            color: '#1C3C68',
+            fontSize: 18,
+            fontWeight: 400,
+            fontFamily: 'Inter',
             marginTop: '4px',
             marginBottom: 2,
           }}>
-            {questionData.matched_page_tips}
+            {"Your original search request: "} <br />
+            {searchInput || 'No input provided'}
           </Typography>
+          <AlertMessage
+            type="warning"
+            content={lastWarning}
+            open={!!warningType}
+            onClose={() => setWarningType('')}
+          />
         </Box>
+        {/* Graph Visualization Box */}
+        <Typography sx={{
+          color: '#1C3C68',
+          fontSize: 16,
+          fontWeight: 600,
+          fontFamily: 'Inter',
+          marginTop: '40px',
+          width: '100%',
+          textAlign: 'left',
+        }}>Graph visualization</Typography>
         <Box sx={{
+          position: 'relative',
+          width: "calc(100% - 72px)",
+          minHeight: '300px',
+          marginTop: '5px',
+          marginRight: 1,
+          marginLeft: { sm: '5%', md: 0 },
           display: 'flex',
-          justifyContent: 'flex-start',
-          alignItems: 'flex-start',
+          alignItems: 'center',
+          justifyContent: 'center',
           flexDirection: 'column',
+          gap: '18px',
+          background: 'linear-gradient(90.7deg, #F5FAFF 10.46%, #FCFCFC 82.06%)',
+          borderRadius: '20px',
+          boxShadow: '8px 6px 33px 0px #D8E6F8',
+          padding: '36px',
         }}>
-          <Typography sx={{
-            color: '#398289',
-            fontSize: 17,
-            fontWeight: 600,
-            fontFamily: 'Open Sans',
-            marginBottom: 2,
-          }}>
-            Graph visualization
-          </Typography>
           <Box sx={{
-            backgroundColor: '#FFFFFF',
+            backgroundColor: 'transparent',
             borderRadius: '12px',
             alignItems: 'center',
             display: 'flex',
             flexWrap: 'wrap',
             padding: 2,
             width: 'calc(100% - 32px)',
+            maxWidth: "600px",
             fontFamily: 'Open Sans',
             fontWeight: 600,
           }}>
-            {visualPattern ? (
+            {visualPattern ? (<>
               <MatchGraphViewer
                 visualPattern={visualPattern}
                 selectedQuestion={selectedQuestion}
               />
+              <Link
+                href="#"
+                sx={{
+                  position: 'absolute',
+                  top: '36px',
+                  right: '36px',
+                  textDecoration: 'underline',
+                  color: '#398289',
+                  fontSize: 16,
+                  fontWeight: 600,
+                  fontFamily: 'Open Sans',
+                  cursor: 'pointer',
+                  marginRight: 2,
+                  zIndex: 9999,
+                }}
+              >
+                Edit in graph Query
+              </Link>
+            </>
             ) : (
               <Typography sx={{ color: "#666", fontStyle: "italic" }}>
                 Select a gene to see the visualization
@@ -784,73 +817,53 @@ function MatchPage() {
             )}
           </Box>
         </Box>
-        <AlertMessage
-          type="warning"
-          content="Please ensure all boxes are filled out before submitting"
-          open={showBoxEmptyWarning}
-          onClose={() => setShowBoxEmptyWarning(false)}
-          sx={{
-            '& .MuiSnackbar-root': {
-              position: 'static',
-              transform: 'none',
-              top: 'auto',
-              left: 'auto',
-              right: 'auto',
-              bottom: 'auto',
-            },
-            '& .MuiAlert-root': {
-              marginBottom: '10px',
+        <Box sx={{ display: 'flex', flexDirection: 'row', gap: '16px', width: 'calc(100% - 72px)', marginTop: '20px', justifyContent: 'flex-end' }}>
+          {/* Clear Button */}
+          <Button onClick={() => {
+            if (allEmptyBox) {
+              setWarningType('allEmpty');
+            } else {
+              clearInputComponent(1 - clearTrigger);
             }
-          }}
-        />
-        <AlertMessage
-          type="warning"
-          content="We couldn't find one or more entities from our database. Try use a different gene or SNP."
-          open={showBoxFilledWarning}
-          onClose={() => setShowBoxFilledWarning(false)}
-          sx={{
-            '& .MuiSnackbar-root': {
-              position: 'static',
-              transform: 'none',
-              top: 'auto',
-              left: 'auto',
-              right: 'auto',
-              bottom: 'auto',
-            },
-            '& .MuiAlert-root': {
-              marginBottom: '10px',
-            }
-          }}
-        />
-        <Button
-          variant="contained" // Use a contained button for emphasis
-          color="primary" // Use the primary color
-          sx={{
-            backgroundColor: isSubmitDisabled ? '#F0F0F0' : '#219197', // Custom background color
-            color: isSubmitDisabled ? 'rgba(57, 130, 137, 0.4)' : 'rgba(255, 255, 255)', // Text color
-            textTransform: 'none', // Prevent uppercase text
-            fontSize: '16px', // Adjust font size
-            fontWeight: 600, // Bold text
-            height: '64px',
-            borderRadius: '8px', // Rounded corners
-            padding: '8px 16px', // Add padding
-            fontFamily: 'Open Sans',
-            boxShadow: '0px 2px 2px 0px rgba(0, 0, 0, 0.40)',
-            '&:hover': {
-              backgroundColor: isSubmitDisabled ? '#F0F0F0' : '#1A7A75', // Darker shade on hover
-            },
-            '&[disabled]': {
-              backgroundColor: '#F0F0F0', // Lighter shade when disabled
-              boxShadow: '0px 2px 2px 0px rgba(0, 0, 0, 0.40)', // Shadow for disabled state
-            },
-          }}
-          onClick={handleSubmit}
-        >
-          SUBMIT
-        </Button>
-
-
+          }} sx={{
+            alignSelf: 'flex-end', marginTop: '16px',
+            background: 'white',
+            color: allEmptyBox ? 'gray' : 'black',
+            cursor: allEmptyBox ? 'not-allowed' : 'pointer',
+            borderRadius: '40px',
+            height: '44px',
+            paddingX: '40px',
+            boxShadow: '0px 2px 3.1px 0px #B9B9B933',
+            border: '1px solid #CCD4FFA8',
+            textTransform: 'none',
+            fontSize: '16px',
+            fontWeight: 600,
+            fontFamily: 'Inter',
+            boxShadow: "0px 2px 3.1px 0px #B9B9B933",
+          }}>
+            Clear All
+          </Button>
+          {/* Submit Button */}
+          <Button onClick={handleSubmit} sx={{
+            alignSelf: 'flex-end', marginTop: '16px',
+            background: (existEmptyBox || existMismatchBox) ? 'linear-gradient(90.46deg, rgba(112, 134, 253, 0.3) 0.44%, rgba(70, 99, 254, 0.3) 99.65%)' : 'linear-gradient(142.59deg, #4A65F4 14.08%, #758BFF 78.33%)',
+            color: 'white',
+            cursor: (existEmptyBox || existMismatchBox) ? 'not-allowed' : 'pointer',
+            borderRadius: '40px',
+            height: '44px',
+            paddingX: '40px',
+            textTransform: 'none',
+            fontSize: '16px',
+            fontWeight: 600,
+            fontFamily: 'Inter',
+            boxShadow: "0px 2px 3.1px 0px #B9B9B933",
+          }}>
+            Submit
+          </Button>
+        </Box>
       </Box>
+
+
     </Container>
   );
 };
