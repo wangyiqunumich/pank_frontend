@@ -446,34 +446,186 @@ function InputComponent({ type, setValue, setInputStatus, disabled, clearTrigger
   );
 }
 
-function MatchPage() {
-  const [selectedQuestion, setSelectedQuestion] = useState('');
-  const [inputStatus, setInputStatus] = useState({});
-  const [existEmptyBox, setExistEmptyBox] = useState(true);
-  const [allEmptyBox, setAllEmptyBox] = useState(true);
-  const [existMismatchBox, setExistMismatchBox] = useState(false);
-  const [geneId, setGeneId] = useState('');
-  const [cellId, setCellId] = useState('');
-  const [snpId, setSnpId] = useState('');
-  const [warningType, setWarningType] = useState('');
+export const SearchComponent = ({ questionSchema, clearTrigger = 0, updateValues, setInputStatus }) => {
+  const [parts, setParts] = useState([]);
+  const [partsMap, setPartsMap] = useState({});
+  const [valueDict, setValueDict] = useState({});
+
+  useEffect(() => {
+    const sequence = questionSchema || '';
+
+    const parts = sequence.split(/(\{.*?\}|\(.*?\))/);
+    const partsMap = parts.reduce((acc, part, index) => {
+      if (part.startsWith('{') && part.endsWith('}')) {
+        acc[index] = part.slice(1, -1).split('@')[0]; // Extract the type from the part
+      }
+      return acc;
+    }, {});
+    setParts(parts);
+    setPartsMap(partsMap);
+  }, [questionSchema]);
+
+  useEffect(() => {
+    updateValues(valueDict);
+  }, [valueDict, updateValues]);
+
+  return parts.map((part, index) => {
+    if (part.startsWith('(') && part.endsWith(')')) {
+      return (<InputComponent
+        disabled={true}
+        key={index}
+        type={part.slice(1, -1)}
+        setValue={() => { }}
+        setInputStatus={() => { }}
+      />);
+    } else if (part.startsWith('{') && part.endsWith('}')) {
+      const type = partsMap[index];
+      return (<InputComponent
+        key={index}
+        type={type}
+        clearTrigger={clearTrigger}
+        setValue={(value) => {
+          setValueDict((prev) => ({ ...prev, [index]: value }));
+        }}
+        setInputStatus={(status) => {
+          setInputStatus((prevStatus) => ({ ...prevStatus, [index]: status }));
+        }}
+      />);
+    } else {
+      // Render plain text for other parts
+      return (
+        <Typography
+          key={index}
+          sx={{
+            display: 'inline-block',
+            fontFamily: 'Open Sans',
+            fontWeight: 600,
+          }}
+        >
+          {part}
+        </Typography>
+      );
+    }
+  });
+}
+
+export const SubmitButtonComponent = ({ sx, sxOnDisabled, caption, onClick, inputStatus, setWarning }) => {
   const warnings = {
     empty: 'Please ensure all boxes are filled out before submitting',
     mismatch: 'We couldn\'t find one or more entities from our database. Try use a different gene or SNP.',
     allEmpty: 'All boxes are already empty.',
   }
+  const [existEmptyBox, setExistEmptyBox] = useState(true);
+  const [existMismatchBox, setExistMismatchBox] = useState(false);
+
+  useEffect(() => {
+    setExistEmptyBox(
+      Object.entries(inputStatus).reduce((acc, curr) => acc + (curr[1] === 'empty' ? 1 : 0), 0) > 0
+    );
+    setExistMismatchBox(
+      Object.entries(inputStatus).reduce((acc, curr) => acc + (curr[1] === 'mismatch' ? 1 : 0), 0) > 0
+    );
+  }, [inputStatus]);
+
+  const handleClick = () => {
+    if (existEmptyBox) {
+      setWarning(warnings['empty']);
+      return;
+    }
+    if (existMismatchBox) {
+      setWarning(warnings['mismatch']);
+      return;
+    }
+    onClick();
+  };
+  return (
+    <Button
+      onClick={handleClick}
+      sx={{
+        ...sx,
+        ...(existEmptyBox || existMismatchBox ? sxOnDisabled : {}),
+      }}
+    >
+      {caption}
+    </Button>
+  );
+};
+
+const ClearButtonComponent = ({ sx, sxOnDisabled, caption, onClick, inputStatus, setWarning }) => {
+  const warnings = {
+    empty: 'Please ensure all boxes are filled out before submitting',
+    mismatch: 'We couldn\'t find one or more entities from our database. Try use a different gene or SNP.',
+    allEmpty: 'All boxes are already empty.',
+  }
+  const [allEmptyBox, setAllEmptyBox] = useState(true);
+
+
+  useEffect(() => {
+    setAllEmptyBox(
+      Object.entries(inputStatus).reduce((acc, curr) => acc + (curr[1] === 'empty' ? 0 : 1), 0) === 0
+    );
+  }, [inputStatus]);
+
+  const handleClick = () => {
+    if (allEmptyBox) {
+      setWarning(warnings['allEmpty']);
+      return;
+    }
+    onClick();
+  };
+  return (
+    <Button
+      onClick={handleClick}
+      sx={{
+        ...sx,
+        ...(allEmptyBox ? sxOnDisabled : {}),
+      }}
+    >
+      {caption}
+    </Button>
+  );
+};
+
+export const WarningComponent = ({ warning, setWarning }) => {
   const [lastWarning, setLastWarning] = useState('');
   useEffect(() => {
-    if (!!warningType) {
-      setLastWarning(warnings[warningType]);
+    if (!!warning) {
+      setLastWarning(warning);
     }
-  }, [warningType]);
+  }, [warning]);
+  const clearWarningsTimer = useRef(null);
+  useEffect(() => {
+    if (!!warning) {
+      clearWarningsTimer.current = setTimeout(() => {
+        setWarning('');
+      }, 3000);
+    }
+    else {
+      clearTimeout(clearWarningsTimer.current);
+    }
+    return () => clearTimeout(clearWarningsTimer.current);
+  }, [warning]);
+  return (
+    <AlertMessage
+      type="warning"
+      content={lastWarning}
+      open={!!warning}
+      onClose={() => setWarning('')}
+    />
+  )
+};
+
+function MatchPage() {
+  const [selectedQuestion, setSelectedQuestion] = useState('');
+  const [inputStatus, setInputStatus] = useState({}); // input status of boxes
+  const [inputDict, setInputDict] = useState({}); // input values
+  const [warning, setWarning] = useState('');
 
   const navigate = useNavigate();
   const [emptyPattern, setEmptyPattern] = useState('');
   const [visualPattern, setVisualPattern] = useState("");
-  const [dictionary, setDictionary] = useState({});
-  const [searchInput, setSearchInput] = useState('');
-  const [clearTrigger, clearInputComponent] = useState(0);
+  const [searchInput, setSearchInput] = useState(''); // user input question
+  const [clearTrigger, clearInputComponent] = useState(0); // 0/1 trigger to clear all input
 
   // Extract this page's question and qid from URL
   useEffect(() => {
@@ -481,14 +633,6 @@ function MatchPage() {
     const question = params.get('question');
     if (question) {
       setSelectedQuestion(decodeURIComponent(question));
-      const partofquestion = question.split(/(\{.*?\}|\(.*?\))/); // 根据{} 或（）将字符串分割成部分，其余按照空格分割成部分
-      const dictionary = partofquestion.reduce((acc, part, index) => {
-        if (part.startsWith('{') && part.endsWith('}')) {
-          acc[index] = part.slice(1, -1).split('@')[0]; // Extract the type from the part
-        }
-        return acc;
-      }, {});
-      setDictionary(dictionary);
     } else {
       navigate('/');
     }
@@ -509,43 +653,23 @@ function MatchPage() {
     }
   }, []);
 
-  // useEffect(() => {
-  //   function handleResize() {
-  //     setWindowWidth(window.innerWidth)
-  //   }
-  //   window.addEventListener('resize', handleResize);
-  //   return (_) => {
-  //     window.removeEventListener('resize', handleResize);
-  //   };
-  // }, []);
-
-
   // Handle submit button click
   const handleSubmit = () => {
-    if (existEmptyBox) {
-      setWarningType('empty');
-      return;
-    }
-    if (existMismatchBox) {
-      setWarningType('mismatch');
-      return;
-    }
-
     return; //disable for now
     if (selectedQuestion.startsWith('How does')) {
-      const url = `/result?sourceTerm=gene@${geneId.split('(')[1].slice(0, -1)}&targetTerm=cell_type&relationship=express_in`
+      const url = `/result?sourceTerm=gene@${(inputDict['gene'] || '').split('(')[1].slice(0, -1)}&targetTerm=cell_type&relationship=express_in`
       navigate(url);
     }
     else {
       let updatedTerms = "questionData.terms";
-      if (geneId) {
-        updatedTerms = updatedTerms.replace('gene', `gene@${geneId}`);
+      if (inputDict['gene']) {
+        updatedTerms = updatedTerms.replace('gene', `gene@${inputDict['gene']}`);
       }
-      if (cellId) {
-        updatedTerms = updatedTerms.replace('cell_type', `cell_type@${cellId}`);
+      if (inputDict['cell']) {
+        updatedTerms = updatedTerms.replace('cell_type', `cell_type@${inputDict['cell']}`);
       }
-      if (snpId) {
-        updatedTerms = updatedTerms.replace('snp', `snp@${snpId}`);
+      if (inputDict['snp']) {
+        updatedTerms = updatedTerms.replace('snp', `snp@${inputDict['snp']}`);
       }
       const parts = updatedTerms.split('-')
       const sourceTerm = parts[0].trim();
@@ -569,93 +693,19 @@ function MatchPage() {
     }
   };
 
-  function renderSequence() {
-    const sequence = selectedQuestion || ''; // 使用选定的问题或空字符串
-    const parts = sequence.split(/(\{.*?\}|\(.*?\))/); // 根据{} 或（）将字符串分割成部分，其余按照空格分割成部分
-    return parts.map((part, index) => {
-      if (part.startsWith('(') && part.endsWith(')')) {
-        return (<InputComponent
-          disabled={true}
-          key={index}
-          type={part.slice(1, -1)}
-          setValue={() => { }}
-          setInputStatus={() => { }}
-        />);
-      } else if (part.startsWith('{') && part.endsWith('}')) {
-        const type = dictionary[index];
-        return (<InputComponent
-          key={index}
-          type={type}
-          clearTrigger={clearTrigger}
-          setValue={(value) => {
-            if (type === 'gene') {
-              setGeneId(value);
-            } else if (type === 'cell') {
-              setCellId(value);
-            } else if (type === 'snp') {
-              setSnpId(value);
-            }
-          }}
-          setInputStatus={(status) => {
-            setInputStatus((prevStatus) => ({ ...prevStatus, [index]: status }));
-          }}
-        />);
-      } else {
-        // Render plain text for other parts
-        return (
-          <Typography
-            key={index}
-            sx={{
-              display: 'inline-block',
-              fontFamily: 'Open Sans',
-              fontWeight: 600,
-            }}
-          >
-            {part}
-          </Typography>
-        );
-      }
-    });
-  };
-
   useEffect(() => {
     let connectedString = emptyPattern || '';
-    if (geneId) {
-      connectedString = connectedString.replace(/\{gene@.*?@}/, `{gene@${geneId}@}`);
+    if (inputDict['gene']) {
+      connectedString = connectedString.replace(/\{gene@.*?@}/, `{gene@${inputDict['gene']}@}`);
     }
-    if (cellId) {
-      connectedString = connectedString.replace(/\{ontology@.*?@}/, `{ontology@${cellId}@}`);
+    if (inputDict['cell']) {
+      connectedString = connectedString.replace(/\{ontology@.*?@}/, `{ontology@${inputDict['cell']}@}`);
     }
-    if (snpId) {
-      connectedString = connectedString.replace(/\{snp@.*?@}/, `{snp@${snpId}@}`);
+    if (inputDict['snp']) {
+      connectedString = connectedString.replace(/\{snp@.*?@}/, `{snp@${inputDict['snp']}@}`);
     }
     setVisualPattern(connectedString);
-  }, [emptyPattern, geneId, cellId, snpId]);
-
-  useEffect(() => {
-    setExistEmptyBox(
-      Object.entries(inputStatus).reduce((acc, curr) => acc + (curr[1] === 'empty' ? 1 : 0), 0) > 0
-    )
-    setAllEmptyBox(
-      Object.entries(inputStatus).reduce((acc, curr) => acc + (curr[1] === 'empty' ? 0 : 1), 0) === 0
-    )
-    setExistMismatchBox(
-      Object.entries(inputStatus).reduce((acc, curr) => acc + (curr[1] === 'mismatch' ? 1 : 0), 0) > 0
-    )
-  }, [inputStatus]);
-
-  const clearWarningsTimer = useRef(null);
-  useEffect(() => {
-    if (!!warningType) {
-      clearWarningsTimer.current = setTimeout(() => {
-        setWarningType('');
-      }, 3000);
-    }
-    else {
-      clearTimeout(clearWarningsTimer.current);
-    }
-    return () => clearTimeout(clearWarningsTimer.current);
-  }, [warningType]);
+  }, [emptyPattern, inputDict]);
 
   return (
     <Container maxWidth={false} disableGutters sx={{
@@ -727,7 +777,12 @@ function MatchPage() {
             border: '1px solid #C2CCFF',
             gap: '2px',
           }}>
-            {renderSequence()}
+            <SearchComponent
+              questionSchema={selectedQuestion}
+              clearTrigger={clearTrigger}
+              updateValues={setInputDict}
+              setInputStatus={setInputStatus}
+            />
           </Box>
           <Typography sx={{
             color: '#1C3C68',
@@ -740,11 +795,9 @@ function MatchPage() {
             {"Your original search request: "} <br />
             {searchInput || 'No input provided'}
           </Typography>
-          <AlertMessage
-            type="warning"
-            content={lastWarning}
-            open={!!warningType}
-            onClose={() => setWarningType('')}
+          <WarningComponent
+            warning={warning}
+            setWarning={setWarning}
           />
         </Box>
         {/* Graph Visualization Box */}
@@ -819,17 +872,13 @@ function MatchPage() {
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'row', gap: '16px', width: 'calc(100% - 72px)', marginTop: '20px', justifyContent: 'flex-end' }}>
           {/* Clear Button */}
-          <Button onClick={() => {
-            if (allEmptyBox) {
-              setWarningType('allEmpty');
-            } else {
-              clearInputComponent(1 - clearTrigger);
-            }
+          <ClearButtonComponent onClick={() => {
+            clearInputComponent(1 - clearTrigger);
           }} sx={{
             alignSelf: 'flex-end', marginTop: '16px',
             background: 'white',
-            color: allEmptyBox ? 'gray' : 'black',
-            cursor: allEmptyBox ? 'not-allowed' : 'pointer',
+            color: 'black',
+            cursor: 'pointer',
             borderRadius: '40px',
             height: '44px',
             paddingX: '40px',
@@ -840,15 +889,16 @@ function MatchPage() {
             fontWeight: 600,
             fontFamily: 'Inter',
             boxShadow: "0px 2px 3.1px 0px #B9B9B933",
-          }}>
-            Clear All
-          </Button>
+          }} sxOnDisabled={{
+            color: 'gray',
+            cursor: 'not-allowed',
+          }} caption={"Clear All"} inputStatus={inputStatus} setWarning={setWarning} />
           {/* Submit Button */}
-          <Button onClick={handleSubmit} sx={{
+          <SubmitButtonComponent onClick={handleSubmit} sx={{
             alignSelf: 'flex-end', marginTop: '16px',
-            background: (existEmptyBox || existMismatchBox) ? 'linear-gradient(90.46deg, rgba(112, 134, 253, 0.3) 0.44%, rgba(70, 99, 254, 0.3) 99.65%)' : 'linear-gradient(142.59deg, #4A65F4 14.08%, #758BFF 78.33%)',
+            background: 'linear-gradient(142.59deg, #4A65F4 14.08%, #758BFF 78.33%)',
             color: 'white',
-            cursor: (existEmptyBox || existMismatchBox) ? 'not-allowed' : 'pointer',
+            cursor: 'pointer',
             borderRadius: '40px',
             height: '44px',
             paddingX: '40px',
@@ -857,9 +907,10 @@ function MatchPage() {
             fontWeight: 600,
             fontFamily: 'Inter',
             boxShadow: "0px 2px 3.1px 0px #B9B9B933",
-          }}>
-            Submit
-          </Button>
+          }} sxOnDisabled={{
+            background: 'linear-gradient(90.46deg, rgba(112, 134, 253, 0.3) 0.44%, rgba(70, 99, 254, 0.3) 99.65%)',
+            cursor: 'not-allowed',
+          }} caption={"Submit"} inputStatus={inputStatus} setWarning={setWarning} />
         </Box>
       </Box>
 
