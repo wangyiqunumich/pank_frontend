@@ -56,12 +56,12 @@ const edgeLabels = {
 // sourceType: aaa, sourceId: bbb, targetType: ccc, targetId: ddd, relationship: xxx
 // and then render a graph with Cytoscape
 
-const MatchGraphViewer = ({ visualPattern, selectedQuestion }) => {
+const MatchGraphViewer = ({ visualPattern, question }) => {
   const containerRef = useRef(null);
   const cyRef = useRef(null);
 
   useEffect(() => {
-    if (!containerRef.current || !selectedQuestion) {
+    if (!containerRef.current || !question) {
       return;
     }
     // Parse the visual pattern to determine the nodes and edges
@@ -170,7 +170,7 @@ const MatchGraphViewer = ({ visualPattern, selectedQuestion }) => {
         cyRef.current.destroy();
       }
     };
-  }, [visualPattern, selectedQuestion]);
+  }, [visualPattern, question]);
 
   return (
     <div
@@ -184,8 +184,9 @@ const MatchGraphViewer = ({ visualPattern, selectedQuestion }) => {
   );
 };
 
-function InputComponent({ type, setValue, setInputStatus, disabled, clearTrigger }) { // input state: valid, mismatch, empty
+function InputComponent({ type, setValue, setInputStatus, disabled, clearTrigger, defaultValue, sx = { fontSize: '16px' } }) { // input state: valid, mismatch, empty
   const dispatch = useDispatch();
+  const [clearTriggerState, setClearTriggerState] = useState(clearTrigger);
   const [selfOptions, setSelfOptions] = useState([]);
 
   const [simIsLoading, setSimIsLoading] = useState(false); //similarity search loading state
@@ -202,9 +203,26 @@ function InputComponent({ type, setValue, setInputStatus, disabled, clearTrigger
     inputValueRef.current = inputValue;
   }, [inputValue]);
 
+  useEffect(() => {
+    if (defaultValue) {
+      setInputValue(defaultValue);
+      setValidatedValue('');
+      setInputStatus('mismatch');
+      setSelfOptions([]); // to trigger rendering the dropdown
+      if (type === 'gene') {
+        setSimIsLoading(true);
+        updateSource(defaultValue, type);
+      }
+      setValIsLoading(true);
+      updateValidation(defaultValue, type);
+    }
+  }, [defaultValue]);
+
   const inputChangeTimer = useRef(null);
 
   useEffect(() => {
+    if (clearTriggerState === clearTrigger) return;
+    setClearTriggerState(clearTrigger);
     if (inputChangeTimer.current) {
       clearTimeout(inputChangeTimer.current);
     }
@@ -400,12 +418,14 @@ function InputComponent({ type, setValue, setInputStatus, disabled, clearTrigger
                 type === 'gene' ? 'GENE' : type === 'cell' ? 'CELL' : 'SNP'
             }
             sx={{
+              ...sx,
               width: 'auto !important',
               fontFamily: 'Open Sans',
               fontWeight: 600,
               mx: 1,
               '& .MuiAutocomplete-input': {
-                width: disabled ? '40px !important' : '80px !important',
+                width: disabled ? `calc(${sx.fontSize} * 3) !important` : `calc(${sx.fontSize} * 5) !important`,
+                ...sx,
               },
               '& .MuiOutlinedInput-root': {
                 width: '100%',
@@ -446,50 +466,58 @@ function InputComponent({ type, setValue, setInputStatus, disabled, clearTrigger
   );
 }
 
-export const SearchComponent = ({ questionSchema, clearTrigger = 0, updateValues, setInputStatus }) => {
+export const SearchComponent = ({ questionSchema, clearTrigger = 0, updateValues, setInputStatus, sx = { fontSize: '16px' } }) => {
   const [parts, setParts] = useState([]);
   const [partsMap, setPartsMap] = useState({});
-  const [valueDict, setValueDict] = useState({});
+  const [defaultValues, setDefaultValues] = useState({});
 
   useEffect(() => {
     const sequence = questionSchema || '';
+    console.log("Parsing question schema:", sequence);
 
     const parts = sequence.split(/(\{.*?\}|\(.*?\))/);
-    const partsMap = parts.reduce((acc, part, index) => {
-      if (part.startsWith('{') && part.endsWith('}')) {
-        acc[index] = part.slice(1, -1).split('@')[0]; // Extract the type from the part
-      }
-      return acc;
-    }, {});
+    const [partsMap, defaultValues] = parts.reduce(
+      ([acc1, acc2], part, index) => {
+        if (part.startsWith('{') && part.endsWith('}')) {
+          const [key, defaultValue = ''] = part.slice(1, -1).split('@');
+          acc1[index] = key;
+          acc2[index] = key === defaultValue ? '' : defaultValue;
+        }
+        return [acc1, acc2];
+      },
+      [{}, {}] // Correct initial accumulator: an array of two empty objects
+    );
     setParts(parts);
     setPartsMap(partsMap);
+    setDefaultValues(defaultValues);
+    console.log("Default values set:", defaultValues);
   }, [questionSchema]);
-
-  useEffect(() => {
-    updateValues(valueDict);
-  }, [valueDict, updateValues]);
 
   return parts.map((part, index) => {
     if (part.startsWith('(') && part.endsWith(')')) {
       return (<InputComponent
+        sx={sx}
         disabled={true}
         key={index}
         type={part.slice(1, -1)}
         setValue={() => { }}
         setInputStatus={() => { }}
+        defaultValue={''}
       />);
     } else if (part.startsWith('{') && part.endsWith('}')) {
       const type = partsMap[index];
       return (<InputComponent
+        sx={sx}
         key={index}
         type={type}
         clearTrigger={clearTrigger}
         setValue={(value) => {
-          setValueDict((prev) => ({ ...prev, [index]: value }));
+          updateValues((prev) => ({ ...prev, [type]: value }));
         }}
         setInputStatus={(status) => {
           setInputStatus((prevStatus) => ({ ...prevStatus, [index]: status }));
         }}
+        defaultValue={defaultValues[index] || ''}
       />);
     } else {
       // Render plain text for other parts
@@ -497,6 +525,7 @@ export const SearchComponent = ({ questionSchema, clearTrigger = 0, updateValues
         <Typography
           key={index}
           sx={{
+            ...sx,
             display: 'inline-block',
             fontFamily: 'Open Sans',
             fontWeight: 600,
@@ -616,7 +645,7 @@ export const WarningComponent = ({ warning, setWarning }) => {
 };
 
 function MatchPage() {
-  const [selectedQuestion, setSelectedQuestion] = useState('');
+  const [question, setQuestion] = useState('');
   const [inputStatus, setInputStatus] = useState({}); // input status of boxes
   const [inputDict, setInputDict] = useState({}); // input values
   const [warning, setWarning] = useState('');
@@ -632,7 +661,7 @@ function MatchPage() {
     const params = new URLSearchParams(window.location.search);
     const question = params.get('question');
     if (question) {
-      setSelectedQuestion(decodeURIComponent(question));
+      setQuestion(decodeURIComponent(question));
     } else {
       navigate('/');
     }
@@ -655,46 +684,17 @@ function MatchPage() {
 
   // Handle submit button click
   const handleSubmit = () => {
-    return; //disable for now
-    if (selectedQuestion.startsWith('How does')) {
-      const url = `/result?sourceTerm=gene@${(inputDict['gene'] || '').split('(')[1].slice(0, -1)}&targetTerm=cell_type&relationship=express_in`
-      navigate(url);
-    }
-    else {
-      let updatedTerms = "questionData.terms";
-      if (inputDict['gene']) {
-        updatedTerms = updatedTerms.replace('gene', `gene@${inputDict['gene']}`);
-      }
-      if (inputDict['cell']) {
-        updatedTerms = updatedTerms.replace('cell_type', `cell_type@${inputDict['cell']}`);
-      }
-      if (inputDict['snp']) {
-        updatedTerms = updatedTerms.replace('snp', `snp@${inputDict['snp']}`);
-      }
-      const parts = updatedTerms.split('-')
-      const sourceTerm = parts[0].trim();
-      const relationTerm = parts[1].trim();
-      const target = parts[2].trim();
-      let targetSymbol = '';
-      let targetTerm = '';
-      if (target.includes('(')) {
-        targetSymbol = target.split('(')[0].split('@')[1];
-        targetTerm = `gene@${target.split('(')[1].slice(0, -1)}`;
-      }
-      else {
-        targetSymbol = '';
-        targetTerm = target;
-      }
-      let url = `/intermediate?sourceTerm=${sourceTerm.toLowerCase()}&relationship=${relationTerm}&targetTerm=${targetTerm}`;
-      if (targetSymbol) {
-        url += `&targetSymbol=${targetSymbol}`;
-      }
-      navigate(url);
-    }
+    //return; //disable for now
+    //redirect to result page with question replaced with input values
+    const replacedQuestion = question.replace(/\{(.*?)@(.*?)@\}/g, (match, key, defaultValue) => {
+      return `{${key}@${inputDict[key] || defaultValue}@}`;
+    });
+    navigate(`/result?question=${encodeURIComponent(replacedQuestion)}`);
   };
 
   useEffect(() => {
     let connectedString = emptyPattern || '';
+    console.log("inputDict:", inputDict);
     if (inputDict['gene']) {
       connectedString = connectedString.replace(/\{gene@.*?@}/, `{gene@${inputDict['gene']}@}`);
     }
@@ -778,7 +778,7 @@ function MatchPage() {
             gap: '2px',
           }}>
             <SearchComponent
-              questionSchema={selectedQuestion}
+              questionSchema={question}
               clearTrigger={clearTrigger}
               updateValues={setInputDict}
               setInputStatus={setInputStatus}
@@ -842,7 +842,7 @@ function MatchPage() {
             {visualPattern ? (<>
               <MatchGraphViewer
                 visualPattern={visualPattern}
-                selectedQuestion={selectedQuestion}
+                question={question}
               />
               <Link
                 href="#"
@@ -882,7 +882,6 @@ function MatchPage() {
             borderRadius: '40px',
             height: '44px',
             paddingX: '40px',
-            boxShadow: '0px 2px 3.1px 0px #B9B9B933',
             border: '1px solid #CCD4FFA8',
             textTransform: 'none',
             fontSize: '16px',

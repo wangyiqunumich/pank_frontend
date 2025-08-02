@@ -221,11 +221,11 @@ export default function DebugPage() {
                     {
                         sampleLinks[key].map((item, index) => (
                             <div key={index}>
-                                <a href={item.link} target="_blank" rel="noopener noreferrer" style={{
+                                <a href={`${item.root}?${new URLSearchParams(item.dictionary).toString()}`} target="_blank" rel="noopener noreferrer" style={{
                                     wordWrap: 'break-word',
                                     maxWidth: '100%',
                                 }}>
-                                    {item.link}
+                                    {`${item.root}?${new URLSearchParams(item.dictionary).toString()}`}
                                 </a>
                                 <ul>
                                     {Object.entries(item.dictionary).map(([key, value], linkIndex) => (

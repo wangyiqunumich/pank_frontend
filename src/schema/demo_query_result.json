@@ -1,0 +1,262 @@
+{
+    "combined_query_result": {
+        "nodes": [
+            {
+                "~id": "ENSG00000175575",
+                "~entityType": "node",
+                "~labels": [
+                    "coding_elements",
+                    "gene"
+                ],
+                "~properties": {
+                    "id_version": 13,
+                    "link": "https://www.ensembl.org/id/ENSG00000175575",
+                    "start_loc": 73876699,
+                    "end_loc": 73931114,
+                    "chr": "11",
+                    "type": "protein_coding",
+                    "GC_percentage": 42.99,
+                    "name": "PAAF1",
+                    "gencode_annotation": "GENCODE basic",
+                    "data_version": "GRCh38.p14",
+                    "description": "proteasomal ATPase associated factor 1 [Source:HGNC Symbol;Acc:HGNC:25687]",
+                    "strand": "1.0",
+                    "data_source": "Ensembl",
+                    "id": "ENSG00000175575"
+                }
+            },
+            {
+                "~id": "ENSG00000149485",
+                "~entityType": "node",
+                "~labels": [
+                    "coding_elements",
+                    "gene"
+                ],
+                "~properties": {
+                    "id_version": 19,
+                    "link": "https://www.ensembl.org/id/ENSG00000149485",
+                    "start_loc": 61799627,
+                    "end_loc": 61829318,
+                    "chr": "11",
+                    "type": "protein_coding",
+                    "GC_percentage": 50.81,
+                    "name": "FADS1",
+                    "gencode_annotation": "GENCODE basic",
+                    "data_version": "GRCh38.p14",
+                    "description": "fatty acid desaturase 1 [Source:HGNC Symbol;Acc:HGNC:3574]",
+                    "strand": "-1.0",
+                    "data_source": "Ensembl",
+                    "id": "ENSG00000149485"
+                }
+            },
+            {
+                "~id": "ENSG00000168894",
+                "~entityType": "node",
+                "~labels": [
+                    "coding_elements",
+                    "gene"
+                ],
+                "~properties": {
+                    "id_version": 10,
+                    "link": "https://www.ensembl.org/id/ENSG00000168894",
+                    "start_loc": 85595725,
+                    "end_loc": 85597708,
+                    "chr": "2",
+                    "type": "protein_coding",
+                    "GC_percentage": 54.54,
+                    "name": "RNF181",
+                    "data_version": "GRCh38.p14",
+                    "description": "ring finger protein 181 [Source:HGNC Symbol;Acc:HGNC:28037]",
+                    "strand": "1.0",
+                    "data_source": "Ensembl",
+                    "id": "ENSG00000168894"
+                }
+            },
+            {
+                "~id": "ENSG00000182446",
+                "~entityType": "node",
+                "~labels": [
+                    "coding_elements",
+                    "gene"
+                ],
+                "~properties": {
+                    "id_version": 15,
+                    "link": "https://www.ensembl.org/id/ENSG00000182446",
+                    "start_loc": 81556887,
+                    "end_loc": 81648465,
+                    "chr": "17",
+                    "type": "protein_coding",
+                    "GC_percentage": 50.06,
+                    "name": "NPLOC4",
+                    "gencode_annotation": "GENCODE basic",
+                    "data_version": "GRCh38.p14",
+                    "description": "NPL4 homolog, ubiquitin recognition factor [Source:HGNC Symbol;Acc:HGNC:18261]",
+                    "strand": "-1.0",
+                    "data_source": "Ensembl",
+                    "id": "ENSG00000182446"
+                }
+            },
+            {
+                "~id": "rs174574",
+                "~entityType": "node",
+                "~labels": [
+                    "variants",
+                    "sequence_variant",
+                    "snp"
+                ],
+                "~properties": {
+                    "id": "rs174574",
+                    "link": "https://api.ncbi.nlm.nih.gov/variation/v0/refsnp/rs174574",
+                    "data_source": "INSPIRE; SusieR",
+                    "pip": 0.0503828813420664,
+                    "nominal_p": 6.09265e-08,
+                    "effect_allele": "C",
+                    "other_allele": "A",
+                    "slope": 0.138028,
+                    "lbf": 13.1670944128835,
+                    "credible_set": "ENSG00000149485__FADS1__credibleSet1",
+                    "n_snp": 39,
+                    "lead_snp": "rs174574",
+                    "lead_pip": 0.0503828813420664
+                }
+            }
+        ],
+        "edges": [
+            {
+                "~id": "e733fa27-10d6-4de7-b923-eced44e586c3",
+                "~entityType": "relationship",
+                "~start": "rs174574",
+                "~end": "ENSG00000149485",
+                "~type": "fine_mapped_QTL",
+                "~properties": {
+                    "tissue_name": "islet",
+                    "tissue_id": "UBERON_0000006",
+                    "credible_set": "ENSG00000149485__FADS1__credibleSet1",
+                    "gene_name": "FADS1",
+                    "credibleset": "1",
+                    "pip": 0.05038288,
+                    "nominal_p": 6.09265e-08,
+                    "lbf": 13.16709,
+                    "effect_allele": "C",
+                    "other_allele": "A",
+                    "data_source": "INSPIRE; SusieR",
+                    "slope": 0.138028,
+                    "n_snp": 39,
+                    "purity": 0.4740025,
+                    "data_version": "02/03/25",
+                    "qtl_type": "eQTL"
+                }
+            },
+            {
+                "~id": "39399969-67f4-4cd9-bca5-8939ec5d6e2f",
+                "~entityType": "relationship",
+                "~start": "ENSG00000149485",
+                "~end": "ENSG00000175575",
+                "~type": "regulation",
+                "~properties": {
+                    "author": "Ewing RM (2007)",
+                    "publication_source": "PUBMED:17353931",
+                    "organism_id_interactor_a": 9606,
+                    "organism_id_interactor_b": 9606,
+                    "throughput": "High Throughput",
+                    "score": 0.387,
+                    "qualifications": "Exogenous expression of bait",
+                    "data_source": "BIOGRID",
+                    "biogrid_interaction_id": 242156,
+                    "Entrez_ID_A": 3992,
+                    "Entrez_ID_B": 80227,
+                    "biogrid_id_interactor_a": 110180,
+                    "biogrid_id_interactor_b": 123191,
+                    "official_symbol_interactor_a": "FADS1",
+                    "official_symbol_interactor_b": "PAAF1",
+                    "experimental_system": "Affinity Capture-MS",
+                    "experimental_system_type": "physical"
+                }
+            },
+            {
+                "~id": "478bfa1a-6499-4638-a51a-c8dd9504cf15",
+                "~entityType": "relationship",
+                "~start": "ENSG00000149485",
+                "~end": "ENSG00000182446",
+                "~type": "regulation",
+                "~properties": {
+                    "author": "Huttlin EL (2021)",
+                    "publication_source": "PUBMED:33961781",
+                    "organism_id_interactor_a": 9606,
+                    "organism_id_interactor_b": 9606,
+                    "throughput": "High Throughput",
+                    "score": 0.8196005,
+                    "qualifications": "BioPlex 3.0 HEK 293T cells CompPASS score = 0.819600439, threshold = 0.75. Quantitative scores are calculated by CompPASS-Plus (Huttlin et al. Cell 2015, PMID: 26186194). The 0.75 threshold represents the top 2% of scores in HEK293T.|This data may be re-scored from BioPlex 1.0 (PMID: 26186194) and BioPlex 2.0 (PMID: 28514442). Only scores from within the same cell line in BioPlex 3.0 (PMID: 33961781) should be compared directly. For comparison of HEK293T and HCT116 interaction networks with relaxed threshold = 0.1, see BioPlex Interactome (https://bioplex.hms.harvard.edu/index.php).",
+                    "data_source": "BIOGRID",
+                    "biogrid_interaction_id": 3077918,
+                    "Entrez_ID_A": 3992,
+                    "Entrez_ID_B": 55666,
+                    "biogrid_id_interactor_a": 110180,
+                    "biogrid_id_interactor_b": 120798,
+                    "official_symbol_interactor_a": "FADS1",
+                    "official_symbol_interactor_b": "NPLOC4",
+                    "experimental_system": "Affinity Capture-MS",
+                    "experimental_system_type": "physical"
+                }
+            },
+            {
+                "~id": "5b1a5faa-95d0-4447-b209-bc675a81ab29",
+                "~entityType": "relationship",
+                "~start": "ENSG00000149485",
+                "~end": "ENSG00000168894",
+                "~type": "regulation",
+                "~properties": {
+                    "author": "Huttlin EL (2017)",
+                    "publication_source": "PUBMED:28514442",
+                    "organism_id_interactor_a": 9606,
+                    "organism_id_interactor_b": 9606,
+                    "throughput": "High Throughput",
+                    "score": 0.9937724,
+                    "qualifications": "BioPlex 2.0 HEK 293T cells CompPASS score = 0.993772447, threshold = 0.75. Quantitative scores calculated by CompPASS-Plus (Huttlin et al. Cell, 2015, PMID: 26186194).|See BioPlex Interactome for details (https://bioplex.hms.harvard.edu/index.php).|This data has also been reanalyzed as part of BioPlex 3.0 (PMID: 33961781) and may be re-scored from BioPlex 1.0 (PMID: 26186194). Only scores from within BioPlex 2.0 (PMID: 28514442) should be compared directly.",
+                    "data_source": "BIOGRID",
+                    "biogrid_interaction_id": 2238959,
+                    "Entrez_ID_A": 3992,
+                    "Entrez_ID_B": 51255,
+                    "biogrid_id_interactor_a": 110180,
+                    "biogrid_id_interactor_b": 119411,
+                    "official_symbol_interactor_a": "FADS1",
+                    "official_symbol_interactor_b": "RNF181",
+                    "experimental_system": "Affinity Capture-MS",
+                    "experimental_system_type": "physical"
+                }
+            }
+        ]
+    },
+    "core_nodes": [
+        "rs174574",
+        "ENSG00000149485",
+        "rs174574"
+    ],
+    "xy_json": {
+        "ENSG00000149485": {
+            "x": 155.91,
+            "y": 84.656,
+            "Level": "Core"
+        },
+        "ENSG00000175575": {
+            "x": 222.6,
+            "y": 41.42,
+            "Level": "Neighbor"
+        },
+        "ENSG00000168894": {
+            "x": 112.75,
+            "y": 18.0,
+            "Level": "Neighbor"
+        },
+        "ENSG00000182446": {
+            "x": 89.692,
+            "y": 128.51,
+            "Level": "Neighbor"
+        },
+        "rs174574": {
+            "x": 199.75,
+            "y": 150.97,
+            "Level": "Core"
+        }
+    }
+}

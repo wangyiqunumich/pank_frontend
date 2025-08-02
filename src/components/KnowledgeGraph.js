@@ -9,7 +9,6 @@ import React, {
 } from 'react';
 
 import cytoscape from 'cytoscape';
-import { useSelector } from 'react-redux';
 
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
@@ -29,6 +28,7 @@ import InfoEnableIcon
   from '../image/material-symbols--ad-group-outline-rounded.svg';
 import downloadIcon from '../image/material-symbols--download-rounded.svg';
 import recenterIcon from '../image/material-symbols--recenter-rounded.svg';
+import sampleResponse from '../schema/demo_query_result.json';
 import graphInfocard from '../schema/graph_viewer_schema.json';
 import { addWhitespace } from '../utils/textProcessing';
 import {
@@ -66,7 +66,8 @@ export default function KnowledgeGraph() {
   const [hoveredId, setHoveredId] = useState(null);
   const [infocardPosition, setInfocardPosition] = useState({ x: 0, y: 0 });
   const [infocardVisible, setInfocardVisible] = useState(false);
-  const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
+  //const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
+  const queryResultPage = sampleResponse;
   const [legendVisible, setLegendVisible] = useState(true);
   const [zoomLevel, setZoomLevel] = useState(1.5);
   const [initZoom, setInitZoom] = useState(1.5);

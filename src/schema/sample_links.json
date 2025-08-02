@@ -3,11 +3,11 @@
     "match_page": [
         {
             "dictionary": {
-                "question": "Which (SNP) serves as the lead (QTL) for {gene@gene@}?",
+                "question": "Which (SNP) serves as the lead (QTL) for {gene@CFTR@}?",
                 "input": "Tell me which (SNP) serves as the (QTL) for (CFTR)?",
                 "pattern": "(snp) - eqtl of -> {gene@gene@}"
             },
-            "link": "/match?question=Which%20%28SNP%29%20serves%20as%20the%20lead%20%28QTL%29%20for%20%7Bgene%40gene%40%7D%3F&input=Tell%20me%20which%20%28SNP%29%20serves%20as%20the%20%28QTL%29%20for%20%28CFTR%29%3F&pattern=%28snp%29%20-%20eqtl%20of%20-%3E%20%7Bgene%40gene%40%7D"
+            "root": "/match"
         },
         {
             "dictionary": {
@@ -15,7 +15,7 @@
                 "input": "How does (INS) expression change in (T1D) versus non-diabetic samples?",
                 "pattern": "{gene@gene@} - express in -> (ontology)"
             },
-            "link": "/match?question=How%20does%20%7Bgene%40gene%40%7D%20expression%20change%20in%20%28T1D%29%20versus%20non-diabetic%20samples%3F&input=How%20does%20%28INS%29%20expression%20change%20in%20%28T1D%29%20versus%20non-diabetic%20samples%3F&pattern=%7Bgene%40gene%40%7D%20-%20express%20in%20-%3E%20%28ontology%29"
+            "root": "/match"
         },
         {
             "dictionary": {
@@ -23,7 +23,7 @@
                 "input": "Which (gene) is regulated by (rs1234) as a (QTL)?",
                 "pattern": "{snp@snp@} - eqtl of -> (gene)"
             },
-            "link": "/match?question=Which%20%28gene%29%20is%20regulated%20by%20%7Bsnp%40snp%40%7D%20as%20a%20%28QTL%29%3F&input=Which%20%28gene%29%20is%20regulated%20by%20%28rs1234%29%20as%20a%20%28QTL%29%3F&pattern=%7Bsnp%40snp%40%7D%20-%20eqtl%20of%20-%3E%20%28gene%29"
+            "root": "/match"
         },
         {
             "dictionary": {
@@ -31,12 +31,12 @@
                 "input": "Does (rs1234) serves as a (QTL) for (CFTR)?",
                 "pattern": "{snp@snp@} - eqtl of -> {gene@gene@}"
             },
-            "link": "/match?question=Does%20%7Bsnp%40snp%40%7D%20serves%20as%20a%20%28QTL%29%20for%20%7Bgene%40gene%40%7D%3F&input=Does%20%28rs1234%29%20serves%20as%20a%20%28QTL%29%20for%20%28CFTR%29%3F&pattern=%7Bsnp%40snp%40%7D%20-%20eqtl%20of%20-%3E%20%7Bgene%40gene%40%7D"
+            "root": "/match"
         }
     ],
     "intermediate_page": [
         {
-            "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000001626&targetSymbol=CFTR",
+            "root": "/intermediate",
             "dictionary": {
                 "sourceTerm": "snp",
                 "relationship": "QTL",
@@ -48,7 +48,14 @@
     ],
     "result_page": [
         {
-            "link": "/result?lead_snp=rs174574&credible_set_id=ENSG00000149485__FADS1__credibleSet1&sourceTerm=snp%40rs174574&targetTerm=gene%40ENSG00000149485&relationship=QTL",
+            "dictionary": {
+                "question": "How does the SNP {snp@rs174574@} influence the expression of {gene@FADS1@} in islet tissue?",
+                "question_schema": "How does the SNP {snp@snp@} influence the expression of {gene@gene@} in islet tissue?"
+            },
+            "root": "/result"
+        },
+        {
+            "root": "/result",
             "dictionary": {
                 "sourceTerm": "snp@rs174574",
                 "targetTerm": "gene@ENSG00000149485",

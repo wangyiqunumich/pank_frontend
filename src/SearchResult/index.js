@@ -10,11 +10,9 @@ import {
     useDispatch,
     useSelector,
 } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
-import {
-    ChevronRight as ChevronRightIcon,
-    InfoOutlined as InfoOutlineIcon,
-} from '@mui/icons-material';
+import { InfoOutlined as InfoOutlineIcon } from '@mui/icons-material';
 import {
     Backdrop,
     Box,
@@ -34,26 +32,26 @@ import {
     Typography,
 } from '@mui/material';
 
-import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 import {
     ErrorComponent,
     tabsQTL,
 } from '../components/IntermediatePage';
 import KnowledgeGraph from '../components/KnowledgeGraph';
+import {
+    SearchComponent,
+    SubmitButtonComponent,
+    WarningComponent,
+} from '../components/MatchPage';
+import SubNavBar from '../components/SubNavBar';
 import VisuImage from '../image/output.png';
-import { queryAiAnswer } from '../redux/aiAnswerSlice';
 import { queryArticles } from '../redux/articlesSlice';
 import { setProcessedQuestion } from '../redux/processedQuestionSlice';
-import { queryQueryResultPage } from '../redux/queryResultPage';
-import { setSearchTerms } from '../redux/searchSlice';
 import { queryImage } from '../redux/typeToImageSlice';
-import { queryViewSchema } from '../redux/viewSchemaSlice';
+import sampleResponse from '../schema/demo_query_result.json';
+import sampleAiAnswer from '../schema/sample_aianswer.json';
+import sampleSchema from '../schema/sample_schema_gkb.json';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
-import {
-    addHighlight,
-    replaceNextQuestion,
-    replaceVariables,
-} from '../utils/textProcessing';
+import { addHighlight } from '../utils/textProcessing';
 
 const tabOptions = [
     { value: 'references', label: 'References' },
@@ -62,36 +60,11 @@ const tabOptions = [
     { value: 'external_links', label: 'External Links' }
 ];
 
-const defaultNextQuestion = {
-    question: 'How does {INS} expression change in {beta cell} in T1D vs non-diabetic samples?',
-    link: '/result?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type&relationship=express_in'
-}
+// const handleDownload = (data_source, credibleSet) => {
+//     const folder = tabsQTL.find(tab => tab.data_source === data_source)?.folder || "";
+//     return `https://pank-s3-to-share.s3.us-east-1.amazonaws.com/${folder}/${credibleSet}.txt`;
+// };
 
-const validateQuestions = async (questions) => {
-    const fetchQueryResults = async (question) => {
-        const response = flaskBackendAxiosInstanceNew
-            .post('/openCypherToQueryResult',
-                { query: question.query }, {
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            })
-            .then((response) => response.data?.results?.[0]?.credible_sets)
-        const data = await response;
-        return { valid: data?.length > 0, question };
-    };
-
-    const validationResults = await Promise.all(questions.map(fetchQueryResults));
-
-    return validationResults
-        .filter(result => result.valid)
-        .map(result => result.question);
-};
-
-const handleDownload = (data_source, credibleSet) => {
-    const folder = tabsQTL.find(tab => tab.data_source === data_source)?.folder || "";
-    return `https://pank-s3-to-share.s3.us-east-1.amazonaws.com/${folder}/${credibleSet}.txt`;
-};
 
 const HtmlTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} classes={{ popper: className }} />
@@ -170,21 +143,31 @@ const LoadingSkeleton = () => (
 )
 
 function SearchResult() {
-    const [currTab, setCurrTab] = useState('references');
+    const [currContent, setCurrContent] = useState('result'); // AI tab, result | chat
+    const [currTab, setCurrTab] = useState('references');//references tab
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
-    const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
-    const { aiAnswer } = useSelector((state) => state.aiAnswer);
-    const { viewSchema } = useSelector((state) => state.viewSchema);
+    // const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
+    const [queryResultPage, setQueryResultPage] = useState({});
+    // const { aiAnswer } = useSelector((state) => state.aiAnswer);
+    const [aiAnswer, setAiAnswer] = useState({});
+    // const { aiSchema } = useSelector((state) => state.aiSchema);
     const { typeToImage } = useSelector((state) => state.typeToImage);
-    const [variables, setVariables] = useState({});
+    const [question, setQuestion] = useState('');
+    const [questionSchema, setQuestionSchema] = useState('');
+    const [aiSchema, setAiSchema] = useState({});
+    // const [variables, setVariables] = useState({});
     const [referenceData, setReferenceData] = useState({});
     const [articlesData, setArticlesData] = useState([]);
     const [activeReference, setActiveReference] = useState(null);
     const [imagePopupOpen, setImagePopupOpen] = useState(false);
-    const [nextQuestions, setNextQuestions] = useState([{ question: 'Loading...' }]);
-    const [allNextQuestions, setAllNextQuestions] = useState(null);
     const [error, setError] = useState(false);
+
+    // Search bar components
+    const [inputStatus, setInputStatus] = useState({}); // input status of boxes
+    const [inputDict, setInputDict] = useState({}); // input values
+    const [warning, setWarning] = useState('');
 
     // scroll to active reference after it is set
     const timeoutRef = useRef(null);
@@ -209,49 +192,33 @@ function SearchResult() {
         };
     }, [activeReference]);
 
-    useEffect(() => {
-        const helperFunction = async () => {
-            if (!allNextQuestions) {
-                return;
-            }
-            const validatedList = (await Promise.all(
-                allNextQuestions.map(async (nextQuestion) =>
-                    await validateQuestions(nextQuestion)
-                )
-            )).flatMap(
-                (validatedQuestion) =>
-                    validatedQuestion[0] ? [validatedQuestion[0]] : []
-            )
 
-            const replacedList = (validatedList?.length > 0 ? validatedList : [defaultNextQuestion])
-                .map(
-                    (validatedQuestion) => ({
-                        ...validatedQuestion,
-                        question: addHighlight(validatedQuestion.question),
-                    })
-                )
-            setNextQuestions(replacedList);
-        }
-        helperFunction();
-    }, [allNextQuestions]);
+    const handleSubmit = () => {
+        //return; //disable for now
+        //redirect to result page with question replaced with input values
+        const replacedQuestion = question.replace(/\{(.*?)@(.*?)@\}/g, (match, key, defaultValue) => {
+            return `{${key}@${inputDict[key] || defaultValue}@}`;
+        });
+        navigate(`/result?question=${encodeURIComponent(replacedQuestion)}`);
+    };
 
-    // initialize the reference data from viewSchema w/ replacements
+    // initialize the reference data from aiSchema w/ replacements
     useEffect(() => {
-        if (viewSchema?.resources_tabs) {
-            const data = viewSchema.resources_tabs;
-            const newPankbaseLinks = data.pankbase_links.map((item) => item.map((i) => replaceVariables(i, variables)));
-            const newExternalLinks = data.external_links.map((item) => item.map((i) => replaceVariables(i, variables)));
+        if (aiSchema?.resources_tabs) {
+            const data = aiSchema.resources_tabs;
+            const newPankbaseLinks = data.pankbase_links;
+            const newExternalLinks = data.external_links;
             setReferenceData({
                 ...data,
                 empirical_evidence: data.empirical_evidence && {
                     ...data.empirical_evidence,
-                    link: replaceVariables(data.empirical_evidence.link, variables)
+                    link: data.empirical_evidence.link
                 },
                 pankbase_links: newPankbaseLinks,
                 external_links: newExternalLinks
             });
         }
-    }, [viewSchema, variables]);
+    }, [aiSchema]);
 
     // Fetch articles data based on aiAnswer
     useEffect(() => {
@@ -280,57 +247,50 @@ function SearchResult() {
     // init: get URL parameters and dispatch actions
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
-        const sourceTerm = params.get('sourceTerm');
-        const relationship = params.get('relationship');
-        const targetTerm = params.get('targetTerm');
-        const targetSymbol = params.get('targetSymbol');
-        const sourceSymbol = params.get('sourceSymbol');
-        const lead_snp = params.get('lead_snp');
-        const credible_set_id = params.get('credible_set_id');
-        if (sourceTerm && relationship && targetTerm) {
-            dispatch(setSearchTerms({
-                sourceTerm,
-                relationship,
-                targetTerm,
-                targetTermSymbol: targetSymbol || ''
-            }));
-            dispatch(queryViewSchema({
-                sourceTerm,
-                relationship,
-                targetTerm
-            })).then((response) => {
-                if (response.payload) {
+        // const sourceTerm = params.get('sourceTerm');
+        // const relationship = params.get('relationship');
+        // const targetTerm = params.get('targetTerm');
+        // const targetSymbol = params.get('targetSymbol');
+        // const sourceSymbol = params.get('sourceSymbol');
+        // const lead_snp = params.get('lead_snp');
+        // const credible_set_id = params.get('credible_set_id');
+        setQuestion(params.get('question') || '');
+        console.log(params);
+
+        const noop = () => async (dispatch, getState) => {
+            // Do nothing
+        };
+        if (params.get('question')) {
+            // dispatch(setSearchTerms({
+            //     sourceTerm,
+            //     relationship,
+            //     targetTerm,
+            //     targetTermSymbol: targetSymbol || ''
+            // }));
+            dispatch(
+                // an empty promise as a placeholder
+                noop()
+            ).then(() => {
+                if (1) {
                     // handle schema data
+                    setAiSchema(sampleSchema);
+                    const response = sampleSchema;
                     const {
-                        question_for_result,
-                        ai_question_for_result,
+                        question,
+                        ai_question,
                         ai_answer_sub_title,
-                        cypher_for_result_page_core,
-                        cypher_for_result_page_nbr,
-                        rdb_query_for_result_page,
-                        next_questions,
+                        query,
+                        ai_suggestions,
                         resources_tabs
-                    } = response.payload;
+                    } = response;
+                    console.log('response', response);
 
-                    if (cypher_for_result_page_core && cypher_for_result_page_nbr) {
-                        const additionalParams =
-                            lead_snp && credible_set_id ? [
-                                `lead_snp@${lead_snp}`,
-                                `credible_set_id@${credible_set_id}`
-                            ] : [`lead_${sourceTerm}`];
-                        const temporaryVariables = {
-                            additionalParams,
-                            sourceTerm,
-                            targetTerm,
-                        };
-                        const core_cypher = replaceVariables(cypher_for_result_page_core, temporaryVariables);
-                        const neighbor_cypher = replaceVariables(cypher_for_result_page_nbr, temporaryVariables);
-                        const rdb_query =
-                            lead_snp && credible_set_id ? { rdb_query: replaceVariables(rdb_query_for_result_page, temporaryVariables) } : {};
-
-                        dispatch(queryQueryResultPage({ ...rdb_query, core_cypher, neighbor_cypher })).then((response) => {
-                            const coreNodes = response?.payload?.core_nodes || [];
-                            const results = response?.payload?.combined_query_result || {};
+                    if (1) {
+                        dispatch(noop()).then(() => {
+                            const response = sampleResponse;
+                            setQueryResultPage(response);
+                            const coreNodes = response?.core_nodes || [];
+                            const results = response?.combined_query_result || {};
                             const neighborNodes = results?.nodes?.filter(
                                 node => !coreNodes.includes(node["~id"])
                             ) || [];
@@ -356,66 +316,19 @@ function SearchResult() {
                                 .replace(/, ([^,]*)$/, ', and $1') || '';
                             const tissueKey = coreRelationship?.["~properties"]?.tissue_name || '';
 
-                            const neighborSource = neighborNodes.filter(
-                                node => node["~labels"].includes(sourceTerm.split('@')[0])
-                            );
-                            const neighborTarget = neighborNodes.filter(
-                                node => node["~labels"].includes(targetTerm.split('@')[0])
-                            );
-                            const neighbors = {
-                                source: neighborSource,
-                                target: neighborTarget,
-                            }
-                            const newVariables = {
-                                additionalParams: [
-                                    ...additionalParams,
-                                    `tissue_name@${celltypeName}`,
-                                ],
-                                sourceTerm,
-                                relationship,
-                                targetTerm,
-                                sourceSymbol: results.nodes?.find(
-                                    node => node["~id"] === (sourceTerm.split('@')[1] || sourceTerm)
-                                )?.["~properties"]?.name || sourceSymbol,
-                                targetSymbol: results.nodes?.find(
-                                    node => node["~id"] === (targetTerm.split('@')[1] || targetTerm)
-                                )?.["~properties"]?.name || targetSymbol,
-                                tissueKey,
-                                dataSource,
-                                credibleSetId,
-                            };
-                            if (newVariables) { setVariables(newVariables); }
-                            const processedCurrentQuestion =
-                                addHighlight(
-                                    replaceVariables(
-                                        question_for_result,
-                                        newVariables,
-                                        true
-                                    )
-                                );
+                            const processedCurrentQuestion = addHighlight(question);
                             if (!processedCurrentQuestion) {
                                 setError(true);
                                 return;
                             }
 
-                            setAllNextQuestions(next_questions.map((next_question) => replaceNextQuestion(
-                                next_question,
-                                newVariables,
-                                neighbors
-                            )));
-                            const processedAiQuestions =
-                                ai_question_for_result?.map(
-                                    question => replaceVariables(question, newVariables, true)
-                                ) || [];
+                            // TODO: set ai suggestions 
 
                             // update Redux store
                             dispatch(setProcessedQuestion({
                                 currentQuestion: processedCurrentQuestion,
-                                aiQuestions: processedAiQuestions,
-                                aiAnswerSubtitle: ai_answer_sub_title,
-                                currentQuestionType: tabsQTL.find(
-                                    tab => tab.data_source === dataSource
-                                )?.label,
+                                aiQuestions: ai_question || [],
+                                aiAnswerSubtitle: ai_answer_sub_title
                             }));
                         });
                     }
@@ -428,7 +341,6 @@ function SearchResult() {
         currentQuestion,
         aiQuestions,
         aiAnswerSubtitle,
-        currentQuestionType,
     } = useSelector((state) => state.processedQuestion);
 
     const removeConsecutiveAsterisks = (text) => {
@@ -438,13 +350,14 @@ function SearchResult() {
     // query AI answer when queryResultPage and aiQuestions are available
     useEffect(() => {
         if (queryResultPage?.combined_query_result?.nodes?.length !== 0 && queryResultPage?.core_nodes && aiQuestions?.length > 0) {
-            dispatch(queryAiAnswer({
-                "question": aiQuestions,
-                "graph": {
-                    combined_query_result: queryResultPage.combined_query_result,
-                    core_nodes: queryResultPage.core_nodes,
-                }
-            })).unwrap();
+            // dispatch(queryAiAnswer({
+            //     "question": aiQuestions,
+            //     "graph": {
+            //         combined_query_result: queryResultPage.combined_query_result,
+            //         core_nodes: queryResultPage.core_nodes,
+            //     }
+            // })).unwrap();
+            setAiAnswer(sampleAiAnswer);
         }
     }, [queryResultPage, aiQuestions]);
 
@@ -492,7 +405,7 @@ function SearchResult() {
         }</>
     )
 
-    if (error) return <ErrorComponent errorTitle={viewSchema?.result_error_title} errorMessage={viewSchema?.result_error_message} />;
+    if (error) return <ErrorComponent errorTitle={aiSchema?.result_error_title} errorMessage={aiSchema?.result_error_message} />;
 
     // Show loading skeleton if queryResultPage is not ready
     return !(queryResultPage?.combined_query_result) ? <LoadingSkeleton /> :
@@ -523,76 +436,55 @@ function SearchResult() {
             }} disableGutters maxWidth={false}>
                 <Box sx={{
                     padding: '20px',
-                    backgroundColor: '#E4F0F1',
+                    background: 'linear-gradient(90.23deg, #F5FAFF 7.49%, #FCFCFC 80.88%)',
+                    boxShadow: '8px 6px 33px 0px #D8E6F8',
                     marginBottom: '20px',
                     marginTop: '30px',
-                    borderRadius: '20px'
+                    borderRadius: '20px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
                 }}>
-                    <Grid container spacing={4} height={"100%"} sx={{ alignItems: "stretch" }}>
-                        <Grid item xs={6} height={"100%"}>
-                            <Box sx={{ width: "100%", justifyContent: "space-between", display: "flex", alignItems: "center" }}>
-                                <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: 20, width: 685, textAlign: 'left', marginBottom: '10px' }}>
-                                    Question <TooltipComponent title="Question" content="The question of the current search result." />
-                                </Typography>
-                                {/*a link*/}
-                                <a href={"/"} style={{ color: "#398289", fontWeight: 600, textUnderlineOffset: "3px", fontSize: "17px", marginBottom: "10px" }}>
-                                    CANCEL
-                                </a>
-                            </Box>
-                            {currentQuestionType && (
-                                <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: 16, textAlign: 'left', color: '#7F7D7D' }}>
-                                    (Your selection belongs to: {currentQuestionType})
-                                </Typography>
-                            )}
-                            <Typography
-                                sx={{
-                                    fontFamily: 'Open Sans',
-                                    flex: 1,
-                                    textAlign: 'left',
-                                    wordWrap: 'break-word',
-                                    whiteSpace: 'normal',
-                                    fontSize: 20,
-                                    fontWeight: 600,
-                                }}
-                                dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }}
-                            />
-
-                        </Grid>
-                        <Grid item xs={6} height={"100%"}>
-                            {/*you may also ask*/}
-                            <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: 20, width: 685, textAlign: 'left', marginBottom: '10px' }}>
-                                You May Also Ask<TooltipComponent title="You May Also Ask" content="Links to other problems." />
-                            </Typography>
-                            <ul className="next-questions-list">
-                                {nextQuestions ? nextQuestions.map((nextQuestion, index) => nextQuestion.question && (
-                                    <li key={index}>
-                                        <Link
-                                            href={nextQuestion.link}
-                                            style={{ textDecoration: 'none', color: 'black' }}
-                                            target="_blank"
-                                            rel="noopener noreferrer">
-                                            <Box sx={{
-                                                display: 'flex',
-                                            }}>
-                                                <Typography sx={{
-                                                    fontFamily: 'Open Sans',
-                                                    fontWeight: 400,
-                                                    fontSize: 16,
-                                                }} dangerouslySetInnerHTML={{ __html: nextQuestion.question }} />
-                                                <span style={{ alignContent: 'center' }}><ChevronRightIcon /></span>
-                                            </Box>
-                                        </Link>
-                                    </li>
-                                )) : (
-                                    <Typography sx={{ fontFamily: 'Open Sans', fontSize: 16 }}>No next questions available</Typography>
-                                )}
-                            </ul>
-                        </Grid>
-                    </Grid>
+                    <Box sx={{
+                        borderRadius: '12px',
+                        alignItems: 'center',
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        padding: 2,
+                        width: 'fit-content',
+                        gap: '2px',
+                    }}>
+                        {question && <SearchComponent
+                            questionSchema={question}
+                            updateValues={setInputDict}
+                            setInputStatus={setInputStatus}
+                            sx={{ fontSize: '20px' }}
+                        />}
+                    </Box>
+                    <SubmitButtonComponent onClick={handleSubmit} sx={{
+                        background: 'linear-gradient(142.59deg, #4A65F4 14.08%, #758BFF 78.33%)',
+                        color: 'white',
+                        cursor: 'pointer',
+                        borderRadius: '40px',
+                        height: '44px',
+                        paddingX: '40px',
+                        textTransform: 'none',
+                        fontSize: '16px',
+                        fontWeight: 600,
+                        fontFamily: 'Inter',
+                        boxShadow: "0px 2px 3.1px 0px #B9B9B933",
+                    }} sxOnDisabled={{
+                        background: 'linear-gradient(90.46deg, rgba(112, 134, 253, 0.3) 0.44%, rgba(70, 99, 254, 0.3) 99.65%)',
+                        cursor: 'not-allowed',
+                    }} caption={"Update"} inputStatus={inputStatus} setWarning={setWarning} />
                 </Box>
+                <WarningComponent
+                    warning={warning}
+                    setWarning={setWarning}
+                />
                 <Box>
                     <Grid container spacing={4} height={"100%"} sx={{
-                        alignItems: "stretch", marginBottom: '48px', marginTop: '-4px'
+                        alignItems: "stretch", marginBottom: '24px', marginTop: '-4px'
                     }}>
                         {/*left*/}
                         <Grid item xs={6} height={"740px"} display="flex">
@@ -604,55 +496,54 @@ function SearchResult() {
                                 backgroundColor: '#F9FAFB',
                                 border: 1,
                                 borderColor: '#EEEEEE',
-                                paddingY: '20px',
+                                paddingBottom: '20px',
                                 position: 'relative',
-                                borderRadius: '20px'
+                                borderRadius: '24px',
+                                boxShadow: '8px 6px 33px 0px #D8E6F8',
                             }}>
-                                <Typography sx={{
-                                    fontFamily: 'Open Sans', fontWeight: 800, fontSize: 22,
-                                    paddingX: '20px',
-                                }}>
-                                    AI's Overview<TooltipComponent title="AI's Overview" />
-                                </Typography>
-                                <Typography component="div" sx={{
-                                    fontFamily: 'Open Sans',
-                                    overflowY: 'auto',
-                                    paddingX: '20px',
-                                }}>
-                                    {(aiAnswer?.answers?.length) ? aiAnswer.answers.map((answer, index) => (
-                                        <div key={index} style={{ marginBottom: index < aiAnswer.answers.length - 1 ? '20px' : '0' }}>
-                                            {aiAnswerSubtitle && aiAnswerSubtitle[index] && (
+                                <SubNavBar activeButton={currContent} handleToggle={
+                                    () => setCurrContent(currContent === 'result' ? 'chat' : 'result')
+                                } />
+                                {currContent === 'result' &&
+                                    <Typography component="div" sx={{
+                                        fontFamily: 'Open Sans',
+                                        overflowY: 'auto',
+                                        paddingX: '20px',
+                                    }}>
+                                        {(aiAnswer?.answers?.length) ? aiAnswer.answers.map((answer, index) => (
+                                            <div key={index} style={{ marginBottom: index < aiAnswer.answers.length - 1 ? '20px' : '0' }}>
+                                                {aiAnswerSubtitle && aiAnswerSubtitle[index] && (
+                                                    <Typography sx={{
+                                                        fontFamily: 'Open Sans',
+                                                        textAlign: 'left',
+                                                        gap: 1,
+                                                        fontWeight: 400,
+                                                        fontSize: '20px'
+                                                    }}>
+                                                        <span style={{ color: '#FFD700' }}>✨</span>
+                                                        {aiAnswerSubtitle[index]}
+                                                    </Typography>
+                                                )}
                                                 <Typography sx={{
                                                     fontFamily: 'Open Sans',
                                                     textAlign: 'left',
-                                                    gap: 1,
-                                                    fontWeight: 400,
-                                                    fontSize: '20px'
+                                                    fontSize: '16px',
+                                                    fontWeight: 300
                                                 }}>
-                                                    <span style={{ color: '#FFD700' }}>✨</span>
-                                                    {aiAnswerSubtitle[index]}
+                                                    <ProcessLinks text={removeConsecutiveAsterisks(answer)} />
                                                 </Typography>
-                                            )}
-                                            <Typography sx={{
-                                                fontFamily: 'Open Sans',
-                                                textAlign: 'left',
-                                                fontSize: '16px',
-                                                fontWeight: 300
-                                            }}>
-                                                <ProcessLinks text={removeConsecutiveAsterisks(answer)} />
-                                            </Typography>
-                                            {/*{index < aiAnswer.answers.length - 1 && <Divider sx={{ my: 2 }} />}*/}
-                                        </div>
-                                    )) : <Typography sx={{
-                                        fontFamily: 'Open Sans',
-                                        textAlign: 'left',
-                                        gap: 1,
-                                        fontWeight: 400,
-                                        fontSize: '20px'
-                                    }}>
-                                        Loading AI's overview...
+                                                {/*{index < aiAnswer.answers.length - 1 && <Divider sx={{ my: 2 }} />}*/}
+                                            </div>
+                                        )) : <Typography sx={{
+                                            fontFamily: 'Open Sans',
+                                            textAlign: 'left',
+                                            gap: 1,
+                                            fontWeight: 400,
+                                            fontSize: '20px'
+                                        }}>
+                                            Loading AI's overview...
+                                        </Typography>}
                                     </Typography>}
-                                </Typography>
                             </Box>
                         </Grid>
 
@@ -669,12 +560,14 @@ function SearchResult() {
                                 borderColor: '#EEEEEE',
                                 padding: '20px',
                                 position: 'relative',
-                                borderRadius: '20px'
+                                borderRadius: '24px',
+                                boxShadow: '8px 6px 33px 0px #D8E6F8',
                             }}>
                                 <Typography sx={{
-                                    fontFamily: 'Open Sans',
-                                    fontWeight: 800,
-                                    fontSize: 22
+                                    fontFamily: 'Inter',
+                                    fontWeight: 700,
+                                    fontSize: 20,
+                                    color: '#4C5FC8',
                                 }}>
                                     Graph Viewer<TooltipComponent title="Graph Viewer" />
                                 </Typography>
@@ -694,6 +587,16 @@ function SearchResult() {
                         </Grid>
                     </Grid>
                 </Box>
+                <Typography sx={{
+                    fontFamily: 'Inter',
+                    fontWeight: 700,
+                    fontSize: 20,
+                    color: '#4C5FC8',
+                    textAlign: 'left',
+                    marginBottom: '24px',
+                }}>
+                    Supporting Materials
+                </Typography>
                 {(aiAnswer?.answers?.length) ? (<>
                     <div style={{ position: 'relative', width: 'fit-content' }}>
                         <div style={{
@@ -706,8 +609,22 @@ function SearchResult() {
                             borderWidth: '1px 0px 0px',
                             borderStyle: 'solid',
                             borderColor: "#E5E5E5",
-                            zIndex: 1,
+                            zIndex: 2,
                             pointerEvents: 'none',
+                        }}></div>
+                        <div style={{
+                            position: 'absolute',
+                            top: '0px',
+                            left: '0px',
+                            width: '100%',
+                            height: '100%',
+                            borderRadius: '20px 20px 0px 0px',
+                            borderWidth: '1px 0px 0px',
+                            borderStyle: 'solid',
+                            borderColor: "#E5E5E5",
+                            zIndex: 0,
+                            pointerEvents: 'none',
+                            boxShadow: '8px 6px 33px 0px #D8E6F8',
                         }}></div>
                         <Tabs
                             value={currTab}
@@ -715,10 +632,11 @@ function SearchResult() {
                             variant="scrollable"
                             scrollButtons={false}
                             sx={{
+                                zIndex: 1,
                                 minHeight: '48px',
                                 height: '48px',
                                 width: 'fit-content',
-                                backgroundColor: '#F2FAFB',
+                                backgroundColor: '#C8E7FF',
                                 borderRadius: '20px 20px 0px 0px',
                                 border: 'none',
                                 '& .MuiTab-root': {
@@ -739,7 +657,7 @@ function SearchResult() {
                                     borderTopRightRadius: '20px',
                                 },
                                 '& .MuiTabs-indicator': {
-                                    backgroundColor: '#398289',
+                                    backgroundColor: '#4A65F4',
                                 },
                             }}
                         >
@@ -748,7 +666,7 @@ function SearchResult() {
                                     sx={{
                                         minHeight: '48px',
                                         height: '48px',
-                                        backgroundColor: currTab === option.value ? 'white' : '#F2FAFB',
+                                        backgroundColor: currTab === option.value ? 'white' : '#C8E7FF',
                                         borderWidth:
                                             currTab === option.value ? '1px 1px 0px 1px' :
                                                 tabOptions.findIndex((tab) => tab.value === currTab) > index ?
@@ -768,7 +686,7 @@ function SearchResult() {
                                                 textAlign: 'left',
                                                 fontFamily: 'Open Sans',
                                                 fontSize: '16px',
-                                                color: currTab === option.value ? '#398289' : 'black',
+                                                color: currTab === option.value ? '#4A65F4' : 'black',
                                                 fontWeight: currTab === option.value ? '600' : '400',
                                                 marginX: '20px',
                                             }}
@@ -784,9 +702,10 @@ function SearchResult() {
                         position: 'relative',
                         padding: '20px',
                         backgroundColor: '#F9FAFB',
-                        marginBottom: '20px',
+                        marginBottom: '60px',
                         borderRadius: '0px 20px 20px 20px',
                         border: '1px solid #EEEEEE',
+                        boxShadow: '8px 6px 33px 0px #D8E6F8',
                         transform: 'translateY(-1px)',
                     }}>
                         <Collapse in={currTab === 'references'}>
@@ -942,7 +861,7 @@ function SearchResult() {
                                             </Typography>
                                             {referenceData.empirical_evidence.link_text &&
                                                 <Link
-                                                    href={referenceData.empirical_evidence.link || handleDownload(variables.dataSource, variables.credibleSetId)}
+                                                    href={referenceData.empirical_evidence.link}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     sx={{ textDecoration: "none" }}>
