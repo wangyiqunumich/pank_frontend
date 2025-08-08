@@ -182,7 +182,7 @@ const MatchGraphViewer = ({ visualPattern, selectedQuestion }) => {
       ref={containerRef}
       style={{
         width: "100%",
-        height: "120px",
+        height: "140px",
         borderRadius: "8px",
       }}
     />
@@ -309,6 +309,7 @@ function InputComponent({ type, setValue, setInputStatus }) { // input state: va
             paddingRight: '-12px', // Ensure enough space for the clear button
           },
           zIndex: 9999,
+          marginTop: '2px',
         }}
         onInputChange={(event, newInputValue, reason) => {
           if (inputChangeTimer.current) {
@@ -384,6 +385,7 @@ function InputComponent({ type, setValue, setInputStatus }) { // input state: va
               width: 'auto !important',
               fontFamily: 'Open Sans',
               fontWeight: 600,
+              fontSize: 19,
               mx: 1,
               '& .MuiAutocomplete-input': {
                 width: '60px !important',
@@ -542,6 +544,7 @@ function MatchPage() {
               fontStyle: 'italic',
               fontFamily: 'Open Sans',
               fontWeight: 600,
+              fontSize: 19,
             }}
           >
             {part.slice(1, -1)}
@@ -574,6 +577,7 @@ function MatchPage() {
               display: 'inline-block',
               fontFamily: 'Open Sans',
               fontWeight: 600,
+              fontSize: 19,
             }}
           >
             {part}
@@ -628,229 +632,239 @@ function MatchPage() {
 
   return (
     <Container maxWidth={false} disableGutters sx={{
+      flex: 1,
       display: 'flex',
-      flexDirection: { sm: 'column', md: 'row' }, justifyContent: 'center',
-      alignItems: 'top',
-      paddingTop: '40px',
-      paddingLeft: { sm: 0, md: '6%' },
-      paddingRight: { sm: 0, md: '6%' },
-      paddingBottom: '40px',
+      alignItems: 'center',
+      marginTop: '0px',
+      marginBottom: '40px',
     }}>
-
-      {/* 左侧图片 */}
-      <Box sx={{
-        flex: 1,
-        position: 'relative',
-        display: 'block',
-        '& img': {
-          width: '100%',
-          maxHeight: '40vh',
-          objectFit: 'contain',
-        }
+      <Container maxWidth={false} disableGutters sx={{
+        display: 'flex',
+        flexDirection: { sm: 'column', md: 'row' }, justifyContent: 'center',
+        alignItems: 'top',
+        paddingTop: '0px',
+        paddingLeft: { sm: 0, md: '6%' },
+        paddingRight: { sm: 0, md: '6%' },
+        paddingBottom: '0px',
       }}>
+
+        {/* 左侧图片 */}
         <Box sx={{
-          position: { sm: 'relative', md: 'absolute' },
-          top: { sm: '0', md: '2.4vh' },
-          left: 0,
-          right: 0,
-          bottom: 0,
-          margin: 'auto',
-          display: 'flex', flexDirection: 'column', justifyContent: 'top', alignItems: 'center',
+          flex: 1,
+          position: 'relative',
+          display: 'block',
+          '& img': {
+            width: { sm: '100%', md: 'calc(100% + 50px)' },
+            maxHeight: '425px',
+            objectFit: 'contain',
+            marginTop: { sm: '0px', md: '50px' },
+            marginLeft: { sm: '0px', md: '-50px' },
+          },
         }}>
-          <img src={landingPageLogo} alt="PanKgraph" />
-          <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px', alignItems: 'center' }}>
-            <TerminalIcon sx={{ width: '30px', color: '#C48E25' }} />
-            <Typography sx={{ marginLeft: '10px', fontSize: '20px' }}>
-              Access PanKgraph with <Link
-                href={process.env.REACT_APP_PANKGRAPH_LINK + '/api'}
-                sx={{ textDecoration: 'underline', color: 'black', textAlign: 'right' }}>API</Link>
-            </Typography>
+          <Box sx={{
+            position: { sm: 'relative', md: 'absolute' },
+            top: { sm: '0', md: '0' },
+            left: 0,
+            right: 0,
+            bottom: 0,
+            margin: 'auto',
+            display: 'flex', flexDirection: 'column', justifyContent: 'top', alignItems: 'center',
+          }}>
+            <img src={landingPageLogo} alt="PanKgraph" />
+            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px', alignItems: 'center' }}>
+              <TerminalIcon sx={{ width: '30px', color: '#C48E25' }} />
+              <Typography sx={{ marginLeft: '10px', fontSize: '20px' }}>
+                Access PanKgraph with <Link
+                  href={process.env.REACT_APP_PANKGRAPH_LINK + '/api'}
+                  sx={{ textDecoration: 'underline', color: 'black', textAlign: 'right' }}>API</Link>
+              </Typography>
+            </Box>
           </Box>
         </Box>
-      </Box>
 
-      {/* 右侧内容区域 */}
-      <Box sx={{
-        width: { sm: '90%', md: '40vw' },
-        minHeight: '60vh',
-        marginTop: { sm: '0px', md: '20px' },
-        marginRight: 1,
-        marginLeft: { sm: '5%', md: 0 },
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
-        backgroundColor: '#E4F0F1',
-        borderRadius: '20px',
-        padding: 3,
-      }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography sx={{
-            fontSize: 28,
-            fontWeight: 700,
-            textAlign: 'left',
-            fontFamily: 'Open Sans',
+        {/* 右侧内容区域 */}
+        <Box sx={{
+          width: { sm: '90%', md: '40vw' },
+          marginTop: { sm: '0px', md: '20px' },
+          marginRight: 0,
+          marginLeft: { sm: '5%', md: 0 },
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '24px',
+          backgroundColor: '#E4F0F1',
+          borderRadius: '20px',
+          padding: '32px',
+        }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography sx={{
+              fontSize: 28,
+              fontWeight: 700,
+              textAlign: 'left',
+              fontFamily: 'Open Sans',
+            }}>
+              {questionData.matched_page_title}
+            </Typography>
+            <Link
+              href="/"
+              sx={{
+                textDecoration: 'underline',
+                color: '#398289',
+                fontSize: 17,
+                fontWeight: 600,
+                fontFamily: 'Open Sans',
+                cursor: 'pointer',
+                marginRight: 2,
+              }}
+            >
+              CANCEL
+            </Link>
+          </Box>
+          <Box sx={{
+            display: 'flex',
+            justifyContent: 'flex-start',
+            alignItems: 'flex-start',
+            flexDirection: 'column',
           }}>
-            {questionData.matched_page_title}
-          </Typography>
-          <Link
-            href="/"
-            sx={{
-              textDecoration: 'underline',
+            <Typography sx={{
+              marginBottom: '10px',
               color: '#398289',
-              fontSize: 16,
+              fontSize: 17,
               fontWeight: 600,
               fontFamily: 'Open Sans',
-              cursor: 'pointer',
-              marginRight: 2,
+            }}>
+              {questionData.matched_page_sub_title}
+            </Typography>
+            <Box sx={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '12px',
+              alignItems: 'center',
+              display: 'flex',
+              flexWrap: 'wrap',
+              padding: 2,
+              height: '68px',
+              width: 'calc(100% - 40px)',
+              gap: '2px',
+              paddingX: '20px'
+            }}>
+              {renderSequence()}
+            </Box>
+            <Typography sx={{
+              color: '#4E4E4E',
+              fontSize: 12,
+              fontWeight: 600,
+              fontFamily: 'Open Sans',
+              fontStyle: 'italic',
+              marginTop: '4px',
+            }}>
+              {questionData.matched_page_tips}
+            </Typography>
+          </Box>
+          <Box sx={{
+            display: 'flex',
+            justifyContent: 'flex-start',
+            alignItems: 'flex-start',
+            flexDirection: 'column',
+          }}>
+            <Typography sx={{
+              color: '#398289',
+              fontSize: 17,
+              fontWeight: 600,
+              fontFamily: 'Open Sans',
+              marginBottom: 2,
+            }}>
+              Graph visualization
+            </Typography>
+            <Box sx={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '12px',
+              alignItems: 'center',
+              display: 'flex',
+              flexWrap: 'wrap',
+              padding: 2,
+              width: 'calc(100% - 32px)',
+              fontFamily: 'Open Sans',
+              fontWeight: 600,
+            }}>
+              {visualPattern ? (
+                <MatchGraphViewer
+                  visualPattern={visualPattern}
+                  selectedQuestion={selectedQuestion}
+                />
+              ) : (
+                <Typography sx={{ color: "#666", fontStyle: "italic" }}>
+                  Select a gene to see the visualization
+                </Typography>
+              )}
+            </Box>
+          </Box>
+          <AlertMessage
+            type="warning"
+            content="Please ensure all boxes are filled out before submitting"
+            open={showBoxEmptyWarning}
+            onClose={() => setShowBoxEmptyWarning(false)}
+            sx={{
+              '& .MuiSnackbar-root': {
+                position: 'static',
+                transform: 'none',
+                top: 'auto',
+                left: 'auto',
+                right: 'auto',
+                bottom: 'auto',
+              },
+              '& .MuiAlert-root': {
+                marginBottom: '10px',
+              }
             }}
+          />
+          <AlertMessage
+            type="warning"
+            content="We couldn't find one or more entities from our database. Try use a different gene or SNP."
+            open={showBoxFilledWarning}
+            onClose={() => setShowBoxFilledWarning(false)}
+            sx={{
+              '& .MuiSnackbar-root': {
+                position: 'static',
+                transform: 'none',
+                top: 'auto',
+                left: 'auto',
+                right: 'auto',
+                bottom: 'auto',
+              },
+              '& .MuiAlert-root': {
+                marginBottom: '10px',
+              }
+            }}
+          />
+          <Button
+            variant="contained" // Use a contained button for emphasis
+            color="primary" // Use the primary color
+            sx={{
+              backgroundColor: isSubmitDisabled ? '#F0F0F0' : '#219197', // Custom background color
+              color: isSubmitDisabled ? 'rgba(57, 130, 137, 0.4)' : 'rgba(255, 255, 255)', // Text color
+              textTransform: 'none', // Prevent uppercase text
+              fontSize: '16px', // Adjust font size
+              fontWeight: 600, // Bold text
+              height: '64px',
+              borderRadius: '8px', // Rounded corners
+              padding: '8px 16px', // Add padding
+              fontFamily: 'Open Sans',
+              boxShadow: '0px 2px 2px 0px rgba(0, 0, 0, 0.40)',
+              '&:hover': {
+                backgroundColor: isSubmitDisabled ? '#F0F0F0' : '#1A7A75', // Darker shade on hover
+              },
+              '&[disabled]': {
+                backgroundColor: '#F0F0F0', // Lighter shade when disabled
+                boxShadow: '0px 2px 2px 0px rgba(0, 0, 0, 0.40)', // Shadow for disabled state
+              },
+            }}
+            onClick={handleSubmit}
           >
-            CANCEL
-          </Link>
-        </Box>
-        <Box sx={{
-          display: 'flex',
-          justifyContent: 'flex-start',
-          alignItems: 'flex-start',
-          flexDirection: 'column',
-        }}>
-          <Typography sx={{
-            marginBottom: 2,
-            color: '#398289',
-            fontSize: 17,
-            fontWeight: 600,
-            fontFamily: 'Open Sans',
-          }}>
-            {questionData.matched_page_sub_title}
-          </Typography>
-          <Box sx={{
-            backgroundColor: '#FFFFFF',
-            borderRadius: '12px',
-            alignItems: 'center',
-            display: 'flex',
-            flexWrap: 'wrap',
-            padding: 2,
-            width: 'calc(100% - 32px)',
-            gap: '2px',
-          }}>
-            {renderSequence()}
-          </Box>
-          <Typography sx={{
-            color: '#4E4E4E',
-            fontSize: 12,
-            fontWeight: 600,
-            fontFamily: 'Open Sans',
-            fontStyle: 'italic',
-            marginTop: '4px',
-            marginBottom: 2,
-          }}>
-            {questionData.matched_page_tips}
-          </Typography>
-        </Box>
-        <Box sx={{
-          display: 'flex',
-          justifyContent: 'flex-start',
-          alignItems: 'flex-start',
-          flexDirection: 'column',
-        }}>
-          <Typography sx={{
-            color: '#398289',
-            fontSize: 17,
-            fontWeight: 600,
-            fontFamily: 'Open Sans',
-            marginBottom: 2,
-          }}>
-            Graph visualization
-          </Typography>
-          <Box sx={{
-            backgroundColor: '#FFFFFF',
-            borderRadius: '12px',
-            alignItems: 'center',
-            display: 'flex',
-            flexWrap: 'wrap',
-            padding: 2,
-            width: 'calc(100% - 32px)',
-            fontFamily: 'Open Sans',
-            fontWeight: 600,
-          }}>
-            {visualPattern ? (
-              <MatchGraphViewer
-                visualPattern={visualPattern}
-                selectedQuestion={selectedQuestion}
-              />
-            ) : (
-              <Typography sx={{ color: "#666", fontStyle: "italic" }}>
-                Select a gene to see the visualization
-              </Typography>
-            )}
-          </Box>
-        </Box>
-        <AlertMessage
-          type="warning"
-          content="Please ensure all boxes are filled out before submitting"
-          open={showBoxEmptyWarning}
-          onClose={() => setShowBoxEmptyWarning(false)}
-          sx={{
-            '& .MuiSnackbar-root': {
-              position: 'static',
-              transform: 'none',
-              top: 'auto',
-              left: 'auto',
-              right: 'auto',
-              bottom: 'auto',
-            },
-            '& .MuiAlert-root': {
-              marginBottom: '10px',
-            }
-          }}
-        />
-        <AlertMessage
-          type="warning"
-          content="We couldn't find one or more entities from our database. Try use a different gene or SNP."
-          open={showBoxFilledWarning}
-          onClose={() => setShowBoxFilledWarning(false)}
-          sx={{
-            '& .MuiSnackbar-root': {
-              position: 'static',
-              transform: 'none',
-              top: 'auto',
-              left: 'auto',
-              right: 'auto',
-              bottom: 'auto',
-            },
-            '& .MuiAlert-root': {
-              marginBottom: '10px',
-            }
-          }}
-        />
-        <Button
-          variant="contained" // Use a contained button for emphasis
-          color="primary" // Use the primary color
-          sx={{
-            backgroundColor: isSubmitDisabled ? '#F0F0F0' : '#219197', // Custom background color
-            color: isSubmitDisabled ? 'rgba(57, 130, 137, 0.4)' : 'rgba(255, 255, 255)', // Text color
-            textTransform: 'none', // Prevent uppercase text
-            fontSize: '16px', // Adjust font size
-            fontWeight: 600, // Bold text
-            height: '64px',
-            borderRadius: '8px', // Rounded corners
-            padding: '8px 16px', // Add padding
-            fontFamily: 'Open Sans',
-            boxShadow: '0px 2px 2px 0px rgba(0, 0, 0, 0.40)',
-            '&:hover': {
-              backgroundColor: isSubmitDisabled ? '#F0F0F0' : '#1A7A75', // Darker shade on hover
-            },
-            '&[disabled]': {
-              backgroundColor: '#F0F0F0', // Lighter shade when disabled
-              boxShadow: '0px 2px 2px 0px rgba(0, 0, 0, 0.40)', // Shadow for disabled state
-            },
-          }}
-          onClick={handleSubmit}
-        >
-          SUBMIT
-        </Button>
+            SUBMIT
+          </Button>
 
 
-      </Box>
+        </Box>
+      </Container>
     </Container>
   );
 };
