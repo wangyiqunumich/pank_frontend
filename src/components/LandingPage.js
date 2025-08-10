@@ -88,11 +88,13 @@ function LandingPage() {
           position: 'relative',
           display: 'block',
           '& img': {
-            width: { sm: '100%', md: 'calc(100% + 50px)' },
+            width: { sm: '100%', md: '100%' },
             maxHeight: '425px',
             objectFit: 'contain',
+            objectPosition: 'left',
             marginTop: { sm: '0px', md: '50px' },
-            marginLeft: { sm: '0px', md: '-50px' },
+            marginLeft: { sm: '0px', md: '0' },
+            transform: { sm: 'none', md: 'translateX(-4%)' }
           },
         }}>
           <Box sx={{
