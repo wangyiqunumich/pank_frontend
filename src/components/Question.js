@@ -1,9 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Typography, Select, MenuItem, List, ListItem, ListItemText, TextField, InputAdornment } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import React, {
+  useEffect,
+  useState,
+} from 'react';
+
+import {
+  Link,
+  useNavigate,
+} from 'react-router-dom';
+
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
-import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import {
+  Box,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+} from '@mui/material';
+
 import landingPageSchema from '../schema/landing_page_schema.json';
 
 function Question({ selectedQuestion, setSelectedQuestion }) {
@@ -54,7 +67,7 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
         fontSize: 28,
         fontWeight: 700,
         textAlign: 'left',
-        color: '#4E4E4E',
+        color: '#146B6F',
         fontFamily: 'Open Sans',
       }}>
         You can ask:
@@ -107,102 +120,109 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
               key={index}
               sx={{
                 padding: 0,
-                marginBottom: 1,
                 opacity: isRelated ? 1 : 0.5, // Dim unrelated questions
                 pointerEvents: isRelated ? 'auto' : 'none', // Disable unrelated questions
               }}
             >
-              <Box className='question-box'
-                fullWidth
-                onClick={() => handleQuestionClick(question)}
-                sx={{
-                  display: 'flex',
-                  alignItems: 'top',
-                  width: '100%',
-                  textDecoration: 'none',
-                  border: '1px solid #ccc',
-                  borderRadius: '8px',
-                  padding: '16px',
-                  paddingLeft: '0px',
-                  backgroundColor: isRelated ? '#FBFFFF' : '#e0e0e0',
-                  color: '#333',
-                  transition: 'height 0.2s ease-in-out',
-                  '&:hover': {
-                    border: '1px solid #219197',
-                    backgroundColor: '#E4F0F1',
-                  },
-                }}
-              >
-                <Box classname="dot"
+              <Box className='question-box-container' fullWidth sx={{
+                display: 'flex',
+                alignItems: 'top',
+                width: '100%',
+              }}>
+                <Box className='question-box'
+                  fullWidth
+                  onClick={() => handleQuestionClick(question)}
                   sx={{
-                    width: '11px',
-                    height: '11px',
-                    borderRadius: '50%',
-                    backgroundColor: '#B8CBC9',//49B9E4',
-                    marginLeft: '20px',
-                    marginRight: '20px',
-                    transition: 'background-color 0.1s',
-                    '.question-box:hover &': {
-                      backgroundColor: '#43978F',
+                    display: 'flex',
+                    alignItems: 'top',
+                    width: '100%',
+                    textDecoration: 'none',
+                    border: '1px solid #ccc',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    paddingLeft: '0px',
+                    marginBottom: '8px',
+                    backgroundColor: isRelated ? '#FBFFFF' : '#e0e0e0',
+                    color: '#333',
+                    transition: 'height 0.2s ease-in-out',
+                    '.question-box-container:hover &': {
+                      border: '1px solid #219197',
+                      backgroundColor: '#E4F0F1',
                     },
-                    marginTop: '7px',
                   }}
-                />
-                <Box sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  flex: 1,
-                }}>
-                  <ListItemText
-                    primary={
-                      <Box sx={{ fontFamily: 'Open Sans' }}>
-                        {question.question.split(/(\([^)]*\)|\{.*?\})/).map((part, i) => {
-                          if (part.startsWith('(') && part.endsWith(')')) {
-                            return <span key={i} style={{ fontWeight: '600', fontStyle: 'italic', textTransform: 'uppercase' }}>{part.slice(1, -1)}</span>;
-                          } else if (part.startsWith('{') && part.endsWith('}')) {
-                            return <span key={i} style={{ fontWeight: '600', textTransform: 'uppercase' }}>[{part.slice(1, -1).split('@')[0]}]</span>;
-                          }
-                          return <span key={i}>{part}</span>;
-                        })}
-                      </Box>
-                    }
+                >
+                  <Box classname="dot"
                     sx={{
-                      fontSize: 16,
-                      textAlign: 'left',
-                      margin: 0,
-                      fontFamily: 'Open Sans',
+                      width: '11px',
+                      height: '11px',
+                      borderRadius: '50%',
+                      backgroundColor: '#B8CBC9',//49B9E4',
+                      marginLeft: '20px',
+                      marginRight: '20px',
+                      transition: 'background-color 0.1s',
+                      '.question-box-container:hover &': {
+                        backgroundColor: '#43978F',
+                      },
+                      marginTop: '7px',
                     }}
                   />
-                  <Typography
-                    sx={{
-                      display: 'none',
-                      transition: 'display 0.1s ease-in-out',
-                      fontSize: 14,
-                      color: '#219197',
-                      marginTop: 0,
-                      '.question-box:hover &': {
-                        display: 'block',
-                      },
-                      fontFamily: 'Open Sans',
-                    }}
-                  >
-                    {question.landing_page_subtitle}
-                  </Typography>
+                  <Box sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    flex: 1,
+                  }}>
+                    <ListItemText
+                      primary={
+                        <Box sx={{ fontFamily: 'Open Sans' }}>
+                          {question.question.split(/(\([^)]*\)|\{.*?\})/).map((part, i) => {
+                            if (part.startsWith('(') && part.endsWith(')')) {
+                              return <span key={i} style={{ fontWeight: '600', fontStyle: 'italic', textTransform: 'uppercase' }}>{part.slice(1, -1)}</span>;
+                            } else if (part.startsWith('{') && part.endsWith('}')) {
+                              return <span key={i} style={{ fontWeight: '600', textTransform: 'uppercase' }}>[{part.slice(1, -1).split('@')[0]}]</span>;
+                            }
+                            return <span key={i}>{part}</span>;
+                          })}
+                        </Box>
+                      }
+                      sx={{
+                        fontSize: 16,
+                        textAlign: 'left',
+                        margin: 0,
+                        fontFamily: 'Open Sans',
+                      }}
+                    />
+                    <Typography
+                      sx={{
+                        display: 'none',
+                        transition: 'display 0.1s ease-in-out',
+                        fontSize: 14,
+                        color: '#219197',
+                        marginTop: 0,
+                        '.question-box-container:hover &': {
+                          display: 'block',
+                        },
+                        fontFamily: 'Open Sans',
+                      }}
+                    >
+                      {question.landing_page_subtitle}
+                    </Typography>
+                  </Box>
+                  {isRelated && (
+                    <ArrowOutwardIcon
+                      sx={{
+                        fontSize: 20,
+                        color: '#7F7D7D',
+                        opacity: 0,
+                        marginRight: 2,
+                        display: 'none',
+                        '.question-box-container:hover &': {
+                          display: 'inline-block',
+                        },
+                      }}
+                    />
+                  )}
                 </Box>
-                {isRelated && (
-                  <ArrowOutwardIcon
-                    sx={{
-                      fontSize: 20,
-                      color: '#7F7D7D',
-                      opacity: 0,
-                      marginRight: 2,
-                      '.question-box:hover &': {
-                        opacity: 1,
-                      },
-                    }}
-                  />
-                )}
               </Box>
             </ListItem>
           );
