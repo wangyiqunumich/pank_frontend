@@ -104,10 +104,18 @@ function LandingPage() {
             right: 0,
             bottom: 0,
             margin: 'auto',
-            display: 'flex', flexDirection: 'column', justifyContent: 'top', alignItems: 'center',
+            display: 'flex', flexDirection: 'column', justifyContent: 'top', alignItems: 'flex-start',
           }}>
             <img src={landingPageLogo} alt="PanKgraph" />
-            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px', alignItems: 'center' }}>
+            <Box sx={{
+              display: 'flex',
+              position: "relative",
+              justifyContent: 'center',
+              marginTop: '20px',
+              alignItems: 'center',
+              left: "calc(min(50%, 330px) - 23px)",
+              transform: { sm: 'none', md: 'translateX(-50%)' }
+            }}>
               <TerminalIcon sx={{ width: '30px', color: '#C48E25' }} />
               <Typography sx={{ marginLeft: '10px', fontSize: '20px' }}>
                 Access PanKgraph with <Link
