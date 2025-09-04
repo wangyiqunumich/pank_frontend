@@ -22,6 +22,7 @@ import DocPage from './pages/DocPage';
 import Ontology from './pages/Ontology';
 import Pipeline from './pages/Pipeline';
 import QTLDataSource from './pages/QTL_data_source';
+import ReviewPage from './pages/ReviewPage';
 import StatPage from './pages/StatPage';
 import Tutorial from './pages/Tutorial';
 import UsecasesPage from './pages/UsecasePage';
@@ -49,6 +50,7 @@ root.render(
           <Route path="/usecases" element={<UsecasesPage />} />
           <Route path="/docs/*" element={<DocPage />} />
           <Route path="/match" element={<MatchPage />} />
+          <Route path="/review" element={<ReviewPage />} />
           <Route path="/" element={<LandingPage />} />
           {/* <Route path="/debug" element={<DebugPage />} /> */}
         </Routes>

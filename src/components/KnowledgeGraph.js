@@ -378,7 +378,7 @@ export default function KnowledgeGraph() {
     const positionData = queryResultPage?.xy_json || {};
 
     const uniqueNodesMap = {};
-    result.nodes.forEach((node) => (uniqueNodesMap[node["~id"]] = node));
+    result.nodes?.forEach((node) => (uniqueNodesMap[node["~id"]] = node));
     const nodes = Object.values(uniqueNodesMap).map((node) => {
       // Determine type based on the labels
       const type = node["~labels"].find((label) => nodeColors[label]) || "coding_elements";

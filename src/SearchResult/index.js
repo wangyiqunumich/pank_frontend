@@ -106,7 +106,7 @@ const HtmlTooltip = styled(({ className, ...props }) => (
     },
 }));
 
-const TooltipComponent = ({ title, content }) => (
+export const TooltipComponent = ({ title, content }) => (
     <>
         &nbsp;&nbsp;<HtmlTooltip
             title={
