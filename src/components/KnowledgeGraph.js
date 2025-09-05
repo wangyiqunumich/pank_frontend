@@ -414,9 +414,9 @@ export default function KnowledgeGraph() {
     const isFullscreen = params.get("fullscreen") === "true";
     if (isFullscreen !== expanded) setExpanded(isFullscreen);
     if (!expanded) {
-      document.documentElement.style.overflow = "clip";
-    } else {
       document.documentElement.style.overflow = "auto";
+    } else {
+      document.documentElement.style.overflow = "clip";
     }
     const timeoutId = setTimeout(() => {
       if (cyRef.current) {

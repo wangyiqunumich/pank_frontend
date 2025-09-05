@@ -3,6 +3,7 @@ import './ApiPage.css';
 
 import React, { useEffect } from 'react';
 
+import yaml from 'js-yaml';
 import {
   useDispatch,
   useSelector,
@@ -25,6 +26,7 @@ import {
 
 import KnowledgeGraph from '../components/KnowledgeGraph';
 import { queryQueryResultPage } from '../redux/queryResultPage';
+import ReviewContent from '../schema/reviews.yaml';
 import { TooltipComponent } from '../SearchResult/index.js';
 
 export function CodeCopyBtn({ children }) {
@@ -55,6 +57,17 @@ function ReviewPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
+  const [reviewContent, setReviewContent] = React.useState([]);
+
+  useEffect(() => {
+    fetch(ReviewContent)
+      .then((res) => res.text())
+      .then((text) => {
+        const data = yaml.load(text);
+        setReviewContent(data);
+      })
+      .catch((err) => console.error("Failed to load YAML", err));
+  }, []);
 
   useEffect(() => {
     // read parameter from URL
@@ -210,23 +223,7 @@ function ReviewPage() {
                 Featured Feedback from Our Community
               </Typography>
               <Grid container spacing={2} justifyContent="center">
-                {[
-                  {
-                    text: "As a data contributor, I'm impressed by how PanKbase integrates our CFTR expression datasets. The platform makes our research more accessible to the global pancreatic research community.",
-                    name: "DR. chen, Data Owner",
-                    time: "2 days ago",
-                  },
-                  {
-                    text: "Our lab's CFTR mutation data is now being utilized by researchers worldwide through PanKbase. The data sharing process was seamless and the visualization tools are exceptional.",
-                    name: "DR. Elena, Research Director",
-                    time: "1 week ago",
-                  },
-                  {
-                    text: "Contributing our CFTR functional assay data to PanKbase has accelerated collaborative research. The platform's data integration capabilities exceed our expectations.",
-                    name: "DR. Rodriguez",
-                    time: "2 weeks ago",
-                  },
-                ].map((item, index) => (
+                {reviewContent.map((item, index) => (
                   <Grid item xs={12} md={4} key={index}>
                     <Card sx={{
                       borderRadius: 2,
