@@ -368,22 +368,56 @@ export default function KnowledgeGraph() {
     setInfocardPosition({ x: left, y: top });
   }, [hoveredId, nodeHovered, infocardEnabled]);
 
-  useEffect(() => {
-    // set overflow: clip for the html if expanded
+  const toggleExpand = () => {
+    const url = new URL(
+      window.location.origin + location.pathname + location.search + location.hash
+    );
     if (expanded) {
+      url.searchParams.delete("fullscreen");
+    } else {
+      url.searchParams.set("fullscreen", "true");
+    }
+    window.history.pushState({}, '', url);
+    window.dispatchEvent(new PopStateEvent("popstate", { state: {} }));
+  }
+
+  // useEffect(() => {
+  //   // set overflow: clip for the html if expanded
+  //   if (expanded) {
+  //     document.documentElement.style.overflow = "clip";
+  //   } else {
+  //     document.documentElement.style.overflow = "auto";
+  //   }
+  //   const url = new URL(
+  //     window.location.origin + location.pathname + location.search + location.hash
+  //   );
+  //   const isFullscreen = url.searchParams.get("fullscreen") === "true";
+  //   if (isFullscreen !== expanded) {
+  //     if (expanded) {
+  //       url.searchParams.set("fullscreen", "true");
+  //     } else {
+  //       url.searchParams.delete("fullscreen");
+  //     }
+  //     window.history.pushState({}, '', url);
+  //   }
+  //   const timeoutId = setTimeout(() => {
+  //     if (cyRef.current) {
+  //       handleRecenter();
+  //     }
+  //   }, 200);
+  //   return () => clearTimeout(timeoutId);
+  // }, [expanded, location]);
+
+  // listen to url change for fullscreen parameter
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const isFullscreen = params.get("fullscreen") === "true";
+    console.log("isFullscreen", isFullscreen, "expanded", expanded);
+    if (isFullscreen !== expanded) setExpanded(isFullscreen);
+    if (!expanded) {
       document.documentElement.style.overflow = "clip";
     } else {
       document.documentElement.style.overflow = "auto";
-    }
-    const url = new URL(window.location);
-    const isFullscreen = url.searchParams.get("fullscreen") === "true";
-    if (isFullscreen !== expanded) {
-      if (expanded) {
-        url.searchParams.set("fullscreen", "true");
-      } else {
-        url.searchParams.delete("fullscreen");
-      }
-      window.history.pushState({}, '', url);
     }
     const timeoutId = setTimeout(() => {
       if (cyRef.current) {
@@ -391,13 +425,6 @@ export default function KnowledgeGraph() {
       }
     }, 200);
     return () => clearTimeout(timeoutId);
-  }, [expanded]);
-
-  // listen to url change for fullscreen parameter
-  useEffect(() => {
-    const url = new URL(window.location);
-    const isFullscreen = url.searchParams.get("fullscreen") === "true";
-    if (isFullscreen !== expanded) setExpanded(isFullscreen);
   }, [location, expanded]);
 
   useEffect(() => {
@@ -604,7 +631,7 @@ export default function KnowledgeGraph() {
             alt="Enable/Disable Info Card" width={20} height={20} />
         </IconButton>
         <IconButton
-          onClick={() => { setExpanded(!expanded); }}
+          onClick={() => { toggleExpand(); }}
           style={{ padding: "8px", background: "none", borderRadius: "4px" }}
         >
           <img src={expanded ? fullscreenExitIcon : fullscreenIcon}
