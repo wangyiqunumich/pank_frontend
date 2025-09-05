@@ -82,7 +82,15 @@ function ReviewPage() {
           <Grid container spacing={6}>
             {/* Left: Graph Viewer */}
             <Grid item xs={12} md={8}>
-              <Paper sx={{ p: 2, borderRadius: "20px", boxShadow: "none", height: 'calc(100% - 32px)' }}>
+              <Paper sx={{
+                p: 2,
+                borderRadius: "20px",
+                boxShadow: "none",
+                height: 'calc(100% - 32px)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
                 {queryResultPage?.combined_query_result ? <Box sx={{
                   display: 'flex',
                   flexDirection: 'column',
