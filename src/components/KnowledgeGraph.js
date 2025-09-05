@@ -412,7 +412,6 @@ export default function KnowledgeGraph() {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const isFullscreen = params.get("fullscreen") === "true";
-    console.log("isFullscreen", isFullscreen, "expanded", expanded);
     if (isFullscreen !== expanded) setExpanded(isFullscreen);
     if (!expanded) {
       document.documentElement.style.overflow = "clip";
