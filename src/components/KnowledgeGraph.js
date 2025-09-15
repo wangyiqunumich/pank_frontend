@@ -10,6 +10,7 @@ import React, {
 
 import cytoscape from 'cytoscape';
 import { useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
@@ -23,6 +24,10 @@ import IconButton from '@mui/material/IconButton';
 
 import zoomInIcon from '../image/fontisto--zoom-minus.svg';
 import zoomOutIcon from '../image/fontisto--zoom-plus.svg';
+import fullscreenIcon
+  from '../image/fullscreen_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.svg';
+import fullscreenExitIcon
+  from '../image/fullscreen_exit_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.svg';
 import InfoDisableIcon
   from '../image/material-symbols--ad-group-off-outline-rounded.svg';
 import InfoEnableIcon
@@ -63,16 +68,23 @@ export default function KnowledgeGraph() {
   const fadeOutTimeoutRef = useRef(null);
   const infocardRef = useRef(null);
   const activeNodeRef = useRef(null);
+  const location = useLocation();
+
+  // hover functions
   const [hoveredId, setHoveredId] = useState(null);
   const [infocardPosition, setInfocardPosition] = useState({ x: 0, y: 0 });
   const [infocardVisible, setInfocardVisible] = useState(false);
-  const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
-  const [legendVisible, setLegendVisible] = useState(true);
-  const [zoomLevel, setZoomLevel] = useState(1.5);
-  const [initZoom, setInitZoom] = useState(1.5);
   const [infocardHovered, setInfocardHovered] = useState(false);
   const [nodeHovered, setNodeHovered] = useState(false);
+
+  const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
+
+  // toggle buttons & graph state
+  const [legendVisible, setLegendVisible] = useState(true);
+  const [zoomLevel, setZoomLevel] = useState(1.5);
+  const [initZoom, setInitZoom] = useState(1.5); // default zoom scale
   const [infocardEnabled, setInfocardEnabled] = useState(true);
+  const [expanded, setExpanded] = useState(false);
 
   const center =
     cyRef.current
@@ -356,6 +368,64 @@ export default function KnowledgeGraph() {
     setInfocardPosition({ x: left, y: top });
   }, [hoveredId, nodeHovered, infocardEnabled]);
 
+  const toggleExpand = () => {
+    const url = new URL(
+      window.location.origin + location.pathname + location.search + location.hash
+    );
+    if (expanded) {
+      url.searchParams.delete("fullscreen");
+    } else {
+      url.searchParams.set("fullscreen", "true");
+    }
+    window.history.pushState({}, '', url);
+    window.dispatchEvent(new PopStateEvent("popstate", { state: {} }));
+  }
+
+  // useEffect(() => {
+  //   // set overflow: clip for the html if expanded
+  //   if (expanded) {
+  //     document.documentElement.style.overflow = "clip";
+  //   } else {
+  //     document.documentElement.style.overflow = "auto";
+  //   }
+  //   const url = new URL(
+  //     window.location.origin + location.pathname + location.search + location.hash
+  //   );
+  //   const isFullscreen = url.searchParams.get("fullscreen") === "true";
+  //   if (isFullscreen !== expanded) {
+  //     if (expanded) {
+  //       url.searchParams.set("fullscreen", "true");
+  //     } else {
+  //       url.searchParams.delete("fullscreen");
+  //     }
+  //     window.history.pushState({}, '', url);
+  //   }
+  //   const timeoutId = setTimeout(() => {
+  //     if (cyRef.current) {
+  //       handleRecenter();
+  //     }
+  //   }, 200);
+  //   return () => clearTimeout(timeoutId);
+  // }, [expanded, location]);
+
+  // listen to url change for fullscreen parameter
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const isFullscreen = params.get("fullscreen") === "true";
+    if (isFullscreen !== expanded) setExpanded(isFullscreen);
+    if (!expanded) {
+      document.documentElement.style.overflow = "auto";
+    } else {
+      document.documentElement.style.overflow = "clip";
+    }
+    const timeoutId = setTimeout(() => {
+      if (cyRef.current) {
+        handleRecenter();
+      }
+    }, 200);
+    return () => clearTimeout(timeoutId);
+  }, [location, expanded]);
+
   useEffect(() => {
     if (!infocardHovered && !nodeHovered) {
       if (DisableInfocardDisappear) return;
@@ -378,7 +448,7 @@ export default function KnowledgeGraph() {
     const positionData = queryResultPage?.xy_json || {};
 
     const uniqueNodesMap = {};
-    result.nodes.forEach((node) => (uniqueNodesMap[node["~id"]] = node));
+    result.nodes?.forEach((node) => (uniqueNodesMap[node["~id"]] = node));
     const nodes = Object.values(uniqueNodesMap).map((node) => {
       // Determine type based on the labels
       const type = node["~labels"].find((label) => nodeColors[label]) || "coding_elements";
@@ -492,16 +562,23 @@ export default function KnowledgeGraph() {
   }, [queryResultPage]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "16px", position: "relative", justifyContent: "flex-start" }}>
+    <div style={
+      !expanded ?
+        { display: "flex", flexDirection: "column", gap: "16px", position: "relative", justifyContent: "flex-start" }
+        // position whole page, on top
+        : { position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "white", zIndex: 9999, display: "flex", flexDirection: "column", gap: "16px", padding: "0px" }
+    }>
       <div
         id="cy-container"
         style={{
-          width: "100%",
-          height: "600px",
-          backgroundColor: "#F9FAFB",
-          border: "none",
-          borderRadius: "8px",
-          position: "relative",
+          ...{
+            width: "100%",
+            height: "600px",
+            backgroundColor: "#F9FAFB",
+            border: "none",
+            borderRadius: "8px",
+            position: "relative",
+          }, ...(expanded ? { height: "100%", borderRadius: "0px" } : {})
         }}
       >
       </div>
@@ -551,6 +628,13 @@ export default function KnowledgeGraph() {
         >
           <img src={infocardEnabled ? InfoEnableIcon : InfoDisableIcon}
             alt="Enable/Disable Info Card" width={20} height={20} />
+        </IconButton>
+        <IconButton
+          onClick={() => { toggleExpand(); }}
+          style={{ padding: "8px", background: "none", borderRadius: "4px" }}
+        >
+          <img src={expanded ? fullscreenExitIcon : fullscreenIcon}
+            alt="Enter/Exit Fullscreen" width={20} height={20} />
         </IconButton>
       </Box>
       <Box sx={{
