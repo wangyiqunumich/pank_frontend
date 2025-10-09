@@ -10,22 +10,27 @@ import {
 } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
+import { Warning } from '@mui/icons-material';
+import CloseIcon from '@mui/icons-material/Close';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import StarIcon from '@mui/icons-material/Star';
 import {
+  Alert,
   Box,
   Button,
   Card,
   CardContent,
   CircularProgress,
   Grid,
+  IconButton,
   Paper,
   TextField,
   Typography,
 } from '@mui/material';
 
 import KnowledgeGraph from '../components/KnowledgeGraph';
-import { queryQueryResultPage } from '../redux/queryResultPage';
+import graphdata from '../schema/review_page/graph_T1D_core.json';
+import coorddata from '../schema/review_page/graph_T1D_core_xy.json';
 import ReviewContent from '../schema/reviews.yaml';
 import { TooltipComponent } from '../SearchResult/index.js';
 
@@ -58,6 +63,14 @@ function ReviewPage() {
   const navigate = useNavigate();
   const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
   const [reviewContent, setReviewContent] = React.useState([]);
+  const [warningState, setWarningState] = React.useState(0);
+  const [warningPopup, setWarningPopup] = React.useState(false);
+  const [selectedNode, setSelectedNode] = React.useState([]);
+  const fixedCoord = // x, y times 10
+    Object.fromEntries(Object.entries(coorddata).map(([key, value]) => [key, { ...value, x: value.x * 2, y: value.y * 2 }]));
+  // const loaded = !!queryResultPage?.combined_query_result;
+  const loaded = true;
+
 
   useEffect(() => {
     fetch(ReviewContent)
@@ -75,15 +88,38 @@ function ReviewPage() {
     const rdb_query = urlParams.get('rdb_query');
     const core_cypher = urlParams.get('core_cypher');
     const neighbor_cypher = urlParams.get('neighbor_cypher');
-    if (core_cypher && neighbor_cypher) {
-      dispatch(queryQueryResultPage(rdb_query ? { rdb_query, core_cypher, neighbor_cypher } : { core_cypher, neighbor_cypher }))
-    } else {
-      navigate('/');
-    }
+    // if (core_cypher && neighbor_cypher) {
+    //   dispatch(queryQueryResultPage(rdb_query ? { rdb_query, core_cypher, neighbor_cypher } : { core_cypher, neighbor_cypher }))
+    // } else {
+    //   navigate('/');
+    // }
   }, []);
+
+  const handleSubmit = () => {
+    if (!loaded) return;
+    if (selectedNode.length === 0) {
+      setWarningState(Math.min(warningState + 1, 2));
+      if (warningState === 1) {
+        setWarningPopup(true);
+      }
+      return;
+    }
+  }
 
   return (
     <div className="App">
+      {/* page mask */}
+      <div style={{
+        display: warningState === 2 ? 'block' : 'none',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#A9ACB04D',
+        zIndex: 1,
+        borderRadius: '20px'
+      }}></div>
       <Box sx={{
         p: 3, bgcolor: "#F1FAFB", marginTop: "-40px", paddingTop: "60px"
       }}>
@@ -104,10 +140,9 @@ function ReviewPage() {
                 alignItems: 'center',
                 justifyContent: 'center'
               }}>
-                {queryResultPage?.combined_query_result ? <Box sx={{
+                {loaded ? <Box sx={{
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '32px',
                   width: "calc(100% - 40px)",
                   maxWidth: 'calc(100% - 40px)',
                   backgroundColor: '#F9FAFB',
@@ -126,6 +161,16 @@ function ReviewPage() {
                   }}>
                     Graph Viewer<TooltipComponent title="Graph Viewer" />
                   </Typography>
+                  <Typography sx={{
+                    fontFamily: 'Open Sans',
+                    fontWeight: 400,
+                    fontSize: "14px",
+                    marginTop: '-2px',
+                    color: '#888888',
+                    paddingBottom: '11px'
+                  }}>
+                    Click on any node to select it for your feedback
+                  </Typography>
                   <Box sx={{
                     position: 'relative',
                     minHeight: '450px',
@@ -136,7 +181,42 @@ function ReviewPage() {
                     textAlign: 'left',
                     maxWidth: '100%',
                   }}>
-                    <KnowledgeGraph />
+                    <Alert
+                      variant="outlined"
+                      severity="warning"
+                      icon={<Warning fontSize="inherit" />}
+                      sx={{
+                        display: warningPopup ? 'flex' : 'none',
+                        position: 'absolute',
+                        left: '50%',
+                        top: '10px',
+                        fontSize: '15px',
+                        fontFamily: 'Open Sans',
+                        border: "1px solid rgb(102, 60, 0)",
+                        alignItems: "center",
+                        backgroundColor: "#FEF7E0",
+                        zIndex: 3,
+                        transform: 'translateX(-50%)',
+                      }}
+                      action={
+                        <IconButton size="small" color="inherit" onClick={() => setWarningPopup(false)}>
+                          <CloseIcon fontSize="small" />
+                        </IconButton>
+                      }
+                    >
+                      Please select elements related to your comment
+                    </Alert>
+
+                    <KnowledgeGraph selectable={true} setSelectedNode={(nodes) => {
+                      setSelectedNode(nodes);
+                      if (nodes.length > 0) {
+                        setWarningState(0);
+                        setWarningPopup(false);
+                      }
+                    }} sx={{ zIndex: 2 }}
+                      review={true}
+                      graphData={graphdata.results[0]} coordData={fixedCoord}
+                    />
                   </Box>
                 </Box> : <CircularProgress />}
               </Paper>
@@ -192,16 +272,42 @@ function ReviewPage() {
                   <TextField
                     placeholder="Enter your email"
                     fullWidth
-                    sx={{ mt: 1 }}
+                    sx={{ mt: 1, mb: 1 }}
                     inputProps={{ style: { fontFamily: 'Open Sans', fontWeight: 400, fontSize: "17px" } }}
                   />
+                  <Alert
+                    variant="outlined"
+                    severity="warning"
+                    icon={<Warning fontSize="inherit" />}
+                    sx={{
+                      display: warningState === 1 ? 'flex' : 'none',
+                      fontSize: '15px',
+                      fontFamily: 'Open Sans',
+                      border: "1px solid",
+                      borderColor: "inherit",
+                      alignItems: "center",
+                      backgroundColor: "#FEF7E0",
+                    }}
+                    action={
+                      <IconButton size="small" color="inherit" onClick={() => setWarningState(0)}>
+                        <CloseIcon fontSize="small" />
+                      </IconButton>
+                    }
+                  >
+                    Please select elements related to your comment
+                  </Alert>
                   <Button
                     variant="contained"
                     fullWidth
                     sx={{
                       mt: 3, borderRadius: 2, bgcolor: "#2f7d84",
-                      "&:hover": { bgcolor: "#219197" }
+                      "&:hover": { bgcolor: "#219197" },
+                      ...(
+                        !(loaded) || selectedNode.length === 0 ?
+                          { bgcolor: "#F0F0F0", color: "#39828980", "&:hover": { bgcolor: "#F0F0F0" } } : {}
+                      )
                     }}
+                    onClick={handleSubmit}
                   >
                     SUBMIT
                   </Button>

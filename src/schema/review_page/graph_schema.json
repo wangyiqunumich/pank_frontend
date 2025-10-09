@@ -1,0 +1,73 @@
+{
+    "nodes": {
+        "All nodes": {
+            "node_color": "#FFDE7D",
+            "text_color": "#000000",
+            "node_label": "all nodes", 
+            "info_panel": [
+                [
+                    "Title",
+                    "name"
+                ],
+                [
+                    "Node Identity",
+                    [
+                        [
+                            "type",
+                            "property_label"
+                        ],
+                        [
+                            "aliases",
+                            "aliases"
+                        ],
+                        [
+                            "Link",
+                            "text_evidence"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "url",
+                            "link"
+                        ]
+                    ]
+                ]
+            ]
+        }             
+    },
+    "edges": {
+        "relationship": {
+            "text_color": "#000000",
+            "edge_label": "all edge types",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "property_type"
+                ],
+                [
+                    "HIRN evidence",
+                    "HIRN_evidence"
+                ],
+                [
+                    "Evidence",
+                    "evidence"
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "source",
+                            "link"
+                        ]
+                    ]
+                ]
+            ]
+        }
+    }
+}
