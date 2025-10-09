@@ -3,7 +3,7 @@
         "All nodes": {
             "node_color": "#FFDE7D",
             "text_color": "#000000",
-            "node_label": "all nodes", 
+            "node_label": "all nodes",
             "info_panel": [
                 [
                     "Title",
@@ -37,7 +37,7 @@
                     ]
                 ]
             ]
-        }             
+        }
     },
     "edges": {
         "relationship": {
@@ -62,8 +62,7 @@
                     [
                         [
                             "Data Source",
-                            "source",
-                            "link"
+                            "data_source"
                         ]
                     ]
                 ]
