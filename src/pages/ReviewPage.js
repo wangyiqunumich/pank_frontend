@@ -77,6 +77,7 @@ function ReviewPage() {
       .then((res) => res.text())
       .then((text) => {
         const data = yaml.load(text);
+        console.log(data);
         setReviewContent(data);
       })
       .catch((err) => console.error("Failed to load YAML", err));
