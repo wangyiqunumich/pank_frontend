@@ -468,7 +468,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
           id: node["~id"],
           ...node[properties],
           label: (
-            review ? node[properties]["name:String"] :
+            review ? node[properties]["name"] :
               node["~labels"].includes("disease")
                 ? "T1D"
                 : (node["~labels"].includes("gene") ||
