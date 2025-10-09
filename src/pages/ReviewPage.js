@@ -329,7 +329,7 @@ function ReviewPage() {
                 Featured Feedback from Our Community
               </Typography>
               <Grid container spacing={2} justifyContent="center">
-                {reviewContent.map((item, index) => (
+                {reviewContent?.map((item, index) => (
                   <Grid item xs={12} md={4} key={index}>
                     <Card sx={{
                       borderRadius: 2,
