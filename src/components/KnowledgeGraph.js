@@ -130,39 +130,42 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
       type === "string" ? (
         <>{dataKey || "No Data"}</>
       ) :
-        type === "int" ? (
-          <>{value ? parseInt(value).toLocaleString() : "No Data"}</>
+        type === "list" ? ( //string, remove all [] and ''
+          <>{value.replace(/[\[\]']+/g, '') || "None"}</>
         ) :
-          type === "float" ? (
-            <>{value ? parseFloat(value).toFixed(setting || 1) : "No Data"}</>
-          ) : ["link", "link_static"].includes(type) ? (
-            <Link href={type === "link" ? value : dataKey} target="_blank" rel="noopener noreferrer" sx={{
-              textDecoration: "none",
-              "&:hover": {
-                textDecoration: "underline",
-                cursor: "pointer",
-              },
-            }}>
-              Open Link ↗
-            </Link>
-          ) : ["label_chr", "label_percentage"].includes(type) ? (
-            <div style={{
-              backgroundColor: setting || "#0FB47D",
-              height: "14px",
-              padding: "1.5px 4px",
-              marginY: "-4px",
-              borderRadius: "8.5px",
-              textDecoration: "none",
-              color: "white",
-              fontFamily: "Open Sans",
-              fontWeight: "700",
-              fontSize: "12px"
-            }}>
-              {value ? (type === "label_chr" ? `Chr${value}` : `${parseFloat(value).toFixed(1)}%`) : "No Data"}
-            </div>
-          ) : (
-            <span>{value}</span>
-          );
+          type === "int" ? (
+            <>{value ? parseInt(value).toLocaleString() : "No Data"}</>
+          ) :
+            type === "float" ? (
+              <>{value ? parseFloat(value).toFixed(setting || 1) : "No Data"}</>
+            ) : ["link", "link_static"].includes(type) ? (
+              <Link href={type === "link" ? value : dataKey} target="_blank" rel="noopener noreferrer" sx={{
+                textDecoration: "none",
+                "&:hover": {
+                  textDecoration: "underline",
+                  cursor: "pointer",
+                },
+              }}>
+                Open Link ↗
+              </Link>
+            ) : ["label_chr", "label_percentage"].includes(type) ? (
+              <div style={{
+                backgroundColor: setting || "#0FB47D",
+                height: "14px",
+                padding: "1.5px 4px",
+                marginY: "-4px",
+                borderRadius: "8.5px",
+                textDecoration: "none",
+                color: "white",
+                fontFamily: "Open Sans",
+                fontWeight: "700",
+                fontSize: "12px"
+              }}>
+                {value ? (type === "label_chr" ? `Chr${value}` : `${parseFloat(value).toFixed(1)}%`) : "No Data"}
+              </div>
+            ) : (
+              <span>{value}</span>
+            );
   }
 
   const InfocardMenu = () => {
