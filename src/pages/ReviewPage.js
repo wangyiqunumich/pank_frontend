@@ -3,7 +3,6 @@ import './ApiPage.css';
 
 import React, { useEffect } from 'react';
 
-import yaml from 'js-yaml';
 import {
   useDispatch,
   useSelector,
@@ -31,7 +30,7 @@ import {
 import KnowledgeGraph from '../components/KnowledgeGraph';
 import graphdata from '../schema/review_page/graph_T1D_core.json';
 import coorddata from '../schema/review_page/graph_T1D_core_xy.json';
-import ReviewContent from '../schema/reviews.yaml';
+import ReviewContent from '../schema/reviews.json';
 import { TooltipComponent } from '../SearchResult/index.js';
 
 export function CodeCopyBtn({ children }) {
@@ -62,7 +61,7 @@ function ReviewPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
-  const [reviewContent, setReviewContent] = React.useState([]);
+  // const [reviewContent, setReviewContent] = React.useState([]);
   const [warningState, setWarningState] = React.useState(0);
   const [warningPopup, setWarningPopup] = React.useState(false);
   const [selectedNode, setSelectedNode] = React.useState([]);
@@ -72,16 +71,16 @@ function ReviewPage() {
   const loaded = true;
 
 
-  useEffect(() => {
-    fetch(ReviewContent)
-      .then((res) => res.text())
-      .then((text) => {
-        const data = yaml.load(text);
-        console.log(data);
-        setReviewContent(data);
-      })
-      .catch((err) => console.error("Failed to load YAML", err));
-  }, []);
+  // useEffect(() => {
+  //   fetch(ReviewContent)
+  //     .then((res) => res.text())
+  //     .then((text) => {
+  //       const data = yaml.load(text);
+  //       console.log(data);
+  //       setReviewContent(data);
+  //     })
+  //     .catch((err) => console.error("Failed to load YAML", err));
+  // }, []);
 
   useEffect(() => {
     // read parameter from URL
@@ -330,7 +329,7 @@ function ReviewPage() {
                 Featured Feedback from Our Community
               </Typography>
               <Grid container spacing={2} justifyContent="center">
-                {reviewContent?.map((item, index) => (
+                {ReviewContent?.map((item, index) => (
                   <Grid item xs={12} md={4} key={index}>
                     <Card sx={{
                       borderRadius: 2,
