@@ -35,6 +35,7 @@ import InfoEnableIcon
 import downloadIcon from '../image/material-symbols--download-rounded.svg';
 import recenterIcon from '../image/material-symbols--recenter-rounded.svg';
 import graphInfocard from '../schema/graph_viewer_schema.json';
+import graphInfocardReview from '../schema/review_page/graph_schema.json';
 import { addWhitespace } from '../utils/textProcessing';
 import {
   edgeIsInverted,
@@ -63,7 +64,7 @@ const LegendItem = ({ label, color, sx }) => (
 );
 
 // Main KnowledgeGraph component
-export default function KnowledgeGraph() {
+export default function KnowledgeGraph({ selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, review = false }) {
   const cyRef = useRef(null);
   const fadeOutTimeoutRef = useRef(null);
   const infocardRef = useRef(null);
@@ -167,7 +168,9 @@ export default function KnowledgeGraph() {
   const InfocardMenu = () => {
     const hoveredData = cyRef.current?.getElementById(hoveredId)?.data();
     const isEdge = hoveredData?.source && hoveredData?.target;
-    const schema = (isEdge ? graphInfocard?.edges : graphInfocard?.nodes)?.[hoveredData?.type]?.info_panel;
+    const schema =
+      review ? isEdge ? graphInfocardReview?.edges["relationship"].info_panel : graphInfocardReview?.nodes["All nodes"].info_panel :
+        (isEdge ? graphInfocard?.edges : graphInfocard?.nodes)?.[hoveredData?.type]?.info_panel;
     const titleColumn = schema?.find(([label, _]) => label === "Title");
     const footerInfo = schema?.find(([label, _]) => label === "Footer")?.[1] || [];
     return (
@@ -444,14 +447,15 @@ export default function KnowledgeGraph() {
 
 
   useEffect(() => {
-    const result = queryResultPage?.combined_query_result;
-    const positionData = queryResultPage?.xy_json || {};
+    const result = graphData || queryResultPage?.combined_query_result;
+    const positionData = coordData || queryResultPage?.xy_json || {};
 
     const uniqueNodesMap = {};
     result.nodes?.forEach((node) => (uniqueNodesMap[node["~id"]] = node));
+    const properties = review ? "properties" : "~properties";
     const nodes = Object.values(uniqueNodesMap).map((node) => {
       // Determine type based on the labels
-      const type = node["~labels"].find((label) => nodeColors[label]) || "coding_elements";
+      const type = review ? "cell_type" : node["~labels"].find((label) => nodeColors[label]) || "coding_elements";
       // Use the provided positionData and extract the Level property.
       const posData = positionData[node["~id"]] || {
         x: Math.random() * 250 - 125,
@@ -462,16 +466,17 @@ export default function KnowledgeGraph() {
       return {
         data: {
           id: node["~id"],
-          ...node["~properties"],
+          ...node[properties],
           label: (
-            node["~labels"].includes("disease")
-              ? "T1D"
-              : (node["~labels"].includes("gene") ||
-                node["~labels"].includes("OCR") ||
-                node["~id"].startsWith("CL_")
-              )
-                ? (node["~properties"].name || node["~properties"].id)
-                : node["~properties"].id
+            review ? node[properties]["name:String"] :
+              node["~labels"].includes("disease")
+                ? "T1D"
+                : (node["~labels"].includes("gene") ||
+                  node["~labels"].includes("OCR") ||
+                  node["~id"].startsWith("CL_")
+                )
+                  ? (node[properties].name || node[properties].id)
+                  : node[properties].id
           ).replace(/_/g, " "),
           type,
           Level: posData.Level,
@@ -488,19 +493,26 @@ export default function KnowledgeGraph() {
         source: edgeIsInverted[edge["~type"]] ? edge["~end"] : edge["~start"],
         target: edgeIsInverted[edge["~type"]] ? edge["~start"] : edge["~end"],
         type: edge["~type"],
-        label: edgeLabels[edge["~type"]] || edge["~type"],
-        ...edge["~properties"],
+        label: edgeLabels[edge["~type"]] || edge["~type"].replace(/_/g, " "),
+        ...edge[properties],
       },
     }));
 
     cyRef.current = cytoscape({
       container: document.getElementById("cy-container"),
       elements: { nodes, edges },
-      style: nodeStyle,
+      style: nodeStyle.concat(selectable ? [{
+        selector: "node:selected",
+        style: {
+          "border-width": 2,
+          "border-color": "rgba(255, 0, 0, 1)",
+        },
+      }] : []),
       layout: { name: "preset" },
       zoom: 1.5,
-      minZoom: 1.2,
+      minZoom: 0.6,
       maxZoom: 4,
+      selectionType: selectable ? "additive" : "none",
       pan: { x: 0, y: 0 },
     });
 
@@ -553,6 +565,16 @@ export default function KnowledgeGraph() {
     cy.on("zoom", () => {
       setZoomLevel(cyRef.current.zoom());
     });
+    if (selectable) {
+      cy.on("select", "node, edge", (evt) => {
+        const selectedId = evt.target.id();
+        setSelectedNode((prev) => [...prev, selectedId]);
+      });
+      cy.on("unselect", "node, edge", (evt) => {
+        const unselectedId = evt.target.id();
+        setSelectedNode((prev) => prev.filter((id) => id !== unselectedId));
+      });
+    }
 
     return () => {
       document.body.style.cursor = "default";
@@ -564,9 +586,9 @@ export default function KnowledgeGraph() {
   return (
     <div style={
       !expanded ?
-        { display: "flex", flexDirection: "column", gap: "16px", position: "relative", justifyContent: "flex-start" }
+        { display: "flex", flexDirection: "column", gap: "16px", position: "relative", justifyContent: "flex-start", ...sx }
         // position whole page, on top
-        : { position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "white", zIndex: 9999, display: "flex", flexDirection: "column", gap: "16px", padding: "0px" }
+        : { position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "white", zIndex: 9999, display: "flex", flexDirection: "column", gap: "16px", padding: "0px", ...sx }
     }>
       <div
         id="cy-container"
@@ -688,7 +710,7 @@ export default function KnowledgeGraph() {
       >
         <InfocardMenu />
       </div>
-      <div style={{ display: "flex", flexDirection: "row", gap: "200px" }}>
+      <div style={{ display: review ? "none" : "flex", flexDirection: "row", gap: "200px" }}>
         {/* Legend */}
         <div
           style={{
@@ -753,6 +775,6 @@ export default function KnowledgeGraph() {
           </Collapse>
         </div>
       </div>
-    </div>
+    </div >
   );
 }

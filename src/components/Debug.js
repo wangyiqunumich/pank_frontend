@@ -1,7 +1,7 @@
 import React, {
-    useEffect,
-    useRef,
-    useState,
+  useEffect,
+  useRef,
+  useState,
 } from 'react';
 
 import cytoscape from 'cytoscape';
@@ -11,9 +11,9 @@ import Button from '@mui/material/Button';
 import Image from '../image/Pasted Graphic 1.png';
 import sampleLinks from '../schema/sample_links.json';
 import {
-    edgeIsInverted,
-    edgeLabels,
-    nodeStyle,
+  edgeIsInverted,
+  edgeLabels,
+  nodeStyle,
 } from './style.js';
 
 export default function DebugPage() {
@@ -216,59 +216,41 @@ export default function DebugPage() {
                         border: "none",
                         borderRadius: "8px",
                         position: "relative",
+                        display: graphJson ? "block" : "none",
                     }}
                 >
                 </div>
             </div>
             <div style={{ padding: '20px', width: '1440px' }}>
                 <h1>Links for Debug Quick Redirect</h1>
-                <h3>Intermediate Page:</h3>
                 {
-                    sampleLinks.intermediate_page.map((item, index) => (
-                        <div key={index}>
-                            <a href={item.link} target="_blank" rel="noopener noreferrer" style={{
-                                wordWrap: 'break-word',
-                                maxWidth: '100%',
-                            }}>
-                                {item.link}
-                            </a>
-                            <ul>
-                                {Object.entries(item.dictionary).map(([key, value], linkIndex) => (
-                                    <li key={linkIndex}>
-                                        {key}: {value}
-                                    </li>
-                                ))}
-                            </ul>
-                            {item['$comment'] && (
-                                <p style={{ color: 'red' }}>
-                                    {item['$comment']}
-                                </p>
-                            )}
-                        </div>
-                    ))
-                }
-                <h3>Result Page:</h3>
-                {
-                    sampleLinks.result_page.map((item, index) => (
-                        <div key={index}>
-                            <a href={item.link} target="_blank" rel="noopener noreferrer" style={{
-                                wordWrap: 'break-word',
-                                maxWidth: '100%',
-                            }}>
-                                {item.link}
-                            </a>
-                            <ul>
-                                {Object.entries(item.dictionary).map(([key, value], linkIndex) => (
-                                    <li key={linkIndex}>
-                                        {key}: {value}
-                                    </li>
-                                ))}
-                            </ul>
-                            {item['$comment'] && (
-                                <p style={{ color: 'red' }}>
-                                    {item['$comment']}
-                                </p>
-                            )}
+                    [["Intermediate Page", "intermediate_page"], ["Result Page", "result_page"], ["Review Page", "review_page"]].map(([title, key]) => (
+                        <div key={key}>
+                            <h3>{title}:</h3>
+                            {
+                                sampleLinks[key].map((item, index) => (
+                                    <div key={index}>
+                                        <a href={item.link} target="_blank" rel="noopener noreferrer" style={{
+                                            wordWrap: 'break-word',
+                                            maxWidth: '100%',
+                                        }}>
+                                            {item.link}
+                                        </a>
+                                        <ul>
+                                            {Object.entries(item.dictionary).map(([key, value], linkIndex) => (
+                                                <li key={linkIndex}>
+                                                    {key}: {value}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        {item['$comment'] && (
+                                            <p style={{ color: 'red' }}>
+                                                {item['$comment']}
+                                            </p>
+                                        )}
+                                    </div>
+                                ))
+                            }
                         </div>
                     ))
                 }
