@@ -1,0 +1,21 @@
+{
+    "default": [
+        "[placeholder] These are major example questions",
+        "Which gene is regulated by rs177069?",
+        "Which cis-regulatory elements are found near the promoter of TP53?"
+    ],
+    "eQTL analysis": [
+        "[placeholder] These are example questions about genes and variants",
+        "Which cis-regulatory elements are found near the promoter of TP53?",
+        "What SNPs are annotated in the enhancer region on chr6:32000000–32100000?"
+    ],
+    "Gene expression": [
+        "[placeholder] These are example questions about gene expressions"
+    ],
+    "SNP studies": [
+        "[placeholder] These are example questions about SNPs and variants"
+    ],
+    "T1D research": [
+        "[placeholder] These are example questions about T1D research"
+    ]
+}

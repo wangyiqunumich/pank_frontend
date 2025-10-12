@@ -24,16 +24,12 @@ import IconButton from '@mui/material/IconButton';
 
 import zoomInIcon from '../image/fontisto--zoom-minus.svg';
 import zoomOutIcon from '../image/fontisto--zoom-plus.svg';
-import fullscreenIcon
-  from '../image/fullscreen_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.svg';
-import fullscreenExitIcon
-  from '../image/fullscreen_exit_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.svg';
-import InfoDisableIcon
-  from '../image/material-symbols--ad-group-off-outline-rounded.svg';
-import InfoEnableIcon
-  from '../image/material-symbols--ad-group-outline-rounded.svg';
+import fullscreenIcon from '../image/fullscreen.svg';
+import InfoEnableIcon from '../image/hover.svg';
+import InfoDisableIcon from '../image/hover_disabled1.svg';
 import downloadIcon from '../image/material-symbols--download-rounded.svg';
-import recenterIcon from '../image/material-symbols--recenter-rounded.svg';
+import fullscreenExitIcon from '../image/quit_fullscreen.svg';
+import recenterIcon from '../image/recenter.svg';
 import graphInfocard from '../schema/graph_viewer_schema.json';
 import graphInfocardReview from '../schema/review_page/graph_schema.json';
 import { addWhitespace } from '../utils/textProcessing';
@@ -111,7 +107,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
     if (cyRef.current) {
       const png = cyRef.current.png({
         full: true,
-        scale: 10,
+        scale: 6,
       });
       const link = document.createElement("a");
       link.href = png;
@@ -620,6 +616,13 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
         borderRadius: "8px",
         boxShadow: "0px 4px 15px -3px rgba(100,100,100,0.25)",
       }}>
+        <IconButton
+          onClick={() => { toggleExpand(); }}
+          style={{ padding: "8px", background: "none", borderRadius: "4px" }}
+        >
+          <img src={expanded ? fullscreenExitIcon : fullscreenIcon}
+            alt="Enter/Exit Fullscreen" width={20} height={20} />
+        </IconButton>
         {/* button for zooming */}
         <IconButton
           onClick={handleZoomOut}
@@ -630,36 +633,29 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
         </IconButton>
         <IconButton
           onClick={handleZoomIn}
-          style={{ padding: "8px", background: "none", borderRadius: "4px", opacity: zoomLevel <= 1.2 ? 0.5 : 1 }}
-          disabled={zoomLevel <= 1.2}
+          style={{ padding: "8px", background: "none", borderRadius: "4px", opacity: zoomLevel <= 0.6 ? 0.5 : 1 }}
+          disabled={zoomLevel <= 0.6}
         >
           <img src={zoomInIcon} alt="Zoom In" width={20} height={20} />
         </IconButton>
         <IconButton
           onClick={handleRecenter}
-          style={{ padding: "8px", background: "none", borderRadius: "4px" }}
+          style={{ padding: "6px", background: "none", borderRadius: "4px" }}
         >
-          <img src={recenterIcon} alt="Zoom Out" width={20} height={20} />
+          <img src={recenterIcon} alt="Recenter" width={24} height={24} />
+        </IconButton>
+        <IconButton
+          onClick={() => setInfocardEnabled(!infocardEnabled)}
+          style={{ padding: "6px", background: "none", borderRadius: "4px" }}
+        >
+          <img src={infocardEnabled ? InfoEnableIcon : InfoDisableIcon}
+            alt="Enable/Disable Info Card" width={24} height={24} />
         </IconButton>
         <IconButton
           onClick={handleDownload}
           style={{ padding: "8px", background: "none", borderRadius: "4px" }}
         >
-          <img src={downloadIcon} alt="Zoom Out" width={20} height={20} />
-        </IconButton>
-        <IconButton
-          onClick={() => setInfocardEnabled(!infocardEnabled)}
-          style={{ padding: "8px", background: "none", borderRadius: "4px" }}
-        >
-          <img src={infocardEnabled ? InfoEnableIcon : InfoDisableIcon}
-            alt="Enable/Disable Info Card" width={20} height={20} />
-        </IconButton>
-        <IconButton
-          onClick={() => { toggleExpand(); }}
-          style={{ padding: "8px", background: "none", borderRadius: "4px" }}
-        >
-          <img src={expanded ? fullscreenExitIcon : fullscreenIcon}
-            alt="Enter/Exit Fullscreen" width={20} height={20} />
+          <img src={downloadIcon} alt="Download" width={20} height={20} />
         </IconButton>
       </Box>
       <Box sx={{
