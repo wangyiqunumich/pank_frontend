@@ -180,10 +180,10 @@ function LandingPage() {
       <Container maxWidth={false} disableGutters sx={{
         display: 'flex',
         flexDirection: { sm: 'column', md: 'row' }, justifyContent: 'center',
-        alignItems: 'top',
+        alignItems: 'center',
         paddingTop: '0px',
         paddingBottom: '0px',
-        height: "-webkit-fill-available",
+        height: "100%",
       }}>
         {/* <Snackbar
         open={openSnackbar}
@@ -207,17 +207,18 @@ function LandingPage() {
 
         {/* 左侧图片 */}
         <Box sx={{
-          flex: 1,
+          width: { sm: '90%', md: '45%' },
           position: 'relative',
-          display: 'block',
           margin: '30px',
           marginLeft: '60px',
           marginRight: '10px',
+          paddingBottom: '100px',
+          height: '425px',
           '& img': {
             width: { sm: '100%', md: '100%' },
             maxHeight: '425px',
             objectFit: 'contain',
-            objectPosition: 'left',
+            objectPosition: 'center',
             marginTop: { sm: '0px', md: '50px' },
             marginLeft: { sm: '0px', md: '0' },
             transform: { sm: 'none', md: 'translateX(-4%)' }
@@ -239,7 +240,7 @@ function LandingPage() {
               justifyContent: 'center',
               marginTop: '20px',
               alignItems: 'center',
-              left: "calc(min(50%, 330px) - 23px)",
+              left: "calc(50% - 20px)",
               transform: { sm: 'none', md: 'translateX(-50%)' }
             }}>
               <TerminalIcon sx={{ width: '30px', color: '#C48E25' }} />
@@ -282,18 +283,22 @@ function LandingPage() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'flex-start',
+            paddingBottom: '100px',
           }}>
             <Box sx={{
               display: 'flex',
               flexDirection: 'row',
               paddingBottom: '24px',
               alignItems: 'center',
-              gap: '5px'
+              gap: '5px',
+              flexWrap: 'wrap',
             }}>
               <Typography sx={{ color: '#4E4E4E', fontSize: 32, fontFamily: 'Open Sans', fontWeight: '700' }}>
                 Search PanKgraph
               </Typography>
-              <BetaBadge sx={{ transform: 'translateY(4px)' }} />
+              <Box sx={{ width: '400px' }} >
+                <BetaBadge sx={{ transform: 'translateY(4px)' }} />
+              </Box>
             </Box>
             <Typography sx={{ paddingBottom: '32px', color: '#5A5555', fontSize: 20, fontFamily: 'Open Sans', fontWeight: '600' }}>
               Explore our comprehensive database of T1D–related data, knowledge, and insights. Simply type your question—our PanKgraph agent finds the answers.
@@ -378,7 +383,7 @@ function LandingPage() {
                             justifyContent: 'center',
                             alignItems: 'center',
                             marginRight: '8px',
-                            fontFamily: 'Inter',
+                            fontFamily: 'Open Sans',
                             fontWeight: 300,
                             color: '#3e6396',
                             cursor: 'pointer',
@@ -410,7 +415,7 @@ function LandingPage() {
 
                               sx={{
                                 color: 'white',
-                                fontFamily: 'Inter',
+                                fontFamily: 'Open Sans',
                                 fontSize: '20px',
                                 fontWeight: 600,
                               }}
@@ -458,7 +463,7 @@ function LandingPage() {
                         textAlign: 'center',
                         alignSelf: 'center',
                         color: '#219197',
-                        fontFamily: 'Inter',
+                        fontFamily: 'Open Sans',
                         fontWeight: 700,
                         fontSize: '16px',
                       }} onClick={(e) => {
@@ -519,7 +524,7 @@ function LandingPage() {
                 <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '16px' }}>
                   <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                     <Typography sx={{
-                      fontFamily: 'Inter',
+                      fontFamily: 'Open Sans',
                       fontWeight: 600,
                       fontSize: '18px',
                       color: '#219197',
@@ -556,7 +561,7 @@ function LandingPage() {
                         padding: '12px',
                         backgroundColor: '#F2FAFB',
                         borderRadius: '8px',
-                        fontFamily: 'Inter',
+                        fontFamily: 'Open Sans',
                         fontWeight: 400,
                         fontSize: '16px',
                         color: '#183B5C',
@@ -590,12 +595,11 @@ function LandingPage() {
                     padding: '8px 16px',
                     border: `1px solid ${ExampleClasses[key].bdcolor}`,
                     textTransform: 'none',
-
                   }} onClick={() => {
                     setShowExamples(showExamples === key ? undefined : key);
                   }}>
                     <Typography sx={{
-                      fontFamily: 'Inter',
+                      fontFamily: 'Open Sans',
                       fontWeight: 400,
                       fontSize: '16px',
                       color: ExampleClasses[key].color,
