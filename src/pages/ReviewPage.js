@@ -28,10 +28,31 @@ import {
 } from '@mui/material';
 
 import KnowledgeGraph from '../components/KnowledgeGraph';
-import graphdata from '../schema/review_page/graph_T1D_core.json';
-import coorddata from '../schema/review_page/graph_T1D_core_xy.json';
+// import graphdata from '../schema/review_page/graph_T1D_core.json';
+// import coorddata from '../schema/review_page/graph_T1D_core_xy.json';
+import graphdata_1 from '../schema/review_page/T1D_heterogenity_core.json';
+import coorddata_1 from '../schema/review_page/T1D_heterogenity_core_xy.json';
+import graphdata_2 from '../schema/review_page/T1D_hirn_core.json';
+import coorddata_2 from '../schema/review_page/T1D_hirn_core_xy.json';
+import graphdata_3 from '../schema/review_page/T1D_mechanism_core.json';
+import coorddata_3 from '../schema/review_page/T1D_mechanism_core_xy.json';
 import ReviewContent from '../schema/reviews.json';
 import { TooltipComponent } from '../SearchResult/index.js';
+
+const graphdata = {
+  "article-1": {
+    graph: graphdata_1,
+    coord: coorddata_1
+  },
+  "article-2": {
+    graph: graphdata_2,
+    coord: coorddata_2
+  },
+  "article-3": {
+    graph: graphdata_3,
+    coord: coorddata_3
+  }
+}
 
 export function CodeCopyBtn({ children }) {
   const [copyOk, setCopyOk] = React.useState(false);
@@ -60,15 +81,20 @@ export function CodeCopyBtn({ children }) {
 function ReviewPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  // read URL: /review/article-1
+  const path = window.location.pathname;
+  const article_id = path.split('/').slice(-1)[0];
   const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
   // const [reviewContent, setReviewContent] = React.useState([]);
   const [warningState, setWarningState] = React.useState(0);
   const [warningPopup, setWarningPopup] = React.useState(false);
   const [selectedNode, setSelectedNode] = React.useState([]);
+  const coordFactor = article_id === 'article-3' ? 4 : 2;
   const fixedCoord = // x, y times 10
-    Object.fromEntries(Object.entries(coorddata).map(([key, value]) => [key, { ...value, x: value.x * 2, y: value.y * 2 }]));
+    Object.fromEntries(Object.entries(graphdata[article_id].coord).map(([key, value]) => [key, { ...value, x: value.x * coordFactor, y: value.y * coordFactor }]));
   // const loaded = !!queryResultPage?.combined_query_result;
   const loaded = true;
+  // const article = ReviewContent.find((item) => item.id === article_id);
 
 
   // useEffect(() => {
@@ -215,7 +241,7 @@ function ReviewPage() {
                       }
                     }} sx={{ zIndex: 2 }}
                       review={true}
-                      graphData={graphdata.results[0]} coordData={fixedCoord}
+                      graphData={graphdata[article_id].graph.results[0]} coordData={fixedCoord}
                     />
                   </Box>
                 </Box> : <CircularProgress />}

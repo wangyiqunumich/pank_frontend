@@ -587,7 +587,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
       !expanded ?
         { display: "flex", flexDirection: "column", gap: "16px", position: "relative", justifyContent: "flex-start", ...sx }
         // position whole page, on top
-        : { position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "white", zIndex: 9999, display: "flex", flexDirection: "column", gap: "16px", padding: "0px", ...sx }
+        : { position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "white", display: "flex", flexDirection: "column", gap: "16px", padding: "0px", ...sx, zIndex: 9999 }
     }>
       <div
         id="cy-container"
@@ -644,13 +644,24 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
         >
           <img src={recenterIcon} alt="Recenter" width={24} height={24} />
         </IconButton>
-        <IconButton
-          onClick={() => setInfocardEnabled(!infocardEnabled)}
-          style={{ padding: "6px", background: "none", borderRadius: "4px" }}
-        >
-          <img src={infocardEnabled ? InfoEnableIcon : InfoDisableIcon}
-            alt="Enable/Disable Info Card" width={24} height={24} />
-        </IconButton>
+        {
+          infocardEnabled ?
+            (
+              <IconButton
+                onClick={() => setInfocardEnabled(false)}
+                style={{ padding: "6px", background: "none", borderRadius: "4px" }}
+              >
+                <img src={InfoEnableIcon}
+                  alt="Disable Info Card" width={24} height={24} />
+              </IconButton>
+            ) : (<IconButton
+              onClick={() => setInfocardEnabled(true)}
+              style={{ padding: "8px", background: "none", borderRadius: "4px" }}
+            >
+              <img src={InfoDisableIcon}
+                alt="Enable Info Card" width={20} height={20} />
+            </IconButton>)
+        }
         <IconButton
           onClick={handleDownload}
           style={{ padding: "8px", background: "none", borderRadius: "4px" }}

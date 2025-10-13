@@ -1,0 +1,3582 @@
+{
+  "results": [
+    {
+      "nodes": [
+        {
+          "~id": "1",
+          "~entityType": "node",
+          "~labels": [
+            "disease"
+          ],
+          "properties": {
+            "name": "type 1 diabetes",
+            "aliases": "['clinical type 1 diabetes']",
+            "url": "https://identifiers.org/mesh:D003922",
+            "property_label": [
+              "disease"
+            ]
+          }
+        },
+        {
+          "~id": "2",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "immunogenetic pathways",
+            "aliases": "[]",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "3",
+          "~entityType": "node",
+          "~labels": [
+            "cell_type"
+          ],
+          "properties": {
+            "name": "beta cells",
+            "aliases": "['insulin-producing beta cells']",
+            "property_label": [
+              "cell_type"
+            ]
+          }
+        },
+        {
+          "~id": "5",
+          "~entityType": "node",
+          "~labels": [
+            "treatment"
+          ],
+          "properties": {
+            "name": "disease-modifying immunotherapy",
+            "aliases": "[]",
+            "property_label": [
+              "treatment"
+            ]
+          }
+        },
+        {
+          "~id": "6",
+          "~entityType": "node",
+          "~labels": [
+            "treatment"
+          ],
+          "properties": {
+            "name": "islet cell replacement",
+            "aliases": "[]",
+            "property_label": [
+              "treatment"
+            ]
+          }
+        },
+        {
+          "~id": "7",
+          "~entityType": "node",
+          "~labels": [
+            "biomarker"
+          ],
+          "properties": {
+            "name": "GADA",
+            "aliases": "['glutamic acid decarboxylase autoantibodies']",
+            "property_label": [
+              "biomarker"
+            ]
+          }
+        },
+        {
+          "~id": "8",
+          "~entityType": "node",
+          "~labels": [
+            "biomarker"
+          ],
+          "properties": {
+            "name": "IAA",
+            "aliases": "['insulin autoantibodies']",
+            "url": "https://identifiers.org/CHEBI:16411",
+            "property_label": [
+              "biomarker"
+            ]
+          }
+        },
+        {
+          "~id": "9",
+          "~entityType": "node",
+          "~labels": [
+            "biomarker"
+          ],
+          "properties": {
+            "name": "IA-2A",
+            "aliases": "['islet antigen 2 autoantibodies']",
+            "property_label": [
+              "biomarker"
+            ]
+          }
+        },
+        {
+          "~id": "10",
+          "~entityType": "node",
+          "~labels": [
+            "biomarker"
+          ],
+          "properties": {
+            "name": "ZnT8A",
+            "aliases": "['zinc transporter 8 autoantibodies']",
+            "property_label": [
+              "biomarker"
+            ]
+          }
+        },
+        {
+          "~id": "16",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "beta cell destruction",
+            "aliases": "[]",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "17",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "beta cell dysfunction",
+            "aliases": "[]",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "19",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "insulin secretion",
+            "aliases": "[]",
+            "url": "https://identifiers.org/GO:0030073",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "20",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "disease progression",
+            "aliases": "[]",
+            "url": "https://identifiers.org/mesh:D018450",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "21",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "phenotypic clustering",
+            "aliases": "['fuzzy clusters', 'phenotypic clusters']",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "22",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "endotyping",
+            "aliases": "['endotypes']",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "25",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "insulin secretory function",
+            "aliases": "[]",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "26",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "immune responses",
+            "aliases": "[]",
+            "url": "https://identifiers.org/GO:0006955",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "27",
+          "~entityType": "node",
+          "~labels": [
+            "biomarker"
+          ],
+          "properties": {
+            "name": "islet autoantibodies",
+            "aliases": "[]",
+            "property_label": [
+              "biomarker"
+            ]
+          }
+        },
+        {
+          "~id": "28",
+          "~entityType": "node",
+          "~labels": [
+            "clinical_measurement"
+          ],
+          "properties": {
+            "name": "dysglycaemia",
+            "aliases": "[]",
+            "property_label": [
+              "clinical_measurement"
+            ]
+          }
+        },
+        {
+          "~id": "29",
+          "~entityType": "node",
+          "~labels": [
+            "disease_stage"
+          ],
+          "properties": {
+            "name": "stage 1 type 1 diabetes",
+            "aliases": "['stage 1']",
+            "property_label": [
+              "disease_stage"
+            ]
+          }
+        },
+        {
+          "~id": "30",
+          "~entityType": "node",
+          "~labels": [
+            "disease_stage"
+          ],
+          "properties": {
+            "name": "stage 2 type 1 diabetes",
+            "aliases": "['stage 2']",
+            "property_label": [
+              "disease_stage"
+            ]
+          }
+        },
+        {
+          "~id": "31",
+          "~entityType": "node",
+          "~labels": [
+            "disease_stage"
+          ],
+          "properties": {
+            "name": "stage 3 type 1 diabetes",
+            "aliases": "['stage 3', 'clinical stage 3 type 1 diabetes']",
+            "property_label": [
+              "disease_stage"
+            ]
+          }
+        },
+        {
+          "~id": "35",
+          "~entityType": "node",
+          "~labels": [
+            "drug"
+          ],
+          "properties": {
+            "name": "teplizumab",
+            "aliases": "['anti-CD3 monoclonal antibody']",
+            "url": "https://identifiers.org/mesh:C502540",
+            "property_label": [
+              "drug"
+            ]
+          }
+        },
+        {
+          "~id": "37",
+          "~entityType": "node",
+          "~labels": [
+            "biomarker"
+          ],
+          "properties": {
+            "name": "C-peptide",
+            "aliases": "[]",
+            "url": "https://identifiers.org/CHEBI:80332",
+            "property_label": [
+              "biomarker"
+            ]
+          }
+        },
+        {
+          "~id": "38",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_factor"
+          ],
+          "properties": {
+            "name": "HLA class I and II",
+            "aliases": "['HLA-DQA1', 'HLA class I', 'HLA-B', 'HLA-DRB1', 'HLA-A', 'HLA class II', 'HLA-DQB1']",
+            "property_label": [
+              "genetic_factor"
+            ]
+          }
+        },
+        {
+          "~id": "44",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_factor"
+          ],
+          "properties": {
+            "name": "GLIS3 SNP",
+            "aliases": "[]",
+            "property_label": [
+              "genetic_factor"
+            ]
+          }
+        },
+        {
+          "~id": "48",
+          "~entityType": "node",
+          "~labels": [
+            "biomarker"
+          ],
+          "properties": {
+            "name": "insulitis",
+            "aliases": "[]",
+            "property_label": [
+              "biomarker"
+            ]
+          }
+        },
+        {
+          "~id": "51",
+          "~entityType": "node",
+          "~labels": [
+            "biological_measurement"
+          ],
+          "properties": {
+            "name": "beta cell mass",
+            "aliases": "[]",
+            "property_label": [
+              "biological_measurement"
+            ]
+          }
+        },
+        {
+          "~id": "52",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "beta cell function",
+            "aliases": "[]",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "53",
+          "~entityType": "node",
+          "~labels": [
+            "risk_factor"
+          ],
+          "properties": {
+            "name": "increased BMI",
+            "aliases": "[]",
+            "url": "https://identifiers.org/HP:0031418",
+            "property_label": [
+              "risk_factor"
+            ]
+          }
+        },
+        {
+          "~id": "54",
+          "~entityType": "node",
+          "~labels": [
+            "environmental_factor"
+          ],
+          "properties": {
+            "name": "lack of breastfeeding",
+            "aliases": "[]",
+            "property_label": [
+              "environmental_factor"
+            ]
+          }
+        },
+        {
+          "~id": "55",
+          "~entityType": "node",
+          "~labels": [
+            "environmental_factor"
+          ],
+          "properties": {
+            "name": "early gluten introduction",
+            "aliases": "[]",
+            "property_label": [
+              "environmental_factor"
+            ]
+          }
+        },
+        {
+          "~id": "56",
+          "~entityType": "node",
+          "~labels": [
+            "pathogen"
+          ],
+          "properties": {
+            "name": "enterovirus B",
+            "aliases": "[]",
+            "property_label": [
+              "pathogen"
+            ]
+          }
+        },
+        {
+          "~id": "60",
+          "~entityType": "node",
+          "~labels": [
+            "disease_subtype"
+          ],
+          "properties": {
+            "name": "adult-onset type 1 diabetes",
+            "aliases": "['adult-onset disease']",
+            "property_label": [
+              "disease_subtype"
+            ]
+          }
+        },
+        {
+          "~id": "65",
+          "~entityType": "node",
+          "~labels": [
+            "condition"
+          ],
+          "properties": {
+            "name": "islet autoimmunity",
+            "aliases": "[]",
+            "property_label": [
+              "condition"
+            ]
+          }
+        },
+        {
+          "~id": "67",
+          "~entityType": "node",
+          "~labels": [
+            "environmental_factor"
+          ],
+          "properties": {
+            "name": "early probiotics introduction",
+            "aliases": "[]",
+            "property_label": [
+              "environmental_factor"
+            ]
+          }
+        },
+        {
+          "~id": "68",
+          "~entityType": "node",
+          "~labels": [
+            "pathogen"
+          ],
+          "properties": {
+            "name": "cytomegalovirus",
+            "aliases": "[]",
+            "url": "https://identifiers.org/mesh:D003587",
+            "property_label": [
+              "pathogen"
+            ]
+          }
+        },
+        {
+          "~id": "69",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_factor"
+          ],
+          "properties": {
+            "name": "HLA-DRB1*15:01\u2013DQB1*06:02",
+            "aliases": "[]",
+            "property_label": [
+              "genetic_factor"
+            ]
+          }
+        },
+        {
+          "~id": "70",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_factor"
+          ],
+          "properties": {
+            "name": "HLA-DRB1*07:01\u2013DQB1*03:03",
+            "aliases": "[]",
+            "property_label": [
+              "genetic_factor"
+            ]
+          }
+        },
+        {
+          "~id": "71",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_factor"
+          ],
+          "properties": {
+            "name": "INS locus",
+            "aliases": "[]",
+            "property_label": [
+              "genetic_factor"
+            ]
+          }
+        },
+        {
+          "~id": "72",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_factor"
+          ],
+          "properties": {
+            "name": "PTPN22 locus",
+            "aliases": "[]",
+            "property_label": [
+              "genetic_factor"
+            ]
+          }
+        },
+        {
+          "~id": "73",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_factor"
+          ],
+          "properties": {
+            "name": "CTLA4 locus",
+            "aliases": "[]",
+            "property_label": [
+              "genetic_factor"
+            ]
+          }
+        },
+        {
+          "~id": "74",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_factor"
+          ],
+          "properties": {
+            "name": "IL2RA locus",
+            "aliases": "[]",
+            "property_label": [
+              "genetic_factor"
+            ]
+          }
+        },
+        {
+          "~id": "75",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_factor"
+          ],
+          "properties": {
+            "name": "GLIS3",
+            "aliases": "[]",
+            "url": "https://identifiers.org/hgnc:28510",
+            "property_label": [
+              "genetic_factor"
+            ]
+          }
+        },
+        {
+          "~id": "77",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "autoantibody development",
+            "aliases": "[]",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "79",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_factor"
+          ],
+          "properties": {
+            "name": "HLA DR-DQ haplotypes",
+            "aliases": "[]",
+            "property_label": [
+              "genetic_factor"
+            ]
+          }
+        },
+        {
+          "~id": "80",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_factor"
+          ],
+          "properties": {
+            "name": "HLA class I risk alleles",
+            "aliases": "[]",
+            "property_label": [
+              "genetic_factor"
+            ]
+          }
+        },
+        {
+          "~id": "82",
+          "~entityType": "node",
+          "~labels": [
+            "environmental_factor"
+          ],
+          "properties": {
+            "name": "viral infections",
+            "aliases": "[]",
+            "url": "https://identifiers.org/GO:0016032",
+            "property_label": [
+              "environmental_factor"
+            ]
+          }
+        },
+        {
+          "~id": "83",
+          "~entityType": "node",
+          "~labels": [
+            "environmental_factor"
+          ],
+          "properties": {
+            "name": "diet",
+            "aliases": "[]",
+            "url": "https://identifiers.org/mesh:D004032",
+            "property_label": [
+              "environmental_factor"
+            ]
+          }
+        },
+        {
+          "~id": "84",
+          "~entityType": "node",
+          "~labels": [
+            "environmental_factor"
+          ],
+          "properties": {
+            "name": "gut microbiota",
+            "aliases": "[]",
+            "url": "https://identifiers.org/mesh:D000069196",
+            "property_label": [
+              "environmental_factor"
+            ]
+          }
+        },
+        {
+          "~id": "85",
+          "~entityType": "node",
+          "~labels": [
+            "environmental_factor"
+          ],
+          "properties": {
+            "name": "adiposity",
+            "aliases": "[]",
+            "url": "https://identifiers.org/mesh:D050154",
+            "property_label": [
+              "environmental_factor"
+            ]
+          }
+        },
+        {
+          "~id": "86",
+          "~entityType": "node",
+          "~labels": [
+            "pathogen"
+          ],
+          "properties": {
+            "name": "group B enterovirus",
+            "aliases": "[]",
+            "property_label": [
+              "pathogen"
+            ]
+          }
+        },
+        {
+          "~id": "93",
+          "~entityType": "node",
+          "~labels": [
+            "biomarker"
+          ],
+          "properties": {
+            "name": "islet-associated autoantibodies",
+            "aliases": "[]",
+            "property_label": [
+              "biomarker"
+            ]
+          }
+        },
+        {
+          "~id": "96",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_factor"
+          ],
+          "properties": {
+            "name": "HLA-DR4 haplotype",
+            "aliases": "[]",
+            "property_label": [
+              "genetic_factor"
+            ]
+          }
+        },
+        {
+          "~id": "97",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_factor"
+          ],
+          "properties": {
+            "name": "HLA-DR3 haplotype",
+            "aliases": "[]",
+            "property_label": [
+              "genetic_factor"
+            ]
+          }
+        },
+        {
+          "~id": "98",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_factor"
+          ],
+          "properties": {
+            "name": "HLA DR3/4 genotype",
+            "aliases": "[]",
+            "property_label": [
+              "genetic_factor"
+            ]
+          }
+        },
+        {
+          "~id": "100",
+          "~entityType": "node",
+          "~labels": [
+            "biomarker"
+          ],
+          "properties": {
+            "name": "proinsulin-insulin autoimmunity",
+            "aliases": "[]",
+            "property_label": [
+              "biomarker"
+            ]
+          }
+        },
+        {
+          "~id": "105",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_factor"
+          ],
+          "properties": {
+            "name": "HLA-DQ2/DQ2",
+            "aliases": "[]",
+            "property_label": [
+              "genetic_factor"
+            ]
+          }
+        },
+        {
+          "~id": "106",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_factor"
+          ],
+          "properties": {
+            "name": "HLA-DQ2/DQ8",
+            "aliases": "[]",
+            "property_label": [
+              "genetic_factor"
+            ]
+          }
+        },
+        {
+          "~id": "107",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_variant"
+          ],
+          "properties": {
+            "name": "INS gene variant",
+            "aliases": "[]",
+            "property_label": [
+              "genetic_variant"
+            ]
+          }
+        },
+        {
+          "~id": "108",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_variant"
+          ],
+          "properties": {
+            "name": "ERBB3 gene variant",
+            "aliases": "[]",
+            "property_label": [
+              "genetic_variant"
+            ]
+          }
+        },
+        {
+          "~id": "109",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_variant"
+          ],
+          "properties": {
+            "name": "PTPN22 gene variant",
+            "aliases": "[]",
+            "property_label": [
+              "genetic_variant"
+            ]
+          }
+        },
+        {
+          "~id": "110",
+          "~entityType": "node",
+          "~labels": [
+            "environmental_factor"
+          ],
+          "properties": {
+            "name": "early introduction of solid food",
+            "aliases": "[]",
+            "property_label": [
+              "environmental_factor"
+            ]
+          }
+        },
+        {
+          "~id": "111",
+          "~entityType": "node",
+          "~labels": [
+            "environmental_factor"
+          ],
+          "properties": {
+            "name": "no probiotics in the diet before 1 year of age",
+            "aliases": "[]",
+            "property_label": [
+              "environmental_factor"
+            ]
+          }
+        },
+        {
+          "~id": "112",
+          "~entityType": "node",
+          "~labels": [
+            "biomarker"
+          ],
+          "properties": {
+            "name": "\u03b3-aminobutyric acid",
+            "aliases": "[]",
+            "url": "https://identifiers.org/CHEBI:16865",
+            "property_label": [
+              "biomarker"
+            ]
+          }
+        },
+        {
+          "~id": "114",
+          "~entityType": "node",
+          "~labels": [
+            "environmental_factor"
+          ],
+          "properties": {
+            "name": "early introduction of gluten cereals",
+            "aliases": "[]",
+            "property_label": [
+              "environmental_factor"
+            ]
+          }
+        },
+        {
+          "~id": "115",
+          "~entityType": "node",
+          "~labels": [
+            "environmental_factor"
+          ],
+          "properties": {
+            "name": "degree of protein intake",
+            "aliases": "[]",
+            "property_label": [
+              "environmental_factor"
+            ]
+          }
+        },
+        {
+          "~id": "116",
+          "~entityType": "node",
+          "~labels": [
+            "clinical_measurement"
+          ],
+          "properties": {
+            "name": "increased weight z-scores at 12 months",
+            "aliases": "[]",
+            "property_label": [
+              "clinical_measurement"
+            ]
+          }
+        },
+        {
+          "~id": "117",
+          "~entityType": "node",
+          "~labels": [
+            "environmental_factor"
+          ],
+          "properties": {
+            "name": "maternal life events during pregnancy",
+            "aliases": "[]",
+            "property_label": [
+              "environmental_factor"
+            ]
+          }
+        },
+        {
+          "~id": "118",
+          "~entityType": "node",
+          "~labels": [
+            "pathogen"
+          ],
+          "properties": {
+            "name": "norovirus",
+            "aliases": "[]",
+            "url": "https://identifiers.org/mesh:D029322",
+            "property_label": [
+              "pathogen"
+            ]
+          }
+        },
+        {
+          "~id": "125",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_factor"
+          ],
+          "properties": {
+            "name": "HLA-DR4",
+            "aliases": "[]",
+            "url": "https://identifiers.org/mesh:D015804",
+            "property_label": [
+              "genetic_factor"
+            ]
+          }
+        },
+        {
+          "~id": "128",
+          "~entityType": "node",
+          "~labels": [
+            "treatment"
+          ],
+          "properties": {
+            "name": "insulin therapy",
+            "aliases": "[]",
+            "property_label": [
+              "treatment"
+            ]
+          }
+        },
+        {
+          "~id": "129",
+          "~entityType": "node",
+          "~labels": [
+            "disease"
+          ],
+          "properties": {
+            "name": "adult-onset clinical type 1 diabetes",
+            "aliases": "[]",
+            "property_label": [
+              "disease"
+            ]
+          }
+        },
+        {
+          "~id": "130",
+          "~entityType": "node",
+          "~labels": [
+            "risk_factor"
+          ],
+          "properties": {
+            "name": "sex",
+            "aliases": "[]",
+            "url": "https://identifiers.org/mesh:D012723",
+            "property_label": [
+              "risk_factor"
+            ]
+          }
+        },
+        {
+          "~id": "134",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "dysglycaemia",
+            "aliases": "[]",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "137",
+          "~entityType": "node",
+          "~labels": [
+            "biological_measurement"
+          ],
+          "properties": {
+            "name": "C-peptide peak responses",
+            "aliases": "[]",
+            "property_label": [
+              "biological_measurement"
+            ]
+          }
+        },
+        {
+          "~id": "142",
+          "~entityType": "node",
+          "~labels": [
+            "biomarker"
+          ],
+          "properties": {
+            "name": "Index60 score",
+            "aliases": "[]",
+            "property_label": [
+              "biomarker"
+            ]
+          }
+        },
+        {
+          "~id": "143",
+          "~entityType": "node",
+          "~labels": [
+            "biomarker"
+          ],
+          "properties": {
+            "name": "proinsulin-to-C-peptide ratio",
+            "aliases": "[]",
+            "property_label": [
+              "biomarker"
+            ]
+          }
+        },
+        {
+          "~id": "144",
+          "~entityType": "node",
+          "~labels": [
+            "disease_subtype"
+          ],
+          "properties": {
+            "name": "childhood-onset type 1 diabetes",
+            "aliases": "[]",
+            "property_label": [
+              "disease_subtype"
+            ]
+          }
+        },
+        {
+          "~id": "147",
+          "~entityType": "node",
+          "~labels": [
+            "clinical_outcome"
+          ],
+          "properties": {
+            "name": "complications",
+            "aliases": "[]",
+            "url": "https://identifiers.org/efo:0009518",
+            "property_label": [
+              "clinical_outcome"
+            ]
+          }
+        },
+        {
+          "~id": "148",
+          "~entityType": "node",
+          "~labels": [
+            "clinical_outcome"
+          ],
+          "properties": {
+            "name": "hypoglycaemia",
+            "aliases": "[]",
+            "url": "https://identifiers.org/mesh:D007003",
+            "property_label": [
+              "clinical_outcome"
+            ]
+          }
+        },
+        {
+          "~id": "149",
+          "~entityType": "node",
+          "~labels": [
+            "clinical_outcome"
+          ],
+          "properties": {
+            "name": "glycaemic control",
+            "aliases": "[]",
+            "property_label": [
+              "clinical_outcome"
+            ]
+          }
+        },
+        {
+          "~id": "155",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_factor"
+          ],
+          "properties": {
+            "name": "HLA DR4-DQ8 haplotype",
+            "aliases": "[]",
+            "property_label": [
+              "genetic_factor"
+            ]
+          }
+        },
+        {
+          "~id": "156",
+          "~entityType": "node",
+          "~labels": [
+            "biological_measurement"
+          ],
+          "properties": {
+            "name": "pancreas volume",
+            "aliases": "[]",
+            "url": "https://identifiers.org/efo:0600045",
+            "property_label": [
+              "biological_measurement"
+            ]
+          }
+        },
+        {
+          "~id": "159",
+          "~entityType": "node",
+          "~labels": [
+            "biomarker"
+          ],
+          "properties": {
+            "name": "immunoreactive trypsinogen (IRT)",
+            "aliases": "['IRT']",
+            "property_label": [
+              "biomarker"
+            ]
+          }
+        },
+        {
+          "~id": "160",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "insulitis",
+            "aliases": "[]",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "162",
+          "~entityType": "node",
+          "~labels": [
+            "immune_cell"
+          ],
+          "properties": {
+            "name": "CD8+ T cells",
+            "aliases": "[]",
+            "property_label": [
+              "immune_cell"
+            ]
+          }
+        },
+        {
+          "~id": "163",
+          "~entityType": "node",
+          "~labels": [
+            "immune_cell"
+          ],
+          "properties": {
+            "name": "CD20+ B cells",
+            "aliases": "[]",
+            "property_label": [
+              "immune_cell"
+            ]
+          }
+        },
+        {
+          "~id": "164",
+          "~entityType": "node",
+          "~labels": [
+            "immune_cell"
+          ],
+          "properties": {
+            "name": "CD4+ T cells",
+            "aliases": "[]",
+            "property_label": [
+              "immune_cell"
+            ]
+          }
+        },
+        {
+          "~id": "165",
+          "~entityType": "node",
+          "~labels": [
+            "immune_cell"
+          ],
+          "properties": {
+            "name": "macrophages",
+            "aliases": "[]",
+            "url": "https://identifiers.org/mesh:D008264",
+            "property_label": [
+              "immune_cell"
+            ]
+          }
+        },
+        {
+          "~id": "166",
+          "~entityType": "node",
+          "~labels": [
+            "cell_type"
+          ],
+          "properties": {
+            "name": "CD4+ T cells",
+            "aliases": "[]",
+            "property_label": [
+              "cell_type"
+            ]
+          }
+        },
+        {
+          "~id": "167",
+          "~entityType": "node",
+          "~labels": [
+            "cell_type"
+          ],
+          "properties": {
+            "name": "macrophages",
+            "aliases": "[]",
+            "url": "https://identifiers.org/mesh:D008264",
+            "property_label": [
+              "cell_type"
+            ]
+          }
+        },
+        {
+          "~id": "169",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "autoimmune-mediated destruction",
+            "aliases": "[]",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "172",
+          "~entityType": "node",
+          "~labels": [
+            "biological_structure"
+          ],
+          "properties": {
+            "name": "endocrine objects",
+            "aliases": "[]",
+            "property_label": [
+              "biological_structure"
+            ]
+          }
+        },
+        {
+          "~id": "173",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "autoimmunity",
+            "aliases": "[]",
+            "url": "https://identifiers.org/mesh:D001327",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "174",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "cellular senescence",
+            "aliases": "[]",
+            "url": "https://identifiers.org/GO:0090398",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "175",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "ER stress",
+            "aliases": "[]",
+            "url": "https://identifiers.org/mesh:D059865",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "176",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "RNA editing",
+            "aliases": "[]",
+            "url": "https://identifiers.org/mesh:D017393",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "179",
+          "~entityType": "node",
+          "~labels": [
+            "disease_stage"
+          ],
+          "properties": {
+            "name": "early-stage type 1 diabetes",
+            "aliases": "[]",
+            "property_label": [
+              "disease_stage"
+            ]
+          }
+        },
+        {
+          "~id": "195",
+          "~entityType": "node",
+          "~labels": [
+            "drug"
+          ],
+          "properties": {
+            "name": "oral insulin",
+            "aliases": "[]",
+            "property_label": [
+              "drug"
+            ]
+          }
+        },
+        {
+          "~id": "196",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "islet beta cell destruction",
+            "aliases": "[]",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "200",
+          "~entityType": "node",
+          "~labels": [
+            "drug"
+          ],
+          "properties": {
+            "name": "antiviral agents",
+            "aliases": "[]",
+            "url": "https://identifiers.org/CHEBI:22587",
+            "property_label": [
+              "drug"
+            ]
+          }
+        },
+        {
+          "~id": "202",
+          "~entityType": "node",
+          "~labels": [
+            "drug"
+          ],
+          "properties": {
+            "name": "verapamil",
+            "aliases": "[]",
+            "url": "https://identifiers.org/CHEBI:9948",
+            "property_label": [
+              "drug"
+            ]
+          }
+        },
+        {
+          "~id": "207",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "pancreatic islet transplantation",
+            "aliases": "[]",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "209",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "islet transplantation",
+            "aliases": "[]",
+            "url": "https://identifiers.org/mesh:D016381",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "211",
+          "~entityType": "node",
+          "~labels": [
+            "biomarker"
+          ],
+          "properties": {
+            "name": "beta cell mass",
+            "aliases": "[]",
+            "property_label": [
+              "biomarker"
+            ]
+          }
+        },
+        {
+          "~id": "213",
+          "~entityType": "node",
+          "~labels": [
+            "biomarker"
+          ],
+          "properties": {
+            "name": "proinsulin",
+            "aliases": "[]",
+            "url": "https://identifiers.org/mesh:D011384",
+            "property_label": [
+              "biomarker"
+            ]
+          }
+        },
+        {
+          "~id": "214",
+          "~entityType": "node",
+          "~labels": [
+            "biomarker"
+          ],
+          "properties": {
+            "name": "amylin",
+            "aliases": "[]",
+            "url": "https://identifiers.org/CHEBI:80342",
+            "property_label": [
+              "biomarker"
+            ]
+          }
+        },
+        {
+          "~id": "215",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "beta cell replacement therapy",
+            "aliases": "[]",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "216",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "differentiation of human pluripotent stem cells to islets",
+            "aliases": "[]",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "217",
+          "~entityType": "node",
+          "~labels": [
+            "drug"
+          ],
+          "properties": {
+            "name": "VX-880",
+            "aliases": "[]",
+            "property_label": [
+              "drug"
+            ]
+          }
+        },
+        {
+          "~id": "218",
+          "~entityType": "node",
+          "~labels": [
+            "biomarker"
+          ],
+          "properties": {
+            "name": "HbA1c",
+            "aliases": "[]",
+            "url": "https://identifiers.org/mesh:D006442",
+            "property_label": [
+              "biomarker"
+            ]
+          }
+        },
+        {
+          "~id": "220",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "cellular replacement therapy",
+            "aliases": "[]",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "221",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "stem cell-derived islets (SC-islets)",
+            "aliases": "[]",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "224",
+          "~entityType": "node",
+          "~labels": [
+            "clinical_outcome"
+          ],
+          "properties": {
+            "name": "insulin independence",
+            "aliases": "[]",
+            "property_label": [
+              "clinical_outcome"
+            ]
+          }
+        },
+        {
+          "~id": "225",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "engraftment",
+            "aliases": "[]",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "232",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_factor"
+          ],
+          "properties": {
+            "name": "HLA alleles",
+            "aliases": "[]",
+            "property_label": [
+              "genetic_factor"
+            ]
+          }
+        },
+        {
+          "~id": "237",
+          "~entityType": "node",
+          "~labels": [
+            "biomarker"
+          ],
+          "properties": {
+            "name": "diabetes-associated autoantibodies",
+            "aliases": "[]",
+            "property_label": [
+              "biomarker"
+            ]
+          }
+        },
+        {
+          "~id": "238",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "insulin secretory response",
+            "aliases": "[]",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "239",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "immune response networks",
+            "aliases": "[]",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "240",
+          "~entityType": "node",
+          "~labels": [
+            "biomarker"
+          ],
+          "properties": {
+            "name": "biomarkers",
+            "aliases": "[]",
+            "url": "https://identifiers.org/CHEBI:59163",
+            "property_label": [
+              "biomarker"
+            ]
+          }
+        },
+        {
+          "~id": "242",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_factor"
+          ],
+          "properties": {
+            "name": "HLA genetic risk",
+            "aliases": "[]",
+            "property_label": [
+              "genetic_factor"
+            ]
+          }
+        },
+        {
+          "~id": "244",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "compromised insulin secretory response",
+            "aliases": "[]",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "248",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_factor"
+          ],
+          "properties": {
+            "name": "GADR3",
+            "aliases": "[]",
+            "property_label": [
+              "genetic_factor"
+            ]
+          }
+        },
+        {
+          "~id": "249",
+          "~entityType": "node",
+          "~labels": [
+            "genetic_factor"
+          ],
+          "properties": {
+            "name": "HLA DR3",
+            "aliases": "[]",
+            "property_label": [
+              "genetic_factor"
+            ]
+          }
+        },
+        {
+          "~id": "257",
+          "~entityType": "node",
+          "~labels": [
+            "biological_process"
+          ],
+          "properties": {
+            "name": "insulin secretory loss",
+            "aliases": "[]",
+            "property_label": [
+              "biological_process"
+            ]
+          }
+        },
+        {
+          "~id": "258",
+          "~entityType": "node",
+          "~labels": [
+            "biomarker"
+          ],
+          "properties": {
+            "name": "Extracellular Vesicle Ribonucleic Acid (RNA) Cargo",
+            "aliases": "[]",
+            "property_label": [
+              "biomarker"
+            ]
+          }
+        }
+      ],
+      "edges": [
+        {
+          "~id": "e1",
+          "~entityType": "relationship",
+          "~start": "2",
+          "~end": "3",
+          "~type": "affects",
+          "properties": {
+            "property_type": "affects"
+          }
+        },
+        {
+          "~id": "e2",
+          "~entityType": "relationship",
+          "~start": "5",
+          "~end": "1",
+          "~type": "potential_treatment_for",
+          "properties": {
+            "property_type": "potential_treatment_for"
+          }
+        },
+        {
+          "~id": "e3",
+          "~entityType": "relationship",
+          "~start": "6",
+          "~end": "1",
+          "~type": "potential_treatment_for",
+          "properties": {
+            "property_type": "potential_treatment_for"
+          }
+        },
+        {
+          "~id": "e4",
+          "~entityType": "relationship",
+          "~start": "16",
+          "~end": "3",
+          "~type": "affects",
+          "properties": {
+            "property_type": "affects"
+          }
+        },
+        {
+          "~id": "e5",
+          "~entityType": "relationship",
+          "~start": "17",
+          "~end": "3",
+          "~type": "affects",
+          "properties": {
+            "property_type": "affects"
+          }
+        },
+        {
+          "~id": "e6",
+          "~entityType": "relationship",
+          "~start": "6",
+          "~end": "1",
+          "~type": "potential_treatment_for",
+          "properties": {
+            "property_type": "potential_treatment_for"
+          }
+        },
+        {
+          "~id": "e7",
+          "~entityType": "relationship",
+          "~start": "19",
+          "~end": "3",
+          "~type": "prevents_loss_of",
+          "properties": {
+            "property_type": "prevents_loss_of"
+          }
+        },
+        {
+          "~id": "e8",
+          "~entityType": "relationship",
+          "~start": "20",
+          "~end": "1",
+          "~type": "delays",
+          "properties": {
+            "property_type": "delays"
+          }
+        },
+        {
+          "~id": "e9",
+          "~entityType": "relationship",
+          "~start": "21",
+          "~end": "1",
+          "~type": "involves",
+          "properties": {
+            "property_type": "involves"
+          }
+        },
+        {
+          "~id": "e10",
+          "~entityType": "relationship",
+          "~start": "22",
+          "~end": "21",
+          "~type": "explains",
+          "properties": {
+            "property_type": "explains"
+          }
+        },
+        {
+          "~id": "e11",
+          "~entityType": "relationship",
+          "~start": "1",
+          "~end": "16",
+          "~type": "characterized_by",
+          "properties": {
+            "property_type": "characterized_by"
+          }
+        },
+        {
+          "~id": "e12",
+          "~entityType": "relationship",
+          "~start": "1",
+          "~end": "25",
+          "~type": "characterized_by",
+          "properties": {
+            "property_type": "characterized_by"
+          }
+        },
+        {
+          "~id": "e13",
+          "~entityType": "relationship",
+          "~start": "1",
+          "~end": "26",
+          "~type": "characterized_by",
+          "properties": {
+            "property_type": "characterized_by"
+          }
+        },
+        {
+          "~id": "e14",
+          "~entityType": "relationship",
+          "~start": "29",
+          "~end": "27",
+          "~type": "characterized_by",
+          "properties": {
+            "property_type": "characterized_by"
+          }
+        },
+        {
+          "~id": "e15",
+          "~entityType": "relationship",
+          "~start": "30",
+          "~end": "27",
+          "~type": "characterized_by",
+          "properties": {
+            "property_type": "characterized_by"
+          }
+        },
+        {
+          "~id": "e16",
+          "~entityType": "relationship",
+          "~start": "30",
+          "~end": "28",
+          "~type": "characterized_by",
+          "properties": {
+            "property_type": "characterized_by"
+          }
+        },
+        {
+          "~id": "e17",
+          "~entityType": "relationship",
+          "~start": "31",
+          "~end": "28",
+          "~type": "characterized_by",
+          "properties": {
+            "property_type": "characterized_by"
+          }
+        },
+        {
+          "~id": "e18",
+          "~entityType": "relationship",
+          "~start": "35",
+          "~end": "31",
+          "~type": "delays_progression_to",
+          "properties": {
+            "property_type": "delays_progression_to"
+          }
+        },
+        {
+          "~id": "e19",
+          "~entityType": "relationship",
+          "~start": "35",
+          "~end": "30",
+          "~type": "administered_in",
+          "properties": {
+            "property_type": "administered_in"
+          }
+        },
+        {
+          "~id": "e20",
+          "~entityType": "relationship",
+          "~start": "27",
+          "~end": "29",
+          "~type": "characterizes",
+          "properties": {
+            "property_type": "characterizes"
+          }
+        },
+        {
+          "~id": "e21",
+          "~entityType": "relationship",
+          "~start": "27",
+          "~end": "30",
+          "~type": "characterizes",
+          "properties": {
+            "property_type": "characterizes"
+          }
+        },
+        {
+          "~id": "e22",
+          "~entityType": "relationship",
+          "~start": "37",
+          "~end": "31",
+          "~type": "decreases_in",
+          "properties": {
+            "property_type": "decreases_in"
+          }
+        },
+        {
+          "~id": "e23",
+          "~entityType": "relationship",
+          "~start": "38",
+          "~end": "1",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e24",
+          "~entityType": "relationship",
+          "~start": "31",
+          "~end": "37",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e25",
+          "~entityType": "relationship",
+          "~start": "38",
+          "~end": "31",
+          "~type": "accounts_for",
+          "properties": {
+            "property_type": "accounts_for"
+          }
+        },
+        {
+          "~id": "e26",
+          "~entityType": "relationship",
+          "~start": "38",
+          "~end": "31",
+          "~type": "accounts_for",
+          "properties": {
+            "property_type": "accounts_for"
+          }
+        },
+        {
+          "~id": "e27",
+          "~entityType": "relationship",
+          "~start": "44",
+          "~end": "52",
+          "~type": "influences",
+          "properties": {
+            "property_type": "influences"
+          }
+        },
+        {
+          "~id": "e30",
+          "~entityType": "relationship",
+          "~start": "48",
+          "~end": "8",
+          "~type": "characterized_by",
+          "properties": {
+            "property_type": "characterized_by"
+          }
+        },
+        {
+          "~id": "e31",
+          "~entityType": "relationship",
+          "~start": "8",
+          "~end": "31",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e32",
+          "~entityType": "relationship",
+          "~start": "7",
+          "~end": "31",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e33",
+          "~entityType": "relationship",
+          "~start": "52",
+          "~end": "31",
+          "~type": "lower_in",
+          "properties": {
+            "property_type": "lower_in"
+          }
+        },
+        {
+          "~id": "e34",
+          "~entityType": "relationship",
+          "~start": "53",
+          "~end": "31",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e35",
+          "~entityType": "relationship",
+          "~start": "54",
+          "~end": "31",
+          "~type": "increases_risk_of",
+          "properties": {
+            "property_type": "increases_risk_of"
+          }
+        },
+        {
+          "~id": "e36",
+          "~entityType": "relationship",
+          "~start": "55",
+          "~end": "56",
+          "~type": "protective_against",
+          "properties": {
+            "property_type": "protective_against"
+          }
+        },
+        {
+          "~id": "e37",
+          "~entityType": "relationship",
+          "~start": "56",
+          "~end": "31",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e38",
+          "~entityType": "relationship",
+          "~start": "51",
+          "~end": "1",
+          "~type": "protective_against",
+          "properties": {
+            "property_type": "protective_against"
+          }
+        },
+        {
+          "~id": "e39",
+          "~entityType": "relationship",
+          "~start": "52",
+          "~end": "60",
+          "~type": "higher_in",
+          "properties": {
+            "property_type": "higher_in"
+          }
+        },
+        {
+          "~id": "e40",
+          "~entityType": "relationship",
+          "~start": "53",
+          "~end": "1",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e41",
+          "~entityType": "relationship",
+          "~start": "54",
+          "~end": "1",
+          "~type": "increases_risk_of",
+          "properties": {
+            "property_type": "increases_risk_of"
+          }
+        },
+        {
+          "~id": "e42",
+          "~entityType": "relationship",
+          "~start": "7",
+          "~end": "54",
+          "~type": "affected_by",
+          "properties": {
+            "property_type": "affected_by"
+          }
+        },
+        {
+          "~id": "e43",
+          "~entityType": "relationship",
+          "~start": "56",
+          "~end": "65",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e44",
+          "~entityType": "relationship",
+          "~start": "55",
+          "~end": "65",
+          "~type": "protective_against",
+          "properties": {
+            "property_type": "protective_against"
+          }
+        },
+        {
+          "~id": "e45",
+          "~entityType": "relationship",
+          "~start": "67",
+          "~end": "65",
+          "~type": "protective_against",
+          "properties": {
+            "property_type": "protective_against"
+          }
+        },
+        {
+          "~id": "e46",
+          "~entityType": "relationship",
+          "~start": "68",
+          "~end": "1",
+          "~type": "inversely_associated_with",
+          "properties": {
+            "property_type": "inversely_associated_with"
+          }
+        },
+        {
+          "~id": "e47",
+          "~entityType": "relationship",
+          "~start": "69",
+          "~end": "1",
+          "~type": "protective_against",
+          "properties": {
+            "property_type": "protective_against"
+          }
+        },
+        {
+          "~id": "e48",
+          "~entityType": "relationship",
+          "~start": "70",
+          "~end": "1",
+          "~type": "protective_against",
+          "properties": {
+            "property_type": "protective_against"
+          }
+        },
+        {
+          "~id": "e49",
+          "~entityType": "relationship",
+          "~start": "71",
+          "~end": "1",
+          "~type": "modifies_risk_of",
+          "properties": {
+            "property_type": "modifies_risk_of"
+          }
+        },
+        {
+          "~id": "e50",
+          "~entityType": "relationship",
+          "~start": "72",
+          "~end": "1",
+          "~type": "modifies_risk_of",
+          "properties": {
+            "property_type": "modifies_risk_of"
+          }
+        },
+        {
+          "~id": "e51",
+          "~entityType": "relationship",
+          "~start": "73",
+          "~end": "1",
+          "~type": "modifies_risk_of",
+          "properties": {
+            "property_type": "modifies_risk_of"
+          }
+        },
+        {
+          "~id": "e52",
+          "~entityType": "relationship",
+          "~start": "74",
+          "~end": "1",
+          "~type": "modifies_risk_of",
+          "properties": {
+            "property_type": "modifies_risk_of"
+          }
+        },
+        {
+          "~id": "e53",
+          "~entityType": "relationship",
+          "~start": "75",
+          "~end": "1",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e54",
+          "~entityType": "relationship",
+          "~start": "1",
+          "~end": "77",
+          "~type": "predicted_by",
+          "properties": {
+            "property_type": "predicted_by"
+          }
+        },
+        {
+          "~id": "e55",
+          "~entityType": "relationship",
+          "~start": "77",
+          "~end": "31",
+          "~type": "predicts_progression_to",
+          "properties": {
+            "property_type": "predicts_progression_to"
+          }
+        },
+        {
+          "~id": "e56",
+          "~entityType": "relationship",
+          "~start": "79",
+          "~end": "1",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e57",
+          "~entityType": "relationship",
+          "~start": "80",
+          "~end": "31",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e58",
+          "~entityType": "relationship",
+          "~start": "37",
+          "~end": "31",
+          "~type": "preserved_in",
+          "properties": {
+            "property_type": "preserved_in"
+          }
+        },
+        {
+          "~id": "e59",
+          "~entityType": "relationship",
+          "~start": "82",
+          "~end": "1",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e60",
+          "~entityType": "relationship",
+          "~start": "83",
+          "~end": "1",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e61",
+          "~entityType": "relationship",
+          "~start": "84",
+          "~end": "1",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e62",
+          "~entityType": "relationship",
+          "~start": "85",
+          "~end": "1",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e63",
+          "~entityType": "relationship",
+          "~start": "86",
+          "~end": "1",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e64",
+          "~entityType": "relationship",
+          "~start": "1",
+          "~end": "82",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e65",
+          "~entityType": "relationship",
+          "~start": "1",
+          "~end": "83",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e66",
+          "~entityType": "relationship",
+          "~start": "1",
+          "~end": "84",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e67",
+          "~entityType": "relationship",
+          "~start": "1",
+          "~end": "85",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e68",
+          "~entityType": "relationship",
+          "~start": "93",
+          "~end": "1",
+          "~type": "predicts",
+          "properties": {
+            "property_type": "predicts"
+          }
+        },
+        {
+          "~id": "e69",
+          "~entityType": "relationship",
+          "~start": "8",
+          "~end": "1",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e70",
+          "~entityType": "relationship",
+          "~start": "7",
+          "~end": "1",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e71",
+          "~entityType": "relationship",
+          "~start": "96",
+          "~end": "8",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e72",
+          "~entityType": "relationship",
+          "~start": "97",
+          "~end": "7",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e73",
+          "~entityType": "relationship",
+          "~start": "98",
+          "~end": "8",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e74",
+          "~entityType": "relationship",
+          "~start": "98",
+          "~end": "7",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e75",
+          "~entityType": "relationship",
+          "~start": "96",
+          "~end": "100",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e76",
+          "~entityType": "relationship",
+          "~start": "98",
+          "~end": "8",
+          "~type": "heterogeneous_in",
+          "properties": {
+            "property_type": "heterogeneous_in"
+          }
+        },
+        {
+          "~id": "e77",
+          "~entityType": "relationship",
+          "~start": "105",
+          "~end": "7",
+          "~type": "more_common_in",
+          "properties": {
+            "property_type": "more_common_in"
+          }
+        },
+        {
+          "~id": "e78",
+          "~entityType": "relationship",
+          "~start": "106",
+          "~end": "8",
+          "~type": "related_to",
+          "properties": {
+            "property_type": "related_to"
+          }
+        },
+        {
+          "~id": "e79",
+          "~entityType": "relationship",
+          "~start": "107",
+          "~end": "8",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e80",
+          "~entityType": "relationship",
+          "~start": "108",
+          "~end": "8",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e81",
+          "~entityType": "relationship",
+          "~start": "109",
+          "~end": "8",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e82",
+          "~entityType": "relationship",
+          "~start": "110",
+          "~end": "8",
+          "~type": "related_to",
+          "properties": {
+            "property_type": "related_to"
+          }
+        },
+        {
+          "~id": "e83",
+          "~entityType": "relationship",
+          "~start": "111",
+          "~end": "8",
+          "~type": "related_to",
+          "properties": {
+            "property_type": "related_to"
+          }
+        },
+        {
+          "~id": "e84",
+          "~entityType": "relationship",
+          "~start": "112",
+          "~end": "8",
+          "~type": "related_to",
+          "properties": {
+            "property_type": "related_to"
+          }
+        },
+        {
+          "~id": "e85",
+          "~entityType": "relationship",
+          "~start": "86",
+          "~end": "8",
+          "~type": "related_to",
+          "properties": {
+            "property_type": "related_to"
+          }
+        },
+        {
+          "~id": "e86",
+          "~entityType": "relationship",
+          "~start": "114",
+          "~end": "7",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e87",
+          "~entityType": "relationship",
+          "~start": "115",
+          "~end": "7",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e88",
+          "~entityType": "relationship",
+          "~start": "116",
+          "~end": "7",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e89",
+          "~entityType": "relationship",
+          "~start": "117",
+          "~end": "7",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e90",
+          "~entityType": "relationship",
+          "~start": "118",
+          "~end": "7",
+          "~type": "related_to",
+          "properties": {
+            "property_type": "related_to"
+          }
+        },
+        {
+          "~id": "e91",
+          "~entityType": "relationship",
+          "~start": "86",
+          "~end": "7",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e92",
+          "~entityType": "relationship",
+          "~start": "114",
+          "~end": "7",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e93",
+          "~entityType": "relationship",
+          "~start": "9",
+          "~end": "31",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e94",
+          "~entityType": "relationship",
+          "~start": "10",
+          "~end": "31",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e95",
+          "~entityType": "relationship",
+          "~start": "9",
+          "~end": "125",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e96",
+          "~entityType": "relationship",
+          "~start": "1",
+          "~end": "1",
+          "~type": "higher_incidence_in",
+          "properties": {
+            "property_type": "higher_incidence_in"
+          }
+        },
+        {
+          "~id": "e97",
+          "~entityType": "relationship",
+          "~start": "7",
+          "~end": "128",
+          "~type": "predicts",
+          "properties": {
+            "property_type": "predicts"
+          }
+        },
+        {
+          "~id": "e98",
+          "~entityType": "relationship",
+          "~start": "7",
+          "~end": "129",
+          "~type": "predicts",
+          "properties": {
+            "property_type": "predicts"
+          }
+        },
+        {
+          "~id": "e99",
+          "~entityType": "relationship",
+          "~start": "130",
+          "~end": "1",
+          "~type": "affects_risk_of",
+          "properties": {
+            "property_type": "affects_risk_of"
+          }
+        },
+        {
+          "~id": "e100",
+          "~entityType": "relationship",
+          "~start": "52",
+          "~end": "130",
+          "~type": "greater_in",
+          "properties": {
+            "property_type": "greater_in"
+          }
+        },
+        {
+          "~id": "e101",
+          "~entityType": "relationship",
+          "~start": "134",
+          "~end": "30",
+          "~type": "risk_factor_for",
+          "properties": {
+            "property_type": "risk_factor_for"
+          }
+        },
+        {
+          "~id": "e102",
+          "~entityType": "relationship",
+          "~start": "137",
+          "~end": "31",
+          "~type": "predicts",
+          "properties": {
+            "property_type": "predicts"
+          }
+        },
+        {
+          "~id": "e103",
+          "~entityType": "relationship",
+          "~start": "37",
+          "~end": "31",
+          "~type": "predicts",
+          "properties": {
+            "property_type": "predicts"
+          }
+        },
+        {
+          "~id": "e104",
+          "~entityType": "relationship",
+          "~start": "28",
+          "~end": "30",
+          "~type": "defines",
+          "properties": {
+            "property_type": "defines"
+          }
+        },
+        {
+          "~id": "e105",
+          "~entityType": "relationship",
+          "~start": "142",
+          "~end": "31",
+          "~type": "predicts",
+          "properties": {
+            "property_type": "predicts"
+          }
+        },
+        {
+          "~id": "e106",
+          "~entityType": "relationship",
+          "~start": "143",
+          "~end": "31",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e107",
+          "~entityType": "relationship",
+          "~start": "144",
+          "~end": "60",
+          "~type": "progresses_more_quickly_than",
+          "properties": {
+            "property_type": "progresses_more_quickly_than"
+          }
+        },
+        {
+          "~id": "e108",
+          "~entityType": "relationship",
+          "~start": "37",
+          "~end": "147",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e109",
+          "~entityType": "relationship",
+          "~start": "37",
+          "~end": "148",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e110",
+          "~entityType": "relationship",
+          "~start": "37",
+          "~end": "149",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e113",
+          "~entityType": "relationship",
+          "~start": "156",
+          "~end": "31",
+          "~type": "predicts",
+          "properties": {
+            "property_type": "predicts"
+          }
+        },
+        {
+          "~id": "e114",
+          "~entityType": "relationship",
+          "~start": "156",
+          "~end": "1",
+          "~type": "predicts",
+          "properties": {
+            "property_type": "predicts"
+          }
+        },
+        {
+          "~id": "e115",
+          "~entityType": "relationship",
+          "~start": "159",
+          "~end": "1",
+          "~type": "predicts",
+          "properties": {
+            "property_type": "predicts"
+          }
+        },
+        {
+          "~id": "e116",
+          "~entityType": "relationship",
+          "~start": "160",
+          "~end": "3",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e117",
+          "~entityType": "relationship",
+          "~start": "162",
+          "~end": "3",
+          "~type": "infiltrates",
+          "properties": {
+            "property_type": "infiltrates"
+          }
+        },
+        {
+          "~id": "e118",
+          "~entityType": "relationship",
+          "~start": "163",
+          "~end": "3",
+          "~type": "infiltrates",
+          "properties": {
+            "property_type": "infiltrates"
+          }
+        },
+        {
+          "~id": "e119",
+          "~entityType": "relationship",
+          "~start": "164",
+          "~end": "3",
+          "~type": "low_in",
+          "properties": {
+            "property_type": "low_in"
+          }
+        },
+        {
+          "~id": "e120",
+          "~entityType": "relationship",
+          "~start": "165",
+          "~end": "3",
+          "~type": "low_in",
+          "properties": {
+            "property_type": "low_in"
+          }
+        },
+        {
+          "~id": "e121",
+          "~entityType": "relationship",
+          "~start": "166",
+          "~end": "169",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e122",
+          "~entityType": "relationship",
+          "~start": "167",
+          "~end": "169",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e123",
+          "~entityType": "relationship",
+          "~start": "3",
+          "~end": "169",
+          "~type": "affected_by",
+          "properties": {
+            "property_type": "affected_by"
+          }
+        },
+        {
+          "~id": "e124",
+          "~entityType": "relationship",
+          "~start": "1",
+          "~end": "172",
+          "~type": "characterized_by",
+          "properties": {
+            "property_type": "characterized_by"
+          }
+        },
+        {
+          "~id": "e125",
+          "~entityType": "relationship",
+          "~start": "173",
+          "~end": "172",
+          "~type": "initiated_early_in_life",
+          "properties": {
+            "property_type": "initiated_early_in_life"
+          }
+        },
+        {
+          "~id": "e126",
+          "~entityType": "relationship",
+          "~start": "174",
+          "~end": "1",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e127",
+          "~entityType": "relationship",
+          "~start": "175",
+          "~end": "1",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e128",
+          "~entityType": "relationship",
+          "~start": "176",
+          "~end": "1",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e129",
+          "~entityType": "relationship",
+          "~start": "3",
+          "~end": "174",
+          "~type": "shows_evidence_of",
+          "properties": {
+            "property_type": "shows_evidence_of"
+          }
+        },
+        {
+          "~id": "e130",
+          "~entityType": "relationship",
+          "~start": "174",
+          "~end": "179",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e131",
+          "~entityType": "relationship",
+          "~start": "175",
+          "~end": "3",
+          "~type": "susceptible_in",
+          "properties": {
+            "property_type": "susceptible_in"
+          }
+        },
+        {
+          "~id": "e132",
+          "~entityType": "relationship",
+          "~start": "176",
+          "~end": "1",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e134",
+          "~entityType": "relationship",
+          "~start": "37",
+          "~end": "3",
+          "~type": "lower_in",
+          "properties": {
+            "property_type": "lower_in"
+          }
+        },
+        {
+          "~id": "e135",
+          "~entityType": "relationship",
+          "~start": "8",
+          "~end": "155",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e136",
+          "~entityType": "relationship",
+          "~start": "9",
+          "~end": "155",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e137",
+          "~entityType": "relationship",
+          "~start": "35",
+          "~end": "30",
+          "~type": "administered_in",
+          "properties": {
+            "property_type": "administered_in"
+          }
+        },
+        {
+          "~id": "e138",
+          "~entityType": "relationship",
+          "~start": "195",
+          "~end": "29",
+          "~type": "administered_in",
+          "properties": {
+            "property_type": "administered_in"
+          }
+        },
+        {
+          "~id": "e139",
+          "~entityType": "relationship",
+          "~start": "37",
+          "~end": "17",
+          "~type": "lower_in",
+          "properties": {
+            "property_type": "lower_in"
+          }
+        },
+        {
+          "~id": "e140",
+          "~entityType": "relationship",
+          "~start": "37",
+          "~end": "31",
+          "~type": "higher_in",
+          "properties": {
+            "property_type": "higher_in"
+          }
+        },
+        {
+          "~id": "e141",
+          "~entityType": "relationship",
+          "~start": "196",
+          "~end": "35",
+          "~type": "inhibited_by",
+          "properties": {
+            "property_type": "inhibited_by"
+          }
+        },
+        {
+          "~id": "e144",
+          "~entityType": "relationship",
+          "~start": "200",
+          "~end": "31",
+          "~type": "beneficial_in",
+          "properties": {
+            "property_type": "beneficial_in"
+          }
+        },
+        {
+          "~id": "e145",
+          "~entityType": "relationship",
+          "~start": "202",
+          "~end": "175",
+          "~type": "limits",
+          "properties": {
+            "property_type": "limits"
+          }
+        },
+        {
+          "~id": "e146",
+          "~entityType": "relationship",
+          "~start": "207",
+          "~end": "1",
+          "~type": "used_in",
+          "properties": {
+            "property_type": "used_in"
+          }
+        },
+        {
+          "~id": "e147",
+          "~entityType": "relationship",
+          "~start": "209",
+          "~end": "1",
+          "~type": "performed_on",
+          "properties": {
+            "property_type": "performed_on"
+          }
+        },
+        {
+          "~id": "e148",
+          "~entityType": "relationship",
+          "~start": "211",
+          "~end": "1",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e149",
+          "~entityType": "relationship",
+          "~start": "37",
+          "~end": "211",
+          "~type": "predicts",
+          "properties": {
+            "property_type": "predicts"
+          }
+        },
+        {
+          "~id": "e150",
+          "~entityType": "relationship",
+          "~start": "213",
+          "~end": "211",
+          "~type": "increases_as",
+          "properties": {
+            "property_type": "increases_as"
+          }
+        },
+        {
+          "~id": "e151",
+          "~entityType": "relationship",
+          "~start": "214",
+          "~end": "211",
+          "~type": "increases_as",
+          "properties": {
+            "property_type": "increases_as"
+          }
+        },
+        {
+          "~id": "e152",
+          "~entityType": "relationship",
+          "~start": "215",
+          "~end": "211",
+          "~type": "targets",
+          "properties": {
+            "property_type": "targets"
+          }
+        },
+        {
+          "~id": "e153",
+          "~entityType": "relationship",
+          "~start": "216",
+          "~end": "211",
+          "~type": "source_of",
+          "properties": {
+            "property_type": "source_of"
+          }
+        },
+        {
+          "~id": "e154",
+          "~entityType": "relationship",
+          "~start": "217",
+          "~end": "1",
+          "~type": "used_in",
+          "properties": {
+            "property_type": "used_in"
+          }
+        },
+        {
+          "~id": "e155",
+          "~entityType": "relationship",
+          "~start": "218",
+          "~end": "217",
+          "~type": "achieved_by",
+          "properties": {
+            "property_type": "achieved_by"
+          }
+        },
+        {
+          "~id": "e156",
+          "~entityType": "relationship",
+          "~start": "3",
+          "~end": "220",
+          "~type": "used_in",
+          "properties": {
+            "property_type": "used_in"
+          }
+        },
+        {
+          "~id": "e157",
+          "~entityType": "relationship",
+          "~start": "221",
+          "~end": "3",
+          "~type": "used_for",
+          "properties": {
+            "property_type": "used_for"
+          }
+        },
+        {
+          "~id": "e158",
+          "~entityType": "relationship",
+          "~start": "221",
+          "~end": "1",
+          "~type": "used_in",
+          "properties": {
+            "property_type": "used_in"
+          }
+        },
+        {
+          "~id": "e159",
+          "~entityType": "relationship",
+          "~start": "221",
+          "~end": "149",
+          "~type": "improves",
+          "properties": {
+            "property_type": "improves"
+          }
+        },
+        {
+          "~id": "e160",
+          "~entityType": "relationship",
+          "~start": "221",
+          "~end": "224",
+          "~type": "achieves",
+          "properties": {
+            "property_type": "achieves"
+          }
+        },
+        {
+          "~id": "e161",
+          "~entityType": "relationship",
+          "~start": "221",
+          "~end": "225",
+          "~type": "enables",
+          "properties": {
+            "property_type": "enables"
+          }
+        },
+        {
+          "~id": "e165",
+          "~entityType": "relationship",
+          "~start": "232",
+          "~end": "1",
+          "~type": "confers_risk_for",
+          "properties": {
+            "property_type": "confers_risk_for"
+          }
+        },
+        {
+          "~id": "e166",
+          "~entityType": "relationship",
+          "~start": "79",
+          "~end": "1",
+          "~type": "confers_risk_for",
+          "properties": {
+            "property_type": "confers_risk_for"
+          }
+        },
+        {
+          "~id": "e167",
+          "~entityType": "relationship",
+          "~start": "82",
+          "~end": "1",
+          "~type": "contributes_to",
+          "properties": {
+            "property_type": "contributes_to"
+          }
+        },
+        {
+          "~id": "e168",
+          "~entityType": "relationship",
+          "~start": "83",
+          "~end": "1",
+          "~type": "contributes_to",
+          "properties": {
+            "property_type": "contributes_to"
+          }
+        },
+        {
+          "~id": "e169",
+          "~entityType": "relationship",
+          "~start": "84",
+          "~end": "1",
+          "~type": "contributes_to",
+          "properties": {
+            "property_type": "contributes_to"
+          }
+        },
+        {
+          "~id": "e170",
+          "~entityType": "relationship",
+          "~start": "237",
+          "~end": "1",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e171",
+          "~entityType": "relationship",
+          "~start": "238",
+          "~end": "1",
+          "~type": "compromised_in",
+          "properties": {
+            "property_type": "compromised_in"
+          }
+        },
+        {
+          "~id": "e172",
+          "~entityType": "relationship",
+          "~start": "239",
+          "~end": "1",
+          "~type": "activated_by",
+          "properties": {
+            "property_type": "activated_by"
+          }
+        },
+        {
+          "~id": "e173",
+          "~entityType": "relationship",
+          "~start": "240",
+          "~end": "1",
+          "~type": "important_for",
+          "properties": {
+            "property_type": "important_for"
+          }
+        },
+        {
+          "~id": "e174",
+          "~entityType": "relationship",
+          "~start": "1",
+          "~end": "242",
+          "~type": "characterized_by",
+          "properties": {
+            "property_type": "characterized_by"
+          }
+        },
+        {
+          "~id": "e175",
+          "~entityType": "relationship",
+          "~start": "1",
+          "~end": "237",
+          "~type": "characterized_by",
+          "properties": {
+            "property_type": "characterized_by"
+          }
+        },
+        {
+          "~id": "e176",
+          "~entityType": "relationship",
+          "~start": "1",
+          "~end": "244",
+          "~type": "characterized_by",
+          "properties": {
+            "property_type": "characterized_by"
+          }
+        },
+        {
+          "~id": "e177",
+          "~entityType": "relationship",
+          "~start": "37",
+          "~end": "1",
+          "~type": "declines_more_slowly_in",
+          "properties": {
+            "property_type": "declines_more_slowly_in"
+          }
+        },
+        {
+          "~id": "e178",
+          "~entityType": "relationship",
+          "~start": "52",
+          "~end": "1",
+          "~type": "affects",
+          "properties": {
+            "property_type": "affects"
+          }
+        },
+        {
+          "~id": "e179",
+          "~entityType": "relationship",
+          "~start": "26",
+          "~end": "1",
+          "~type": "affects",
+          "properties": {
+            "property_type": "affects"
+          }
+        },
+        {
+          "~id": "e180",
+          "~entityType": "relationship",
+          "~start": "248",
+          "~end": "1",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e181",
+          "~entityType": "relationship",
+          "~start": "249",
+          "~end": "1",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e182",
+          "~entityType": "relationship",
+          "~start": "125",
+          "~end": "1",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e183",
+          "~entityType": "relationship",
+          "~start": "7",
+          "~end": "1",
+          "~type": "associated_with",
+          "properties": {
+            "property_type": "associated_with"
+          }
+        },
+        {
+          "~id": "e184",
+          "~entityType": "relationship",
+          "~start": "37",
+          "~end": "257",
+          "~type": "proxy_for",
+          "properties": {
+            "property_type": "proxy_for"
+          }
+        },
+        {
+          "~id": "e187",
+          "~entityType": "relationship",
+          "~start": "257",
+          "~end": "37",
+          "~type": "characterized_by",
+          "properties": {
+            "property_type": "characterized_by"
+          }
+        },
+        {
+          "~id": "e190",
+          "~entityType": "relationship",
+          "~start": "258",
+          "~end": "1",
+          "~type": "biomarker_of",
+          "properties": {
+            "property_type": "biomarker_of"
+          }
+        }
+      ]
+    }
+  ]
+}

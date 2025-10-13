@@ -51,7 +51,7 @@ root.render(
           <Route path="/usecases" element={<UsecasesPage />} />
           <Route path="/docs/*" element={<DocPage />} />
           <Route path="/match" element={<MatchPage />} />
-          <Route path="/review" element={<ReviewPage />} />
+          <Route path="/review/*" element={<ReviewPage />} />
           <Route path="/" element={<LandingPage />} />
           <Route path="/debug" element={<DebugPage />} />
         </Routes>
