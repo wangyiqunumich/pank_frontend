@@ -38,12 +38,11 @@ function BetaBadge({ sx }) {
         alignItems: "center",
         border: "1.5px solid #f0d98c",
         borderRadius: "9999px",
-        backgroundColor: "#fffbea",
+        backgroundColor: "#FFFFFF",
         px: 1.5,
-        py: 0.5,
+        py: '6px',
         cursor: "default",
         transition: "all 0.3s ease",
-        "&:hover": { backgroundColor: "#fff6d8" },
         ...sx
       }}
     >
@@ -51,9 +50,10 @@ function BetaBadge({ sx }) {
         <Typography
           sx={{
             color: "#d4aa00",
-            fontWeight: 500,
-            fontSize: "0.85rem",
+            fontWeight: 800,
+            fontSize: "16px",
             whiteSpace: "nowrap",
+            fontFamily: 'Inter',
           }}
         >
           This is the beta version — data coverage is currently limited.
@@ -63,9 +63,10 @@ function BetaBadge({ sx }) {
         <Typography
           sx={{
             color: "#d4aa00",
-            fontWeight: 600,
-            fontSize: "0.85rem",
+            fontWeight: 800,
+            fontSize: "16px",
             whiteSpace: "nowrap",
+            fontFamily: 'Inter',
           }}
         >
           Beta
@@ -288,7 +289,7 @@ function LandingPage() {
             <Box sx={{
               display: 'flex',
               flexDirection: 'row',
-              paddingBottom: '24px',
+              paddingBottom: '20px',
               alignItems: 'center',
               gap: '5px',
               flexWrap: 'wrap',
@@ -309,7 +310,7 @@ function LandingPage() {
               gap: 2,
               backgroundColor: 'white',
               borderRadius: '12px',
-              boxShadow: '8px 6px 33px 0px #D8E6F8',
+              boxShadow: "0px 10px 35px 0px #00000014"
             }}>
               <Autocomplete
                 freeSolo
@@ -336,16 +337,21 @@ function LandingPage() {
                       height: '85px', // Increase the height of the input box
                       width: '100%',
                       '& .MuiInputBase-root': {
+                        fontSize: '22px',
                         borderRadius: '12px',
-                        height: '85px', // Adjust the height of the input field
-                        alignItems: 'center', // Center the text vertically
-                        padding: '14px 25px !important', // Adjust padding to accommodate the increased height
+                        width: '100%',
+                        height: '85px',
+                        alignItems: 'center',
+                        padding: '14px 25px !important',
                         '& fieldset': {
                           border: 'none',
                         },
                       },
+                      '& .MuiInputBase-input': {
+                        paddingRight: '150px !important',
+                      },
                       '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'grey', // Optional: Customize border color
+                        borderColor: 'grey',
                       },
                     }}
                     fullWidth
@@ -416,7 +422,7 @@ function LandingPage() {
                               sx={{
                                 color: 'white',
                                 fontFamily: 'Open Sans',
-                                fontSize: '20px',
+                                fontSize: '24px',
                                 fontWeight: 600,
                               }}
                             >
