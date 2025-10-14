@@ -2,12 +2,12 @@
     "default": [
         "Which SNP serves as the lead QTL for CFTR",
         "How does INS expression change in T1D versus non-diabetic samples",
-        "What is the functional impact of rs2402203 on T1D progression?",
+        "What is the functional impact of rs2402203 on T1D progression?"
     ],
     "eQTL analysis": [
         "Which SNP serves as the lead QTL for CFTR",
         "More questions will be added after the November data update."
-  ],
+    ],
     "Gene expression": [
         "How does INS expression change in T1D versus non-diabetic samples",
         "More questions will be added after the November data update."
