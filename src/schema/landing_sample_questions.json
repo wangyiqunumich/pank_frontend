@@ -1,21 +1,23 @@
 {
     "default": [
-        "[placeholder] These are major example questions",
-        "Which gene is regulated by rs177069?",
-        "Which cis-regulatory elements are found near the promoter of TP53?"
+        "Which SNP serves as the lead QTL for CFTR",
+        "How does INS expression change in T1D versus non-diabetic samples",
+        "What is the functional impact of rs2402203 on T1D progression?",
     ],
     "eQTL analysis": [
-        "[placeholder] These are example questions about genes and variants",
-        "Which cis-regulatory elements are found near the promoter of TP53?",
-        "What SNPs are annotated in the enhancer region on chr6:32000000–32100000?"
-    ],
+        "Which SNP serves as the lead QTL for CFTR",
+        "More questions will be added after the November data update."
+  ],
     "Gene expression": [
-        "[placeholder] These are example questions about gene expressions"
+        "How does INS expression change in T1D versus non-diabetic samples",
+        "More questions will be added after the November data update."
     ],
     "SNP studies": [
-        "[placeholder] These are example questions about SNPs and variants"
+        "What is the functional impact of rs2402203 on T1D progression?",
+        "More questions will be added after the November data update."
     ],
     "T1D research": [
-        "[placeholder] These are example questions about T1D research"
+        "What role does PTPN22 play in T1D susceptibility and immune regulation?",
+        "More questions will be added after the November data update."
     ]
 }
