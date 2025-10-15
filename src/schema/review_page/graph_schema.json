@@ -40,7 +40,7 @@
                             "url",
                             "link"
                         ],
-                        "_comment: TO bing, if there is no url/evidence ..., can we disable that section?",
+                        "_comment: TO bing, if there is no url/evidence ..., can we disable that section?"
                     ]
                 ]
             ]
@@ -73,20 +73,18 @@
                         ]
                 ],
                 [
-                    "HIRN evidence",
-                    "HIRN_evidence"
-                ],
-                [
-                    "Evidence",
+                    "Description",
                     "evidence"
                 ],
                 [
+                    "HIRN evidence",
+                    "HIRN_evidence"
+                ],
+                "_comment: TO bing, please use Zhiyuan's latest design to hold HIRN evidence?",
+                ,
+                [
                     "Footer",
                     [
-                        [
-                            "Data Source",
-                            "data_source"
-                        ]
                     ]
                 ]
             ]
