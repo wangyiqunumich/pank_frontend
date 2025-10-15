@@ -1,16 +1,19 @@
-import { configureStore } from '@reduxjs/toolkit'
-import viewSchemaReducer from './viewSchemaSlice'
-import queryResultReducer from './queryResultSlice'
-import catalogReducer from './catalogSlice'
-import aiAnswerReducer from './aiAnswerSlice'
-import processedQuestionReducer from './processedQuestionSlice'
-import typeToImageReducer from './typeToImageSlice'
-import inputToVocabReducer from './inputToVocabSlice'
-import searchReducer from './searchSlice'
-import variablesReducer from './variablesSlice'
-import queryVisResultReducer from './queryVisResultSlice'
-import queryResultPage from './queryResultPage'
-import articlesReducer from './articlesSlice'
+import { configureStore } from '@reduxjs/toolkit';
+
+import aiAnswerReducer from './aiAnswerSlice';
+import articlesReducer from './articlesSlice';
+import catalogReducer from './catalogSlice';
+import feedbackReducer from './feedbackSlice';
+import inputToVocabReducer from './inputToVocabSlice';
+import processedQuestionReducer from './processedQuestionSlice';
+import queryResultPage from './queryResultPage';
+import queryResultReducer from './queryResultSlice';
+import queryVisResultReducer from './queryVisResultSlice';
+import searchReducer from './searchSlice';
+import typeToImageReducer from './typeToImageSlice';
+import variablesReducer from './variablesSlice';
+import viewSchemaReducer from './viewSchemaSlice';
+
 const store = configureStore({
     reducer: {
         viewSchema: viewSchemaReducer,
@@ -25,6 +28,7 @@ const store = configureStore({
         variables: variablesReducer,
         queryVisResult: queryVisResultReducer,
         queryResultPage: queryResultPage,
+        feedback: feedbackReducer,
     },
 });
 

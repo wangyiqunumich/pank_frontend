@@ -24,13 +24,12 @@
                             "Aliases",
                             "aliases",
                             "list"
-                        ],
-                        [
-                            "Description":
-                            "evidence"
                         ]
-                        
                     ]
+                ],
+                [
+                    "Description",
+                    "evidence"
                 ],
                 [
                     "Footer",
@@ -39,8 +38,7 @@
                             "Data Source",
                             "url",
                             "link"
-                        ],
-                        "_comment: TO bing, if there is no url/evidence ..., can we disable that section?"
+                        ]
                     ]
                 ]
             ]
@@ -61,16 +59,17 @@
                     [
                         [
                             "From",
-                            "source"
+                            "source_name"
                         ],
                         [
                             "To",
-                            "target"
+                            "target_name"
                         ],
                         [
                             "Type",
                             "property_type"
                         ]
+                    ]
                 ],
                 [
                     "Description",
@@ -79,12 +78,6 @@
                 [
                     "HIRN evidence",
                     "HIRN_evidence"
-                ],
-                "_comment: TO bing, please use Zhiyuan's latest design to hold HIRN evidence?",
-                [
-                    "Footer",
-                    [
-                    ]
                 ]
             ]
         }
