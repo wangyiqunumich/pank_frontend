@@ -1,7 +1,10 @@
 import './github-markdown-light.css';
 import './ApiPage.css';
 
-import React, { useEffect } from 'react';
+import React, {
+  useEffect,
+  useState,
+} from 'react';
 
 import {
   useDispatch,
@@ -10,6 +13,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 import { Warning } from '@mui/icons-material';
+import CheckCircle from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import StarIcon from '@mui/icons-material/Star';
@@ -28,34 +32,14 @@ import {
 } from '@mui/material';
 
 import KnowledgeGraph from '../components/KnowledgeGraph';
+import { submitFeedback } from '../redux/feedbackSlice';
 // import graphdata from '../schema/review_page/graph_T1D_core.json';
 // import coorddata from '../schema/review_page/graph_T1D_core_xy.json';
-import graphdata_1 from '../schema/review_page/T1D_heterogenity_core.json';
-import coorddata_1 from '../schema/review_page/T1D_heterogenity_core_xy.json';
-import graphdata_2 from '../schema/review_page/T1D_hirn_core.json';
-import coorddata_2 from '../schema/review_page/T1D_hirn_core_xy.json';
-import graphdata_3 from '../schema/review_page/T1D_mechanism_core.json';
-import coorddata_3 from '../schema/review_page/T1D_mechanism_core_xy.json';
 import ReviewContent from '../schema/reviews.json';
 import { TooltipComponent } from '../SearchResult/index.js';
 
-const graphdata = {
-  "article-1": {
-    graph: graphdata_1,
-    coord: coorddata_1
-  },
-  "article-2": {
-    graph: graphdata_2,
-    coord: coorddata_2
-  },
-  "article-3": {
-    graph: graphdata_3,
-    coord: coorddata_3
-  }
-}
-
 export function CodeCopyBtn({ children }) {
-  const [copyOk, setCopyOk] = React.useState(false);
+  const [copyOk, setCopyOk] = useState(false);
 
   const iconColor = copyOk ? '#0af20a' : '#ddd';
   const icon = copyOk ? 'fa-check-square' : 'fa-copy';
@@ -82,20 +66,41 @@ function ReviewPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   // read URL: /review/article-1
-  const path = window.location.pathname;
-  const article_id = path.split('/').slice(-1)[0];
   const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
-  // const [reviewContent, setReviewContent] = React.useState([]);
-  const [warningState, setWarningState] = React.useState(0);
-  const [warningPopup, setWarningPopup] = React.useState(false);
-  const [selectedNode, setSelectedNode] = React.useState([]);
-  const coordFactor = article_id === 'article-3' ? 4 : 2;
-  const fixedCoord = // x, y times 10
-    Object.fromEntries(Object.entries(graphdata[article_id].coord).map(([key, value]) => [key, { ...value, x: value.x * coordFactor, y: value.y * coordFactor }]));
+  // const [reviewContent, setReviewContent] = useState([]);
+  const [warningState, setWarningState] = useState(0);
+  const [completed, setCompleted] = useState(false);
+  const [warningPopup, setWarningPopup] = useState(false);
+  const [selectedNode, setSelectedNode] = useState([]);
+  const [graphData, setGraphData] = useState(null);
+  const [coordData, setCoordData] = useState(null);
+  useEffect(() => {
+    const path = window.location.pathname;
+    const article_id = path.split('/').slice(-1)[0];
+    // load ../schema/review_page/[article_id]/graph.json and ../schema/review_page/[article_id]/graph_xy.json
+    const coordFactor = article_id === 'article-3' ? 4 : 2;
+    import(`../schema/review_page/${article_id}/graph.json`).then((data) => {
+      setGraphData(data.results[0]);
+    }).catch((error) => {
+      window.location.href = '/review/T1D_heterogeneity';
+    });
+    import(`../schema/review_page/${article_id}/graph_xy.json`).then((data) => {
+      setCoordData(
+        Object.fromEntries(Object.entries(data).map(([key, value]) => [key, { ...value, x: value.x * coordFactor, y: value.y * coordFactor }]))
+      );
+    }).catch((error) => {
+      window.location.href = '/review/T1D_heterogeneity';
+    });
+  }, []);
+
   // const loaded = !!queryResultPage?.combined_query_result;
   const loaded = true;
   // const article = ReviewContent.find((item) => item.id === article_id);
-
+  const [content, setContent] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [missingField, setMissingField] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   // useEffect(() => {
   //   fetch(ReviewContent)
@@ -108,21 +113,21 @@ function ReviewPage() {
   //     .catch((err) => console.error("Failed to load YAML", err));
   // }, []);
 
-  useEffect(() => {
-    // read parameter from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const rdb_query = urlParams.get('rdb_query');
-    const core_cypher = urlParams.get('core_cypher');
-    const neighbor_cypher = urlParams.get('neighbor_cypher');
-    // if (core_cypher && neighbor_cypher) {
-    //   dispatch(queryQueryResultPage(rdb_query ? { rdb_query, core_cypher, neighbor_cypher } : { core_cypher, neighbor_cypher }))
-    // } else {
-    //   navigate('/');
-    // }
-  }, []);
-
   const handleSubmit = () => {
-    if (!loaded) return;
+    if (!loaded || submitting) return;
+    if (!content) {
+      setMissingField("content");
+      return;
+    }
+    if (!name) {
+      setMissingField("name");
+      return;
+    }
+    if (!email) {
+      setMissingField("email");
+      return;
+    }
+    setMissingField(false);
     if (selectedNode.length === 0) {
       setWarningState(Math.min(warningState + 1, 2));
       if (warningState === 1) {
@@ -130,7 +135,23 @@ function ReviewPage() {
       }
       return;
     }
-  }
+    const submission = {
+      content,
+      name,
+      email,
+      selected: selectedNode,
+      graphTitle: window.location.pathname.split('/').slice(-1)[0],
+    };
+    console.log('Submitting feedback:', submission);
+    setSubmitting(true);
+    dispatch(submitFeedback(submission)).then(() => {
+      setSubmitting(false);
+      setCompleted(true);
+      setContent('');
+      setName('');
+      setEmail('');
+    });
+  };
 
   return (
     <div className="App">
@@ -233,7 +254,7 @@ function ReviewPage() {
                       Please select elements related to your comment
                     </Alert>
 
-                    <KnowledgeGraph selectable={true} setSelectedNode={(nodes) => {
+                    {graphData && <KnowledgeGraph selectable={true} setSelectedNode={(nodes) => {
                       setSelectedNode(nodes);
                       if (nodes.length > 0) {
                         setWarningState(0);
@@ -241,8 +262,8 @@ function ReviewPage() {
                       }
                     }} sx={{ zIndex: 2 }}
                       review={true}
-                      graphData={graphdata[article_id].graph.results[0]} coordData={fixedCoord}
-                    />
+                      graphData={graphData} coordData={coordData}
+                    />}
                   </Box>
                 </Box> : <CircularProgress />}
               </Paper>
@@ -271,11 +292,15 @@ function ReviewPage() {
                   </Typography>
                   <TextField
                     placeholder="Share your feedback……"
+                    error={missingField === "content"}
+                    helperText={missingField === "content" ? "This field is required" : ""}
                     fullWidth
                     multiline
                     rows={5}
                     inputProps={{ style: { fontFamily: 'Open Sans', fontWeight: 400, fontSize: "17px" } }}
                     sx={{ mt: 1 }}
+                    onChange={(e) => setContent(e.target.value)}
+                    value={content}
                   />
                   <Typography sx={{
                     fontFamily: 'Open Sans',
@@ -286,7 +311,12 @@ function ReviewPage() {
                     Name
                   </Typography>
                   <TextField placeholder="Enter your name" fullWidth sx={{ mt: 1 }}
-                    inputProps={{ style: { fontFamily: 'Open Sans', fontWeight: 400, fontSize: "17px" } }} />
+                    error={missingField === "name"}
+                    helperText={missingField === "name" ? "This field is required" : ""}
+                    inputProps={{ style: { fontFamily: 'Open Sans', fontWeight: 400, fontSize: "17px" } }}
+                    onChange={(e) => setName(e.target.value)}
+                    value={name}
+                  />
                   <Typography sx={{
                     fontFamily: 'Open Sans',
                     fontWeight: 600,
@@ -297,9 +327,13 @@ function ReviewPage() {
                   </Typography>
                   <TextField
                     placeholder="Enter your email"
+                    error={missingField === "email"}
+                    helperText={missingField === "email" ? "This field is required" : ""}
                     fullWidth
                     sx={{ mt: 1, mb: 1 }}
                     inputProps={{ style: { fontFamily: 'Open Sans', fontWeight: 400, fontSize: "17px" } }}
+                    onChange={(e) => setEmail(e.target.value)}
+                    value={email}
                   />
                   <Alert
                     variant="outlined"
@@ -321,6 +355,27 @@ function ReviewPage() {
                     }
                   >
                     Please select elements related to your comment
+                  </Alert>
+                  <Alert
+                    variant="outlined"
+                    severity="success"
+                    icon={<CheckCircle fontSize="inherit" />}
+                    sx={{
+                      display: completed ? 'flex' : 'none',
+                      fontSize: '15px',
+                      fontFamily: 'Open Sans',
+                      border: "1px solid",
+                      borderColor: "inherit",
+                      alignItems: "center",
+                      backgroundColor: "white",
+                    }}
+                    action={
+                      <IconButton size="small" color="inherit" onClick={() => setCompleted(false)}>
+                        <CloseIcon fontSize="small" />
+                      </IconButton>
+                    }
+                  >
+                    Thank you for your feedback!
                   </Alert>
                   <Button
                     variant="contained"
