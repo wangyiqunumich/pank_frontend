@@ -13,18 +13,23 @@
                     "Node Identity",
                     [
                         [
-                            "type",
+                            "Node Type",
                             "property_label"
                         ],
                         [
-                            "aliases",
+                            "Name",
+                            "name"
+                        ],
+                        [
+                            "Aliases",
                             "aliases",
                             "list"
                         ],
                         [
-                            "Link",
-                            "text_evidence"
+                            "Description":
+                            "evidence"
                         ]
+                        
                     ]
                 ],
                 [
@@ -34,7 +39,8 @@
                             "Data Source",
                             "url",
                             "link"
-                        ]
+                        ],
+                        "_comment: TO bing, if there is no url/evidence ..., can we disable that section?",
                     ]
                 ]
             ]
@@ -49,6 +55,22 @@
                 [
                     "Title",
                     "property_type"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ],
+                        [
+                            "Type",
+                            "property_type"
+                        ]
                 ],
                 [
                     "HIRN evidence",
