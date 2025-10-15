@@ -13,18 +13,23 @@
                     "Node Identity",
                     [
                         [
-                            "type",
+                            "Node Type",
                             "property_label"
                         ],
                         [
-                            "aliases",
+                            "Name",
+                            "name"
+                        ],
+                        [
+                            "Aliases",
                             "aliases",
                             "list"
                         ],
                         [
-                            "Link",
-                            "text_evidence"
+                            "Description":
+                            "evidence"
                         ]
+                        
                     ]
                 ],
                 [
@@ -34,7 +39,8 @@
                             "Data Source",
                             "url",
                             "link"
-                        ]
+                        ],
+                        "_comment: TO bing, if there is no url/evidence ..., can we disable that section?"
                     ]
                 ]
             ]
@@ -51,20 +57,33 @@
                     "property_type"
                 ],
                 [
-                    "HIRN evidence",
-                    "HIRN_evidence"
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ],
+                        [
+                            "Type",
+                            "property_type"
+                        ]
                 ],
                 [
-                    "Evidence",
+                    "Description",
                     "evidence"
                 ],
                 [
+                    "HIRN evidence",
+                    "HIRN_evidence"
+                ],
+                "_comment: TO bing, please use Zhiyuan's latest design to hold HIRN evidence?",
+                [
                     "Footer",
                     [
-                        [
-                            "Data Source",
-                            "data_source"
-                        ]
                     ]
                 ]
             ]
