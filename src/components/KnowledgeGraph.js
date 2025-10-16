@@ -222,7 +222,7 @@ const HirnEvidences = ({ evidence }) => {
       lineHeight: "7px",
       textTransform: "uppercase",
     }}>
-      Hiren Evidence ({length} {length > 1 ? "items" : "item"})
+      Hirn Evidence ({length} {length > 1 ? "items" : "item"})
       {length > 1 && <IconButton onClick={() => setOpen(!open)} sx={{ marginLeft: "8px", padding: "0px", marginBottom: "-2px" }} size="small">
         {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
       </IconButton>}
