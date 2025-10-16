@@ -2,22 +2,26 @@ import {
     createAsyncThunk,
     createSlice,
 } from '@reduxjs/toolkit';
-// import { flaskBackendAxiosInstanceNew } from "../axios/axios";
 import { QueryStatus } from '@reduxjs/toolkit/query';
 
-export const submitFeedback = createAsyncThunk("/feedback",
+import { flaskBackendAxiosInstanceNew } from '../axios/axios';
+
+export const submitFeedback = createAsyncThunk("/pank2ReviewPage",
     async (payload) => {
-        // return await flaskBackendAxiosInstanceNew 
-        //     .post("feedback", payload, {
-        //         headers: {
-        //             "Content-Type": "application/json"
-        //         }
-        //     })
-        //     .then((response) => response.data)
-        //     .catch((response) => {
-        //         console.log(response);
-        //     });
-        return { status: 'success' };
+        return await flaskBackendAxiosInstanceNew
+            .post("/pank2ReviewPage", {
+                type: "insert",
+                information: payload
+            }, {
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+            .then((response) => response.data)
+            .catch((response) => {
+                console.log(response);
+            });
+        // return { status: 'success' };
     });
 
 export const feedbackSlice = createSlice({
