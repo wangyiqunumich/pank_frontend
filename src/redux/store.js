@@ -13,6 +13,8 @@ import searchReducer from './searchSlice';
 import typeToImageReducer from './typeToImageSlice';
 import variablesReducer from './variablesSlice';
 import viewSchemaReducer from './viewSchemaSlice';
+import graphviewerReducer from './graphviewerSlice';
+import supportingMaterialReducer from './supportingMaterialSlice';
 
 const store = configureStore({
     reducer: {
@@ -29,6 +31,8 @@ const store = configureStore({
         queryVisResult: queryVisResultReducer,
         queryResultPage: queryResultPage,
         feedback: feedbackReducer,
+        graphviewer: graphviewerReducer,
+        supportingMaterial: supportingMaterialReducer,
     },
 });
 
