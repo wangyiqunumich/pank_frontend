@@ -1,0 +1,401 @@
+{
+    "combined_query_result": {
+        "nodes": [
+            {
+                "~id": "ENSG00000116221",
+                "~entityType": "node",
+                "~labels": [
+                    "coding_elements",
+                    "gene"
+                ],
+                "~properties": {
+                    "id_version": 15,
+                    "link": "https://www.ensembl.org/id/ENSG00000116221",
+                    "start_loc": 54184041,
+                    "end_loc": 54225464,
+                    "chr": "1",
+                    "type": "protein_coding",
+                    "GC_percentage": 48.9,
+                    "name": "MRPL37",
+                    "data_version": "GRCh38.p14",
+                    "description": "mitochondrial ribosomal protein L37 [Source:HGNC Symbol;Acc:HGNC:14034]",
+                    "strand": "1.0",
+                    "data_source": "Ensembl",
+                    "id": "ENSG00000116221"
+                }
+            },
+            {
+                "~id": "CL_0000169",
+                "~entityType": "node",
+                "~labels": [
+                    "cell_type",
+                    "ontology"
+                ],
+                "~properties": {
+                    "url": "http://purl.obolibrary.org/obo/CL_0000169",
+                    "definition": "A cell that secretes insulin and is located towards the center of the islets of Langerhans.",
+                    "synonyms": "B-cell of pancreatic islet|beta cell of pancreatic islet|insulin-secreting cell|pancreatic B cell|pancreatic B-cell|pancreatic beta cell|pancreatic islet core|type B enteroendocrine cell",
+                    "name": "Beta Cell",
+                    "data_version": "4/29/25",
+                    "data_source": "NCBO",
+                    "id": "CL_0000169"
+                }
+            },
+            {
+                "~id": "ENSG00000146425",
+                "~entityType": "node",
+                "~labels": [
+                    "coding_elements",
+                    "gene"
+                ],
+                "~properties": {
+                    "id_version": 11,
+                    "link": "https://www.ensembl.org/id/ENSG00000146425",
+                    "start_loc": 158636474,
+                    "end_loc": 158644743,
+                    "chr": "6",
+                    "type": "protein_coding",
+                    "GC_percentage": 45.31,
+                    "name": "DYNLT1",
+                    "data_version": "GRCh38.p14",
+                    "description": "dynein light chain Tctex-type 1 [Source:HGNC Symbol;Acc:HGNC:11697]",
+                    "strand": "-1.0",
+                    "data_source": "Ensembl",
+                    "id": "ENSG00000146425"
+                }
+            },
+            {
+                "~id": "ENSG00000182180",
+                "~entityType": "node",
+                "~labels": [
+                    "coding_elements",
+                    "gene"
+                ],
+                "~properties": {
+                    "id_version": 14,
+                    "link": "https://www.ensembl.org/id/ENSG00000182180",
+                    "start_loc": 73248843,
+                    "end_loc": 73252693,
+                    "chr": "10",
+                    "type": "protein_coding",
+                    "GC_percentage": 47.47,
+                    "name": "MRPS16",
+                    "data_version": "GRCh38.p14",
+                    "description": "mitochondrial ribosomal protein S16 [Source:HGNC Symbol;Acc:HGNC:14048]",
+                    "strand": "-1.0",
+                    "data_source": "Ensembl",
+                    "id": "ENSG00000182180"
+                }
+            },
+            {
+                "~id": "CL_0002079",
+                "~entityType": "node",
+                "~labels": [
+                    "cell_type",
+                    "ontology"
+                ],
+                "~properties": {
+                    "url": "http://purl.obolibrary.org/obo/CL_0002079",
+                    "definition": "Epithelial cell found in the ducts of the pancreas. This cell type contributes to the high luminal pH.",
+                    "name": "Ductal Cell",
+                    "data_version": "4/29/25",
+                    "data_source": "NCBO",
+                    "id": "CL_0002079"
+                }
+            },
+            {
+                "~id": "CL_0000173",
+                "~entityType": "node",
+                "~labels": [
+                    "cell_type",
+                    "ontology"
+                ],
+                "~properties": {
+                    "url": "http://purl.obolibrary.org/obo/CL_0000173",
+                    "definition": "A D cell located in the pancreas. Peripherally placed within the islets like type A cells; contains somatostatin.",
+                    "synonyms": "D-cell of pancreatic islet|delta cell of islet|delta cell of pancreatic islet|pancreatic D-cell|pancreatic delta cell|somatostatin-secreting pancreatic cell",
+                    "name": "Delta Cell",
+                    "data_version": "4/29/25",
+                    "data_source": "NCBO",
+                    "id": "CL_0000173"
+                }
+            },
+            {
+                "~id": "ENSG00000184903",
+                "~entityType": "node",
+                "~labels": [
+                    "coding_elements",
+                    "gene"
+                ],
+                "~properties": {
+                    "id_version": 10,
+                    "link": "https://www.ensembl.org/id/ENSG00000184903",
+                    "start_loc": 110662644,
+                    "end_loc": 111562517,
+                    "chr": "7",
+                    "type": "protein_coding",
+                    "GC_percentage": 36.11,
+                    "name": "IMMP2L",
+                    "gencode_annotation": "GENCODE basic",
+                    "data_version": "GRCh38.p14",
+                    "description": "inner mitochondrial membrane peptidase subunit 2 [Source:HGNC Symbol;Acc:HGNC:14598]",
+                    "strand": "-1.0",
+                    "data_source": "Ensembl",
+                    "id": "ENSG00000184903"
+                }
+            }
+        ],
+        "edges": [
+            {
+                "~id": "0042c3fc-5e48-4b3a-b0dd-edea27042644",
+                "~entityType": "relationship",
+                "~start": "ENSG00000184903",
+                "~end": "ENSG00000182180",
+                "~type": "regulation",
+                "~properties": {
+                    "author": "Botham A (2019)",
+                    "publication_source": "PUBMED:31617661",
+                    "organism_id_interactor_a": 9606,
+                    "organism_id_interactor_b": 9606,
+                    "throughput": "High Throughput",
+                    "data_source": "BIOGRID",
+                    "biogrid_interaction_id": 2805089,
+                    "Entrez_ID_A": 83943,
+                    "Entrez_ID_B": 51021,
+                    "biogrid_id_interactor_a": 123826,
+                    "biogrid_id_interactor_b": 119227,
+                    "official_symbol_interactor_a": "IMMP2L",
+                    "official_symbol_interactor_b": "MRPS16",
+                    "experimental_system": "Proximity Label-MS",
+                    "experimental_system_type": "physical"
+                }
+            },
+            {
+                "~id": "014c01e7-461e-4ec7-8c79-01e97fc36f61",
+                "~entityType": "relationship",
+                "~start": "ENSG00000184903",
+                "~end": "ENSG00000146425",
+                "~type": "regulation",
+                "~properties": {
+                    "author": "Botham A (2019)",
+                    "publication_source": "PUBMED:31617661",
+                    "organism_id_interactor_a": 9606,
+                    "organism_id_interactor_b": 9606,
+                    "throughput": "High Throughput",
+                    "data_source": "BIOGRID",
+                    "biogrid_interaction_id": 2805495,
+                    "Entrez_ID_A": 83943,
+                    "Entrez_ID_B": 6993,
+                    "biogrid_id_interactor_a": 123826,
+                    "biogrid_id_interactor_b": 112853,
+                    "official_symbol_interactor_a": "IMMP2L",
+                    "official_symbol_interactor_b": "DYNLT1",
+                    "experimental_system": "Affinity Capture-MS",
+                    "experimental_system_type": "physical"
+                }
+            },
+            {
+                "~id": "01cc158d-eecf-477c-802c-8b730ec36544",
+                "~entityType": "relationship",
+                "~start": "ENSG00000184903",
+                "~end": "ENSG00000116221",
+                "~type": "regulation",
+                "~properties": {
+                    "author": "Botham A (2019)",
+                    "publication_source": "PUBMED:31617661",
+                    "organism_id_interactor_a": 9606,
+                    "organism_id_interactor_b": 9606,
+                    "throughput": "High Throughput",
+                    "data_source": "BIOGRID",
+                    "biogrid_interaction_id": 2805400,
+                    "Entrez_ID_A": 83943,
+                    "Entrez_ID_B": 51253,
+                    "biogrid_id_interactor_a": 123826,
+                    "biogrid_id_interactor_b": 119410,
+                    "official_symbol_interactor_a": "IMMP2L",
+                    "official_symbol_interactor_b": "MRPL37",
+                    "experimental_system": "Affinity Capture-MS",
+                    "experimental_system_type": "physical"
+                }
+            },
+            {
+                "~id": "99ccc86b-8a16-447f-a249-1a1628075932",
+                "~entityType": "relationship",
+                "~start": "ENSG00000184903",
+                "~end": "CL_0000169",
+                "~type": "Differential_Expression",
+                "~properties": {
+                    "UpOrDownRegulation": "Downregulated in T1D",
+                    "Log2FoldChange": -0.9526,
+                    "SE_of_Log2FoldChange": 0.2372,
+                    "P_value": 0.0001,
+                    "Adjusted_P_value": 0.0037,
+                    "data_source": "PanKbase",
+                    "data_version": "2025-05-28"
+                }
+            },
+            {
+                "~id": "bc49e18a-c2c2-4a30-8599-c8815f84c463",
+                "~entityType": "relationship",
+                "~start": "ENSG00000184903",
+                "~end": "CL_0000173",
+                "~type": "Differential_Expression",
+                "~properties": {
+                    "UpOrDownRegulation": "Downregulated in T1D",
+                    "Log2FoldChange": -1.8702,
+                    "SE_of_Log2FoldChange": 0.4487,
+                    "P_value": 0.0,
+                    "Adjusted_P_value": 0.0035,
+                    "data_source": "PanKbase",
+                    "data_version": "2025-05-28"
+                }
+            },
+            {
+                "~id": "513289b3-eee3-455a-8dc9-b0ca9fcba186",
+                "~entityType": "relationship",
+                "~start": "ENSG00000184903",
+                "~end": "CL_0002079",
+                "~type": "Differential_Expression",
+                "~properties": {
+                    "UpOrDownRegulation": "Upregulated in T1D",
+                    "Log2FoldChange": 0.7913,
+                    "SE_of_Log2FoldChange": 0.2214,
+                    "P_value": 0.0004,
+                    "Adjusted_P_value": 0.0499,
+                    "data_source": "PanKbase",
+                    "data_version": "2025-05-28"
+                }
+            },
+            {
+                "~id": "76441e18-44ca-40e1-9aa8-08941df5d81e",
+                "~entityType": "relationship",
+                "~start": "ENSG00000184903",
+                "~end": "CL_0000169",
+                "~type": "expression_level",
+                "~properties": {
+                    "data_source": "PanKbase",
+                    "NonDiabetic__expression_mean": 10.1777,
+                    "NonDiabetic__expression_min": 9.0224,
+                    "NonDiabetic__expression_25_quantile": 9.961,
+                    "data_version": "V3.3",
+                    "NonDiabetic__expression_median": 10.1849,
+                    "NonDiabetic__expression_75_quantile": 10.487,
+                    "NonDiabetic__expression_max": 11.6917,
+                    "Type1Diabetic__expression_mean": 9.6759,
+                    "Type1Diabetic__expression_min": 9.1111,
+                    "Type1Diabetic__expression_25_quantile": 9.2949,
+                    "Type1Diabetic__expression_median": 9.6457,
+                    "Type1Diabetic__expression_75_quantile": 10.0262,
+                    "Type1Diabetic__expression_max": 10.332,
+                    "All__expression_mean": 10.122,
+                    "All__expression_min": 9.0224,
+                    "All__expression_25_quantile": 9.8665,
+                    "All__expression_median": 10.1485,
+                    "All__expression_75_quantile": 10.403,
+                    "All__expression_max": 11.6917
+                }
+            },
+            {
+                "~id": "367dd169-1c5c-466b-a8f6-12b03cf94a7a",
+                "~entityType": "relationship",
+                "~start": "ENSG00000184903",
+                "~end": "CL_0000173",
+                "~type": "expression_level",
+                "~properties": {
+                    "data_source": "PanKbase",
+                    "NonDiabetic__expression_mean": 6.4242,
+                    "NonDiabetic__expression_min": 4.858,
+                    "NonDiabetic__expression_25_quantile": 5.9542,
+                    "data_version": "V3.3",
+                    "NonDiabetic__expression_median": 6.3571,
+                    "NonDiabetic__expression_75_quantile": 6.9039,
+                    "NonDiabetic__expression_max": 7.6439,
+                    "Type1Diabetic__expression_mean": 5.2822,
+                    "Type1Diabetic__expression_min": 4.1699,
+                    "Type1Diabetic__expression_25_quantile": 4.858,
+                    "Type1Diabetic__expression_median": 5.2095,
+                    "Type1Diabetic__expression_75_quantile": 5.3923,
+                    "Type1Diabetic__expression_max": 6.7814,
+                    "All__expression_mean": 6.2611,
+                    "All__expression_min": 4.1699,
+                    "All__expression_25_quantile": 5.8197,
+                    "All__expression_median": 6.3038,
+                    "All__expression_75_quantile": 6.8826,
+                    "All__expression_max": 7.6439
+                }
+            },
+            {
+                "~id": "a4665fce-bd6e-4661-a604-f6d0bf4b5d95",
+                "~entityType": "relationship",
+                "~start": "ENSG00000184903",
+                "~end": "CL_0002079",
+                "~type": "expression_level",
+                "~properties": {
+                    "data_source": "PanKbase",
+                    "NonDiabetic__expression_mean": 8.7395,
+                    "NonDiabetic__expression_min": 7.4094,
+                    "NonDiabetic__expression_25_quantile": 8.3589,
+                    "data_version": "V3.3",
+                    "NonDiabetic__expression_median": 8.6616,
+                    "NonDiabetic__expression_75_quantile": 9.0945,
+                    "NonDiabetic__expression_max": 9.858,
+                    "Type1Diabetic__expression_mean": 9.0649,
+                    "Type1Diabetic__expression_min": 8.1548,
+                    "Type1Diabetic__expression_25_quantile": 8.7515,
+                    "Type1Diabetic__expression_median": 9.2455,
+                    "Type1Diabetic__expression_75_quantile": 9.4122,
+                    "Type1Diabetic__expression_max": 9.6475,
+                    "All__expression_mean": 8.8073,
+                    "All__expression_min": 7.4094,
+                    "All__expression_25_quantile": 8.4346,
+                    "All__expression_median": 8.8121,
+                    "All__expression_75_quantile": 9.2473,
+                    "All__expression_max": 9.858
+                }
+            }
+        ]
+    },
+    "core_nodes": [
+        "ENSG00000184903",
+        "CL_0000169",
+        "CL_0000173",
+        "CL_0002079"
+    ],
+    "xy_json": {
+        "ENSG00000184903": {
+            "x": 160.44,
+            "y": 100.51,
+            "Level": "Core"
+        },
+        "ENSG00000116221": {
+            "x": 231.83,
+            "y": 59.008,
+            "Level": "Neighbor"
+        },
+        "CL_0000169": {
+            "x": 160.27,
+            "y": 18.0,
+            "Level": "Core"
+        },
+        "ENSG00000146425": {
+            "x": 89.692,
+            "y": 142.96,
+            "Level": "Neighbor"
+        },
+        "ENSG00000182180": {
+            "x": 232.42,
+            "y": 141.05,
+            "Level": "Neighbor"
+        },
+        "CL_0002079": {
+            "x": 161.88,
+            "y": 183.07,
+            "Level": "Core"
+        },
+        "CL_0000173": {
+            "x": 88.656,
+            "y": 59.896,
+            "Level": "Core"
+        }
+    }
+}
