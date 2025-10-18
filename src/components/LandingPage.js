@@ -25,6 +25,9 @@ import {
 import landingPageLogo from '../image/landing image cropped.png';
 import ExampleQueries from '../schema/landing_sample_questions.json';
 
+export const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
+export const base64ToUtf8 = (base64) => decodeURIComponent(escape(atob(base64)));
+
 function BetaBadge({ sx }) {
   const [hover, setHover] = useState(false);
 
@@ -167,7 +170,8 @@ function LandingPage() {
   };
 
   const handleSearch = (searchQuery) => {
-
+    const encodedQuery = encodeURIComponent(utf8ToBase64(searchQuery));
+    navigate(`/result2?question=${encodedQuery}`);
   };
 
   return (
