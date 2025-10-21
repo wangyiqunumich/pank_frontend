@@ -41,23 +41,13 @@ import {
 } from '../components/IntermediatePage';
 import KnowledgeGraph from '../components/KnowledgeGraph';
 import VisuImage from '../image/output.png';
-import { queryAiAnswer } from '../redux/aiAnswerSlice';
 import { queryArticles } from '../redux/articlesSlice';
-import { setProcessedQuestion } from '../redux/processedQuestionSlice';
-import { queryQueryResultPage } from '../redux/queryResultPage';
-import { setSearchTerms } from '../redux/searchSlice';
-import { queryImage } from '../redux/typeToImageSlice';
-import { queryViewSchema } from '../redux/viewSchemaSlice';
 import { queryGraphviewer } from '../redux/graphviewerSlice';
-import tooltipsSchema from '../schema/tool_tips_schema.json';
-import {
-    addHighlight,
-    replaceNextQuestion,
-    replaceVariables,
-} from '../utils/textProcessing';
-import SampleJson from './sample2.json';
 import { queryQueryResult } from '../redux/queryResultSlice';
 import { querySupportingMaterial } from '../redux/supportingMaterialSlice';
+import tooltipsSchema from '../schema/tool_tips_schema.json';
+import { addHighlight } from '../utils/textProcessing';
+import SampleJson from './sample2.json';
 
 const tabOptions = [
     { value: 'references', label: 'References' },
@@ -248,7 +238,7 @@ function SearchResult() {
 
     // initialize the reference data from viewSchema w/ replacements
     useEffect(() => {
-        if(graphData){
+        if (graphData) {
             dispatch(querySupportingMaterial({
                 "combined_query_result": graphData
             })).then((response) => {
@@ -290,11 +280,11 @@ function SearchResult() {
                 setError(true);
                 return;
             }
-            setGraphData(response.payload?.results?.[0] || {});
-            // dispatch(queryGraphviewer({"query_result": response.payload})).then((response) => {
-            //     setGraphData(response.payload?.filtered_graph?.results?.[0] || {});
-            //     setCoordData(response.payload?.xy_coords || {});
-            // });
+            // setGraphData(response.payload?.results?.[0] || {});
+            dispatch(queryGraphviewer({ "query_result": response.payload })).then((response) => {
+                setGraphData(response.payload?.filtered_graph?.results?.[0] || {});
+                setCoordData(response.payload?.xy_coords || {});
+            });
         });
     }, []);
 
@@ -306,59 +296,59 @@ function SearchResult() {
 
     const ProcessLinks2 = ({ text }) => (
         // replace [aaa](bbb) with <a href="bbb">aaa</a>
-        !text ? [] : 
+        !text ? [] :
             text.split(/(\[[^\]]+\]\([^)]+\)|\[[^\]]+\])/)
                 .flatMap((part, index) => part.match(/^\[[^\]]+\]$/) // if [text]
-                    ? 
-                        part.split(/(\d+)/g).map((subPart, subIndex) =>
-                            subPart.match(/^\d{8}$/) //if all digit
-                                ? {text:subPart, type:"pubmedid"}
-                                : {text:subPart, type:"text"}
-                        )
+                    ?
+                    part.split(/(\d+)/g).map((subPart, subIndex) =>
+                        subPart.match(/^\d{8}$/) //if all digit
+                            ? { text: subPart, type: "pubmedid" }
+                            : { text: subPart, type: "text" }
+                    )
                     : [part.match(/^\[[^\]]+\]\([^)]+\)$/)  // if [text](url)
-                        ? {text: part.split("]")[0].substr(1), type:"link", url: part.split("(")[1].slice(0, -1)}
-                        : {text:part, type:"text"}]
+                        ? { text: part.split("]")[0].substr(1), type: "link", url: part.split("(")[1].slice(0, -1) }
+                        : { text: part, type: "text" }]
                 )
     )
 
-        // process links in the AI answer text
+    // process links in the AI answer text
     const ProcessLinks = ({ text }) => (
         // replace [aaa](bbb) with <a href="bbb">aaa</a>
         ProcessLinks2({ text: text }).map((part, index) =>
             part.type === "pubmedid" ? (
                 <Link
                     href={`#reference-item-${part.text}`}
-                                    sx={{
-                                        color: '#1976d2',
-                                        fontWeight: 400,
-                                        textDecoration: 'none',
-                                        '&:hover': {
-                                            textDecoration: 'underline'
-                                        }
-                                    }}
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        setCurrTab('references');
-                                        setActiveReference(part.text);
-                                    }}
-                                    key={index}
-                                >{part.text}</Link>
+                    sx={{
+                        color: '#1976d2',
+                        fontWeight: 400,
+                        textDecoration: 'none',
+                        '&:hover': {
+                            textDecoration: 'underline'
+                        }
+                    }}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        setCurrTab('references');
+                        setActiveReference(part.text);
+                    }}
+                    key={index}
+                >{part.text}</Link>
             ) : part.type === "link" ? (<a
-                            href={part.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            style={{ color: "#0069c2", textDecoration: "none" }}
-                            key={index}
-                        >
-                            {part.text}
-                        </a>
+                href={part.url}
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: "#0069c2", textDecoration: "none" }}
+                key={index}
+            >
+                {part.text}
+            </a>
             ) : (<span key={index}>{part.text}</span>)
-    ));
+        ));
 
-        // Fetch articles data based on aiAnswer
+    // Fetch articles data based on aiAnswer
     useEffect(() => {
         if (aiAnswer) {
-            const articles = ProcessLinks2({text: aiAnswer}).filter(part => part.type === "pubmedid").map(part => ({pmid: part.text}));
+            const articles = ProcessLinks2({ text: aiAnswer }).filter(part => part.type === "pubmedid").map(part => ({ pmid: part.text }));
             dispatch(queryArticles({
                 db: 'pubmed',
                 id: articles.map(article => article.pmid).join(','),
@@ -565,315 +555,315 @@ function SearchResult() {
                         </Grid>
                     </Grid>
                 </Box>
-                    <div style={{ position: 'relative', width: 'fit-content' }}>
-                        <div style={{
-                            position: 'absolute',
-                            top: '0px',
-                            left: '0px',
-                            width: '100%',
-                            height: '100%',
+                <div style={{ position: 'relative', width: 'fit-content' }}>
+                    <div style={{
+                        position: 'absolute',
+                        top: '0px',
+                        left: '0px',
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: '20px 20px 0px 0px',
+                        borderWidth: '1px 0px 0px',
+                        borderStyle: 'solid',
+                        borderColor: "#E5E5E5",
+                        zIndex: 1,
+                        pointerEvents: 'none',
+                    }}></div>
+                    <Tabs
+                        value={currTab}
+                        onChange={(e, value) => setCurrTab(value)}
+                        variant="scrollable"
+                        scrollButtons={false}
+                        sx={{
+                            minHeight: '48px',
+                            height: '48px',
+                            width: 'fit-content',
+                            backgroundColor: '#F2FAFB',
                             borderRadius: '20px 20px 0px 0px',
-                            borderWidth: '1px 0px 0px',
-                            borderStyle: 'solid',
-                            borderColor: "#E5E5E5",
-                            zIndex: 1,
-                            pointerEvents: 'none',
-                        }}></div>
-                        <Tabs
-                            value={currTab}
-                            onChange={(e, value) => setCurrTab(value)}
-                            variant="scrollable"
-                            scrollButtons={false}
-                            sx={{
-                                minHeight: '48px',
-                                height: '48px',
-                                width: 'fit-content',
-                                backgroundColor: '#F2FAFB',
-                                borderRadius: '20px 20px 0px 0px',
-                                border: 'none',
-                                '& .MuiTab-root': {
-                                    textTransform: 'none',
-                                    fontSize: '16px',
-                                    whiteSpace: 'normal',
-                                    margin: '0px',
-                                    '& .MuiTab-wrapper': {
-                                        flexDirection: 'row',
-                                        justifyContent: 'flex-start',
-                                        alignItems: 'flex-start'
-                                    }
-                                },
-                                '& .MuiTab-root:first-of-type': {
-                                    borderTopLeftRadius: '20px',
-                                },
-                                '& .MuiTab-root:last-of-type': {
-                                    borderTopRightRadius: '20px',
-                                },
-                                '& .MuiTabs-indicator': {
-                                    backgroundColor: '#398289',
-                                },
-                            }}
-                        >
-                            {tabOptions.map((option, index) => (
-                                <Tab
-                                    sx={{
-                                        minHeight: '48px',
-                                        height: '48px',
-                                        backgroundColor: currTab === option.value ? 'white' : '#F2FAFB',
-                                        borderWidth:
-                                            currTab === option.value ? '1px 1px 0px 1px' :
-                                                tabOptions.findIndex((tab) => tab.value === currTab) > index ?
-                                                    '1px 0px 0px 1px' : '1px 1px 0px 0px',
-                                        borderStyle: 'solid',
-                                        borderColor: '#E5E5E5',
-                                        borderRadius:
-                                            currTab === option.value ? '20px 20px 0px 0px' :
-                                                tabOptions.findIndex((tab) => tab.value === currTab) > index ?
-                                                    '20px 0px 0px 0px' : '0px 20px 0px 0px',
-                                    }}
-                                    key={option.value}
-                                    label={
-                                        <Typography
-                                            component="span"
-                                            sx={{
-                                                textAlign: 'left',
-                                                fontFamily: 'Open Sans',
-                                                fontSize: '16px',
-                                                color: currTab === option.value ? '#398289' : 'black',
-                                                fontWeight: currTab === option.value ? '600' : '400',
-                                                marginX: '20px',
-                                            }}
-                                        >
-                                            {option.label}
-                                        </Typography>
-                                    }
-                                    value={option.value}
-                                />))}
-                        </Tabs>
-                    </div>
-                    <Box sx={{
-                        position: 'relative',
-                        padding: '20px',
-                        backgroundColor: '#F9FAFB',
-                        marginBottom: '20px',
-                        borderRadius: '0px 20px 20px 20px',
-                        border: '1px solid #EEEEEE',
-                        transform: 'translateY(-1px)',
-                    }}>
-                        <Collapse in={currTab === 'references'}>
-                            <List sx={{
-                                padding: '0px',
-                            }}>
-                                {articlesData?.map((ref, index) => (
-                                    <Link
-                                        href={"https://pubmed.gov/" + ref.pmid}
+                            border: 'none',
+                            '& .MuiTab-root': {
+                                textTransform: 'none',
+                                fontSize: '16px',
+                                whiteSpace: 'normal',
+                                margin: '0px',
+                                '& .MuiTab-wrapper': {
+                                    flexDirection: 'row',
+                                    justifyContent: 'flex-start',
+                                    alignItems: 'flex-start'
+                                }
+                            },
+                            '& .MuiTab-root:first-of-type': {
+                                borderTopLeftRadius: '20px',
+                            },
+                            '& .MuiTab-root:last-of-type': {
+                                borderTopRightRadius: '20px',
+                            },
+                            '& .MuiTabs-indicator': {
+                                backgroundColor: '#398289',
+                            },
+                        }}
+                    >
+                        {tabOptions.map((option, index) => (
+                            <Tab
+                                sx={{
+                                    minHeight: '48px',
+                                    height: '48px',
+                                    backgroundColor: currTab === option.value ? 'white' : '#F2FAFB',
+                                    borderWidth:
+                                        currTab === option.value ? '1px 1px 0px 1px' :
+                                            tabOptions.findIndex((tab) => tab.value === currTab) > index ?
+                                                '1px 0px 0px 1px' : '1px 1px 0px 0px',
+                                    borderStyle: 'solid',
+                                    borderColor: '#E5E5E5',
+                                    borderRadius:
+                                        currTab === option.value ? '20px 20px 0px 0px' :
+                                            tabOptions.findIndex((tab) => tab.value === currTab) > index ?
+                                                '20px 0px 0px 0px' : '0px 20px 0px 0px',
+                                }}
+                                key={option.value}
+                                label={
+                                    <Typography
+                                        component="span"
                                         sx={{
-                                            color: 'black',
-                                            textDecoration: 'none',
-                                            '& .pmid-link:hover': {
-                                                textDecoration: 'underline'
-                                            }
+                                            textAlign: 'left',
+                                            fontFamily: 'Open Sans',
+                                            fontSize: '16px',
+                                            color: currTab === option.value ? '#398289' : 'black',
+                                            fontWeight: currTab === option.value ? '600' : '400',
+                                            marginX: '20px',
                                         }}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        key={index}
                                     >
-                                        <ListItem
-                                            sx={{
-                                                paddingY: '0px',
-                                                marginLeft: '20px',
-                                                flexDirection: "column",
-                                                alignItems: "flex-start",
-                                                position: "relative",
-                                                fontSize: '12px',
-                                                fontWeight: 300,
-                                                textAlign: 'left',
-                                                wordWrap: 'break-word',
-                                                whiteSpace: 'normal',
-                                                maxWidth: 'calc(100% - 20px)',
-                                                paddingTop: index === 0 ? '0px' : '15px',
-                                            }}
-                                            key={index}
-                                            id={`reference-item-${ref.pmid}`}
-                                            className={`reference-item${activeReference === ref.pmid ? '-active' : ''}`}
-                                        >
-                                            <Box sx={{
-                                                position: 'absolute',
-                                                fontSize: '16px',
-                                                left: '-20px',
-                                                width: '30px',
-                                                height: '100%',
-                                                alignItems: "flex-end",
-                                            }}>
-                                                <Typography
-                                                    sx={{ fontFamily: 'Open Sans', textAlign: 'right', fontWeight: 400 }}
-                                                >{index + 1}.</Typography>
-                                            </Box>
+                                        {option.label}
+                                    </Typography>
+                                }
+                                value={option.value}
+                            />))}
+                    </Tabs>
+                </div>
+                <Box sx={{
+                    position: 'relative',
+                    padding: '20px',
+                    backgroundColor: '#F9FAFB',
+                    marginBottom: '20px',
+                    borderRadius: '0px 20px 20px 20px',
+                    border: '1px solid #EEEEEE',
+                    transform: 'translateY(-1px)',
+                }}>
+                    <Collapse in={currTab === 'references'}>
+                        <List sx={{
+                            padding: '0px',
+                        }}>
+                            {articlesData?.map((ref, index) => (
+                                <Link
+                                    href={"https://pubmed.gov/" + ref.pmid}
+                                    sx={{
+                                        color: 'black',
+                                        textDecoration: 'none',
+                                        '& .pmid-link:hover': {
+                                            textDecoration: 'underline'
+                                        }
+                                    }}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    key={index}
+                                >
+                                    <ListItem
+                                        sx={{
+                                            paddingY: '0px',
+                                            marginLeft: '20px',
+                                            flexDirection: "column",
+                                            alignItems: "flex-start",
+                                            position: "relative",
+                                            fontSize: '12px',
+                                            fontWeight: 300,
+                                            textAlign: 'left',
+                                            wordWrap: 'break-word',
+                                            whiteSpace: 'normal',
+                                            maxWidth: 'calc(100% - 20px)',
+                                            paddingTop: index === 0 ? '0px' : '15px',
+                                        }}
+                                        key={index}
+                                        id={`reference-item-${ref.pmid}`}
+                                        className={`reference-item${activeReference === ref.pmid ? '-active' : ''}`}
+                                    >
+                                        <Box sx={{
+                                            position: 'absolute',
+                                            fontSize: '16px',
+                                            left: '-20px',
+                                            width: '30px',
+                                            height: '100%',
+                                            alignItems: "flex-end",
+                                        }}>
                                             <Typography
-                                                sx={{ fontFamily: 'Open Sans', fontWeight: 700 }}
-                                            >{ref.data?.title}</Typography>
-                                            <Typography sx={{ fontFamily: 'Open Sans', color: "grey" }}>
-                                                {(() => {
-                                                    const authors = ref.data.authors;
-                                                    return authors.length <= 2 ?
-                                                        authors.map((author) => (author.name)).join(', ') :
-                                                        `${authors[0].name}, ..., ${authors[authors.length - 1].name}`;
-                                                })()}
-                                            </Typography>
-                                            <Typography sx={{ fontFamily: 'Open Sans', color: "grey" }}>
-                                                <i>{ref.data.fulljournalname}</i>.&nbsp;
-                                                {ref.data.pubdate.slice(0, 4)}
-                                                {(ref.data.volume || ref.data.issue || ref.data.pages) && <>;</>}
-                                                {ref.data.volume}
-                                                {ref.data.issue && <>({ref.data.issue})</>}
-                                                {ref.data.pages && <>:{ref.data.pages}</>}.
-                                                &nbsp;<span
-                                                    className="pmid-link"
-                                                    style={{
-                                                        color: '#1976d2',
-                                                        fontWeight: 400,
-                                                    }}
-                                                >PMID: {ref.pmid}</span>
-                                            </Typography>
-                                        </ListItem>
-                                    </Link>
-                                ))}
-                            </List>
-                        </Collapse>
-                        <Collapse in={currTab === 'empirical_evidence'}>
-                            <List sx={{ padding: '0px' }}>
-                                {referenceData?.empirical_evidence &&
-                                    (<Box sx={{ flexDirection: 'row', display: 'flex', gap: '45px', alignItems: 'center' }}>
-                                        {(referenceData.empirical_evidence.lambda_function && !(typeToImage?.length)) ? (
-                                            <Box sx={{
-                                                backgroundColor: '#F2FAFB',
+                                                sx={{ fontFamily: 'Open Sans', textAlign: 'right', fontWeight: 400 }}
+                                            >{index + 1}.</Typography>
+                                        </Box>
+                                        <Typography
+                                            sx={{ fontFamily: 'Open Sans', fontWeight: 700 }}
+                                        >{ref.data?.title}</Typography>
+                                        <Typography sx={{ fontFamily: 'Open Sans', color: "grey" }}>
+                                            {(() => {
+                                                const authors = ref.data.authors;
+                                                return authors.length <= 2 ?
+                                                    authors.map((author) => (author.name)).join(', ') :
+                                                    `${authors[0].name}, ..., ${authors[authors.length - 1].name}`;
+                                            })()}
+                                        </Typography>
+                                        <Typography sx={{ fontFamily: 'Open Sans', color: "grey" }}>
+                                            <i>{ref.data.fulljournalname}</i>.&nbsp;
+                                            {ref.data.pubdate.slice(0, 4)}
+                                            {(ref.data.volume || ref.data.issue || ref.data.pages) && <>;</>}
+                                            {ref.data.volume}
+                                            {ref.data.issue && <>({ref.data.issue})</>}
+                                            {ref.data.pages && <>:{ref.data.pages}</>}.
+                                            &nbsp;<span
+                                                className="pmid-link"
+                                                style={{
+                                                    color: '#1976d2',
+                                                    fontWeight: 400,
+                                                }}
+                                            >PMID: {ref.pmid}</span>
+                                        </Typography>
+                                    </ListItem>
+                                </Link>
+                            ))}
+                        </List>
+                    </Collapse>
+                    <Collapse in={currTab === 'empirical_evidence'}>
+                        <List sx={{ padding: '0px' }}>
+                            {referenceData?.empirical_evidence &&
+                                (<Box sx={{ flexDirection: 'row', display: 'flex', gap: '45px', alignItems: 'center' }}>
+                                    {(referenceData.empirical_evidence.lambda_function && !(typeToImage?.length)) ? (
+                                        <Box sx={{
+                                            backgroundColor: '#F2FAFB',
+                                            marginY: '14px',
+                                            marginLeft: '25px',
+                                            borderRadius: '10px',
+                                            marginRight: '10px',
+                                            minWidth: '250px',
+                                            minHeight: '250px',
+                                            position: 'relative',
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                        }} >
+                                            <CircularProgress sx={{}} />
+                                        </Box>
+                                    ) : (<Box sx={{ position: 'relative' }}>
+                                        <Box
+                                            component="img"
+                                            src={referenceData.empirical_evidence.lambda_function ?
+                                                (typeToImage?.length ? `data:image/jpeg;base64,${typeToImage}` : "")
+                                                : VisuImage}
+                                            alt="Empirical Evidence"
+                                            sx={{
+                                                maxHeight: '235px',
+                                                maxWidth: '500px',
                                                 marginY: '14px',
                                                 marginLeft: '25px',
                                                 borderRadius: '10px',
                                                 marginRight: '10px',
-                                                minWidth: '250px',
-                                                minHeight: '250px',
-                                                position: 'relative',
-                                                display: 'flex',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                            }} >
-                                                <CircularProgress sx={{}} />
-                                            </Box>
-                                        ) : (<Box sx={{ position: 'relative' }}>
-                                            <Box
-                                                component="img"
-                                                src={referenceData.empirical_evidence.lambda_function ?
-                                                    (typeToImage?.length ? `data:image/jpeg;base64,${typeToImage}` : "")
-                                                    : VisuImage}
-                                                alt="Empirical Evidence"
-                                                sx={{
-                                                    maxHeight: '235px',
-                                                    maxWidth: '500px',
-                                                    marginY: '14px',
-                                                    marginLeft: '25px',
-                                                    borderRadius: '10px',
-                                                    marginRight: '10px',
-                                                }}
-                                            />
-                                            <Link sx={{
-                                                textDecoration: 'none',
-                                                "& .MuiTypography-root:hover":
-                                                    referenceData.empirical_evidence.legend === "View" ? {
-                                                        background: '#4A4A4B66',
-                                                        color: 'white',
-                                                        cursor: 'pointer',
-                                                    } : {},
-                                            }}>
-                                                <Typography sx={{
-                                                    position: 'absolute',
-                                                    top: '26px',
-                                                    left: '35px',
-                                                    borderRadius: '6px',
-                                                    padding: '4px 12px',
-                                                    background: '#4A4A4BB2',
-                                                    fontFamily: 'Open Sans',
-                                                    fontSize: '13px',
-                                                    fontWeight: 600,
+                                            }}
+                                        />
+                                        <Link sx={{
+                                            textDecoration: 'none',
+                                            "& .MuiTypography-root:hover":
+                                                referenceData.empirical_evidence.legend === "View" ? {
+                                                    background: '#4A4A4B66',
                                                     color: 'white',
-                                                    transition: 'background 0.2s ease',
-                                                }} onClick={
-                                                    referenceData.empirical_evidence.legend === "View" ? () => setImagePopupOpen(true) : () => { }
-                                                }>
-                                                    {referenceData.empirical_evidence.legend}
+                                                    cursor: 'pointer',
+                                                } : {},
+                                        }}>
+                                            <Typography sx={{
+                                                position: 'absolute',
+                                                top: '26px',
+                                                left: '35px',
+                                                borderRadius: '6px',
+                                                padding: '4px 12px',
+                                                background: '#4A4A4BB2',
+                                                fontFamily: 'Open Sans',
+                                                fontSize: '13px',
+                                                fontWeight: 600,
+                                                color: 'white',
+                                                transition: 'background 0.2s ease',
+                                            }} onClick={
+                                                referenceData.empirical_evidence.legend === "View" ? () => setImagePopupOpen(true) : () => { }
+                                            }>
+                                                {referenceData.empirical_evidence.legend}
+                                            </Typography>
+                                        </Link>
+                                    </Box>)}
+                                    <Box>
+                                        <Typography sx={{ fontFamily: 'Open Sans', fontSize: '20px', fontWeight: 700 }}>
+                                            {referenceData.empirical_evidence.title}
+                                        </Typography>
+                                        <Typography sx={{ fontFamily: 'Open Sans', fontSize: '16px', fontWeight: 400, color: "#263238", paddingY: '24px' }}>
+                                            {referenceData.empirical_evidence.description}
+                                        </Typography>
+                                        {referenceData.empirical_evidence.link_text &&
+                                            <Link
+                                                href={referenceData.empirical_evidence.link || handleDownload(variables.dataSource, variables.credibleSetId)}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                sx={{ textDecoration: "none" }}>
+                                                <Typography sx={{
+                                                    cursor: 'pointer',
+                                                    fontFamily: 'Open Sans',
+                                                    fontSize: '16px', paddingY: '10px', paddingX: '20px', backgroundColor: '#219197',
+                                                    textAlign: 'center', borderRadius: '10px', color: 'white',
+                                                    fontWeight: 600, width: 'fit-content',
+                                                }}>{referenceData.empirical_evidence.link_text}
                                                 </Typography>
-                                            </Link>
-                                        </Box>)}
-                                        <Box>
-                                            <Typography sx={{ fontFamily: 'Open Sans', fontSize: '20px', fontWeight: 700 }}>
-                                                {referenceData.empirical_evidence.title}
-                                            </Typography>
-                                            <Typography sx={{ fontFamily: 'Open Sans', fontSize: '16px', fontWeight: 400, color: "#263238", paddingY: '24px' }}>
-                                                {referenceData.empirical_evidence.description}
-                                            </Typography>
-                                            {referenceData.empirical_evidence.link_text &&
-                                                <Link
-                                                    href={referenceData.empirical_evidence.link || handleDownload(variables.dataSource, variables.credibleSetId)}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    sx={{ textDecoration: "none" }}>
-                                                    <Typography sx={{
-                                                        cursor: 'pointer',
-                                                        fontFamily: 'Open Sans',
-                                                        fontSize: '16px', paddingY: '10px', paddingX: '20px', backgroundColor: '#219197',
-                                                        textAlign: 'center', borderRadius: '10px', color: 'white',
-                                                        fontWeight: 600, width: 'fit-content',
-                                                    }}>{referenceData.empirical_evidence.link_text}
-                                                    </Typography>
-                                                </Link>}
-                                        </Box>
+                                            </Link>}
                                     </Box>
-                                    )
-                                }
-                            </List>
-                        </Collapse>
-                        <Collapse in={currTab === 'pankbase_links'}>
-                            <List sx={{ padding: '0px' }}>
-                                {referenceData?.pankbase_links?.map((link, index) => (
-                                    <ListItem sx={{ paddingY: '0px' }} key={index}>
-                                        •&nbsp;<Link
-                                            href={link[1]}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            sx={{
-                                                color: '#1976d2',
-                                                textDecoration: 'none',
-                                                textSize: '16px',
-                                                '&:hover': {
-                                                    textDecoration: 'underline'
-                                                }
-                                            }}
-                                        > {link[0]}</Link>
-                                    </ListItem>))
-                                }
-                            </List>
-                        </Collapse>
-                        <Collapse in={currTab === 'external_links'}>
-                            <List sx={{ padding: '0px' }}>
-                                {referenceData?.external_links?.map((link, index) => (
-                                    <ListItem sx={{ paddingY: '0px' }} key={index}>
-                                        •&nbsp;{link[0]}&nbsp;<Link
-                                            href={link[2]}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            sx={{
-                                                color: '#1976d2',
-                                                textDecoration: 'none',
-                                                textSize: '16px',
-                                                '&:hover': {
-                                                    textDecoration: 'underline'
-                                                }
-                                            }}
-                                        > {link[1]}</Link>
-                                    </ListItem>))
-                                }
-                            </List>
-                        </Collapse>
-                    </Box>
+                                </Box>
+                                )
+                            }
+                        </List>
+                    </Collapse>
+                    <Collapse in={currTab === 'pankbase_links'}>
+                        <List sx={{ padding: '0px' }}>
+                            {referenceData?.pankbase_links?.map((link, index) => (
+                                <ListItem sx={{ paddingY: '0px' }} key={index}>
+                                    •&nbsp;<Link
+                                        href={link[1]}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        sx={{
+                                            color: '#1976d2',
+                                            textDecoration: 'none',
+                                            textSize: '16px',
+                                            '&:hover': {
+                                                textDecoration: 'underline'
+                                            }
+                                        }}
+                                    > {link[0]}</Link>
+                                </ListItem>))
+                            }
+                        </List>
+                    </Collapse>
+                    <Collapse in={currTab === 'external_links'}>
+                        <List sx={{ padding: '0px' }}>
+                            {referenceData?.external_links?.map((link, index) => (
+                                <ListItem sx={{ paddingY: '0px' }} key={index}>
+                                    •&nbsp;{link[0]}&nbsp;<Link
+                                        href={link[2]}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        sx={{
+                                            color: '#1976d2',
+                                            textDecoration: 'none',
+                                            textSize: '16px',
+                                            '&:hover': {
+                                                textDecoration: 'underline'
+                                            }
+                                        }}
+                                    > {link[1]}</Link>
+                                </ListItem>))
+                            }
+                        </List>
+                    </Collapse>
+                </Box>
             </Container>
         </Container>
         );
