@@ -1,53 +1,53 @@
 import './scoped.css';
 
 import React, {
-    useEffect,
-    useRef,
-    useState,
+  useEffect,
+  useRef,
+  useState,
 } from 'react';
 
 import {
-    useDispatch,
-    useSelector,
+  useDispatch,
+  useSelector,
 } from 'react-redux';
 
 import {
-    ChevronRight as ChevronRightIcon,
-    InfoOutlined as InfoOutlineIcon,
+  ChevronRight as ChevronRightIcon,
+  InfoOutlined as InfoOutlineIcon,
 } from '@mui/icons-material';
 import {
-    Backdrop,
-    Box,
-    CircularProgress,
-    Collapse,
-    Container,
-    Grid,
-    Link,
-    List,
-    ListItem,
-    Skeleton,
-    styled,
-    Tab,
-    Tabs,
-    Tooltip,
-    tooltipClasses,
-    Typography,
+  Backdrop,
+  Box,
+  CircularProgress,
+  Collapse,
+  Container,
+  Grid,
+  Link,
+  List,
+  ListItem,
+  Skeleton,
+  styled,
+  Tab,
+  Tabs,
+  Tooltip,
+  tooltipClasses,
+  Typography,
 } from '@mui/material';
 
 import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 import {
-    ErrorComponent,
-    tabsQTL,
+  ErrorComponent,
+  tabsQTL,
 } from '../components/IntermediatePage';
 import KnowledgeGraph from '../components/KnowledgeGraph';
 import VisuImage from '../image/output.png';
+import { queryAiAgent } from '../redux/aiAgentSlice';
 import { queryArticles } from '../redux/articlesSlice';
 import { queryGraphviewer } from '../redux/graphviewerSlice';
 import { queryQueryResult } from '../redux/queryResultSlice';
 import { querySupportingMaterial } from '../redux/supportingMaterialSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import { addHighlight } from '../utils/textProcessing';
-import SampleJson from './sample2.json';
 
 const tabOptions = [
     { value: 'references', label: 'References' },
@@ -266,24 +266,27 @@ function SearchResult() {
         const params = new URLSearchParams(window.location.search);
         const question = base64ToUtf8(params.get('question'));
 
-        const agentResult = SampleJson;
-        if (agentResult.template_matching !== 'agent_answer') {
-            //navigate
-            return;
-        }
-        setAiAnswer(agentResult.summary || {});
-        setMainCypher(agentResult.cypher || '');
-
-        setCurrentQuestion(question);
-        dispatch(queryQueryResult({ query: agentResult.cypher, isNeptune: true })).then((response) => {
-            if (!response.payload || response.error) {
-                setError(true);
+        dispatch(queryAiAgent({ question: question, "agent_name": "pankbase" })).then((response) => {
+            const agentResult = response.payload;
+            console.log('AI Agent Result:', agentResult);
+            if (agentResult.template_matching !== 'agent_answer') {
+                //navigate
                 return;
             }
-            // setGraphData(response.payload?.results?.[0] || {});
-            dispatch(queryGraphviewer({ "query_result": response.payload })).then((response) => {
-                setGraphData(response.payload?.filtered_graph?.results?.[0] || {});
-                setCoordData(response.payload?.xy_coords || {});
+            setAiAnswer(agentResult.summary || {});
+            setMainCypher(agentResult.cypher || '');
+
+            setCurrentQuestion(question);
+            dispatch(queryQueryResult({ query: agentResult.cypher, isNeptune: true })).then((response) => {
+                if (!response.payload || response.error) {
+                    setError(true);
+                    return;
+                }
+                // setGraphData(response.payload?.results?.[0] || {});
+                dispatch(queryGraphviewer({ "query_result": response.payload })).then((response) => {
+                    setGraphData(response.payload?.filtered_graph?.results?.[0] || {});
+                    setCoordData(response.payload?.xy_coords || {});
+                });
             });
         });
     }, []);

@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 
+import aiAgentReducer from './aiAgentSlice';
 import aiAnswerReducer from './aiAnswerSlice';
 import articlesReducer from './articlesSlice';
 import catalogReducer from './catalogSlice';
@@ -33,6 +34,7 @@ const store = configureStore({
         feedback: feedbackReducer,
         graphviewer: graphviewerReducer,
         supportingMaterial: supportingMaterialReducer,
+        aiAgent: aiAgentReducer,
     },
 });
 
