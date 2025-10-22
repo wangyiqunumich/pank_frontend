@@ -1,20 +1,21 @@
 import { configureStore } from '@reduxjs/toolkit';
 
+import aiAgentReducer from './aiAgentSlice';
 import aiAnswerReducer from './aiAnswerSlice';
 import articlesReducer from './articlesSlice';
 import catalogReducer from './catalogSlice';
 import feedbackReducer from './feedbackSlice';
+import graphviewerReducer from './graphviewerSlice';
 import inputToVocabReducer from './inputToVocabSlice';
 import processedQuestionReducer from './processedQuestionSlice';
 import queryResultPage from './queryResultPage';
 import queryResultReducer from './queryResultSlice';
 import queryVisResultReducer from './queryVisResultSlice';
 import searchReducer from './searchSlice';
+import supportingMaterialReducer from './supportingMaterialSlice';
 import typeToImageReducer from './typeToImageSlice';
 import variablesReducer from './variablesSlice';
 import viewSchemaReducer from './viewSchemaSlice';
-import graphviewerReducer from './graphviewerSlice';
-import supportingMaterialReducer from './supportingMaterialSlice';
 
 const store = configureStore({
     reducer: {
@@ -33,6 +34,7 @@ const store = configureStore({
         feedback: feedbackReducer,
         graphviewer: graphviewerReducer,
         supportingMaterial: supportingMaterialReducer,
+        aiAgent: aiAgentReducer,
     },
 });
 
