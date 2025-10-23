@@ -513,7 +513,7 @@ function IntermediatePage({ onContinue }) {
     const relationship = params.get('relationship');
     const targetTerm = params.get('targetTerm');
     const sourceSymbol = params.get('sourceSymbol') || "";
-    const targetSymbol = params.get('targetSymbol') || "";
+    const targetSymbol = params.get('targetSymbol') || params.get('targetTerm')?.split('@')[1] || "";
     if (sourceTerm && relationship && targetTerm) {
       dispatch(
         setSearchTerms({

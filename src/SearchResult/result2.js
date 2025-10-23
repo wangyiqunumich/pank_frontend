@@ -267,10 +267,15 @@ function SearchResult() {
         const question = base64ToUtf8(params.get('question'));
 
         dispatch(queryAiAgent({ question: question, "agent_name": "pankbase" })).then((response) => {
-            const agentResult = response.payload;
+            const agentResult = response.payload?.response || response.payload || {};
             console.log('AI Agent Result:', agentResult);
             if (agentResult.template_matching !== 'agent_answer') {
-                //navigate
+                //should be aaa - bbb - ccc
+                //navigate to /result?sourceTerm=aaa&targetTerm=ccc&relationship=bbb
+                const [sourceTerm, relationship, targetTerm] = agentResult.template_matching.split(' - ');
+                const page = relationship === 'express_in' ? 'result' : 'intermediate';
+                const newUrl = `/${page}?sourceTerm=${sourceTerm}&targetTerm=${targetTerm}&relationship=${relationship}`;
+                window.location.href = newUrl;
                 return;
             }
             setAiAnswer(agentResult.summary || {});
@@ -294,8 +299,6 @@ function SearchResult() {
     const removeConsecutiveAsterisks = (text) => {
         return text.replace(/\*\*/g, '');
     };
-
-
 
     const ProcessLinks2 = ({ text }) => (
         // replace [aaa](bbb) with <a href="bbb">aaa</a>
@@ -350,24 +353,20 @@ function SearchResult() {
 
     // Fetch articles data based on aiAnswer
     useEffect(() => {
-        if (aiAnswer) {
-            const articles = ProcessLinks2({ text: aiAnswer }).filter(part => part.type === "pubmedid").map(part => ({ pmid: part.text }));
+        if (aiAnswer?.articles?.length > 0) {
+            const pmidsFromText = ProcessLinks2({ text: aiAnswer }).filter(part => part.type === "pubmedid").map(part => (part.text));
+            const pmids = [...new Set(pmidsFromText)].slice(0, 50);
             dispatch(queryArticles({
                 db: 'pubmed',
-                id: articles.map(article => article.pmid).join(','),
+                id: pmids.join(','),
                 retmode: 'json',
             })).then((response) => {
-                // const sortedArticles = aiAnswer.articles.toSorted((a, b) => b.score - a.score);
-                const sortedArticles = articles;
                 setArticlesData(
-                    sortedArticles.map(article => ({
-                        pmid: article.pmid,
-                        // title: response.payload.result[article.pmid]?.title || "",
-                        // score: article.score,
-                        data: response.payload.result[article.pmid] || {},
-                        doi: response.payload.result[article.pmid]?.articleids?.find(id => id.idtype === 'doi')?.value || ''
-                    }
-                    ))
+                    pmids.map(pmid => ({
+                        pmid: pmid,
+                        data: response.payload.result[pmid] || {},
+                        doi: response.payload.result[pmid]?.articleids?.find(id => id.idtype === 'doi')?.value || ''
+                    }))
                 );
             });
         }

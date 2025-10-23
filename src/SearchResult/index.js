@@ -1,43 +1,43 @@
 import './scoped.css';
 
 import React, {
-    useEffect,
-    useRef,
-    useState,
+  useEffect,
+  useRef,
+  useState,
 } from 'react';
 
 import {
-    useDispatch,
-    useSelector,
+  useDispatch,
+  useSelector,
 } from 'react-redux';
 
 import {
-    ChevronRight as ChevronRightIcon,
-    InfoOutlined as InfoOutlineIcon,
+  ChevronRight as ChevronRightIcon,
+  InfoOutlined as InfoOutlineIcon,
 } from '@mui/icons-material';
 import {
-    Backdrop,
-    Box,
-    CircularProgress,
-    Collapse,
-    Container,
-    Grid,
-    Link,
-    List,
-    ListItem,
-    Skeleton,
-    styled,
-    Tab,
-    Tabs,
-    Tooltip,
-    tooltipClasses,
-    Typography,
+  Backdrop,
+  Box,
+  CircularProgress,
+  Collapse,
+  Container,
+  Grid,
+  Link,
+  List,
+  ListItem,
+  Skeleton,
+  styled,
+  Tab,
+  Tabs,
+  Tooltip,
+  tooltipClasses,
+  Typography,
 } from '@mui/material';
 
 import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 import {
-    ErrorComponent,
-    tabsQTL,
+  ErrorComponent,
+  tabsQTL,
 } from '../components/IntermediatePage';
 import KnowledgeGraph from '../components/KnowledgeGraph';
 import VisuImage from '../image/output.png';
@@ -50,9 +50,9 @@ import { queryImage } from '../redux/typeToImageSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import {
-    addHighlight,
-    replaceNextQuestion,
-    replaceVariables,
+  addHighlight,
+  replaceNextQuestion,
+  replaceVariables,
 } from '../utils/textProcessing';
 
 const tabOptions = [
@@ -186,6 +186,8 @@ function SearchResult() {
     const [allNextQuestions, setAllNextQuestions] = useState(null);
     const [error, setError] = useState(false);
 
+    const [renderedAiAnswer, setRenderedAiAnswer] = useState(null);
+
     // scroll to active reference after it is set
     const timeoutRef = useRef(null);
     useEffect(() => {
@@ -255,21 +257,29 @@ function SearchResult() {
 
     // Fetch articles data based on aiAnswer
     useEffect(() => {
-        if (aiAnswer?.articles?.length > 0) {
-            const pmids = aiAnswer.articles.map(article => article.pmid);
+        if (aiAnswer) {
+            const scoreMap = Object.fromEntries(
+                aiAnswer.articles?.map(article => [article.pmid, article.score]) || []
+            );
+            const aiAnswerText = aiAnswer.answers ? aiAnswer.answers.join(' ') : '';
+            console.log('aiAnswerText:', aiAnswerText);
+            const pmidsFromText = ProcessLinks2({ text: removeConsecutiveAsterisks(aiAnswerText) }).filter(part => part.type === "pubmedid").map(part => (part.text));
+            const pmidsFromAgents = aiAnswer.articles?.map(article => (article.pmid)) || [];
+            const pmids = [...new Set([
+                ...pmidsFromText,
+                ...pmidsFromAgents
+            ])].slice(0, 50);
             dispatch(queryArticles({
                 db: 'pubmed',
                 id: pmids.join(','),
                 retmode: 'json',
             })).then((response) => {
-                const sortedArticles = aiAnswer.articles.toSorted((a, b) => b.score - a.score);
+                const sortedArticles = pmids.toSorted((a, b) => (scoreMap[b] || 0) - (scoreMap[a] || 0));
                 setArticlesData(
-                    sortedArticles.map(article => ({
-                        pmid: article.pmid,
-                        title: article.title,
-                        score: article.score,
-                        data: response.payload.result[article.pmid] || {},
-                        doi: response.payload.result[article.pmid]?.articleids?.find(id => id.idtype === 'doi')?.value || ''
+                    sortedArticles.map(pmid => ({
+                        pmid: pmid,
+                        data: response.payload.result[pmid] || {},
+                        doi: response.payload.result[pmid]?.articleids?.find(id => id.idtype === 'doi')?.value || ''
                     }
                     ))
                 );
@@ -448,49 +458,68 @@ function SearchResult() {
         }
     }, [queryResultPage, aiQuestions]);
 
+    const ProcessLinks2temp = ({ text }) => (
+        // replace [aaa](bbb) with <a href="bbb">aaa</a>
+        !text ? [] :
+            text.split(/(\[[^\]]+\]\([^)]+\)|\[[^\]]+\])/)
+                .flatMap((part, index) => part.match(/^\[[^\]]+\]$/) // if [text]
+                    ?
+                    part.split(/(\d+)/g).map((subPart, subIndex) =>
+                        subPart.match(/^\d{8}$/) //if all digit
+                            ? { text: subPart, type: "pubmedid" }
+                            : { text: subPart, type: "text" }
+                    )
+                    : [part.match(/^\[[^\]]+\]\([^)]+\)$/)  // if [text](url)
+                        ? { text: part.split("]")[0].substr(1), type: "link", url: part.split("(")[1].slice(0, -1) }
+                        : { text: part, type: "text" }]
+                )
+    )
+
+    const ProcessLinks2 = ({ text }) => {
+        const result = ProcessLinks2temp({ text });
+        console.log('ProcessLinks2 result:', result);
+        return result;
+    };
+
     // process links in the AI answer text
     const ProcessLinks = ({ text }) => (
         // replace [aaa](bbb) with <a href="bbb">aaa</a>
-        !text ? <></> : <>{
-            text.split(/(\[[^\]]+\]\([^)]+\)|\[[^\]]+\])/)
-                .map((part, index) => part.match(/^\[[^\]]+\]$/) // if [text]
-                    ? <span key={`part-${index}`}>{
-                        part.split(/(\d+)/g).map((subPart, subIndex) =>
-                            subPart.match(/^\d{8}$/) //if all digit
-                                ? <Link
-                                    href={`#reference-item-${subPart}`}
-                                    sx={{
-                                        color: '#1976d2',
-                                        fontWeight: 400,
-                                        textDecoration: 'none',
-                                        '&:hover': {
-                                            textDecoration: 'underline'
-                                        }
-                                    }}
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        setCurrTab('references');
-                                        setActiveReference(subPart);
-                                    }}
-                                    key={`subpart-${index}-${subIndex}`}
-                                >{subPart}</Link>
-                                : <span key={`subpart-${index}-${subIndex}`}>{subPart}</span>
-                        )}
-                    </span>
-                    : part.match(/^\[[^\]]+\]\([^)]+\)$/)  // if [text](url)
-                        ? <a
-                            href={part.split("(")[1].slice(0, -1)}
-                            target="_blank"
-                            rel="noreferrer"
-                            style={{ color: "#0069c2", textDecoration: "none" }}
-                            key={`part-${index}`}
-                        >
-                            {part.split("]")[0].substr(1)}
-                        </a>
-                        : <span key={`part-${index}`}>{part}</span>
-                )
-        }</>
-    )
+        ProcessLinks2({ text: text }).map((part, index) =>
+            part.type === "pubmedid" ? (
+                <Link
+                    href={`#reference-item-${part.text}`}
+                    sx={{
+                        color: '#1976d2',
+                        fontWeight: 400,
+                        textDecoration: 'none',
+                        '&:hover': {
+                            textDecoration: 'underline'
+                        }
+                    }}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        setCurrTab('references');
+                        setActiveReference(part.text);
+                    }}
+                    key={index}
+                >{part.text}</Link>
+            ) : part.type === "link" ? (<a
+                href={part.url}
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: "#0069c2", textDecoration: "none" }}
+                key={index}
+            >
+                {part.text}
+            </a>
+            ) : (<span key={index}>{part.text}</span>)
+        ));
+
+    useEffect(() => {
+        setRenderedAiAnswer(aiAnswer?.answers?.map(answer =>
+            <ProcessLinks text={removeConsecutiveAsterisks(answer)} />
+        ) || null);
+    }, [aiAnswer]);
 
     if (error) return <ErrorComponent errorTitle={viewSchema?.result_error_title} errorMessage={viewSchema?.result_error_message} />;
 
@@ -639,7 +668,7 @@ function SearchResult() {
                                                 fontSize: '16px',
                                                 fontWeight: 300
                                             }}>
-                                                <ProcessLinks text={removeConsecutiveAsterisks(answer)} />
+                                                {renderedAiAnswer ? renderedAiAnswer[index] : <></>}
                                             </Typography>
                                             {/*{index < aiAnswer.answers.length - 1 && <Divider sx={{ my: 2 }} />}*/}
                                         </div>
@@ -840,7 +869,7 @@ function SearchResult() {
                                             </Box>
                                             <Typography
                                                 sx={{ fontFamily: 'Open Sans', fontWeight: 700 }}
-                                            >{ref.title}</Typography>
+                                            >{ref.data?.title}</Typography>
                                             <Typography sx={{ fontFamily: 'Open Sans', color: "grey" }}>
                                                 {(() => {
                                                     const authors = ref.data.authors;

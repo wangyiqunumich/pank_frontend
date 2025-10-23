@@ -80,7 +80,7 @@ function BetaBadge({ sx }) {
 }
 
 const ExampleClasses = {
-  "eQTL analysis": {
+  "QTL analysis": {
     color: "#067A71",
     bgcolor: "#F1FDFA",
     bdcolor: "#95F6E4",
