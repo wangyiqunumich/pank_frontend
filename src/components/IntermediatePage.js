@@ -123,7 +123,8 @@ export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        height: '700px',
+        minHeight: '700px',
+        height: '82.3%',
         gap: 2,
         backgroundColor: '#F2FAFB'
       }}>
@@ -203,7 +204,8 @@ export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        height: '150px',
+        minHeight: '150px',
+        height: '17.7%',
         paddingY: '50px',
         justifyContent: 'space-between',
         backgroundColor: '#D4E9EA'

@@ -272,6 +272,10 @@ function SearchResult() {
             if (agentResult.template_matching !== 'agent_answer') {
                 //should be aaa - bbb - ccc
                 //navigate to /result?sourceTerm=aaa&targetTerm=ccc&relationship=bbb
+                if (!agentResult.template_matching || agentResult.template_matching.split(' - ').length !== 3) {
+                    setError(true);
+                    return;
+                }
                 const [sourceTerm, relationship, targetTerm] = agentResult.template_matching.split(' - ');
                 const page = relationship === 'express_in' ? 'result' : 'intermediate';
                 const newUrl = `/${page}?sourceTerm=${sourceTerm}&targetTerm=${targetTerm}&relationship=${relationship}`;
