@@ -1,0 +1,28 @@
+$err-msg$
+
+def check_json(response: str) -> Tuple[bool, dict]:
+    try:
+        response = json.loads(response, strict=False)
+        assert (type(response) == dict)
+        assert ('draft' in response)
+        assert (response['to'] in ('system', 'user'))
+        if (response['to'] == 'user'):
+            assert (type(response['text']) == str)
+        else:
+            assert (type(response['functions'] == list))
+            assert (len(response['functions']) > 0)
+            for function in response['functions']:
+                assert (type(function) == dict)
+                assert ('name' in function)
+                assert (type(function['name']) == str)
+                assert ('input' in function)
+                assert (type(function['input']) == str)
+                assert (function['name'] in ('pankbase_api_query'))
+        return (True, response)
+    except:
+        err_msg = traceback.format_exc()
+        print(err_msg, file=sys.stderr)
+        return (False, err_msg)
+
+
+Invalid response format, please make sure your output can make the above python function to return True.
