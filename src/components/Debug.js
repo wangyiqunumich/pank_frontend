@@ -1,7 +1,7 @@
 import React, {
-  useEffect,
-  useRef,
-  useState,
+    useEffect,
+    useRef,
+    useState,
 } from 'react';
 
 import cytoscape from 'cytoscape';
@@ -10,14 +10,16 @@ import Button from '@mui/material/Button';
 
 import Image from '../image/Pasted Graphic 1.png';
 import sampleLinks from '../schema/sample_links.json';
+import SearchResultLoading from '../SearchResult/loading';
 import {
-  edgeIsInverted,
-  edgeLabels,
-  nodeStyle,
+    edgeIsInverted,
+    edgeLabels,
+    nodeStyle,
 } from './style.js';
 
 export default function DebugPage() {
     const [graphJson, setGraphJson] = useState("");
+    const [loadingOpen, setLoadingOpen] = useState(true);
     // const cyRef = useRef(null);
     // const containerRef = useRef(null);
     // const [cy, setCy] = useState(null);
@@ -192,6 +194,10 @@ export default function DebugPage() {
     return (
         <>
             <div className="p-4 space-y-4">
+                <Button variant="contained" onClick={() => setLoadingOpen(true)}>
+                    Open Loading Screen
+                </Button>
+                <SearchResultLoading open={loadingOpen} handleClose={() => setLoadingOpen(false)} />
                 <Button
                     onClick={() => {
                         cyRef.current.click();
