@@ -6,7 +6,10 @@ import React, {
 
 import cytoscape from 'cytoscape';
 
-import Button from '@mui/material/Button';
+import {
+    Box,
+    Button,
+} from '@mui/material';
 
 import Image from '../image/Pasted Graphic 1.png';
 import sampleLinks from '../schema/sample_links.json';
@@ -197,7 +200,9 @@ export default function DebugPage() {
                 <Button variant="contained" onClick={() => setLoadingOpen(true)}>
                     Open Loading Screen
                 </Button>
-                <SearchResultLoading open={loadingOpen} handleClose={() => setLoadingOpen(false)} />
+                <Box sx={{ width: '1000px', height: '750px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F8FAFA'}}>
+                    <SearchResultLoading open={loadingOpen} handleClose={() => setLoadingOpen(false)} />
+                </Box>
                 <Button
                     onClick={() => {
                         cyRef.current.click();

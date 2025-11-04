@@ -119,3 +119,24 @@
     background-color: #E4F0F1;
   }
 }
+
+@keyframes popup {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.popup-icon {
+  display: inline-flex;
+  align-items: center;
+  animation: popup 0.4s ease-out forwards;
+}
