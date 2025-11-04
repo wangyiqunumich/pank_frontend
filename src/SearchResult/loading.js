@@ -291,7 +291,7 @@ export default function SearchResultLoading({ open, handleClose }) {
             </Box>
             <LinearProgress variant="determinate" sx={{ 
                 width: '100%', 
-                color: '#F2FAFB',
+                backgroundColor: '#F2FAFB',
                 ".MuiLinearProgress-bar": {
                     backgroundColor: '#078AA3'
                 }
