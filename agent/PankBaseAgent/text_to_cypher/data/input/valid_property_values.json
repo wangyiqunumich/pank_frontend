@@ -1,0 +1,43 @@
+{
+  "description": "Valid values for properties with constrained value sets. Used during refinement to show exact valid values.",
+  "node_properties": {
+    "cell_type": {
+      "name": {
+        "description": "Valid cell type names - use exact spelling and capitalization",
+        "values": [
+          "Acinar Cell",
+          "Alpha Cell",
+          "Beta Cell",
+          "Delta Cell",
+          "Ductal Cell",
+          "Endothelial Cell",
+          "Macrophage Cell",
+          "Stellate Cell"
+        ],
+        "note": "Case-sensitive. Use exact spelling as shown."
+      }
+    },
+    "disease": {
+      "name": {
+        "description": "Valid disease names",
+        "values": [
+          "type 1 diabetes"
+        ],
+        "note": "MUST be lowercase. Do NOT use 'T1D', 'Type 1 Diabetes', or any other variant."
+      }
+    }
+  },
+  "relationship_properties": {
+    "DEG_in": {
+      "UpOrDownRegulation": {
+        "description": "Direction of differential expression",
+        "values": [
+          "up",
+          "down"
+        ],
+        "note": "Lowercase only. 'up' means upregulated, 'down' means downregulated."
+      }
+    }
+  }
+}
+

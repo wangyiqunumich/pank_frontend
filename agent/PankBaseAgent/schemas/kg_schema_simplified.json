@@ -1,0 +1,180 @@
+{
+  "knowledge_graph": {
+    "domain": "Biomedical Research - Type 1 Diabetes",
+    "description": "Comprehensive biomedical knowledge graph integrating genomic, transcriptomic, epigenomic, and literature data for T1D research",
+    "node_types": {
+      "coding_elements;gene": {
+        "description": "Genes from Ensembl database with genomic coordinates and annotations",
+        "key_properties": [
+          "id",
+          "id_version",
+          "description",
+          "chr",
+          "start_loc"
+        ],
+        "total_properties": 17,
+        "file_count": 1
+      },
+      "unknown": {
+        "description": "Node type: unknown",
+        "key_properties": [
+          "data_version",
+          "data_source"
+        ],
+        "total_properties": 2,
+        "file_count": 1
+      },
+      "OCR": {
+        "description": "Node type: OCR",
+        "key_properties": [
+          "data_version",
+          "data_source"
+        ],
+        "total_properties": 2,
+        "file_count": 1
+      },
+      "gene_ontology;ontology": {
+        "description": "Genes from Ensembl database with genomic coordinates and annotations",
+        "key_properties": [
+          "id",
+          "link",
+          "data_version"
+        ],
+        "total_properties": 3,
+        "file_count": 1
+      },
+      "disease;ontology": {
+        "description": "Diseases from MONDO ontology, particularly Type 1 Diabetes",
+        "key_properties": [
+          "url",
+          "id",
+          "definition",
+          "name",
+          "synonyms"
+        ],
+        "total_properties": 7,
+        "file_count": 1
+      },
+      "cell_type;ontology": {
+        "description": "Cell types from Cell Ontology, particularly pancreatic cell types",
+        "key_properties": [
+          "url",
+          "id",
+          "definition",
+          "name",
+          "synonyms"
+        ],
+        "total_properties": 7,
+        "file_count": 1
+      },
+      "sequence_variant;snp;variants": {
+        "description": "Single nucleotide polymorphisms (SNPs) from NCBI database",
+        "key_properties": [
+          "id",
+          "link",
+          "data_version",
+          "data_source"
+        ],
+        "total_properties": 4,
+        "file_count": 1
+      }
+    },
+    "edge_types": {
+      "regulation": {
+        "description": "Relationship type: regulation",
+        "source": "gene",
+        "target": "gene",
+        "key_properties": [
+          "biogrid_interaction_id",
+          "Entrez_ID_A",
+          "Entrez_ID_B",
+          "biogrid_id_interactor_a",
+          "biogrid_id_interactor_b"
+        ],
+        "total_properties": 18,
+        "file_count": 1
+      },
+      "OCR_activity": {
+        "description": "Open chromatin region activity scores in different cell types and disease states",
+        "source": "open_chromatin_region",
+        "target": "cell_type",
+        "key_properties": [
+          "OCR_GeneActivityScore_mean",
+          "OCR_GeneActivityScore_median",
+          "non_diabetic__OCR_GeneActivityScore_mean",
+          "non_diabetic__OCR_GeneActivityScore_median",
+          "AAB_pos__OCR_GeneActivityScore_mean"
+        ],
+        "total_properties": 12,
+        "file_count": 1
+      },
+      "function_annotation": {
+        "description": "Gene Ontology annotations linking genes to their molecular functions, biological processes, and cellular components",
+        "source": "gene",
+        "target": "gene_ontology",
+        "key_properties": [
+          "data_version",
+          "data_source"
+        ],
+        "total_properties": 2,
+        "file_count": 1
+      },
+      "effector_gene": {
+        "description": "Genes that are causal or almost certainly causal for Type 1 Diabetes based on genetic evidence",
+        "source": "gene",
+        "target": "disease",
+        "key_properties": [
+          "ResearchMethod",
+          "CodingVariantEvidence",
+          "ModelSystemEvidence",
+          "EpigenomeEvidence",
+          "QtlEvidence"
+        ],
+        "total_properties": 9,
+        "file_count": 1
+      },
+      "Differential_Expression": {
+        "description": "Differential gene expression relationships between genes and cell types in disease vs control conditions",
+        "source": "gene",
+        "target": "cell_type",
+        "key_properties": [
+          "UpOrDownRegulation",
+          "Log2FoldChange",
+          "SE_of_Log2FoldChange",
+          "P_value",
+          "Adjusted_P_value"
+        ],
+        "total_properties": 7,
+        "file_count": 1
+      },
+      "expression_level": {
+        "description": "Relationship type: expression_level",
+        "source": "gene",
+        "target": "cell_type",
+        "key_properties": [
+          "NonDiabetic__expression_mean",
+          "NonDiabetic__expression_min",
+          "NonDiabetic__expression_25_quantile",
+          "NonDiabetic__expression_median",
+          "NonDiabetic__expression_75_quantile"
+        ],
+        "total_properties": 20,
+        "file_count": 1
+      },
+      "fine_mapped_eQTL": {
+        "description": "Quantitative trait loci associations between genetic variants and gene expression",
+        "source": "snp",
+        "target": "gene",
+        "key_properties": [
+          "tissue_name",
+          "tissue_id",
+          "credible_set",
+          "gene_name",
+          "credibleset"
+        ],
+        "total_properties": 15,
+        "file_count": 4
+      }
+    }
+  }
+}

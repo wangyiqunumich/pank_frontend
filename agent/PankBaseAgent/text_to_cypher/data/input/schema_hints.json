@@ -1,0 +1,49 @@
+{
+  "node_hints": {
+    "gene": ["coding_elements;gene", "ensembl_gene", "protein_coding_gene", "genetic_element"],
+    "OCR": ["open_chromatin_region", "accessible_region", "ATAC_peak", "regulatory_element"],
+    "ontology;gene_ontology": ["GO_term", "gene_function", "biological_process", "molecular_function", "cellular_component"],
+    "ontology;disease": ["disease", "pathology", "condition", "T1D", "Type 1 Diabetes"],
+    "ontology;cell_type": ["cell_type", "pancreatic_cell", "beta_cell", "alpha_cell", "immune_cell"],
+    "variants;sequence_variant;snp": ["snp", "variant", "genetic_variant", "single_nucleotide_polymorphism"]
+  },
+
+  "edge_hints": {
+    "interaction;general_binding": ["binds", "interacts_with", "protein_interaction", "binding_interaction"],
+    "interaction;regulation": ["regulates", "regulation", "controls_expression_of", "gene_regulation"],
+    "OCR_activity": ["open_chromatin_activity", "atac_signal", "chromatin_accessibility", "activity_in_cell_type"],
+    "function_annotation": ["annotated_with", "has_function", "linked_to_function", "GO_annotation"],
+    "effector_gene_of": ["causal_gene_for", "associated_with_disease", "drives_T1D", "effector_gene"],
+    "expression_level_in": ["expressed_in", "expression_in_cell_type", "transcript_level_in"],
+    "DEG_in": ["differentially_expressed_in", "upregulated_in", "downregulated_in", "DEG_between_groups"],
+    "QTL_for": ["quantitative_trait_locus_for", "variant_affects_gene", "eQTL_for_gene", "SNP_gene_association"]
+  },
+
+  "property_hints": {
+    "id": ["identifier", "accession_id", "ensembl_id", "rsid"],
+    "name": ["label", "term", "title", "ontology_name"],
+    "description": ["summary", "definition", "explanation"],
+    "chr": ["chromosome", "chromosomal_location"],
+    "data_source": ["source_database", "origin", "dataset"],
+    "data_version": ["version", "release", "dataset_version"],
+    "OCR_GeneActivityScore_mean": ["mean_activity_score", "average_accessibility"],
+    "OCR_GeneActivityScore_median": ["median_activity_score"],
+    "Type1Diabetic__expression_mean": ["t1d_expression_mean", "disease_expression_level"],
+    "NonDiabetic__expression_mean": ["control_expression_mean"],
+    "Log2FoldChange": ["fold_change", "expression_change"],
+    "P_value": ["p_value", "significance"],
+    "Adjusted_P_value": ["fdr", "corrected_p_value"],
+    "UpOrDownRegulation": ["direction_of_change", "up_or_down"],
+    "pip": ["posterior_inclusion_probability", "causal_probability"],
+    "nominal_p": ["nominal_p_value"],
+    "slope": ["effect_size", "regression_slope"]
+  },
+
+  "notes": {
+    "ontology_prefixes": ["ontology;gene_ontology", "ontology;disease", "ontology;cell_type"],
+    "variant_prefixes": ["variants;sequence_variant;snp"],
+    "expression_edges": ["expression_level_in", "DEG_in"],
+    "chromatin_edges": ["OCR_activity"],
+    "causal_edges": ["effector_gene_of", "QTL_for"]
+  }
+}

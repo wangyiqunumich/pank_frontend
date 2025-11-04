@@ -1,0 +1,123 @@
+{
+  "NodeTypes": {
+    "gene": {
+      "name": "String",
+      "id_version": "String",
+      "description": "String",
+      "chr": "String",
+      "start_loc": "String"
+    },
+    "unknown": {
+      "data_version": "String",
+      "data_source": "String"
+    },
+    "OCR": {
+      "data_version": "String",
+      "data_source": "String"
+    },
+    "gene_ontology": {
+      "link": "String",
+      "data_version": "String"
+    },
+    "disease": {
+      "url": "String",
+      "definition": "String",
+      "name": "String",
+      "synonyms": "String"
+    },
+    "cell_type": {
+      "url": "String",
+      "definition": "String",
+      "name": "String",
+      "synonyms": "String"
+    },
+    "snp": {
+      "id": "String",
+      "link": "String",
+      "data_version": "String",
+      "data_source": "String"
+    },
+    "ontology": {
+      "id": "String",
+      "name": "String",
+      "definition": "String",
+      "synonyms": "String"
+    }
+  },
+  "RelationshipTypes": {
+    "regulation": {
+      "source": "gene",
+      "target": "gene",
+      "properties": {
+        "biogrid_interaction_id": "String",
+        "Entrez_ID_A": "String",
+        "Entrez_ID_B": "String",
+        "biogrid_id_interactor_a": "String",
+        "biogrid_id_interactor_b": "String"
+      }
+    },
+    "OCR_activity": {
+      "source": "OCR",
+      "target": "cell_type",
+      "properties": {
+        "OCR_GeneActivityScore_mean": "Float",
+        "OCR_GeneActivityScore_median": "Float",
+        "non_diabetic__OCR_GeneActivityScore_mean": "Float",
+        "non_diabetic__OCR_GeneActivityScore_median": "Float",
+        "AAB_pos__OCR_GeneActivityScore_mean": "Float"
+      }
+    },
+    "function_annotation": {
+      "source": "gene",
+      "target": "gene_ontology",
+      "properties": {
+        "data_version": "String",
+        "data_source": "String"
+      }
+    },
+    "effector_gene": {
+      "source": "gene",
+      "target": "ontology",
+      "properties": {
+        "ResearchMethod": "String",
+        "CodingVariantEvidence": "String",
+        "ModelSystemEvidence": "String",
+        "EpigenomeEvidence": "String",
+        "QtlEvidence": "String"
+      }
+    },
+    "Differential_Expression": {
+      "source": "gene",
+      "target": "cell_type",
+      "properties": {
+        "UpOrDownRegulation": "String",
+        "Log2FoldChange": "Float",
+        "SE_of_Log2FoldChange": "Float",
+        "P_value": "Float",
+        "Adjusted_P_value": "Float"
+      }
+    },
+    "expression_level": {
+      "source": "gene",
+      "target": "cell_type",
+      "properties": {
+        "NonDiabetic__expression_mean": "Float",
+        "NonDiabetic__expression_min": "Float",
+        "NonDiabetic__expression_25_quantile": "Float",
+        "NonDiabetic__expression_median": "Float",
+        "NonDiabetic__expression_75_quantile": "Float"
+      }
+    },
+    "fine_mapped_eQTL": {
+      "source": "snp",
+      "target": "gene",
+      "properties": {
+        "tissue_name": "String",
+        "tissue_id": "String",
+        "credible_set": "String",
+        "gene_name": "String",
+        "credibleset": "String"
+      }
+    }
+  }
+}
