@@ -31,6 +31,7 @@ import { queryVocab } from '../redux/inputToVocabSlice'; // Import the action
 import { queryQueryResult } from '../redux/queryResultSlice';
 import { nodeAutoWidth } from './style.js';
 import { AlertMessage } from './SupportingMaterial';
+import landingPageSchema from '../schema/landing_page_schema.json';
 
 const nodeColors = {
   gene: "#A4D0F6",
@@ -443,27 +444,38 @@ function MatchPage() {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const questionData = location.state;
-  const [visualPattern, setVisualPattern] = useState(questionData.pattern_for_the_matched_page);
+  const [questionData, setQuestioData] = useState(null);
+  const [visualPattern, setVisualPattern] = useState(questionData?.pattern_for_the_matched_page);
 
-  const partofquestion = questionData.question.split(/(\s+|\{.*?\}|\(.*?\))/); // 根据{} 或（）将字符串分割成部分，其余按照空格分割成部分
-  const dictionary = partofquestion.reduce((acc, part, index) => {
-    if (part.startsWith('{') && part.endsWith('}')) {
-      acc[index] = part.slice(1, -1).split('@')[0]; // Extract the type from the part
-    }
-    return acc;
-  }, {});
+  useEffect(() => {
+    setVisualPattern(questionData?.pattern_for_the_matched_page || '');
+  }, [questionData]);
+
+  const [dictionary, setDictionary] = useState({});
+
+  useEffect(() => {
+    if (!questionData) return;
+    const partofquestion = questionData.question.split(/(\s+|\{.*?\}|\(.*?\))/); // 根据{} 或（）将字符串分割成部分，其余按照空格分割成部分
+    setDictionary(partofquestion.reduce((acc, part, index) => {
+      if (part.startsWith('{') && part.endsWith('}')) {
+        acc[index] = part.slice(1, -1).split('@')[0]; // Extract the type from the part
+      }
+      return acc;
+    }, {}));
+  }, [questionData]);
   // console.log('dictionary', dictionary);
 
   // Extract this page's question and qid from URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const questionFromUrl = params.get('question'); // 获取'question'参数
-    // const qidFromUrl = params.get('qid'); // 获取'qid'参数
-    if (questionFromUrl) {
-      setSelectedQuestion(decodeURIComponent(questionFromUrl)); // 解码问题并设置它
-      // setQid(qidFromUrl);
+    const questionFromUrl = params.get('qid'); // 获取'question'参数
+    if (!landingPageSchema?.[parseInt(questionFromUrl)]) {
+      navigate('/');
+      return;
     }
+    const questionData = landingPageSchema[parseInt(questionFromUrl)];
+    setQuestioData(questionData);
+    setSelectedQuestion(questionData.question);
   }, []);
 
   // useEffect(() => {
@@ -588,7 +600,7 @@ function MatchPage() {
   };
 
   useEffect(() => {
-    let connectedString = questionData.pattern_for_the_matched_page;
+    let connectedString = questionData?.pattern_for_the_matched_page;
     if (geneId) {
       connectedString = connectedString.replace(/\{gene@.*?@}/, `{gene@${geneId}@}`);
     }
@@ -693,7 +705,7 @@ function MatchPage() {
         </Box>
 
         {/* 右侧内容区域 */}
-        <Box sx={{
+        {questionData?.question && <Box sx={{
           width: { sm: '90%', md: '40vw' },
           marginTop: { sm: '0px', md: '20px' },
           marginRight: 0,
@@ -712,7 +724,7 @@ function MatchPage() {
               textAlign: 'left',
               fontFamily: 'Open Sans',
             }}>
-              {questionData.matched_page_title}
+              {questionData?.matched_page_title}
             </Typography>
             <Link
               href="/"
@@ -742,7 +754,7 @@ function MatchPage() {
               fontWeight: 600,
               fontFamily: 'Open Sans',
             }}>
-              {questionData.matched_page_sub_title}
+              {questionData?.matched_page_sub_title}
             </Typography>
             <Box sx={{
               backgroundColor: '#FFFFFF',
@@ -766,7 +778,7 @@ function MatchPage() {
               fontStyle: 'italic',
               marginTop: '4px',
             }}>
-              {questionData.matched_page_tips}
+              {questionData?.matched_page_tips}
             </Typography>
           </Box>
           <Box sx={{
@@ -873,7 +885,7 @@ function MatchPage() {
           </Button>
 
 
-        </Box>
+        </Box>}
       </Container>
     </Container>
   );
