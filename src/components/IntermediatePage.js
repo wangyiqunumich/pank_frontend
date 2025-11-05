@@ -20,6 +20,7 @@ import {
   Warning as WarningIcon,
   WarningAmber as WarningAmberIcon,
 } from '@mui/icons-material';
+import JSON5 from 'json5';
 import {
   Alert,
   Box,
@@ -252,6 +253,25 @@ function IntermediatePage({ onContinue }) {
 
   const { viewSchema } = useSelector((state) => state.viewSchema);
   const { queryResult } = useSelector((state) => state.queryResult);
+  const [cleanedQueryResult, setCleanedQueryResult] = useState(null);
+
+  useEffect(() => {
+    // read queryresult, a string as the format "data_source, credible_sets\n\"a string\", a json object"
+    // save as {data_source: string, credible_sets: json object}
+    if (queryResult?.results) {
+      const lines = queryResult.results.trim().split('\n').slice(1);
+      const data_source = lines.map((line) => 
+        {
+          const [dataSource, credibleSets] = JSON5.parse(`[${line}]`);
+          return ({
+          "data_source": dataSource,
+          "credible_sets": credibleSets
+        });
+      }
+      );
+      setCleanedQueryResult({ results: data_source });
+    }
+  }, [queryResult]);
 
   const searchState = useSelector((state) => state.search) || {
     sourceTerm: '',
@@ -351,7 +371,7 @@ function IntermediatePage({ onContinue }) {
   };
 
   useEffect(() => {
-    const allResults = queryResult?.results?.flatMap(result =>
+    const allResults = cleanedQueryResult?.results?.flatMap(result =>
       (result?.credible_sets || []).map(cs => ({
         ...cs,
         gene_symbol: getGeneSymbol(cs.credible_set_id),
@@ -400,25 +420,25 @@ function IntermediatePage({ onContinue }) {
       return;
     }
     setQueryData(deduplicatedResults);
-  }, [queryResult]);
+  }, [cleanedQueryResult]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (!queryResult?.results || queryResult.results.length === 0) {
+      if (!cleanedQueryResult?.results || cleanedQueryResult.results.length === 0) {
         setError(true);
       }
       setLoading(false);
     }, 3000);
 
     // Clear error if results are found in 3 seconds
-    if (queryResult?.results && queryResult.results.length > 0) {
+    if (cleanedQueryResult?.results && cleanedQueryResult.results.length > 0) {
       setError(false);
       setLoading(false);
       clearTimeout(timer);
     }
 
     return () => clearTimeout(timer);
-  }, [queryResult]);
+  }, [cleanedQueryResult]);
 
   // const getDescription = (name) => {
   //   const descriptions = {

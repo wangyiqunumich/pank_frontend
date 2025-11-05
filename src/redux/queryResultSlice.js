@@ -9,7 +9,7 @@ import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 export const queryQueryResult = createAsyncThunk('/openCypherToQueryResult',
     async (payload) => {
         return await flaskBackendAxiosInstanceNew
-            .post(payload.isNeptune ? '/openCypherToQueryResult' : '/RDSLambda',
+            .post(payload.isNeptune ? '/pank2-neo4j-api-development' : '/RDSLambda',
                 { query: payload.query }, {
                 headers: {
                     "Content-Type": "application/json"
