@@ -300,7 +300,7 @@ export default function SearchResultLoading({ open, handleClose }) {
                 <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 400, fontSize: '14px', color: '#9E9E9E' }}>
                     {texts.tip}
                 </Typography>
-                <Button sx={{backgroundColor: 'white', textTransform: 'none', borderRadius: '16.5px'}}>
+                <Button sx={{backgroundColor: 'white', textTransform: 'none', borderRadius: '16.5px'}} onClick={handleClose}>
                     <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '14px', color: '#078AA3', px: '4px' }}>
                         {texts.cancel}
                     </Typography>

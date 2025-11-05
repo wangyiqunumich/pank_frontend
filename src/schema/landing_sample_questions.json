@@ -8,7 +8,7 @@
         "Which SNP serves as the lead QTL for CFTR?",
         "Which SNP serves as the lead QTL for [GENE]?",
         "Which GENE is regulated by [SNP] as a QTL?",
-        "Does [SNP] serves as a QTL for [GENE]?""
+        "Does [SNP] serves as a QTL for [GENE]?"
     ],
     "Expression": [
         "How does INS expression change in T1D versus non-diabetic samples?",

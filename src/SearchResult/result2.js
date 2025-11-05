@@ -48,6 +48,8 @@ import { queryQueryResult } from '../redux/queryResultSlice';
 import { querySupportingMaterial } from '../redux/supportingMaterialSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import { addHighlight } from '../utils/textProcessing';
+import SearchResultLoading from './loading';
+import { useNavigate } from 'react-router-dom';
 
 const tabOptions = [
     { value: 'references', label: 'References' },
@@ -186,6 +188,9 @@ function SearchResult() {
     const [nextQuestions, setNextQuestions] = useState([{ question: 'Loading...' }]);
     const [allNextQuestions, setAllNextQuestions] = useState(null);
     const [error, setError] = useState(false);
+    const [aiLoading, setAiLoading] = useState(true);
+    const thunkref = useRef(null);
+    const navigate = useNavigate();
 
     // scroll to active reference after it is set
     const timeoutRef = useRef(null);
@@ -266,7 +271,9 @@ function SearchResult() {
         const params = new URLSearchParams(window.location.search);
         const question = base64ToUtf8(params.get('question'));
 
-        dispatch(queryAiAgent({ question: question, "agent_name": "pankbase" })).then((response) => {
+        const thunk = dispatch(queryAiAgent({ question: question, "agent_name": "pankbase" }));
+        thunkref.current = thunk;
+        thunk.then((response) => {
             const agentResult = response.payload?.response || response.payload || {};
             console.log('AI Agent Result:', agentResult);
             if (agentResult.template_matching !== 'agent_answer') {
@@ -295,6 +302,7 @@ function SearchResult() {
                 dispatch(queryGraphviewer({ "query_result": response.payload })).then((response) => {
                     setGraphData(response.payload?.filtered_graph?.results?.[0] || {});
                     setCoordData(response.payload?.xy_coords || {});
+                    setAiLoading(false);
                 });
             });
         });
@@ -379,7 +387,14 @@ function SearchResult() {
     if (error) return <ErrorComponent errorTitle={viewSchema?.result_error_title} errorMessage={viewSchema?.result_error_message} />;
 
     // Show loading skeleton if queryResultPage is not ready
-    return !(graphData?.nodes) ? <LoadingSkeleton /> :
+    return aiLoading ? 
+    <Box sx={{width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px'}}>
+        <SearchResultLoading handleClose={()=>{
+            console.log(1);
+            if (thunkref.current) thunkref.current.abort();
+            navigate("/");
+        }}/> 
+    </Box> :
         (<Container sx={{ width: '100%', overflowX: 'auto', maxWidth: '1440px', marginX: '20px', alignSelf: 'center', overflow: 'visible' }} maxWidth={false}>
             <Backdrop
                 sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
