@@ -13,7 +13,7 @@
             "link": ""
         }
     ],
-    "QTL": [
+    "QTL Analysis": [
         {
             "question": "Which SNP serves as the lead QTL for CFTR?",
             "link": "https://pankgraph.org/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000001626&targetSymbol=CFTR"
@@ -31,7 +31,7 @@
             "link": "https://pankgraph.org/match?qid=3"
         }
     ],
-    "Expression": [
+    "Gene Expression": [
         {
             "question": "How does INS expression change in T1D versus non-diabetic samples?",
             "link": "https://pankgraph.org/result?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type&relationship=express_in"
@@ -41,7 +41,7 @@
             "link": "https://pankgraph.org/match?qid=0"
         }
     ],
-    "SNP studies": [
+    "SNP Studies": [
         {
             "question": "What is the functional impact of rs2402203 on T1D progression?",
             "link": ""
@@ -51,7 +51,7 @@
             "link": ""
         }
     ],
-    "T1D research": [
+    "T1D Research": [
         {
             "question": "What role does PTPN22 play in T1D susceptibility and immune regulation?",
             "link": ""

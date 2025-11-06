@@ -338,7 +338,7 @@ function SearchResult() {
                         const rdb_query =
                             lead_snp && credible_set_id ? { rdb_query: replaceVariables(rdb_query_for_result_page, temporaryVariables) } : {};
 
-                        dispatch(queryQueryResultPage({payload:{ ...rdb_query, core_cypher, neighbor_cypher }})).then((response) => {
+                        dispatch(queryQueryResultPage({ payload: { ...rdb_query, core_cypher, neighbor_cypher } })).then((response) => {
                             const coreNodes = response?.payload?.core_nodes || [];
                             const results = response?.payload?.combined_query_result || {};
                             const neighborNodes = results?.nodes?.filter(

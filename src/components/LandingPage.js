@@ -80,23 +80,23 @@ function BetaBadge({ sx }) {
 }
 
 const ExampleClasses = {
-  "QTL analysis": {
+  "QTL Analysis": {
     color: "#067A71",
     bgcolor: "#F1FDFA",
     bdcolor: "#95F6E4",
   },
-  "Gene expression": {
+  "Gene Expression": {
     color: "#2654E9",
     bgcolor: "#EFF6FF",
     bdcolor: "#BFDBFF",
 
   },
-  "SNP studies": {
+  "SNP Studies": {
     color: "#008236",
     bgcolor: "#EFFDF4",
     bdcolor: "#B9F8CF",
   },
-  "T1D research": {
+  "T1D Research": {
     color: "#007595",
     bgcolor: "#ECFEFF",
     bdcolor: "#A2F4FD",
@@ -568,7 +568,14 @@ function LandingPage() {
                           backgroundColor: '#E2EAEB !important',
                         },
                       },
-                    }} onClick={(e) => { setQuery(example); setShowExamples(undefined); }}>
+                    }} onClick={(e) => {
+                      setQuery(example.question);
+                      if (example.link) {
+                        window.location.href = example.link;
+                        return;
+                      }
+                      setShowExamples(undefined);
+                    }}>
                       <Box sx={{
                         display: 'flex',
                         padding: '12px',
@@ -580,7 +587,7 @@ function LandingPage() {
                         color: '#183B5C',
                         justifyContent: 'space-between',
                       }}>
-                        {example}
+                        {example.question}
                         <span className={"highlight-arrow"} style={{ color: 'black' }}><ArrowOutwardIcon fontSize="small" /></span>
                       </Box>
                     </Link>

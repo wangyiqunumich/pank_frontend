@@ -1,21 +1,20 @@
 import './scoped.css';
 
 import React, {
-    useEffect,
-    useRef,
-    useState,
+  useEffect,
+  useRef,
+  useState,
 } from 'react';
 
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import {
-    Button,
-    LinearProgress,
-    Box,
-    Typography,
+  Box,
+  Button,
+  LinearProgress,
+  Typography,
 } from '@mui/material';
 
 import loadingImage from '../image/loading.svg';
-
 import texts from './loading_text.json';
 
 function LoadingEntry({ step, entry }) {
@@ -128,7 +127,7 @@ function LoadingEntry({ step, entry }) {
                         <Box sx={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} >
                             <Typography
                                 sx={{
-                                    fontWeight: '300', fontSize: '15px', fontFamily: 'Open Sans', 
+                                    fontWeight: '300', fontSize: '15px', fontFamily: 'Open Sans',
                                     position: 'absolute',
                                     left: 0,
                                     right: 0,
@@ -192,12 +191,12 @@ export default function SearchResultLoading({ open, handleClose }) {
                     }
                     stepToProceed++;
                 }
-                setProgress(prog => (prog + 100/texts.entries.map(({steps}) => steps.length).reduce((a,b)=>a+b, 0)));
+                setProgress(prog => (prog + 100 / texts.entries.map(({ steps }) => steps.length).reduce((a, b) => a + b, 0)));
                 return newStates;
             });
-            timeoutRef.current = setTimeout(timeoutHandler, timeForEach[stepToProceed] * ( Math.random() * 0.5 + 0.75 ));
+            timeoutRef.current = setTimeout(timeoutHandler, timeForEach[stepToProceed] * (Math.random() * 0.5 + 0.75));
         };
-        timeoutRef.current = setTimeout(timeoutHandler, timeForEach[0] * ( Math.random() * 0.5 + 0.75 ));
+        timeoutRef.current = setTimeout(timeoutHandler, timeForEach[0] * (Math.random() * 0.5 + 0.75));
         return () => {
             if (timeoutRef.current) {
                 clearTimeout(timeoutRef.current);
@@ -205,48 +204,48 @@ export default function SearchResultLoading({ open, handleClose }) {
         }
     }, []);
     return <Box sx={{
-            width: '704px',
-            padding: '32px',
-            borderRadius: '20px',
-            gap: '32px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            backgroundColor: 'white',
-            color: 'black',
-            border: '0.63px solid #EEEEEE',
-            boxShadow: '0px 4px 6px -4px #0000001A, 0px 10px 15px -3px #0000001A',
-            boxSizing: 'content-box',
-        }}>
-            <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
-                <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '24px', color: '#263824' }}>{texts.title}</Typography>
-                <Box sx={{ 
-                    color: 'black',
-                    border: '0.63px solid #E0F0F3',
-                    backgroundColor: '#F2FAFB',
-                    px: '16px',
-                    height: '38px',
-                    borderRadius: '19px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontFamily: 'Open Sans',
-                    color: '#7F7D7D',
-                    fontSize: '14px',
-                }}>
-                    Agent Status:&nbsp;<span style={{ color: '#078AA3', fontWeight: 600 }}>{shortTitle}</span>
-                </Box>
-            </Box>
+        width: '704px',
+        padding: '32px',
+        borderRadius: '20px',
+        gap: '32px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: 'white',
+        color: 'black',
+        border: '0.63px solid #EEEEEE',
+        boxShadow: '0px 4px 6px -4px #0000001A, 0px 10px 15px -3px #0000001A',
+        boxSizing: 'content-box',
+    }}>
+        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+            <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '24px', color: '#263824' }}>{texts.title}</Typography>
             <Box sx={{
-                width: '100%', 
-                position: 'relative', 
-                gap: '24px',
+                color: 'black',
+                border: '0.63px solid #E0F0F3',
+                backgroundColor: '#F2FAFB',
+                px: '16px',
+                height: '38px',
+                borderRadius: '19px',
                 display: 'flex',
                 alignItems: 'center',
-                flexDirection: 'column',
                 justifyContent: 'center',
-                }}>
+                fontFamily: 'Open Sans',
+                color: '#7F7D7D',
+                fontSize: '14px',
+            }}>
+                Agent Status:&nbsp;<span style={{ color: '#078AA3', fontWeight: 600 }}>{shortTitle}</span>
+            </Box>
+        </Box>
+        <Box sx={{
+            width: '100%',
+            position: 'relative',
+            gap: '24px',
+            display: 'flex',
+            alignItems: 'center',
+            flexDirection: 'column',
+            justifyContent: 'center',
+        }}>
             {texts.entries.map((entry, entryIndex) => (
                 <LoadingEntry
                     key={entryIndex}
@@ -254,24 +253,23 @@ export default function SearchResultLoading({ open, handleClose }) {
                     step={entryStates[entryIndex].step}
                     totalSteps={entry.steps.length} />
             ))}
-            </Box>
-            <LinearProgress variant="determinate" sx={{ 
-                width: '100%', 
-                backgroundColor: '#F2FAFB',
-                ".MuiLinearProgress-bar": {
-                    backgroundColor: '#078AA3'
-                }
-            }} value={progress} />
-            <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
-                <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 400, fontSize: '14px', color: '#9E9E9E' }}>
-                    {texts.tip}
+        </Box>
+        <LinearProgress variant="determinate" sx={{
+            width: '100%',
+            backgroundColor: '#F2FAFB',
+            ".MuiLinearProgress-bar": {
+                backgroundColor: '#078AA3'
+            }
+        }} value={progress} />
+        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+            <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 400, fontSize: '14px', color: '#9E9E9E' }}>
+                {texts.tip}
+            </Typography>
+            <Button sx={{ backgroundColor: 'white', textTransform: 'none', borderRadius: '16.5px' }} onClick={handleClose}>
+                <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '14px', color: '#078AA3', px: '4px' }}>
+                    {texts.cancel}
                 </Typography>
-                <Button sx={{backgroundColor: 'white', textTransform: 'none', borderRadius: '16.5px'}} onClick={handleClose}>
-                    <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '14px', color: '#078AA3', px: '4px' }}>
-                        {texts.cancel}
-                    </Typography>
-                </Button>
-                
-            </Box>
-        </Box>;
+            </Button>
+        </Box>
+    </Box>;
 }
