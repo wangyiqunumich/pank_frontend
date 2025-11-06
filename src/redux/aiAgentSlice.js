@@ -1,7 +1,10 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { QueryStatus } from "@reduxjs/toolkit/query";
-import { flaskBackendAxiosInstanceNew } from "../axios/axios";
-import axios from "axios";
+import axios from 'axios';
+
+import {
+  createAsyncThunk,
+  createSlice,
+} from '@reduxjs/toolkit';
+import { QueryStatus } from '@reduxjs/toolkit/query';
 
 export const queryAiAgent = createAsyncThunk(
   "/aiAgent",
@@ -14,7 +17,7 @@ export const queryAiAgent = createAsyncThunk(
 
     try {
       const response = await axios.post(
-        "http://3.93.242.233:8080/query",
+        "https://3.93.242.233:8080/query",
         payload,
         {
           headers: {
