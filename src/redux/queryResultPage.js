@@ -7,9 +7,9 @@ import { QueryStatus } from '@reduxjs/toolkit/query';
 import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 
 export const queryQueryResultPage = createAsyncThunk('/pank2ResultPage',
-    async (payload) => {
+    async ({payload, agent = false}) => {
         return await flaskBackendAxiosInstanceNew
-            .post('/pank2ResultPage', payload, {
+            .post(agent ? '/pankgraph-agent-result-page' : '/pank2ResultPage', payload, {
                 headers: {
                     "Content-Type": "application/json"
                 }

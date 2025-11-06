@@ -428,7 +428,7 @@ function IntermediatePage({ onContinue }) {
         setError(true);
       }
       setLoading(false);
-    }, 3000);
+    }, 5000);
 
     // Clear error if results are found in 3 seconds
     if (cleanedQueryResult?.results && cleanedQueryResult.results.length > 0) {

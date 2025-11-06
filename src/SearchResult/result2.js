@@ -10,6 +10,7 @@ import {
   useDispatch,
   useSelector,
 } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 import {
   ChevronRight as ChevronRightIcon,
@@ -43,19 +44,17 @@ import KnowledgeGraph from '../components/KnowledgeGraph';
 import VisuImage from '../image/output.png';
 import { queryAiAgent } from '../redux/aiAgentSlice';
 import { queryArticles } from '../redux/articlesSlice';
-import { queryGraphviewer } from '../redux/graphviewerSlice';
-import { queryQueryResult } from '../redux/queryResultSlice';
+import { queryQueryResultPage } from '../redux/queryResultPage';
 import { querySupportingMaterial } from '../redux/supportingMaterialSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import { addHighlight } from '../utils/textProcessing';
 import SearchResultLoading from './loading';
-import { useNavigate } from 'react-router-dom';
 
 const tabOptions = [
     { value: 'references', label: 'References' },
-    { value: 'empirical_evidence', label: 'Empirical Evidence' },
-    { value: 'pankbase_links', label: 'PanKbase Links' },
-    { value: 'external_links', label: 'External Links' }
+    // { value: 'empirical_evidence', label: 'Empirical Evidence' },
+    // { value: 'pankbase_links', label: 'PanKbase Links' },
+    // { value: 'external_links', label: 'External Links' }
 ];
 
 const defaultNextQuestion = {
@@ -172,11 +171,10 @@ function SearchResult() {
     const [currTab, setCurrTab] = useState('references');
     const dispatch = useDispatch();
 
-    const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
     const { viewSchema } = useSelector((state) => state.viewSchema);
     const { typeToImage } = useSelector((state) => state.typeToImage);
     const [aiAnswer, setAiAnswer] = useState('');
-    const [mainCypher, setMainCypher] = useState('');
+    // const [mainCypher, setMainCypher] = useState('');
     const [graphData, setGraphData] = useState({});
     const [coordData, setCoordData] = useState({});
     const [currentQuestion, setCurrentQuestion] = useState('');
@@ -243,12 +241,14 @@ function SearchResult() {
 
     // initialize the reference data from viewSchema w/ replacements
     useEffect(() => {
-        if (graphData) {
+        if (!!graphData) {
             dispatch(querySupportingMaterial({
-                "combined_query_result": graphData
-            })).then((response) => {
-                setReferenceData(response.payload || {});
-            });
+                "query_result": graphData
+            }))
+                // .then((response) => {
+                //     setReferenceData(response.payload || {});
+                // })
+                ;
         }
         // if (viewSchema?.resources_tabs) {
         //     const data = viewSchema.resources_tabs;
@@ -274,7 +274,7 @@ function SearchResult() {
         const thunk = dispatch(queryAiAgent({ question: question, "agent_name": "pankbase" }));
         thunkref.current = thunk;
         thunk.then((response) => {
-            const agentResult = response.payload?.response || response.payload || {};
+            const agentResult = JSON.parse(response.payload.answer || '{}')?.text || {};
             console.log('AI Agent Result:', agentResult);
             if (agentResult.template_matching !== 'agent_answer') {
                 //should be aaa - bbb - ccc
@@ -290,20 +290,34 @@ function SearchResult() {
                 return;
             }
             setAiAnswer(agentResult.summary || {});
-            setMainCypher(agentResult.cypher || '');
+            // setMainCypher(agentResult.cypher || '');
 
             setCurrentQuestion(question);
-            dispatch(queryQueryResult({ query: agentResult.cypher, isNeptune: true })).then((response) => {
-                if (!response.payload || response.error) {
+            // dispatch(queryQueryResult({ query: agentResult.cypher, isNeptune: true })).then((response) => {
+            //     if (!response.payload || response.error) {
+            //         setError(true);
+            //         return;
+            //     }
+            //     // setGraphData(response.payload?.results?.[0] || {});
+            //     dispatch(queryGraphviewer({ "query_result": response.payload })).then((response) => {
+            //         setGraphData(response.payload?.filtered_graph?.results?.[0] || {});
+            //         setCoordData(response.payload?.xy_coords || {});
+            //         setAiLoading(false);
+            //     });
+            // });
+            dispatch(queryQueryResultPage({
+                payload: {
+                    "cypher": agentResult.cypher,
+                    "rdb_query": ""
+                }, agent: true
+            })).then((response) => {
+                if (!response.payload?.combined_query_result) {
                     setError(true);
                     return;
                 }
-                // setGraphData(response.payload?.results?.[0] || {});
-                dispatch(queryGraphviewer({ "query_result": response.payload })).then((response) => {
-                    setGraphData(response.payload?.filtered_graph?.results?.[0] || {});
-                    setCoordData(response.payload?.xy_coords || {});
-                    setAiLoading(false);
-                });
+                setGraphData(response.payload?.combined_query_result || {});
+                setCoordData(response.payload?.xy_json || {});
+                setAiLoading(false);
             });
         });
     }, []);
@@ -360,7 +374,13 @@ function SearchResult() {
             >
                 {part.text}
             </a>
-            ) : (<span key={index}>{part.text}</span>)
+            ) : (<span key={index}>
+                {part.text.split("\n").map((line, i) => (
+                    <React.Fragment key={i}>
+                        {i > 0 && <br />}{line}
+                    </React.Fragment>
+                ))}
+            </span>)
         ));
 
     // Fetch articles data based on aiAnswer
@@ -387,14 +407,14 @@ function SearchResult() {
     if (error) return <ErrorComponent errorTitle={viewSchema?.result_error_title} errorMessage={viewSchema?.result_error_message} />;
 
     // Show loading skeleton if queryResultPage is not ready
-    return aiLoading ? 
-    <Box sx={{width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px'}}>
-        <SearchResultLoading handleClose={()=>{
-            console.log(1);
-            if (thunkref.current) thunkref.current.abort();
-            navigate("/");
-        }}/> 
-    </Box> :
+    return aiLoading ?
+        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px' }}>
+            <SearchResultLoading handleClose={() => {
+                console.log(1);
+                if (thunkref.current) thunkref.current.abort();
+                navigate("/");
+            }} />
+        </Box> :
         (<Container sx={{ width: '100%', overflowX: 'auto', maxWidth: '1440px', marginX: '20px', alignSelf: 'center', overflow: 'visible' }} maxWidth={false}>
             <Backdrop
                 sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
@@ -570,7 +590,7 @@ function SearchResult() {
                                     textAlign: 'left',
                                     maxWidth: '100%',
                                 }}>
-                                    <KnowledgeGraph graphData={graphData} />
+                                    <KnowledgeGraph graphData={graphData} coordData={coordData} />
                                 </Box>
                             </Box>
                         </Grid>
