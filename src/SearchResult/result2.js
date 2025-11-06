@@ -63,7 +63,14 @@ const defaultNextQuestion = {
 }
 
 export const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
-export const base64ToUtf8 = (base64) => decodeURIComponent(escape(atob(base64)));
+export const base64ToUtf8 = (base64) => {
+    try {
+        return decodeURIComponent(escape(atob(base64)));
+    } catch (e) {
+        console.log("Failed to decode base64 string:", e);
+        return null;
+    }
+};
 
 const validateQuestions = async (questions) => {
     const fetchQueryResults = async (question) => {
@@ -269,7 +276,7 @@ function SearchResult() {
     // init: get URL parameters and dispatch actions
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
-        const question = base64ToUtf8(params.get('question'));
+        const question = base64ToUtf8(params?.get('question'));
 
         const thunk = dispatch(queryAiAgent({ question: question, "agent_name": "pankbase" }));
         thunkref.current = thunk;
@@ -385,7 +392,7 @@ function SearchResult() {
 
     // Fetch articles data based on aiAnswer
     useEffect(() => {
-        if (aiAnswer?.articles?.length > 0) {
+        if (!!aiAnswer) {
             const pmidsFromText = ProcessLinks2({ text: aiAnswer }).filter(part => part.type === "pubmedid").map(part => (part.text));
             const pmids = [...new Set(pmidsFromText)].slice(0, 50);
             dispatch(queryArticles({
@@ -404,7 +411,7 @@ function SearchResult() {
         }
     }, [aiAnswer]);
 
-    if (error) return <ErrorComponent errorTitle={viewSchema?.result_error_title} errorMessage={viewSchema?.result_error_message} />;
+    if (error) return <ErrorComponent errorTitle={"Question Not Relevant"} errorMessage={"Your query doesn't match any relevant topic in PanKgraph. Please try rephrasing or explore related tutorials."} />;
 
     // Show loading skeleton if queryResultPage is not ready
     return aiLoading ?

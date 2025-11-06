@@ -17,7 +17,7 @@ export const queryAiAgent = createAsyncThunk(
 
     try {
       const response = await axios.post(
-        "https://52.87.115.143:8080/query",
+        "http://52.87.115.143:8080/query",
         payload,
         {
           headers: {
