@@ -194,7 +194,7 @@ function SearchResult() {
     const [articlesData, setArticlesData] = useState([]);
     const [activeReference, setActiveReference] = useState(null);
     const [imagePopupOpen, setImagePopupOpen] = useState(false);
-    const [nextQuestions, setNextQuestions] = useState([{ question: 'Loading...' }]);
+    const [nextQuestions, setNextQuestions] = useState([{ question: '[WIP]' }]);
     const [allNextQuestions, setAllNextQuestions] = useState(null);
     const [error, setError] = useState(false);
     const [aiLoading, setAiLoading] = useState(true);
