@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { QueryStatus } from "@reduxjs/toolkit/query";
 import { flaskBackendAxiosInstanceNew } from "../axios/axios";
+import axios from "axios";
 
 export const queryAiAgent = createAsyncThunk(
   "/aiAgent",
@@ -12,8 +13,8 @@ export const queryAiAgent = createAsyncThunk(
     signal.addEventListener("abort", () => controller.abort());
 
     try {
-      const response = await flaskBackendAxiosInstanceNew.post(
-        "/pank3-ai-agent",
+      const response = await axios.post(
+        "http://3.93.242.233:8080/query",
         payload,
         {
           headers: {

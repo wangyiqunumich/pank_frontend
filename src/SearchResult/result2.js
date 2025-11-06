@@ -45,6 +45,7 @@ import { queryAiAgent } from '../redux/aiAgentSlice';
 import { queryArticles } from '../redux/articlesSlice';
 import { queryGraphviewer } from '../redux/graphviewerSlice';
 import { queryQueryResult } from '../redux/queryResultSlice';
+import { queryQueryResultPage } from '../redux/queryResultPage';
 import { querySupportingMaterial } from '../redux/supportingMaterialSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import { addHighlight } from '../utils/textProcessing';
@@ -172,7 +173,6 @@ function SearchResult() {
     const [currTab, setCurrTab] = useState('references');
     const dispatch = useDispatch();
 
-    const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
     const { viewSchema } = useSelector((state) => state.viewSchema);
     const { typeToImage } = useSelector((state) => state.typeToImage);
     const [aiAnswer, setAiAnswer] = useState('');
@@ -243,7 +243,7 @@ function SearchResult() {
 
     // initialize the reference data from viewSchema w/ replacements
     useEffect(() => {
-        if (graphData) {
+        if (!!graphData) {
             dispatch(querySupportingMaterial({
                 "combined_query_result": graphData
             })).then((response) => {
@@ -274,7 +274,7 @@ function SearchResult() {
         const thunk = dispatch(queryAiAgent({ question: question, "agent_name": "pankbase" }));
         thunkref.current = thunk;
         thunk.then((response) => {
-            const agentResult = response.payload?.response || response.payload || {};
+            const agentResult = JSON.parse(response.payload.answer || '{}')?.text || {};
             console.log('AI Agent Result:', agentResult);
             if (agentResult.template_matching !== 'agent_answer') {
                 //should be aaa - bbb - ccc
@@ -293,17 +293,29 @@ function SearchResult() {
             setMainCypher(agentResult.cypher || '');
 
             setCurrentQuestion(question);
-            dispatch(queryQueryResult({ query: agentResult.cypher, isNeptune: true })).then((response) => {
-                if (!response.payload || response.error) {
+            // dispatch(queryQueryResult({ query: agentResult.cypher, isNeptune: true })).then((response) => {
+            //     if (!response.payload || response.error) {
+            //         setError(true);
+            //         return;
+            //     }
+            //     // setGraphData(response.payload?.results?.[0] || {});
+            //     dispatch(queryGraphviewer({ "query_result": response.payload })).then((response) => {
+            //         setGraphData(response.payload?.filtered_graph?.results?.[0] || {});
+            //         setCoordData(response.payload?.xy_coords || {});
+            //         setAiLoading(false);
+            //     });
+            // });
+            dispatch(queryQueryResultPage({payload:{
+                "cypher": agentResult.cypher,
+                "rdb_query": ""
+            }, agent: true})).then((response) => {
+                if (!response.payload?.combined_query_result) {
                     setError(true);
                     return;
                 }
-                // setGraphData(response.payload?.results?.[0] || {});
-                dispatch(queryGraphviewer({ "query_result": response.payload })).then((response) => {
-                    setGraphData(response.payload?.filtered_graph?.results?.[0] || {});
-                    setCoordData(response.payload?.xy_coords || {});
-                    setAiLoading(false);
-                });
+                setGraphData(response.payload?.combined_query_result || {});
+                setCoordData(response.payload?.xy_json || {});
+                setAiLoading(false);
             });
         });
     }, []);
@@ -360,7 +372,14 @@ function SearchResult() {
             >
                 {part.text}
             </a>
-            ) : (<span key={index}>{part.text}</span>)
+            ) : (<span key={index}>
+            {part.text.split("\n").map((line, i) => (
+                <React.Fragment key={i}>
+                {line}
+                <br />
+                </React.Fragment>
+            ))}
+            </span>)
         ));
 
     // Fetch articles data based on aiAnswer
@@ -570,7 +589,7 @@ function SearchResult() {
                                     textAlign: 'left',
                                     maxWidth: '100%',
                                 }}>
-                                    <KnowledgeGraph graphData={graphData} />
+                                    <KnowledgeGraph graphData={graphData} coordData={coordData} />
                                 </Box>
                             </Box>
                         </Grid>

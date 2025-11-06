@@ -1,25 +1,64 @@
 {
     "default": [
-        "Which SNP serves as the lead QTL for CFTR?",
-        "How does INS expression change in T1D versus non-diabetic samples?",
-        "What is the functional impact of rs2402203 on T1D progression?"
+        {
+            "question": "Which SNP serves as the lead QTL for CFTR?",
+            "link": "https://pankgraph.org/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000001626&targetSymbol=CFTR"
+        },
+        {
+            "question": "How does INS expression change in T1D versus non-diabetic samples?",
+            "link": "https://pankgraph.org/result?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type&relationship=express_in"
+        },
+        {
+            "question": "What is the functional impact of rs2402203 on T1D progression?",
+            "link": ""
+        }
     ],
     "QTL": [
-        "Which SNP serves as the lead QTL for CFTR?",
-        "Which SNP serves as the lead QTL for [GENE]?",
-        "Which GENE is regulated by [SNP] as a QTL?",
-        "Does [SNP] serves as a QTL for [GENE]?"
+        {
+            "question": "Which SNP serves as the lead QTL for CFTR?",
+            "link": "https://pankgraph.org/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000001626&targetSymbol=CFTR"
+        },
+        {
+            "question": "Which SNP serves as the lead QTL for [GENE]?",
+            "link": "https://pankgraph.org/match?qid=1"
+        },
+        {
+            "question": "Which GENE is regulated by [SNP] as a QTL?",
+            "link": "https://pankgraph.org/match?qid=2"
+        },
+        {
+            "question": "Does [SNP] serves as a QTL for [GENE]?",
+            "link": "https://pankgraph.org/match?qid=3"
+        }
     ],
     "Expression": [
-        "How does INS expression change in T1D versus non-diabetic samples?",
-        "How does [GENE] expression change in T1D versus non-diabetic samples?"
+        {
+            "question": "How does INS expression change in T1D versus non-diabetic samples?",
+            "link": "https://pankgraph.org/result?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type&relationship=express_in"
+        },
+        {
+            "question": "How does [GENE] expression change in T1D versus non-diabetic samples?",
+            "link": "https://pankgraph.org/match?qid=0"
+        }
     ],
     "SNP studies": [
-        "What is the functional impact of rs2402203 on T1D progression?",
-        "More questions will be added after the November data update."
+        {
+            "question": "What is the functional impact of rs2402203 on T1D progression?",
+            "link": ""
+        },
+        {
+            "question": "More questions will be added after the November data update.",
+            "link": ""
+        }
     ],
     "T1D research": [
-        "What role does PTPN22 play in T1D susceptibility and immune regulation?",
-        "More questions will be added after the November data update."
+        {
+            "question": "What role does PTPN22 play in T1D susceptibility and immune regulation?",
+            "link": ""
+        },
+        {
+            "question": "More questions will be added after the November data update.",
+            "link": ""
+        }
     ]
 }

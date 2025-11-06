@@ -16,52 +16,7 @@ import {
 
 import loadingImage from '../image/loading.svg';
 
-const texts = {
-    "title": "Answering your question...",
-    "entries": [
-        {
-            "short_title": "acknowledged",
-            "title": "Interpreting your question",
-            "steps": [
-                "Agent is interpreting your question...",
-                "Understanding research intent...",
-                "Breaking down your query into logical steps...",
-                "Identifying relevant biological entities and relationships...",
-                "Choosing the best tools and data sources..."
-            ]
-        },
-        {
-            "short_title": "processing",
-            "title": "Analyzing biological evidence",
-            "steps": [
-                "Analyzing pathways and knowledge graph connections...",
-                "Retrieving evidence from literature and datasets...",
-                "Synthesizing evidence from multiple sources...",
-                "Processing contextual biological relationships..."
-            ]
-        },
-        {
-            "short_title": "typing",
-            "title": "Preparing your answer",
-            "steps": [
-                "Summarizing results and drafting your answer...",
-                "Formulating evidence-based explanation...",
-                "Formatting data for visualization and interpretation...",
-                "Finalizing structured response..."
-            ]
-        },
-        {
-            "short_title": "follow-up",
-            "title": "Generating related questions",
-            "steps": [
-                "Graph viewer preparing your answer knowledge graph.",
-                "Agent is ready for your next question."
-            ]
-        }
-    ],
-    "tip": "This may take up to 20 seconds for complex biological questions.",
-    "cancel": "Cancel and ask a new question"
-};
+import texts from './loading_text.json';
 
 function LoadingEntry({ step, entry }) {
     const containerRef = useRef(null);
@@ -200,20 +155,24 @@ export default function SearchResultLoading({ open, handleClose }) {
             isFinished: false,
         }))
     );
+    const timeForEach = [2000, 5000, 5000, 5000, 1000];
     const entryStatesRef = useRef(entryStates);
     const [progress, setProgress] = useState(0);
     const [shortTitle, setShortTitle] = useState(texts.entries[0].short_title);
     useEffect(() => {
         entryStatesRef.current = entryStates;
     }, [entryStates]);
+    const timeoutRef = useRef(null);
     useEffect(() => {
         // simulate progress through steps
         // 2s per step, from first to last entry
-        let interval = setInterval(() => {
+        const timeoutHandler = () => {
             let stepToProceed = entryStatesRef.current.findIndex(es => !es.isFinished);
             if (stepToProceed === -1) {
                 // all finished
-                clearInterval(interval);
+                if (timeoutRef.current) {
+                    clearTimeout(timeoutRef.current);
+                }
                 return;
             }
             setEntryStates(prevStates => {
@@ -221,6 +180,7 @@ export default function SearchResultLoading({ open, handleClose }) {
                 let entryState = { ...newStates[stepToProceed] };
                 entryState.step++;
                 entryState.isFinished = entryState.step >= texts.entries[stepToProceed].steps.length;
+                newStates[stepToProceed] = entryState;
                 if (entryState.isFinished) {
                     // start the next entry
                     if (stepToProceed + 1 < newStates.length) {
@@ -230,13 +190,19 @@ export default function SearchResultLoading({ open, handleClose }) {
                         };
                         setShortTitle(texts.entries[stepToProceed + 1].short_title);
                     }
+                    stepToProceed++;
                 }
-                newStates[stepToProceed] = entryState;
                 setProgress(prog => (prog + 100/texts.entries.map(({steps}) => steps.length).reduce((a,b)=>a+b, 0)));
                 return newStates;
             });
-        }, 2000);
-        return () => clearInterval(interval);
+            timeoutRef.current = setTimeout(timeoutHandler, timeForEach[stepToProceed] * ( Math.random() * 0.5 + 0.75 ));
+        };
+        timeoutRef.current = setTimeout(timeoutHandler, timeForEach[0] * ( Math.random() * 0.5 + 0.75 ));
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+        }
     }, []);
     return <Box sx={{
             width: '704px',

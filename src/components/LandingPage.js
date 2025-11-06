@@ -322,13 +322,16 @@ function LandingPage() {
                 options={ExampleQueries.default}
                 filterOptions={(options) => (query?.trim() === '' ? options : [])}
                 onChange={(event, newValue) => {
-                  setQuery(newValue || '');
+                  setQuery(newValue.question || '');
+                  if (!!newValue.link) {
+                    window.location.href = newValue.link;
+                  }
                 }}
                 onInputChange={(event, newInputValue) => {
                   setQuery(newInputValue || '');
                 }}
                 openOnFocus
-                getOptionLabel={(option) => option}
+                getOptionLabel={(option) => option.question}
                 onFocus={() => setFocused(true)}
                 onBlur={() => setFocused(false)}
                 inputValue={query}
@@ -500,7 +503,7 @@ function LandingPage() {
                       },
                     }}
                   >
-                    {option}
+                    {option.question}
                     <span className={"highlight-arrow"} style={{ color: 'black', marginLeft: 'auto' }}><ArrowOutwardIcon fontSize="small" /></span>
                   </Box>
                 )}
