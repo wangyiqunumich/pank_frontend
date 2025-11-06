@@ -36,10 +36,7 @@ import {
 } from '@mui/material';
 
 import { flaskBackendAxiosInstanceNew } from '../axios/axios';
-import {
-  ErrorComponent,
-  tabsQTL,
-} from '../components/IntermediatePage';
+import { ErrorComponent } from '../components/IntermediatePage';
 import KnowledgeGraph from '../components/KnowledgeGraph';
 import VisuImage from '../image/output.png';
 import { queryAiAgent } from '../redux/aiAgentSlice';
@@ -50,12 +47,18 @@ import tooltipsSchema from '../schema/tool_tips_schema.json';
 import { addHighlight } from '../utils/textProcessing';
 import SearchResultLoading from './loading';
 
-const tabOptions = [
-    { value: 'references', label: 'References' },
-    // { value: 'empirical_evidence', label: 'Empirical Evidence' },
-    // { value: 'pankbase_links', label: 'PanKbase Links' },
-    // { value: 'external_links', label: 'External Links' }
-];
+// const tabs = [
+//     { value: 'references', label: 'References' },
+//     { value: 'empirical_evidence', label: 'Empirical Evidence' },
+//     { value: 'pankbase_links', label: 'PanKbase Links' },
+//     { value: 'external_links', label: 'External Links' }
+// ];
+const tabLabels = {
+    references: 'References',
+    empirical_evidence: 'Empirical Evidence',
+    pankbase_links: 'PanKbase Links',
+    external_links: 'External Links'
+};
 
 const defaultNextQuestion = {
     question: 'How does {INS} expression change in {beta cell} in T1D vs non-diabetic samples?',
@@ -63,7 +66,14 @@ const defaultNextQuestion = {
 }
 
 export const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
-export const base64ToUtf8 = (base64) => decodeURIComponent(escape(atob(base64)));
+export const base64ToUtf8 = (base64) => {
+    try {
+        return decodeURIComponent(escape(atob(base64)));
+    } catch (e) {
+        console.log("Failed to decode base64 string:", e);
+        return null;
+    }
+};
 
 const validateQuestions = async (questions) => {
     const fetchQueryResults = async (question) => {
@@ -86,8 +96,7 @@ const validateQuestions = async (questions) => {
         .map(result => result.question);
 };
 
-const handleDownload = (data_source, credibleSet) => {
-    const folder = tabsQTL.find(tab => tab.data_source === data_source)?.folder || "";
+const handleDownload2 = (folder, credibleSet) => {
     return `https://pank-s3-to-share.s3.us-east-1.amazonaws.com/${folder}/${credibleSet}.txt`;
 };
 
@@ -171,6 +180,8 @@ function SearchResult() {
     const [currTab, setCurrTab] = useState('references');
     const dispatch = useDispatch();
 
+    const [tabOptions, setTabOptions] = useState(['references']);
+
     const { viewSchema } = useSelector((state) => state.viewSchema);
     const { typeToImage } = useSelector((state) => state.typeToImage);
     const [aiAnswer, setAiAnswer] = useState('');
@@ -244,11 +255,12 @@ function SearchResult() {
         if (!!graphData) {
             dispatch(querySupportingMaterial({
                 "query_result": graphData
-            }))
-                // .then((response) => {
-                //     setReferenceData(response.payload || {});
-                // })
-                ;
+            })).then((response) => {
+                setTabOptions(
+                    (tabs) => [...tabs, ...Object.keys(response.payload || {})]
+                );
+                setReferenceData(response.payload?.resources_tabs || {});
+            });
         }
         // if (viewSchema?.resources_tabs) {
         //     const data = viewSchema.resources_tabs;
@@ -269,7 +281,7 @@ function SearchResult() {
     // init: get URL parameters and dispatch actions
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
-        const question = base64ToUtf8(params.get('question'));
+        const question = base64ToUtf8(params?.get('question'));
 
         const thunk = dispatch(queryAiAgent({ question: question, "agent_name": "pankbase" }));
         thunkref.current = thunk;
@@ -385,7 +397,7 @@ function SearchResult() {
 
     // Fetch articles data based on aiAnswer
     useEffect(() => {
-        if (aiAnswer?.articles?.length > 0) {
+        if (!!aiAnswer) {
             const pmidsFromText = ProcessLinks2({ text: aiAnswer }).filter(part => part.type === "pubmedid").map(part => (part.text));
             const pmids = [...new Set(pmidsFromText)].slice(0, 50);
             dispatch(queryArticles({
@@ -404,7 +416,7 @@ function SearchResult() {
         }
     }, [aiAnswer]);
 
-    if (error) return <ErrorComponent errorTitle={viewSchema?.result_error_title} errorMessage={viewSchema?.result_error_message} />;
+    if (error) return <ErrorComponent errorTitle={"Question Not Relevant"} errorMessage={"Your query doesn't match any relevant topic in PanKgraph. Please try rephrasing or explore related tutorials."} />;
 
     // Show loading skeleton if queryResultPage is not ready
     return aiLoading ?
@@ -649,19 +661,19 @@ function SearchResult() {
                                 sx={{
                                     minHeight: '48px',
                                     height: '48px',
-                                    backgroundColor: currTab === option.value ? 'white' : '#F2FAFB',
+                                    backgroundColor: currTab === option ? 'white' : '#F2FAFB',
                                     borderWidth:
-                                        currTab === option.value ? '1px 1px 0px 1px' :
-                                            tabOptions.findIndex((tab) => tab.value === currTab) > index ?
+                                        currTab === option ? '1px 1px 0px 1px' :
+                                            tabOptions.findIndex((tab) => tab === currTab) > index ?
                                                 '1px 0px 0px 1px' : '1px 1px 0px 0px',
                                     borderStyle: 'solid',
                                     borderColor: '#E5E5E5',
                                     borderRadius:
-                                        currTab === option.value ? '20px 20px 0px 0px' :
-                                            tabOptions.findIndex((tab) => tab.value === currTab) > index ?
+                                        currTab === option ? '20px 20px 0px 0px' :
+                                            tabOptions.findIndex((tab) => tab === currTab) > index ?
                                                 '20px 0px 0px 0px' : '0px 20px 0px 0px',
                                 }}
-                                key={option.value}
+                                key={option}
                                 label={
                                     <Typography
                                         component="span"
@@ -669,15 +681,15 @@ function SearchResult() {
                                             textAlign: 'left',
                                             fontFamily: 'Open Sans',
                                             fontSize: '16px',
-                                            color: currTab === option.value ? '#398289' : 'black',
-                                            fontWeight: currTab === option.value ? '600' : '400',
+                                            color: currTab === option ? '#398289' : 'black',
+                                            fontWeight: currTab === option ? '600' : '400',
                                             marginX: '20px',
                                         }}
                                     >
-                                        {option.label}
+                                        {tabLabels[option]}
                                     </Typography>
                                 }
-                                value={option.value}
+                                value={option}
                             />))}
                     </Tabs>
                 </div>
@@ -843,7 +855,7 @@ function SearchResult() {
                                         </Typography>
                                         {referenceData.empirical_evidence.link_text &&
                                             <Link
-                                                href={referenceData.empirical_evidence.link || handleDownload(variables.dataSource, variables.credibleSetId)}
+                                                href={referenceData.empirical_evidence.link || handleDownload2(referenceData.empirical_evidence.folder, referenceData.empirical_evidence.credible_set)}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 sx={{ textDecoration: "none" }}>

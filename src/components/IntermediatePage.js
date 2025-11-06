@@ -5,6 +5,7 @@ import React, {
   useState,
 } from 'react';
 
+import JSON5 from 'json5';
 import {
   useDispatch,
   useSelector,
@@ -20,7 +21,6 @@ import {
   Warning as WarningIcon,
   WarningAmber as WarningAmberIcon,
 } from '@mui/icons-material';
-import JSON5 from 'json5';
 import {
   Alert,
   Box,
@@ -46,6 +46,7 @@ import {
 } from '@mui/material';
 
 import errorImage from '../image/datanotfound.png';
+import notRelevant from '../image/not_relevant.png';
 import { queryQueryResult } from '../redux/queryResultSlice';
 import { setSearchTerms } from '../redux/searchSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
@@ -104,7 +105,7 @@ const WarningSNP = (
   </Alert>
 );
 
-export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "No answer for your question in PanKgraph" }) {
+export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "No answer for your question in PanKgraph", agent = true }) {
   return (
     <Container sx={{
       padding: 0, display: 'flex',
@@ -141,8 +142,8 @@ export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "
           justifyContent: 'center',
           backgroundColor: 'white',
         }}>
-          <Box component="img" src={errorImage} alt="Error" sx={{ width: "200px", marginTop: "-20px", marginBottom: '-20px' }} />
-          <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '36px', color: '#43AABA', marginBottom: '-12px', }}>
+          <Box component="img" src={agent ? notRelevant : errorImage} alt="Error" sx={{ width: "200px", marginTop: "-20px", marginBottom: '-20px' }} />
+          <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '36px', color: '#43AABA', marginBottom: '-12px', whiteSpace: 'nowrap' }}>
             {errorTitle}
           </Typography>
           <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 400, fontSize: '17px', color: '#6C6C6C' }}>
@@ -260,10 +261,9 @@ function IntermediatePage({ onContinue }) {
     // save as {data_source: string, credible_sets: json object}
     if (queryResult?.results) {
       const lines = queryResult.results.trim().split('\n').slice(1);
-      const data_source = lines.map((line) => 
-        {
-          const [dataSource, credibleSets] = JSON5.parse(`[${line}]`);
-          return ({
+      const data_source = lines.map((line) => {
+        const [dataSource, credibleSets] = JSON5.parse(`[${line}]`);
+        return ({
           "data_source": dataSource,
           "credible_sets": credibleSets
         });
