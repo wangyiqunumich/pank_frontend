@@ -257,7 +257,7 @@ function SearchResult() {
                 "query_result": graphData
             })).then((response) => {
                 setTabOptions(
-                    (tabs) => [...tabs, ...Object.keys(response.payload || {})]
+                    (tabs) => [...tabs, ...Object.keys(response.payload?.resources_tabs || {})]
                 );
                 setReferenceData(response.payload?.resources_tabs || {});
             });
