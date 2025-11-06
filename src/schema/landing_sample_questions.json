@@ -9,7 +9,7 @@
             "link": "https://pankgraph.org/result?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type&relationship=express_in"
         },
         {
-            "question": "What is the functional impact of rs2402203 on T1D progression?",
+            "question": "Describe PTPN22’s involvement in T1D, covering its associated QTL signals, expression patterns, and reported effector genes evidence.",
             "link": ""
         }
     ],
@@ -43,7 +43,7 @@
     ],
     "SNP Studies": [
         {
-            "question": "What is the functional impact of rs2402203 on T1D progression?",
+            "question": "What is the functional impact of rs2402203 on T1D?",
             "link": ""
         },
         {
@@ -53,7 +53,7 @@
     ],
     "T1D Research": [
         {
-            "question": "What role does PTPN22 play in T1D susceptibility and immune regulation?",
+            "question": "Describe PTPN22’s involvement in T1D, covering its associated QTL signals, expression patterns, and reported effector genes evidence.",
             "link": ""
         },
         {
