@@ -495,7 +495,7 @@ function LandingPage() {
                   <Box
                     component="li"
                     {...props}
-                    key={option}
+                    key={option.question}
                     sx={{
                       minHeight: '36px !important',
                       '& .MuiAutocomplete-option': {
