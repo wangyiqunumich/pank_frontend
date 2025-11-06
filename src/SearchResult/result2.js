@@ -43,6 +43,7 @@ import { queryAiAgent } from '../redux/aiAgentSlice';
 import { queryArticles } from '../redux/articlesSlice';
 import { queryQueryResultPage } from '../redux/queryResultPage';
 import { querySupportingMaterial } from '../redux/supportingMaterialSlice';
+import { queryImage } from '../redux/typeToImageSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import { addHighlight } from '../utils/textProcessing';
 import SearchResultLoading from './loading';
@@ -259,6 +260,13 @@ function SearchResult() {
                 setTabOptions(
                     (tabs) => [...tabs, ...Object.keys(response.payload?.resources_tabs || {})]
                 );
+                const emp_evidence = response.payload?.resources_tabs?.empirical_evidence || {};
+                if (emp_evidence.lambda_function == "type_to_image") {
+                    dispatch(queryImage({
+                        imageType: 'manhattan',
+                        link: `${emp_evidence.folder}/${emp_evidence.credible_set}`
+                    }));
+                }
                 setReferenceData(response.payload?.resources_tabs || {});
             });
         }
