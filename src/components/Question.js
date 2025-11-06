@@ -25,9 +25,9 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
     setQuestions(landingPageSchema); // Load questions into state
   }, []);
   const navigate = useNavigate();
-  const handleQuestionClick = (questionData) => {
+  const handleQuestionClick = (index) => {
     // Navigate to the next page and pass the question data
-    navigate(`/match?question=${encodeURIComponent(questionData.question)}&qid=${questionData.index}`, { state: questionData });
+    navigate(`/match?qid=${index}`);
   };
 
   // const [searchQuery, setSearchQuery] = useState('');
@@ -131,7 +131,7 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
               }}>
                 <Box className='question-box'
                   fullWidth
-                  onClick={() => handleQuestionClick(question)}
+                  onClick={() => handleQuestionClick(index)}
                   sx={{
                     display: 'flex',
                     alignItems: 'top',
@@ -239,7 +239,7 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
           fontSize: '14px',
         }}>Example</span>
         <Link
-          to="https://dev.pankgraph.org/result?sourceTerm=snp%40rs2402203&targetTerm=gene%40ENSG00000001626&relationship=QTL"
+          to="/result?sourceTerm=snp%40rs2402203&targetTerm=gene%40ENSG00000001626&relationship=QTL"
           style={{
             fontSize: '14px',
             textDecoration: 'underline',

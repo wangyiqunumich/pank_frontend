@@ -509,11 +509,13 @@ function LandingPage() {
                 )}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
+                    e.defaultMuiPrevented = true;
                     if (query.trim() === '') {
                       setShowWarning("Please ensure all boxes are filled out before submitting");
                     } else {
                       e.preventDefault();
                       setShowLoading(true);
+                      console.log(query.trim());
                       handleSearch(query.trim());
                     }
                   }
