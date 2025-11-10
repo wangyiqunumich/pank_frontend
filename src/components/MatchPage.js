@@ -29,9 +29,9 @@ import Popper from '@mui/material/Popper';
 import landingPageLogo from '../image/landing image cropped.png';
 import { queryVocab } from '../redux/inputToVocabSlice'; // Import the action
 import { queryQueryResult } from '../redux/queryResultSlice';
+import landingPageSchema from '../schema/landing_page_schema.json';
 import { nodeAutoWidth } from './style.js';
 import { AlertMessage } from './SupportingMaterial';
-import landingPageSchema from '../schema/landing_page_schema.json';
 
 const nodeColors = {
   gene: "#A4D0F6",
@@ -615,6 +615,10 @@ function MatchPage() {
 
   useEffect(() => {
     let isabled = true;
+    if (dictionary.length === 0) {
+      setIsSubmitDisabled(true);
+      return;
+    }
     for (const [key, value] of Object.entries(dictionary)) {
       if (value === 'gene' && !geneId) {
         isabled = false;
@@ -630,7 +634,7 @@ function MatchPage() {
       }
     }
     setIsSubmitDisabled(!isabled);
-  }, [geneId, cellId, snpId]);
+  }, [geneId, cellId, snpId, dictionary]);
 
   useEffect(() => {
     if (showBoxEmptyWarning) {
@@ -716,6 +720,7 @@ function MatchPage() {
           backgroundColor: '#E4F0F1',
           borderRadius: '20px',
           padding: '32px',
+          minHeight: '300px'
         }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography sx={{
