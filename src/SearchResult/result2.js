@@ -1,38 +1,38 @@
 import './scoped.css';
 
 import React, {
-  useEffect,
-  useRef,
-  useState,
+    useEffect,
+    useRef,
+    useState,
 } from 'react';
 
 import {
-  useDispatch,
-  useSelector,
+    useDispatch,
+    useSelector,
 } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import {
-  ChevronRight as ChevronRightIcon,
-  InfoOutlined as InfoOutlineIcon,
+    ChevronRight as ChevronRightIcon,
+    InfoOutlined as InfoOutlineIcon,
 } from '@mui/icons-material';
 import {
-  Backdrop,
-  Box,
-  CircularProgress,
-  Collapse,
-  Container,
-  Grid,
-  Link,
-  List,
-  ListItem,
-  Skeleton,
-  styled,
-  Tab,
-  Tabs,
-  Tooltip,
-  tooltipClasses,
-  Typography,
+    Backdrop,
+    Box,
+    CircularProgress,
+    Collapse,
+    Container,
+    Grid,
+    Link,
+    List,
+    ListItem,
+    Skeleton,
+    styled,
+    Tab,
+    Tabs,
+    Tooltip,
+    tooltipClasses,
+    Typography,
 } from '@mui/material';
 
 import { flaskBackendAxiosInstanceNew } from '../axios/axios';
@@ -262,10 +262,13 @@ function SearchResult() {
                 );
                 const emp_evidence = response.payload?.resources_tabs?.empirical_evidence || {};
                 if (emp_evidence.lambda_function == "type_to_image") {
+                    console.log('Fetching image for empirical evidence:', emp_evidence);
                     dispatch(queryImage({
                         imageType: 'manhattan',
                         link: `${emp_evidence.folder}/${emp_evidence.credible_set}`
-                    }));
+                    })).catch((error) => {
+                        console.log('[WARNING] Error fetching image:', error);
+                    });
                 }
                 setReferenceData(response.payload?.resources_tabs || {});
             });
@@ -290,16 +293,25 @@ function SearchResult() {
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const question = base64ToUtf8(params?.get('question'));
+        console.log('Received question:', question);
+        if (!question) {
+            console.log('[ERROR] No question found in URL parameters.');
+            setError(true);
+            return;
+        }
 
+        console.log('Querying AI agent...');
         const thunk = dispatch(queryAiAgent({ question: question, "agent_name": "pankbase" }));
         thunkref.current = thunk;
         thunk.then((response) => {
             const agentResult = JSON.parse(response.payload.answer || '{}')?.text || {};
             console.log('AI Agent Result:', agentResult);
             if (agentResult.template_matching !== 'agent_answer') {
+                console.log('Template matching result:', agentResult.template_matching);
                 //should be aaa - bbb - ccc
                 //navigate to /result?sourceTerm=aaa&targetTerm=ccc&relationship=bbb
                 if (!agentResult.template_matching || agentResult.template_matching.split(' - ').length !== 3) {
+                    console.log('[ERROR] Invalid template matching');
                     setError(true);
                     return;
                 }
@@ -325,6 +337,12 @@ function SearchResult() {
             //         setAiLoading(false);
             //     });
             // });
+            if (!agentResult.cypher || !!agentResult.cypher) {
+                console.log('[ERROR] Invalid Cypher query');
+                setError(true);
+                return;
+            }
+            console.log('Querying graph data with Cypher query:', agentResult.cypher);
             dispatch(queryQueryResultPage({
                 payload: {
                     "cypher": agentResult.cypher,
@@ -332,9 +350,11 @@ function SearchResult() {
                 }, agent: true
             })).then((response) => {
                 if (!response.payload?.combined_query_result) {
+                    console.log('[ERROR] No combined query result found');
                     setError(true);
                     return;
                 }
+                console.log('Graph data received:', response.payload?.combined_query_result);
                 setGraphData(response.payload?.combined_query_result || {});
                 setCoordData(response.payload?.xy_json || {});
                 setAiLoading(false);
@@ -408,11 +428,18 @@ function SearchResult() {
         if (!!aiAnswer) {
             const pmidsFromText = ProcessLinks2({ text: aiAnswer }).filter(part => part.type === "pubmedid").map(part => (part.text));
             const pmids = [...new Set(pmidsFromText)].slice(0, 50);
+            console.log('Fetching articles for PMIDs:', pmids);
             dispatch(queryArticles({
                 db: 'pubmed',
                 id: pmids.join(','),
                 retmode: 'json',
             })).then((response) => {
+                console.log('Articles data received:', response.payload);
+                if (!response.payload || Object.values(response.payload.result).some(article => !article.authors)) {
+                    console.log('[ERROR] Invalid article data');
+                    setError(true);
+                    return;
+                }
                 setArticlesData(
                     pmids.map(pmid => ({
                         pmid: pmid,

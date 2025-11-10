@@ -1,43 +1,43 @@
 import './scoped.css';
 
 import React, {
-  useEffect,
-  useRef,
-  useState,
+    useEffect,
+    useRef,
+    useState,
 } from 'react';
 
 import {
-  useDispatch,
-  useSelector,
+    useDispatch,
+    useSelector,
 } from 'react-redux';
 
 import {
-  ChevronRight as ChevronRightIcon,
-  InfoOutlined as InfoOutlineIcon,
+    ChevronRight as ChevronRightIcon,
+    InfoOutlined as InfoOutlineIcon,
 } from '@mui/icons-material';
 import {
-  Backdrop,
-  Box,
-  CircularProgress,
-  Collapse,
-  Container,
-  Grid,
-  Link,
-  List,
-  ListItem,
-  Skeleton,
-  styled,
-  Tab,
-  Tabs,
-  Tooltip,
-  tooltipClasses,
-  Typography,
+    Backdrop,
+    Box,
+    CircularProgress,
+    Collapse,
+    Container,
+    Grid,
+    Link,
+    List,
+    ListItem,
+    Skeleton,
+    styled,
+    Tab,
+    Tabs,
+    Tooltip,
+    tooltipClasses,
+    Typography,
 } from '@mui/material';
 
 import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 import {
-  ErrorComponent,
-  tabsQTL,
+    ErrorComponent,
+    tabsQTL,
 } from '../components/IntermediatePage';
 import KnowledgeGraph from '../components/KnowledgeGraph';
 import VisuImage from '../image/output.png';
@@ -50,9 +50,9 @@ import { queryImage } from '../redux/typeToImageSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import {
-  addHighlight,
-  replaceNextQuestion,
-  replaceVariables,
+    addHighlight,
+    replaceNextQuestion,
+    replaceVariables,
 } from '../utils/textProcessing';
 
 const tabOptions = [
@@ -274,6 +274,10 @@ function SearchResult() {
                 id: pmids.join(','),
                 retmode: 'json',
             })).then((response) => {
+                if (!response.payload || Object.values(response.payload.result).some(article => !article.authors)) {
+                    setError(true);
+                    return;
+                }
                 const sortedArticles = pmids.toSorted((a, b) => (scoreMap[b] || 0) - (scoreMap[a] || 0));
                 setArticlesData(
                     sortedArticles.map(pmid => ({
@@ -356,7 +360,9 @@ function SearchResult() {
                                 dispatch(queryImage({
                                     imageType: 'manhattan',
                                     link: `${tabsQTL.find(tab => tab.data_source === dataSource)?.folder || ''}/${coreRelationship["~properties"]["credible_set"]}`
-                                }));
+                                })).catch((error) => {
+                                    console.log('[WARNING] Error fetching image:', error);
+                                });
                             }
                             const celltypeName = results.nodes
                                 ?.filter(node => node["~labels"].includes('cell_type'))
