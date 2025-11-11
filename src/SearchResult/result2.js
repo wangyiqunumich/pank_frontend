@@ -337,7 +337,7 @@ function SearchResult() {
             //         setAiLoading(false);
             //     });
             // });
-            if (!agentResult.cypher || !!agentResult.cypher) {
+            if (!agentResult.cypher || agentResult.cypher.length === 0) {
                 console.log('[ERROR] Invalid Cypher query');
                 setError(true);
                 return;
