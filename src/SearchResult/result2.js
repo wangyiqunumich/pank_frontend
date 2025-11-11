@@ -435,7 +435,10 @@ function SearchResult() {
                 retmode: 'json',
             })).then((response) => {
                 console.log('Articles data received:', response.payload);
-                if (!response.payload || Object.values(response.payload.result || {}).some(article => !article.authors)) {
+                if (!response.payload ||
+                    Object.keys(response.payload.result || {})
+                        .some(pmid => pmid !== "uids" && !response.payload.result[pmid]?.authors)
+                ) {
                     console.log('[ERROR] Invalid article data');
                     setError(true);
                     return;
@@ -457,7 +460,7 @@ function SearchResult() {
     return aiLoading ?
         <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px' }}>
             <SearchResultLoading handleClose={() => {
-                console.log(1);
+                // console.log(1);
                 if (thunkref.current) thunkref.current.abort();
                 navigate("/");
             }} />
