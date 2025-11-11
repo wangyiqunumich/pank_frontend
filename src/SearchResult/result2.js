@@ -350,7 +350,7 @@ function SearchResult() {
                     "rdb_query": ""
                 }, agent: true
             })).then((response) => {
-                console.log('Graph data received:', response.payload?.combined_query_result);
+                console.log('Graph data received:', response.payload);
                 if (!response.payload?.combined_query_result) {
                     console.log('[ERROR] No combined query result found');
                     setError(true);
