@@ -274,7 +274,7 @@ function SearchResult() {
                 id: pmids.join(','),
                 retmode: 'json',
             })).then((response) => {
-                if (!response.payload || Object.values(response.payload.result).some(article => !article.authors)) {
+                if (!response.payload || Object.values(response.payload.result || {}).some(article => !article.authors)) {
                     setError(true);
                     return;
                 }
