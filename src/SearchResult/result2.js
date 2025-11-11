@@ -337,24 +337,25 @@ function SearchResult() {
             //         setAiLoading(false);
             //     });
             // });
+            console.log('Cypher query:', agentResult.cypher);
             if (!agentResult.cypher || agentResult.cypher.length === 0) {
                 console.log('[ERROR] Invalid Cypher query');
                 setError(true);
                 return;
             }
-            console.log('Querying graph data with Cypher query:', agentResult.cypher);
+            console.log('Querying graph data...');
             dispatch(queryQueryResultPage({
                 payload: {
                     "cypher": agentResult.cypher,
                     "rdb_query": ""
                 }, agent: true
             })).then((response) => {
+                console.log('Graph data received:', response.payload?.combined_query_result);
                 if (!response.payload?.combined_query_result) {
                     console.log('[ERROR] No combined query result found');
                     setError(true);
                     return;
                 }
-                console.log('Graph data received:', response.payload?.combined_query_result);
                 setGraphData(response.payload?.combined_query_result || {});
                 setCoordData(response.payload?.xy_json || {});
                 setAiLoading(false);
@@ -426,7 +427,7 @@ function SearchResult() {
     // Fetch articles data based on aiAnswer
     useEffect(() => {
         if (!!aiAnswer) {
-            const pmidsFromText = ProcessLinks2({ text: aiAnswer }).filter(part => part.type === "pubmedid").map(part => (part.text));
+            const pmidsFromText = ProcessLinks2({ text: aiAnswer })?.filter(part => part.type === "pubmedid").map(part => (part.text)) || [];
             const pmids = [...new Set(pmidsFromText)].slice(0, 50);
             console.log('Fetching articles for PMIDs:', pmids);
             dispatch(queryArticles({
