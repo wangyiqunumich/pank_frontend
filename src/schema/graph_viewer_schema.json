@@ -22,7 +22,7 @@
                     "name"
                 ],
                 [
-                    "Identity",
+                    "Gene Identity",
                     [
                         [
                             "ENSG ID",
@@ -89,47 +89,18 @@
                 ]
             ]
         },
-        "OCR": {
-            "node_color": "#61ECBC",
+        "variants": {
+            "node_color": "#FFB371",
             "text_color": "#000000",
-            "node_label": "OCR Cluster",
-            "info_panel": [
-                [
-                    "Description",
-                    "Open chromatin region cluster containing gene activity scores rather than actual peaks",
-                    "string"
-                ],
-                [
-                    "Footer",
-                    [
-                        [
-                            "Data Version",
-                            "data_version"
-                        ],
-                        [
-                            "Data Source",
-                            "data_source"
-                        ]
-                    ]
-                ]
-            ]
-        },
-        "gene_ontology": {
-            "node_color": "#A4D0F6",
-            "text_color": "#000000",
-            "node_label": "Gene",
+            "node_label": "SNP",
             "info_panel": [
                 [
                     "Title",
-                    "name"
+                    "id"
                 ],
                 [
-                    "Identity",
+                    "Variant Identity",
                     [
-                        [
-                            "GO ID",
-                            "id"
-                        ],
                         [
                             "Link",
                             "link",
@@ -138,62 +109,8 @@
                     ]
                 ],
                 [
-                    "Description",
-                    "description"
-                ],
-                [
                     "Footer",
                     [
-                        [
-                            "Data Version",
-                            "data_version"
-                        ]
-                    ]
-                ]
-            ]
-        },
-        "disease": {
-            "node_color": "#FFDE7D",
-            "text_color": "#000000",
-            "node_label": "Disease",
-            "info_panel": [
-                [
-                    "Title",
-                    "name"
-                ],
-                [
-                    "Identity",
-                    [
-                        [
-                            "Disease Name",
-                            "name"
-                        ],
-                        [
-                            "Ontology ID",
-                            "id"
-                        ],
-                        [
-                            "Synonyms",
-                            "synonyms"
-                        ],
-                        [
-                            "Link",
-                            "url",
-                            "link"
-                        ]
-                    ]
-                ],
-                [
-                    "Description",
-                    "definition"
-                ],
-                [
-                    "Footer",
-                    [
-                        [
-                            "Data Version",
-                            "data_version"
-                        ],
                         [
                             "Data Source",
                             "data_source"
@@ -209,18 +126,57 @@
             "info_panel": [
                 [
                     "Title",
-                    "name"
+                    "id"
                 ],
                 [
-                    "Identity",
+                    "Cell Type Identity",
                     [
                         [
-                            "Cell Type ID",
+                            "Link",
+                            "link",
+                            "link"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "disease": {
+            "node_color": "#FFDE7D",
+            "text_color": "#000000",
+            "node_label": "Disease",
+            "info_panel": [
+                [
+                    "Title",
+                    "T1D",
+                    "string"
+                ],
+                [
+                    "Disease Identity",
+                    [
+                        [
+                            "Disease Name",
+                            "name"
+                        ],
+                        [
+                            "Ontology ID",
                             "id"
                         ],
                         [
+                            "Synonyms",
+                            "synonyms"
+                        ],
+                        [
                             "Link",
-                            "url",
+                            "link",
                             "link"
                         ]
                     ]
@@ -228,6 +184,222 @@
                 [
                     "Description",
                     "definition"
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "OCR": {
+            "node_color": "#61ECBC",
+            "text_color": "#000000",
+            "node_label": "OCR Cluster",
+            "info_panel": [
+                [
+                    "Title",
+                    "name"
+                ],
+                [
+                    "Description",
+                    "Open chromatin region cluster containing gene activity scores rather than actual peaks",
+                    "string"
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "https://data.pankbase.org/analysis-sets/PKBDS0470WCHR/",
+                            "link_static"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "gene_ontology": {
+            "node_color": "#FFDE7D",
+            "text_color": "#000000",
+            "node_label": "Gene Ontology",
+            "info_panel": [
+                [
+                    "Title",
+                    "id"
+                ],
+                [
+                    "GO Identity",
+                    [
+                        [
+                            "GO ID",
+                            "id"
+                        ],
+                        [
+                            "Link",
+                            "link",
+                            "link"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "data_version"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "article": {
+            "node_color": "#F5BEFF",
+            "text_color": "#000000",
+            "node_label": "Literature",
+            "info_panel": []
+        },
+        "gene": {
+            "node_color": "#A4D0F6",
+            "text_color": "#000000"
+        },
+        "enhancer": {
+            "node_color": "#A4D0F6",
+            "text_color": "#000000"
+        },
+        "sequence_SNP": {
+            "node_color": "#FFB371",
+            "text_color": "#000000"
+        },
+        "region": {
+            "node_color": "#61ECBC",
+            "text_color": "#000000"
+        },
+        "phenotype_or_disease": {
+            "node_color": "#FFDE7D",
+            "text_color": "#000000"
+        },
+        "loop": {
+            "node_color": "#A4D0F6",
+            "text_color": "#000000"
+        }
+    },
+    "edges": {
+        "OCR_locate_in": {
+            "text_color": "#000000",
+            "edge_label": "located in ",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Has OCR Cluster",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "https://data.pankbase.org/workflows/PKBWF1943AUOL/",
+                            "link_static"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "expression_level": {
+            "text_color": "#000000",
+            "edge_label": "has expression level",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Has Expression Level",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Expression Level",
+                    [
+                        [
+                            "NonDiabetic median",
+                            "NonDiabetic__expression_median",
+                            "float(2)"
+                        ],
+                        [
+                            "T1D median",
+                            "Type1Diabetic__expression_median",
+                            "float(2)"
+                        ],
+                        [
+                            "All sample median",
+                            "All__expression_median",
+                            "float(2)"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "https://pankgraph.org/scRNAseq_data_source",
+                            "link_static"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "function_annotation": {
+            "text_color": "#000000",
+            "edge_label": "has function",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Has Function",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
                 ],
                 [
                     "Footer",
@@ -244,46 +416,86 @@
                 ]
             ]
         },
-        "variants": {
-            "node_color": "#FFB371",
+        "fine_mapped_QTL": {
             "text_color": "#000000",
-            "node_label": "SNP",
+            "edge_label": "QTL for",
+            "inverted": "FALSE",
             "info_panel": [
                 [
                     "Title",
-                    "id"
+                    "Has QTL",
+                    "string"
                 ],
                 [
-                    "Identity",
+                    "Relationship identity",
                     [
                         [
-                            "SNP ID",
-                            "id"
+                            "From",
+                            "source"
                         ],
                         [
-                            "Link",
-                            "link",
-                            "link"
+                            "To",
+                            "target"
+                        ],
+                        [
+                            "Tissue",
+                            "tissue_name"
+                        ],
+                        [
+                            "Tissue ID",
+                            "tissue_id"
+                        ],
+                        [
+                            "QTL Type",
+                            "qtl_type"
                         ]
                     ]
                 ],
                 [
-                    "Chromosomal Location",
+                    "QTL statistics",
                     [
                         [
-                            "Chromosome",
-                            "chr",
-                            "label_chr(#0FB47D)"
+                            "NonDiabetic median",
+                            "pip",
+                            "float(2)"
                         ],
                         [
-                            "Start",
-                            "start_loc",
+                            "Nominal P value",
+                            "nominal_p",
+                            "float(2)"
+                        ],
+                        [
+                            "LBF",
+                            "lbf",
+                            "float(2)"
+                        ],
+                        [
+                            "Effect Allele",
+                            "effect_allele"
+                        ],
+                        [
+                            "Other Allele",
+                            "other_allele"
+                        ]
+                    ]
+                ],
+                [
+                    "Credible Set Information",
+                    [
+                        [
+                            "Slope",
+                            "slope",
+                            "float(2)"
+                        ],
+                        [
+                            "Number of SNPs",
+                            "n_snp",
                             "int"
                         ],
                         [
-                            "End",
-                            "end_loc",
-                            "int"
+                            "Purity",
+                            "purity",
+                            "float(2)"
                         ]
                     ]
                 ],
@@ -291,20 +503,15 @@
                     "Footer",
                     [
                         [
-                            "Data Version",
-                            "data_version"
-                        ],
-                        [
                             "Data Source",
-                            "data_source"
+                            "https://data.pankbase.org/workflows/PKBWF1943AUOL/",
+                            "link_static"
                         ]
                     ]
                 ]
             ]
-        }
-    },
-    "edges": {
-        "interaction_general_binding": {
+        },
+        "regulation": {
             "text_color": "#000000",
             "edge_label": "interact with",
             "inverted": "FALSE",
@@ -363,52 +570,14 @@
                 ]
             ]
         },
-        "ocr_locate_in": {
+        "OCR_activity": {
             "text_color": "#000000",
-            "edge_label": "ocr locate in",
+            "edge_label": "OCR activity in",
             "inverted": "FALSE",
             "info_panel": [
                 [
                     "Title",
-                    "Has Ocr Locate In",
-                    "string"
-                ],
-                [
-                    "Relationship identity",
-                    [
-                        [
-                            "From",
-                            "source"
-                        ],
-                        [
-                            "To",
-                            "target"
-                        ]
-                    ]
-                ],
-                [
-                    "Footer",
-                    [
-                        [
-                            "Data Version",
-                            "data_version"
-                        ],
-                        [
-                            "Data Source",
-                            "data_source"
-                        ]
-                    ]
-                ]
-            ]
-        },
-        "ocr_activity": {
-            "text_color": "#000000",
-            "edge_label": "ocr activity",
-            "inverted": "FALSE",
-            "info_panel": [
-                [
-                    "Title",
-                    "Has Ocr Activity",
+                    "Has OCR Activity",
                     "string"
                 ],
                 [
@@ -428,17 +597,17 @@
                     "OCR Activity",
                     [
                         [
-                            "Type 1 Diabetes Ocr Geneactivityscore Median",
+                            "T1D activity median",
                             "type_1_diabetes__OCR_GeneActivityScore_median",
                             "float(2)"
                         ],
                         [
-                            "Non Diabetic Ocr Geneactivityscore Median",
+                            "Non-T1D activity median",
                             "non_diabetic__OCR_GeneActivityScore_median",
                             "float(2)"
                         ],
                         [
-                            "Ocr Geneactivityscore Median",
+                            "All activity median",
                             "OCR_GeneActivityScore_median",
                             "float(2)"
                         ]
@@ -448,56 +617,15 @@
                     "Footer",
                     [
                         [
-                            "Data Version",
-                            "data_version"
-                        ],
-                        [
                             "Data Source",
-                            "data_source"
+                            "https://data.pankbase.org/workflows/PKBWF1943AUOL/",
+                            "link_static"
                         ]
                     ]
                 ]
             ]
         },
-        "function_annotation": {
-            "text_color": "#000000",
-            "edge_label": "has function",
-            "inverted": "FALSE",
-            "info_panel": [
-                [
-                    "Title",
-                    "Has Function",
-                    "string"
-                ],
-                [
-                    "Relationship identity",
-                    [
-                        [
-                            "From",
-                            "source"
-                        ],
-                        [
-                            "To",
-                            "target"
-                        ]
-                    ]
-                ],
-                [
-                    "Footer",
-                    [
-                        [
-                            "Data Version",
-                            "data_version"
-                        ],
-                        [
-                            "Data Source",
-                            "data_source"
-                        ]
-                    ]
-                ]
-            ]
-        },
-        "effector_gene_of": {
+        "effector_gene": {
             "text_color": "#000000",
             "edge_label": "effect gene of",
             "inverted": "FALSE",
@@ -522,89 +650,32 @@
                 ],
                 [
                     "Coding Variant Evidence",
-                    "evidence"
+                    "CodingVariantEvidence"
+                ],
+                [
+                    "Confidence Level",
+                    "ConfidenceLevel"
                 ],
                 [
                     "Footer",
                     [
                         [
-                            "Data Version",
-                            "data_version"
-                        ],
-                        [
                             "Data Source",
-                            "data_source"
+                            "data_source_url",
+                            "link"
                         ]
                     ]
                 ]
             ]
         },
-        "expression_level_in": {
+        "Differential_Expression": {
             "text_color": "#000000",
-            "edge_label": "has expression level",
+            "edge_label": "DEG of",
             "inverted": "FALSE",
             "info_panel": [
                 [
                     "Title",
-                    "Has Expression Level",
-                    "string"
-                ],
-                [
-                    "Relationship identity",
-                    [
-                        [
-                            "From",
-                            "source"
-                        ],
-                        [
-                            "To",
-                            "target"
-                        ]
-                    ]
-                ],
-                [
-                    "Expression Level",
-                    [
-                        [
-                            "Nondiabetic Expression Median",
-                            "NonDiabetic__expression_median",
-                            "float(2)"
-                        ],
-                        [
-                            "Type1Diabetic Expression Median",
-                            "Type1Diabetic__expression_median",
-                            "float(2)"
-                        ],
-                        [
-                            "All Expression Median",
-                            "All__expression_median",
-                            "float(2)"
-                        ]
-                    ]
-                ],
-                [
-                    "Footer",
-                    [
-                        [
-                            "Data Version",
-                            "data_version"
-                        ],
-                        [
-                            "Data Source",
-                            "data_source"
-                        ]
-                    ]
-                ]
-            ]
-        },
-        "deg_in": {
-            "text_color": "#000000",
-            "edge_label": "deg in",
-            "inverted": "FALSE",
-            "info_panel": [
-                [
-                    "Title",
-                    "Has Deg In",
+                    "Differentially Expressed",
                     "string"
                 ],
                 [
@@ -625,18 +696,17 @@
                     [
                         [
                             "Up or Down Regulation",
-                            "UpOrDownRegulation",
-                            "string"
+                            "UpOrDownRegulation"
                         ],
                         [
                             "P value",
                             "P_value",
-                            "float(4)"
+                            "float(2)"
                         ],
                         [
                             "Adjusted P value",
                             "Adjusted_P_value",
-                            "float(4)"
+                            "float(2)"
                         ],
                         [
                             "Log2 Fold Change",
@@ -654,127 +724,23 @@
                     "Footer",
                     [
                         [
-                            "Data Version",
-                            "data_version"
-                        ],
-                        [
                             "Data Source",
-                            "data_source"
+                            "https://pankgraph.org/scRNAseq_data_source",
+                            "link_static"
                         ]
                     ]
                 ]
             ]
         },
-        "QTL_for": {
+        "locate_in": {
             "text_color": "#000000",
-            "edge_label": "qtl for",
-            "inverted": "FALSE",
-            "info_panel": [
-                [
-                    "Title",
-                    "Has Qtl For",
-                    "string"
-                ],
-                [
-                    "Relationship identity",
-                    [
-                        [
-                            "From",
-                            "source"
-                        ],
-                        [
-                            "To",
-                            "target"
-                        ],
-                        [
-                            "Tissue",
-                            "tissue_name"
-                        ],
-                        [
-                            "Tissue ID",
-                            "tissue_id"
-                        ]
-                    ]
-                ],
-                [
-                    "QTL statistics",
-                    [
-                        [
-                            "PIP",
-                            "pip",
-                            "float(2)"
-                        ],
-                        [
-                            "Nominal P value",
-                            "nominal_p",
-                            "float(2)"
-                        ],
-                        [
-                            "LBF",
-                            "lbf",
-                            "float(2)"
-                        ],
-                        [
-                            "Effect Allele",
-                            "effect_allele",
-                            "float(2)"
-                        ],
-                        [
-                            "Other Allele",
-                            "other_allele",
-                            "float(2)"
-                        ],
-                        [
-                            "Slope",
-                            "slope",
-                            "float(2)"
-                        ],
-                        [
-                            "Number of SNPs",
-                            "n_snp",
-                            "int"
-                        ],
-                        [
-                            "Purity",
-                            "purity",
-                            "float(2)"
-                        ]
-                    ]
-                ],
-                [
-                    "Credible Set Information",
-                    [
-                        [
-                            "Slope",
-                            "slope",
-                            "float(2)"
-                        ],
-                        [
-                            "N Snp",
-                            "n_snp",
-                            "int"
-                        ],
-                        [
-                            "Purity",
-                            "purity",
-                            "float(2)"
-                        ]
-                    ]
-                ],
-                [
-                    "Footer",
-                    [
-                        [
-                            "Data Version",
-                            "data_version"
-                        ],
-                        [
-                            "Data Source",
-                            "data_source"
-                        ]
-                    ]
-                ]
-            ]
+            "edge_label": "located in ",
+            "inverted": "FALSE"
+        },
+        "eQTL_of": {
+            "text_color": "#000000",
+            "edge_label": "QTL for",
+            "inverted": "FALSE"
         }
     },
     "legend": [
@@ -783,20 +749,20 @@
             "color": "#A4D0F6"
         },
         {
+            "label": "SNP",
+            "color": "#FFB371"
+        },
+        {
+            "label": "Ontology",
+            "color": "#FFDE7D"
+        },
+        {
             "label": "OCR Cluster",
             "color": "#61ECBC"
         },
         {
-            "label": "Disease",
-            "color": "#FFDE7D"
-        },
-        {
-            "label": "Cell Type",
-            "color": "#FFDE7D"
-        },
-        {
-            "label": "SNP",
-            "color": "#FFB371"
+            "label": "Literature",
+            "color": "#F5BEFF"
         }
     ]
 }
