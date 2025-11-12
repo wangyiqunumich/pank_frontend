@@ -238,6 +238,93 @@ const HirnEvidences = ({ evidence }) => {
   </Box>;
 }
 
+const LongList = ({ title, list }) => {
+  const [open, setOpen] = useState(false);
+  const length = list.length;
+  const content = list.map(item => {
+    const key = Object.keys(item)[0];
+    return {label: key, value: item[key]};
+  })
+
+  if (length === 0) { return <></>; }
+
+  const EvidenceBox = ({ title, content }) => {
+    // top left: index, score with color
+    // top right: pmid
+    // bottom: content
+    return <Box sx={{
+      width: "calc(100% - 32px)",
+      display: "flex",
+      flexDirection: "column",
+      padding: "16px",
+      gap: "12px",
+      border: "1px solid #E5E7EB",
+      backgroundColor: "#F9FAFB",
+      borderRadius: "8px",
+      marginTop: "12px",
+    }}>
+      <Box sx={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <Typography sx={{
+            fontFamily: "Open Sans",
+            fontWeight: "600",
+            fontSize: "12px",
+            color: "#6B7880",
+            lineHeight: "14px",
+            marginTop: "-5px",
+          }}>
+            {title}
+          </Typography>
+        </Box>
+      </Box>
+      <Typography sx={{
+        fontFamily: "Open Sans",
+        fontWeight: "400",
+        fontSize: "12px",
+        color: "#263238",
+        lineHeight: "16px",
+        marginTop: "-2px",
+        whiteSpace: "pre-wrap",
+        wordBreak: "break-word",
+      }}>
+        {content}
+      </Typography>
+    </Box>;
+  }
+
+  return <Box sx={{
+    width: "calc(100% - 32px)",
+    display: "flex",
+    flexDirection: "column",
+    padding: "16px",
+    borderBottom: "1px solid #F0F0F0",
+  }}>
+    {/* Part Subtitle */}
+    <Typography sx={{
+      alignSelf: "center",
+      fontFamily: "Open Sans",
+      fontWeight: "600",
+      fontSize: "10px",
+      color: "#6B7880",
+      lineHeight: "7px",
+      textTransform: "uppercase",
+    }}>
+      {title}
+      {length > 1 && <IconButton onClick={() => setOpen(!open)} sx={{ marginLeft: "8px", padding: "0px", marginBottom: "-2px" }} size="small">
+        {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+      </IconButton>}
+    </Typography>
+    <EvidenceBox title={content[0].label} content={content[0].value} />
+    {length > 1 && <Collapse in={open} timeout="auto">
+      {
+        content.map((item, idx) => (
+          <EvidenceBox key={idx + 2} title={item.label} content={item.value} />
+        ))
+      }
+    </Collapse>}
+  </Box>;
+}
+
 const parseJSON = (str) => {
   try {
     return JSON5.parse(str);
@@ -279,8 +366,10 @@ const InfocardMenu = ({ hoveredData, review }) => {
           {
             schema.map(([title, content, config]) => (
               ["Title", "Footer"].includes(title) ? "" :
-                title === "HIRN evidence" ?
+                config === "HIRN_evidence" ?
                   <HirnEvidences key={title} evidence={parseJSON(hoveredData[content]) || []} />
+                  :config === "long_list" ?
+                  <LongList key={title} title={title} list={parseJSON(hoveredData[content]) || []} />
                   : (
                     <Box key={title} sx={{
                       width: "calc(100% - 32px)",
