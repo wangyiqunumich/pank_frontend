@@ -9,16 +9,22 @@ import cytoscape from 'cytoscape';
 import {
     Box,
     Button,
+    CircularProgress,
 } from '@mui/material';
 
 import Image from '../image/Pasted Graphic 1.png';
 import sampleLinks from '../schema/sample_links.json';
 import SearchResultLoading from '../SearchResult/loading';
+import KnowledgeGraph from './KnowledgeGraph';
 import {
     edgeIsInverted,
     edgeLabels,
     nodeStyle,
 } from './style.js';
+
+import MultiLineInputList from './DebugComponent';
+import { useDispatch } from 'react-redux';
+import { queryQueryResultPage } from '../redux/queryResultPage';
 
 export default function DebugPage() {
     const [graphJson, setGraphJson] = useState("");
@@ -80,6 +86,54 @@ export default function DebugPage() {
     //         setCy(cyInstance);
     //     }
     // }, [cy, imgSize]);
+    const [query, setQuery] = useState("");
+    const [graphData, setGraphData] = useState(null);
+    const [coordData, setCoordData] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const dispatch = useDispatch();
+    const handleQuery = (queryRaw) => {
+        const query = queryRaw?.filter(line => line.trim().length > 0);
+        if (!query || query.length === 0) return;
+        console.log("Running query:", query);
+        setLoading(true);
+        setError("");
+        dispatch(queryQueryResultPage({
+            payload: {
+                "cypher": query,
+                "rdb_query": ""
+            }, agent: true
+        })).then((response) => {
+            setLoading(false);
+            console.log('Graph data received:', response.payload);
+            if (!response.payload?.combined_query_result) {
+                console.log('[ERROR] No combined query result found');
+                setGraphData(null);
+                setCoordData(null);
+                setError("No combined query result found");
+                return;
+            }
+            if (!response.payload.combined_query_result.nodes || !response.payload.combined_query_result.edges) {
+                setError("No nodes or edges found in the combined query result");
+                return;
+            }
+            setGraphData(response.payload?.combined_query_result || {});
+            setCoordData(response.payload?.xy_json || {});
+        });
+    };
+
+    const generateTest = (queryRaw) => {
+        const jsonPayload = {
+            "cypher": queryRaw?.filter(line => line.trim().length > 0),
+            "rdb_query": ""
+        };
+        const testEvent = {
+            "body": JSON.stringify(jsonPayload)
+        };
+        console.log("Generated Test Event:", testEvent);
+        navigator.clipboard.writeText(JSON.stringify(testEvent, null, 2));
+        window.alert("Test event copied to clipboard!");
+    }
 
     // // Handle file upload
     const handleFileUpload = (event) => {
@@ -196,41 +250,23 @@ export default function DebugPage() {
     }, [graphJson]);
     return (
         <>
-            <div className="p-4 space-y-4">
-                <Button variant="contained" onClick={() => setLoadingOpen(true)}>
-                    Open Loading Screen
-                </Button>
-                <Box sx={{ width: '1000px', height: '750px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F8FAFA'}}>
-                    <SearchResultLoading open={loadingOpen} handleClose={() => setLoadingOpen(false)} />
+            <div style={{ padding: '20px', width: '1000px', border: '1px solid #ccc', marginBottom: '20px', margin: '10px' }}>
+                <MultiLineInputList onChange={(data) => { setQuery(data); }} />
+                <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 2, pb: 2 }}>
+                    <Button variant="contained" onClick={() => generateTest(query)} sx={{ mt: 2 }}>Generate Test Event</Button>
+                    <Button variant="contained" onClick={() => handleQuery(query)} sx={{ mt: 2 }}>Run Query</Button>
+                    {loading && <CircularProgress size={24} />}
                 </Box>
-                <Button
-                    onClick={() => {
-                        cyRef.current.click();
-                    }}
-                >
-                    Upload JSON File
-                </Button>
-                <input
-                    type="file"
-                    accept=".json"
-                    ref={cyRef}
-                    onChange={handleFileUpload}
-                    style={{ display: "none" }}
-                />
 
-                <div
-                    id="cy-container"
-                    style={{
-                        width: "100%",
-                        height: "600px",
-                        backgroundColor: "#F9FAFB",
-                        border: "none",
-                        borderRadius: "8px",
-                        position: "relative",
-                        display: graphJson ? "block" : "none",
-                    }}
-                >
-                </div>
+                {
+                    error && (<Box sx={{ color: 'red', mb: 2 }}>{error}</Box>)
+                }
+
+                <Box sx={{ width: '600px', height: '600px', border: '1px solid #ccc', backgroundColor: '#f9f9f9' }}>
+                    {graphData && <KnowledgeGraph selectable={false} sx={{ zIndex: 2 }}
+                        graphData={graphData} coordData={coordData}
+                    />}
+                </Box>
             </div>
             <div style={{ padding: '20px', width: '1440px' }}>
                 <h1>Links for Debug Quick Redirect</h1>
