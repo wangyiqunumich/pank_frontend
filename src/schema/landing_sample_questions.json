@@ -20,15 +20,15 @@
         },
         {
             "question": "Which SNP serves as the lead QTL for [GENE]?",
-            "link": "https://pankgraph.org/match?qid=1"
+            "link": "https://dev.pankgraph.org/match?qid=1"
         },
         {
             "question": "Which GENE is regulated by [SNP] as a QTL?",
-            "link": "https://pankgraph.org/match?qid=2"
+            "link": "https://dev.pankgraph.org/match?qid=2"
         },
         {
             "question": "Does [SNP] serves as a QTL for [GENE]?",
-            "link": "https://pankgraph.org/match?qid=3"
+            "link": "https://dev.pankgraph.org/match?qid=3"
         }
     ],
     "Gene Expression": [
