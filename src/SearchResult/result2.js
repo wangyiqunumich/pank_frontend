@@ -15,10 +15,12 @@ import { useNavigate } from 'react-router-dom';
 import {
   ChevronRight as ChevronRightIcon,
   InfoOutlined as InfoOutlineIcon,
+  Mail as MailIcon,
 } from '@mui/icons-material';
 import {
   Backdrop,
   Box,
+  Button,
   CircularProgress,
   Collapse,
   Container,
@@ -177,6 +179,53 @@ const LoadingSkeleton = () => (
     </Container>
 )
 
+const NoGraphData = () => (
+    <Box sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 2,
+        height: '600px',
+        width: '100%',
+        justifyContent: 'center',
+        backgroundColor: '#F9FAFB',
+    }}>
+
+        <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '24px', color: '#43AABA', marginBottom: '-12px', whiteSpace: 'nowrap' }}>
+            No Knowledge Graph available for this answer.
+        </Typography>
+
+        <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 400, fontSize: '20px', color: '#6C6C6C' }}>
+            Please contact PanKbase team for support.
+        </Typography>
+
+        <Button
+            onClick={() => window.location.href = 'mailto:wyq@umich.edu, runbomao@umich.edu, drjieliu@umich.edu, fan.feng@vumc.org, help@pankbase.org'}
+            sx={{
+                backgroundColor: "white",
+                border: "1px solid #219197",
+                height: "50px",
+                borderRadius: "25px",
+                paddingX: "32px",
+                "&:hover": {
+                    backgroundColor: "#CAD4DA",
+                },
+            }}
+            startIcon={<MailIcon sx={{ color: "#219197", }} />}
+        >
+            <Typography sx={{
+                color: "#219197",
+                fontFamily: 'Open Sans',
+                fontSize: "17px",
+                fontWeight: "600",
+                textTransform: "none",
+            }}>
+                Email Support
+            </Typography>
+        </Button>
+    </Box>
+);
+
 function SearchResult() {
     const [currTab, setCurrTab] = useState('references');
     const dispatch = useDispatch();
@@ -187,8 +236,8 @@ function SearchResult() {
     const { typeToImage } = useSelector((state) => state.typeToImage);
     const [aiAnswer, setAiAnswer] = useState('');
     // const [mainCypher, setMainCypher] = useState('');
-    const [graphData, setGraphData] = useState({});
-    const [coordData, setCoordData] = useState({});
+    const [graphData, setGraphData] = useState(null);
+    const [coordData, setCoordData] = useState(null);
     const [currentQuestion, setCurrentQuestion] = useState('');
     const [variables, setVariables] = useState({});
     const [referenceData, setReferenceData] = useState({});
@@ -199,8 +248,14 @@ function SearchResult() {
     const [allNextQuestions, setAllNextQuestions] = useState(null);
     const [error, setError] = useState(false);
     const [aiLoading, setAiLoading] = useState(true);
+    const [noGraph, setNoGraph] = useState(false);
     const thunkref = useRef(null);
     const navigate = useNavigate();
+    const [debug, setDebug] = useState(false);
+
+    useEffect(() => {
+
+    }, []);
 
     // scroll to active reference after it is set
     const timeoutRef = useRef(null);
@@ -293,6 +348,8 @@ function SearchResult() {
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const question = base64ToUtf8(params?.get('question'));
+        const debug = params.get('debug') === 'true';
+        setDebug(debug);
         console.log('Received question:', question);
         if (!question) {
             console.log('[ERROR] No question found in URL parameters.');
@@ -301,7 +358,7 @@ function SearchResult() {
         }
 
         console.log('Querying AI agent...');
-        const thunk = dispatch(queryAiAgent({ question: question, "agent_name": "pankbase" }));
+        const thunk = dispatch(queryAiAgent(debug ? { debug: true } : { question: question, "agent_name": "pankbase" }));
         thunkref.current = thunk;
         thunk.then((response) => {
             const agentResult = JSON.parse(response.payload.answer || '{}')?.text || {};
@@ -343,6 +400,7 @@ function SearchResult() {
                 setError(true);
                 return;
             }
+            setAiLoading(false);
             console.log('Querying graph data...');
             dispatch(queryQueryResultPage({
                 payload: {
@@ -353,12 +411,12 @@ function SearchResult() {
                 console.log('Graph data received:', response.payload);
                 if (!response.payload?.combined_query_result) {
                     console.log('[ERROR] No combined query result found');
-                    setError(true);
+                    setNoGraph(true);
+                    // setError(true);
                     return;
                 }
                 setGraphData(response.payload?.combined_query_result || {});
                 setCoordData(response.payload?.xy_json || {});
-                setAiLoading(false);
             });
         });
     }, []);
@@ -641,7 +699,12 @@ function SearchResult() {
                                     textAlign: 'left',
                                     maxWidth: '100%',
                                 }}>
-                                    <KnowledgeGraph graphData={graphData} coordData={coordData} />
+                                    {graphData ? <KnowledgeGraph graphData={graphData} coordData={coordData} />
+                                        : noGraph ? <NoGraphData />
+                                            : <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '600px' }}>
+                                                <CircularProgress />
+                                            </Box>
+                                    }
                                 </Box>
                             </Box>
                         </Grid>

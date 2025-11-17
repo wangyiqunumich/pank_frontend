@@ -40,6 +40,14 @@
     ],
     "result_page": [
         {
+            "link": "/result2?question=RGVzY3JpYmUgUFRQTjIy4oCZcyBpbnZvbHZlbWVudCBpbiBUMUQsIGNvdmVyaW5nIGl0cyBhc3NvY2lhdGVkIFFUTCBzaWduYWxzLCBleHByZXNzaW9uIHBhdHRlcm5zLCBhbmQgcmVwb3J0ZWQgZWZmZWN0b3IgZ2VuZXMgZXZpZGVuY2Uu&debug=true",
+            "dictionary": {
+                "question": "Describe PTPN22’s involvement in T1D, covering its associated QTL signals, expression patterns, and reported effector genes evidence.",
+                "debug": "true"
+            },
+            "$comment": ":Agent page with debug mode on, which does not query the agent but instead uses preset data for testing."
+        },
+        {
             "link": "/result?sourceTerm=snp@rs2402203&targetTerm=gene@ENSG00000001626&relationship=QTL",
             "dictionary": {
                 "sourceTerm": "snp@rs2402203",
