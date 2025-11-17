@@ -216,7 +216,7 @@ export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "
           Need Assistance?
         </Typography>
         <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 400, fontSize: '20px', color: '#6C6C6C' }}>
-          Our support team is here to assist you with any questions or technical issues
+          Our support team is here to assist you with any questions or technical issues.
         </Typography>
         <Button
           onClick={() => window.location.href = 'mailto:wyq@umich.edu, runbomao@umich.edu, drjieliu@umich.edu, fan.feng@vumc.org, help@pankbase.org'}
