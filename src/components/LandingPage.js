@@ -140,10 +140,7 @@ function LandingPage() {
         }}>
 
           {/* 更新 Question 组件，传入 setSelectedQuestion */}
-          <Question
-            selectedQuestion={selectedQuestion}
-            setSelectedQuestion={setSelectedQuestion}
-          />
+          <Question/>
 
           {/* SearchBar 组件
         <SearchBar 

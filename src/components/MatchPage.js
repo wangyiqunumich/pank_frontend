@@ -542,14 +542,11 @@ function MatchPage() {
       }
       else {
         sourceSymbol = '';
-        sourceTerm = source;
+        sourceTerm = source.toLowerCase();
       }
-      let url = `/intermediate?sourceTerm=${sourceTerm.toLowerCase()}&relationship=${relationTerm}&targetTerm=${targetTerm}`;
+      let url = `/${targetTerm ==="disease" ? "result" : "intermediate"}?sourceTerm=${sourceTerm}&relationship=${relationTerm}&targetTerm=${targetTerm}`;
       if (targetSymbol) {
         url += `&targetSymbol=${targetSymbol}`;
-      }
-      if (sourceSymbol) {
-        url += `&sourceSymbol=${sourceSymbol}`;
       }
       navigate(url);
     }
