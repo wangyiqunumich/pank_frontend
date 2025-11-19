@@ -105,7 +105,7 @@ const WarningSNP = (
   </Alert>
 );
 
-export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "No answer for your question in PanKgraph", agent = true }) {
+export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "No answer for your question in PanKgraph", agent = true, log =  undefined }) {
   return (
     <Container sx={{
       padding: 0, display: 'flex',
@@ -219,7 +219,7 @@ export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "
           Our support team is here to assist you with any questions or technical issues.
         </Typography>
         <Button
-          onClick={() => window.location.href = 'mailto:wyq@umich.edu, runbomao@umich.edu, drjieliu@umich.edu, fan.feng@vumc.org, help@pankbase.org'}
+          onClick={() => window.open('mailto:wyq@umich.edu, runbomao@umich.edu, drjieliu@umich.edu, fan.feng@vumc.org, help@pankbase.org' + (log ? ('?subject=PanKgraph Support Request&body=' + encodeURIComponent('Hello,\n\nI need assistance with PanKgraph.\n\nHere are the details:\n' + log)) : ''), '_blank')}
           sx={{
             backgroundColor: "white",
             border: "1px solid #219197",

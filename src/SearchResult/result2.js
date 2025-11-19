@@ -200,7 +200,8 @@ const NoGraphData = () => (
         </Typography>
 
         <Button
-            onClick={() => window.location.href = 'mailto:wyq@umich.edu, runbomao@umich.edu, drjieliu@umich.edu, fan.feng@vumc.org, help@pankbase.org'}
+            onClick={() => window.location.href = 
+                'mailto:wyq@umich.edu, runbomao@umich.edu, drjieliu@umich.edu, fan.feng@vumc.org, help@pankbase.org'}
             sx={{
                 backgroundColor: "white",
                 border: "1px solid #219197",
@@ -234,6 +235,7 @@ function SearchResult() {
 
     const { viewSchema } = useSelector((state) => state.viewSchema);
     const { typeToImage } = useSelector((state) => state.typeToImage);
+    const {agentRawResult} = useSelector((state) => state.aiAgent);
     const [aiAnswer, setAiAnswer] = useState('');
     // const [mainCypher, setMainCypher] = useState('');
     const [graphData, setGraphData] = useState(null);
@@ -252,10 +254,7 @@ function SearchResult() {
     const thunkref = useRef(null);
     const navigate = useNavigate();
     const [debug, setDebug] = useState(false);
-
-    useEffect(() => {
-
-    }, []);
+    const [question, setQuestion] = useState('');
 
     // scroll to active reference after it is set
     const timeoutRef = useRef(null);
@@ -348,6 +347,7 @@ function SearchResult() {
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const question = base64ToUtf8(params?.get('question'));
+        setQuestion(question);
         const debug = params.get('debug') === 'true';
         setDebug(debug);
         console.log('Received question:', question);
@@ -482,6 +482,10 @@ function SearchResult() {
             </span>)
         ));
 
+    const debugMessage = (question, agentRawResult) => {
+        return "\n\n\n==LOG===========================\nQuestion:\n" + question + "\n\nRaw AI Agent Result:\n" + JSON.stringify(agentRawResult, null, 2);
+    }
+
     // Fetch articles data based on aiAnswer
     useEffect(() => {
         if (!!aiAnswer) {
@@ -513,7 +517,7 @@ function SearchResult() {
         }
     }, [aiAnswer]);
 
-    if (error) return <ErrorComponent errorTitle={"Question Not Relevant"} errorMessage={"Your query doesn't match any relevant topic in PanKgraph. Please try rephrasing or explore related tutorials."} />;
+    if (error) return <ErrorComponent errorTitle={"Question Not Relevant"} errorMessage={"Your query doesn't match any relevant topic in PanKgraph. Please try rephrasing or explore related tutorials."} log={debugMessage(question, agentRawResult)} />;
 
     // Show loading skeleton if queryResultPage is not ready
     return aiLoading ?
