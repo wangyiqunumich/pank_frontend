@@ -5,7 +5,6 @@ import React, {
   useState,
 } from 'react';
 
-import JSON5 from 'json5';
 import {
   useDispatch,
   useSelector,
@@ -257,19 +256,22 @@ function IntermediatePage({ onContinue }) {
   const [cleanedQueryResult, setCleanedQueryResult] = useState(null);
 
   useEffect(() => {
-    // read queryresult, a string as the format "data_source, credible_sets\n\"a string\", a json object"
-    // save as {data_source: string, credible_sets: json object}
     if (queryResult?.results) {
-      const lines = queryResult.results.trim().split('\n').slice(1);
-      const data_source = lines.map((line) => {
-        const [dataSource, credibleSets] = JSON5.parse(`[${line}]`);
-        return ({
-          "data_source": dataSource,
-          "credible_sets": credibleSets
-        });
-      }
-      );
-      setCleanedQueryResult({ results: data_source });
+      // console.log(queryResult.results);
+      // const lines = queryResult.results.trim().split('\n').slice(1);
+      // const data_source = lines.map((line) => {
+      //   const [dataSource, credibleSets] = JSON5.parse(`[${line}]`);
+      //   return ({
+      //     "data_source": dataSource,
+      //     "credible_sets": credibleSets
+      //   });
+      // }
+      // );
+      const cleanedResult = queryResult.results[0].credible_sets.map((cs) => ({
+        "data_source": cs.data_source,
+        "credible_sets": [cs]
+      }));
+      setCleanedQueryResult({ results: cleanedResult });
     }
   }, [queryResult]);
 
