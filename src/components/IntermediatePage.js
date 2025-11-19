@@ -5,6 +5,7 @@ import React, {
   useState,
 } from 'react';
 
+import JSON5 from 'json5';
 import {
   useDispatch,
   useSelector,
@@ -254,23 +255,30 @@ function IntermediatePage({ onContinue }) {
   const { viewSchema } = useSelector((state) => state.viewSchema);
   const { queryResult } = useSelector((state) => state.queryResult);
   const [cleanedQueryResult, setCleanedQueryResult] = useState(null);
+  const [isNeptune, setIsNeptune] = useState(false);
 
   useEffect(() => {
     if (queryResult?.results) {
       // console.log(queryResult.results);
-      // const lines = queryResult.results.trim().split('\n').slice(1);
-      // const data_source = lines.map((line) => {
-      //   const [dataSource, credibleSets] = JSON5.parse(`[${line}]`);
-      //   return ({
-      //     "data_source": dataSource,
-      //     "credible_sets": credibleSets
-      //   });
-      // }
-      // );
-      const cleanedResult = queryResult.results[0].credible_sets.map((cs) => ({
-        "data_source": cs.data_source,
-        "credible_sets": [cs]
-      }));
+      let cleanedResult;
+      if (isNeptune) {
+        const lines = queryResult.results.trim().split('\n').slice(1);
+        cleanedResult = lines.map((line) => {
+          const [dataSource, credibleSets] = JSON5.parse(`[${line}]`);
+          return ({
+            "data_source": dataSource,
+            "credible_sets": credibleSets
+          });
+        }
+        );
+      }
+      else {
+        cleanedResult = queryResult.results?.[0]?.credible_sets?.map((cs) => ({
+          "data_source": cs.data_source,
+          "credible_sets": [cs]
+        }));
+      }
+      if (!cleanedResult || cleanedResult.length === 0) { return; }
       setCleanedQueryResult({ results: cleanedResult });
     }
   }, [queryResult]);
@@ -430,7 +438,7 @@ function IntermediatePage({ onContinue }) {
         setError(true);
       }
       setLoading(false);
-    }, 5000);
+    }, 10000);
 
     // Clear error if results are found in 3 seconds
     if (cleanedQueryResult?.results && cleanedQueryResult.results.length > 0) {
@@ -572,6 +580,8 @@ function IntermediatePage({ onContinue }) {
           targetTerm: searchState.targetTerm
         }
       );
+
+      setIsNeptune(!searchState.sourceTerm.includes("snp@"));
 
       dispatch(queryQueryResult({
         query: processedCypher,
