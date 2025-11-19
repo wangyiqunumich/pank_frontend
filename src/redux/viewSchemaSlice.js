@@ -1,20 +1,23 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import {flaskBackendAxiosInstance} from "../axios/axios";
 import {QueryStatus} from "@reduxjs/toolkit/query";
+import VisualizationSchema from "../schema/visualization_schema.json";
 
 export const queryViewSchema = createAsyncThunk('/tripletsToViewSchema',
     async (payload) => {
-    return await flaskBackendAxiosInstance
-        .post('/tripletsToViewSchema', payload, {
-            headers: {
-                "Content-Type": "application/json"
-            }
-        })
-        .then((response) => response.data)
-        .catch((response) => {
-            console.log(response);
-        });
-});
+        const source = payload.sourceTerm.split('@')[0];
+        const target = payload.targetTerm.split('@')[0];
+        const relationship = payload.relationship.split('@')[0];
+        const term = `${source} - ${relationship} - ${target}`;
+        const result = VisualizationSchema[term]?.[`${payload.sourceTerm === source ? 'general' : 'specific'} - relationship - ${payload.targetTerm === target ? 'general' : 'specific'}`];
+        if (result) {
+            console.log(`Found visualization schema for term: ${term}`);
+            return result;
+        }
+        console.error(`No visualization schema found for term: ${term}`);
+        return;
+    }
+);
 
 export const viewSchemaSlice = createSlice({
     name: 'viewSchema',
