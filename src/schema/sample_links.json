@@ -1,5 +1,15 @@
 {
     "$comment": "Explanary file, not for use in production.",
+    "landing_page": [
+        {
+            "link": "/",
+            "dictionary": {}
+        },
+        {
+            "link": "/agent-landing",
+            "dictionary": {}
+        }
+    ],
     "intermediate_page": [
         {
             "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000001626&targetSymbol=CFTR",
@@ -92,6 +102,22 @@
                 "credible_set_id": "ENSG00000149485__FADS1__credibleSet1"
             },
             "$comment": ":In case of redirecting from intermediate page where the specified snp *is* the lead snp."
+        },
+        {
+            "link": "/result?sourceTerm=gene@ENSG00000001626&relationship=COLOC&targetTerm=disease",
+            "dictionary": {
+                "sourceTerm": "gene@ENSG00000001626",
+                "relationship": "COLOC",
+                "targetTerm": "disease"
+            }
+        },
+        {
+            "link": "/result?sourceTerm=snp@rs35327136&relationship=GWAS&targetTerm=disease",
+            "dictionary": {
+                "sourceTerm": "snp@rs35327136",
+                "relationship": "GWAS",
+                "targetTerm": "disease"
+            }
         }
     ],
     "review_page": [

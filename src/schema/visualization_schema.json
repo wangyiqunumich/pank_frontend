@@ -400,7 +400,7 @@
                 "inter_error_message": "No GWAS records were found for this SNP in our PanKbase dataset.",
                 "result_error_title": "No GWAS data found",
                 "result_error_message": "No GWAS records were found for this SNP in our PanKbase dataset.",
-                "question_for_result": "Which {@snp@} has GWAS association with T1D?",
+                "question_for_result": "Is the QTL signal of {@gene_symbol@} colocalized with T1D GWAS signal?",
                 "cypher_for_result_page_core": "MATCH (g:gene {id: \"@gene@\"})-[r:signal_COLOC_with]-(disease:disease{id: \"MONDO_0005147\"}) RETURN collect(DISTINCT g) + collect(DISTINCT disease) AS nodes, collect(DISTINCT r) AS edges;",
                 "cypher_for_result_page_nbr": "MATCH (g:gene {id:\"@gene@\"}) CALL { WITH g MATCH (g)-[r1:effector_gene_of]-(nbr1) RETURN collect(DISTINCT r1)  AS eff_edges, collect(DISTINCT nbr1) AS eff_nbrs } CALL { WITH g MATCH (g)-[rReg:regulation]-(nbrR:gene) WITH rReg, nbrR ORDER BY id(rReg) LIMIT 2 RETURN collect(rReg) AS reg_edges, collect(nbrR) AS reg_nbrs } CALL { WITH g MATCH (g)-[rBind:physical_interaction]-(nbrB:gene) WITH rBind, nbrB ORDER BY id(rBind) LIMIT 2 RETURN collect(rBind) AS bind_edges, collect(nbrB) AS bind_nbrs } WITH [g] AS g_list, eff_edges + reg_edges + bind_edges AS all_edges, eff_nbrs  + reg_nbrs + bind_nbrs  AS all_nbrs UNWIND (g_list + all_nbrs) AS n WITH collect(DISTINCT n) AS nodes, all_edges UNWIND all_edges AS e RETURN nodes, collect(DISTINCT e) AS edges;",
                 "ai_question_for_result": [
