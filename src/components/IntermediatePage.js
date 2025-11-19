@@ -271,8 +271,6 @@ function IntermediatePage({ onContinue }) {
           });
         }
         );
-        console.log(cleanedResult);
-
       }
       else {
         cleanedResult = queryResult.results?.[0]?.credible_sets?.map((cs) => ({
