@@ -39,6 +39,8 @@ const nodeColors = {
   ontology: "#FFDE7D",
   OCR: "#61ECBC",
   article: "#F5BEFF",
+  "cell type": "#F5BEFF",
+  "T1D": "#FFADAD",
 };
 
 const nodeLabels = {
@@ -47,6 +49,8 @@ const nodeLabels = {
   ontology: "Cell Type",
   OCR: "OCR Cluster",
   article: "Literature",
+  "cell type": "Cell Type",
+  "T1D": "T1D",
 };
 
 const edgeLabels = {
@@ -517,7 +521,7 @@ function MatchPage() {
         updatedTerms = updatedTerms.replace('snp', `snp@${snpId}`);
       }
       const parts = updatedTerms.split('-')
-      const sourceTerm = parts[0].trim();
+      const source = parts[0].trim();
       const relationTerm = parts[1].trim();
       const target = parts[2].trim();
       let targetSymbol = '';
@@ -530,9 +534,22 @@ function MatchPage() {
         targetSymbol = '';
         targetTerm = target;
       }
+      let sourceSymbol = '';
+      let sourceTerm = '';
+      if (source.includes('(')) {
+        sourceSymbol = source.split('(')[0].split('@')[1];
+        sourceTerm = `gene@${source.split('(')[1].slice(0, -1)}`;
+      }
+      else {
+        sourceSymbol = '';
+        sourceTerm = source;
+      }
       let url = `/intermediate?sourceTerm=${sourceTerm.toLowerCase()}&relationship=${relationTerm}&targetTerm=${targetTerm}`;
       if (targetSymbol) {
         url += `&targetSymbol=${targetSymbol}`;
+      }
+      if (sourceSymbol) {
+        url += `&sourceSymbol=${sourceSymbol}`;
       }
       navigate(url);
     }

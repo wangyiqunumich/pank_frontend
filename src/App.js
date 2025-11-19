@@ -4,7 +4,7 @@ import NavBar from './NavBar';
 import SearchBar from './SearchBar';
 import SearchResult from './SearchResult';
 import IntermediatePage from './components/IntermediatePage';
-import LandingPage from './components/LandingPage';
+import LandingPage from './components/AgentLandingPage';
 import {Box, Container, CssBaseline, StyledEngineProvider, ThemeProvider} from '@mui/material';
 import theme from './theme/theme';
 import PkbFooter from "./Footer/footer";
