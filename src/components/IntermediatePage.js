@@ -435,6 +435,7 @@ function IntermediatePage({ onContinue }) {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!cleanedQueryResult?.results || cleanedQueryResult.results.length === 0) {
+        console.log("No results found within timeout period.");
         setError(true);
       }
       setLoading(false);
@@ -442,6 +443,7 @@ function IntermediatePage({ onContinue }) {
 
     // Clear error if results are found in 3 seconds
     if (cleanedQueryResult?.results && cleanedQueryResult.results.length > 0) {
+      console.log("Results found, clearing error.");
       setError(false);
       setLoading(false);
       clearTimeout(timer);

@@ -330,7 +330,7 @@
           }
     },
     "snp - GWAS - disease": {
-          "specific - relationship - specific": {
+          "specific - relationship - general": {
                 "question": [
                       "Does {@snp@} has GWAS association with T1D?"
                 ],
@@ -379,8 +379,8 @@
                 }
           }
     },
-    "Gene - COLOC - disease": {
-        "specific - relationship - specific": {
+    "gene - COLOC - disease": {
+        "specific - relationship - general": {
               "question": [
                     "Is the QTL signal of {@gene_symbol@} colocalized with T1D GWAS signal?"
               ],

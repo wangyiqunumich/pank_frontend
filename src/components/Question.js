@@ -19,7 +19,7 @@ import {
 
 import landingPageSchema from '../schema/landing_page_schema.json';
 
-function Question({ selectedQuestion, setSelectedQuestion }) {
+function Question({}) {
   const [questions, setQuestions] = useState([]);
   useEffect(() => {
     setQuestions(landingPageSchema); // Load questions into state
@@ -29,6 +29,8 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
     // Navigate to the next page and pass the question data
     navigate(`/match?qid=${index}`);
   };
+
+  const colorMap = ['#E7DD6F', '#B3DDAD', '#B3DDAD', '#B3DDAD', '#4ABBE3', '#296798'];
 
   // const [searchQuery, setSearchQuery] = useState('');
 
@@ -151,18 +153,15 @@ function Question({ selectedQuestion, setSelectedQuestion }) {
                     },
                   }}
                 >
-                  <Box classname="dot"
+                  <Box className="dot"
                     sx={{
                       width: '11px',
                       height: '11px',
                       borderRadius: '50%',
-                      backgroundColor: '#B8CBC9',//49B9E4',
+                      backgroundColor: colorMap[index % colorMap.length],
                       marginLeft: '20px',
                       marginRight: '20px',
                       transition: 'background-color 0.1s',
-                      '.question-box-container:hover &': {
-                        backgroundColor: '#43978F',
-                      },
                       marginTop: '7px',
                     }}
                   />
