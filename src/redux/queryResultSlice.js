@@ -5,18 +5,36 @@ import {
 import { QueryStatus } from '@reduxjs/toolkit/query';
 
 import { flaskBackendAxiosInstanceNew } from '../axios/axios';
+import axios from 'axios';
 
 export const queryQueryResult = createAsyncThunk('/openCypherToQueryResult',
     async (payload) => {
+        if (payload.isNeptune) {
+            // return await flaskBackendAxiosInstanceNew
+            //     .post('/pank2-neo4j-api-development', { query: payload.query }, {
+            //         headers: {
+            //             "Content-Type": "application/json"
+            //         }
+            //     })
+            return await flaskBackendAxiosInstanceNew
+                .post('/pankgraph-neo4j', { query: payload.query }, {
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                })
+                .then((response) => response.data)
+                .catch((response) => {
+                    console.log(response);
+                });
+        }
         return await flaskBackendAxiosInstanceNew
-            .post(payload.isNeptune ? '/pank2-neo4j-api-development' : '/RDSLambda',
-                { query: payload.query }, {
+            .post('/RDSLambda', { query: payload.query }, {
                 headers: {
                     "Content-Type": "application/json"
                 }
             })
             .then((response) =>
-                payload.isNeptune || payload.rawResponse
+                payload.rawResponse
                     ? response.data
                     : {
                         results: [{
