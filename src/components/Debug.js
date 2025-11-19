@@ -271,7 +271,7 @@ export default function DebugPage() {
             <div style={{ padding: '20px', width: '1440px' }}>
                 <h1>Links for Debug Quick Redirect</h1>
                 {
-                    [["Intermediate Page", "intermediate_page"], ["Result Page", "result_page"], ["Review Page", "review_page"]].map(([title, key]) => (
+                    [["Landing Page", "landing_page"], ["Intermediate Page", "intermediate_page"], ["Result Page", "result_page"], ["Review Page", "review_page"]].map(([title, key]) => (
                         <div key={key}>
                             <h3>{title}:</h3>
                             {
