@@ -399,10 +399,15 @@ function SearchResult() {
                                 source: neighborSource,
                                 target: neighborTarget,
                             }
+                            const coloc = relationship === "COLOC" && results.edges?.find(
+                                edge => (((edge["~start"] === coreNodes[0] && edge["~end"] === coreNodes[1])
+                                    || (edge["~end"] === coreNodes[0] && edge["~start"] === coreNodes[1]))&& edge["~type"]==="signal_COLOC_with")
+                            )
                             const newVariables = {
                                 additionalParams: [
                                     ...additionalParams,
                                     `tissue_name@${celltypeName}`,
+                                    ...(coloc ? [`snp_id_QTL@${coloc["~properties"]?.["QTL_lead_vars"] || ''}`, `snp_id_GWAS@${coloc["~properties"]?.["GWAS_lead_vars"] || ''}`] : []),
                                 ],
                                 sourceTerm,
                                 relationship,
