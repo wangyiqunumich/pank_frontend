@@ -360,7 +360,7 @@
                         "references": {},
                         "empirical_evidence": {
                               "title": "Regional Fine-Mapping Plot",
-                              "description": "This plot integrates multiple fine-mapping statistics (−log₁₀P, PIP, LBF) across a genomic region. The three-row scatter view condenses QTL evidence.\nRow 1 shows −log₁₀ P for classical association strength.\nRow 2 reports the posterior inclusion probability (PIP) from Bayesian fine-mapping.\nRow 3 displays the log Bayes factor (LBF) for complementary Bayes support.\nPoint colour encodes LD R² relative to the lead SNP (red dashed line), allowing you to gauge how neighbouring variants track the core signal.\nTogether these layers highlight candidate causal variants and their statistical weight at a glance.",
+                              "description": "This plot integrates multiple fine-mapping statistics (−log₁₀P, PIP, LBF) across a genomic region. The three-row scatter view condenses GWAS evidence.\nRow 1 shows −log₁₀ P for classical association strength.\nRow 2 reports the posterior inclusion probability (PIP) from Bayesian fine-mapping.\nRow 3 displays the log Bayes factor (LBF) for complementary Bayes support.\nPoint colour encodes LD R² relative to the lead SNP (red dashed line), allowing you to gauge how neighbouring variants track the core signal.\nTogether these layers highlight candidate causal variants and their statistical weight at a glance.",
                               "legend": "View",
                               "lambda_function": "type_to_image",
                               "link_text": "Download the raw GWAS data ↗"
