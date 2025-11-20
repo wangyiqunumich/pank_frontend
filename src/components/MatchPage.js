@@ -194,7 +194,7 @@ const MatchGraphViewer = ({ visualPattern, selectedQuestion }) => {
   );
 };
 
-function InputComponent({ type, setValue, setInputStatus }) { // input state: valid, mismatch, empty
+function InputComponent({ type, setValue, setInputStatus, GWAS=false }) { // input state: valid, mismatch, empty
   const dispatch = useDispatch();
   const [selfOptions, setSelfOptions] = useState([]);
 
@@ -251,11 +251,12 @@ function InputComponent({ type, setValue, setInputStatus }) { // input state: va
       snp: 'sequence_variant'
     };
     Promise.all(
-      [dispatch(queryVocab({ input: termName })).unwrap(),
+      //TODO: optimize code structure
+      [(type !== 'snp' ? dispatch(queryVocab({ input: termName })).unwrap() : Promise.resolve(null)),
       ...(type === 'snp' ? [dispatch(queryQueryResult({
         isNeptune: false,
         rawResponse: true,
-        query: `SELECT snp FROM QTL_DATA WHERE snp = '${termName}' LIMIT 1;`
+        query: `SELECT snp FROM ${GWAS ? "GWAS_DATA":"QTL_DATA"} WHERE snp = '${termName}' LIMIT 1;`
       })).unwrap()] : [])
       ]
     ).then(([response, response2]) => {
@@ -542,7 +543,8 @@ function MatchPage() {
       }
       else {
         sourceSymbol = '';
-        sourceTerm = source.toLowerCase();
+        // if (source.startsWith('rs'))
+        sourceTerm = source;
       }
       let url = `/${targetTerm ==="disease" ? "result" : "intermediate"}?sourceTerm=${sourceTerm}&relationship=${relationTerm}&targetTerm=${targetTerm}`;
       if (targetSymbol) {
@@ -553,6 +555,7 @@ function MatchPage() {
   };
 
   function renderSequence() {
+    const GWAS = questionData?.terms.includes('GWAS');
     const sequence = selectedQuestion || ''; // 使用选定的问题或空字符串
     const parts = sequence.split(/(\s+|\{.*?\}|\(.*?\))/); // 根据{} 或（）将字符串分割成部分，其余按照空格分割成部分
     return parts.map((part, index) => {
@@ -593,6 +596,7 @@ function MatchPage() {
           setInputStatus={(status) => {
             setInputStatus((prevStatus) => ({ ...prevStatus, [index]: status }));
           }}
+          GWAS={GWAS}
         />);
       } else {
         // Render plain text for other parts

@@ -1,43 +1,43 @@
 import './scoped.css';
 
 import React, {
-  useEffect,
-  useRef,
-  useState,
+    useEffect,
+    useRef,
+    useState,
 } from 'react';
 
 import {
-  useDispatch,
-  useSelector,
+    useDispatch,
+    useSelector,
 } from 'react-redux';
 
 import {
-  ChevronRight as ChevronRightIcon,
-  InfoOutlined as InfoOutlineIcon,
+    ChevronRight as ChevronRightIcon,
+    InfoOutlined as InfoOutlineIcon,
 } from '@mui/icons-material';
 import {
-  Backdrop,
-  Box,
-  CircularProgress,
-  Collapse,
-  Container,
-  Grid,
-  Link,
-  List,
-  ListItem,
-  Skeleton,
-  styled,
-  Tab,
-  Tabs,
-  Tooltip,
-  tooltipClasses,
-  Typography,
+    Backdrop,
+    Box,
+    CircularProgress,
+    Collapse,
+    Container,
+    Grid,
+    Link,
+    List,
+    ListItem,
+    Skeleton,
+    styled,
+    Tab,
+    Tabs,
+    Tooltip,
+    tooltipClasses,
+    Typography,
 } from '@mui/material';
 
 import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 import {
-  ErrorComponent,
-  tabsQTL,
+    ErrorComponent,
+    tabsQTL,
 } from '../components/IntermediatePage';
 import KnowledgeGraph from '../components/KnowledgeGraph';
 import VisuImage from '../image/output.png';
@@ -50,12 +50,12 @@ import { queryImage } from '../redux/typeToImageSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import {
-  addHighlight,
-  replaceNextQuestion,
-  replaceVariables,
+    addHighlight,
+    replaceNextQuestion,
+    replaceVariables,
 } from '../utils/textProcessing';
 
-const tabOptions = [
+const defaultTabOptions = [
     { value: 'references', label: 'References' },
     { value: 'empirical_evidence', label: 'Empirical Evidence' },
     { value: 'pankbase_links', label: 'PanKbase Links' },
@@ -187,6 +187,7 @@ function SearchResult() {
     const [error, setError] = useState(false);
 
     const [renderedAiAnswer, setRenderedAiAnswer] = useState(null);
+    const [tabOptions, setTabOptions] = useState(defaultTabOptions);
 
     // scroll to active reference after it is set
     const timeoutRef = useRef(null);
@@ -354,19 +355,32 @@ function SearchResult() {
                             const coreRelationship = results.edges?.find(
                                 edge => (edge["~start"] === coreNodes[0] && edge["~end"] === coreNodes[1])
                                     || (edge["~end"] === coreNodes[0] && edge["~start"] === coreNodes[1])
+                            ) || results.edges?.find(
+                                edge => (edge["~start"] === coreNodes[0] || edge["~end"] === coreNodes[1])
+                                    || (edge["~end"] === coreNodes[0] || edge["~start"] === coreNodes[1])
                             );
 
                             const dataSource = coreRelationship?.["~properties"]?.data_source || '';
-                            const credibleSetId = coreRelationship?.["~properties"]?.credible_set || '';
-                            if (resources_tabs?.empirical_evidence?.lambda_function &&
-                                coreRelationship?.["~properties"]?.["credible_set"]) {
-                                dispatch(queryImage({
-                                    imageType: 'manhattan',
-                                    link: `${tabsQTL.find(tab => tab.data_source === dataSource)?.folder || ''}/${coreRelationship["~properties"]["credible_set"]}`
-                                })).catch((error) => {
-                                    console.log('[WARNING] Error fetching image:', error);
-                                });
+                            const credibleSetId = coreRelationship?.["~properties"]?.credible_set_id || '';
+                            if (resources_tabs?.empirical_evidence?.lambda_function) {
+                                const credible_set = coreRelationship?.["~properties"]?.credible_set || coreRelationship?.["~properties"]?.credible_set_id || '';
+                                if (!credible_set) {
+                                    console.log('[WARNING] credible_set is missing.');
+                                } else {
+                                    dispatch(queryImage({
+                                        imageType: 'manhattan',
+                                        link: `${relationship === "GWAS" ? "1_t1d-susie" : tabsQTL.find(tab => tab.data_source === dataSource)?.folder || ''}/${credible_set}`
+                                    })).catch((error) => {
+                                        console.log('[WARNING] Error fetching image:', error);
+                                    });
+                                }
                             }
+                            setTabOptions([
+                                resources_tabs?.references ? { value: 'references', label: 'References' } : null,
+                                resources_tabs?.empirical_evidence ? { value: 'empirical_evidence', label: 'Empirical Evidence' } : null,
+                                resources_tabs?.pankbase_links ? { value: 'pankbase_links', label: 'PanKbase Links' } : null,
+                                resources_tabs?.external_links ? { value: 'external_links', label: 'External Links' } : null
+                            ].filter(Boolean));
                             const celltypeName = results.nodes
                                 ?.filter(node => node["~labels"].includes('cell_type'))
                                 ?.map(node => node["~properties"]?.name)
@@ -385,10 +399,15 @@ function SearchResult() {
                                 source: neighborSource,
                                 target: neighborTarget,
                             }
+                            const coloc = relationship === "COLOC" && results.edges?.find(
+                                edge => (((edge["~start"] === coreNodes[0] && edge["~end"] === coreNodes[1])
+                                    || (edge["~end"] === coreNodes[0] && edge["~start"] === coreNodes[1]))&& edge["~type"]==="signal_COLOC_with")
+                            )
                             const newVariables = {
                                 additionalParams: [
                                     ...additionalParams,
                                     `tissue_name@${celltypeName}`,
+                                    ...(coloc ? [`snp_id_QTL@${coloc["~properties"]?.["QTL_lead_vars"] || ''}`, `snp_id_GWAS@${coloc["~properties"]?.["GWAS_lead_vars"] || ''}`] : []),
                                 ],
                                 sourceTerm,
                                 relationship,

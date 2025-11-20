@@ -94,7 +94,7 @@ function LandingPage() {
             objectPosition: 'left',
             marginTop: { sm: '0px', md: '50px' },
             marginLeft: { sm: '0px', md: '0' },
-            transform: { sm: 'none', md: 'translateX(-4%)' }
+            transform: { sm: 'none', md: 'translateX(-4%) translateY(13px)' }
           },
         }}>
           <Box sx={{
