@@ -194,7 +194,7 @@ const MatchGraphViewer = ({ visualPattern, selectedQuestion }) => {
   );
 };
 
-function InputComponent({ type, setValue, setInputStatus }) { // input state: valid, mismatch, empty
+function InputComponent({ type, setValue, setInputStatus, GWAS=false }) { // input state: valid, mismatch, empty
   const dispatch = useDispatch();
   const [selfOptions, setSelfOptions] = useState([]);
 
@@ -244,18 +244,18 @@ function InputComponent({ type, setValue, setInputStatus }) { // input state: va
   }
 
   function updateValidation(newInputValue, type) { // validate the input value with vocab
-    const geneName = newInputValue.split('(')[0].trim();
+    const termName = newInputValue.split('(')[0].trim();
     const typeMap = {
       gene: 'gene',
       cell: 'cell_type',
       snp: 'sequence_variant'
     };
     Promise.all(
-      [dispatch(queryVocab({ input: geneName })).unwrap(),
+      [dispatch(queryVocab({ input: termName })).unwrap(),
       ...(type === 'snp' ? [dispatch(queryQueryResult({
         isNeptune: false,
         rawResponse: true,
-        query: `SELECT snp FROM QTL_DATA WHERE snp = '${geneName}' LIMIT 1;`
+        query: `SELECT snp FROM QTL_DATA WHERE snp = '${termName}' LIMIT 1;`
       })).unwrap()] : [])
       ]
     ).then(([response, response2]) => {
@@ -267,7 +267,7 @@ function InputComponent({ type, setValue, setInputStatus }) { // input state: va
       } // skip repeated response
       const responseList = (response?.result || '').split('@') || [''];
       const id1 = typeMap[type] === responseList[0] ?
-        (type === 'gene' ? `${geneName}(${responseList[1]})` : responseList[1]) :
+        (type === 'gene' ? `${termName}(${responseList[1]})` : responseList[1]) :
         '';
       const id2 = response2?.results?.[0]?.[type];
       const id = id1 || id2 || '';
@@ -553,6 +553,7 @@ function MatchPage() {
   };
 
   function renderSequence() {
+    const GWAS = questionData?.terms.includes('GWAS');
     const sequence = selectedQuestion || ''; // 使用选定的问题或空字符串
     const parts = sequence.split(/(\s+|\{.*?\}|\(.*?\))/); // 根据{} 或（）将字符串分割成部分，其余按照空格分割成部分
     return parts.map((part, index) => {
@@ -593,6 +594,7 @@ function MatchPage() {
           setInputStatus={(status) => {
             setInputStatus((prevStatus) => ({ ...prevStatus, [index]: status }));
           }}
+          GWAS={GWAS}
         />);
       } else {
         // Render plain text for other parts
