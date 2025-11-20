@@ -194,7 +194,7 @@ const MatchGraphViewer = ({ visualPattern, selectedQuestion }) => {
   );
 };
 
-function InputComponent({ type, setValue, setInputStatus }) { // input state: valid, mismatch, empty
+function InputComponent({ type, setValue, setInputStatus, GWAS=false }) { // input state: valid, mismatch, empty
   const dispatch = useDispatch();
   const [selfOptions, setSelfOptions] = useState([]);
 
@@ -553,6 +553,7 @@ function MatchPage() {
   };
 
   function renderSequence() {
+    const GWAS = questionData?.terms.includes('GWAS');
     const sequence = selectedQuestion || ''; // 使用选定的问题或空字符串
     const parts = sequence.split(/(\s+|\{.*?\}|\(.*?\))/); // 根据{} 或（）将字符串分割成部分，其余按照空格分割成部分
     return parts.map((part, index) => {
@@ -593,6 +594,7 @@ function MatchPage() {
           setInputStatus={(status) => {
             setInputStatus((prevStatus) => ({ ...prevStatus, [index]: status }));
           }}
+          GWAS={GWAS}
         />);
       } else {
         // Render plain text for other parts

@@ -1,43 +1,43 @@
 import './scoped.css';
 
 import React, {
-  useEffect,
-  useRef,
-  useState,
+    useEffect,
+    useRef,
+    useState,
 } from 'react';
 
 import {
-  useDispatch,
-  useSelector,
+    useDispatch,
+    useSelector,
 } from 'react-redux';
 
 import {
-  ChevronRight as ChevronRightIcon,
-  InfoOutlined as InfoOutlineIcon,
+    ChevronRight as ChevronRightIcon,
+    InfoOutlined as InfoOutlineIcon,
 } from '@mui/icons-material';
 import {
-  Backdrop,
-  Box,
-  CircularProgress,
-  Collapse,
-  Container,
-  Grid,
-  Link,
-  List,
-  ListItem,
-  Skeleton,
-  styled,
-  Tab,
-  Tabs,
-  Tooltip,
-  tooltipClasses,
-  Typography,
+    Backdrop,
+    Box,
+    CircularProgress,
+    Collapse,
+    Container,
+    Grid,
+    Link,
+    List,
+    ListItem,
+    Skeleton,
+    styled,
+    Tab,
+    Tabs,
+    Tooltip,
+    tooltipClasses,
+    Typography,
 } from '@mui/material';
 
 import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 import {
-  ErrorComponent,
-  tabsQTL,
+    ErrorComponent,
+    tabsQTL,
 } from '../components/IntermediatePage';
 import KnowledgeGraph from '../components/KnowledgeGraph';
 import VisuImage from '../image/output.png';
@@ -50,9 +50,9 @@ import { queryImage } from '../redux/typeToImageSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import {
-  addHighlight,
-  replaceNextQuestion,
-  replaceVariables,
+    addHighlight,
+    replaceNextQuestion,
+    replaceVariables,
 } from '../utils/textProcessing';
 
 const tabOptions = [
@@ -354,18 +354,25 @@ function SearchResult() {
                             const coreRelationship = results.edges?.find(
                                 edge => (edge["~start"] === coreNodes[0] && edge["~end"] === coreNodes[1])
                                     || (edge["~end"] === coreNodes[0] && edge["~start"] === coreNodes[1])
+                            ) || results.edges?.find(
+                                edge => (edge["~start"] === coreNodes[0] || edge["~end"] === coreNodes[1])
+                                    || (edge["~end"] === coreNodes[0] || edge["~start"] === coreNodes[1])
                             );
 
                             const dataSource = coreRelationship?.["~properties"]?.data_source || '';
-                            const credibleSetId = coreRelationship?.["~properties"]?.credible_set || '';
-                            if (resources_tabs?.empirical_evidence?.lambda_function &&
-                                coreRelationship?.["~properties"]?.["credible_set"]) {
-                                dispatch(queryImage({
-                                    imageType: 'manhattan',
-                                    link: `${tabsQTL.find(tab => tab.data_source === dataSource)?.folder || ''}/${coreRelationship["~properties"]["credible_set"]}`
-                                })).catch((error) => {
-                                    console.log('[WARNING] Error fetching image:', error);
-                                });
+                            const credibleSetId = coreRelationship?.["~properties"]?.credible_set_id || '';
+                            if (resources_tabs?.empirical_evidence?.lambda_function) {
+                                const credible_set = coreRelationship?.["~properties"]?.credible_set || coreRelationship?.["~properties"]?.credible_set_id || '';
+                                if (!credible_set) {
+                                    console.log('[WARNING] credible_set is missing.');
+                                } else {
+                                    dispatch(queryImage({
+                                        imageType: 'manhattan',
+                                        link: `${relationship === "GWAS" ? "1_t1d-susie" : tabsQTL.find(tab => tab.data_source === dataSource)?.folder || ''}/${credible_set}`
+                                    })).catch((error) => {
+                                        console.log('[WARNING] Error fetching image:', error);
+                                    });
+                                }
                             }
                             const celltypeName = results.nodes
                                 ?.filter(node => node["~labels"].includes('cell_type'))
