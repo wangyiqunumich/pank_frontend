@@ -55,7 +55,7 @@ import {
     replaceVariables,
 } from '../utils/textProcessing';
 
-const tabOptions = [
+const defaultTabOptions = [
     { value: 'references', label: 'References' },
     { value: 'empirical_evidence', label: 'Empirical Evidence' },
     { value: 'pankbase_links', label: 'PanKbase Links' },
@@ -187,6 +187,7 @@ function SearchResult() {
     const [error, setError] = useState(false);
 
     const [renderedAiAnswer, setRenderedAiAnswer] = useState(null);
+    const [tabOptions, setTabOptions] = useState(defaultTabOptions);
 
     // scroll to active reference after it is set
     const timeoutRef = useRef(null);
@@ -374,6 +375,12 @@ function SearchResult() {
                                     });
                                 }
                             }
+                            setTabOptions([
+                                resources_tabs?.references ? { value: 'references', label: 'References' } : null,
+                                resources_tabs?.empirical_evidence ? { value: 'empirical_evidence', label: 'Empirical Evidence' } : null,
+                                resources_tabs?.pankbase_links ? { value: 'pankbase_links', label: 'PanKbase Links' } : null,
+                                resources_tabs?.external_links ? { value: 'external_links', label: 'External Links' } : null
+                            ].filter(Boolean));
                             const celltypeName = results.nodes
                                 ?.filter(node => node["~labels"].includes('cell_type'))
                                 ?.map(node => node["~properties"]?.name)
