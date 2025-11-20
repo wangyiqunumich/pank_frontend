@@ -255,7 +255,7 @@ function InputComponent({ type, setValue, setInputStatus, GWAS=false }) { // inp
       ...(type === 'snp' ? [dispatch(queryQueryResult({
         isNeptune: false,
         rawResponse: true,
-        query: `SELECT snp FROM QTL_DATA WHERE snp = '${termName}' LIMIT 1;`
+        query: `SELECT snp FROM ${GWAS ? "GWAS_DATA":"QTL_DATA"} WHERE snp = '${termName}' LIMIT 1;`
       })).unwrap()] : [])
       ]
     ).then(([response, response2]) => {
