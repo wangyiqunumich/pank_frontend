@@ -251,7 +251,8 @@ function InputComponent({ type, setValue, setInputStatus, GWAS=false }) { // inp
       snp: 'sequence_variant'
     };
     Promise.all(
-      [dispatch(queryVocab({ input: termName })).unwrap(),
+      //TODO: optimize code structure
+      [(type !== 'snp' ? dispatch(queryVocab({ input: termName })).unwrap() : Promise.resolve(null)),
       ...(type === 'snp' ? [dispatch(queryQueryResult({
         isNeptune: false,
         rawResponse: true,
@@ -542,7 +543,8 @@ function MatchPage() {
       }
       else {
         sourceSymbol = '';
-        sourceTerm = source.toLowerCase();
+        // if (source.startsWith('rs'))
+        sourceTerm = source;
       }
       let url = `/${targetTerm ==="disease" ? "result" : "intermediate"}?sourceTerm=${sourceTerm}&relationship=${relationTerm}&targetTerm=${targetTerm}`;
       if (targetSymbol) {
