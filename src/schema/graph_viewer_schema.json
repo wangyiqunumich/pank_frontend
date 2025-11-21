@@ -574,8 +574,8 @@
                             "float(2)"
                         ],
                         [
-                            "Nominal P value",
-                            "nominal_p",
+                            "P value",
+                            "p_value",
                             "float(2)"
                         ],
                         [
@@ -588,7 +588,7 @@
                             "effect_allele"
                         ],
                         [
-                            "Other Allele",
+                            "Non Effect Allele",
                             "non_effect_allele"
                         ]
                     ]
@@ -608,7 +608,7 @@
                         ],
                         [
                             "Purity",
-                            "purity",
+                            "credible_set_purity",
                             "float(2)"
                         ]
                     ]
