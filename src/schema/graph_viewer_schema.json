@@ -354,9 +354,9 @@
                 ]
             ]
         },
-        "expression_level": {
+        "expression_level_in": {
             "text_color": "#000000",
-            "edge_label": "has expression level",
+            "edge_label": "expression level in",
             "inverted": "FALSE",
             "info_panel": [
                 [
@@ -447,14 +447,14 @@
                 ]
             ]
         },
-        "fine_mapped_QTL": {
+        "part_of_QTL_signal": {
             "text_color": "#000000",
-            "edge_label": "QTL for",
+            "edge_label": "part of QTL signal",
             "inverted": "FALSE",
             "info_panel": [
                 [
                     "Title",
-                    "Has QTL",
+                    "Part of QTL signal",
                     "string"
                 ],
                 [
@@ -544,12 +544,71 @@
         },
         "regulation": {
             "text_color": "#000000",
-            "edge_label": "interact with",
+            "edge_label": "genetically regulates",
             "inverted": "FALSE",
             "info_panel": [
                 [
                     "Title",
-                    "Has Interaction",
+                    "Has Genetic Regulation",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ],
+                        [
+                            "BIOGRID ID",
+                            "biogrid_interaction_id"
+                        ]
+                    ]
+                ],
+                [
+                    "Evidence",
+                    [
+                        [
+                            "Publication Source",
+                            "publication_source"
+                        ],
+                        [
+                            "Author",
+                            "author"
+                        ],
+                        [
+                            "Experimental System",
+                            "experimental_system"
+                        ],
+                        [
+                            "System Type",
+                            "experimental_system_type"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "physical binding": {
+            "text_color": "#000000",
+            "edge_label": "physically binds",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Has Physical Binding",
                     "string"
                 ],
                 [
@@ -656,7 +715,7 @@
                 ]
             ]
         },
-        "effector_gene": {
+        "effector_gene_of": {
             "text_color": "#000000",
             "edge_label": "effect gene of",
             "inverted": "FALSE",
@@ -667,25 +726,9 @@
                     "string"
                 ],
                 [
-                    "Relationship identity",
-                    [
-                        [
-                            "From",
-                            "source"
-                        ],
-                        [
-                            "To",
-                            "target"
-                        ]
-                    ]
-                ],
-                [
-                    "Coding Variant Evidence",
-                    "CodingVariantEvidence"
-                ],
-                [
-                    "Confidence Level",
-                    "ConfidenceLevel"
+                    "Evidences",
+                    "evidence",
+                    "long_list"
                 ],
                 [
                     "Footer",
@@ -699,7 +742,7 @@
                 ]
             ]
         },
-        "Differential_Expression": {
+        "DEG_in": {
             "text_color": "#000000",
             "edge_label": "DEG of",
             "inverted": "FALSE",
