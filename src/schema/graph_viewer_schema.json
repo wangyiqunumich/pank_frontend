@@ -542,7 +542,6 @@
                 ]
             ]
         },
-        
         "part_of_GWAS_signal": {
             "text_color": "#000000",
             "edge_label": "part of GWAS signal",
@@ -611,6 +610,96 @@
                             "Purity",
                             "purity",
                             "float(2)"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "https://data.pankbase.org/workflows/PKBWF1943AUOL/",
+                            "link_static"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "signal_COLOC_with": {
+            "text_color": "#000000",
+            "edge_label": "signal COLOC with",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Signals colocalized",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Colocalizaiton statistics",
+                    [
+                        [
+                            [
+                                "PP.H0 (neither causal)",
+                                "PP.H0.abf",
+                                "float(2)"
+                            ],
+                            [
+                                "PP.H1 (GWAS causal)",
+                                "PP.H1.abf",
+                                "float(2)"
+                            ],
+                            [
+                                "PP.H2 (QTL causal)",
+                                "PP.H2.abf",
+                                "float(2)"
+                            ],
+                            [
+                                "PP.H3 (two variants)",
+                                "PP.H3.abf",
+                                "float(2)"
+                            ],
+                            [
+                                "PP.H4 (shared variant)",
+                                "PP.H4.abf",
+                                "float(2)"
+                            ]
+                        ]
+                ],
+                [
+                    "Credible Set Information",
+                    [
+                        [
+                            "Number of SNPs in range",
+                            "nsnp",
+                            "int"
+                        ],
+                        [
+                            "GWAS lead variant",
+                            "GWAS_lead_vars",
+                            "int"
+                        ],
+                        [
+                            "QTL lead variant",
+                            "QTL_lead_vars",
+                            "float(2)"
+                        ],
+                        [
+                            "Coloc dataset",
+                            "coloc_dataset"
                         ]
                     ]
                 ],
