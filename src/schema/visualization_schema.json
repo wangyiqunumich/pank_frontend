@@ -385,9 +385,9 @@
                         ],
                         "external_links": [
                               [
-                                    "Link to Ensembl: ",
-                                    "View the gene @gene_symbol@ in Ensembl",
-                                    "https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=@gene_id@"
+                                    "Link to dbSNP: ",
+                                    "View the SNP @snp@ in dvSNP",
+                                    "https://www.ncbi.nlm.nih.gov/snp/?term=@snp@"
                               ]
                         ]
                   }
