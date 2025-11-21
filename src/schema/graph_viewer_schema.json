@@ -261,28 +261,32 @@
             "info_panel": [
                 [
                     "Title",
-                    "id"
+                    "name"
                 ],
                 [
                     "GO Identity",
                     [
                         [
-                            "GO ID",
+                            "GO id",
                             "id"
                         ],
                         [
-                            "Link",
-                            "link",
-                            "link"
+                            "GO Term",
+                            "name"
                         ]
                     ]
+                ],
+                [
+                    "Description",
+                    "definition"
                 ],
                 [
                     "Footer",
                     [
                         [
                             "Data Source",
-                            "data_version"
+                            "link",
+                            "link"
                         ]
                     ]
                 ]
