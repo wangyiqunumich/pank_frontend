@@ -128,11 +128,6 @@
                             "End",
                             "end_loc",
                             "int"
-                        ],
-                        [
-                            "Strand",
-                            "strand",
-                            "int"
                         ]
                     ]
                 ],
