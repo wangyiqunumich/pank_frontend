@@ -676,20 +676,20 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
   const fadeOutTimeoutRef = useRef(null);
   useEffect(() => {
     if (!infocardHovered && !nodeHovered) {
-      console.log("Preparing to hide infocard");
+      // console.log("Preparing to hide infocard");
       clearTimeout(appearTimeoutRef.current);
       fadeOutTimeoutRef.current = setTimeout(() => {
-        console.log("Hiding infocard");
+        // console.log("Hiding infocard");
         setInfocardVisible(false);
       }, 600);
     } else if (infocardEnabled && nodeHovered) {
-      console.log("Preparing to show infocard");
+      // console.log("Preparing to show infocard");
       clearTimeout(fadeOutTimeoutRef.current);
       if (hoveredId !== appearNodeIdRef.current || !infocardVisible) {
-        console.log("Showing infocard for node:", hoveredId);
+        // console.log("Showing infocard for node:", hoveredId);
         appearNodeIdRef.current = hoveredId;
         appearTimeoutRef.current = setTimeout(() => {
-          console.log("Infocard shown for node:", hoveredId);
+          // console.log("Infocard shown for node:", hoveredId);
           const node = cyRef.current?.getElementById(hoveredIdRef.current);
           setActiveNode(node?.nonempty ? node : null);
           setInfocardVisible(true);
