@@ -102,11 +102,38 @@
                     "Variant Identity",
                     [
                         [
-                            "Link",
-                            "link",
-                            "link"
+                            "Reference Allele",
+                            "ref"
+                        ],
+                        [
+                            "Alternative Allele",
+                            "alt"
                         ]
                     ]
+                ],
+                [
+                    "Chromosomal Location",
+                    [
+                        [
+                            "Chromosome",
+                            "chr",
+                            "label_chr(#0FB47D)"
+                        ],
+                        [
+                            "Start",
+                            "start_loc",
+                            "int"
+                        ],
+                        [
+                            "End",
+                            "end_loc",
+                            "int"
+                        ]
+                    ]
+                ],
+                [
+                    "Frequency",
+                    "freq"
                 ],
                 [
                     "Footer",
@@ -229,28 +256,32 @@
             "info_panel": [
                 [
                     "Title",
-                    "id"
+                    "name"
                 ],
                 [
                     "GO Identity",
                     [
                         [
-                            "GO ID",
+                            "GO id",
                             "id"
                         ],
                         [
-                            "Link",
-                            "link",
-                            "link"
+                            "GO Term",
+                            "name"
                         ]
                     ]
+                ],
+                [
+                    "Description",
+                    "definition"
                 ],
                 [
                     "Footer",
                     [
                         [
                             "Data Source",
-                            "data_version"
+                            "link",
+                            "link"
                         ]
                     ]
                 ]
@@ -295,7 +326,7 @@
             "info_panel": [
                 [
                     "Title",
-                    "Has OCR Cluster",
+                    "Has OCR cluster",
                     "string"
                 ],
                 [
@@ -323,14 +354,14 @@
                 ]
             ]
         },
-        "expression_level": {
+        "expression_level_in": {
             "text_color": "#000000",
-            "edge_label": "has expression level",
+            "edge_label": "expression level in",
             "inverted": "FALSE",
             "info_panel": [
                 [
                     "Title",
-                    "Has Expression Level",
+                    "Expression level in",
                     "string"
                 ],
                 [
@@ -385,7 +416,7 @@
             "info_panel": [
                 [
                     "Title",
-                    "Has Function",
+                    "Has function",
                     "string"
                 ],
                 [
@@ -416,14 +447,14 @@
                 ]
             ]
         },
-        "fine_mapped_QTL": {
+        "part_of_QTL_signal": {
             "text_color": "#000000",
-            "edge_label": "QTL for",
+            "edge_label": "part of QTL signal",
             "inverted": "FALSE",
             "info_panel": [
                 [
                     "Title",
-                    "Has QTL",
+                    "Part of QTL signal",
                     "string"
                 ],
                 [
@@ -455,7 +486,7 @@
                     "QTL statistics",
                     [
                         [
-                            "NonDiabetic median",
+                            "Posterior inclusion probability ",
                             "pip",
                             "float(2)"
                         ],
@@ -511,14 +542,246 @@
                 ]
             ]
         },
-        "regulation": {
+        "part_of_GWAS_signal": {
             "text_color": "#000000",
-            "edge_label": "interact with",
+            "edge_label": "part of GWAS signal",
             "inverted": "FALSE",
             "info_panel": [
                 [
                     "Title",
-                    "Has Interaction",
+                    "Part of GWAS signal",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "GWAS statistics",
+                    [
+                        [
+                            "Posterior inclusion probability ",
+                            "pip",
+                            "float(2)"
+                        ],
+                        [
+                            "Nominal P value",
+                            "nominal_p",
+                            "float(2)"
+                        ],
+                        [
+                            "LBF",
+                            "lbf",
+                            "float(2)"
+                        ],
+                        [
+                            "Effect Allele",
+                            "effect_allele"
+                        ],
+                        [
+                            "Other Allele",
+                            "other_allele"
+                        ]
+                    ]
+                ],
+                [
+                    "Credible Set Information",
+                    [
+                        [
+                            "Number of SNPs",
+                            "credible_set_size",
+                            "int"
+                        ],
+                        [
+                            "SNP's rank in credible set",
+                            "pip_rank",
+                            "int"
+                        ],
+                        [
+                            "Purity",
+                            "purity",
+                            "float(2)"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "https://data.pankbase.org/workflows/PKBWF1943AUOL/",
+                            "link_static"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "signal_COLOC_with": {
+            "text_color": "#000000",
+            "edge_label": "signal COLOC with",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Signals colocalized",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Colocalizaiton statistics",
+                    [
+                        [
+                            [
+                                "PP.H0 (neither causal)",
+                                "PP.H0.abf",
+                                "float(2)"
+                            ],
+                            [
+                                "PP.H1 (GWAS causal)",
+                                "PP.H1.abf",
+                                "float(2)"
+                            ],
+                            [
+                                "PP.H2 (QTL causal)",
+                                "PP.H2.abf",
+                                "float(2)"
+                            ],
+                            [
+                                "PP.H3 (two variants)",
+                                "PP.H3.abf",
+                                "float(2)"
+                            ],
+                            [
+                                "PP.H4 (shared variant)",
+                                "PP.H4.abf",
+                                "float(2)"
+                            ]
+                        ]
+                ],
+                [
+                    "Credible Set Information",
+                    [
+                        [
+                            "Number of SNPs in range",
+                            "nsnp",
+                            "int"
+                        ],
+                        [
+                            "GWAS lead variant",
+                            "GWAS_lead_vars",
+                            "int"
+                        ],
+                        [
+                            "QTL lead variant",
+                            "QTL_lead_vars",
+                            "float(2)"
+                        ],
+                        [
+                            "Coloc dataset",
+                            "coloc_dataset"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "https://data.pankbase.org/workflows/PKBWF1943AUOL/",
+                            "link_static"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "regulation": {
+            "text_color": "#000000",
+            "edge_label": "genetically regulates",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Genetically regulates",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ],
+                        [
+                            "BIOGRID ID",
+                            "biogrid_interaction_id"
+                        ]
+                    ]
+                ],
+                [
+                    "Evidence",
+                    [
+                        [
+                            "Publication Source",
+                            "publication_source"
+                        ],
+                        [
+                            "Author",
+                            "author"
+                        ],
+                        [
+                            "Experimental System",
+                            "experimental_system"
+                        ],
+                        [
+                            "System Type",
+                            "experimental_system_type"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "physical_interaction": {
+            "text_color": "#000000",
+            "edge_label": "physically binds",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Physically binds",
                     "string"
                 ],
                 [
@@ -625,7 +888,7 @@
                 ]
             ]
         },
-        "effector_gene": {
+        "effector_gene_of": {
             "text_color": "#000000",
             "edge_label": "effect gene of",
             "inverted": "FALSE",
@@ -636,25 +899,9 @@
                     "string"
                 ],
                 [
-                    "Relationship identity",
-                    [
-                        [
-                            "From",
-                            "source"
-                        ],
-                        [
-                            "To",
-                            "target"
-                        ]
-                    ]
-                ],
-                [
-                    "Coding Variant Evidence",
-                    "CodingVariantEvidence"
-                ],
-                [
-                    "Confidence Level",
-                    "ConfidenceLevel"
+                    "Evidences",
+                    "evidence",
+                    "long_list"
                 ],
                 [
                     "Footer",
@@ -668,7 +915,7 @@
                 ]
             ]
         },
-        "Differential_Expression": {
+        "DEG_in": {
             "text_color": "#000000",
             "edge_label": "DEG of",
             "inverted": "FALSE",

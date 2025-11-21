@@ -338,14 +338,16 @@
                   "inter_error_message": "No GWAS records were found for this SNP in our PanKbase dataset.",
                   "result_error_title": "No GWAS data found",
                   "result_error_message": "No GWAS records were found for this SNP in our PanKbase dataset.",
-                  "question_for_result": "Which {@snp@} has GWAS association with T1D?",
+                  "question_for_result": "Does {@snp@} has GWAS association with T1D?",
                   "cypher_for_result_page_core": "MATCH (variant:sequence_variant {id: \"@snp@\"}) OPTIONAL MATCH (variant)-[r:part_of_GWAS_signal]->(disease:disease{id: \"MONDO_0005147\"}) WITH collect(DISTINCT variant)+collect(DISTINCT disease) AS nodes, collect(DISTINCT r) AS edges RETURN nodes, edges;",
                   "cypher_for_result_page_nbr": "MATCH (variant:sequence_variant {id: \"@snp@\"}) CALL { WITH variant MATCH (variant)-[r0]-(nbr0) WITH r0, nbr0 LIMIT 1 RETURN collect(r0)   AS var_edges, collect(nbr0) AS var_nbrs } WITH [variant] AS seed_nodes, var_edges AS all_edges, var_nbrs  AS all_nbrs UNWIND (seed_nodes + all_nbrs) AS n WITH collect(DISTINCT n) AS nodes, all_edges UNWIND all_edges AS e RETURN nodes, collect(DISTINCT e) AS edges;",
                   "ai_question_for_result": [
-                        "Based on the JSON data, summarize the GWAS association of @snp_id@ with T1D, including the p-value, lead_status:, signal locus name, credible_set_id, pip, p_value, lbf, effect_allele, non_effect_allele, pip_rank, credible_set_size, lbf, pip and pip_rank within the credible set(signal)."
-                  ],
+                        "Based on the JSON data, summarize the GWAS association of @snp_id@ with T1D, including the p-value, lead_status:, signal locus name, pip, p_value, lbf, effect_allele, non_effect_allele, pip_rank, credible_set_size, lbf, pip and pip_rank within the credible set(signal).",
+                        "Based on the JSON data, write a concise ‘Variant overview’ paragraph for @snp_id_GWAS@ describing its prperties, GWAS-based association with T1D (MONDO_0005147), and literure mentioned link to T1D. Explicitly state that the association is supported by GWAS or literature: – the GWAS p-value and whether it reaches genome-wide significance, – the signal locus name, – the effect_allele and non_effect_allele, – and, if available, notable allele frequencies across cohorts or populations (highlighting especially high or low values, such as in ALSPAC). Do not invent any values; only summarize information explicitly present in the JSON."
+                   ],
                   "ai_answer_sub_title": [
-                        "GWAS overview: "
+                        "GWAS overview: ",
+                        "Variant overview: "
                   ],
                   "next_questions": [
                         {
@@ -358,7 +360,7 @@
                         "references": {},
                         "empirical_evidence": {
                               "title": "Regional Fine-Mapping Plot",
-                              "description": "This plot integrates multiple fine-mapping statistics (−log₁₀P, PIP, LBF) across a genomic region. The three-row scatter view condenses QTL evidence.\nRow 1 shows −log₁₀ P for classical association strength.\nRow 2 reports the posterior inclusion probability (PIP) from Bayesian fine-mapping.\nRow 3 displays the log Bayes factor (LBF) for complementary Bayes support.\nPoint colour encodes LD R² relative to the lead SNP (red dashed line), allowing you to gauge how neighbouring variants track the core signal.\nTogether these layers highlight candidate causal variants and their statistical weight at a glance.",
+                              "description": "This plot integrates multiple fine-mapping statistics (−log₁₀P, PIP, LBF) across a genomic region. The three-row scatter view condenses GWAS evidence.\nRow 1 shows −log₁₀ P for classical association strength.\nRow 2 reports the posterior inclusion probability (PIP) from Bayesian fine-mapping.\nRow 3 displays the log Bayes factor (LBF) for complementary Bayes support.\nPoint colour encodes LD R² relative to the lead SNP (red dashed line), allowing you to gauge how neighbouring variants track the core signal.\nTogether these layers highlight candidate causal variants and their statistical weight at a glance.",
                               "legend": "View",
                               "lambda_function": "type_to_image",
                               "link_text": "Download the raw GWAS data ↗"
@@ -383,9 +385,9 @@
                         ],
                         "external_links": [
                               [
-                                    "Link to Ensembl: ",
-                                    "View the gene @gene_symbol@ in Ensembl",
-                                    "https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=@gene_id@"
+                                    "Link to dbSNP: ",
+                                    "View the SNP @snp@ in dbSNP",
+                                    "https://www.ncbi.nlm.nih.gov/snp/?term=@snp@"
                               ]
                         ]
                   }
@@ -405,8 +407,8 @@
                   "cypher_for_result_page_nbr": "MATCH (g:gene {id:\"@gene@\"}) CALL { WITH g MATCH (g)-[r1:effector_gene_of]-(nbr1) RETURN collect(DISTINCT r1)  AS eff_edges, collect(DISTINCT nbr1) AS eff_nbrs } CALL { WITH g MATCH (g)-[rReg:regulation]-(nbrR:gene) WITH rReg, nbrR ORDER BY id(rReg) LIMIT 2 RETURN collect(rReg) AS reg_edges, collect(nbrR) AS reg_nbrs } CALL { WITH g MATCH (g)-[rBind:physical_interaction]-(nbrB:gene) WITH rBind, nbrB ORDER BY id(rBind) LIMIT 2 RETURN collect(rBind) AS bind_edges, collect(nbrB) AS bind_nbrs } WITH [g] AS g_list, eff_edges + reg_edges + bind_edges AS all_edges, eff_nbrs  + reg_nbrs + bind_nbrs  AS all_nbrs UNWIND (g_list + all_nbrs) AS n WITH collect(DISTINCT n) AS nodes, all_edges UNWIND all_edges AS e RETURN nodes, collect(DISTINCT e) AS edges;",
                   "ai_question_for_result": [
                         "Based on the JSON data, describe the relationship between the QTL of @gene_id@ and the GWAS of @snp_id_QTL@, including details such as the effect allele, slope, posterior inclusion probability (PIP), and nominal p-value.",
-                        "Based on the JSON data, summarize the GWAS association of @snp_id_GWAS@ with T1D, including the p-value, lead_status:, signal locus name, credible_set_id, pip, p_value, lbf, effect_allele, non_effect_allele, pip_rank, credible_set_size, lbf, pip and pip_rank within the credible set(signal).",
-                        "Based on the JSON data, describe the relationship between the QTL of @snp_id_QTL@ for gene @gene_id@ and the GWAS of @snp_id_GWAS@ for gwas, including details such as the coloc_dataset,PP.H0 (neither trait has a causal variant in the tested region), PP.H1 (only trait 1 has a causal), PP.H2 (only trait 2 has a causal), PP.H3 (both traits causal but different causal variants), PP.H4 (both traits have causal variants and share the same causal variant)"
+                        "Based on the JSON data, summarize the GWAS association of @snp_id_GWAS@ with T1D, including the p-value, lead_status:, signal locus name, pip, p_value, lbf, effect_allele, non_effect_allele, pip_rank, credible_set_size, lbf, pip and pip_rank within the credible set(signal).",
+                        "Based on the JSON data, describe the relationship between the QTL of @snp_id_QTL@ for gene @gene_id@ and the GWAS of @snp_id_GWAS@ for gwas, including details such as the coloc_dataset,PP.H0 (neither trait has a causal variant in the tested region), PP.H1 (only trait 1 has a causal), PP.H2 (only trait 2 has a causal), PP.H3 (both traits causal but different causal variants), PP.H4 (both traits have causal variants and share the same causal variant). Interpretation example: a MAPT T1D GWAS signal colocalized with an islet exon-level eQTL signal of gene ARHGAP27 by sharing the same casual variant."
                   ],
                   "ai_answer_sub_title": [
                         "QTL overview: ",
