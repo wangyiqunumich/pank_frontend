@@ -102,11 +102,43 @@
                     "Variant Identity",
                     [
                         [
-                            "Link",
-                            "link",
-                            "link"
+                            "Reference Allele",
+                            "ref"
+                        ],
+                        [
+                            "Alternative Allele",
+                            "alt"
                         ]
                     ]
+                ],
+                [
+                    "Chromosomal Location",
+                    [
+                        [
+                            "Chromosome",
+                            "chr",
+                            "label_chr(#0FB47D)"
+                        ],
+                        [
+                            "Start",
+                            "start_loc",
+                            "int"
+                        ],
+                        [
+                            "End",
+                            "end_loc",
+                            "int"
+                        ],
+                        [
+                            "Strand",
+                            "strand",
+                            "int"
+                        ]
+                    ]
+                ],
+                [
+                    "Frequency",
+                    "freq"
                 ],
                 [
                     "Footer",
