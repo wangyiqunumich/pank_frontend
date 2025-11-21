@@ -386,7 +386,7 @@
                         "external_links": [
                               [
                                     "Link to dbSNP: ",
-                                    "View the SNP @snp@ in dvSNP",
+                                    "View the SNP @snp@ in dbSNP",
                                     "https://www.ncbi.nlm.nih.gov/snp/?term=@snp@"
                               ]
                         ]
