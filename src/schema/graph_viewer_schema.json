@@ -160,7 +160,7 @@
                     [
                         [
                             "Link",
-                            "link",
+                            "url",
                             "link"
                         ]
                     ]
@@ -203,7 +203,7 @@
                         ],
                         [
                             "Link",
-                            "link",
+                            "url",
                             "link"
                         ]
                     ]
@@ -589,7 +589,7 @@
                         ],
                         [
                             "Other Allele",
-                            "other_allele"
+                            "non_effect_allele"
                         ]
                     ]
                 ],
@@ -688,13 +688,11 @@
                         ],
                         [
                             "GWAS lead variant",
-                            "GWAS_lead_vars",
-                            "int"
+                            "GWAS_lead_vars"
                         ],
                         [
                             "QTL lead variant",
-                            "QTL_lead_vars",
-                            "float(2)"
+                            "QTL_lead_vars"
                         ],
                         [
                             "Coloc dataset",

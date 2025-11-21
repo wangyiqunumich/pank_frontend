@@ -74,10 +74,10 @@ const InfocardData = ({ value, config, dataKey }) => {
         <>{value.replace(/[\[\]']+/g, '') || "None"}</>
       ) :
         type === "int" ? (
-          <>{value ? parseInt(value).toLocaleString() : "No Data"}</>
+          <>{value !== undefined ? parseInt(value).toLocaleString() : "No Data"}</>
         ) :
           type === "float" ? (
-            <>{value ? parseFloat(value).toFixed(setting || 1) : "No Data"}</>
+            <>{value !== undefined ? parseFloat(value).toFixed(setting || 1) : "No Data"}</>
           ) : ["link", "link_static"].includes(type) ? (
             <Link href={(type === "link" ? value : dataKey) || undefined} target="_blank" rel="noopener noreferrer" sx={{
               textDecoration: "none",
@@ -369,7 +369,7 @@ const InfocardMenu = ({ hoveredData, review }) => {
                 config === "HIRN_evidence" ?
                   <HirnEvidences key={title} evidence={parseJSON(hoveredData[content]) || []} />
                   : config === "long_list" ?
-                    <LongList key={title} title={title} list={parseJSON(hoveredData[content]) || []} />
+                    <LongList key={title} title={title} list={parseJSON(parseJSON(hoveredData[content])) || []} />
                     : (
                       <Box key={title} sx={{
                         width: "calc(100% - 32px)",
