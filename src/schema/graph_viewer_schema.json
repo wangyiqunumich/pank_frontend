@@ -486,7 +486,7 @@
                     "QTL statistics",
                     [
                         [
-                            "NonDiabetic median",
+                            "Posterior inclusion probability ",
                             "pip",
                             "float(2)"
                         ],
@@ -521,6 +521,90 @@
                         [
                             "Number of SNPs",
                             "n_snp",
+                            "int"
+                        ],
+                        [
+                            "Purity",
+                            "purity",
+                            "float(2)"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "https://data.pankbase.org/workflows/PKBWF1943AUOL/",
+                            "link_static"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        
+        "part_of_GWAS_signal": {
+            "text_color": "#000000",
+            "edge_label": "part of GWAS signal",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Part of GWAS signal",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "GWAS statistics",
+                    [
+                        [
+                            "Posterior inclusion probability ",
+                            "pip",
+                            "float(2)"
+                        ],
+                        [
+                            "Nominal P value",
+                            "nominal_p",
+                            "float(2)"
+                        ],
+                        [
+                            "LBF",
+                            "lbf",
+                            "float(2)"
+                        ],
+                        [
+                            "Effect Allele",
+                            "effect_allele"
+                        ],
+                        [
+                            "Other Allele",
+                            "other_allele"
+                        ]
+                    ]
+                ],
+                [
+                    "Credible Set Information",
+                    [
+                        [
+                            "Number of SNPs",
+                            "credible_set_size",
+                            "int"
+                        ],
+                        [
+                            "SNP's rank in credible set",
+                            "pip_rank",
                             "int"
                         ],
                         [
