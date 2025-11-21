@@ -326,7 +326,7 @@
             "info_panel": [
                 [
                     "Title",
-                    "Has OCR Cluster",
+                    "Has OCR cluster",
                     "string"
                 ],
                 [
@@ -361,7 +361,7 @@
             "info_panel": [
                 [
                     "Title",
-                    "Has Expression Level",
+                    "Expression level in",
                     "string"
                 ],
                 [
@@ -416,7 +416,7 @@
             "info_panel": [
                 [
                     "Title",
-                    "Has Function",
+                    "Has function",
                     "string"
                 ],
                 [
@@ -549,7 +549,7 @@
             "info_panel": [
                 [
                     "Title",
-                    "Has Genetic Regulation",
+                    "Genetically regulates",
                     "string"
                 ],
                 [
@@ -601,14 +601,14 @@
                 ]
             ]
         },
-        "physical binding": {
+        "physical_interaction": {
             "text_color": "#000000",
             "edge_label": "physically binds",
             "inverted": "FALSE",
             "info_panel": [
                 [
                     "Title",
-                    "Has Physical Binding",
+                    "Physically binds",
                     "string"
                 ],
                 [
