@@ -509,7 +509,9 @@
                             "other_allele"
                         ]
                     ]
-                ],
+                ]
+            ]
+        },
         "searched nonlead QTL": {
             "text_color": "#000000",
             "edge_label": "searched nonlead QTL",
