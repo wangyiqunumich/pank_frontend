@@ -510,6 +510,69 @@
                         ]
                     ]
                 ],
+        "searched nonlead QTL": {
+            "text_color": "#000000",
+            "edge_label": "searched nonlead QTL",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Part of QTL signal",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ],
+                        [
+                            "Tissue",
+                            "tissue_name"
+                        ],
+                        [
+                            "Tissue ID",
+                            "tissue_id"
+                        ],
+                        [
+                            "QTL Type",
+                            "qtl_type"
+                        ]
+                    ]
+                ],
+                [
+                    "QTL statistics",
+                    [
+                        [
+                            "Posterior inclusion probability ",
+                            "pip",
+                            "float(3)"
+                        ],
+                        [
+                            "Nominal P value",
+                            "nominal_p",
+                            "float(3)"
+                        ],
+                        [
+                            "LBF",
+                            "lbf",
+                            "float(3)"
+                        ],
+                        [
+                            "Effect Allele",
+                            "effect_allele"
+                        ],
+                        [
+                            "Other Allele",
+                            "other_allele"
+                        ]
+                    ]
+                ],
                 [
                     "Credible Set Information",
                     [
