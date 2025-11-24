@@ -248,7 +248,42 @@ const LongList = ({ title, list }) => {
 
   if (length === 0) { return <></>; }
 
+  const regex = /\('internal_embed_link',\s*'([^']*)',\s*'([^']*)'\)/g;
+
+  function renderProcessedContent(content) {
+    const matches = [...content.matchAll(regex)];
+    if (matches.length === 0) return content;
+    let lastIndex = 0;
+
+    return matches.flatMap((m, idx) => {
+      const [full, link, text] = m;
+      const start = m.index;
+      const end = start + full.length;
+
+      const before = content.slice(lastIndex, start);
+      lastIndex = end;
+
+      return [
+        before.length > 0 ? <React.Fragment key={`t-${idx}`}>{before}</React.Fragment> : null,
+        <a
+          key={`a-${idx}`}
+          href={link}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ textDecoration: "none", color: "#007bff", fontWeight: "600" }}
+        >
+          {text}
+        </a>,
+      ];
+    }).concat(
+      lastIndex < content.length
+        ? <React.Fragment key="tail">{content.slice(lastIndex)}</React.Fragment>
+        : []
+    );
+  }
+
   const EvidenceBox = ({ title, content }) => {
+    console.log(content);
     // top left: index, score with color
     // top right: pmid
     // bottom: content
@@ -287,7 +322,7 @@ const LongList = ({ title, list }) => {
         whiteSpace: "pre-wrap",
         wordBreak: "break-word",
       }}>
-        {content}
+        {renderProcessedContent(content)}
       </Typography>
     </Box>;
   }
@@ -317,7 +352,7 @@ const LongList = ({ title, list }) => {
     <EvidenceBox title={content[0].label} content={content[0].value} />
     {length > 1 && <Collapse in={open} timeout="auto">
       {
-        content.map((item, idx) => (
+        content.slice(1).map((item, idx) => (
           <EvidenceBox key={idx + 2} title={item.label} content={item.value} />
         ))
       }
@@ -369,7 +404,7 @@ const InfocardMenu = ({ hoveredData, review }) => {
                 config === "HIRN_evidence" ?
                   <HirnEvidences key={title} evidence={parseJSON(hoveredData[content]) || []} />
                   : config === "long_list" ?
-                    <LongList key={title} title={title} list={parseJSON(parseJSON(hoveredData[content])) || []} />
+                    <LongList key={title} title={title} list={parseJSON(hoveredData[content]) || []} />
                     : (
                       <Box key={title} sx={{
                         width: "calc(100% - 32px)",
