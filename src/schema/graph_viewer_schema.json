@@ -383,17 +383,17 @@
                         [
                             "NonDiabetic median",
                             "NonDiabetic__expression_median",
-                            "float(2)"
+                            "float(3)"
                         ],
                         [
                             "T1D median",
                             "Type1Diabetic__expression_median",
-                            "float(2)"
+                            "float(3)"
                         ],
                         [
                             "All sample median",
                             "All__expression_median",
-                            "float(2)"
+                            "float(3)"
                         ]
                     ]
                 ],
@@ -488,17 +488,17 @@
                         [
                             "Posterior inclusion probability ",
                             "pip",
-                            "float(2)"
+                            "float(3)"
                         ],
                         [
                             "Nominal P value",
                             "nominal_p",
-                            "float(2)"
+                            "float(3)"
                         ],
                         [
                             "LBF",
                             "lbf",
-                            "float(2)"
+                            "float(3)"
                         ],
                         [
                             "Effect Allele",
@@ -516,7 +516,7 @@
                         [
                             "Slope",
                             "slope",
-                            "float(2)"
+                            "float(3)"
                         ],
                         [
                             "Number of SNPs",
@@ -526,7 +526,7 @@
                         [
                             "Purity",
                             "purity",
-                            "float(2)"
+                            "float(3)"
                         ]
                     ]
                 ],
@@ -571,17 +571,17 @@
                         [
                             "Posterior inclusion probability ",
                             "pip",
-                            "float(2)"
+                            "float(3)"
                         ],
                         [
                             "P value",
                             "p_value",
-                            "float(2)"
+                            "float(3)"
                         ],
                         [
                             "LBF",
                             "lbf",
-                            "float(2)"
+                            "float(3)"
                         ],
                         [
                             "Effect Allele",
@@ -609,7 +609,7 @@
                         [
                             "Purity",
                             "credible_set_purity",
-                            "float(2)"
+                            "float(3)"
                         ]
                     ]
                 ],
@@ -654,27 +654,27 @@
                         [
                             "PP.H0 (neither causal)",
                             "`PP.H0.abf`",
-                            "float(2)"
+                            "float(4)"
                         ],
                         [
                             "PP.H1 (GWAS causal)",
                             "`PP.H1.abf`",
-                            "float(2)"
+                            "float(4)"
                         ],
                         [
                             "PP.H2 (QTL causal)",
                             "`PP.H2.abf`",
-                            "float(2)"
+                            "float(4)"
                         ],
                         [
                             "PP.H3 (two variants)",
                             "`PP.H3.abf`",
-                            "float(2)"
+                            "float(4)"
                         ],
                         [
                             "PP.H4 (shared variant)",
                             "`PP.H4.abf`",
-                            "float(2)"
+                            "float(4)"
                         ]
                     ]
                 ],
@@ -859,17 +859,17 @@
                         [
                             "T1D activity median",
                             "type_1_diabetes__OCR_GeneActivityScore_median",
-                            "float(2)"
+                            "float(3)"
                         ],
                         [
                             "Non-T1D activity median",
                             "non_diabetic__OCR_GeneActivityScore_median",
-                            "float(2)"
+                            "float(3)"
                         ],
                         [
                             "All activity median",
                             "OCR_GeneActivityScore_median",
-                            "float(2)"
+                            "float(3)"
                         ]
                     ]
                 ],
@@ -945,22 +945,22 @@
                         [
                             "P value",
                             "P_value",
-                            "float(2)"
+                            "float(3)"
                         ],
                         [
                             "Adjusted P value",
                             "Adjusted_P_value",
-                            "float(2)"
+                            "float(3)"
                         ],
                         [
                             "Log2 Fold Change",
                             "Log2FoldChange",
-                            "float(2)"
+                            "float(3)"
                         ],
                         [
                             "SE of Log2FC",
                             "SE_of_Log2FoldChange",
-                            "float(2)"
+                            "float(3)"
                         ]
                     ]
                 ],
