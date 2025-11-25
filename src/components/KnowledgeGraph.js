@@ -22,6 +22,7 @@ import {
   Collapse,
   Link,
   Typography,
+  LinearProgress
 } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 
@@ -283,7 +284,6 @@ const LongList = ({ title, list }) => {
   }
 
   const EvidenceBox = ({ title, content }) => {
-    console.log(content);
     // top left: index, score with color
     // top right: pmid
     // bottom: content
@@ -360,6 +360,124 @@ const LongList = ({ title, list }) => {
   </Box>;
 }
 
+
+const FreqList = ({ title, string }) => {
+  const [open, setOpen] = useState(false);
+  const content =
+    string.split('|').map(item => {
+      const [label, value] = item.split(':');
+      let values = value ? value.split(',').map(v => parseFloat(v.trim())).filter(Boolean) : [];
+      if (values.length !== 2) {
+        console.log("Invalid freq data:", item);
+        values = [];
+      }
+      return { label: label.trim(), value: values };
+    });
+  const length = content.length;
+
+  if (length === 0) { return <></>; }
+
+  const EvidenceBox = ({ content }) => {
+    // top left: index, score with color
+    // top right: pmid
+    // bottom: content
+    return <Box sx={{
+      width: "100%",
+      display: "flex",
+      flexDirection: "column",
+      gap: "4px",
+      py: "12px",
+    }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <Typography sx={{
+            fontFamily: "Open Sans",
+            fontWeight: "600",
+            fontSize: "12px",
+            color: "#6B7880",
+            lineHeight: "14px",
+            marginTop: "-5px",
+          }}>
+            {content.label}
+          </Typography>
+        </Box>
+        <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <Typography sx={{
+            fontFamily: "Open Sans",
+            fontWeight: "600",
+            fontSize: "9px",
+            color: "#0FB47D",
+            lineHeight: "14px",
+            marginTop: "-5px",
+          }}>
+            {content.value[0] ? `T ${(content.value[0] * 100).toFixed(2)}%` : "T Nan"}
+          </Typography>
+          <Typography sx={{
+            fontFamily: "Open Sans",
+            fontWeight: "600",
+            fontSize: "9px",
+            color: "#94A3B8",
+            lineHeight: "14px",
+            marginTop: "-5px",
+          }}>
+            {content.value[1] ? `A ${(content.value[1] * 100).toFixed(2)}%` : "A Nan"}
+          </Typography>
+        </Box>
+      </Box>
+      <LinearProgress variant="determinate" sx={{
+        width: '100%',
+        height: '6px',
+        backgroundColor: '#F0F0F0',
+        borderRadius: '3px',
+        ".MuiLinearProgress-bar": {
+          borderRadius: '3px',
+          background: 'linear-gradient(180deg, #0FB47D 0%, #049D6F 100%)'
+        }
+      }} value={content.value[0] ? content.value[0] * 100 : 0} />
+    </Box>;
+  }
+
+  return <Box sx={{
+    width: "calc(100% - 32px)",
+    display: "flex",
+    flexDirection: "column",
+    padding: "16px",
+    borderBottom: "1px solid #F0F0F0",
+  }}>
+    {/* Part Subtitle */}
+    <Typography sx={{
+      alignSelf: "center",
+      fontFamily: "Open Sans",
+      fontWeight: "600",
+      fontSize: "10px",
+      color: "#6B7880",
+      lineHeight: "7px",
+      textTransform: "uppercase",
+    }}>
+      {title}
+      
+    </Typography>
+    {
+        content.slice(0,3).map((item, idx) => (
+          <EvidenceBox key={idx} content={item} />
+        ))
+      }
+    {length > 1 && <Collapse in={open} timeout="auto">
+      {
+        content.slice(3).map((item, idx) => (
+          <EvidenceBox key={idx + 3} content={item} />
+        ))
+      }
+    </Collapse>}
+    <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '8px' }}>
+      {length > 3 && <IconButton onClick={() => setOpen(!open)} sx={{ marginLeft: "8px", padding: "0px", marginBottom: "-2px", color: "#0FB47D" }} size="small">
+        {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+      </IconButton>}
+    </Box>
+  </Box>;
+}
+
+
 const parseJSON = (str) => {
   try {
     return JSON5.parse(str);
@@ -405,83 +523,92 @@ const InfocardMenu = ({ hoveredData, review }) => {
                   <HirnEvidences key={title} evidence={parseJSON(hoveredData[content]) || []} />
                   : config === "long_list" ?
                     <LongList key={title} title={title} list={parseJSON(hoveredData[content]) || []} />
-                    : (
-                      <Box key={title} sx={{
-                        width: "calc(100% - 32px)",
-                        display: "flex",
-                        flexDirection: "column",
-                        padding: "16px",
-                        borderBottom: "1px solid #F0F0F0",
-                        gap: "12px",
-                      }}>
-                        {/* Part Subtitle */}
-                        <Typography sx={{
-                          alignSelf: "center",
-                          fontFamily: "Open Sans",
-                          fontWeight: "600",
-                          fontSize: "10px",
-                          color: "#6B7880",
-                          lineHeight: "7px",
-                          textTransform: "uppercase",
+                    : config === "freq_list" ?
+                      <FreqList key={title} title={title} string={hoveredData[content] || ""} />
+                      : (
+                        <Box key={title} sx={{
+                          width: "calc(100% - 32px)",
+                          display: "flex",
+                          flexDirection: "column",
+                          padding: "16px",
+                          borderBottom: "1px solid #F0F0F0",
+                          gap: "16px",
                         }}>
-                          {title}
-                        </Typography>
-                        {
-                          Array.isArray(content) ? (
-                            content.map(([label, key, config]) => ( // Data Row
-                              <Box key={key} sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-                                <Typography sx={{
-                                  fontFamily: "Open Sans",
-                                  fontWeight: "600",
-                                  fontSize: "12px",
-                                  color: "#6B7880",
-                                  lineHeight: "14px",
-                                  marginTop: "-5px",
-                                }}>
-                                  {label}
-                                </Typography>
-                                <Typography
-                                  component="span"
-                                  sx={{
-                                    textAlign: "right",
-                                    fontFamily: "Open Sans",
-                                    fontWeight: "600",
-                                    fontSize: "12px",
-                                    color: "#263238",
-                                    marginLeft: "8px",
-                                    lineHeight: "14px",
-                                    marginTop: "-5px",
-                                  }}
-                                >
-                                  <InfocardData value={hoveredData[key]} dataKey={key} config={config} />
-                                </Typography>
-                              </Box>
-                            )))
-                            : ( // Text Content
-                              <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                                <Typography
-                                  sx={{
-                                    marginTop: "-5px",
-                                    fontFamily: "Open Sans",
-                                    fontWeight: "600",
-                                    fontSize: "10px",
-                                    lineHeight: "15px",
-                                    wordWrap: "break-word",
-                                    color: "#263238",
-                                    textAlign: "justify",
-                                  }}
-                                >
-                                  {(() => {
-                                    const processedData = config !== "string" ? addWhitespace(hoveredData[content]) : hoveredData[content];
-                                    const processedKey = config === "string" ? addWhitespace(content) : content;
-                                    return <InfocardData value={processedData} dataKey={processedKey} config={config} />
-                                  })()}
-                                </Typography>
-                              </Box>
-                            )
-                        }
-                      </Box>
-                    )
+                          {/* Part Subtitle */}
+                          <Typography sx={{
+                            alignSelf: "center",
+                            fontFamily: "Open Sans",
+                            fontWeight: "600",
+                            fontSize: "10px",
+                            color: "#6B7880",
+                            lineHeight: "7px",
+                            textTransform: "uppercase",
+                          }}>
+                            {title}
+                          </Typography>
+                          <Box key={title} sx={{
+                            width: "calc(100%)",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "8px",
+                          }}>
+                            {
+                              Array.isArray(content) ? (
+                                content.map(([label, key, config]) => ( // Data Row
+                                  <Box key={key} sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                                    <Typography sx={{
+                                      fontFamily: "Open Sans",
+                                      fontWeight: "600",
+                                      fontSize: "12px",
+                                      color: "#6B7880",
+                                      lineHeight: "14px",
+                                      marginTop: "-5px",
+                                    }}>
+                                      {label}
+                                    </Typography>
+                                    <Typography
+                                      component="span"
+                                      sx={{
+                                        textAlign: "right",
+                                        fontFamily: "Open Sans",
+                                        fontWeight: "600",
+                                        fontSize: "12px",
+                                        color: "#263238",
+                                        marginLeft: "8px",
+                                        lineHeight: "14px",
+                                        marginTop: "-5px",
+                                      }}
+                                    >
+                                      <InfocardData value={hoveredData[key]} dataKey={key} config={config} />
+                                    </Typography>
+                                  </Box>
+                                )))
+                                : ( // Text Content
+                                  <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                                    <Typography
+                                      sx={{
+                                        marginTop: "-5px",
+                                        fontFamily: "Open Sans",
+                                        fontWeight: "600",
+                                        fontSize: "10px",
+                                        lineHeight: "15px",
+                                        wordWrap: "break-word",
+                                        color: "#263238",
+                                        textAlign: "left",
+                                      }}
+                                    >
+                                      {(() => {
+                                        const processedData = config !== "string" ? addWhitespace(hoveredData[content]) : hoveredData[content];
+                                        const processedKey = config === "string" ? addWhitespace(content) : content;
+                                        return <InfocardData value={processedData} dataKey={processedKey} config={config} />
+                                      })()}
+                                    </Typography>
+                                  </Box>
+                                )
+                            }
+                          </Box>
+                        </Box>
+                      )
             ))
           }
           {/* Footer */}
@@ -1028,7 +1155,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
           color: "#333",
           boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
           zIndex: 1000,
-          width: review ? "550px" : "240px",
+          width: review ? "550px" : "280px",
           pointerEvents: infocardVisible ? "auto" : "none",
           opacity: infocardVisible ? 1 : 0,
           display: "block",

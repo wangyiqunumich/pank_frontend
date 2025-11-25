@@ -133,7 +133,8 @@
                   ],
                   [
                       "Frequency",
-                      "freq"
+                      "freq",
+                      "freq_list"
                   ],
                   [
                       "Footer",
