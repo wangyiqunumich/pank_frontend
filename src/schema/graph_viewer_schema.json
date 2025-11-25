@@ -978,7 +978,8 @@
                         [
                             [
                                 "Effector Gene List",
-                                "effector_gene_list_url"
+                                "effector_gene_list_url",
+                                "link"
                             ],
                             [
                                 "Study Source",
