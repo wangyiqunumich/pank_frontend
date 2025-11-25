@@ -462,7 +462,7 @@ const FreqList = ({ title, string }) => {
           <EvidenceBox key={idx} content={item} />
         ))
       }
-    {length > 1 && <Collapse in={open} timeout="auto">
+    {length > 3 && <Collapse in={open} timeout="auto">
       {
         content.slice(3).map((item, idx) => (
           <EvidenceBox key={idx + 3} content={item} />
