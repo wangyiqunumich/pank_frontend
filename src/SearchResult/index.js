@@ -55,6 +55,7 @@ import {
     replaceVariables,
 } from '../utils/textProcessing';
 
+
 const defaultTabOptions = [
     { value: 'references', label: 'References' },
     { value: 'empirical_evidence', label: 'Empirical Evidence' },
@@ -264,7 +265,7 @@ function SearchResult() {
             );
             const aiAnswerText = aiAnswer.answers ? aiAnswer.answers.join(' ') : '';
             console.log('aiAnswerText:', aiAnswerText);
-            const pmidsFromText = ProcessLinks2({ text: removeConsecutiveAsterisks(aiAnswerText) }).filter(part => part.type === "pubmedid").map(part => (part.text));
+            const pmidsFromText = ProcessLinks2({ text: aiAnswerText }).filter(part => part.type === "pubmedid").map(part => (part.text));
             const pmidsFromAgents = aiAnswer.articles?.map(article => (article.pmid)) || [];
             const pmids = [...new Set([
                 ...pmidsFromText,
@@ -401,7 +402,7 @@ function SearchResult() {
                             }
                             const coloc = relationship === "COLOC" && results.edges?.find(
                                 edge => (((edge["~start"] === coreNodes[0] && edge["~end"] === coreNodes[1])
-                                    || (edge["~end"] === coreNodes[0] && edge["~start"] === coreNodes[1]))&& edge["~type"]==="signal_COLOC_with")
+                                    || (edge["~end"] === coreNodes[0] && edge["~start"] === coreNodes[1])) && edge["~type"] === "signal_COLOC_with")
                             )
                             const newVariables = {
                                 additionalParams: [
@@ -503,10 +504,76 @@ function SearchResult() {
                 )
     )
 
+    function getLink(id)
+    {
+        const nodes = queryResultPage.combined_query_result.nodes;
+        for (let i = 0; i < nodes.length; i++)
+        {
+            const node = nodes[i];
+            if (node['~id'] === id)
+            {
+                return node['~properties']['link'];
+            }
+        }
+        return null;
+    }
+
+
+    // Kai's work on dealing with **CFTR**(ENSG00000001626)
+    function ProcessGeneWithId(text) {
+        // replace case **CFTR**(ENSG00000001626) => <a href="link">CFTR (ENSG00000001626)</a>
+        if (text == null) return [];
+
+        const pattern = /(\*\*[A-Za-z0-9_-]+\*\*\s*\([A-Za-z0-9]+\))/;
+        const output = [];
+        const text_list = text.split(pattern).filter(Boolean);
+        // console.log(queryResultPage);
+
+        for (let i = 0; i < text_list.length; i++) {
+            const part = text_list[i];
+            const match = part.match(pattern);
+            // console.log(match)
+
+            if (match) {
+                const gene = match[1];
+                console.log(gene);
+                const word = removeConsecutiveAsterisks(gene).split(" ");
+                const id = word[1].replace('(', '').replace(')', '');
+                const link = getLink(id);
+                const obj = {
+                    text: word[0] + " " + word[1],
+                    type: "link",
+                    url: link,
+                };
+                output.push(obj);
+            } else {
+                output.push({ text: part, type: "text" });
+            }
+        }
+        return output;
+    }
+
+
     const ProcessLinks2 = ({ text }) => {
-        const result = ProcessLinks2temp({ text });
+        const result = ProcessGeneWithId(text);
+        const output = []
+        for (let i = 0; i < result.length; i++)
+        {
+            const data = result[i];
+            if (data.type === "link")
+            {
+                output.push(data);
+            }
+            else
+            {
+                const textPart = removeConsecutiveAsterisks(data.text);
+                const list = ProcessLinks2temp({ text: textPart });
+                output.push(...list);
+            }
+        }
+        // const result = ProcessLinks2temp({ text });
         // console.log('ProcessLinks2 result:', result);
-        return result;
+        return output;
     };
 
     // process links in the AI answer text
@@ -545,7 +612,8 @@ function SearchResult() {
 
     useEffect(() => {
         setRenderedAiAnswer(aiAnswer?.answers?.map(answer =>
-            <ProcessLinks text={removeConsecutiveAsterisks(answer)} />
+            // <ProcessLinks text={removeConsecutiveAsterisks(answer)} />
+            <ProcessLinks text={answer} />
         ) || null);
     }, [aiAnswer]);
 
