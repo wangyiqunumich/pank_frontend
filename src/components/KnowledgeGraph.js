@@ -1074,17 +1074,17 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
         {/* button for zooming */}
         <IconButton
           onClick={handleZoomOut}
-          style={{ padding: "6px", background: "none", borderRadius: "4px", opacity: zoomLevel >= 4 ? 0.5 : 1 }}
+          style={{ padding: "5px", background: "none", borderRadius: "4px", opacity: zoomLevel >= 4 ? 0.5 : 1 }}
           disabled={zoomLevel >= 4}
         >
-          <img src={zoomOutIcon} alt="Zoom Out" width={24} height={24} />
+          <img src={zoomOutIcon} alt="Zoom Out" width={26} height={26} />
         </IconButton>
         <IconButton
           onClick={handleZoomIn}
-          style={{ padding: "6px", background: "none", borderRadius: "4px", opacity: zoomLevel <= 0.6 ? 0.5 : 1 }}
+          style={{ padding: "5px", background: "none", borderRadius: "4px", opacity: zoomLevel <= 0.6 ? 0.5 : 1 }}
           disabled={zoomLevel <= 0.6}
         >
-          <img src={zoomInIcon} alt="Zoom In" width={24} height={24} />
+          <img src={zoomInIcon} alt="Zoom In" width={26} height={26} />
         </IconButton>
         <IconButton
           onClick={handleRecenter}
