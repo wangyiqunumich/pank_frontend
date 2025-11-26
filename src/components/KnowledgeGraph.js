@@ -20,20 +20,20 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {
   Box,
   Collapse,
+  LinearProgress,
   Link,
   Typography,
-  LinearProgress
 } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 
-import zoomInIcon from '../image/fontisto--zoom-minus.svg';
-import zoomOutIcon from '../image/fontisto--zoom-plus.svg';
+import downloadIcon from '../image/download.svg';
 import fullscreenIcon from '../image/fullscreen.svg';
 import InfoEnableIcon from '../image/hover.svg';
 import InfoDisableIcon from '../image/hover_disabled1.svg';
-import downloadIcon from '../image/material-symbols--download-rounded.svg';
 import fullscreenExitIcon from '../image/quit_fullscreen.svg';
 import recenterIcon from '../image/recenter.svg';
+import zoomInIcon from '../image/zoom-minus.svg';
+import zoomOutIcon from '../image/zoom-plus.svg';
 import graphInfocard from '../schema/graph_viewer_schema.json';
 import graphInfocardReview from '../schema/review_page/graph_schema.json';
 import { addWhitespace } from '../utils/textProcessing';
@@ -455,13 +455,13 @@ const FreqList = ({ title, string }) => {
       textTransform: "uppercase",
     }}>
       {title}
-      
+
     </Typography>
     {
-        content.slice(0,3).map((item, idx) => (
-          <EvidenceBox key={idx} content={item} />
-        ))
-      }
+      content.slice(0, 3).map((item, idx) => (
+        <EvidenceBox key={idx} content={item} />
+      ))
+    }
     {length > 3 && <Collapse in={open} timeout="auto">
       {
         content.slice(3).map((item, idx) => (
@@ -1074,47 +1074,47 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
         {/* button for zooming */}
         <IconButton
           onClick={handleZoomOut}
-          style={{ padding: "8px", background: "none", borderRadius: "4px", opacity: zoomLevel >= 4 ? 0.5 : 1 }}
+          style={{ padding: "6px", background: "none", borderRadius: "4px", opacity: zoomLevel >= 4 ? 0.5 : 1 }}
           disabled={zoomLevel >= 4}
         >
-          <img src={zoomOutIcon} alt="Zoom Out" width={20} height={20} />
+          <img src={zoomOutIcon} alt="Zoom Out" width={24} height={24} />
         </IconButton>
         <IconButton
           onClick={handleZoomIn}
-          style={{ padding: "8px", background: "none", borderRadius: "4px", opacity: zoomLevel <= 0.6 ? 0.5 : 1 }}
+          style={{ padding: "6px", background: "none", borderRadius: "4px", opacity: zoomLevel <= 0.6 ? 0.5 : 1 }}
           disabled={zoomLevel <= 0.6}
         >
-          <img src={zoomInIcon} alt="Zoom In" width={20} height={20} />
+          <img src={zoomInIcon} alt="Zoom In" width={24} height={24} />
         </IconButton>
         <IconButton
           onClick={handleRecenter}
-          style={{ padding: "6px", background: "none", borderRadius: "4px" }}
+          style={{ padding: "7px", background: "none", borderRadius: "4px" }}
         >
-          <img src={recenterIcon} alt="Recenter" width={24} height={24} />
+          <img src={recenterIcon} alt="Recenter" width={22} height={22} />
         </IconButton>
         {
           infocardEnabled ?
             (
               <IconButton
                 onClick={() => setInfocardEnabled(false)}
-                style={{ padding: "6px", background: "none", borderRadius: "4px" }}
+                style={{ padding: "7px", background: "none", borderRadius: "4px" }}
               >
                 <img src={InfoEnableIcon}
-                  alt="Disable Info Card" width={24} height={24} />
+                  alt="Disable Info Card" width={22} height={22} />
               </IconButton>
             ) : (<IconButton
               onClick={() => setInfocardEnabled(true)}
-              style={{ padding: "8px", background: "none", borderRadius: "4px" }}
+              style={{ padding: "7px", background: "none", borderRadius: "4px" }}
             >
               <img src={InfoDisableIcon}
-                alt="Enable Info Card" width={20} height={20} />
+                alt="Enable Info Card" width={22} height={22} />
             </IconButton>)
         }
         <IconButton
           onClick={handleDownload}
-          style={{ padding: "8px", background: "none", borderRadius: "4px" }}
+          style={{ padding: "6px", background: "none", borderRadius: "4px" }}
         >
-          <img src={downloadIcon} alt="Download" width={20} height={20} />
+          <img src={downloadIcon} alt="Download" width={24} height={24} />
         </IconButton>
       </Box>
       <Box sx={{

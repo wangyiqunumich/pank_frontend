@@ -105,7 +105,7 @@ const WarningSNP = (
   </Alert>
 );
 
-export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "No answer for your question in PanKgraph", agent = true, log =  undefined }) {
+export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "No answer for your question in PanKgraph", agent = true, log = undefined }) {
   return (
     <Container sx={{
       padding: 0, display: 'flex',
@@ -431,6 +431,13 @@ function IntermediatePage({ onContinue }) {
     }
     setQueryData(deduplicatedResults);
   }, [cleanedQueryResult]);
+
+  useEffect(() => {
+    if (queryData.flatMap((group) => (group.result)).length === 1) {
+      const firstResult = queryData.flatMap((group) => (group.result))[0];
+      handleSNPClick(firstResult);
+    }
+  }, [queryData]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
