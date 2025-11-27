@@ -361,7 +361,7 @@ const LongList = ({ title, list }) => {
 }
 
 
-const FreqList = ({ title, string }) => {
+const FreqList = ({ title, string, config }) => {
   const [open, setOpen] = useState(false);
   const content =
     string.split('|').map(item => {
@@ -375,7 +375,7 @@ const FreqList = ({ title, string }) => {
     });
   const length = content.length;
 
-  if (length === 0) { return <></>; }
+  if (length === 0 || config.length !== 2) { return <></>; }
 
   const EvidenceBox = ({ content }) => {
     // top left: index, score with color
@@ -410,7 +410,7 @@ const FreqList = ({ title, string }) => {
             lineHeight: "14px",
             marginTop: "-5px",
           }}>
-            {content.value[0] ? `T ${(content.value[0] * 100).toFixed(2)}%` : "T Nan"}
+            {`${config[0]} ${content.value[0] ? (content.value[0] * 100).toFixed(2) : "Nan"}%`}
           </Typography>
           <Typography sx={{
             fontFamily: "Open Sans",
@@ -420,7 +420,7 @@ const FreqList = ({ title, string }) => {
             lineHeight: "14px",
             marginTop: "-5px",
           }}>
-            {content.value[1] ? `A ${(content.value[1] * 100).toFixed(2)}%` : "A Nan"}
+            {`${config[1]} ${content.value[1] ? (content.value[1] * 100).toFixed(2) : "Nan"}%`}
           </Typography>
         </Box>
       </Box>
@@ -517,99 +517,103 @@ const InfocardMenu = ({ hoveredData, review }) => {
             </Typography>
           </Box>
           {
-            schema.map(([title, content, config]) => (
-              ["Title", "Footer"].includes(title) ? "" :
-                config === "HIRN_evidence" ?
-                  <HirnEvidences key={title} evidence={parseJSON(hoveredData[content]) || []} />
-                  : config === "long_list" ?
-                    <LongList key={title} title={title} list={parseJSON(hoveredData[content]) || []} />
-                    : config === "freq_list" ?
-                      <FreqList key={title} title={title} string={hoveredData[content] || ""} />
-                      : (
-                        <Box key={title} sx={{
-                          width: "calc(100% - 32px)",
-                          display: "flex",
-                          flexDirection: "column",
-                          padding: "16px",
-                          borderBottom: "1px solid #F0F0F0",
-                          gap: "16px",
-                        }}>
-                          {/* Part Subtitle */}
-                          <Typography sx={{
-                            alignSelf: "center",
-                            fontFamily: "Open Sans",
-                            fontWeight: "600",
-                            fontSize: "10px",
-                            color: "#6B7880",
-                            lineHeight: "7px",
-                            textTransform: "uppercase",
-                          }}>
-                            {title}
-                          </Typography>
+            schema.map(([title, content, config]) => {
+              const setting = config?.match(/\(([^)]+)\)/)?.[1];
+              const type = setting ? config.split('(')[0] : config;
+              return (
+                ["Title", "Footer"].includes(title) ? "" :
+                  type === "HIRN_evidence" ?
+                    <HirnEvidences key={title} evidence={parseJSON(hoveredData[content]) || []} />
+                    : type === "long_list" ?
+                      <LongList key={title} title={title} list={parseJSON(hoveredData[content]) || []} />
+                      : type === "freq_list" ?
+                        <FreqList key={title} title={title} string={hoveredData[content] || ""} config={setting.split(",").map(item => hoveredData[item])} />
+                        : (
                           <Box key={title} sx={{
-                            width: "calc(100%)",
+                            width: "calc(100% - 32px)",
                             display: "flex",
                             flexDirection: "column",
-                            gap: "8px",
+                            padding: "16px",
+                            borderBottom: "1px solid #F0F0F0",
+                            gap: "16px",
                           }}>
-                            {
-                              Array.isArray(content) ? (
-                                content.map(([label, key, config]) => ( // Data Row
-                                  <Box key={key} sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-                                    <Typography sx={{
-                                      fontFamily: "Open Sans",
-                                      fontWeight: "600",
-                                      fontSize: "12px",
-                                      color: "#6B7880",
-                                      lineHeight: "14px",
-                                      marginTop: "-5px",
-                                    }}>
-                                      {label}
-                                    </Typography>
-                                    <Typography
-                                      component="span"
-                                      sx={{
-                                        textAlign: "right",
+                            {/* Part Subtitle */}
+                            <Typography sx={{
+                              alignSelf: "center",
+                              fontFamily: "Open Sans",
+                              fontWeight: "600",
+                              fontSize: "10px",
+                              color: "#6B7880",
+                              lineHeight: "7px",
+                              textTransform: "uppercase",
+                            }}>
+                              {title}
+                            </Typography>
+                            <Box key={title} sx={{
+                              width: "calc(100%)",
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "8px",
+                            }}>
+                              {
+                                Array.isArray(content) ? (
+                                  content.map(([label, key, config]) => ( // Data Row
+                                    <Box key={key} sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                                      <Typography sx={{
                                         fontFamily: "Open Sans",
                                         fontWeight: "600",
                                         fontSize: "12px",
-                                        color: "#263238",
-                                        marginLeft: "8px",
+                                        color: "#6B7880",
                                         lineHeight: "14px",
                                         marginTop: "-5px",
-                                      }}
-                                    >
-                                      <InfocardData value={hoveredData[key]} dataKey={key} config={config} />
-                                    </Typography>
-                                  </Box>
-                                )))
-                                : ( // Text Content
-                                  <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                                    <Typography
-                                      sx={{
-                                        marginTop: "-5px",
-                                        fontFamily: "Open Sans",
-                                        fontWeight: "600",
-                                        fontSize: "10px",
-                                        lineHeight: "15px",
-                                        wordWrap: "break-word",
-                                        color: "#263238",
-                                        textAlign: "left",
-                                      }}
-                                    >
-                                      {(() => {
-                                        const processedData = config !== "string" ? addWhitespace(hoveredData[content]) : hoveredData[content];
-                                        const processedKey = config === "string" ? addWhitespace(content) : content;
-                                        return <InfocardData value={processedData} dataKey={processedKey} config={config} />
-                                      })()}
-                                    </Typography>
-                                  </Box>
-                                )
-                            }
+                                      }}>
+                                        {label}
+                                      </Typography>
+                                      <Typography
+                                        component="span"
+                                        sx={{
+                                          textAlign: "right",
+                                          fontFamily: "Open Sans",
+                                          fontWeight: "600",
+                                          fontSize: "12px",
+                                          color: "#263238",
+                                          marginLeft: "8px",
+                                          lineHeight: "14px",
+                                          marginTop: "-5px",
+                                        }}
+                                      >
+                                        <InfocardData value={hoveredData[key]} dataKey={key} config={config} />
+                                      </Typography>
+                                    </Box>
+                                  )))
+                                  : ( // Text Content
+                                    <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                                      <Typography
+                                        sx={{
+                                          marginTop: "-5px",
+                                          fontFamily: "Open Sans",
+                                          fontWeight: "600",
+                                          fontSize: "10px",
+                                          lineHeight: "15px",
+                                          wordWrap: "break-word",
+                                          color: "#263238",
+                                          textAlign: "left",
+                                        }}
+                                      >
+                                        {(() => {
+                                          const processedData = config !== "string" ? addWhitespace(hoveredData[content]) : hoveredData[content];
+                                          const processedKey = config === "string" ? addWhitespace(content) : content;
+                                          return <InfocardData value={processedData} dataKey={processedKey} config={config} />
+                                        })()}
+                                      </Typography>
+                                    </Box>
+                                  )
+                              }
+                            </Box>
                           </Box>
-                        </Box>
-                      )
-            ))
+                        )
+              )
+            })
           }
           {/* Footer */}
           {footerInfo && <Box sx={{
