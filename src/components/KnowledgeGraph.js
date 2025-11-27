@@ -363,16 +363,39 @@ const LongList = ({ title, list }) => {
 
 const FreqList = ({ title, string, config }) => {
   const [open, setOpen] = useState(false);
-  const content =
-    string.split('|').map(item => {
-      const [label, value] = item.split(':');
-      let values = value ? value.split(',').map(v => parseFloat(v.trim())).filter(Boolean) : [];
-      if (values.length !== 2) {
-        console.log("Invalid freq data:", item);
-        values = [];
-      }
-      return { label: label.trim(), value: values };
-    });
+  // const content =
+  //   string.split('|').map(item => {
+  //     const [label, value] = item.split(':');
+  //     let values = value ? value.split(',').map(v => parseFloat(v.trim())).filter(Boolean) : [];
+  //     if (values.length !== 2) {
+  //       console.log("Invalid freq data:", item);
+  //       values = [];
+  //     }
+  //     return { label: label.trim(), value: values };
+  //   });
+  const labels = string.split('|').map(item => item.split(':')[0].trim());
+  const rows = string.split('|').map(item => {
+    const value = item.split(':')[1];
+    return value ? value.split(',').map(v => parseFloat(v.trim())) : [];
+  });
+
+  const columns = Array.from({ length: rows[0]?.length || 0 }, (_, colIndex) =>
+    rows.map(row => row[colIndex])
+  );
+
+  const columnIndices = columns.map((col, index) => col.every(Boolean) ? index : undefined).slice(1).filter(index => index !== undefined);
+  if (columnIndices.length === 0) { return <></>; }
+  if (columnIndices.length > 1) {
+    console.warn("Multiple valid reference columns found in FreqList:", string);
+  }
+  const refColIndex = columnIndices[0];
+  const content = labels.map((label, index) => ({
+    label,
+    value: [rows[index][0], rows[index][refColIndex]],
+  }));
+  const alleleLabels = [config[0], config[1].split(',')[refColIndex - 1] || ""];
+
+
   const length = content.length;
 
   if (length === 0 || config.length !== 2) { return <></>; }
@@ -410,7 +433,7 @@ const FreqList = ({ title, string, config }) => {
             lineHeight: "14px",
             marginTop: "-5px",
           }}>
-            {`${config[0]} ${content.value[0] ? (content.value[0] * 100).toFixed(2) : "Nan"}%`}
+            {`${alleleLabels[0]} ${content.value[0] ? (content.value[0] * 100).toFixed(2) : "Nan"}%`}
           </Typography>
           <Typography sx={{
             fontFamily: "Open Sans",
@@ -420,7 +443,7 @@ const FreqList = ({ title, string, config }) => {
             lineHeight: "14px",
             marginTop: "-5px",
           }}>
-            {`${config[1]} ${content.value[1] ? (content.value[1] * 100).toFixed(2) : "Nan"}%`}
+            {`${alleleLabels[1]} ${content.value[1] ? (content.value[1] * 100).toFixed(2) : "Nan"}%`}
           </Typography>
         </Box>
       </Box>
