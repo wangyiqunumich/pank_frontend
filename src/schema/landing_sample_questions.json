@@ -2,11 +2,11 @@
     "default": [
         {
             "question": "Which SNP serves as the lead QTL for CFTR?",
-            "link": "https://dev.pankgraph.org/result?sourceTerm=snp@rs2402203&targetTerm=gene@ENSG00000001626&relationship=QTL"
+            "link": "/result?sourceTerm=snp@rs2402203&targetTerm=gene@ENSG00000001626&relationship=QTL"
         },
         {
             "question": "How does INS expression change in T1D versus non-diabetic samples?",
-            "link": "https://dev.pankgraph.org/result?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type&relationship=express_in"
+            "link": "/result?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type&relationship=express_in"
         },
         {
             "question": "Describe PTPN22’s involvement in T1D, covering its associated QTL signals, expression patterns, and reported effector genes evidence.",
@@ -16,29 +16,29 @@
     "QTL Analysis": [
         {
             "question": "Which SNP serves as the lead QTL for CFTR?",
-            "link": "https://dev.pankgraph.org/result?sourceTerm=snp@rs2402203&targetTerm=gene@ENSG00000001626&relationship=QTL"
+            "link": "/result?sourceTerm=snp@rs2402203&targetTerm=gene@ENSG00000001626&relationship=QTL"
         },
         {
             "question": "Which SNP serves as the lead QTL for [GENE]?",
-            "link": "https://dev.pankgraph.org/match?qid=1"
+            "link": "/match?qid=1"
         },
         {
             "question": "Which GENE is regulated by [SNP] as a QTL?",
-            "link": "https://dev.pankgraph.org/match?qid=2"
+            "link": "/match?qid=2"
         },
         {
             "question": "Does [SNP] serves as a QTL for [GENE]?",
-            "link": "https://dev.pankgraph.org/match?qid=3"
+            "link": "/match?qid=3"
         }
     ],
     "Gene Expression": [
         {
             "question": "How does INS expression change in T1D versus non-diabetic samples?",
-            "link": "https://dev.pankgraph.org/result?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type&relationship=express_in"
+            "link": "/result?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type&relationship=express_in"
         },
         {
             "question": "How does [GENE] expression change in T1D versus non-diabetic samples?",
-            "link": "https://dev.pankgraph.org/match?qid=0"
+            "link": "/match?qid=0"
         }
     ],
     "SNP Studies": [

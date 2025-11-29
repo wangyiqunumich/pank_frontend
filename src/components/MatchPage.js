@@ -194,7 +194,7 @@ const MatchGraphViewer = ({ visualPattern, selectedQuestion }) => {
   );
 };
 
-function InputComponent({ type, setValue, setInputStatus, GWAS=false }) { // input state: valid, mismatch, empty
+function InputComponent({ type, setValue, setInputStatus, GWAS = false }) { // input state: valid, mismatch, empty
   const dispatch = useDispatch();
   const [selfOptions, setSelfOptions] = useState([]);
 
@@ -256,7 +256,7 @@ function InputComponent({ type, setValue, setInputStatus, GWAS=false }) { // inp
       ...(type === 'snp' ? [dispatch(queryQueryResult({
         isNeptune: false,
         rawResponse: true,
-        query: `SELECT snp FROM ${GWAS ? "GWAS_DATA":"QTL_DATA"} WHERE snp = '${termName}' LIMIT 1;`
+        query: `SELECT snp FROM ${GWAS ? "GWAS_DATA" : "QTL_DATA"} WHERE snp = '${termName}' LIMIT 1;`
       })).unwrap()] : [])
       ]
     ).then(([response, response2]) => {
@@ -546,7 +546,7 @@ function MatchPage() {
         // if (source.startsWith('rs'))
         sourceTerm = source;
       }
-      let url = `/${targetTerm ==="disease" ? "result" : "intermediate"}?sourceTerm=${sourceTerm}&relationship=${relationTerm}&targetTerm=${targetTerm}`;
+      let url = `/${targetTerm === "disease" ? "result" : "intermediate"}?sourceTerm=${sourceTerm}&relationship=${relationTerm}&targetTerm=${targetTerm}`;
       if (targetSymbol) {
         url += `&targetSymbol=${targetSymbol}`;
       }
@@ -719,7 +719,7 @@ function MatchPage() {
               <TerminalIcon sx={{ width: '30px', color: '#C48E25' }} />
               <Typography sx={{ marginLeft: '10px', fontSize: '20px' }}>
                 Access PanKgraph with <Link
-                  href={process.env.REACT_APP_PANKGRAPH_LINK + '/api'}
+                  href={'/api'}
                   sx={{ textDecoration: 'underline', color: 'black', textAlign: 'right' }}>API</Link>
               </Typography>
             </Box>
