@@ -1,12 +1,15 @@
-import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
-import {flaskBackendAxiosInstance, glkbAxiosInstance} from "../axios/axios";
-import {QueryStatus} from "@reduxjs/toolkit/query";
-import axios from "axios";
+import {
+  createAsyncThunk,
+  createSlice,
+} from '@reduxjs/toolkit';
+import { QueryStatus } from '@reduxjs/toolkit/query';
+
+import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 
 export const queryAiAnswer = createAsyncThunk('/queryResultToAiAnswer',
     async (payload) => {
-        return await axios
-            .post('https://glkb.dcmb.med.umich.edu/api/external/pkg_summarize', payload, {
+        return await flaskBackendAxiosInstanceNew
+            .post('/pank3-ai-summary', payload, {
                 headers: {
                     "Content-Type": "application/json",
                 }

@@ -1,0 +1,17 @@
+[
+  {
+    "text": "The unfolded protein response node is labeled as a biological_process, but it’s unclear whether this came from GO, Reactome, or text-mining—can you include ontology ID or source metadata.",
+    "name": "example feedback",
+    "time": "10.15.2025"
+  },
+  {
+    "text": "ER stress and unfolded protein response seem redundant; they should probably be linked as parent–child or merged under GO hierarchy.",
+    "name": "example feedback",
+    "time": "10.15.2025"
+  },
+  {
+    "text": "The Type 1 diabetes mellitus node lacks immune pathway links—consider enriching associations with interferon and antigen presentation processes.",
+    "name": "example feedback",
+    "time": "10.15.2025"
+  }
+]

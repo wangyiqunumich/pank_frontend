@@ -1,72 +1,59 @@
 [
 	{
-	"question":
-		"How does {gene@gene@} expression change in (T1D) versus non-diabetic samples?",
-	"landing_page_subtitle":
-"The gene will be specified in the next step",
-	"terms":
-		"gene - express_in - cell_type",
-	"config_condition":
-		"specific - relationship - general",
-	"matched_page_title":
-			"Search for DEG",
-	"matched_page_sub_title":
-	"Pick a specific gene",
-	"pattern_for_the_matched_page":
-		"{gene@gene@} - express in -> (ontology)"
+		"question": "How does {gene@gene@} expression change in (T1D) versus non-diabetic samples?",
+		"landing_page_subtitle": "The gene will be specified in the next step",
+		"terms": "gene - express_in - cell_type",
+		"config_condition": "specific - relationship - general",
+		"matched_page_title": "Search for DEG",
+		"matched_page_sub_title": "Pick a specific gene",
+		"pattern_for_the_matched_page": "{gene@gene@} - express in -> (cell type)"
 	},
 	{
-	"question":
-		"Which (SNP) serves as the lead (QTL) for {gene@gene@}?",
-	"landing_page_subtitle":
-"The gene will be specified in the next step",
-	"terms":
-		"snp - QTL - gene",
-	"config_condition":
-		"general - relationship - specific",
-"matched_page_title":
-			"Search for QTL",
-	"matched_page_sub_title":
-		"Pick a specific gene",
-	"matched_page_tips":
-		"in human pancreatic and islet tissues, encompassing expression-, exon-, and splicing-level QTLs",
-	"pattern_for_the_matched_page":
-		"(snp) - eqtl of -> {gene@gene@}"
+		"question": "Which (SNP) serves as the lead (QTL) for {gene@gene@}?",
+		"landing_page_subtitle": "The gene will be specified in the next step",
+		"terms": "snp - QTL - gene",
+		"config_condition": "general - relationship - specific",
+		"matched_page_title": "Search for QTL",
+		"matched_page_sub_title": "Pick a specific gene",
+		"matched_page_tips": "in human pancreatic and islet tissues, encompassing expression-, exon-, and splicing-level QTLs",
+		"pattern_for_the_matched_page": "(snp) - part of QTL signal -> {gene@gene@}"
 	},
 	{
-	"question":
-		"Which (gene) is regulated by {snp@snp@} as a (QTL)?",
-	"landing_page_subtitle":
-"The snp will be specified in the next step",
-	"terms":
-		"snp - QTL - gene",
-	"config_condition":
-		"specific - relationship - general",
-"matched_page_title":
-			"Search for QTL",
-	"matched_page_sub_title":
-		"Pick a specific snp",
-	"matched_page_tips":
-		"in human pancreatic and islet tissues, encompassing expression-, exon-, and splicing-level QTLs",
-	"pattern_for_the_matched_page":
-		"{snp@snp@} - eqtl of -> (gene)"
+		"question": "Which (gene) is regulated by {snp@snp@} as a (QTL)?",
+		"landing_page_subtitle": "The snp will be specified in the next step",
+		"terms": "snp - QTL - gene",
+		"config_condition": "specific - relationship - general",
+		"matched_page_title": "Search for QTL",
+		"matched_page_sub_title": "Pick a specific snp",
+		"matched_page_tips": "in human pancreatic and islet tissues, encompassing expression-, exon-, and splicing-level QTLs",
+		"pattern_for_the_matched_page": "{snp@snp@} - part of QTL signal -> (gene)"
 	},
 	{
-	"question":
-		"Does {snp@snp@} serves as a (QTL) for {gene@gene@}?",
-	"landing_page_subtitle":
-"The snp and gene will be specified in the next step",
-	"terms":
-		"snp - QTL - gene",
-	"config_condition":
-		"specific - relationship - specific",
-"matched_page_title":
-			"Search for QTL",
-	"matched_page_sub_title":
-		"Pick a specific gene and snp",
-	"matched_page_tips":
-		"in human pancreatic and islet tissues, encompassing expression-, exon-, and splicing-level QTLs",
-	"pattern_for_the_matched_page":
-		"{snp@snp@} - eqtl of -> {gene@gene@}"
+		"question": "Does {snp@snp@} serves as a (QTL) for {gene@gene@}?",
+		"landing_page_subtitle": "The snp and gene will be specified in the next step",
+		"terms": "snp - QTL - gene",
+		"config_condition": "specific - relationship - specific",
+		"matched_page_title": "Search for QTL",
+		"matched_page_sub_title": "Pick a specific gene and snp",
+		"matched_page_tips": "in human pancreatic and islet tissues, encompassing expression-, exon-, and splicing-level QTLs",
+		"pattern_for_the_matched_page": "{snp@snp@} - part of QTL signal -> {gene@gene@}"
+	},
+	{
+		"question": "Does {snp@snp@} has (GWAS) association with (T1D)?",
+		"landing_page_subtitle": "The snp will be specified in the next step",
+		"terms": "snp - GWAS - disease",
+		"config_condition": "specific - relationship - specific",
+		"matched_page_title": "Search for T1D GWAS",
+		"matched_page_sub_title": "Pick a specific snp",
+		"pattern_for_the_matched_page": "{snp@snp@} - part of GWAS signal -> (T1D)"
+	},
+	{
+		"question": "Is the QTL signal of {gene@gene@} colocalized with (T1D) GWAS signal?",
+		"landing_page_subtitle": "The gene will be specified in the next step",
+		"terms": "gene - COLOC - disease",
+		"config_condition": "specific - relationship - specific",
+		"matched_page_title": "Search for colocalization",
+		"matched_page_sub_title": "Pick a specific gene",
+		"pattern_for_the_matched_page": "{gene@gene@} - signal colocalized with -> (T1D)"
 	}
 ]

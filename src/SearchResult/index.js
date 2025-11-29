@@ -55,7 +55,8 @@ import {
     replaceVariables,
 } from '../utils/textProcessing';
 
-const tabOptions = [
+
+const defaultTabOptions = [
     { value: 'references', label: 'References' },
     { value: 'empirical_evidence', label: 'Empirical Evidence' },
     { value: 'pankbase_links', label: 'PanKbase Links' },
@@ -186,6 +187,9 @@ function SearchResult() {
     const [allNextQuestions, setAllNextQuestions] = useState(null);
     const [error, setError] = useState(false);
 
+    const [renderedAiAnswer, setRenderedAiAnswer] = useState(null);
+    const [tabOptions, setTabOptions] = useState(defaultTabOptions);
+
     // scroll to active reference after it is set
     const timeoutRef = useRef(null);
     useEffect(() => {
@@ -255,21 +259,36 @@ function SearchResult() {
 
     // Fetch articles data based on aiAnswer
     useEffect(() => {
-        if (aiAnswer?.articles?.length > 0) {
-            const pmids = aiAnswer.articles.map(article => article.pmid);
+        if (aiAnswer) {
+            const scoreMap = Object.fromEntries(
+                aiAnswer.articles?.map(article => [article.pmid, article.score]) || []
+            );
+            const aiAnswerText = aiAnswer.answers ? aiAnswer.answers.join(' ') : '';
+            console.log('aiAnswerText:', aiAnswerText);
+            const pmidsFromText = ProcessLinks2({ text: aiAnswerText }).filter(part => part.type === "pubmedid").map(part => (part.text));
+            const pmidsFromAgents = aiAnswer.articles?.map(article => (article.pmid)) || [];
+            const pmids = [...new Set([
+                ...pmidsFromText,
+                ...pmidsFromAgents
+            ])].slice(0, 50);
             dispatch(queryArticles({
                 db: 'pubmed',
                 id: pmids.join(','),
                 retmode: 'json',
             })).then((response) => {
-                const sortedArticles = aiAnswer.articles.toSorted((a, b) => b.score - a.score);
+                if (!response.payload ||
+                    Object.keys(response.payload.result || {})
+                        .some(pmid => pmid !== "uids" && !response.payload.result[pmid]?.authors)
+                ) {
+                    setError(true);
+                    return;
+                }
+                const sortedArticles = pmids.toSorted((a, b) => (scoreMap[b] || 0) - (scoreMap[a] || 0));
                 setArticlesData(
-                    sortedArticles.map(article => ({
-                        pmid: article.pmid,
-                        title: article.title,
-                        score: article.score,
-                        data: response.payload.result[article.pmid] || {},
-                        doi: response.payload.result[article.pmid]?.articleids?.find(id => id.idtype === 'doi')?.value || ''
+                    sortedArticles.map(pmid => ({
+                        pmid: pmid,
+                        data: response.payload.result[pmid] || {},
+                        doi: response.payload.result[pmid]?.articleids?.find(id => id.idtype === 'doi')?.value || ''
                     }
                     ))
                 );
@@ -328,7 +347,7 @@ function SearchResult() {
                         const rdb_query =
                             lead_snp && credible_set_id ? { rdb_query: replaceVariables(rdb_query_for_result_page, temporaryVariables) } : {};
 
-                        dispatch(queryQueryResultPage({ ...rdb_query, core_cypher, neighbor_cypher })).then((response) => {
+                        dispatch(queryQueryResultPage({ payload: { ...rdb_query, core_cypher, neighbor_cypher } })).then((response) => {
                             const coreNodes = response?.payload?.core_nodes || [];
                             const results = response?.payload?.combined_query_result || {};
                             const neighborNodes = results?.nodes?.filter(
@@ -337,17 +356,32 @@ function SearchResult() {
                             const coreRelationship = results.edges?.find(
                                 edge => (edge["~start"] === coreNodes[0] && edge["~end"] === coreNodes[1])
                                     || (edge["~end"] === coreNodes[0] && edge["~start"] === coreNodes[1])
+                            ) || results.edges?.find(
+                                edge => (edge["~start"] === coreNodes[0] || edge["~end"] === coreNodes[1])
+                                    || (edge["~end"] === coreNodes[0] || edge["~start"] === coreNodes[1])
                             );
 
                             const dataSource = coreRelationship?.["~properties"]?.data_source || '';
-                            const credibleSetId = coreRelationship?.["~properties"]?.credible_set || '';
-                            if (resources_tabs?.empirical_evidence?.lambda_function &&
-                                coreRelationship?.["~properties"]?.["credible_set"]) {
-                                dispatch(queryImage({
-                                    imageType: 'manhattan',
-                                    link: `${tabsQTL.find(tab => tab.data_source === dataSource)?.folder || ''}/${coreRelationship["~properties"]["credible_set"]}`
-                                }));
+                            const credibleSetId = coreRelationship?.["~properties"]?.credible_set_id || '';
+                            if (resources_tabs?.empirical_evidence?.lambda_function) {
+                                const credible_set = coreRelationship?.["~properties"]?.credible_set || coreRelationship?.["~properties"]?.credible_set_id || '';
+                                if (!credible_set) {
+                                    console.log('[WARNING] credible_set is missing.');
+                                } else {
+                                    dispatch(queryImage({
+                                        imageType: 'manhattan',
+                                        link: `${relationship === "GWAS" ? "1_t1d-susie" : tabsQTL.find(tab => tab.data_source === dataSource)?.folder || ''}/${credible_set}`
+                                    })).catch((error) => {
+                                        console.log('[WARNING] Error fetching image:', error);
+                                    });
+                                }
                             }
+                            setTabOptions([
+                                resources_tabs?.references ? { value: 'references', label: 'References' } : null,
+                                resources_tabs?.empirical_evidence ? { value: 'empirical_evidence', label: 'Empirical Evidence' } : null,
+                                resources_tabs?.pankbase_links ? { value: 'pankbase_links', label: 'PanKbase Links' } : null,
+                                resources_tabs?.external_links ? { value: 'external_links', label: 'External Links' } : null
+                            ].filter(Boolean));
                             const celltypeName = results.nodes
                                 ?.filter(node => node["~labels"].includes('cell_type'))
                                 ?.map(node => node["~properties"]?.name)
@@ -366,10 +400,15 @@ function SearchResult() {
                                 source: neighborSource,
                                 target: neighborTarget,
                             }
+                            const coloc = relationship === "COLOC" && results.edges?.find(
+                                edge => (((edge["~start"] === coreNodes[0] && edge["~end"] === coreNodes[1])
+                                    || (edge["~end"] === coreNodes[0] && edge["~start"] === coreNodes[1])) && edge["~type"] === "signal_COLOC_with")
+                            )
                             const newVariables = {
                                 additionalParams: [
                                     ...additionalParams,
                                     `tissue_name@${celltypeName}`,
+                                    ...(coloc ? [`snp_id_QTL@${coloc["~properties"]?.["QTL_lead_vars"] || ''}`, `snp_id_GWAS@${coloc["~properties"]?.["GWAS_lead_vars"] || ''}`] : []),
                                 ],
                                 sourceTerm,
                                 relationship,
@@ -448,49 +487,135 @@ function SearchResult() {
         }
     }, [queryResultPage, aiQuestions]);
 
+    const ProcessLinks2temp = ({ text }) => (
+        // replace [aaa](bbb) with <a href="bbb">aaa</a>
+        !text ? [] :
+            text.split(/(\[[^\]]+\]\([^)]+\)|\[[^\]]+\])/)
+                .flatMap((part, index) => part.match(/^\[[^\]]+\]$/) // if [text]
+                    ?
+                    part.split(/(\d+)/g).map((subPart, subIndex) =>
+                        subPart.match(/^\d{8}$/) //if all digit
+                            ? { text: subPart, type: "pubmedid" }
+                            : { text: subPart, type: "text" }
+                    )
+                    : [part.match(/^\[[^\]]+\]\([^)]+\)$/)  // if [text](url)
+                        ? { text: part.split("]")[0].substr(1), type: "link", url: part.split("(")[1].slice(0, -1) }
+                        : { text: part, type: "text" }]
+                )
+    )
+
+    function getLink(id)
+    {
+        const nodes = queryResultPage.combined_query_result.nodes;
+        for (let i = 0; i < nodes.length; i++)
+        {
+            const node = nodes[i];
+            if (node['~id'] === id)
+            {
+                return node['~properties']['link'];
+            }
+        }
+        return null;
+    }
+
+
+    // Kai's work on dealing with **CFTR**(ENSG00000001626)
+    function ProcessGeneWithId(text) {
+        // replace case **CFTR**(ENSG00000001626) => <a href="link">CFTR (ENSG00000001626)</a>
+        if (text == null) return [];
+
+        const pattern = /(\*\*[A-Za-z0-9_-]+\*\*\s*\([A-Za-z0-9]+\))/;
+        const output = [];
+        const text_list = text.split(pattern).filter(Boolean);
+        // console.log(queryResultPage);
+
+        for (let i = 0; i < text_list.length; i++) {
+            const part = text_list[i];
+            const match = part.match(pattern);
+            // console.log(match)
+
+            if (match) {
+                const gene = match[1];
+                console.log(gene);
+                const word = removeConsecutiveAsterisks(gene).split(" ");
+                const id = word[1].replace('(', '').replace(')', '');
+                const link = getLink(id);
+                const obj = {
+                    text: word[0] + " " + word[1],
+                    type: "link",
+                    url: link,
+                };
+                output.push(obj);
+            } else {
+                output.push({ text: part, type: "text" });
+            }
+        }
+        return output;
+    }
+
+
+    const ProcessLinks2 = ({ text }) => {
+        const result = ProcessGeneWithId(text);
+        const output = []
+        for (let i = 0; i < result.length; i++)
+        {
+            const data = result[i];
+            if (data.type === "link")
+            {
+                output.push(data);
+            }
+            else
+            {
+                const textPart = removeConsecutiveAsterisks(data.text);
+                const list = ProcessLinks2temp({ text: textPart });
+                output.push(...list);
+            }
+        }
+        // const result = ProcessLinks2temp({ text });
+        // console.log('ProcessLinks2 result:', result);
+        return output;
+    };
+
     // process links in the AI answer text
     const ProcessLinks = ({ text }) => (
         // replace [aaa](bbb) with <a href="bbb">aaa</a>
-        !text ? <></> : <>{
-            text.split(/(\[[^\]]+\]\([^)]+\)|\[[^\]]+\])/)
-                .map((part, index) => part.match(/^\[[^\]]+\]$/) // if [text]
-                    ? <span key={`part-${index}`}>{
-                        part.split(/(\d+)/g).map((subPart, subIndex) =>
-                            subPart.match(/^\d{8}$/) //if all digit
-                                ? <Link
-                                    href={`#reference-item-${subPart}`}
-                                    sx={{
-                                        color: '#1976d2',
-                                        fontWeight: 400,
-                                        textDecoration: 'none',
-                                        '&:hover': {
-                                            textDecoration: 'underline'
-                                        }
-                                    }}
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        setCurrTab('references');
-                                        setActiveReference(subPart);
-                                    }}
-                                    key={`subpart-${index}-${subIndex}`}
-                                >{subPart}</Link>
-                                : <span key={`subpart-${index}-${subIndex}`}>{subPart}</span>
-                        )}
-                    </span>
-                    : part.match(/^\[[^\]]+\]\([^)]+\)$/)  // if [text](url)
-                        ? <a
-                            href={part.split("(")[1].slice(0, -1)}
-                            target="_blank"
-                            rel="noreferrer"
-                            style={{ color: "#0069c2", textDecoration: "none" }}
-                            key={`part-${index}`}
-                        >
-                            {part.split("]")[0].substr(1)}
-                        </a>
-                        : <span key={`part-${index}`}>{part}</span>
-                )
-        }</>
-    )
+        ProcessLinks2({ text: text }).map((part, index) =>
+            part.type === "pubmedid" ? (
+                <Link
+                    href={`#reference-item-${part.text}`}
+                    sx={{
+                        color: '#1976d2',
+                        fontWeight: 400,
+                        textDecoration: 'none',
+                        '&:hover': {
+                            textDecoration: 'underline'
+                        }
+                    }}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        setCurrTab('references');
+                        setActiveReference(part.text);
+                    }}
+                    key={index}
+                >{part.text}</Link>
+            ) : part.type === "link" ? (<a
+                href={part.url}
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: "#0069c2", textDecoration: "none" }}
+                key={index}
+            >
+                {part.text}
+            </a>
+            ) : (<span key={index}>{part.text}</span>)
+        ));
+
+    useEffect(() => {
+        setRenderedAiAnswer(aiAnswer?.answers?.map(answer =>
+            // <ProcessLinks text={removeConsecutiveAsterisks(answer)} />
+            <ProcessLinks text={answer} />
+        ) || null);
+    }, [aiAnswer]);
 
     if (error) return <ErrorComponent errorTitle={viewSchema?.result_error_title} errorMessage={viewSchema?.result_error_message} />;
 
@@ -639,7 +764,7 @@ function SearchResult() {
                                                 fontSize: '16px',
                                                 fontWeight: 300
                                             }}>
-                                                <ProcessLinks text={removeConsecutiveAsterisks(answer)} />
+                                                {renderedAiAnswer ? renderedAiAnswer[index] : <></>}
                                             </Typography>
                                             {/*{index < aiAnswer.answers.length - 1 && <Divider sx={{ my: 2 }} />}*/}
                                         </div>
@@ -840,7 +965,7 @@ function SearchResult() {
                                             </Box>
                                             <Typography
                                                 sx={{ fontFamily: 'Open Sans', fontWeight: 700 }}
-                                            >{ref.title}</Typography>
+                                            >{ref.data?.title}</Typography>
                                             <Typography sx={{ fontFamily: 'Open Sans', color: "grey" }}>
                                                 {(() => {
                                                     const authors = ref.data.authors;

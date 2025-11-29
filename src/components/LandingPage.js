@@ -3,7 +3,6 @@ import React, {
   useState,
 } from 'react';
 
-import TerminalIcon from '@mui/icons-material/Terminal';
 import {
   Box,
   Container,
@@ -11,6 +10,7 @@ import {
   Typography,
 } from '@mui/material';
 
+import apiIcon from '../image/apiIcon.png';
 import landingPageLogo from '../image/landing image cropped.png';
 import Question from './Question';
 
@@ -87,14 +87,14 @@ function LandingPage() {
           flex: 1,
           position: 'relative',
           display: 'block',
-          '& img': {
+          '& .PanKgraph': {
             width: { sm: '100%', md: '100%' },
             maxHeight: '425px',
             objectFit: 'contain',
             objectPosition: 'left',
             marginTop: { sm: '0px', md: '50px' },
             marginLeft: { sm: '0px', md: '0' },
-            transform: { sm: 'none', md: 'translateX(-4%)' }
+            transform: { sm: 'none', md: 'translateX(-4%) translateY(-7px)' }
           },
         }}>
           <Box sx={{
@@ -106,20 +106,20 @@ function LandingPage() {
             margin: 'auto',
             display: 'flex', flexDirection: 'column', justifyContent: 'top', alignItems: 'flex-start',
           }}>
-            <img src={landingPageLogo} alt="PanKgraph" />
+            <img src={landingPageLogo} className="PanKgraph" alt="PanKgraph" />
             <Box sx={{
               display: 'flex',
               position: "relative",
               justifyContent: 'center',
-              marginTop: '20px',
+              marginTop: '30px',
               alignItems: 'center',
               left: "calc(min(50%, 330px) - 23px)",
               transform: { sm: 'none', md: 'translateX(-50%)' }
             }}>
-              <TerminalIcon sx={{ width: '30px', color: '#C48E25' }} />
-              <Typography sx={{ marginLeft: '10px', fontSize: '20px' }}>
+              <img src={apiIcon} alt="API Icon" style={{ width: '24px' }} />
+              <Typography sx={{ marginLeft: '10px', fontSize: '16px', fontFamily: 'Open Sans', fontWeight: '600' }}>
                 Access PanKgraph with <Link
-                  href={process.env.REACT_APP_PANKGRAPH_LINK + '/api'}
+                  href={process.env.REACT_APP_PANKGRAPH_LINK + '/docs/API'}
                   sx={{ textDecoration: 'underline', color: 'black', textAlign: 'right' }}>API</Link>
               </Typography>
             </Box>
@@ -134,16 +134,13 @@ function LandingPage() {
           flexDirection: 'column',
           gap: 3,
           marginRight: 1,
-          marginTop: { sm: '0px', md: '55px' },
+          marginTop: { sm: '0px', md: '35px' },
           marginLeft: { sm: '5%', md: 0 },
-          minHeight: { sm: 'unset', md: '500px' }
+          minHeight: { sm: 'unset', md: '540px' }
         }}>
 
           {/* 更新 Question 组件，传入 setSelectedQuestion */}
-          <Question
-            selectedQuestion={selectedQuestion}
-            setSelectedQuestion={setSelectedQuestion}
-          />
+          <Question />
 
           {/* SearchBar 组件
         <SearchBar 

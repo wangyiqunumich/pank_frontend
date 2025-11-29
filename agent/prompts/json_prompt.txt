@@ -1,0 +1,13 @@
+====== From System ======
+Now, convert the avove output into json format.
+
+Resuirements:
+1. Contain a key "to", its value can be "system" or "user".
+2. If to user, contain a key "text", its value is a string, is the text shown to user.
+3. If to system, contain a key "functions", its value a list. Each item of that list is a dict, with 2 keys, "name", and "input".
+
+Examples:
+1. {"to": "user", "text": "XXXX"}
+2. {"to": "system", "functions": [{"name": "pankbase_api_query", "input": "XXXX"}]}
+
+Please output the json directly, don't include any explanations.

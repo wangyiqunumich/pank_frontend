@@ -1,0 +1,46 @@
+{
+    "title": "Answering your question...",
+    "entries": [
+        {
+            "short_title": "acknowledged",
+            "title": "Interpreting your question",
+            "steps": [
+                "Agent is interpreting your question...",
+                "Understanding research intent...",
+                "Breaking down your query into logical steps...",
+                "Identifying relevant biological entities and relationships...",
+                "Choosing the best tools and data sources..."
+            ]
+        },
+        {
+            "short_title": "processing",
+            "title": "Analyzing biological evidence",
+            "steps": [
+                "Analyzing pathways and knowledge graph connections...",
+                "Retrieving evidence from literature and datasets...",
+                "Synthesizing evidence from multiple sources...",
+                "Processing contextual biological relationships..."
+            ]
+        },
+        {
+            "short_title": "typing",
+            "title": "Preparing your answer",
+            "steps": [
+                "Summarizing results and drafting your answer...",
+                "Formulating evidence-based explanation...",
+                "Formatting data for visualization and interpretation...",
+                "Finalizing structured response..."
+            ]
+        },
+        {
+            "short_title": "follow-up",
+            "title": "Generating related questions",
+            "steps": [
+                "Graph viewer preparing your answer knowledge graph.",
+                "Agent is ready for your next question."
+            ]
+        }
+    ],
+    "tip": "This may take up to 30 seconds for complex biological questions.",
+    "cancel": "Cancel and ask a new question"
+}

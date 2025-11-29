@@ -1,5 +1,15 @@
 {
     "$comment": "Explanary file, not for use in production.",
+    "landing_page": [
+        {
+            "link": "/",
+            "dictionary": {}
+        },
+        {
+            "link": "/agent-landing",
+            "dictionary": {}
+        }
+    ],
     "intermediate_page": [
         {
             "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000001626&targetSymbol=CFTR",
@@ -39,6 +49,14 @@
         }
     ],
     "result_page": [
+        {
+            "link": "/result2?question=RGVzY3JpYmUgUFRQTjIy4oCZcyBpbnZvbHZlbWVudCBpbiBUMUQsIGNvdmVyaW5nIGl0cyBhc3NvY2lhdGVkIFFUTCBzaWduYWxzLCBleHByZXNzaW9uIHBhdHRlcm5zLCBhbmQgcmVwb3J0ZWQgZWZmZWN0b3IgZ2VuZXMgZXZpZGVuY2Uu&debug=true",
+            "dictionary": {
+                "question": "Describe PTPN22’s involvement in T1D, covering its associated QTL signals, expression patterns, and reported effector genes evidence.",
+                "debug": "true"
+            },
+            "$comment": ":Agent page with debug mode on, which does not query the agent but instead uses preset data for testing."
+        },
         {
             "link": "/result?sourceTerm=snp@rs2402203&targetTerm=gene@ENSG00000001626&relationship=QTL",
             "dictionary": {
@@ -84,6 +102,37 @@
                 "credible_set_id": "ENSG00000149485__FADS1__credibleSet1"
             },
             "$comment": ":In case of redirecting from intermediate page where the specified snp *is* the lead snp."
+        },
+        {
+            "link": "/result?sourceTerm=gene@ENSG00000001626&relationship=COLOC&targetTerm=disease",
+            "dictionary": {
+                "sourceTerm": "gene@ENSG00000001626",
+                "relationship": "COLOC",
+                "targetTerm": "disease"
+            }
+        },
+        {
+            "link": "/result?sourceTerm=snp@rs35327136&relationship=GWAS&targetTerm=disease",
+            "dictionary": {
+                "sourceTerm": "snp@rs35327136",
+                "relationship": "GWAS",
+                "targetTerm": "disease"
+            }
+        }
+    ],
+    "review_page": [
+        {
+            "link": "/review?core_cypher=MATCH+%28variant%3Asequence_variant%3Asnp%29%2C+%28gene%3Acoding_elements%29+WHERE+ID%28variant%29+%3D+%27rs2402203%27+AND+ID%28gene%29+%3D+%27ENSG00000001626%27+MATCH+%28variant%29-%5Br%3Afine_mapped_eQTL%5D-%28gene%29+WITH+collect%28DISTINCT+variant%29+%2B+collect%28DISTINCT+gene%29+AS+nodes%2C+collect%28DISTINCT+r%29+AS+edges+RETURN+%7B+results%3A+%5B+%7B+nodes%3A+nodes%2C+edges%3A+edges+%7D+%5D+%7D+AS+output%3B&neighbor_cypher=MATCH+%28variant%3Asequence_variant%3Asnp%29+WHERE+ID%28variant%29+%3D+%27rs2402203%27+MATCH+%28gene%3Acoding_elements%29+WHERE+ID%28gene%29+%3D+%27ENSG00000001626%27+WITH+variant%2C+gene+AS+g+OPTIONAL+MATCH+%28variant%29-%5Br0%5D-%28nbr0%29+WITH+variant%2C+g%2C+collect%28DISTINCT+%7Brel%3A+r0%2C+node%3A+nbr0%7D%29+AS+variant_r",
+            "dictionary": {
+                "core_cypher": "MATCH (variant:sequence_variant:snp), (gene:coding_elements) WHERE ID(variant) = 'rs2402203' AND ID(gene) = 'ENSG00000001626' MATCH (variant)-[r:fine_mapped_eQTL]-(gene) WITH collect(DISTINCT variant) + collect(DISTINCT gene) AS nodes, collect(DISTINCT r) AS edges RETURN { results: [ { nodes: nodes, edges: edges } ] } AS output;",
+                "neighbor_cypher": "MATCH (variant:sequence_variant:snp) WHERE ID(variant) = 'rs2402203' MATCH (gene:coding_elements) WHERE ID(gene) = 'ENSG00000001626' WITH variant, gene AS g OPTIONAL MATCH (variant)-[r0]-(nbr0) WITH variant, g, collect(DISTINCT {rel: r0, node: nbr0}) AS variant_r"
+            },
+            "$comment": ":review page old"
+        },
+        {
+            "link": "/review",
+            "dictionary": {},
+            "$comment": ":review page new"
         }
     ]
 }

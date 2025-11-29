@@ -1,0 +1,319 @@
+{
+  "knowledge_graph_schema": {
+    "description": "Comprehensive biomedical knowledge graph focused on Type 1 Diabetes research (excluding article nodes and related edges)",
+    "domain": "Biomedical Research - Type 1 Diabetes",
+    "node_types": {
+      "coding_elements;gene": {
+        "description": "Genes from Ensembl database with genomic coordinates and annotations",
+        "properties": {
+          "id": "String",
+          "id_version": "Int",
+          "description": "String",
+          "chr": "String",
+          "start_loc": "Int",
+          "end_loc": "Int",
+          "strand": "String",
+          "name": "String",
+          "GC_percentage": "Float",
+          "type": "String",
+          "link": "String",
+          "gencode_annotation": "String",
+          "data_version": "String",
+          "data_source": "String",
+          "tss": "Int",
+          "trans_length": "Int",
+          "count": "Int"
+        },
+        "files": [
+          {
+            "file": "Ensemble/opencypher/Ensembl_genes.node.csv",
+            "sample_count": 100
+          }
+        ]
+      },
+      "unknown": {
+        "description": "Node type: unknown",
+        "properties": {
+          "data_version": "String",
+          "data_source": "String"
+        },
+        "files": [
+          {
+            "file": "GeneActivityScore/opencypher/scATACseq_OCR_supernode.edge.csv",
+            "sample_count": 100
+          }
+        ]
+      },
+      "OCR": {
+        "description": "Node type: OCR",
+        "properties": {
+          "data_version": "String",
+          "data_source": "String"
+        },
+        "files": [
+          {
+            "file": "GeneActivityScore/opencypher/scATACseq_OCR_supernode.node.csv",
+            "sample_count": 100
+          }
+        ]
+      },
+      "gene_ontology;ontology": {
+        "description": "Genes from Ensembl database with genomic coordinates and annotations",
+        "properties": {
+          "id": "String",
+          "link": "String",
+          "data_version": "String"
+        },
+        "files": [
+          {
+            "file": "GO/opencypher/go.node.csv",
+            "sample_count": 100
+          }
+        ]
+      },
+      "disease;ontology": {
+        "description": "Diseases from MONDO ontology, particularly Type 1 Diabetes",
+        "properties": {
+          "url": "String",
+          "id": "String",
+          "definition": "String",
+          "name": "String",
+          "synonyms": "String",
+          "data_version": "String",
+          "data_source": "String"
+        },
+        "files": [
+          {
+            "file": "effector_gene/opencypher/T1D.node.csv",
+            "sample_count": 1
+          }
+        ]
+      },
+      "cell_type;ontology": {
+        "description": "Cell types from Cell Ontology, particularly pancreatic cell types",
+        "properties": {
+          "url": "String",
+          "id": "String",
+          "definition": "String",
+          "name": "String",
+          "synonyms": "String",
+          "data_version": "String",
+          "data_source": "String"
+        },
+        "files": [
+          {
+            "file": "Expression/open_cypher/cell_line.csv",
+            "sample_count": 8
+          }
+        ]
+      },
+      "sequence_variant;snp;variants": {
+        "description": "Single nucleotide polymorphisms (SNPs) from NCBI database",
+        "properties": {
+          "id": "String",
+          "link": "String",
+          "data_version": "String",
+          "data_source": "String"
+        },
+        "files": [
+          {
+            "file": "QTL/opencypher/snp.node.csv",
+            "sample_count": 100
+          }
+        ]
+      }
+    },
+    "edge_types": {
+      "regulation": {
+        "description": "Relationship type: regulation",
+        "source_node_type": "gene",
+        "target_node_type": "gene",
+        "properties": {
+          "biogrid_interaction_id": "Int",
+          "Entrez_ID_A": "Int",
+          "Entrez_ID_B": "Int",
+          "biogrid_id_interactor_a": "Int",
+          "biogrid_id_interactor_b": "Int",
+          "official_symbol_interactor_a": "String",
+          "official_symbol_interactor_b": "String",
+          "experimental_system": "String",
+          "experimental_system_type": "String",
+          "author": "String",
+          "publication_source": "String",
+          "organism_id_interactor_a": "Int",
+          "organism_id_interactor_b": "Int",
+          "throughput": "String",
+          "score": "Float",
+          "modification": "String",
+          "qualifications": "String",
+          "data_source": "String"
+        },
+        "files": [
+          {
+            "file": "BioGrid/opencypher/BIOGRID_with_ENSG_slim.csv",
+            "sample_count": 100
+          }
+        ]
+      },
+      "OCR_activity": {
+        "description": "Open chromatin region activity scores in different cell types and disease states",
+        "source_node_type": "open_chromatin_region",
+        "target_node_type": "cell_type",
+        "properties": {
+          "OCR_GeneActivityScore_mean": "Float",
+          "OCR_GeneActivityScore_median": "Float",
+          "non_diabetic__OCR_GeneActivityScore_mean": "Float",
+          "non_diabetic__OCR_GeneActivityScore_median": "Float",
+          "AAB_pos__OCR_GeneActivityScore_mean": "Float",
+          "AAB_pos__OCR_GeneActivityScore_median": "Float",
+          "type_1_diabetes__OCR_GeneActivityScore_mean": "Float",
+          "type_1_diabetes__OCR_GeneActivityScore_median": "Float",
+          "type_2_diabetes__OCR_GeneActivityScore_mean": "Float",
+          "type_2_diabetes__OCR_GeneActivityScore_median": "Float",
+          "data_version": "String",
+          "data_source": "String"
+        },
+        "files": [
+          {
+            "file": "GeneActivityScore/opencypher/scATACseq_GeneActivityScore.edge.csv",
+            "sample_count": 100
+          }
+        ]
+      },
+      "function_annotation": {
+        "description": "Gene Ontology annotations linking genes to their molecular functions, biological processes, and cellular components",
+        "source_node_type": "gene",
+        "target_node_type": "gene_ontology",
+        "properties": {
+          "data_version": "String",
+          "data_source": "String"
+        },
+        "files": [
+          {
+            "file": "GO/opencypher/go.edge.csv",
+            "sample_count": 100
+          }
+        ]
+      },
+      "effector_gene": {
+        "description": "Genes that are causal or almost certainly causal for Type 1 Diabetes based on genetic evidence",
+        "source_node_type": "gene",
+        "target_node_type": "disease",
+        "properties": {
+          "ResearchMethod": "String",
+          "CodingVariantEvidence": "String",
+          "ModelSystemEvidence": "String",
+          "EpigenomeEvidence": "String",
+          "QtlEvidence": "String",
+          "ConfidenceLevel": "String",
+          "data_source_url": "String",
+          "data_version": "String",
+          "data_source": "String"
+        },
+        "files": [
+          {
+            "file": "effector_gene/opencypher/effector_gene.edge.csv",
+            "sample_count": 100
+          }
+        ]
+      },
+      "Differential_Expression": {
+        "description": "Differential gene expression relationships between genes and cell types in disease vs control conditions",
+        "source_node_type": "gene",
+        "target_node_type": "cell_type",
+        "properties": {
+          "UpOrDownRegulation": "String",
+          "Log2FoldChange": "Float",
+          "SE_of_Log2FoldChange": "Float",
+          "P_value": "Float",
+          "Adjusted_P_value": "Float",
+          "data_version": "String",
+          "data_source": "String"
+        },
+        "files": [
+          {
+            "file": "Expression/open_cypher/20250606_DEG.edge.csv",
+            "sample_count": 100
+          }
+        ]
+      },
+      "expression_level": {
+        "description": "Relationship type: expression_level",
+        "source_node_type": "gene",
+        "target_node_type": "cell_type",
+        "properties": {
+          "NonDiabetic__expression_mean": "Float",
+          "NonDiabetic__expression_min": "Float",
+          "NonDiabetic__expression_25_quantile": "Float",
+          "NonDiabetic__expression_median": "Float",
+          "NonDiabetic__expression_75_quantile": "Float",
+          "NonDiabetic__expression_max": "Float",
+          "Type1Diabetic__expression_mean": "Float",
+          "Type1Diabetic__expression_min": "Float",
+          "Type1Diabetic__expression_25_quantile": "Float",
+          "Type1Diabetic__expression_median": "Float",
+          "Type1Diabetic__expression_75_quantile": "Float",
+          "Type1Diabetic__expression_max": "Float",
+          "All__expression_mean": "Float",
+          "All__expression_min": "Float",
+          "All__expression_25_quantile": "Float",
+          "All__expression_median": "Float",
+          "All__expression_75_quantile": "Float",
+          "All__expression_max": "Float",
+          "data_version": "String",
+          "data_source": "String"
+        },
+        "files": [
+          {
+            "file": "Expression/open_cypher/20250606_scRNAseq_pseudobulk_RUVseq.csv",
+            "sample_count": 100
+          }
+        ]
+      },
+      "fine_mapped_eQTL": {
+        "description": "Quantitative trait loci associations between genetic variants and gene expression",
+        "source_node_type": "snp",
+        "target_node_type": "gene",
+        "properties": {
+          "tissue_name": "String",
+          "tissue_id": "String",
+          "credible_set": "String",
+          "gene_name": "String",
+          "credibleset": "String",
+          "pip": "Float",
+          "nominal_p": "Float",
+          "lbf": "Float",
+          "effect_allele": "String",
+          "other_allele": "String",
+          "slope": "Float",
+          "n_snp": "Int",
+          "purity": "Float",
+          "data_version": "String",
+          "data_source": "String"
+        },
+        "files": [
+          {
+            "file": "QTL/opencypher/1_sQTL-gtex-susie.edge.csv",
+            "sample_count": 100
+          },
+          {
+            "file": "QTL/opencypher/1_eQTL-gtex-susie.edge.csv",
+            "sample_count": 100
+          },
+          {
+            "file": "QTL/opencypher/1_eQTL-inspire-susie.edge.csv",
+            "sample_count": 100
+          },
+          {
+            "file": "QTL/opencypher/1_exonQTL-inspire-susie.edge.csv",
+            "sample_count": 100
+          }
+        ]
+      }
+    },
+    "total_files": 19,
+    "total_node_files": 8,
+    "total_edge_files": 11,
+    "note": "Article nodes and edges directly linked to articles have been excluded from this schema"
+  }
+}

@@ -99,14 +99,42 @@
                     "id"
                 ],
                 [
-                    "Variant Identity",
+                    "Chromosomal Location",
                     [
                         [
-                            "Link",
-                            "link",
-                            "link"
+                            "Chromosome",
+                            "chr",
+                            "label_chr(#0FB47D)"
+                        ],
+                        [
+                            "Start",
+                            "start_loc",
+                            "int"
+                        ],
+                        [
+                            "End",
+                            "end_loc",
+                            "int"
                         ]
                     ]
+                ],
+                [
+                    "Variant Alleles",
+                    [
+                        [
+                            "Reference Allele",
+                            "ref"
+                        ],
+                        [
+                            "Alternative Allele",
+                            "alt"
+                        ]
+                    ]
+                ],
+                [
+                    "Frequency",
+                    "freq",
+                    "freq_list(ref,alt)"
                 ],
                 [
                     "Footer",
@@ -133,7 +161,7 @@
                     [
                         [
                             "Link",
-                            "link",
+                            "url",
                             "link"
                         ]
                     ]
@@ -176,7 +204,7 @@
                         ],
                         [
                             "Link",
-                            "link",
+                            "url",
                             "link"
                         ]
                     ]
@@ -229,28 +257,32 @@
             "info_panel": [
                 [
                     "Title",
-                    "id"
+                    "name"
                 ],
                 [
                     "GO Identity",
                     [
                         [
-                            "GO ID",
+                            "GO id",
                             "id"
                         ],
                         [
-                            "Link",
-                            "link",
-                            "link"
+                            "GO Term",
+                            "name"
                         ]
                     ]
+                ],
+                [
+                    "Description",
+                    "definition"
                 ],
                 [
                     "Footer",
                     [
                         [
                             "Data Source",
-                            "data_version"
+                            "link",
+                            "link"
                         ]
                     ]
                 ]
@@ -295,7 +327,7 @@
             "info_panel": [
                 [
                     "Title",
-                    "Has OCR Cluster",
+                    "Has OCR cluster",
                     "string"
                 ],
                 [
@@ -323,14 +355,14 @@
                 ]
             ]
         },
-        "expression_level": {
+        "expression_level_in": {
             "text_color": "#000000",
-            "edge_label": "has expression level",
+            "edge_label": "expression level in",
             "inverted": "FALSE",
             "info_panel": [
                 [
                     "Title",
-                    "Has Expression Level",
+                    "Expression level in",
                     "string"
                 ],
                 [
@@ -352,17 +384,17 @@
                         [
                             "NonDiabetic median",
                             "NonDiabetic__expression_median",
-                            "float(2)"
+                            "float(3)"
                         ],
                         [
                             "T1D median",
                             "Type1Diabetic__expression_median",
-                            "float(2)"
+                            "float(3)"
                         ],
                         [
                             "All sample median",
                             "All__expression_median",
-                            "float(2)"
+                            "float(3)"
                         ]
                     ]
                 ],
@@ -385,7 +417,7 @@
             "info_panel": [
                 [
                     "Title",
-                    "Has Function",
+                    "Has function",
                     "string"
                 ],
                 [
@@ -416,14 +448,14 @@
                 ]
             ]
         },
-        "fine_mapped_QTL": {
+        "part_of_QTL_signal": {
             "text_color": "#000000",
-            "edge_label": "QTL for",
+            "edge_label": "part of QTL signal",
             "inverted": "FALSE",
             "info_panel": [
                 [
                     "Title",
-                    "Has QTL",
+                    "Part of QTL signal",
                     "string"
                 ],
                 [
@@ -455,19 +487,84 @@
                     "QTL statistics",
                     [
                         [
-                            "NonDiabetic median",
+                            "Posterior inclusion probability ",
                             "pip",
-                            "float(2)"
+                            "float(3)"
                         ],
                         [
                             "Nominal P value",
                             "nominal_p",
-                            "float(2)"
+                            "float(3)"
                         ],
                         [
                             "LBF",
                             "lbf",
-                            "float(2)"
+                            "float(3)"
+                        ],
+                        [
+                            "Effect Allele",
+                            "effect_allele"
+                        ],
+                        [
+                            "Other Allele",
+                            "other_allele"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "searched nonlead QTL": {
+            "text_color": "#000000",
+            "edge_label": "searched nonlead QTL",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Part of QTL signal",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ],
+                        [
+                            "Tissue",
+                            "tissue_name"
+                        ],
+                        [
+                            "Tissue ID",
+                            "tissue_id"
+                        ],
+                        [
+                            "QTL Type",
+                            "qtl_type"
+                        ]
+                    ]
+                ],
+                [
+                    "QTL statistics",
+                    [
+                        [
+                            "Posterior inclusion probability ",
+                            "pip",
+                            "float(3)"
+                        ],
+                        [
+                            "Nominal P value",
+                            "nominal_p",
+                            "float(3)"
+                        ],
+                        [
+                            "LBF",
+                            "lbf",
+                            "float(3)"
                         ],
                         [
                             "Effect Allele",
@@ -485,7 +582,7 @@
                         [
                             "Slope",
                             "slope",
-                            "float(2)"
+                            "float(3)"
                         ],
                         [
                             "Number of SNPs",
@@ -495,7 +592,177 @@
                         [
                             "Purity",
                             "purity",
-                            "float(2)"
+                            "float(3)"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "https://data.pankbase.org/workflows/PKBWF1943AUOL/",
+                            "link_static"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "part_of_GWAS_signal": {
+            "text_color": "#000000",
+            "edge_label": "part of GWAS signal",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Part of GWAS signal",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "GWAS statistics",
+                    [
+                        [
+                            "Posterior inclusion probability ",
+                            "pip",
+                            "float(3)"
+                        ],
+                        [
+                            "P value",
+                            "p_value",
+                            "float(3)"
+                        ],
+                        [
+                            "LBF",
+                            "lbf",
+                            "float(3)"
+                        ],
+                        [
+                            "Effect Allele",
+                            "effect_allele"
+                        ],
+                        [
+                            "Non Effect Allele",
+                            "non_effect_allele"
+                        ]
+                    ]
+                ],
+                [
+                    "Credible Set Information",
+                    [
+                        [
+                            "Number of SNPs",
+                            "credible_set_size",
+                            "int"
+                        ],
+                        [
+                            "SNP's rank in credible set",
+                            "pip_rank",
+                            "int"
+                        ],
+                        [
+                            "Purity",
+                            "credible_set_purity",
+                            "float(3)"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "https://data.pankbase.org/workflows/PKBWF1943AUOL/",
+                            "link_static"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "signal_COLOC_with": {
+            "text_color": "#000000",
+            "edge_label": "signal COLOC with",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Signals colocalized",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Colocalizaiton statistics",
+                    [
+                        [
+                            "PP.H0 (neither causal)",
+                            "`PP.H0.abf`",
+                            "float(4)"
+                        ],
+                        [
+                            "PP.H1 (GWAS causal)",
+                            "`PP.H1.abf`",
+                            "float(4)"
+                        ],
+                        [
+                            "PP.H2 (QTL causal)",
+                            "`PP.H2.abf`",
+                            "float(4)"
+                        ],
+                        [
+                            "PP.H3 (two variants)",
+                            "`PP.H3.abf`",
+                            "float(4)"
+                        ],
+                        [
+                            "PP.H4 (shared variant)",
+                            "`PP.H4.abf`",
+                            "float(4)"
+                        ]
+                    ]
+                ],
+                [
+                    "Credible Set Information",
+                    [
+                        [
+                            "Number of SNPs in range",
+                            "nsnp",
+                            "int"
+                        ],
+                        [
+                            "GWAS lead variant",
+                            "GWAS_lead_vars"
+                        ],
+                        [
+                            "QTL lead variant",
+                            "QTL_lead_vars"
+                        ],
+                        [
+                            "Coloc dataset",
+                            "coloc_dataset"
                         ]
                     ]
                 ],
@@ -513,12 +780,71 @@
         },
         "regulation": {
             "text_color": "#000000",
-            "edge_label": "interact with",
+            "edge_label": "genetically regulates",
             "inverted": "FALSE",
             "info_panel": [
                 [
                     "Title",
-                    "Has Interaction",
+                    "Genetically regulates",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ],
+                        [
+                            "BIOGRID ID",
+                            "biogrid_interaction_id"
+                        ]
+                    ]
+                ],
+                [
+                    "Evidence",
+                    [
+                        [
+                            "Publication Source",
+                            "publication_source"
+                        ],
+                        [
+                            "Author",
+                            "author"
+                        ],
+                        [
+                            "Experimental System",
+                            "experimental_system"
+                        ],
+                        [
+                            "System Type",
+                            "experimental_system_type"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "physical_interaction": {
+            "text_color": "#000000",
+            "edge_label": "physically binds",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Physically binds",
                     "string"
                 ],
                 [
@@ -599,17 +925,17 @@
                         [
                             "T1D activity median",
                             "type_1_diabetes__OCR_GeneActivityScore_median",
-                            "float(2)"
+                            "float(3)"
                         ],
                         [
                             "Non-T1D activity median",
                             "non_diabetic__OCR_GeneActivityScore_median",
-                            "float(2)"
+                            "float(3)"
                         ],
                         [
                             "All activity median",
                             "OCR_GeneActivityScore_median",
-                            "float(2)"
+                            "float(3)"
                         ]
                     ]
                 ],
@@ -625,7 +951,7 @@
                 ]
             ]
         },
-        "effector_gene": {
+        "effector_gene_of": {
             "text_color": "#000000",
             "edge_label": "effect gene of",
             "inverted": "FALSE",
@@ -649,12 +975,23 @@
                     ]
                 ],
                 [
-                    "Coding Variant Evidence",
-                    "CodingVariantEvidence"
+                    "Effector Gene List",
+                    [
+                        [
+                            "Effector Gene List",
+                            "effector_gene_list_url",
+                            "link"
+                        ],
+                        [
+                            "Study Source",
+                            "data_source"
+                        ]
+                    ]
                 ],
                 [
-                    "Confidence Level",
-                    "ConfidenceLevel"
+                    "Evidences",
+                    "evidence",
+                    "long_list"
                 ],
                 [
                     "Footer",
@@ -668,7 +1005,7 @@
                 ]
             ]
         },
-        "Differential_Expression": {
+        "DEG_in": {
             "text_color": "#000000",
             "edge_label": "DEG of",
             "inverted": "FALSE",
@@ -701,22 +1038,22 @@
                         [
                             "P value",
                             "P_value",
-                            "float(2)"
+                            "float(3)"
                         ],
                         [
                             "Adjusted P value",
                             "Adjusted_P_value",
-                            "float(2)"
+                            "float(3)"
                         ],
                         [
                             "Log2 Fold Change",
                             "Log2FoldChange",
-                            "float(2)"
+                            "float(3)"
                         ],
                         [
                             "SE of Log2FC",
                             "SE_of_Log2FoldChange",
-                            "float(2)"
+                            "float(3)"
                         ]
                     ]
                 ],

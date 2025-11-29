@@ -5,6 +5,7 @@ import React, {
   useState,
 } from 'react';
 
+import JSON5 from 'json5';
 import {
   useDispatch,
   useSelector,
@@ -45,6 +46,7 @@ import {
 } from '@mui/material';
 
 import errorImage from '../image/datanotfound.png';
+import notRelevant from '../image/not_relevant.png';
 import { queryQueryResult } from '../redux/queryResultSlice';
 import { setSearchTerms } from '../redux/searchSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
@@ -103,7 +105,7 @@ const WarningSNP = (
   </Alert>
 );
 
-export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "No answer for your question in PanKgraph" }) {
+export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "No answer for your question in PanKgraph", agent = true, log = undefined }) {
   return (
     <Container sx={{
       padding: 0, display: 'flex',
@@ -123,7 +125,8 @@ export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        height: '700px',
+        minHeight: '700px',
+        height: '82.3%',
         gap: 2,
         backgroundColor: '#F2FAFB'
       }}>
@@ -139,8 +142,8 @@ export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "
           justifyContent: 'center',
           backgroundColor: 'white',
         }}>
-          <Box component="img" src={errorImage} alt="Error" sx={{ width: "200px", marginTop: "-20px", marginBottom: '-20px' }} />
-          <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '36px', color: '#43AABA', marginBottom: '-12px', }}>
+          <Box component="img" src={agent ? notRelevant : errorImage} alt="Error" sx={{ width: "200px", marginTop: "-20px", marginBottom: '-20px' }} />
+          <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '36px', color: '#43AABA', marginBottom: '-12px', whiteSpace: 'nowrap' }}>
             {errorTitle}
           </Typography>
           <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 400, fontSize: '17px', color: '#6C6C6C' }}>
@@ -203,7 +206,8 @@ export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        height: '150px',
+        minHeight: '150px',
+        height: '17.7%',
         paddingY: '50px',
         justifyContent: 'space-between',
         backgroundColor: '#D4E9EA'
@@ -212,10 +216,10 @@ export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "
           Need Assistance?
         </Typography>
         <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 400, fontSize: '20px', color: '#6C6C6C' }}>
-          Our support team is here to assist you with any questions or technical issues
+          Our support team is here to assist you with any questions or technical issues.
         </Typography>
         <Button
-          onClick={() => window.location.href = 'mailto:wyq@umich.edu, runbomao@umich.edu, drjieliu@umich.edu, fan.feng@vumc.org, help@pankbase.org'}
+          onClick={() => window.open('mailto:wyq@umich.edu, runbomao@umich.edu, drjieliu@umich.edu, fan.feng@vumc.org, help@pankbase.org' + (log ? ('?subject=PanKgraph Support Request&body=' + encodeURIComponent('Hello,\n\nI need assistance with PanKgraph.\n\nHere are the details:\n' + log)) : ''), '_blank')}
           sx={{
             backgroundColor: "white",
             border: "1px solid #219197",
@@ -250,6 +254,34 @@ function IntermediatePage({ onContinue }) {
 
   const { viewSchema } = useSelector((state) => state.viewSchema);
   const { queryResult } = useSelector((state) => state.queryResult);
+  const [cleanedQueryResult, setCleanedQueryResult] = useState(null);
+  const [isNeptune, setIsNeptune] = useState(false);
+
+  useEffect(() => {
+    if (queryResult?.results) {
+      // console.log(queryResult.results);
+      let cleanedResult;
+      if (isNeptune) {
+        const lines = queryResult.results.trim().split('\n').slice(1);
+        cleanedResult = lines.map((line) => {
+          const [dataSource, credibleSets] = JSON5.parse(`[${line}]`);
+          return ({
+            "data_source": dataSource,
+            "credible_sets": credibleSets
+          });
+        }
+        );
+      }
+      else {
+        cleanedResult = queryResult.results?.[0]?.credible_sets?.map((cs) => ({
+          "data_source": cs.data_source,
+          "credible_sets": [cs]
+        }));
+      }
+      if (!cleanedResult || cleanedResult.length === 0) { return; }
+      setCleanedQueryResult({ results: cleanedResult });
+    }
+  }, [queryResult]);
 
   const searchState = useSelector((state) => state.search) || {
     sourceTerm: '',
@@ -349,7 +381,7 @@ function IntermediatePage({ onContinue }) {
   };
 
   useEffect(() => {
-    const allResults = queryResult?.results?.flatMap(result =>
+    const allResults = cleanedQueryResult?.results?.flatMap(result =>
       (result?.credible_sets || []).map(cs => ({
         ...cs,
         gene_symbol: getGeneSymbol(cs.credible_set_id),
@@ -398,25 +430,34 @@ function IntermediatePage({ onContinue }) {
       return;
     }
     setQueryData(deduplicatedResults);
-  }, [queryResult]);
+  }, [cleanedQueryResult]);
+
+  useEffect(() => {
+    if (queryData.flatMap((group) => (group.result)).length === 1) {
+      const firstResult = queryData.flatMap((group) => (group.result))[0];
+      handleSNPClick(firstResult);
+    }
+  }, [queryData]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (!queryResult?.results || queryResult.results.length === 0) {
+      if (!cleanedQueryResult?.results || cleanedQueryResult.results.length === 0) {
+        console.log("No results found within timeout period.");
         setError(true);
       }
       setLoading(false);
-    }, 3000);
+    }, 10000);
 
     // Clear error if results are found in 3 seconds
-    if (queryResult?.results && queryResult.results.length > 0) {
+    if (cleanedQueryResult?.results && cleanedQueryResult.results.length > 0) {
+      console.log("Results found, clearing error.");
       setError(false);
       setLoading(false);
       clearTimeout(timer);
     }
 
     return () => clearTimeout(timer);
-  }, [queryResult]);
+  }, [cleanedQueryResult]);
 
   // const getDescription = (name) => {
   //   const descriptions = {
@@ -513,7 +554,7 @@ function IntermediatePage({ onContinue }) {
     const relationship = params.get('relationship');
     const targetTerm = params.get('targetTerm');
     const sourceSymbol = params.get('sourceSymbol') || "";
-    const targetSymbol = params.get('targetSymbol') || "";
+    const targetSymbol = params.get('targetSymbol') || params.get('targetTerm')?.split('@')[1] || "";
     if (sourceTerm && relationship && targetTerm) {
       dispatch(
         setSearchTerms({
@@ -548,6 +589,8 @@ function IntermediatePage({ onContinue }) {
           targetTerm: searchState.targetTerm
         }
       );
+
+      setIsNeptune(!searchState.sourceTerm.includes("snp@"));
 
       dispatch(queryQueryResult({
         query: processedCypher,

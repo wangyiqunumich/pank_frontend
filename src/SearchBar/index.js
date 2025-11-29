@@ -1,13 +1,34 @@
-import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
-import { Container, Box, FormControl, Select, MenuItem, Button, TextField, Typography } from '@mui/material';
+import React, {
+    forwardRef,
+    useEffect,
+    useImperativeHandle,
+    useRef,
+    useState,
+} from 'react';
+
+import {
+    useDispatch,
+    useSelector,
+} from 'react-redux';
+
+import {
+    Box,
+    Button,
+    Container,
+    FormControl,
+    MenuItem,
+    Select,
+    TextField,
+    Typography,
+} from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
-import { useSelector, useDispatch } from 'react-redux';
+
+import { queryVocab } from '../redux/inputToVocabSlice';
 import { queryQueryResult } from '../redux/queryResultSlice';
 import { setSearchTerms } from '../redux/searchSlice';
-import { queryVocab } from '../redux/inputToVocabSlice';
-import conversionTable from '../utils/conversion_table.json';
-import catalog from '../utils/Catalog.json';
 import { store } from '../redux/store';
+import catalog from '../utils/Catalog.json';
+import conversionTable from '../utils/conversion_table.json';
 
 const SearchBar = forwardRef(({ onSearch, disabled, style, resultPageShown, source, target, onTargetTermChange, question }, ref) => {
     const dispatch = useDispatch();
