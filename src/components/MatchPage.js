@@ -214,22 +214,29 @@ function InputComponent({ type, setValue, setInputStatus, GWAS = false, defaultL
 
   const inputChangeTimer = useRef(null);
 
-  function updateSource(newInputValue) { // similarity match, specific for gene
+  function updateSource(newInputValue) { // similarity match + default list
     const keyWord = newInputValue.split('(')[0].trim();
     if (restricted) {
       // filter defaultList based on input, 5 at most
       const filteredList = defaultList.filter(item => item.toLowerCase().includes(keyWord.toLowerCase()));
       setSelfOptions(filteredList.slice(0, 5));
       if (newInputValue === inputValueRef.current) {
-          setSimIsLoading(false);
-        }
+        setSimIsLoading(false);
+      }
       return;
     }
     if (newInputValue.length <= 2) {
       setSelfOptions(defaultList);
       if (newInputValue === inputValueRef.current) {
-          setSimIsLoading(false);
-        }
+        setSimIsLoading(false);
+      }
+      return;
+    }
+    if (type !== 'gene') {
+      setSelfOptions([]);
+      if (newInputValue === inputValueRef.current) {
+        setSimIsLoading(false);
+      }
       return;
     }
     dispatch(queryQueryResult({
@@ -311,28 +318,28 @@ function InputComponent({ type, setValue, setInputStatus, GWAS = false, defaultL
   };
 
   const ListboxComponent = React.forwardRef(function ListboxComponent(props, ref) {
-  const loading = simIsLoading || valIsLoading;
+    const loading = simIsLoading || valIsLoading;
 
-  if (loading) {
-    return (
-      <ul {...props} ref={ref}>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: type === 'gene' ? 2 : 1,
-            width: type === 'gene' ? '200px' : '115px'
-          }}
-        >
-          <CircularProgress size={20} />
-        </Box>
-      </ul>
-    );
-  }
+    if (loading) {
+      return (
+        <ul {...props} ref={ref}>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              padding: type === 'gene' ? 2 : 1,
+              width: type === 'gene' ? '200px' : '115px'
+            }}
+          >
+            <CircularProgress size={20} />
+          </Box>
+        </ul>
+      );
+    }
 
-  return <ul {...props} ref={ref} />;
-});
+    return <ul {...props} ref={ref} />;
+  });
 
   return (
     <Box sx={{ display: 'inline-flex', alignItems: 'center' }} >
@@ -342,7 +349,7 @@ function InputComponent({ type, setValue, setInputStatus, GWAS = false, defaultL
         options={(() => {
           const options = [...(validatedValue ? [validatedValue] : []), ...selfOptions];
           const uniqueOptions = [...new Set(options.map(option => option.label || option))];
-          return uniqueOptions.length > 0 ? (type === 'gene' ? uniqueOptions : []) : [{ label: `No ${type} found`, disabled: true, notFound: true }];
+          return uniqueOptions.length > 0 ? (uniqueOptions) : (type !== 'gene' ? [] : [{ label: `No ${type} found`, disabled: true, notFound: true }]);
         })()}
         getOptionDisabled={(option) => option.disabled}
         className={type}
@@ -357,7 +364,7 @@ function InputComponent({ type, setValue, setInputStatus, GWAS = false, defaultL
           zIndex: 9999,
           marginTop: '2px',
         }}
-        onFocus={()=>{
+        onFocus={() => {
           if (!inputValue && selfOptions.length === 0) {
             setValidatedValue('');
             updateSource('', type);
@@ -379,16 +386,16 @@ function InputComponent({ type, setValue, setInputStatus, GWAS = false, defaultL
             setValidatedValue('');
             setInputValue(newInputValue);
             // if (newInputValue) {
-              setInputStatus('mismatch');
-              inputChangeTimer.current = setTimeout(() => {
-                setSelfOptions([]); // to trigger rendering the dropdown
-                if (type === 'gene') {
-                  setSimIsLoading(true);
-                  updateSource(newInputValue, type);
-                }
-                setValIsLoading(true);
-                updateValidation(newInputValue, type);
-              }, 300); // Delay the input change handling
+            setInputStatus('mismatch');
+            inputChangeTimer.current = setTimeout(() => {
+              setSelfOptions([]); // to trigger rendering the dropdown
+              // if (type === 'gene') {
+              setSimIsLoading(true);
+              updateSource(newInputValue, type);
+              // }
+              setValIsLoading(true);
+              updateValidation(newInputValue, type);
+            }, 300); // Delay the input change handling
             // } else {
             //   setInputStatus('empty');
             //   setSimIsLoading(false);
