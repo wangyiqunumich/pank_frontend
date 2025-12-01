@@ -194,7 +194,7 @@ const MatchGraphViewer = ({ visualPattern, selectedQuestion }) => {
   );
 };
 
-function InputComponent({ type, setValue, setInputStatus, GWAS = false }) { // input state: valid, mismatch, empty
+function InputComponent({ type, setValue, setInputStatus, GWAS = false, defaultList = [], restricted = false }) { // input state: valid, mismatch, empty
   const dispatch = useDispatch();
   const [selfOptions, setSelfOptions] = useState([]);
 
@@ -216,9 +216,20 @@ function InputComponent({ type, setValue, setInputStatus, GWAS = false }) { // i
 
   function updateSource(newInputValue) { // similarity match, specific for gene
     const keyWord = newInputValue.split('(')[0].trim();
-    if (newInputValue === '') {
-      setSelfOptions([]);
-      setSimIsLoading(false);
+    if (restricted) {
+      // filter defaultList based on input, 5 at most
+      const filteredList = defaultList.filter(item => item.toLowerCase().includes(keyWord.toLowerCase()));
+      setSelfOptions(filteredList.slice(0, 5));
+      if (newInputValue === inputValueRef.current) {
+          setSimIsLoading(false);
+        }
+      return;
+    }
+    if (newInputValue.length <= 2) {
+      setSelfOptions(defaultList);
+      if (newInputValue === inputValueRef.current) {
+          setSimIsLoading(false);
+        }
       return;
     }
     dispatch(queryQueryResult({
@@ -244,6 +255,11 @@ function InputComponent({ type, setValue, setInputStatus, GWAS = false }) { // i
   }
 
   function updateValidation(newInputValue, type) { // validate the input value with vocab
+    if (newInputValue.length <= 2 || restricted) {
+      setValidatedValue('');
+      setValIsLoading(false);
+      return;
+    }
     const termName = newInputValue.split('(')[0].trim();
     const typeMap = {
       gene: 'gene',
@@ -294,6 +310,30 @@ function InputComponent({ type, setValue, setInputStatus, GWAS = false }) { // i
     });
   };
 
+  const ListboxComponent = React.forwardRef(function ListboxComponent(props, ref) {
+  const loading = simIsLoading || valIsLoading;
+
+  if (loading) {
+    return (
+      <ul {...props} ref={ref}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: type === 'gene' ? 2 : 1,
+            width: type === 'gene' ? '200px' : '115px'
+          }}
+        >
+          <CircularProgress size={20} />
+        </Box>
+      </ul>
+    );
+  }
+
+  return <ul {...props} ref={ref} />;
+});
+
   return (
     <Box sx={{ display: 'inline-flex', alignItems: 'center' }} >
       <Autocomplete
@@ -317,6 +357,12 @@ function InputComponent({ type, setValue, setInputStatus, GWAS = false }) { // i
           zIndex: 9999,
           marginTop: '2px',
         }}
+        onFocus={()=>{
+          if (!inputValue && selfOptions.length === 0) {
+            setValidatedValue('');
+            updateSource('', type);
+          }
+        }}
         onInputChange={(event, newInputValue, reason) => {
           if (inputChangeTimer.current) {
             clearTimeout(inputChangeTimer.current);
@@ -332,7 +378,7 @@ function InputComponent({ type, setValue, setInputStatus, GWAS = false }) { // i
           } else {
             setValidatedValue('');
             setInputValue(newInputValue);
-            if (newInputValue) {
+            // if (newInputValue) {
               setInputStatus('mismatch');
               inputChangeTimer.current = setTimeout(() => {
                 setSelfOptions([]); // to trigger rendering the dropdown
@@ -343,43 +389,17 @@ function InputComponent({ type, setValue, setInputStatus, GWAS = false }) { // i
                 setValIsLoading(true);
                 updateValidation(newInputValue, type);
               }, 300); // Delay the input change handling
-            } else {
-              setInputStatus('empty');
-              setSimIsLoading(false);
-              setValIsLoading(false);
-              setSelfOptions([]);
-            }
+            // } else {
+            //   setInputStatus('empty');
+            //   setSimIsLoading(false);
+            //   setValIsLoading(false);
+            //   setSelfOptions([]);
+            // }
 
           }
         }}
         onChange={() => { }}
-        ListboxComponent={(props) => {
-          if (!inputValue) {
-            return <></>;
-          }
-          const loading = simIsLoading || valIsLoading;
-          if (loading) {
-            return (
-              <ul {...props}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    padding: type === 'gene' ? 2 : 1,
-                    width: type === 'gene' ? '200px' : '115px'
-                  }}
-                >
-                  <CircularProgress size={20} />
-                </Box>
-              </ul>
-              // <ul {...props} style={{ ...props.style, padding: 0, margin: 0, height: 'fit-content', weight: 'fit-content' }}>
-              //   <Skeleton variant="rectangular" width={200} height={50} />
-              // </ul>
-            );
-          }
-          return <ul {...props} />;
-        }}
+        ListboxComponent={ListboxComponent}
         PopperComponent={(props) => (
           <Popper {...props} style={{ width: 'fit-content !important' }} />
         )}
@@ -521,7 +541,7 @@ function MatchPage() {
       if (snpId) {
         updatedTerms = updatedTerms.replace('snp', `snp@${snpId}`);
       }
-      const parts = updatedTerms.split('-')
+      const parts = updatedTerms.split(' - ');
       const source = parts[0].trim();
       const relationTerm = parts[1].trim();
       const target = parts[2].trim();
@@ -558,6 +578,7 @@ function MatchPage() {
     const GWAS = questionData?.terms.includes('GWAS');
     const sequence = selectedQuestion || ''; // 使用选定的问题或空字符串
     const parts = sequence.split(/(\s+|\{.*?\}|\(.*?\))/); // 根据{} 或（）将字符串分割成部分，其余按照空格分割成部分
+    const termList = questionData?.default_terms_list;
     return parts.map((part, index) => {
       if (part.startsWith('(') && part.endsWith(')')) {
         return (
@@ -581,6 +602,8 @@ function MatchPage() {
         );
       } else if (part.startsWith('{') && part.endsWith('}')) {
         const type = dictionary[index];
+        const defaultList = termList?.[type] || [];
+        const restricted = questionData?.terms === "gene - COLOC - disease";
         return (<InputComponent
           key={index}
           type={type}
@@ -597,6 +620,8 @@ function MatchPage() {
             setInputStatus((prevStatus) => ({ ...prevStatus, [index]: status }));
           }}
           GWAS={GWAS}
+          defaultList={defaultList}
+          restricted={restricted}
         />);
       } else {
         // Render plain text for other parts
