@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 
+import DOMPurify from 'dompurify';
 import {
   useDispatch,
   useSelector,
@@ -200,7 +201,7 @@ const NoGraphData = () => (
         </Typography>
 
         <Button
-            onClick={() => window.location.href = 
+            onClick={() => window.location.href =
                 'mailto:wyq@umich.edu, runbomao@umich.edu, drjieliu@umich.edu, fan.feng@vumc.org, help@pankbase.org'}
             sx={{
                 backgroundColor: "white",
@@ -235,7 +236,7 @@ function SearchResult() {
 
     const { viewSchema } = useSelector((state) => state.viewSchema);
     const { typeToImage } = useSelector((state) => state.typeToImage);
-    const {agentRawResult} = useSelector((state) => state.aiAgent);
+    const { agentRawResult } = useSelector((state) => state.aiAgent);
     const [aiAnswer, setAiAnswer] = useState('');
     // const [mainCypher, setMainCypher] = useState('');
     const [graphData, setGraphData] = useState(null);
@@ -581,7 +582,7 @@ function SearchResult() {
                                     fontSize: 20,
                                     fontWeight: 600,
                                 }}
-                                dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }}
+                                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(currentQuestion) || 'No question available' }}
                             />
 
                         </Grid>
@@ -605,7 +606,7 @@ function SearchResult() {
                                                     fontFamily: 'Open Sans',
                                                     fontWeight: 400,
                                                     fontSize: 16,
-                                                }} dangerouslySetInnerHTML={{ __html: nextQuestion.question }} />
+                                                }} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(nextQuestion.question) }} />
                                                 <span style={{ alignContent: 'center' }}><ChevronRightIcon /></span>
                                             </Box>
                                         </Link>
