@@ -60,26 +60,26 @@
 		"matched_page_title": "Search for colocalization",
 		"matched_page_sub_title": "Pick a specific gene",
 		"pattern_for_the_matched_page": "{gene@gene@} - signal colocalized with -> (T1D)",
-		"default_terms_list": {
-        "gene": [
-            "PLEKHM1(ENSG00000225190)",
-            "GSDMB(ENSG00000073605)",
-            "ADCY3(ENSG00000138031)",
-            "DNAJC27-AS1(ENSG00000224165)",
-            "SLC22A5(ENSG00000197375)",
-            "SBK1(ENSG00000188322)",
-            "FLVCR1(ENSG00000162769)",
-            "CLECL1P(ENSG00000184293)",
-            "LINC01882(ENSG00000260302)",
-            "SF3A3(ENSG00000183431)",
-            "EIF3C(ENSG00000184110)",
-            "SEPTIN2(ENSG00000168385)",
-            "CFTR(ENSG00000001626)",
-            "ARHGAP27(ENSG00000159314)",
-            "SULT1A1(ENSG00000196502)",
-            "RPS26(ENSG00000197728)",
-            "FARP2(ENSG00000006607)",
-            "CENPO(ENSG00000138092)"
+    	"default_terms_list": {
+	        "gene": [
+	            "ADCY3(ENSG00000138031)",
+	            "ARHGAP27(ENSG00000159314)",
+	            "CENPO(ENSG00000138092)",
+	            "CFTR(ENSG00000001626)",
+	            "CLECL1P(ENSG00000184293)",
+	            "DNAJC27-AS1(ENSG00000224165)",
+	            "EIF3C(ENSG00000184110)",
+	            "FARP2(ENSG00000006607)",
+	            "FLVCR1(ENSG00000162769)",
+	            "GSDMB(ENSG00000073605)",
+	            "LINC01882(ENSG00000260302)",
+	            "PLEKHM1(ENSG00000225190)",
+	            "RPS26(ENSG00000197728)",
+	            "SBK1(ENSG00000188322)",
+	            "SEPTIN2(ENSG00000168385)",
+	            "SF3A3(ENSG00000183431)",
+	            "SLC22A5(ENSG00000197375)",
+	            "SULT1A1(ENSG00000196502)"
         	]
 		}
 	}
