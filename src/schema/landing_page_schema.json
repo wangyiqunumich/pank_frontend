@@ -10,7 +10,7 @@
 		"default_terms_list": {
 			"gene": [
 				"INS(ENSG00000254647)",
-				"UBD(ENSG00000213886)",
+				"HLA-A(ENSG00000206503)",
 				"APOL1(ENSG00000100342)"
 			]
 		}
@@ -27,7 +27,7 @@
 		"default_terms_list": {
 			"gene": [
 				"CFTR(ENSG00000001626)",
-				"ELAC2(ENSG00000006744)"
+				"CENPO(ENSG00000138092)"
 			]
 		}
 	},
