@@ -1,43 +1,43 @@
 import './scoped.css';
 
 import React, {
-    useEffect,
-    useRef,
-    useState,
+  useEffect,
+  useRef,
+  useState,
 } from 'react';
 
 import {
-    useDispatch,
-    useSelector,
+  useDispatch,
+  useSelector,
 } from 'react-redux';
 
 import {
-    ChevronRight as ChevronRightIcon,
-    InfoOutlined as InfoOutlineIcon,
+  ChevronRight as ChevronRightIcon,
+  InfoOutlined as InfoOutlineIcon,
 } from '@mui/icons-material';
 import {
-    Backdrop,
-    Box,
-    CircularProgress,
-    Collapse,
-    Container,
-    Grid,
-    Link,
-    List,
-    ListItem,
-    Skeleton,
-    styled,
-    Tab,
-    Tabs,
-    Tooltip,
-    tooltipClasses,
-    Typography,
+  Backdrop,
+  Box,
+  CircularProgress,
+  Collapse,
+  Container,
+  Grid,
+  Link,
+  List,
+  ListItem,
+  Skeleton,
+  styled,
+  Tab,
+  Tabs,
+  Tooltip,
+  tooltipClasses,
+  Typography,
 } from '@mui/material';
 
 import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 import {
-    ErrorComponent,
-    tabsQTL,
+  ErrorComponent,
+  tabsQTL,
 } from '../components/IntermediatePage';
 import KnowledgeGraph from '../components/KnowledgeGraph';
 import VisuImage from '../image/output.png';
@@ -50,11 +50,10 @@ import { queryImage } from '../redux/typeToImageSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import {
-    addHighlight,
-    replaceNextQuestion,
-    replaceVariables,
+  addHighlight,
+  replaceNextQuestion,
+  replaceVariables,
 } from '../utils/textProcessing';
-
 
 const defaultTabOptions = [
     { value: 'references', label: 'References' },
@@ -71,15 +70,15 @@ const defaultNextQuestion = {
 const validateQuestions = async (questions) => {
     const fetchQueryResults = async (question) => {
         const response = flaskBackendAxiosInstanceNew
-            .post('/openCypherToQueryResult',
+            .post('/pankgraph-neo4j',
                 { query: question.query }, {
                 headers: {
                     "Content-Type": "application/json"
                 }
             })
-            .then((response) => response.data?.results?.[0]?.credible_sets)
-        const data = await response;
-        return { valid: data?.length > 0, question };
+            .then((response) => response.data?.results && response.data?.results !== "No results")
+        const valid = await response;
+        return { valid, question };
     };
 
     const validationResults = await Promise.all(questions.map(fetchQueryResults));
@@ -504,14 +503,11 @@ function SearchResult() {
                 )
     )
 
-    function getLink(id)
-    {
+    function getLink(id) {
         const nodes = queryResultPage.combined_query_result.nodes;
-        for (let i = 0; i < nodes.length; i++)
-        {
+        for (let i = 0; i < nodes.length; i++) {
             const node = nodes[i];
-            if (node['~id'] === id)
-            {
+            if (node['~id'] === id) {
                 return node['~properties']['link'];
             }
         }
@@ -557,15 +553,12 @@ function SearchResult() {
     const ProcessLinks2 = ({ text }) => {
         const result = ProcessGeneWithId(text);
         const output = []
-        for (let i = 0; i < result.length; i++)
-        {
+        for (let i = 0; i < result.length; i++) {
             const data = result[i];
-            if (data.type === "link")
-            {
+            if (data.type === "link") {
                 output.push(data);
             }
-            else
-            {
+            else {
                 const textPart = removeConsecutiveAsterisks(data.text);
                 const list = ProcessLinks2temp({ text: textPart });
                 output.push(...list);
