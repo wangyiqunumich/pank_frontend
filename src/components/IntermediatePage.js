@@ -5,6 +5,7 @@ import React, {
   useState,
 } from 'react';
 
+import DOMPurify from 'dompurify';
 import JSON5 from 'json5';
 import {
   useDispatch,
@@ -652,7 +653,7 @@ function IntermediatePage({ onContinue }) {
               fontSize: 24,
               fontWeight: 600,
             }}
-            dangerouslySetInnerHTML={{ __html: processedQuestion }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(processedQuestion) }}
           />
         </Box>
       </Grid>

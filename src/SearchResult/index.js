@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 
+import DOMPurify from 'dompurify';
 import {
   useDispatch,
   useSelector,
@@ -672,7 +673,7 @@ function SearchResult() {
                                     fontSize: 20,
                                     fontWeight: 600,
                                 }}
-                                dangerouslySetInnerHTML={{ __html: currentQuestion || 'No question available' }}
+                                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(currentQuestion) || 'No question available' }}
                             />
 
                         </Grid>
@@ -696,7 +697,7 @@ function SearchResult() {
                                                     fontFamily: 'Open Sans',
                                                     fontWeight: 400,
                                                     fontSize: 16,
-                                                }} dangerouslySetInnerHTML={{ __html: nextQuestion.question }} />
+                                                }} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(nextQuestion.question) }} />
                                                 <span style={{ alignContent: 'center' }}><ChevronRightIcon /></span>
                                             </Box>
                                         </Link>

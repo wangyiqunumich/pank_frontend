@@ -1,7 +1,13 @@
-import React from 'react';
-import { Container, Typography } from '@mui/material';
-import NavBar from '../NavBar';
 import './Ontology.css';
+
+import React from 'react';
+
+import DOMPurify from 'dompurify';
+
+import {
+  Container,
+  Typography,
+} from '@mui/material';
 
 const ontologyTreeHtml = `
 <details style="margin-left: 0px;">
@@ -96,10 +102,10 @@ function Ontology() {
         <Typography variant="h4" gutterBottom>
           Ontology Tree
         </Typography>
-          <Typography>
-              The ontology tree displays all Gene Ontology (GO) terms included in PanKgraph, organized hierarchically for easy navigation and analysis. It encompasses various biological processes, molecular functions, and cellular components, structured to facilitate exploration and analysis of functional relationships within the dataset.
-          </Typography>
-        <div dangerouslySetInnerHTML={{ __html: ontologyTreeHtml }} />
+        <Typography>
+          The ontology tree displays all Gene Ontology (GO) terms included in PanKgraph, organized hierarchically for easy navigation and analysis. It encompasses various biological processes, molecular functions, and cellular components, structured to facilitate exploration and analysis of functional relationships within the dataset.
+        </Typography>
+        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(ontologyTreeHtml) }} />
       </Container>
     </div>
   );
