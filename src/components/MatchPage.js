@@ -219,7 +219,7 @@ function InputComponent({ type, setValue, setInputStatus, GWAS = false, defaultL
     if (restricted) {
       // filter defaultList based on input, 5 at most
       const filteredList = defaultList.filter(item => item.toLowerCase().includes(keyWord.toLowerCase()));
-      setSelfOptions(filteredList.slice(0, 5));
+      setSelfOptions(filteredList);
       if (newInputValue === inputValueRef.current) {
         setSimIsLoading(false);
       }
@@ -337,8 +337,8 @@ function InputComponent({ type, setValue, setInputStatus, GWAS = false, defaultL
         </ul>
       );
     }
-
-    return <ul {...props} ref={ref} />;
+    const { style, ...other } = props;
+    return <ul {...other} ref={ref} style={{ ...style, maxHeight: '180px' }} />;
   });
 
   return (

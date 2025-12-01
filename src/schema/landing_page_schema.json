@@ -7,7 +7,13 @@
 		"matched_page_title": "Search for DEG",
 		"matched_page_sub_title": "Pick a specific gene",
 		"pattern_for_the_matched_page": "{gene@gene@} - express in -> (cell type)",
-		"default_terms_list":{"gene":["INS(ENSG00000254647)","HLA-A(ENSG00000206503)","APOL1(ENSG00000100342)"]}
+		"default_terms_list": {
+			"gene": [
+				"INS(ENSG00000254647)",
+				"HLA-A(ENSG00000206503)",
+				"APOL1(ENSG00000100342)"
+			]
+		}
 	},
 	{
 		"question": "Which (SNP) serves as the lead (QTL) for {gene@gene@}?",
@@ -18,7 +24,12 @@
 		"matched_page_sub_title": "Pick a specific gene",
 		"matched_page_tips": "in human pancreatic and islet tissues, encompassing expression-, exon-, and splicing-level QTLs",
 		"pattern_for_the_matched_page": "(snp) - part of QTL signal -> {gene@gene@}",
-		"default_terms_list":{"gene":["CFTR(ENSG00000001626)","CENPO(ENSG00000138092)"]}
+		"default_terms_list": {
+			"gene": [
+				"CFTR(ENSG00000001626)",
+				"CENPO(ENSG00000138092)"
+			]
+		}
 	},
 	{
 		"question": "Which (gene) is regulated by {snp@snp@} as a (QTL)?",
@@ -29,7 +40,12 @@
 		"matched_page_sub_title": "Pick a specific snp",
 		"matched_page_tips": "in human pancreatic and islet tissues, encompassing expression-, exon-, and splicing-level QTLs",
 		"pattern_for_the_matched_page": "{snp@snp@} - part of QTL signal -> (gene)",
-		"default_terms_list":{"snp":["rs113869178","rs12154969"]}
+		"default_terms_list": {
+			"snp": [
+				"rs113869178",
+				"rs12154969"
+			]
+		}
 	},
 	{
 		"question": "Does {snp@snp@} serves as a (QTL) for {gene@gene@}?",
@@ -40,7 +56,14 @@
 		"matched_page_sub_title": "Pick a specific gene and snp",
 		"matched_page_tips": "in human pancreatic and islet tissues, encompassing expression-, exon-, and splicing-level QTLs",
 		"pattern_for_the_matched_page": "{snp@snp@} - part of QTL signal -> {gene@gene@}",
-		"default_terms_list":{"snp":["rs2402203"],"gene":["CFTR(ENSG00000001626)"]}
+		"default_terms_list": {
+			"snp": [
+				"rs2402203"
+			],
+			"gene": [
+				"CFTR(ENSG00000001626)"
+			]
+		}
 	},
 	{
 		"question": "Does {snp@snp@} has (GWAS) association with (T1D)?",
@@ -50,7 +73,12 @@
 		"matched_page_title": "Search for T1D GWAS",
 		"matched_page_sub_title": "Pick a specific snp",
 		"pattern_for_the_matched_page": "{snp@snp@} - part of GWAS signal -> (T1D)",
-		"default_terms_list":{"snp":["rs1016432","rs10203386"]}
+		"default_terms_list": {
+			"snp": [
+				"rs1016432",
+				"rs10203386"
+			]
+		}
 	},
 	{
 		"question": "Is the QTL signal of {gene@gene@} colocalized with (T1D) GWAS signal?",
@@ -59,28 +87,29 @@
 		"config_condition": "specific - relationship - specific",
 		"matched_page_title": "Search for colocalization",
 		"matched_page_sub_title": "Pick a specific gene",
+		"matched_page_tips": "Only genes with statistically significant colocalization with T1D are selectable. To ensure valid results, this dropdown box is restricted.",
 		"pattern_for_the_matched_page": "{gene@gene@} - signal colocalized with -> (T1D)",
-    	"default_terms_list": {
-	        "gene": [
-	            "ADCY3(ENSG00000138031)",
-	            "ARHGAP27(ENSG00000159314)",
-	            "CENPO(ENSG00000138092)",
-	            "CFTR(ENSG00000001626)",
-	            "CLECL1P(ENSG00000184293)",
-	            "DNAJC27-AS1(ENSG00000224165)",
-	            "EIF3C(ENSG00000184110)",
-	            "FARP2(ENSG00000006607)",
-	            "FLVCR1(ENSG00000162769)",
-	            "GSDMB(ENSG00000073605)",
-	            "LINC01882(ENSG00000260302)",
-	            "PLEKHM1(ENSG00000225190)",
-	            "RPS26(ENSG00000197728)",
-	            "SBK1(ENSG00000188322)",
-	            "SEPTIN2(ENSG00000168385)",
-	            "SF3A3(ENSG00000183431)",
-	            "SLC22A5(ENSG00000197375)",
-	            "SULT1A1(ENSG00000196502)"
-        	]
+		"default_terms_list": {
+			"gene": [
+				"ADCY3(ENSG00000138031)",
+				"ARHGAP27(ENSG00000159314)",
+				"CENPO(ENSG00000138092)",
+				"CFTR(ENSG00000001626)",
+				"CLECL1P(ENSG00000184293)",
+				"DNAJC27-AS1(ENSG00000224165)",
+				"EIF3C(ENSG00000184110)",
+				"FARP2(ENSG00000006607)",
+				"FLVCR1(ENSG00000162769)",
+				"GSDMB(ENSG00000073605)",
+				"LINC01882(ENSG00000260302)",
+				"PLEKHM1(ENSG00000225190)",
+				"RPS26(ENSG00000197728)",
+				"SBK1(ENSG00000188322)",
+				"SEPTIN2(ENSG00000168385)",
+				"SF3A3(ENSG00000183431)",
+				"SLC22A5(ENSG00000197375)",
+				"SULT1A1(ENSG00000196502)"
+			]
 		}
 	}
 ]
