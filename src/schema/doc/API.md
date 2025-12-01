@@ -22,27 +22,40 @@ It is built on a robust and secure AWS infrastructure, leveraging API Gateway, L
 Use the following commands in your command line tool (e.g., Terminal for macOS or CMD for Windows) to submit queries. Replace `YOUR_QUERY` with your openCypher query.
 
 ```bash
-curl -X 'POST' \
-  'HTTPS://vcr7lwcrnh.execute-api.us-east-1.amazonaws.com/development/api' \
+curl -X POST \
+  'https://nzi5e9mb0f.execute-api.us-east-1.amazonaws.com/production/pankgraph-neo4j' \
   -H 'Content-Type: application/json' \
-  -d '{
-    "query": "YOUR_QUERY"
-}'
+  -d '{"query": "YOUR_QUERY"}'
 ```
 
 To save the output to a file, append ` > result.txt` to the command.
 ```bash
-curl -X 'POST' \
-  'HTTPS://vcr7lwcrnh.execute-api.us-east-1.amazonaws.com/development/api' \
+curl -X POST \
+  'https://nzi5e9mb0f.execute-api.us-east-1.amazonaws.com/production/pankgraph-neo4j' \
   -H 'Content-Type: application/json' \
-  -d '{
-    "query": "YOUR_QUERY"
-}' > result.txt
+  -d '{"query": "YOUR_QUERY"}' > result.txt
 ```
 
 ---
 
 ## Writing a Valid Query
+
+### Cypher For PanKgraph schema
+Because PanKgraph is continuously updated, users are encouraged to explore the current node and relationship schema directly from the graph using Cypher. To list all node types and their counts in the latest database schema, run:
+
+```bash
+curl -X POST \
+  'https://nzi5e9mb0f.execute-api.us-east-1.amazonaws.com/production/pankgraph-neo4j' \
+  -H 'Content-Type: application/json' \
+  -d '{"query": "MATCH (n) RETURN labels(n) AS NodeType, COUNT(n) AS Count ORDER BY Count DESC"}'
+```
+To inspect all supported relationship (edge) types and their frequencies:
+```bash
+curl -X POST \
+  'https://nzi5e9mb0f.execute-api.us-east-1.amazonaws.com/production/pankgraph-neo4j' \
+  -H 'Content-Type: application/json' \
+  -d '{"query": "MATCH ()-[r]->() RETURN type(r) AS RelationshipType, COUNT(r) AS Count ORDER BY Count DESC"}'
+```
 
 ### Cypher Query Grammar
 The PanKgraph Query API accepts queries in the Cypher query language, a declarative graph query language designed for expressive and efficient querying in property graphs.
@@ -52,12 +65,13 @@ A valid Cypher query includes:
 - Keywords: including `MATCH`, `RETURN`, `WHERE`, `AS`, `ORDER BY`, `LIMIT`, etc.
 - Representation of nodes (`(movie:Movie)`), edges (`[:ACTED_IN]`), and properties (`movie.year`).
 
-Below is an example query adapted from the [Wikipedia page for Cypher](https://en.wikipedia.org/wiki/Cypher_(query_language)).
+To learn more about the cyhper, you can visit: [Wikipedia page for Cypher](https://en.wikipedia.org/wiki/Cypher_(query_language)).
 
+Once a node or relationship type is identified, you can inspect its attribute schema by querying one representative instance. For example, to view all properties associated with the gene node type:
 ```cypher
-MATCH (nicole:Actor {name: 'Nicole Kidman'})-[:ACTED_IN]->(movie:Movie)
-WHERE movie.year < 2010
-RETURN movie
+MATCH (n:gene) 
+RETURN properties(n) 
+LIMIT 1
 ```
 
 Resources:
