@@ -225,7 +225,7 @@ function InputComponent({ type, setValue, setInputStatus, GWAS = false, defaultL
       }
       return;
     }
-    if (newInputValue.length <= 2) {
+    if (newInputValue.length <= 1) {
       setSelfOptions(defaultList);
       if (newInputValue === inputValueRef.current) {
         setSimIsLoading(false);
@@ -262,7 +262,7 @@ function InputComponent({ type, setValue, setInputStatus, GWAS = false, defaultL
   }
 
   function updateValidation(newInputValue, type) { // validate the input value with vocab
-    if (newInputValue.length <= 2 || restricted) {
+    if (newInputValue.length <= 1 || restricted) {
       setValidatedValue('');
       setValIsLoading(false);
       return;
