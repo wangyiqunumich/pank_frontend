@@ -344,7 +344,7 @@
                   "ai_question_for_result": [
                         "Based on the JSON data, summarize the GWAS association of @snp_id@ with T1D, including the p-value, lead_status:, signal locus name, pip, p_value, lbf, effect_allele, non_effect_allele, pip_rank, credible_set_size, lbf, pip and pip_rank within the credible set(signal).",
                         "Based on the JSON data, write a concise ‘Variant overview’ paragraph for @snp_id_GWAS@ describing its prperties, GWAS-based association with T1D (MONDO_0005147), and literure mentioned link to T1D. Explicitly state that the association is supported by GWAS or literature: – the GWAS p-value and whether it reaches genome-wide significance, – the signal locus name, – the effect_allele and non_effect_allele, – and, if available, notable allele frequencies across cohorts or populations (highlighting especially high or low values, such as in ALSPAC). Do not invent any values; only summarize information explicitly present in the JSON."
-                   ],
+                  ],
                   "ai_answer_sub_title": [
                         "GWAS overview: ",
                         "Variant overview: "
