@@ -1,6 +1,6 @@
 ## What is PanKgraph?
 
-**PanKgraph** is a T1D-focused knowledge graph platform, designed to integrate and explore diverse biological datasets. It leverages the power of graph databases (AWS Neptune) to enable intuitive querying, visualization, and discovery across multi-omics and biomedical research data related to Type 1 Diabetes (T1D).
+**PanKgraph** is a T1D-focused knowledge graph, designed to unify diverse biological datasets and expert-curated knowledge into a structured, connected framework. It integrates multi-omic data, genetic associations, pathways, and literature evidence related to Type 1 Diabetes into a single graph representation. By enabling intuitive querying, visualization, and cross-domain discovery, PanKgraph supports reproducible, collaborative research and serves as a foundation for advanced data exploration within the pancreas and T1D research community.
 
 ## Key Features
 
