@@ -31,6 +31,7 @@ import {
   IconButton,
   Pagination,
   Paper,
+  Skeleton,
   styled,
   Tab,
   Table,
@@ -447,7 +448,7 @@ function IntermediatePage({ onContinue }) {
         setError(true);
       }
       setLoading(false);
-    }, 10000);
+    }, 15000);
 
     // Clear error if results are found in 3 seconds
     if (cleanedQueryResult?.results && cleanedQueryResult.results.length > 0) {
@@ -659,357 +660,362 @@ function IntermediatePage({ onContinue }) {
       </Grid>
     </Grid>
     {/* Result and KG Viewer */}
-    <Grid container spacing={4} height={"100%"} sx={{ alignItems: "stretch", marginBottom: '20px' }}>
-      {!loading && error && (
-        <Grid item xs={12} height={"100%"}>
-          <Box
-            sx={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              textAlign: 'center',
-              backgroundColor: '#FFF3F3',
-              padding: '20px',
-              borderRadius: '8px',
-              border: '1px solid #FFB6B6',
-              zIndex: 1000
-            }}
-          >
-            <Typography sx={{ fontFamily: 'Open Sans', color: '#D32F2F', marginBottom: 2 }}>
-              No data found. Please refresh the page and try again.
-            </Typography>
-            <Button
-              variant="contained"
-              onClick={() => window.location.href = '/'}
+    {loading ?
+      <Box sx={{ marginTop: '32px', marginBottom: '30px', display: 'flex', justifyContent: 'center', flexDirection: 'row', alignItems: 'center' }}>
+        <Skeleton variant="rectangular" sx={{ width: "50%", height: '700px', marginRight: '15px', borderRadius: '20px', }} />
+        <Skeleton variant="rectangular" sx={{ width: "50%", height: '700px', marginLeft: '15px', borderRadius: '20px', }} />
+      </Box> :
+      <Grid container spacing={4} height={"100%"} sx={{ alignItems: "stretch", marginBottom: '20px' }}>
+        {!loading && error && (
+          <Grid item xs={12} height={"100%"}>
+            <Box
               sx={{
-                backgroundColor: '#D32F2F',
-                '&:hover': {
-                  backgroundColor: '#B71C1C'
-                }
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                textAlign: 'center',
+                backgroundColor: '#FFF3F3',
+                padding: '20px',
+                borderRadius: '8px',
+                border: '1px solid #FFB6B6',
+                zIndex: 1000
               }}
             >
-              Refresh Page
-            </Button>
-          </Box>
-        </Grid>
-      )}
+              <Typography sx={{ fontFamily: 'Open Sans', color: '#D32F2F', marginBottom: 2 }}>
+                No data found. Please refresh the page and try again.
+              </Typography>
+              <Button
+                variant="contained"
+                onClick={() => window.location.href = '/'}
+                sx={{
+                  backgroundColor: '#D32F2F',
+                  '&:hover': {
+                    backgroundColor: '#B71C1C'
+                  }
+                }}
+              >
+                Refresh Page
+              </Button>
+            </Box>
+          </Grid>
+        )}
 
-      {/* left side */}
-      <Grid item xs={6} display="flex">
-        <Box sx={{
-          width: "100%",
-          display: 'flex',
-          flexDirection: 'column',
-          paddingTop: '30px',
-          flex: 1,
-        }}>
-
-          {/* search result */}
-
+        {/* left side */}
+        <Grid item xs={6} display="flex">
           <Box sx={{
-            backgroundColor: '#F9FAFB',
-            border: 1,
-            borderColor: '#EEEEEE',
-            borderRadius: '20px',
+            width: "100%",
+            display: 'flex',
+            flexDirection: 'column',
+            paddingTop: '30px',
             flex: 1,
           }}>
-            <Typography sx={{
-              fontFamily: 'Open Sans',
-              fontWeight: 800,
-              fontSize: 22,
-              paddingLeft: '30px', paddingTop: '30px'
+
+            {/* search result */}
+
+            <Box sx={{
+              backgroundColor: '#F9FAFB',
+              border: 1,
+              borderColor: '#EEEEEE',
+              borderRadius: '20px',
+              flex: 1,
             }}>
-              Result<TooltipComponent title="Result" />
-            </Typography>
-            <div className="styled-paper" style={{ padding: '10px 32px' }}>
-              <div className="answer-content">
-                <Typography sx={{ mb: 2, fontSize: 16, fontFamily: 'Open Sans', fontWeight: "400" }}>
-                  Found <span style={{ color: "#3A838B", fontWeight: "700" }}>four</span> categories of Quantitative Trait Loci (QTL) data, derived from pancreatic and islet tissue samples.
-                </Typography>
+              <Typography sx={{
+                fontFamily: 'Open Sans',
+                fontWeight: 800,
+                fontSize: 22,
+                paddingLeft: '30px', paddingTop: '30px'
+              }}>
+                Result<TooltipComponent title="Result" />
+              </Typography>
+              <div className="styled-paper" style={{ padding: '10px 32px' }}>
+                <div className="answer-content">
+                  <Typography sx={{ mb: 2, fontSize: 16, fontFamily: 'Open Sans', fontWeight: "400" }}>
+                    Found <span style={{ color: "#3A838B", fontWeight: "700" }}>four</span> categories of Quantitative Trait Loci (QTL) data, derived from pancreatic and islet tissue samples.
+                  </Typography>
 
-                <Alert
-                  variant="outlined"
-                  severity="info"
-                  icon={<NotificationsNoneIcon fontSize="small" />}
-                  sx={{
-                    backgroundColor: "white",
-                    border: "1px solid",
-                    borderColor: "#23A6F0",
-                    color: "#23A6F0",
-                    alignItems: "center",
-                    marginBottom: "10px",
-                    padding: "6px 12px",
-                    display: notification ? 'flex' : 'none',
-                    fontSize: '15px',
-                    fontFamily: 'Open Sans',
-                    borderRadius: '8px',
-                  }}
-                  action={
-                    <IconButton size="small" color="inherit" onClick={() => setNotification(false)}>
-                      <CloseIcon fontSize="small" />
-                    </IconButton>
-                  }
-                >
-                  Select an SNP entry below and click "View" to see detailed relationship data
-                </Alert>
-
-                {/* Tabs */}
-                {tabsEnabled && <Tabs
-                  value={selectedTab}
-                  onChange={handleTabChange}
-                  variant="scrollable"
-                  scrollButtons={false}
-
-                  sx={{
-                    '& .MuiButtonBase-root': {
-                      padding: '10px'
-                    },
-                    '& .MuiTab-root': {
-                      textTransform: 'none',
-                      fontSize: '16px',
-                      whiteSpace: 'normal',
-                      margin: '0px',
-                      '& .MuiTab-wrapper': {
-                        flexDirection: 'row',
-                        justifyContent: 'flex-start',
-                        alignItems: 'flex-start'
-                      }
-                    },
-                    '& .MuiTabs-flexContainer': {
-                      gap: '0px',
-                      justifyContent: 'space-between'
-                    },
-                    '& .MuiTabs-indicator': {
-                      backgroundColor: '#3A838B',
+                  <Alert
+                    variant="outlined"
+                    severity="info"
+                    icon={<NotificationsNoneIcon fontSize="small" />}
+                    sx={{
+                      backgroundColor: "white",
+                      border: "1px solid",
+                      borderColor: "#23A6F0",
+                      color: "#23A6F0",
+                      alignItems: "center",
+                      marginBottom: "10px",
+                      padding: "6px 12px",
+                      display: notification ? 'flex' : 'none',
+                      fontSize: '15px',
+                      fontFamily: 'Open Sans',
+                      borderRadius: '8px',
+                    }}
+                    action={
+                      <IconButton size="small" color="inherit" onClick={() => setNotification(false)}>
+                        <CloseIcon fontSize="small" />
+                      </IconButton>
                     }
-                  }}
-                >
-                  {queryData.map((option) => (
-                    <Tab
-                      sx={{
-                        backgroundColor: 'none'
-                      }}
-                      key={option.label}
-                      label={
-                        <Typography
-                          component="span"
-                          sx={{
-                            textAlign: 'left',
-                            fontFamily: 'Open Sans',
-                            fontSize: '16px',
-                            color: selectedTab === option.label ? '#3A838B' : 'black',
-                            fontWeight: selectedTab === option.label ? '800' : '500',
-                          }}
-                        >
-                          {option.label} ({option.result.length})
-                        </Typography>
-                      }
-                      value={option.label}
-                    />
-                  ))}
-                </Tabs>}
-
-                {/* table */}
-                <TableContainer component={Paper} sx={{
-                  border: '1px solid #727272',
-                  boxShadow: '0px 0px 0px 0px rgba(0,0,0,0.2)',
-                  height: '100%',
-                  maxHeight: '600px',
-                  borderRadius: '8px',
-                }}>
-                  <Table
-                    size={getFilteredResults().length > 0 ? "small" : "medium"}
-                    stickyHeader={true}
-                    sx={{ minWidth: '600px' }}
                   >
-                    <TableHead>
-                      <TableRow>
-                        {
-                          tableColumns?.map((column, index) => (
-                            <TableCell sx={{
-                              fontWeight: 'bold',
-                              padding: index === 0 ? '16px' : '16px 4px',
-                              width: 'fit-content',
-                              verticalAlign: 'middle',
-                              textAlign: 'center',
-                            }} key={column.key}>{column.label === "num" ? "#" : column.label}
-                              <Tooltip
-                                slotProps={{
-                                  tooltip: {
-                                    sx: {
-                                      backgroundColor: '#219197'
-                                    }
-                                  }
-                                }}
-                                title={<Typography sx={{ fontFamily: 'Open Sans', fontSize: '14px' }}>
-                                  {toolTipsData?.intermediate_page_table?.[column.label] || ""}
-                                </Typography>
-                                }>
-                                <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
-                              </Tooltip>
-                            </TableCell>
-                          ))
+                    Select an SNP entry below and click "View" to see detailed relationship data
+                  </Alert>
+
+                  {/* Tabs */}
+                  {tabsEnabled && <Tabs
+                    value={selectedTab}
+                    onChange={handleTabChange}
+                    variant="scrollable"
+                    scrollButtons={false}
+
+                    sx={{
+                      '& .MuiButtonBase-root': {
+                        padding: '10px'
+                      },
+                      '& .MuiTab-root': {
+                        textTransform: 'none',
+                        fontSize: '16px',
+                        whiteSpace: 'normal',
+                        margin: '0px',
+                        '& .MuiTab-wrapper': {
+                          flexDirection: 'row',
+                          justifyContent: 'flex-start',
+                          alignItems: 'flex-start'
                         }
-                        <TableCell sx={{
-                          fontWeight: 'bold',
-                          padding: '16px 8px',
-                          alignItems: 'center',
-                          width: 'fit-content',
-                          verticalAlign: 'middle',
-                          textAlign: 'center',
-                        }}>
-                          Action
-                          <Tooltip
-                            slotProps={{
-                              tooltip: {
-                                sx: {
-                                  backgroundColor: '#219197'
-                                }
-                              }
+                      },
+                      '& .MuiTabs-flexContainer': {
+                        gap: '0px',
+                        justifyContent: 'space-between'
+                      },
+                      '& .MuiTabs-indicator': {
+                        backgroundColor: '#3A838B',
+                      }
+                    }}
+                  >
+                    {queryData.map((option) => (
+                      <Tab
+                        sx={{
+                          backgroundColor: 'none'
+                        }}
+                        key={option.label}
+                        label={
+                          <Typography
+                            component="span"
+                            sx={{
+                              textAlign: 'left',
+                              fontFamily: 'Open Sans',
+                              fontSize: '16px',
+                              color: selectedTab === option.label ? '#3A838B' : 'black',
+                              fontWeight: selectedTab === option.label ? '800' : '500',
                             }}
-                            title={<Typography sx={{ fontFamily: 'Open Sans', fontSize: '14px' }}>
-                              {toolTipsData?.intermediate_page_table?.["Action"] || "TBD"}
-                            </Typography>
-                            }>
-                            <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
-                          </Tooltip>
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {getFilteredResults()
-                        .concat(Array(5).fill({}))
-                        .slice((currPage - 1) * 5, currPage * 5)
-                        ?.map((item, index) => (
-                          Object.keys(item).length === 0 ? (
-                            <TableRow key={`empty-row-${index}`} sx={{
-                              '& .MuiTableCell-root': {
-                                padding: '21.75px'
-                              }
-                            }}>
-                              <TableCell colSpan={6} sx={{ textAlign: 'center', padding: '16px' }}>
-                                <Typography sx={{ fontFamily: 'Open Sans', fontSize: '19px', color: '#B0B0B0' }}>
-                                  &nbsp;
-                                </Typography>
+                          >
+                            {option.label} ({option.result.length})
+                          </Typography>
+                        }
+                        value={option.label}
+                      />
+                    ))}
+                  </Tabs>}
+
+                  {/* table */}
+                  <TableContainer component={Paper} sx={{
+                    border: '1px solid #727272',
+                    boxShadow: '0px 0px 0px 0px rgba(0,0,0,0.2)',
+                    height: '100%',
+                    maxHeight: '600px',
+                    borderRadius: '8px',
+                  }}>
+                    <Table
+                      size={getFilteredResults().length > 0 ? "small" : "medium"}
+                      stickyHeader={true}
+                      sx={{ minWidth: '600px' }}
+                    >
+                      <TableHead>
+                        <TableRow>
+                          {
+                            tableColumns?.map((column, index) => (
+                              <TableCell sx={{
+                                fontWeight: 'bold',
+                                padding: index === 0 ? '16px' : '16px 4px',
+                                width: 'fit-content',
+                                verticalAlign: 'middle',
+                                textAlign: 'center',
+                              }} key={column.key}>{column.label === "num" ? "#" : column.label}
+                                <Tooltip
+                                  slotProps={{
+                                    tooltip: {
+                                      sx: {
+                                        backgroundColor: '#219197'
+                                      }
+                                    }
+                                  }}
+                                  title={<Typography sx={{ fontFamily: 'Open Sans', fontSize: '14px' }}>
+                                    {toolTipsData?.intermediate_page_table?.[column.label] || ""}
+                                  </Typography>
+                                  }>
+                                  <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
+                                </Tooltip>
                               </TableCell>
-                            </TableRow>
-                          ) : (
-                            <TableRow
-                              key={`credible-set-${index}`}
-                              sx={{
-                                '& .MuiTableCell-root': {
-                                  padding: '16px'
-                                },
-                                ":hover": {
-                                  backgroundColor: "#E4F0F1",
+                            ))
+                          }
+                          <TableCell sx={{
+                            fontWeight: 'bold',
+                            padding: '16px 8px',
+                            alignItems: 'center',
+                            width: 'fit-content',
+                            verticalAlign: 'middle',
+                            textAlign: 'center',
+                          }}>
+                            Action
+                            <Tooltip
+                              slotProps={{
+                                tooltip: {
+                                  sx: {
+                                    backgroundColor: '#219197'
+                                  }
                                 }
                               }}
-                            >
-                              {tableColumns?.map((column, index) => (
-                                <TableCell sx={{ verticalAlign: 'middle', textAlign: 'center' }} key={column.key}>
-                                  {index === 0
-                                    ? (<Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                                      {item[column.key]}
-                                      <IconButton
-                                        aria-label="download"
-                                        sx={{ color: '#3A838B', padding: '2px' }}
-                                        onClick={() => handleDownload(selectedTab, item.credible_set_id)}
-                                      >
-                                        <DownloadIcon />
-                                      </IconButton>
-                                    </Box>)
-                                    : tableValue(item, column, column)
+                              title={<Typography sx={{ fontFamily: 'Open Sans', fontSize: '14px' }}>
+                                {toolTipsData?.intermediate_page_table?.["Action"] || "TBD"}
+                              </Typography>
+                              }>
+                              <InfoIcon sx={{ height: '16px', verticalAlign: 'middle' }} />
+                            </Tooltip>
+                          </TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {getFilteredResults()
+                          .concat(Array(5).fill({}))
+                          .slice((currPage - 1) * 5, currPage * 5)
+                          ?.map((item, index) => (
+                            Object.keys(item).length === 0 ? (
+                              <TableRow key={`empty-row-${index}`} sx={{
+                                '& .MuiTableCell-root': {
+                                  padding: '21.75px'
+                                }
+                              }}>
+                                <TableCell colSpan={6} sx={{ textAlign: 'center', padding: '16px' }}>
+                                  <Typography sx={{ fontFamily: 'Open Sans', fontSize: '19px', color: '#B0B0B0' }}>
+                                    &nbsp;
+                                  </Typography>
+                                </TableCell>
+                              </TableRow>
+                            ) : (
+                              <TableRow
+                                key={`credible-set-${index}`}
+                                sx={{
+                                  '& .MuiTableCell-root': {
+                                    padding: '16px'
+                                  },
+                                  ":hover": {
+                                    backgroundColor: "#E4F0F1",
                                   }
-                                </TableCell>))
-                              }
-                              <TableCell sx={{ verticalAlign: 'middle' }}>
-                                <Typography sx={{
-                                  cursor: 'pointer',
-                                  fontFamily: 'Open Sans',
-                                  fontSize: '16px', paddingY: '8px', paddingX: '12px', backgroundColor: '#219197',
-                                  textAlign: 'center', borderRadius: '8px', color: 'white',
-                                  fontWeight: 700,
-                                }} onClick={() => handleSNPClick(item)}>View</Typography>
-                              </TableCell>
-                            </TableRow>
-                          )
-                        ))}
-                    </TableBody>
-                    <TableFooter>
-                      <TableRow>
-                        <TableCell colSpan={6} align="center" sx={{ padding: '6px 16px' }}>
-                          <Pagination
-                            count={Math.ceil(getFilteredResults().length / 5)}
-                            page={currPage}
-                            onChange={handlePageChange}
-                            sx={{
-                              display: 'flex',
-                              justifyContent: 'center',
-                            }}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    </TableFooter>
-                  </Table>
-                </TableContainer>
+                                }}
+                              >
+                                {tableColumns?.map((column, index) => (
+                                  <TableCell sx={{ verticalAlign: 'middle', textAlign: 'center' }} key={column.key}>
+                                    {index === 0
+                                      ? (<Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                        {item[column.key]}
+                                        <IconButton
+                                          aria-label="download"
+                                          sx={{ color: '#3A838B', padding: '2px' }}
+                                          onClick={() => handleDownload(selectedTab, item.credible_set_id)}
+                                        >
+                                          <DownloadIcon />
+                                        </IconButton>
+                                      </Box>)
+                                      : tableValue(item, column, column)
+                                    }
+                                  </TableCell>))
+                                }
+                                <TableCell sx={{ verticalAlign: 'middle' }}>
+                                  <Typography sx={{
+                                    cursor: 'pointer',
+                                    fontFamily: 'Open Sans',
+                                    fontSize: '16px', paddingY: '8px', paddingX: '12px', backgroundColor: '#219197',
+                                    textAlign: 'center', borderRadius: '8px', color: 'white',
+                                    fontWeight: 700,
+                                  }} onClick={() => handleSNPClick(item)}>View</Typography>
+                                </TableCell>
+                              </TableRow>
+                            )
+                          ))}
+                      </TableBody>
+                      <TableFooter>
+                        <TableRow>
+                          <TableCell colSpan={6} align="center" sx={{ padding: '6px 16px' }}>
+                            <Pagination
+                              count={Math.ceil(getFilteredResults().length / 5)}
+                              page={currPage}
+                              onChange={handlePageChange}
+                              sx={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                              }}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      </TableFooter>
+                    </Table>
+                  </TableContainer>
+                </div>
+                <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                  <Typography sx={{
+                    fontFamily: 'Open Sans',
+                    fontWeight: 600,
+                    fontSize: 16,
+                  }}>
+                    Total records: {getFilteredResults().length}
+                  </Typography>
+                </Box>
               </div>
-              <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                <Typography sx={{
-                  fontFamily: 'Open Sans',
-                  fontWeight: 600,
-                  fontSize: 16,
-                }}>
-                  Total records: {getFilteredResults().length}
-                </Typography>
-              </Box>
-            </div>
+            </Box>
           </Box>
-        </Box>
-      </Grid>
+        </Grid>
 
-      {/* right intermediate KG */}
-      <Grid item xs={6} display="flex">
-        <Box sx={{
-          width: "100%",
-          display: 'flex',
-          flexDirection: 'column',
-          paddingTop: '30px',
-          flex: 1,
-        }}>
-
-          {/* KG Viewer */}
+        {/* right intermediate KG */}
+        <Grid item xs={6} display="flex">
           <Box sx={{
-            position: 'relative',
-            minHeight: '472px',
-            height: '100%',
-            overflow: 'visible',
-            backgroundColor: '#F9FAFB',
-            border: 1,
-            borderColor: '#EEEEEE',
-            borderRadius: '20px'
+            width: "100%",
+            display: 'flex',
+            flexDirection: 'column',
+            paddingTop: '30px',
+            flex: 1,
           }}>
-            <Typography sx={{
-              fontFamily: 'Open Sans',
-              fontWeight: 800,
-              fontSize: 22,
-              marginBottom: '16px', paddingLeft: '30px', paddingTop: '30px',
+
+            {/* KG Viewer */}
+            <Box sx={{
+              position: 'relative',
+              minHeight: '472px',
+              height: '100%',
+              overflow: 'visible',
+              backgroundColor: '#F9FAFB',
+              border: 1,
+              borderColor: '#EEEEEE',
+              borderRadius: '20px'
             }}>
-              Graph Viewer<TooltipComponent title="Graph Viewer" />
-            </Typography>
-            <IntermediateKG data={{
-              credible_sets: getFilteredResults().slice((currPage - 1) * 5, currPage * 5),
-              type: searchState.sourceTerm.includes("snp@") ? "qtl" : "qtl_lead",
-              intersectPositions: [
-                searchState.sourceTerm.includes("@") ? ["right"] : [],
-                searchState.targetTerm.includes("@") ? ["left"] : []
-              ].flat(),
-            }} />
+              <Typography sx={{
+                fontFamily: 'Open Sans',
+                fontWeight: 800,
+                fontSize: 22,
+                marginBottom: '16px', paddingLeft: '30px', paddingTop: '30px',
+              }}>
+                Graph Viewer<TooltipComponent title="Graph Viewer" />
+              </Typography>
+              <IntermediateKG data={{
+                credible_sets: getFilteredResults().slice((currPage - 1) * 5, currPage * 5),
+                type: searchState.sourceTerm.includes("snp@") ? "qtl" : "qtl_lead",
+                intersectPositions: [
+                  searchState.sourceTerm.includes("@") ? ["right"] : [],
+                  searchState.targetTerm.includes("@") ? ["left"] : []
+                ].flat(),
+              }} />
+            </Box>
+            {/* Legend TBD */}
           </Box>
-          {/* Legend TBD */}
-        </Box>
-      </Grid>
-    </Grid>
+        </Grid>
+      </Grid>}
   </Container >
   );
 }
