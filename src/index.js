@@ -55,7 +55,6 @@ root.render(
           <Route path="/docs/*" element={<DocPage />} />
           <Route path="/match" element={<MatchPage />} />
           <Route path="/review/*" element={<ReviewPage />} />
-          <Route path="/agent-landing" element={<AgentLandingPage />} />
           <Route path="/" element={<LandingPage />} />
           <Route path="/debug" element={<DebugPage />} />
           <Route path="*" element={<LandingPage />} />
