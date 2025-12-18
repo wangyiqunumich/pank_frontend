@@ -30,7 +30,7 @@ import Tutorial from './pages/Tutorial';
 import UsecasesPage from './pages/UsecasePage';
 import { store } from './redux/store';
 import ResultPage from './SearchResult';
-import ResultPage2 from './SearchResult/errorsearchpage';
+import ResultPage2 from './SearchResult/resultpage';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -50,7 +50,7 @@ root.render(
           <Route path="/api" element={<ApiPage />} />
           <Route path="/tutorial" element={<Tutorial />} />
           <Route path="/result" element={<ResultPage />} />
-          <Route path="/errorsearchpage" element={<ResultPage2 />} />
+          <Route path="/resultpage" element={<ResultPage2 />} />
           <Route path="/usecases" element={<UsecasesPage />} />
           <Route path="/docs/*" element={<DocPage />} />
           <Route path="/match" element={<MatchPage />} />
