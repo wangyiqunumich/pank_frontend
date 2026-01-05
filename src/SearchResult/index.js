@@ -672,10 +672,10 @@ function SearchResult() {
         });
     };
 
-    useEffect(() => {
-        console.log('hoverId in SearchResult:', hoverId);
-        console.log('hoverState in SearchResult:', hoverState);
-    }, [hoverId, hoverState]);
+    // useEffect(() => {
+    //     console.log('hoverId in SearchResult:', hoverId);
+    //     console.log('hoverState in SearchResult:', hoverState);
+    // }, [hoverId, hoverState]);
 
     useEffect(() => {
         const answer2 = aiAnswer;
