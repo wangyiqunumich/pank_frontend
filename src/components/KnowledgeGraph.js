@@ -13,6 +13,9 @@ import JSON5 from 'json5';
 import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 
+import { useDispatch } from "react-redux";
+import { setHoverId, setHoverState } from '../redux/hoverSlice.js';
+
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
@@ -711,6 +714,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
   const [hoverExpand, setHoverExpand] = useState(false);
   // hover id ref
   const hoveredIdRef = useRef(hoveredId);
+  const dispatch = useDispatch();
   useEffect(() => {
     hoveredIdRef.current = hoveredId;
   }, [hoveredId]);
@@ -783,7 +787,12 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
     const y = modelY * cyRef.current.zoom() + cyRef.current.pan().y;
 
     const infocard = document.getElementById("infocard");
-    if (!infocard) return;
+    if (!infocard)
+    {
+      console.log(x);
+      console.log(y);
+      return;
+    }
     infocard.style.display = "block";
     // infocard.style.opacity = "1";
     const { width: infocardWidth, height: infocardHeight } = infocard.getBoundingClientRect();
@@ -979,18 +988,23 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
       document.body.style.cursor = "pointer";
       setNodeHovered(true);
       setHoveredId(evt.target.id());
+      dispatch(setHoverState(true));
+      dispatch(setHoverId(evt.target.id()));
+      // console.log("Hovered ID set to:", evt.target.id());
     };
 
     const handleOut = (evt) => {
       // Only proceed with hiding if we're leaving the active node
       if (evt.target.id() === hoveredIdRef.current) {
         document.body.style.cursor = "default";
+        dispatch(setHoverState(false));
         setNodeHovered(false);
       }
     };
 
     const handleLeave = (_) => {
       document.body.style.cursor = "default";
+      dispatch(setHoverState(false));
       setNodeHovered(false);
     };
 

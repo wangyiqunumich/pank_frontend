@@ -178,6 +178,7 @@ function SearchResult() {
     const { aiAnswer } = useSelector((state) => state.aiAnswer);
     const { viewSchema } = useSelector((state) => state.viewSchema);
     const { typeToImage } = useSelector((state) => state.typeToImage);
+    const { hoverId, hoverState } = useSelector((state) => state.hover);
     const [variables, setVariables] = useState({});
     const [referenceData, setReferenceData] = useState({});
     const [articlesData, setArticlesData] = useState([]);
@@ -533,7 +534,7 @@ function SearchResult() {
 
             if (match) {
                 const gene = match[1];
-                console.log(gene);
+                // console.log(gene);
                 const word = removeConsecutiveAsterisks(gene).split(" ");
                 const id = word[1].replace('(', '').replace(')', '');
                 const link = getLink(id);
@@ -549,7 +550,6 @@ function SearchResult() {
         }
         return output;
     }
-
 
     const ProcessLinks2 = ({ text }) => {
         const result = ProcessGeneWithId(text);
@@ -569,6 +569,27 @@ function SearchResult() {
         // console.log('ProcessLinks2 result:', result);
         return output;
     };
+
+    // highlight the hover term in text
+    function highlightText(text, term, keyPrefix = "hl") {
+        if (!text || !term) return text;
+
+        const regex = new RegExp(`(${term})`, "gi");
+        const segs = String(text).split(regex);
+        if (segs.length === 1) return text;
+
+        return segs.map((seg, idx) => {
+            const key = `${keyPrefix}-${idx}`;
+            if (idx % 2 === 1) {
+            return (
+                <mark key={key} className="hl">
+                {seg}
+                </mark>
+            );
+            }
+            return <React.Fragment key={key}>{seg}</React.Fragment>;
+        });
+    }
 
     // process links in the AI answer text
     const ProcessLinks = ({ text }) => (
@@ -604,12 +625,75 @@ function SearchResult() {
             ) : (<span key={index}>{part.text}</span>)
         ));
 
+    // highlist the hover term in graph viewer
+    const ProcessLinksHighlighted = ({ text, term }) => {
+        const parts = ProcessLinks2({ text });
+
+        return parts.map((part, index) => {
+            const children = highlightText(part.text, term, `p-${index}`);
+
+            if (part.type === "pubmedid") {
+            return (
+                <Link
+                key={index}
+                href={`#reference-item-${part.text}`}
+                sx={{
+                    color: "#1976d2",
+                    fontWeight: 400,
+                    textDecoration: "none",
+                    "&:hover": { textDecoration: "underline" },
+                }}
+                onClick={(e) => {
+                    e.preventDefault();
+                    setCurrTab("references");
+                    setActiveReference(part.text);
+                }}
+                >
+                {children}
+                </Link>
+            );
+            }
+
+            if (part.type === "link") {
+            return (
+                <a
+                key={index}
+                href={part.url}
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: "#0069c2", textDecoration: "none" }}
+                >
+                {children}
+                </a>
+            );
+            }
+
+            return <span key={index}>{children}</span>;
+        });
+    };
+
     useEffect(() => {
-        setRenderedAiAnswer(aiAnswer?.answers?.map(answer =>
-            // <ProcessLinks text={removeConsecutiveAsterisks(answer)} />
-            <ProcessLinks text={answer} />
-        ) || null);
-    }, [aiAnswer]);
+        console.log('hoverId in SearchResult:', hoverId);
+        console.log('hoverState in SearchResult:', hoverState);
+    }, [hoverId, hoverState]);
+
+    useEffect(() => {
+        const answer2 = aiAnswer;
+        const geneId = hoverId;
+        if (hoverState)
+        {
+            // console.log(hoverId)
+            setRenderedAiAnswer(answer2?.answers?.map(answer =>
+                <ProcessLinksHighlighted text={answer} term={geneId} />
+            ) || null);
+        }
+        else
+        {
+            setRenderedAiAnswer(answer2?.answers?.map(answer =>
+                <ProcessLinks text={answer} />
+            ) || null);
+        }
+    }, [aiAnswer, hoverState]);
 
     if (error) return <ErrorComponent errorTitle={viewSchema?.result_error_title} errorMessage={viewSchema?.result_error_message} />;
 
