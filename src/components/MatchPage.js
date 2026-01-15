@@ -27,7 +27,7 @@ import {
 import Popper from '@mui/material/Popper';
 
 import landingPageLogo from '../image/landing image cropped.png';
-import { queryVocab } from '../redux/inputToVocabSlice'; // Import the action
+// import { queryVocab } from '../redux/inputToVocabSlice'; // Import the action
 import { queryQueryResult } from '../redux/queryResultSlice';
 import landingPageSchema from '../schema/landing_page_schema.json';
 import { nodeAutoWidth } from './style.js';
@@ -245,13 +245,20 @@ function InputComponent({ type, setValue, setInputStatus, GWAS = false, defaultL
     })).unwrap()
       .then((response) => {
         if (response && newInputValue === inputValueRef.current) {
-          const parsedResponse = response.results[0].credible_sets.map((item, index) => {
+          const results = response.results[0].credible_sets;
+          const parsedResponse = results.map((item, index) => {
             return `${item.name}(${item.id})`;
           });
           if (parsedResponse.length === 0) {
             setSelfOptions([{ label: `${type} not found`, disabled: true, notFound: true }]);
           } else {
             setSelfOptions(parsedResponse);
+          }
+          // check exact match
+          const exactMatch = results.find(result => (result.name.toLowerCase() === newInputValue.toLowerCase()) || (result.id.toLowerCase() === newInputValue.toLowerCase()));
+          if (exactMatch) {
+            setInputStatus('valid');
+            setValidatedValue(`${exactMatch.name}(${exactMatch.id})`);
           }
         }
       }).finally(() => {
@@ -262,59 +269,58 @@ function InputComponent({ type, setValue, setInputStatus, GWAS = false, defaultL
   }
 
   function updateValidation(newInputValue, type) { // validate the input value with vocab
-    if (newInputValue.length <= 1 || restricted) {
+    if (newInputValue.length <= 1 || restricted || type === 'gene') {
       setValidatedValue('');
       setValIsLoading(false);
       return;
     }
     const termName = newInputValue.split('(')[0].trim();
-    const typeMap = {
-      gene: 'gene',
-      cell: 'cell_type',
-      snp: 'sequence_variant'
-    };
-    Promise.all(
-      //TODO: optimize code structure
-      [(type !== 'snp' ? dispatch(queryVocab({ input: termName })).unwrap() : Promise.resolve(null)),
-      ...(type === 'snp' ? [dispatch(queryQueryResult({
-        isNeptune: false,
-        rawResponse: true,
-        query: `SELECT snp FROM ${GWAS ? "GWAS_DATA" : "QTL_DATA"} WHERE snp = '${termName}' LIMIT 1;`
-      })).unwrap()] : [])
-      ]
-    ).then(([response, response2]) => {
-      if (newInputValue !== inputValueRef.current) return; // discard outdated response
-      if (validatedValue === newInputValue) {
-        setValidatedValue(newInputValue);
-        setInputStatus('valid');
-        return;
-      } // skip repeated response
-      const responseList = (response?.result || '').split('@') || [''];
-      const id1 = typeMap[type] === responseList[0] ?
-        (type === 'gene' ? `${termName}(${responseList[1]})` : responseList[1]) :
-        '';
-      const id2 = response2?.results?.[0]?.[type];
-      const id = id1 || id2 || '';
-      if (id) {
-        if (type === 'gene') {
+    // const typeMap = {
+    //   gene: 'gene',
+    //   cell: 'cell_type',
+    //   snp: 'sequence_variant'
+    // };
+    // type === snp
+    dispatch(queryQueryResult({
+      isNeptune: false,
+      rawResponse: true,
+      query: `SELECT snp FROM ${GWAS ? "GWAS_DATA" : "QTL_DATA"} WHERE snp = '${termName}' LIMIT 1;`
+    })).unwrap()
+      .then((response2) => {
+        if (newInputValue !== inputValueRef.current) return; // discard outdated response
+        if (validatedValue === newInputValue) {
+          setValidatedValue(newInputValue);
           setInputStatus('valid');
-          setValidatedValue(id.toUpperCase());
-        }
-        else if (type === 'cell' || type === 'snp') {
+          return;
+        } // skip repeated response
+        // const responseList = (response?.result || '').split('@') || [''];
+        // const id1 = typeMap[type] === responseList[0] ?
+        //   (type === 'gene' ? `${termName}(${responseList[1]})` : responseList[1]) :
+        //   '';
+        const id = response2?.results?.[0]?.[type];
+        // const id = id2 || '';
+        if (id) {
           setInputStatus('valid');
           setValidatedValue(id);
-        }
-        else {
+          // if (type === 'gene') {
+          //   setInputStatus('valid');
+          //   setValidatedValue(id.toUpperCase());
+          // }
+          // else if (type === 'cell' || type === 'snp') {
+          //   setInputStatus('valid');
+          //   setValidatedValue(id);
+          // }
+          // else {
+          //   setValidatedValue('');
+          // }
+        } else {
           setValidatedValue('');
         }
-      } else {
-        setValidatedValue('');
-      }
-    }).finally(() => {
-      if (newInputValue === inputValueRef.current) {
-        setValIsLoading(false);
-      }
-    });
+      }).finally(() => {
+        if (newInputValue === inputValueRef.current) {
+          setValIsLoading(false);
+        }
+      });
   };
 
   const ListboxComponent = React.forwardRef(function ListboxComponent(props, ref) {
