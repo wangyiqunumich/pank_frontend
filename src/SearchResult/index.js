@@ -170,6 +170,17 @@ const LoadingSkeleton = () => (
     </Container>
 )
 
+// const SearchBox = () => {
+//     const [inputValue, setInputValue] = useState("")
+//     return (
+//         <div>
+//             <input value={inputValue}
+//                 onChange={(e) => setInputValue(e.target.value)}
+//             placeholder = "Search Node or Edge..."/>
+//         </div>
+//     );
+// }
+
 function SearchResult() {
     const [currTab, setCurrTab] = useState('references');
     const dispatch = useDispatch();
@@ -874,6 +885,7 @@ function SearchResult() {
                                 position: 'relative',
                                 borderRadius: '20px'
                             }}>
+                                
                                 <Typography sx={{
                                     fontFamily: 'Open Sans',
                                     fontWeight: 800,

@@ -733,6 +733,8 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
   const [expanded, setExpanded] = useState(false);
 
   const [selectedID, setSelectedID] = useState([]);
+  // const [inputValue, setInputValue] = useState("")
+  const inputRef = useRef("");
 
   const center =
     cyRef.current
@@ -741,6 +743,47 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
         y: (cyRef.current.height() / 2),
       }
       : { x: 0, y: 0 };
+  
+  const focusElementById = (id) => {
+    const cy = cyRef.current;
+    if (!cy || !id) return;
+
+    const ele = cy.getElementById(id);
+    if (!ele || ele.empty()) {
+      console.log("No node/edge with id:", id);
+      return;
+    }
+
+    cy.elements().unselect();
+    ele.select();
+    cy.animate(
+      {
+        center: { eles: ele },
+        zoom: Math.max(cy.zoom(), 3.0),
+      },
+      {
+        duration: 400,
+      }
+    );
+  };
+
+  
+  const SearchBox = () => {
+    return (
+      <input
+        defaultValue=""
+        onInput={(e) => {
+          inputRef.current = e.target.value;
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            focusElementById(inputRef.current.trim());
+          }
+        }}
+      />
+    );
+  };
 
   const handleZoomIn = () =>
     cyRef.current && cyRef.current.zoom({ level: cyRef.current.zoom() / 1.2, renderedPosition: center });
@@ -1078,6 +1121,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
         // position whole page, on top
         : { position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "white", display: "flex", flexDirection: "column", gap: "16px", padding: "0px", ...sx, zIndex: 9999 }
     }>
+      <SearchBox />
       <div
         id="cy-container"
         style={{
