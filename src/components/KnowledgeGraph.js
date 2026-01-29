@@ -744,28 +744,34 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
       }
       : { x: 0, y: 0 };
   
-  const focusElementById = (id) => {
+  const focusElementByKey = (key) => {
     const cy = cyRef.current;
-    if (!cy || !id) return;
+    if (!cy || !key) return;
 
-    const ele = cy.getElementById(id);
+    let ele = cy.getElementById(key);
     if (!ele || ele.empty()) {
-      console.log("No node/edge with id:", id);
-      return;
+      ele = cy.elements().filter(e => e.data('label') === key);
+      if (!ele || ele.empty()) {
+        console.log("No node/edge with element:", key);
+        return;
+      }
     }
 
     cy.elements().unselect();
+    cy.elements().removeClass('highlight');
+
     ele.select();
+    ele.addClass('highlight');
+
     cy.animate(
       {
         center: { eles: ele },
         zoom: Math.max(cy.zoom(), 3.0),
       },
-      {
-        duration: 400,
-      }
+      { duration: 400 }
     );
   };
+
 
   
   const SearchBox = () => {
@@ -778,7 +784,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             e.preventDefault();
-            focusElementById(inputRef.current.trim());
+            focusElementByKey(inputRef.current.trim());
           }
         }}
       />
@@ -1017,6 +1023,16 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
         selector: "edge:selected",
         style: {
           "line-color": "#EB5325",
+        }
+      }, {
+        selector: '.highlight',
+        style: {
+          'border-width': 6,
+          'border-color': '#3B82F6',
+          'overlay-color': '#3B82F6',
+          'overlay-opacity': 0.15,
+          'overlay-padding': 10,
+          'z-index': 9999
         }
       }] : []),
       layout: { name: "preset" },
