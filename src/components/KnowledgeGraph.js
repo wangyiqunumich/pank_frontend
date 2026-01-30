@@ -1013,28 +1013,31 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
     cyRef.current = cytoscape({
       container: document.getElementById("cy-container"),
       elements: { nodes, edges },
-      style: nodeStyle.concat(selectable ? [{
-        selector: "node:selected",
-        style: {
-          "border-width": 1,
-          "border-color": "#EB5325",
-        },
-      }, {
-        selector: "edge:selected",
-        style: {
-          "line-color": "#EB5325",
+      style: nodeStyle.concat([
+        ...(selectable ? [{
+          selector: "node:selected",
+          style: {
+            "border-width": 1,
+            "border-color": "#EB5325",
+          },
+        }, {
+          selector: "edge:selected",
+          style: {
+            "line-color": "#EB5325",
+          }
+        }] : []),
+        {
+          selector: '.highlight',
+          style: {
+            'border-width': 6,
+            'border-color': '#3B82F6',
+            'overlay-color': '#3B82F6',
+            'overlay-opacity': 0.15,
+            'overlay-padding': 10,
+            'z-index': 9999
+          }
         }
-      }, {
-        selector: '.highlight',
-        style: {
-          'border-width': 6,
-          'border-color': '#3B82F6',
-          'overlay-color': '#3B82F6',
-          'overlay-opacity': 0.15,
-          'overlay-padding': 10,
-          'z-index': 9999
-        }
-      }] : []),
+      ]),
       layout: { name: "preset" },
       zoom: 1.5,
       minZoom: 0.6,
