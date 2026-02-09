@@ -20,7 +20,6 @@ import LandingPage from './components/LandingPage';
 import MatchPage from './components/MatchPage';
 import PkbFooter from './Footer/footer';
 import NavBar from './NavBar';
-import AgentResult from './pages/AgentResult';
 import ApiPage from './pages/ApiPage';
 import DocPage from './pages/DocPage';
 import Ontology from './pages/Ontology';
@@ -32,7 +31,10 @@ import Tutorial from './pages/Tutorial';
 import UsecasesPage from './pages/UsecasePage';
 import { store } from './redux/store';
 import ResultPage from './SearchResult';
+import { AgentResultLayout } from './SearchResult/AgentResult';
+import ResultPageNew from './SearchResult/index_new';
 import ResultPage2 from './SearchResult/resultpage';
+import ResultPageNew2 from './SearchResult/resultpage_new';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -54,16 +56,25 @@ root.render(
               <Route path="/api" element={<ApiPage />} />
               <Route path="/tutorial" element={<Tutorial />} />
               <Route path="/result" element={<ResultPage />} />
+              <Route
+                path="/result-new"
+                element={<AgentResultLayout ResultView={ResultPageNew} allowMulti={false} allowSearch={false} />}
+              />
               <Route path="/resultpage" element={<ResultPage2 />} />
+              <Route
+                path="/result-new2"
+                element={<AgentResultLayout ResultView={ResultPageNew2} allowMulti={false} allowSearch={false} />}
+              />
               <Route path="/usecases" element={<UsecasesPage />} />
               <Route path="/docs/*" element={<DocPage />} />
               <Route path="/match" element={<MatchPage />} />
               <Route path="/review/*" element={<ReviewPage />} />
               <Route path="/agent-landing" element={<AgentLandingPage />} />
+              <Route path="/result2" element={<ResultPage2 />} />
               <Route path="/" element={<LandingPage />} />
               <Route path="/debug" element={<DebugPage />} />
               <Route path="/igv" element={<IgvPage />} />
-              <Route path="/agent-result" element={<AgentResult />} />
+              <Route path="/agent-result" element={<AgentResultLayout ResultView={ResultPageNew2} allowMulti={false} allowSearch={false} />} />
               <Route path="*" element={<LandingPage />} />
             </Routes>
           </div>

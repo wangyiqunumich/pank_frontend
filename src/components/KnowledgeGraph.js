@@ -10,11 +10,11 @@ import React, {
 
 import cytoscape from 'cytoscape';
 import JSON5 from 'json5';
-import { useSelector } from 'react-redux';
+import {
+  useDispatch,
+  useSelector,
+} from 'react-redux';
 import { useLocation } from 'react-router-dom';
-
-import { useDispatch } from "react-redux";
-import { setHoverId, setHoverState } from '../redux/hoverSlice.js';
 
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
@@ -37,6 +37,10 @@ import fullscreenExitIcon from '../image/quit_fullscreen.svg';
 import recenterIcon from '../image/recenter.svg';
 import zoomInIcon from '../image/zoom-minus.svg';
 import zoomOutIcon from '../image/zoom-plus.svg';
+import {
+  setHoverId,
+  setHoverState,
+} from '../redux/hoverSlice.js';
 import graphInfocard from '../schema/graph_viewer_schema.json';
 import graphInfocardReview from '../schema/review_page/graph_schema.json';
 import { addWhitespace } from '../utils/textProcessing';
@@ -702,7 +706,7 @@ const InfocardMenu = ({ hoveredData, review }) => {
 }
 
 // Main KnowledgeGraph component
-export default function KnowledgeGraph({ selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, review = false }) {
+export default function KnowledgeGraph({ selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, review = false, containerHeight = "600px" }) {
   const cyRef = useRef(null);
   const infocardRef = useRef(null);
   const activeNodeRef = useRef(null);
@@ -743,7 +747,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
         y: (cyRef.current.height() / 2),
       }
       : { x: 0, y: 0 };
-  
+
   const focusElementByKey = (key) => {
     const cy = cyRef.current;
     if (!cy || !key) return;
@@ -773,7 +777,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
   };
 
 
-  
+
   const SearchBox = () => {
     return (
       <input
@@ -836,8 +840,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
     const y = modelY * cyRef.current.zoom() + cyRef.current.pan().y;
 
     const infocard = document.getElementById("infocard");
-    if (!infocard)
-    {
+    if (!infocard) {
       console.log(x);
       console.log(y);
       return;
@@ -1146,11 +1149,13 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
         style={{
           ...{
             width: "100%",
-            height: "600px",
+            height: containerHeight,
             backgroundColor: "#F9FAFB",
             border: "none",
             borderRadius: "8px",
             position: "relative",
+            flex: 1,
+            minHeight: 0,
           }, ...(expanded ? { height: "100%", borderRadius: "0px" } : {})
         }}
       >

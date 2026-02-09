@@ -1,15 +1,15 @@
 import React, {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
 } from 'react';
 
 import igv from 'https://cdn.jsdelivr.net/npm/igv@3.0.2/dist/igv.esm.min.js';
 
 import { Container } from '@mui/material';
 
-import QuestionAnswerPage from '../components/ResultComponent';
+import SearchResult from './result';
 
 // Genome Browser Component - mounts only when tab is first selected
 function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVisible = false }) {
@@ -127,84 +127,28 @@ function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVisible = 
     );
 }
 
-function App() {
-    const [visualTab, setVisualTab] = useState(0);
+export function AgentResultLayout({
+    ResultView = SearchResult,
+    getResultViewProps = () => ({}),
+    allowMulti = false,
+    allowSearch = false,
+}) {
     const [results, setResults] = useState([
         {
             id: 1,
-            data: createPageData(1),
             query: "How Does The SNP Rs2402203 Influence The Expression Of CFTR In Pancreas Tissue?",
         }
     ]);
     const [searchQuery, setSearchQuery] = useState("");
     const [activeResultIndex, setActiveResultIndex] = useState(0);
     const resultsContainerRef = useRef(null);
-
-    function createPageData(id) {
-        return {
-            questionId: `Q${id}`,
-            title: "How Does The SNP Rs2402203 Influence The Expression Of CFTR In Pancreas Tissue, As Reported By GTEx?",
-            aiOverview: {
-                sections: [
-                    {
-                        heading: "Gene Function:",
-                        body:
-                            "The gene CFTR ... (your text here)",
-                    },
-                    {
-                        heading: "QTL Link:",
-                        body:
-                            "The SNP rs2402203 ... (your text here)",
-                    },
-                    {
-                        heading: "Specific Relation To Type 1 Diabetes:",
-                        body:
-                            "The gene CFTR ... (your text here)",
-                    },
-                ],
-            },
-            visualMaterial: {
-                title: "VISUAL MATERIAL",
-                tabs: [
-                    { label: "Knowledge Graph", content: "" },
-                    { label: "Genome Browser", content: <GenomeBrowserEmbed locus="chr7:55,085,725-55,276,031" isVisible={visualTab === 1} /> },
-                    { label: "Provenance", content: "" },
-                ],
-                onTabChange: setVisualTab,
-            },
-            evidences: {
-                title: "Evidences",
-                tabs: [
-                    {
-                        label: "References",
-                        items: [
-                            { id: 1, title: "Fine-Mapping, Trans-Ancestral And Genomic Analyses Identify Causal Variants...", subtitle: "NATURE GENETICS, 2021 • PMID: 34127860" },
-                            { id: 2, title: "Fine-Mapping, Trans-Ancestral And Genomic Analyses Identify Causal Variants...", subtitle: "NATURE GENETICS, 2021 • PMID: 34127860" },
-                            { id: 3, title: "Fine-Mapping, Trans-Ancestral And Genomic Analyses Identify Causal Variants...", subtitle: "NATURE GENETICS, 2021 • PMID: 34127860" },
-                            { id: 4, title: "Fine-Mapping, Trans-Ancestral And Genomic Analyses Identify Causal Variants...", subtitle: "NATURE GENETICS, 2021 • PMID: 34127860" },
-                        ],
-                    },
-                    { label: "Provenance", items: [] },
-                    { label: "Pankbase Links", items: [] },
-                    { label: "External Links", items: [] },
-                ],
-            },
-            followUp: {
-                title: "Follow Up",
-                items: [
-                    "What are the target cells for CFTR in the pancreas?",
-                    "How Does CFTR Interact With CSK In Autoimmune Processes?",
-                    "Are There Other SNPs In The Same Locus Linked To T1D?",
-                ],
-            },
-        };
-    }
+    const canSearch = allowMulti && allowSearch;
 
     const handleSearch = () => {
+        if (!canSearch) return;
         if (searchQuery.trim()) {
             const newResult = {
                 id: results.length + 1,
-                data: createPageData(results.length + 1),
                 query: searchQuery,
             };
             setResults([...results, newResult]);
@@ -220,12 +164,14 @@ function App() {
     };
 
     const handleKeyPress = (e) => {
+        if (!canSearch) return;
         if (e.key === "Enter") {
             handleSearch();
         }
     };
 
     const scrollToResult = (index) => {
+        if (!allowMulti) return;
         setActiveResultIndex(index);
         const resultElement = resultsContainerRef.current?.children[index];
         resultElement?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -236,7 +182,7 @@ function App() {
             style={{
                 position: "relative",
                 minHeight: "100vh",
-                backgroundColor: results.length > 1 ? "#f5f5f5" : "transparent",
+                backgroundColor: allowMulti && results.length > 1 ? "#f5f5f5" : "transparent",
                 paddingBottom: 120,
             }}
         >
@@ -246,19 +192,19 @@ function App() {
                     <div
                         key={result.id}
                         style={{
-                            padding: results.length > 1 ? "28px 16px" : "0",
+                            padding: allowMulti && results.length > 1 ? "28px 16px" : "0",
                             display: "flex",
                             justifyContent: "center",
                         }}
                     >
                         <div
                             style={{
-                                backgroundColor: results.length > 1 ? "#ffffff" : "transparent",
-                                borderRadius: results.length > 1 ? 16 : 0,
-                                boxShadow: results.length > 1 ? "0 6px 18px rgba(15, 23, 42, 0.08)" : "none",
-                                padding: results.length > 1 ? "16px" : "0",
+                                backgroundColor: allowMulti && results.length > 1 ? "#ffffff" : "transparent",
+                                borderRadius: allowMulti && results.length > 1 ? 16 : 0,
+                                boxShadow: allowMulti && results.length > 1 ? "0 6px 18px rgba(15, 23, 42, 0.08)" : "none",
+                                padding: allowMulti && results.length > 1 ? "16px" : "0",
                                 width: "100%",
-                                maxWidth: results.length > 1 ? 1040 : "100%",
+                                maxWidth: allowMulti && results.length > 1 ? 1040 : "100%",
                             }}
                         >
                             <Container maxWidth={false} disableGutters sx={{
@@ -267,7 +213,7 @@ function App() {
                                 marginBottom: '24px',
                                 paddingBottom: '24px',
                             }}>
-                                <QuestionAnswerPage data={result.data} />
+                                <ResultView {...getResultViewProps(result, index)} />
                             </Container>
                         </div>
                     </div>
@@ -275,7 +221,7 @@ function App() {
             </div>
 
             {/* Quick redirect box - top left */}
-            {results.length > 1 && (
+            {allowMulti && results.length > 1 && (
                 <div
                     style={{
                         position: "fixed",
@@ -339,6 +285,7 @@ function App() {
                         onChange={(e) => setSearchQuery(e.target.value)}
                         onKeyPress={handleKeyPress}
                         placeholder="Enter your search query..."
+                        disabled={!canSearch}
                         style={{
                             flex: 1,
                             padding: "12px 16px",
@@ -348,25 +295,36 @@ function App() {
                             fontFamily: "inherit",
                             outline: "none",
                             transition: "border-color 0.2s ease",
+                            backgroundColor: canSearch ? "#fff" : "#F1F5F9",
+                            cursor: canSearch ? "text" : "not-allowed",
                         }}
-                        onFocus={(e) => e.target.style.borderColor = "#3A838B"}
-                        onBlur={(e) => e.target.style.borderColor = "#ddd"}
+                        onFocus={(e) => {
+                            if (canSearch) e.target.style.borderColor = "#3A838B";
+                        }}
+                        onBlur={(e) => {
+                            if (canSearch) e.target.style.borderColor = "#ddd";
+                        }}
                     />
                     <button
                         onClick={handleSearch}
+                        disabled={!canSearch}
                         style={{
                             padding: "12px 24px",
                             borderRadius: 8,
                             border: "none",
-                            backgroundColor: "#3A838B",
+                            backgroundColor: canSearch ? "#3A838B" : "#94A3B8",
                             color: "#fff",
                             fontWeight: 600,
-                            cursor: "pointer",
+                            cursor: canSearch ? "pointer" : "not-allowed",
                             fontSize: 14,
                             transition: "background-color 0.2s ease",
                         }}
-                        onMouseEnter={(e) => e.target.style.backgroundColor = "#2d6a70"}
-                        onMouseLeave={(e) => e.target.style.backgroundColor = "#3A838B"}
+                        onMouseEnter={(e) => {
+                            if (canSearch) e.target.style.backgroundColor = "#2d6a70";
+                        }}
+                        onMouseLeave={(e) => {
+                            if (canSearch) e.target.style.backgroundColor = "#3A838B";
+                        }}
                     >
                         Search
                     </button>
@@ -376,4 +334,6 @@ function App() {
     );
 }
 
-export default App;
+export default function AgentResult(props) {
+    return <AgentResultLayout {...props} />;
+}
