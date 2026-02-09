@@ -12,13 +12,15 @@ import {
 
 import { Container } from '@mui/material';
 
-import DebugPage from './components/Debug';
-import IntermediatePage from './components/IntermediatePage';
 import AgentLandingPage from './components/AgentLandingPage';
+import DebugPage from './components/Debug';
+import IgvPage from './components/GeDebug';
+import IntermediatePage from './components/IntermediatePage';
 import LandingPage from './components/LandingPage';
 import MatchPage from './components/MatchPage';
 import PkbFooter from './Footer/footer';
 import NavBar from './NavBar';
+import AgentResult from './pages/AgentResult';
 import ApiPage from './pages/ApiPage';
 import DocPage from './pages/DocPage';
 import Ontology from './pages/Ontology';
@@ -40,29 +42,35 @@ root.render(
       display: 'flex', flexDirection: 'column'
     }}>
       <BrowserRouter>
-        <NavBar />
-        <Routes>
-          <Route path="/pipeline" element={<Pipeline />} />
-          <Route path="/qtldatasource" element={<QTLDataSource />} />
-          <Route path="/intermediate" element={<IntermediatePage />} />
-          <Route path="/ontology" element={<Ontology />} />
-          <Route path="/statistics" element={<StatPage />} />
-          <Route path="/api" element={<ApiPage />} />
-          <Route path="/tutorial" element={<Tutorial />} />
-          <Route path="/result" element={<ResultPage />} />
-          <Route path="/resultpage" element={<ResultPage2 />} />
-          <Route path="/usecases" element={<UsecasesPage />} />
-          <Route path="/docs/*" element={<DocPage />} />
-          <Route path="/match" element={<MatchPage />} />
-          <Route path="/review/*" element={<ReviewPage />} />
-          <Route path="/agent-landing" element={<AgentLandingPage />} />
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/debug" element={<DebugPage />} />
-          <Route path="*" element={<LandingPage />} />
-        </Routes>
-        <PkbFooter />
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+          <NavBar />
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <Routes>
+              <Route path="/pipeline" element={<Pipeline />} />
+              <Route path="/qtldatasource" element={<QTLDataSource />} />
+              <Route path="/intermediate" element={<IntermediatePage />} />
+              <Route path="/ontology" element={<Ontology />} />
+              <Route path="/statistics" element={<StatPage />} />
+              <Route path="/api" element={<ApiPage />} />
+              <Route path="/tutorial" element={<Tutorial />} />
+              <Route path="/result" element={<ResultPage />} />
+              <Route path="/resultpage" element={<ResultPage2 />} />
+              <Route path="/usecases" element={<UsecasesPage />} />
+              <Route path="/docs/*" element={<DocPage />} />
+              <Route path="/match" element={<MatchPage />} />
+              <Route path="/review/*" element={<ReviewPage />} />
+              <Route path="/agent-landing" element={<AgentLandingPage />} />
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/debug" element={<DebugPage />} />
+              <Route path="/igv" element={<IgvPage />} />
+              <Route path="/agent-result" element={<AgentResult />} />
+              <Route path="*" element={<LandingPage />} />
+            </Routes>
+          </div>
+          <PkbFooter />
+        </div>
       </BrowserRouter>
-      
+
     </Container>
   </Provider>
 );
