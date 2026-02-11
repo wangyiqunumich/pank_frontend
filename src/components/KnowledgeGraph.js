@@ -10,11 +10,11 @@ import React, {
 
 import cytoscape from 'cytoscape';
 import JSON5 from 'json5';
-import { useSelector } from 'react-redux';
+import {
+  useDispatch,
+  useSelector,
+} from 'react-redux';
 import { useLocation } from 'react-router-dom';
-
-import { useDispatch } from "react-redux";
-import { setHoverId, setHoverState } from '../redux/hoverSlice.js';
 
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
@@ -37,6 +37,10 @@ import fullscreenExitIcon from '../image/quit_fullscreen.svg';
 import recenterIcon from '../image/recenter.svg';
 import zoomInIcon from '../image/zoom-minus.svg';
 import zoomOutIcon from '../image/zoom-plus.svg';
+import {
+  setHoverId,
+  setHoverState,
+} from '../redux/hoverSlice.js';
 import graphInfocard from '../schema/graph_viewer_schema.json';
 import graphInfocardReview from '../schema/review_page/graph_schema.json';
 import { addWhitespace } from '../utils/textProcessing';
@@ -702,8 +706,9 @@ const InfocardMenu = ({ hoveredData, review }) => {
 }
 
 // Main KnowledgeGraph component
-export default function KnowledgeGraph({ selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, review = false }) {
+export default function KnowledgeGraph({ selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, review = false, containerHeight = "600px" }) {
   const cyRef = useRef(null);
+  const containerRef = useRef(null);
   const infocardRef = useRef(null);
   const activeNodeRef = useRef(null);
   const [activeNode, setActiveNode] = useState(null);
@@ -743,7 +748,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
         y: (cyRef.current.height() / 2),
       }
       : { x: 0, y: 0 };
-  
+
   const focusElementByKey = (key) => {
     const cy = cyRef.current;
     if (!cy || !key) return;
@@ -773,7 +778,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
   };
 
 
-  
+
   const SearchBox = () => {
     return (
       <input
@@ -821,7 +826,10 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
 
 
   useEffect(() => {
-    const container = document.getElementById("cy-container");
+    const container = containerRef.current;
+    if (!container) {
+      return;
+    }
     const { width: containerWidth, top: containerTop, left: containerLeft } = container.getBoundingClientRect();
 
     const ele = activeNode;
@@ -835,9 +843,8 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
     const x = modelX * cyRef.current.zoom() + cyRef.current.pan().x;
     const y = modelY * cyRef.current.zoom() + cyRef.current.pan().y;
 
-    const infocard = document.getElementById("infocard");
-    if (!infocard)
-    {
+    const infocard = infocardRef.current;
+    if (!infocard) {
       console.log(x);
       console.log(y);
       return;
@@ -954,6 +961,10 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
     const result = graphData || queryResultPage?.combined_query_result;
     const positionData = coordData || queryResultPage?.xy_json || {};
 
+    if (!result?.nodes || !result?.edges) {
+      return undefined;
+    }
+
     const uniqueNodesMap = {};
     result.nodes?.forEach((node) => (uniqueNodesMap[node["~id"]] = node));
     const properties = review ? "properties" : "~properties";
@@ -1010,8 +1021,17 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
       },
     }));
 
+    const container = containerRef.current;
+    if (!container) {
+      return undefined;
+    }
+    if (cyRef.current) {
+      cyRef.current.destroy();
+      cyRef.current = null;
+    }
+
     cyRef.current = cytoscape({
-      container: document.getElementById("cy-container"),
+      container,
       elements: { nodes, edges },
       style: nodeStyle.concat([
         ...(selectable ? [{
@@ -1112,8 +1132,10 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
 
     return () => {
       document.body.style.cursor = "default";
-      cyRef.current.removeAllListeners();
-      cyRef.current?.container().removeEventListener("mouseleave", handleLeave);
+      cyRef.current?.removeAllListeners();
+      cyRef.current?.container()?.removeEventListener("mouseleave", handleLeave);
+      cyRef.current?.destroy();
+      cyRef.current = null;
     };
   }, [queryResultPage]);
 
@@ -1138,19 +1160,21 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
       !expanded ?
         { display: "flex", flexDirection: "column", gap: "16px", position: "relative", justifyContent: "flex-start", ...sx }
         // position whole page, on top
-        : { position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "white", display: "flex", flexDirection: "column", gap: "16px", padding: "0px", ...sx, zIndex: 9999 }
+        : { position: "fixed", top: 0, left: 0, width: "100vw", height: "100%", backgroundColor: "white", display: "flex", flexDirection: "column", gap: "16px", padding: "0px", ...sx, zIndex: 9999 }
     }>
       <SearchBox />
       <div
-        id="cy-container"
+        ref={containerRef}
         style={{
           ...{
             width: "100%",
-            height: "600px",
+            height: containerHeight,
             backgroundColor: "#F9FAFB",
             border: "none",
             borderRadius: "8px",
             position: "relative",
+            flex: 1,
+            minHeight: 0,
           }, ...(expanded ? { height: "100%", borderRadius: "0px" } : {})
         }}
       >
@@ -1239,7 +1263,6 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
         </Typography>
       </Box>
       <div
-        id="infocard"
         ref={infocardRef}
         onMouseEnter={() => {
           setInfocardHovered(true);
@@ -1299,7 +1322,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
             </div>
             <IconButton
               onClick={() => setLegendVisible(!legendVisible)}
-              style={{ padding: "8px", margin: "-8px" }}
+              style={{ padding: "20px", margin: "-20px" }}
             >
               {legendVisible ? (
                 <KeyboardArrowLeftIcon style={{ color: "#172A3A", fontSize: "20px" }} />
