@@ -58,6 +58,20 @@
             "$comment": ":Agent page with debug mode on, which does not query the agent but instead uses preset data for testing."
         },
         {
+            "link": "/result-new?demo=true",
+            "dictionary": {
+                "demo": "true"
+            },
+            "$comment": ":New schema result page demo mode with duplicated sample content."
+        },
+        {
+            "link": "/result-new2?demo=true",
+            "dictionary": {
+                "demo": "true"
+            },
+            "$comment": ":New agent result page demo mode with duplicated sample content."
+        },
+        {
             "link": "/result?sourceTerm=snp@rs2402203&targetTerm=gene@ENSG00000001626&relationship=QTL",
             "dictionary": {
                 "sourceTerm": "snp@rs2402203",

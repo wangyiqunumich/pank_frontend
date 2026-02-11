@@ -40,11 +40,11 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <Provider store={store}>
     <Container disableGutters maxWidth={false} sx={{
-      padding: 0, margin: 0, minHeight: '100vh',
+      padding: 0, margin: 0, minHeight: '100%',
       display: 'flex', flexDirection: 'column'
     }}>
       <BrowserRouter>
-        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
           <NavBar />
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
             <Routes>

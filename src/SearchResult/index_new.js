@@ -1,37 +1,41 @@
 import './scoped.css';
 
 import React, {
-    useEffect,
-    useState,
+  useEffect,
+  useMemo,
+  useState,
 } from 'react';
 
 import {
-    useDispatch,
-    useSelector,
+  useDispatch,
+  useSelector,
 } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 
 import { InfoOutlined as InfoOutlineIcon } from '@mui/icons-material';
 import {
-    Backdrop,
-    Box,
-    CircularProgress,
-    Container,
-    Grid,
-    Link,
-    Skeleton,
-    styled,
-    Tooltip,
-    tooltipClasses,
-    Typography,
+  Backdrop,
+  Box,
+  CircularProgress,
+  Container,
+  Grid,
+  Link,
+  Skeleton,
+  styled,
+  Tooltip,
+  tooltipClasses,
+  Typography,
 } from '@mui/material';
 
 import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 import {
-    ErrorComponent,
-    tabsQTL,
+  ErrorComponent,
+  tabsQTL,
 } from '../components/IntermediatePage';
 import KnowledgeGraph from '../components/KnowledgeGraph';
-import QuestionAnswerPage from '../components/ResultComponent';
+import QuestionAnswerPage, {
+  ResultComponentSkeleton,
+} from '../components/ResultComponent';
 import VisuImage from '../image/output.png';
 import { queryAiAnswer } from '../redux/aiAnswerSlice';
 import { queryArticles } from '../redux/articlesSlice';
@@ -42,10 +46,15 @@ import { queryImage } from '../redux/typeToImageSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import {
-    addHighlight,
-    replaceNextQuestion,
-    replaceVariables,
+  addHighlight,
+  replaceNextQuestion,
+  replaceVariables,
 } from '../utils/textProcessing';
+import { GenomeBrowserEmbed } from './AgentResult';
+import {
+  demoCoordData,
+  demoGraphData,
+} from './demo_graph_data';
 import sampleSummaryData from './sample.json';
 
 const defaultNextQuestion = {
@@ -157,6 +166,11 @@ const LoadingSkeleton = () => (
 
 function SearchResult() {
     const dispatch = useDispatch();
+    const location = useLocation();
+    const demoMode = React.useMemo(
+        () => new URLSearchParams(location.search).get('demo') === 'true',
+        [location.search]
+    );
 
     const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
     const { aiAnswer } = useSelector((state) => state.aiAnswer);
@@ -174,6 +188,9 @@ function SearchResult() {
     const [renderedAiAnswer, setRenderedAiAnswer] = useState(null);
 
     useEffect(() => {
+        if (demoMode) {
+            return;
+        }
         const helperFunction = async () => {
             if (!allNextQuestions) {
                 return;
@@ -201,6 +218,9 @@ function SearchResult() {
 
     // initialize the reference data from viewSchema w/ replacements
     useEffect(() => {
+        if (demoMode) {
+            return;
+        }
         if (viewSchema?.resources_tabs) {
             const data = viewSchema.resources_tabs;
             const newPankbaseLinks = data.pankbase_links.map((item) => item.map((i) => replaceVariables(i, variables)));
@@ -219,6 +239,9 @@ function SearchResult() {
 
     // Fetch articles data based on aiAnswer
     useEffect(() => {
+        if (demoMode) {
+            return;
+        }
         if (aiAnswer) {
             const scoreMap = Object.fromEntries(
                 aiAnswer.articles?.map(article => [article.pmid, article.score]) || []
@@ -258,6 +281,9 @@ function SearchResult() {
 
     // init: get URL parameters and dispatch actions
     useEffect(() => {
+        if (demoMode) {
+            return;
+        }
         const params = new URLSearchParams(window.location.search);
         const sourceTerm = params.get('sourceTerm');
         const relationship = params.get('relationship');
@@ -428,10 +454,34 @@ function SearchResult() {
         return text.replace(/\*\*/g, '');
     };
 
-    const displaySummary = removeConsecutiveAsterisks(sampleSummaryData?.summary || '');
+    const summaryPlaceholder = "AI summary is generating...";
+    const isAiSummaryLoading = !demoMode && !aiAnswer?.answers?.length;
+    const displaySummary = removeConsecutiveAsterisks(
+        demoMode
+            ? (sampleSummaryData?.summary || '')
+            : (aiAnswer?.answers?.length ? aiAnswer.answers.join('\n\n') : summaryPlaceholder)
+    );
+
+    const aiSections = useMemo(() => {
+        if (demoMode) {
+            return displaySummary ? [{ body: displaySummary }] : [];
+        }
+
+        if (aiAnswer?.answers?.length) {
+            return aiAnswer.answers.map((answer, index) => ({
+                heading: aiAnswerSubtitle?.[index] || (index === 0 && aiAnswerSubtitle) || undefined,
+                body: answer,
+            }));
+        }
+
+        return displaySummary ? [{ heading: isAiSummaryLoading ? undefined : (aiAnswerSubtitle || "Summary"), body: displaySummary }] : [];
+    }, [aiAnswer, aiAnswerSubtitle, displaySummary, demoMode]);
 
     // query AI answer when queryResultPage and aiQuestions are available
     useEffect(() => {
+        if (demoMode) {
+            return;
+        }
         if (queryResultPage?.combined_query_result?.nodes?.length !== 0 && queryResultPage?.core_nodes && aiQuestions?.length > 0) {
             dispatch(queryAiAnswer({
                 "question": aiQuestions,
@@ -649,8 +699,8 @@ function SearchResult() {
 
     if (error) return <ErrorComponent errorTitle={viewSchema?.result_error_title} errorMessage={viewSchema?.result_error_message} />;
 
-    if (!(queryResultPage?.combined_query_result)) {
-        return <LoadingSkeleton />;
+    if (!(queryResultPage?.combined_query_result) && !demoMode) {
+        return <ResultComponentSkeleton />;
     }
 
     const referencesItems = articlesData.map((ref, index) => ({
@@ -662,53 +712,88 @@ function SearchResult() {
     }));
 
     const empiricalEvidenceContent = referenceData?.empirical_evidence ? (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'flex-start' }}>
-            <Box sx={{ position: 'relative', width: '100%', maxWidth: 520 }}>
-                {referenceData.empirical_evidence.lambda_function && !(typeToImage?.length) ? (
-                    <Box sx={{ width: '100%', minHeight: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#F1F5F9', borderRadius: 2 }}>
-                        <CircularProgress size={28} />
-                    </Box>
-                ) : (
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4, alignItems: 'center' }}>
+            {referenceData.empirical_evidence.lambda_function && !(typeToImage?.length) ? (
+                <Box sx={{
+                    backgroundColor: '#F2FAFB',
+                    borderRadius: 2,
+                    width: '100%',
+                    maxWidth: { xs: '100%', md: 520 },
+                    minHeight: 200,
+                    maxHeight: 260,
+                    height: 260,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}>
+                    <CircularProgress size={28} />
+                </Box>
+            ) : (
+                <Box sx={{ position: 'relative', width: '100%', maxWidth: { xs: '100%', md: 520 }, minHeight: 200, maxHeight: 260 }}>
                     <Box
                         component="img"
                         src={referenceData.empirical_evidence.lambda_function ?
                             (typeToImage?.length ? `data:image/jpeg;base64,${typeToImage}` : "")
                             : VisuImage}
                         alt="Empirical Evidence"
-                        sx={{ maxWidth: '100%', borderRadius: 2, cursor: referenceData.empirical_evidence.legend === "View" ? 'pointer' : 'default' }}
-                        onClick={referenceData.empirical_evidence.legend === "View" ? () => setImagePopupOpen(true) : undefined}
+                        sx={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: 2, cursor: 'pointer' }}
+                        onClick={() => setImagePopupOpen(true)}
                     />
-                )}
-            </Box>
-            <Typography sx={{ fontFamily: 'Open Sans', fontSize: 16, fontWeight: 700 }}>
-                {referenceData.empirical_evidence.title}
-            </Typography>
-            <Typography sx={{ fontFamily: 'Open Sans', fontSize: 14, fontWeight: 400, color: '#263238' }}>
-                {referenceData.empirical_evidence.description}
-            </Typography>
-            {referenceData.empirical_evidence.link_text ? (
-                <Link
-                    href={referenceData.empirical_evidence.link || handleDownload(variables.dataSource, variables.credibleSetId)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{ textDecoration: 'none' }}
-                >
-                    <Typography sx={{
-                        cursor: 'pointer',
-                        fontFamily: 'Open Sans',
-                        fontSize: 14,
-                        paddingY: 1,
-                        paddingX: 2,
-                        backgroundColor: '#219197',
-                        textAlign: 'center',
-                        borderRadius: 2,
-                        color: 'white',
-                        fontWeight: 600,
-                        width: 'fit-content',
-                    }}>{referenceData.empirical_evidence.link_text}
+                    <Typography
+                        onClick={() => setImagePopupOpen(true)}
+                        sx={{
+                            position: 'absolute',
+                            top: 12,
+                            left: 12,
+                            borderRadius: '6px',
+                            padding: '4px 10px',
+                            background: 'rgba(74, 74, 75, 0.7)',
+                            fontFamily: 'Open Sans',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            color: 'white',
+                            transition: 'background 0.2s ease',
+                            cursor: 'pointer',
+                            '&:hover': {
+                                background: 'rgba(74, 74, 75, 0.4)',
+                            },
+                        }}
+                    >
+                        View
                     </Typography>
-                </Link>
-            ) : null}
+                </Box>
+            )}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Typography sx={{ fontFamily: 'Open Sans', fontSize: 16, fontWeight: 700 }}>
+                    {referenceData.empirical_evidence.title}
+                </Typography>
+                <Typography sx={{ fontFamily: 'Open Sans', fontSize: 14, fontWeight: 400, color: '#263238' }}>
+                    {referenceData.empirical_evidence.description}
+                </Typography>
+                {referenceData.empirical_evidence.link_text ? (
+                    <Link
+                        href={referenceData.empirical_evidence.link || handleDownload(variables.dataSource, variables.credibleSetId)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{ textDecoration: 'none' }}
+                    >
+                        <Typography sx={{
+                            cursor: 'pointer',
+                            fontFamily: 'Open Sans',
+                            fontSize: 14,
+                            paddingY: 1,
+                            paddingX: 2,
+                            backgroundColor: '#219197',
+                            textAlign: 'center',
+                            borderRadius: 2,
+                            color: 'white',
+                            fontWeight: 600,
+                            width: 'fit-content',
+                        }}>{referenceData.empirical_evidence.link_text}
+                        </Typography>
+                    </Link>
+                ) : null}
+            </Box>
         </Box>
     ) : null;
 
@@ -750,20 +835,123 @@ function SearchResult() {
         )
     );
 
-    const aiSections = displaySummary
-        ? [{
-            heading: aiAnswerSubtitle || "Summary",
-            body: displaySummary,
-        }]
-        : [];
+    const demoKnowledgeGraphContent = (
+        <Box sx={{ width: '100%', height: '100%' }}>
+            <KnowledgeGraph
+                graphData={demoGraphData}
+                coordData={demoCoordData}
+                sx={{ height: "100%" }}
+                containerHeight="100%"
+            />
+        </Box>
+    );
+
+    const buildDemoPageData = (index) => ({
+        questionId: `Q${index}`,
+        title: `Demo Question ${index}: CFTR gene function overview`,
+        aiOverview: {
+            sections: [
+                {
+                    body: displaySummary,
+                },
+            ],
+        },
+        graphData: demoGraphData,
+        visualMaterial: {
+            title: "Visual Material",
+            tabs: [
+                { label: "Knowledge Graph", content: demoKnowledgeGraphContent },
+                {
+                    label: "Genome Browser",
+                    content: (
+                        <GenomeBrowserEmbed
+                            locus="chr7:55,085,725-55,276,031"
+                            tracks={[
+                                {
+                                    name: "Phase 3 WGS variants",
+                                    type: "variant",
+                                    format: "vcf",
+                                    url: "https://s3.amazonaws.com/1000genomes/release/20130502/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.vcf.gz",
+                                    indexURL: "https://s3.amazonaws.com/1000genomes/release/20130502/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.vcf.gz.tbi",
+                                },
+                                {
+                                    type: "alignment",
+                                    format: "bam",
+                                    name: "HG00096",
+                                    url: "https://s3.amazonaws.com/1000genomes/phase3/data/HG00096/exome_alignment/HG00096.mapped.ILLUMINA.bwa.GBR.exome.20120522.bam",
+                                    indexURL: "https://s3.amazonaws.com/1000genomes/phase3/data/HG00096/exome_alignment/HG00096.mapped.ILLUMINA.bwa.GBR.exome.20120522.bam.bai",
+                                    height: 400,
+                                },
+                            ]}
+                        />
+                    ),
+                    fullBleed: true,
+                },
+            ],
+        },
+        evidences: {
+            title: "Evidences",
+            tabs: [
+                {
+                    label: "References",
+                    items: [
+                        { id: 1, title: "Fine-mapping links CFTR to T1D", subtitle: "NATURE GENETICS, 2021 • PMID: 34127860" },
+                        { id: 2, title: "CFTR regulatory variants in pancreas", subtitle: "NATURE GENETICS, 2021 • PMID: 34127860" },
+                    ],
+                },
+                {
+                    label: "eQTL Data",
+                    items: [
+                        { id: 3, title: "GTEx Pancreas eQTL for rs2402203", subtitle: "GTEx PORTAL • V8" },
+                        { id: 4, title: "Multi-tissue eQTL analysis", subtitle: "GTEX CONSORTIUM, 2020 • PMID: 32913098" },
+                    ],
+                },
+                {
+                    label: "GWAS",
+                    items: [
+                        { id: 5, title: "Type 1 diabetes GWAS meta-analysis", subtitle: "DIABETOLOGIA, 2021 • PMID: 33686435" },
+                        { id: 6, title: "Pancreatic function GWAS", subtitle: "NAT GENET, 2019 • PMID: 31413320" },
+                    ],
+                },
+            ],
+        },
+        followUp: {
+            title: "Follow Up",
+            items: [
+                { label: "How does rs2402203 affect CFTR expression?", href: "#" },
+                { label: "What tissues show CFTR QTL signals?", href: "#" },
+            ],
+        },
+    });
 
     const pageData = {
         questionId: "Q1",
         title: stripHtml(currentQuestion) || "Question",
-        aiOverview: { sections: aiSections },
+        aiOverview: { sections: aiSections, isLoading: isAiSummaryLoading },
+        graphData: queryResultPage?.combined_query_result,
         visualMaterial: {
             title: "Visual Material",
-            tabs: [{ label: "Knowledge Graph", content: knowledgeGraphContent }],
+            tabs: [
+                { label: "Knowledge Graph", content: knowledgeGraphContent },
+                {
+                    label: "Pathway",
+                    content: (
+                        <Box sx={{ p: 2, textAlign: "center", color: "#64748B" }}>
+                            <Typography sx={{ fontSize: 14, fontWeight: 600, mb: 1 }}>Pathway Visualization</Typography>
+                            <Typography sx={{ fontSize: 13 }}>Pathway data visualization will appear here</Typography>
+                        </Box>
+                    )
+                },
+                {
+                    label: "Expression",
+                    content: (
+                        <Box sx={{ p: 2, textAlign: "center", color: "#64748B" }}>
+                            <Typography sx={{ fontSize: 14, fontWeight: 600, mb: 1 }}>Expression Data</Typography>
+                            <Typography sx={{ fontSize: 13 }}>Expression data visualization will appear here</Typography>
+                        </Box>
+                    )
+                },
+            ],
         },
         evidences: evidenceTabs.length ? { title: "Evidences", tabs: evidenceTabs } : undefined,
         followUp: {
@@ -797,7 +985,7 @@ function SearchResult() {
                     />
                 </Backdrop>
             ) : null}
-            <QuestionAnswerPage data={pageData} />
+            <QuestionAnswerPage data={demoMode ? buildDemoPageData(1) : pageData} />
         </>
     );
 }

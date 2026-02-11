@@ -1,40 +1,45 @@
 import './scoped.css';
 
 import React, {
-    useEffect,
-    useRef,
-    useState,
+  useEffect,
+  useRef,
+  useState,
 } from 'react';
 
 import {
-    useDispatch,
-    useSelector,
+  useDispatch,
+  useSelector,
 } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import {
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 
 import {
-    InfoOutlined as InfoOutlineIcon,
-    Mail as MailIcon,
+  InfoOutlined as InfoOutlineIcon,
+  Mail as MailIcon,
 } from '@mui/icons-material';
 import {
-    Backdrop,
-    Box,
-    Button,
-    CircularProgress,
-    Container,
-    Grid,
-    Link,
-    Skeleton,
-    styled,
-    Tooltip,
-    tooltipClasses,
-    Typography,
+  Backdrop,
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  Grid,
+  Link,
+  Skeleton,
+  styled,
+  Tooltip,
+  tooltipClasses,
+  Typography,
 } from '@mui/material';
 
 import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 import { ErrorComponent } from '../components/IntermediatePage';
 import KnowledgeGraph from '../components/KnowledgeGraph';
-import QuestionAnswerPage from '../components/ResultComponent';
+import QuestionAnswerPage, {
+  ResultComponentSkeleton,
+} from '../components/ResultComponent';
 import VisuImage from '../image/output.png';
 import { queryAiAgent } from '../redux/aiAgentSlice';
 import { queryArticles } from '../redux/articlesSlice';
@@ -43,7 +48,10 @@ import { querySupportingMaterial } from '../redux/supportingMaterialSlice';
 import { queryImage } from '../redux/typeToImageSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import { addHighlight } from '../utils/textProcessing';
-import SearchResultLoading from './loading';
+import {
+  demoCoordData,
+  demoGraphData,
+} from './demo_graph_data';
 import sampleSummaryData from './sample.json';
 
 // const tabs = [
@@ -225,6 +233,11 @@ const NoGraphData = () => (
 
 function SearchResult() {
     const dispatch = useDispatch();
+    const location = useLocation();
+    const demoMode = React.useMemo(
+        () => new URLSearchParams(location.search).get('demo') === 'true',
+        [location.search]
+    );
 
     const { viewSchema } = useSelector((state) => state.viewSchema);
     const { typeToImage } = useSelector((state) => state.typeToImage);
@@ -249,6 +262,9 @@ function SearchResult() {
     const [question, setQuestion] = useState('');
 
     useEffect(() => {
+        if (demoMode) {
+            return;
+        }
         const helperFunction = async () => {
             if (!allNextQuestions) {
                 return;
@@ -276,6 +292,9 @@ function SearchResult() {
 
     // initialize the reference data from viewSchema w/ replacements
     useEffect(() => {
+        if (demoMode) {
+            return;
+        }
         if (!!graphData) {
             dispatch(querySupportingMaterial({
                 "query_result": graphData
@@ -311,6 +330,9 @@ function SearchResult() {
 
     // init: get URL parameters and dispatch actions
     useEffect(() => {
+        if (demoMode) {
+            return;
+        }
         const params = new URLSearchParams(window.location.search);
         const question = base64ToUtf8(params?.get('question'));
         setQuestion(question);
@@ -391,7 +413,14 @@ function SearchResult() {
         return text.replace(/\*\*/g, '');
     };
 
-    const displaySummary = removeConsecutiveAsterisks(sampleSummaryData?.summary || '');
+    const summaryPlaceholder = "AI summary is generating...";
+    const normalizedAnswer = typeof aiAnswer === "string" ? aiAnswer : "";
+    const isAiSummaryLoading = !demoMode && !normalizedAnswer;
+    const displaySummary = removeConsecutiveAsterisks(
+        demoMode
+            ? (sampleSummaryData?.summary || '')
+            : (normalizedAnswer || summaryPlaceholder)
+    );
 
     const stripHtml = (value) => (value ? value.replace(/<[^>]*>/g, '') : '');
 
@@ -475,6 +504,9 @@ function SearchResult() {
 
     // Fetch articles data based on aiAnswer
     useEffect(() => {
+        if (demoMode) {
+            return;
+        }
         if (!!aiAnswer) {
             const pmidsFromText = ProcessLinks2({ text: aiAnswer })?.filter(part => part.type === "pubmedid").map(part => (part.text)) || [];
             const pmids = [...new Set(pmidsFromText)].slice(0, 50);
@@ -507,15 +539,8 @@ function SearchResult() {
     if (error) return <ErrorComponent errorTitle={"Question Not Relevant"} errorMessage={"Your query doesn't match any relevant topic in PanKgraph. Please try rephrasing or explore related tutorials."} log={debugMessage(question, agentRawResult)} />;
 
     // Show loading skeleton if queryResultPage is not ready
-    if (aiLoading) {
-        return (
-            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px' }}>
-                <SearchResultLoading handleClose={() => {
-                    if (thunkref.current) thunkref.current.abort();
-                    navigate("/");
-                }} />
-            </Box>
-        );
+    if (aiLoading && !demoMode) {
+        return <ResultComponentSkeleton />;
     }
 
     const referencesItems = articlesData.map((ref, index) => ({
@@ -527,53 +552,88 @@ function SearchResult() {
     }));
 
     const empiricalEvidenceContent = referenceData?.empirical_evidence ? (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'flex-start' }}>
-            <Box sx={{ position: 'relative', width: '100%', maxWidth: 520 }}>
-                {referenceData.empirical_evidence.lambda_function && !(typeToImage?.length) ? (
-                    <Box sx={{ width: '100%', minHeight: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#F1F5F9', borderRadius: 2 }}>
-                        <CircularProgress size={28} />
-                    </Box>
-                ) : (
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4, alignItems: 'center' }}>
+            {referenceData.empirical_evidence.lambda_function && !(typeToImage?.length) ? (
+                <Box sx={{
+                    backgroundColor: '#F2FAFB',
+                    borderRadius: 2,
+                    width: '100%',
+                    maxWidth: { xs: '100%', md: 520 },
+                    minHeight: 200,
+                    maxHeight: 260,
+                    height: 260,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}>
+                    <CircularProgress size={28} />
+                </Box>
+            ) : (
+                <Box sx={{ position: 'relative', width: '100%', maxWidth: { xs: '100%', md: 520 }, minHeight: 200, maxHeight: 260 }}>
                     <Box
                         component="img"
                         src={referenceData.empirical_evidence.lambda_function ?
                             (typeToImage?.length ? `data:image/jpeg;base64,${typeToImage}` : "")
                             : VisuImage}
                         alt="Empirical Evidence"
-                        sx={{ maxWidth: '100%', borderRadius: 2, cursor: referenceData.empirical_evidence.legend === "View" ? 'pointer' : 'default' }}
-                        onClick={referenceData.empirical_evidence.legend === "View" ? () => setImagePopupOpen(true) : undefined}
+                        sx={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: 2, cursor: 'pointer' }}
+                        onClick={() => setImagePopupOpen(true)}
                     />
-                )}
-            </Box>
-            <Typography sx={{ fontFamily: 'Open Sans', fontSize: 16, fontWeight: 700 }}>
-                {referenceData.empirical_evidence.title}
-            </Typography>
-            <Typography sx={{ fontFamily: 'Open Sans', fontSize: 14, fontWeight: 400, color: '#263238' }}>
-                {referenceData.empirical_evidence.description}
-            </Typography>
-            {referenceData.empirical_evidence.link_text ? (
-                <Link
-                    href={referenceData.empirical_evidence.link || handleDownload2(referenceData.empirical_evidence.folder, referenceData.empirical_evidence.credible_set)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{ textDecoration: 'none' }}
-                >
-                    <Typography sx={{
-                        cursor: 'pointer',
-                        fontFamily: 'Open Sans',
-                        fontSize: 14,
-                        paddingY: 1,
-                        paddingX: 2,
-                        backgroundColor: '#219197',
-                        textAlign: 'center',
-                        borderRadius: 2,
-                        color: 'white',
-                        fontWeight: 600,
-                        width: 'fit-content',
-                    }}>{referenceData.empirical_evidence.link_text}
+                    <Typography
+                        onClick={() => setImagePopupOpen(true)}
+                        sx={{
+                            position: 'absolute',
+                            top: 12,
+                            left: 12,
+                            borderRadius: '6px',
+                            padding: '4px 10px',
+                            background: 'rgba(74, 74, 75, 0.7)',
+                            fontFamily: 'Open Sans',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            color: 'white',
+                            transition: 'background 0.2s ease',
+                            cursor: 'pointer',
+                            '&:hover': {
+                                background: 'rgba(74, 74, 75, 0.4)',
+                            },
+                        }}
+                    >
+                        View
                     </Typography>
-                </Link>
-            ) : null}
+                </Box>
+            )}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Typography sx={{ fontFamily: 'Open Sans', fontSize: 16, fontWeight: 700 }}>
+                    {referenceData.empirical_evidence.title}
+                </Typography>
+                <Typography sx={{ fontFamily: 'Open Sans', fontSize: 14, fontWeight: 400, color: '#263238' }}>
+                    {referenceData.empirical_evidence.description}
+                </Typography>
+                {referenceData.empirical_evidence.link_text ? (
+                    <Link
+                        href={referenceData.empirical_evidence.link || handleDownload2(referenceData.empirical_evidence.folder, referenceData.empirical_evidence.credible_set)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{ textDecoration: 'none' }}
+                    >
+                        <Typography sx={{
+                            cursor: 'pointer',
+                            fontFamily: 'Open Sans',
+                            fontSize: 14,
+                            paddingY: 1,
+                            paddingX: 2,
+                            backgroundColor: '#219197',
+                            textAlign: 'center',
+                            borderRadius: 2,
+                            color: 'white',
+                            fontWeight: 600,
+                            width: 'fit-content',
+                        }}>{referenceData.empirical_evidence.link_text}
+                        </Typography>
+                    </Link>
+                ) : null}
+            </Box>
         </Box>
     ) : null;
 
@@ -617,21 +677,122 @@ function SearchResult() {
         )
     );
 
+    const demoKnowledgeGraphContent = (
+        <Box sx={{ width: '100%', height: '100%' }}>
+            <KnowledgeGraph
+                graphData={demoGraphData}
+                coordData={demoCoordData}
+                sx={{ height: "100%" }}
+                containerHeight="100%"
+            />
+        </Box>
+    );
+
+    const buildDemoPageData = (index) => ({
+        questionId: `Q${index}`,
+        title: `Demo Question ${index}: CFTR gene function overview`,
+        aiOverview: {
+            sections: [
+                {
+                    body: displaySummary,
+                },
+            ],
+        },
+        graphData: demoGraphData,
+        visualMaterial: {
+            title: "Visual Material",
+            tabs: [
+                { label: "Knowledge Graph", content: demoKnowledgeGraphContent },
+                {
+                    label: "Pathway",
+                    content: (
+                        <Box sx={{ p: 2, textAlign: "center", color: "#64748B" }}>
+                            <Typography sx={{ fontSize: 14, fontWeight: 600, mb: 1 }}>Pathway Visualization</Typography>
+                            <Typography sx={{ fontSize: 13 }}>CFTR regulation pathway in pancreatic beta cells</Typography>
+                        </Box>
+                    )
+                },
+                {
+                    label: "Expression",
+                    content: (
+                        <Box sx={{ p: 2, textAlign: "center", color: "#64748B" }}>
+                            <Typography sx={{ fontSize: 14, fontWeight: 600, mb: 1 }}>Expression Data</Typography>
+                            <Typography sx={{ fontSize: 13 }}>Tissue-specific expression profile across GTEx samples</Typography>
+                        </Box>
+                    )
+                },
+            ],
+        },
+        evidences: {
+            title: "Evidences",
+            tabs: [
+                {
+                    label: "References",
+                    items: [
+                        { id: 1, title: "Fine-mapping links CFTR to T1D", subtitle: "NATURE GENETICS, 2021 • PMID: 34127860" },
+                        { id: 2, title: "CFTR regulatory variants in pancreas", subtitle: "NATURE GENETICS, 2021 • PMID: 34127860" },
+                    ],
+                },
+                {
+                    label: "eQTL Data",
+                    items: [
+                        { id: 3, title: "GTEx Pancreas eQTL for rs2402203", subtitle: "GTEx PORTAL • V8" },
+                        { id: 4, title: "Multi-tissue eQTL analysis", subtitle: "GTEX CONSORTIUM, 2020 • PMID: 32913098" },
+                    ],
+                },
+                {
+                    label: "GWAS",
+                    items: [
+                        { id: 5, title: "Type 1 diabetes GWAS meta-analysis", subtitle: "DIABETOLOGIA, 2021 • PMID: 33686435" },
+                        { id: 6, title: "Pancreatic function GWAS", subtitle: "NAT GENET, 2019 • PMID: 31413320" },
+                    ],
+                },
+            ],
+        },
+        followUp: {
+            title: "Follow Up",
+            items: [
+                { label: "How does rs2402203 affect CFTR expression?", href: "#" },
+                { label: "What tissues show CFTR QTL signals?", href: "#" },
+            ],
+        },
+    });
+
     const pageData = {
         questionId: "Q1",
         title: currentQuestion || question || "Question",
         aiOverview: {
             sections: [
                 {
-                    heading: "Summary",
+                    heading: isAiSummaryLoading ? undefined : "Summary",
                     body: displaySummary,
                 },
             ].filter((section) => section.body),
+            isLoading: isAiSummaryLoading,
         },
+        graphData: graphData,
         visualMaterial: {
             title: "Visual Material",
             tabs: [
                 { label: "Knowledge Graph", content: knowledgeGraphContent },
+                {
+                    label: "Pathway",
+                    content: (
+                        <Box sx={{ p: 2, textAlign: "center", color: "#64748B" }}>
+                            <Typography sx={{ fontSize: 14, fontWeight: 600, mb: 1 }}>Pathway Visualization</Typography>
+                            <Typography sx={{ fontSize: 13 }}>Pathway data visualization will appear here</Typography>
+                        </Box>
+                    )
+                },
+                {
+                    label: "Expression",
+                    content: (
+                        <Box sx={{ p: 2, textAlign: "center", color: "#64748B" }}>
+                            <Typography sx={{ fontSize: 14, fontWeight: 600, mb: 1 }}>Expression Data</Typography>
+                            <Typography sx={{ fontSize: 13 }}>Expression data visualization will appear here</Typography>
+                        </Box>
+                    )
+                },
             ],
         },
         evidences: evidenceTabs.length ? { title: "Evidences", tabs: evidenceTabs } : undefined,
@@ -666,7 +827,7 @@ function SearchResult() {
                     />
                 </Backdrop>
             ) : null}
-            <QuestionAnswerPage data={pageData} />
+            <QuestionAnswerPage data={demoMode ? buildDemoPageData(1) : pageData} />
         </>
     );
 }

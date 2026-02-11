@@ -1,14 +1,20 @@
+import axios from 'axios';
+
 import {
   createAsyncThunk,
   createSlice,
 } from '@reduxjs/toolkit';
 import { QueryStatus } from '@reduxjs/toolkit/query';
 
-import { flaskBackendAxiosInstanceNew } from '../axios/axios';
+// import { flaskBackendAxiosInstanceNew } from '../axios/axios';
+const flaskProduction =
+    axios.create({
+        baseURL: 'https://nzi5e9mb0f.execute-api.us-east-1.amazonaws.com/production'
+    });
 
 export const queryAiAnswer = createAsyncThunk('/queryResultToAiAnswer',
     async (payload) => {
-        return await flaskBackendAxiosInstanceNew
+        return await flaskProduction
             .post('/pank3-ai-summary', payload, {
                 headers: {
                     "Content-Type": "application/json",

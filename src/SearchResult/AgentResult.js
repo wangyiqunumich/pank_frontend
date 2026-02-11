@@ -1,18 +1,19 @@
 import React, {
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from 'react';
 
 import igv from 'https://cdn.jsdelivr.net/npm/igv@3.0.2/dist/igv.esm.min.js';
+import { useLocation } from 'react-router-dom';
 
 import { Container } from '@mui/material';
 
 import SearchResult from './result';
 
 // Genome Browser Component - mounts only when tab is first selected
-function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVisible = false }) {
+export function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVisible = false, tracks = null, height = 600 }) {
     const containerRef = useRef(null);
     const browserRef = useRef(null);
     const [error, setError] = useState("");
@@ -25,8 +26,9 @@ function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVisible = 
             locus: locus,
             showNavigation: true,
             showRuler: true,
+            tracks: tracks || [],
         };
-    }, [locus]);
+    }, [locus, tracks]);
 
     useEffect(() => {
         // Only initialize when tab becomes visible for the first time
@@ -46,7 +48,6 @@ function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVisible = 
                     return;
                 }
 
-                // Clear container
                 containerRef.current.innerHTML = "";
 
                 // Add a small delay to ensure DOM is fully ready
@@ -96,7 +97,7 @@ function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVisible = 
 
     // Don't render container until tab is visible
     if (!isVisible && !hasInitialized) {
-        return <div style={{ width: "100%", height: 600 }} />;
+        return <div style={{ width: "100%", height }} />;
     }
 
     return (
@@ -115,7 +116,7 @@ function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVisible = 
                 ref={containerRef}
                 style={{
                     width: "100%",
-                    height: 600,
+                    height: height,
                     border: "1px solid #ddd",
                     borderRadius: 8,
                     overflow: "hidden",
@@ -133,6 +134,12 @@ export function AgentResultLayout({
     allowMulti = false,
     allowSearch = false,
 }) {
+    const location = useLocation();
+    const demoMode = useMemo(
+        () => new URLSearchParams(location.search).get('demo') === 'true',
+        [location.search]
+    );
+    const effectiveAllowMulti = allowMulti || demoMode;
     const [results, setResults] = useState([
         {
             id: 1,
@@ -141,8 +148,98 @@ export function AgentResultLayout({
     ]);
     const [searchQuery, setSearchQuery] = useState("");
     const [activeResultIndex, setActiveResultIndex] = useState(0);
+    const [hoveredResultIndex, setHoveredResultIndex] = useState(null);
+    const [menuOpen, setMenuOpen] = useState(false);
+    const menuTimersRef = useRef({ open: null, close: null });
     const resultsContainerRef = useRef(null);
-    const canSearch = allowMulti && allowSearch;
+    const scrollRafRef = useRef(null);
+    const scrollLockRef = useRef({ active: false, until: 0, index: null });
+    const canSearch = effectiveAllowMulti && allowSearch;
+
+    useEffect(() => {
+        if (demoMode && results.length < 2) {
+            setResults([
+                {
+                    id: 1,
+                    query: "How Does The SNP Rs2402203 Influence The Expression Of CFTR In Pancreas Tissue?",
+                },
+                {
+                    id: 2,
+                    query: "What is the functional impact of CFTR QTLs in pancreas tissue?",
+                },
+                {
+                    id: 3,
+                    query: "Which variants modulate CFTR expression in ductal cells?",
+                },
+                {
+                    id: 4,
+                    query: "How does CFTR relate to T1D immune regulation?",
+                },
+            ]);
+        }
+    }, [demoMode, results.length]);
+
+    useEffect(() => {
+        if (!effectiveAllowMulti || results.length < 2) {
+            return;
+        }
+
+        const updateActiveFromScroll = () => {
+            const now = Date.now();
+            if (scrollLockRef.current.active && now < scrollLockRef.current.until) {
+                return;
+            }
+            const container = resultsContainerRef.current;
+            if (!container) return;
+            const items = Array.from(container.children);
+            if (!items.length) return;
+
+            const anchor = 140;
+            let nextIndex = 0;
+            let bestDistance = Number.POSITIVE_INFINITY;
+
+            items.forEach((item, index) => {
+                const rect = item.getBoundingClientRect();
+                const inView = rect.top <= anchor && rect.bottom >= anchor;
+                const distance = Math.abs(rect.top - anchor);
+                if (inView) {
+                    nextIndex = index;
+                    bestDistance = 0;
+                    return;
+                }
+                if (distance < bestDistance) {
+                    bestDistance = distance;
+                    nextIndex = index;
+                }
+            });
+
+            setActiveResultIndex(nextIndex);
+        };
+
+        const onScroll = () => {
+            if (scrollRafRef.current) return;
+            scrollRafRef.current = requestAnimationFrame(() => {
+                scrollRafRef.current = null;
+                updateActiveFromScroll();
+            });
+        };
+
+        updateActiveFromScroll();
+        const rootScroll = document.getElementById("root");
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", onScroll);
+        rootScroll?.addEventListener("scroll", onScroll, { passive: true });
+
+        return () => {
+            window.removeEventListener("scroll", onScroll);
+            window.removeEventListener("resize", onScroll);
+            rootScroll?.removeEventListener("scroll", onScroll);
+            if (scrollRafRef.current) {
+                cancelAnimationFrame(scrollRafRef.current);
+                scrollRafRef.current = null;
+            }
+        };
+    }, [effectiveAllowMulti, results.length]);
 
     const handleSearch = () => {
         if (!canSearch) return;
@@ -171,19 +268,60 @@ export function AgentResultLayout({
     };
 
     const scrollToResult = (index) => {
-        if (!allowMulti) return;
+        if (!effectiveAllowMulti) return;
         setActiveResultIndex(index);
+        scrollLockRef.current = {
+            active: true,
+            until: Date.now() + 600,
+            index,
+        };
         const resultElement = resultsContainerRef.current?.children[index];
         resultElement?.scrollIntoView({ behavior: "smooth", block: "start" });
     };
+
+    const openMenuWithDelay = () => {
+        if (menuTimersRef.current.close) {
+            clearTimeout(menuTimersRef.current.close);
+            menuTimersRef.current.close = null;
+        }
+        if (menuOpen) return;
+        if (!menuTimersRef.current.open) {
+            menuTimersRef.current.open = setTimeout(() => {
+                setMenuOpen(true);
+                menuTimersRef.current.open = null;
+            }, 140);
+        }
+    };
+
+    const closeMenuWithDelay = () => {
+        if (menuTimersRef.current.open) {
+            clearTimeout(menuTimersRef.current.open);
+            menuTimersRef.current.open = null;
+        }
+        if (!menuOpen) return;
+        if (!menuTimersRef.current.close) {
+            menuTimersRef.current.close = setTimeout(() => {
+                setMenuOpen(false);
+                menuTimersRef.current.close = null;
+            }, 260);
+        }
+    };
+
+    useEffect(() => {
+        return () => {
+            if (menuTimersRef.current.open) clearTimeout(menuTimersRef.current.open);
+            if (menuTimersRef.current.close) clearTimeout(menuTimersRef.current.close);
+        };
+    }, []);
 
     return (
         <div
             style={{
                 position: "relative",
-                minHeight: "100vh",
-                backgroundColor: allowMulti && results.length > 1 ? "#f5f5f5" : "transparent",
-                paddingBottom: 120,
+                backgroundColor: effectiveAllowMulti && results.length > 1 ? "#f5f5f5" : "transparent",
+                marginTop: effectiveAllowMulti && results.length > 1 ? -8 : 0,
+                paddingTop: effectiveAllowMulti && results.length > 1 ? 8 : 0,
+                paddingBottom: 0,
             }}
         >
             {/* Results display */}
@@ -192,19 +330,19 @@ export function AgentResultLayout({
                     <div
                         key={result.id}
                         style={{
-                            padding: allowMulti && results.length > 1 ? "28px 16px" : "0",
+                            padding: effectiveAllowMulti && results.length > 1 ? "28px 16px" : "0",
                             display: "flex",
                             justifyContent: "center",
                         }}
                     >
                         <div
                             style={{
-                                backgroundColor: allowMulti && results.length > 1 ? "#ffffff" : "transparent",
-                                borderRadius: allowMulti && results.length > 1 ? 16 : 0,
-                                boxShadow: allowMulti && results.length > 1 ? "0 6px 18px rgba(15, 23, 42, 0.08)" : "none",
-                                padding: allowMulti && results.length > 1 ? "16px" : "0",
+                                backgroundColor: effectiveAllowMulti && results.length > 1 ? "#ffffff" : "transparent",
+                                borderRadius: effectiveAllowMulti && results.length > 1 ? 16 : 0,
+                                boxShadow: effectiveAllowMulti && results.length > 1 ? "0 6px 18px rgba(15, 23, 42, 0.08)" : "none",
+                                padding: effectiveAllowMulti && results.length > 1 ? "16px" : "0",
                                 width: "100%",
-                                maxWidth: allowMulti && results.length > 1 ? 1040 : "100%",
+                                maxWidth: effectiveAllowMulti && results.length > 1 ? 1344 : "100%",
                             }}
                         >
                             <Container maxWidth={false} disableGutters sx={{
@@ -220,48 +358,100 @@ export function AgentResultLayout({
                 ))}
             </div>
 
-            {/* Quick redirect box - top left */}
-            {allowMulti && results.length > 1 && (
-                <div
-                    style={{
-                        position: "fixed",
-                        top: 20,
-                        left: 20,
-                        backgroundColor: "#fff",
-                        border: "1px solid #ddd",
-                        borderRadius: 12,
-                        padding: "16px",
-                        boxShadow: "0 2px 12px rgba(0,0,0,0.1)",
-                        zIndex: 100,
-                        minWidth: 120,
-                    }}
-                >
-                    <div style={{ fontSize: 12, fontWeight: 600, color: "#94A3B8", marginBottom: 10 }}>
-                        Results ({results.length})
+            {results.length > 1 && (
+                <>
+                    <div
+                        onMouseEnter={openMenuWithDelay}
+                        onMouseLeave={closeMenuWithDelay}
+                        style={{
+                            position: "fixed",
+                            top: 290,
+                            right: 24,
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            zIndex: 100,
+                            padding: "18px 12px",
+                            margin: "-18px -12px",
+                        }}
+                    >
+                        {results.map((result, index) => {
+                            const isActive = activeResultIndex === index;
+                            const gap = index === results.length - 1
+                                ? 0
+                                : (index === activeResultIndex || index + 1 === activeResultIndex)
+                                    ? 24
+                                    : 14;
+
+                            return (
+                                <div
+                                    key={`pos-${result.id}`}
+                                    style={{
+                                        width: 16,
+                                        height: 3,
+                                        borderRadius: 1,
+                                        backgroundColor: isActive ? "#323232" : "#D9D9D9",
+                                        marginBottom: gap,
+                                        transition: "margin-bottom 0.25s ease, background-color 0.2s ease",
+                                    }}
+                                />
+                            );
+                        })}
                     </div>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                        {results.map((result, index) => (
-                            <button
-                                key={result.id}
-                                onClick={() => scrollToResult(index)}
-                                style={{
-                                    width: 36,
-                                    height: 36,
-                                    borderRadius: "50%",
-                                    border: activeResultIndex === index ? "2px solid #3A838B" : "1px solid #ddd",
-                                    backgroundColor: activeResultIndex === index ? "#E0F2F1" : "#fff",
-                                    cursor: "pointer",
-                                    fontWeight: activeResultIndex === index ? 700 : 600,
-                                    color: activeResultIndex === index ? "#3A838B" : "#666",
-                                    fontSize: 12,
-                                    transition: "all 0.2s ease",
-                                }}
-                            >
-                                {index + 1}
-                            </button>
-                        ))}
+
+                    <div
+                        onMouseEnter={openMenuWithDelay}
+                        onMouseLeave={closeMenuWithDelay}
+                        style={{
+                            position: "fixed",
+                            top: 240,
+                            right: 64,
+                            backgroundColor: "#fff",
+                            border: "1px solid #ddd",
+                            borderRadius: 12,
+                            padding: "16px",
+                            boxShadow: "0 2px 12px rgba(0,0,0,0.1)",
+                            zIndex: 100,
+                            minWidth: 260,
+                            maxWidth: 320,
+                            transform: menuOpen ? "translateX(0)" : "translateX(110%)",
+                            opacity: menuOpen ? 1 : 0,
+                            pointerEvents: menuOpen ? "auto" : "none",
+                            transition: "transform 0.25s ease, opacity 0.2s ease",
+                        }}
+                    >
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                            {results.map((result, index) => (
+                                <button
+                                    key={result.id}
+                                    onMouseEnter={() => setHoveredResultIndex(index)}
+                                    onMouseLeave={() => setHoveredResultIndex(null)}
+                                    onClick={() => scrollToResult(index)}
+                                    style={{
+                                        width: "100%",
+                                        borderRadius: 8,
+                                        border: "1px solid transparent",
+                                        backgroundColor: hoveredResultIndex === index ? "rgba(20, 184, 166, 0.2)" : "transparent",
+                                        cursor: "pointer",
+                                        fontWeight: 600,
+                                        color: activeResultIndex === index ? "#3A838B" : "#818181",
+                                        fontSize: 14,
+                                        fontFamily: "Open Sans, sans-serif",
+                                        textAlign: "left",
+                                        padding: "8px 10px",
+                                        whiteSpace: "nowrap",
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        transition: "background-color 0.2s ease, color 0.2s ease",
+                                    }}
+                                    title={`Q${index + 1} ${result.query}`}
+                                >
+                                    {`Q${index + 1} ${result.query}`}
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                </div>
+                </>
             )}
 
             {/* Floating search bar at bottom */}

@@ -3,19 +3,21 @@
 import * as React from 'react';
 
 import {
-    Box,
-    Chip,
-    createTheme,
-    CssBaseline,
-    Divider,
-    Grid,
-    Paper,
-    Stack,
-    Tab,
-    Tabs,
-    ThemeProvider,
-    Typography,
-    useMediaQuery,
+  Box,
+  Chip,
+  createTheme,
+  CssBaseline,
+  Divider,
+  Grid,
+  Link,
+  Paper,
+  Skeleton,
+  Stack,
+  Tab,
+  Tabs,
+  ThemeProvider,
+  Typography,
+  useMediaQuery,
 } from '@mui/material';
 
 /**
@@ -76,7 +78,6 @@ function SectionCard({ title, children, sx }) {
                             letterSpacing: "0.08em",
                             fontWeight: 600,
                             color: "#94A3B8",
-                            textTransform: "uppercase",
                             whiteSpace: "nowrap",
                         }}
                     >
@@ -87,6 +88,38 @@ function SectionCard({ title, children, sx }) {
             ) : null}
             {children}
         </Paper>
+    );
+}
+
+export function ResultComponentSkeleton() {
+    return (
+        <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <Box sx={{ px: { xs: 2, md: 4 }, pt: { xs: 2.5, md: 3.5 }, pb: { xs: 0.5, md: 1 }, maxWidth: 1344, width: "100%", mx: "auto" }}>
+                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 2 }}>
+                    <Skeleton variant="rounded" width={48} height={30} />
+                    <Skeleton variant="text" width="60%" height={36} />
+                </Stack>
+
+                <Grid container spacing={2.5} alignItems="stretch">
+                    <Grid item xs={12} md={12} lg={7}>
+                        <Skeleton variant="rounded" height={320} sx={{ borderRadius: 3 }} />
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={5}>
+                        <Skeleton variant="rounded" height={320} sx={{ borderRadius: 3 }} />
+                    </Grid>
+                </Grid>
+
+                <Grid container spacing={2.5} sx={{ mt: 2.5 }}>
+                    <Grid item xs={12} md={12} lg={7}>
+                        <Skeleton variant="rounded" height={260} sx={{ borderRadius: 3 }} />
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={5}>
+                        <Skeleton variant="rounded" height={260} sx={{ borderRadius: 3 }} />
+                    </Grid>
+                </Grid>
+            </Box>
+        </ThemeProvider>
     );
 }
 
@@ -125,10 +158,92 @@ function ContentTabs({ tabs, value, onChange }) {
     );
 }
 
-function BodyText({ text }) {
-    // keep simple paragraph formatting while looking like the screenshot
+function processTextLinks(text, graphData, onPmidClick) {
+    if (!text) return [];
+
+    const removeConsecutiveAsterisks = (str) => str.replace(/\*\*/g, '');
+
+    // Helper to get link from graph data by node ID
+    const getLink = (id) => {
+        if (!graphData?.nodes) return null;
+        const node = graphData.nodes.find(n => n['~id'] === id);
+        return node?.['~properties']?.link || null;
+    };
+
+    // Process gene with ID: **CFTR**(ENSG00000001626)
+    const processGeneWithId = (str) => {
+        const pattern = /(\*\*[A-Za-z0-9_-]+\*\*\s*\([A-Za-z0-9]+\))/;
+        const output = [];
+        const textList = str.split(pattern).filter(Boolean);
+
+        textList.forEach(part => {
+            const match = part.match(pattern);
+            if (match) {
+                const gene = match[1];
+                const word = removeConsecutiveAsterisks(gene).split(" ");
+                const id = word[1]?.replace('(', '').replace(')', '');
+                const link = getLink(id);
+                output.push({
+                    text: word[0] + " " + word[1],
+                    type: "link",
+                    url: link,
+                });
+            } else {
+                output.push({ text: part, type: "text" });
+            }
+        });
+        return output;
+    };
+
+    // Process [text] for PMIDs and [text](url) for markdown links
+    const processLinksTemp = (str) => {
+        if (!str) return [];
+        return str.split(/(\[[^\]]+\]\([^)]+\)|\[[^\]]+\])/)
+            .flatMap(part => {
+                if (part.match(/^\[[^\]]+\]$/)) {
+                    // [text] - split by digits for PMID
+                    return part.split(/(\d+)/g).map(subPart =>
+                        subPart.match(/^\d{8}$/)
+                            ? { text: subPart, type: "pubmedid" }
+                            : { text: subPart, type: "text" }
+                    );
+                } else if (part.match(/^\[[^\]]+\]\([^)]+\)$/)) {
+                    // [text](url)
+                    return [{
+                        text: part.split("]")[0].substr(1),
+                        type: "link",
+                        url: part.split("(")[1].slice(0, -1)
+                    }];
+                }
+                return [{ text: part, type: "text" }];
+            });
+    };
+
+    // Combine gene processing with link processing
+    const result = processGeneWithId(text);
+    const output = [];
+    result.forEach(data => {
+        if (data.type === "link") {
+            output.push(data);
+        } else {
+            const textPart = removeConsecutiveAsterisks(data.text);
+            const list = processLinksTemp(textPart);
+            output.push(...list);
+        }
+    });
+
+    return output;
+}
+
+function BodyText({ text, graphData, onPmidClick }) {
+    const processedParts = React.useMemo(
+        () => processTextLinks(text, graphData, onPmidClick),
+        [text, graphData, onPmidClick]
+    );
+
     return (
         <Typography
+            component="div"
             sx={{
                 fontSize: 16,
                 fontWeight: 400,
@@ -136,12 +251,54 @@ function BodyText({ text }) {
                 whiteSpace: "pre-wrap",
             }}
         >
-            {text}
+            {processedParts.map((part, index) => {
+                if (part.type === "pubmedid") {
+                    return (
+                        <Link
+                            key={index}
+                            href={`#reference-item-${part.text}`}
+                            sx={{
+                                color: '#1976d2',
+                                fontWeight: 400,
+                                textDecoration: 'none',
+                                '&:hover': {
+                                    textDecoration: 'underline'
+                                }
+                            }}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                onPmidClick?.(part.text);
+                            }}
+                        >
+                            {part.text}
+                        </Link>
+                    );
+                } else if (part.type === "link") {
+                    return (
+                        <Link
+                            key={index}
+                            href={part.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            sx={{
+                                color: "#0069c2",
+                                textDecoration: "none",
+                                '&:hover': {
+                                    textDecoration: 'underline'
+                                }
+                            }}
+                        >
+                            {part.text}
+                        </Link>
+                    );
+                }
+                return <React.Fragment key={index}>{part.text}</React.Fragment>;
+            })}
         </Typography>
     );
 }
 
-function MarkdownBody({ text }) {
+function MarkdownBody({ text, graphData, onPmidClick }) {
     if (!text) return null;
 
     const lines = text.split(/\n/);
@@ -188,14 +345,19 @@ function MarkdownBody({ text }) {
                         {block.text}
                     </Typography>
                 ) : (
-                    <BodyText key={`paragraph-${index}`} text={block.text} />
+                    <BodyText
+                        key={`paragraph-${index}`}
+                        text={block.text}
+                        graphData={graphData}
+                        onPmidClick={onPmidClick}
+                    />
                 )
             )}
         </Box>
     );
 }
 
-function EvidenceItem({ item, onSelect }) {
+function EvidenceItem({ item, onSelect, isActive }) {
     const isLink = Boolean(item?.href);
     const clickable = Boolean(isLink || item?.onClick || onSelect);
     const Component = isLink ? "a" : clickable ? "button" : "div";
@@ -215,8 +377,8 @@ function EvidenceItem({ item, onSelect }) {
             type={Component === "button" ? "button" : undefined}
             id={item?.anchorId}
             sx={{
-                background: "#fff",
-                border: "1px solid #E7EBEF",
+                background: isActive ? "#ECFEFF" : "#fff",
+                border: isActive ? "1px solid #67E8F9" : "1px solid #E7EBEF",
                 borderRadius: "16px",
                 p: 2,
                 textAlign: "left",
@@ -238,6 +400,7 @@ function EvidenceItem({ item, onSelect }) {
                     size="small"
                     sx={{
                         mt: 0.2,
+                        flexShrink: 0,
                         fontWeight: 900,
                         fontSize: "10px",
                         bgcolor: "transparent",
@@ -251,7 +414,7 @@ function EvidenceItem({ item, onSelect }) {
                         },
                     }}
                 />
-                <Box sx={{ minWidth: 0 }}>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
                     <Typography
                         sx={{
                             fontSize: 14,
@@ -287,6 +450,7 @@ function EvidenceItem({ item, onSelect }) {
 export default function QuestionAnswerPage({ data }) {
     const [visualTab, setVisualTab] = React.useState(0);
     const [evidenceTab, setEvidenceTab] = React.useState(0);
+    const [activeReference, setActiveReference] = React.useState(null);
     const aiOverviewRef = React.useRef(null);
     const [aiOverviewHeight, setAiOverviewHeight] = React.useState(0);
     const isSingleColumn = useMediaQuery("(max-width:1199.95px)");
@@ -308,6 +472,42 @@ export default function QuestionAnswerPage({ data }) {
         setEvidenceTab(newTab);
         data?.evidences?.onTabChange?.(newTab);
     };
+
+    const referencesTabIndex = React.useMemo(
+        () => data?.evidences?.tabs?.findIndex(tab => tab.label?.toLowerCase() === "references") ?? -1,
+        [data?.evidences?.tabs]
+    );
+
+    const handlePmidClick = React.useCallback((pmid) => {
+        setActiveReference(pmid);
+        if (referencesTabIndex >= 0) {
+            setEvidenceTab(referencesTabIndex);
+        }
+    }, [referencesTabIndex]);
+
+    const referenceTimeoutRef = React.useRef(null);
+    React.useEffect(() => {
+        if (!activeReference) return undefined;
+        if (referencesTabIndex < 0 || evidenceTab !== referencesTabIndex) return undefined;
+
+        const el = document.getElementById(`reference-item-${activeReference}`);
+        if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
+            if (referenceTimeoutRef.current) {
+                clearTimeout(referenceTimeoutRef.current);
+            }
+            referenceTimeoutRef.current = setTimeout(() => {
+                setActiveReference(null);
+                referenceTimeoutRef.current = null;
+            }, 1200);
+        }
+
+        return () => {
+            if (referenceTimeoutRef.current) {
+                clearTimeout(referenceTimeoutRef.current);
+            }
+        };
+    }, [activeReference, evidenceTab, referencesTabIndex]);
 
     const visualTabs = data?.visualMaterial?.tabs ?? [];
     const evidenceTabs = data?.evidences?.tabs ?? [];
@@ -350,7 +550,7 @@ export default function QuestionAnswerPage({ data }) {
         <ThemeProvider theme={theme}>
             <CssBaseline />
 
-            <Box sx={{ px: { xs: 2, md: 4 }, py: { xs: 2.5, md: 3.5 }, maxWidth: 1344, mx: "auto" }}>
+            <Box sx={{ px: { xs: 2, md: 4 }, pt: { xs: 2.5, md: 3.5 }, pb: { xs: 0.5, md: 1 }, maxWidth: 1344, width: "100%", mx: "auto" }}>
                 {/* Header */}
                 <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 2 }}>
                     <Chip
@@ -376,8 +576,6 @@ export default function QuestionAnswerPage({ data }) {
                     </Typography>
                 </Stack>
 
-                <Divider sx={{ mb: 2.5, borderColor: "#E6EAF2" }} />
-
                 {/* Main two-column area (AI Overview + Visual Material) */}
                 <Grid container spacing={2.5} alignItems="stretch">
                     {/* AI Overview */}
@@ -388,10 +586,11 @@ export default function QuestionAnswerPage({ data }) {
                                     <Box key={`${sec.heading}-${idx}`}>
                                         {sec.heading && !(typeof sec.body === "string" && sec.body.includes("###")) ? (
                                             <Typography sx={{ fontSize: 14, fontWeight: 600, color: "#3A838B", mb: 0.6 }}>
+                                                <span style={{ marginRight: '6px' }}>✨</span>
                                                 {sec.heading}
                                             </Typography>
                                         ) : null}
-                                        {sec.content ? sec.content : <MarkdownBody text={sec.body} />}
+                                        {sec.content ? sec.content : <MarkdownBody text={sec.body} graphData={data?.graphData} onPmidClick={handlePmidClick} />}
                                     </Box>
                                 ))}
                             </Stack>
@@ -401,7 +600,7 @@ export default function QuestionAnswerPage({ data }) {
                     {/* Visual Material */}
                     {showVisualSection ? (
                         <Grid item xs={12} md={12} lg={5} order={{ xs: 2, md: 2, lg: 2 }}>
-                            <SectionCard title={data?.visualMaterial?.title ?? "Visual Material"} sx={{ height: "100%" }}>
+                            <SectionCard sx={{ height: "100%" }}>
                                 {visualTabs.length > 1 ? (
                                     <Box sx={{ mb: 1 }}>
                                         <ContentTabs
@@ -413,37 +612,52 @@ export default function QuestionAnswerPage({ data }) {
                                 ) : null}
 
                                 {visualTabs.length ? (
-                                    visualTabs.map((tab, idx) => (
-                                        <Paper
-                                            key={`visual-tab-${idx}`}
-                                            elevation={0}
-                                            sx={{
-                                                border: "1px solid #E6EAF2",
-                                                borderRadius: 3,
-                                                height: visualPanelHeight,
-                                                width: "100%",
-                                                maxWidth: visualPanelMaxWidth,
-                                                mx: isSingleColumn ? "auto" : 0,
-                                                bgcolor: "#F7F9FD",
-                                                display: visualTabs.length === 1 || visualTab === idx ? "flex" : "none",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                                p: 2,
-                                            }}
-                                        >
-                                            {tab.content ? (
-                                                typeof tab.content === "string" ? (
-                                                    <BodyText text={tab.content} />
+                                    visualTabs.map((tab, idx) => {
+                                        const isActive = visualTabs.length === 1 || visualTab === idx;
+                                        const isFullBleed = Boolean(tab.fullBleed);
+
+                                        return (
+                                            <Paper
+                                                key={`visual-tab-${idx}`}
+                                                elevation={0}
+                                                sx={{
+                                                    border: isFullBleed ? "none" : "1px solid #E6EAF2",
+                                                    borderRadius: isFullBleed ? 0 : 3,
+                                                    height: visualPanelHeight,
+                                                    width: "100%",
+                                                    maxWidth: visualPanelMaxWidth,
+                                                    mx: isSingleColumn ? "auto" : 0,
+                                                    bgcolor: isFullBleed ? "transparent" : "#F7F9FD",
+                                                    display: isActive ? "flex" : "none",
+                                                    alignItems: isFullBleed ? "stretch" : "center",
+                                                    justifyContent: isFullBleed ? "stretch" : "center",
+                                                    p: isFullBleed ? 0 : 2,
+                                                }}
+                                            >
+                                                {tab.content ? (
+                                                    typeof tab.content === "string" ? (
+                                                        <BodyText
+                                                            text={tab.content}
+                                                            graphData={data?.graphData}
+                                                            onPmidClick={handlePmidClick}
+                                                        />
+                                                    ) : React.isValidElement(tab.content) ? (
+                                                        typeof tab.content.type === "function"
+                                                            ? React.cloneElement(tab.content, {
+                                                                isVisible: visualTabs.length === 1 || visualTab === idx,
+                                                            })
+                                                            : tab.content
+                                                    ) : (
+                                                        tab.content
+                                                    )
                                                 ) : (
-                                                    tab.content
-                                                )
-                                            ) : (
-                                                <Typography sx={{ fontSize: 13, color: "#94A3B8", fontWeight: 700 }}>
-                                                    Visual content goes here
-                                                </Typography>
-                                            )}
-                                        </Paper>
-                                    ))
+                                                    <Typography sx={{ fontSize: 13, color: "#94A3B8", fontWeight: 700 }}>
+                                                        Visual content goes here
+                                                    </Typography>
+                                                )}
+                                            </Paper>
+                                        );
+                                    })
                                 ) : (
                                     <Paper
                                         elevation={0}
@@ -473,7 +687,7 @@ export default function QuestionAnswerPage({ data }) {
                     {/* Evidences */}
                     {showEvidenceSection ? (
                         <Grid item xs={12} md={12} lg={7} order={{ xs: 3, md: 3, lg: 3 }}>
-                            <SectionCard title={data?.evidences?.title ?? "Evidences"}>
+                            <SectionCard>
                                 {evidenceTabs.length > 1 ? (
                                     <Box sx={{ mb: 1 }}>
                                         <ContentTabs
@@ -496,7 +710,12 @@ export default function QuestionAnswerPage({ data }) {
                                                 ) : tab.items && tab.items.length ? (
                                                     <Stack spacing={1.25}>
                                                         {tab.items.map((it) => (
-                                                            <EvidenceItem key={`${it.id}-${it.title}`} item={it} onSelect={data?.evidences?.onSelect} />
+                                                            <EvidenceItem
+                                                                key={`${it.id}-${it.title}`}
+                                                                item={it}
+                                                                onSelect={data?.evidences?.onSelect}
+                                                                isActive={Boolean(activeReference) && it.anchorId === `reference-item-${activeReference}`}
+                                                            />
                                                         ))}
                                                     </Stack>
                                                 ) : (

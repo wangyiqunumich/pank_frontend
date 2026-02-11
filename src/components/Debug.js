@@ -1,30 +1,29 @@
 import React, {
-    useEffect,
-    useRef,
-    useState,
+  useEffect,
+  useRef,
+  useState,
 } from 'react';
 
 import cytoscape from 'cytoscape';
+import { useDispatch } from 'react-redux';
 
 import {
-    Box,
-    Button,
-    CircularProgress,
+  Box,
+  Button,
+  CircularProgress,
 } from '@mui/material';
 
 import Image from '../image/Pasted Graphic 1.png';
+import { queryQueryResultPage } from '../redux/queryResultPage';
 import sampleLinks from '../schema/sample_links.json';
-import SearchResultLoading from '../SearchResult/loading';
+import { GenomeBrowserEmbed } from '../SearchResult/AgentResult';
+import MultiLineInputList from './DebugComponent';
 import KnowledgeGraph from './KnowledgeGraph';
 import {
-    edgeIsInverted,
-    edgeLabels,
-    nodeStyle,
+  edgeIsInverted,
+  edgeLabels,
+  nodeStyle,
 } from './style.js';
-
-import MultiLineInputList from './DebugComponent';
-import { useDispatch } from 'react-redux';
-import { queryQueryResultPage } from '../redux/queryResultPage';
 
 export default function DebugPage() {
     const [graphJson, setGraphJson] = useState("");
@@ -91,6 +90,7 @@ export default function DebugPage() {
     const [coordData, setCoordData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [igvVisible, setIgvVisible] = useState(true);
     const dispatch = useDispatch();
     const handleQuery = (queryRaw) => {
         const query = queryRaw?.filter(line => line.trim().length > 0);
@@ -266,6 +266,33 @@ export default function DebugPage() {
                     {graphData && <KnowledgeGraph selectable={false} sx={{ zIndex: 2 }}
                         graphData={graphData} coordData={coordData}
                     />}
+                </Box>
+            </div>
+            <div style={{ padding: '20px', width: '100%' }}>
+                <h2>IGV.js Genome Browser - Full Width Demo</h2>
+                <Box sx={{ width: '100%', height: '700px', border: '1px solid #ccc', backgroundColor: '#fafafa' }}>
+                    <GenomeBrowserEmbed
+                        locus="chr7:55,085,725-55,276,031"
+                        isVisible={igvVisible}
+                        height={700}
+                        tracks={[
+                            {
+                                name: "Phase 3 WGS variants",
+                                type: "variant",
+                                format: "vcf",
+                                url: "https://s3.amazonaws.com/1000genomes/release/20130502/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.vcf.gz",
+                                indexURL: "https://s3.amazonaws.com/1000genomes/release/20130502/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.vcf.gz.tbi",
+                            },
+                            {
+                                type: "alignment",
+                                format: "bam",
+                                name: "HG00096",
+                                url: "https://s3.amazonaws.com/1000genomes/phase3/data/HG00096/exome_alignment/HG00096.mapped.ILLUMINA.bwa.GBR.exome.20120522.bam",
+                                indexURL: "https://s3.amazonaws.com/1000genomes/phase3/data/HG00096/exome_alignment/HG00096.mapped.ILLUMINA.bwa.GBR.exome.20120522.bam.bai",
+                                height: 400,
+                            },
+                        ]}
+                    />
                 </Box>
             </div>
             <div style={{ padding: '20px', width: '1440px' }}>
