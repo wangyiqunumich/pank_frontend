@@ -430,7 +430,7 @@ export function AgentResultLayout({
                                         backgroundColor: hoveredResultIndex === index ? "rgba(20, 184, 166, 0.2)" : "transparent",
                                         cursor: "pointer",
                                         fontWeight: 600,
-                                        color: activeResultIndex === index ? "#3A838B" : "#818181",
+                                        color: activeResultIndex === index || hoveredResultIndex === index ? "#3A838B" : "#818181",
                                         fontSize: 14,
                                         fontFamily: "Open Sans, sans-serif",
                                         textAlign: "left",
@@ -443,7 +443,7 @@ export function AgentResultLayout({
                                     title={`Q${index + 1} ${result.query}`}
                                 >
                                     <span style={{ fontSize: 14, fontWeight: 700, marginRight: 6 }}>{`Q${index + 1}`}</span>
-                                    <span style={{ fontSize: 14, fontWeight: activeResultIndex === index ? 700 : 600 }}>{result.query}</span>
+                                    <span style={{ fontSize: 14, fontWeight: activeResultIndex === index || hoveredResultIndex === index ? 700 : 600 }}>{result.query}</span>
                                 </button>
                             ))}
                         </div>
