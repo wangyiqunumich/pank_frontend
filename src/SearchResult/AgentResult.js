@@ -130,7 +130,7 @@ export function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVis
 
 export function AgentResultLayout({
     ResultView = SearchResult,
-    getResultViewProps = () => ({}),
+    getResultViewProps = (result, index) => ({ demoIndex: index + 1, result }),
     allowMulti = false,
     allowSearch = false,
 }) {
@@ -377,11 +377,7 @@ export function AgentResultLayout({
                     >
                         {results.map((result, index) => {
                             const isActive = activeResultIndex === index;
-                            const gap = index === results.length - 1
-                                ? 0
-                                : (index === activeResultIndex || index + 1 === activeResultIndex)
-                                    ? 24
-                                    : 14;
+                            const gap = index === results.length - 1 ? 0 : 14;
 
                             return (
                                 <div
@@ -389,10 +385,10 @@ export function AgentResultLayout({
                                     style={{
                                         width: 16,
                                         height: 3,
-                                        borderRadius: 1,
-                                        backgroundColor: isActive ? "#323232" : "#D9D9D9",
+                                        borderRadius: 1.5,
+                                        backgroundColor: isActive ? "#0F766E" : "#D9D9D9",
                                         marginBottom: gap,
-                                        transition: "margin-bottom 0.25s ease, background-color 0.2s ease",
+                                        transition: "background-color 0.2s ease",
                                     }}
                                 />
                             );
@@ -405,22 +401,22 @@ export function AgentResultLayout({
                         style={{
                             position: "fixed",
                             top: 240,
-                            right: 64,
+                            right: 56,
                             backgroundColor: "#fff",
                             border: "1px solid #ddd",
                             borderRadius: 12,
                             padding: "16px",
                             boxShadow: "0 2px 12px rgba(0,0,0,0.1)",
                             zIndex: 100,
-                            minWidth: 260,
-                            maxWidth: 320,
+                            minWidth: 220,
+                            maxWidth: 265,
                             transform: menuOpen ? "translateX(0)" : "translateX(110%)",
                             opacity: menuOpen ? 1 : 0,
                             pointerEvents: menuOpen ? "auto" : "none",
                             transition: "transform 0.25s ease, opacity 0.2s ease",
                         }}
                     >
-                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                             {results.map((result, index) => (
                                 <button
                                     key={result.id}
@@ -438,7 +434,7 @@ export function AgentResultLayout({
                                         fontSize: 14,
                                         fontFamily: "Open Sans, sans-serif",
                                         textAlign: "left",
-                                        padding: "8px 10px",
+                                        padding: "6px 10px",
                                         whiteSpace: "nowrap",
                                         overflow: "hidden",
                                         textOverflow: "ellipsis",
@@ -446,7 +442,8 @@ export function AgentResultLayout({
                                     }}
                                     title={`Q${index + 1} ${result.query}`}
                                 >
-                                    {`Q${index + 1} ${result.query}`}
+                                    <span style={{ fontSize: 14, fontWeight: 700, marginRight: 6 }}>{`Q${index + 1}`}</span>
+                                    <span style={{ fontSize: 14, fontWeight: activeResultIndex === index ? 700 : 600 }}>{result.query}</span>
                                 </button>
                             ))}
                         </div>
