@@ -164,7 +164,7 @@ const LoadingSkeleton = () => (
     </Container>
 )
 
-function SearchResult() {
+function SearchResult({ demoIndex = 1 } = {}) {
     const dispatch = useDispatch();
     const location = useLocation();
     const demoMode = React.useMemo(
@@ -985,7 +985,7 @@ function SearchResult() {
                     />
                 </Backdrop>
             ) : null}
-            <QuestionAnswerPage data={demoMode ? buildDemoPageData(1) : pageData} />
+            <QuestionAnswerPage data={demoMode ? buildDemoPageData(demoIndex) : pageData} />
         </>
     );
 }
