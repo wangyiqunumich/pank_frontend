@@ -841,7 +841,6 @@ function SearchResult() {
                                                     fontWeight: 400,
                                                     fontSize: '20px'
                                                 }}>
-                                                    <span style={{ color: '#FFD700' }}>✨</span>
                                                     {aiAnswerSubtitle[index]}
                                                 </Typography>
                                             )}

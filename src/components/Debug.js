@@ -275,6 +275,7 @@ export default function DebugPage() {
                         locus="chr7:55,085,725-55,276,031"
                         isVisible={igvVisible}
                         height={700}
+                        compact
                         tracks={[
                             {
                                 name: "Phase 3 WGS variants",

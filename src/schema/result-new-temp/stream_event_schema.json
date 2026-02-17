@@ -1,0 +1,451 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PanKLLM Streaming Event Schema",
+  "description": "Every line printed to stdout is a JSON object following this envelope. A frontend can read line-by-line, JSON.parse each line, and switch on the 'event' field to render progress.",
+
+  "type": "object",
+  "required": ["event", "ts", "data"],
+  "properties": {
+    "event": { "type": "string", "description": "Event type identifier (see 'events' definitions below)" },
+    "ts":    { "type": "number", "description": "Unix epoch timestamp (seconds, float)" },
+    "data":  { "type": "object", "description": "Event-specific payload" }
+  },
+
+  "$defs": {
+
+    "events": {
+
+      "complexity_classified": {
+        "description": "PlannerAgent classified the question complexity",
+        "stage": "main",
+        "source_file": "main.py",
+        "data": {
+          "complexity": { "type": "string", "enum": ["simple", "complex"] }
+        }
+      },
+
+      "planner_decision": {
+        "description": "PlannerAgent decided which sub-agents to call",
+        "stage": "main",
+        "source_file": "main.py",
+        "data": {
+          "round":          { "type": "integer", "description": "Planning round number (1-based)" },
+          "complexity":     { "type": "string",  "enum": ["simple", "complex"] },
+          "draft":          { "type": "string",  "description": "PlannerAgent's reasoning / draft plan" },
+          "num_functions":  { "type": "integer", "description": "Number of sub-agent calls planned" },
+          "functions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name":  { "type": "string", "description": "Function name, e.g. pankbase_chat_one_round" },
+                "input": { "type": "string", "description": "Natural language query sent to the sub-agent" }
+              }
+            }
+          }
+        }
+      },
+
+      "hirn_agent_used": {
+        "description": "Whether the HIRN literature agent was dispatched this round",
+        "stage": "main",
+        "source_file": "main.py",
+        "data": {
+          "used": { "type": "boolean" }
+        }
+      },
+
+      "main_routing": {
+        "description": "Routing to the final response agent (reasoning or format)",
+        "stage": "main",
+        "source_file": "main.py",
+        "data": {
+          "agent":      { "type": "string", "enum": ["reasoning", "format"] },
+          "complexity": { "type": "string", "enum": ["simple", "complex"] }
+        }
+      },
+
+      "final_response": {
+        "description": "The final answer is ready to display to the user",
+        "stage": "main",
+        "source_file": "main.py",
+        "data": {
+          "response": { "type": "string", "description": "Final JSON response string from the pipeline" }
+        }
+      },
+
+      "pipeline_start": {
+        "description": "Query-planner pipeline begins for a question",
+        "stage": "query_planner",
+        "source_file": "skills/query-planner/scripts/qp_query_planner.py",
+        "data": {
+          "question": { "type": "string", "description": "The natural language question being planned" }
+        }
+      },
+
+      "plan_generated": {
+        "description": "Claude produced the plan JSON (chain or parallel)",
+        "stage": "query_planner",
+        "source_file": "skills/query-planner/scripts/qp_query_planner.py",
+        "data": {
+          "question":  { "type": "string",  "description": "Truncated question (max 200 chars)" },
+          "plan_type": { "type": "string",  "enum": ["chain", "parallel"] },
+          "reasoning": { "type": "string",  "description": "Claude's reasoning for the plan structure" },
+          "num_steps": { "type": "integer", "description": "Number of steps in the plan" },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id":               { "type": "integer", "description": "Step ID (1-based)" },
+                "natural_language": { "type": "string",  "description": "NL query for this step" },
+                "depends_on":       { "type": ["integer", "null"], "description": "ID of the step this depends on (chain only)" },
+                "join_var":         { "type": ["string", "null"],  "description": "Cypher variable used to join with the next step" }
+              }
+            }
+          }
+        }
+      },
+
+      "text2cypher_done": {
+        "description": "One step's NL query was translated to Cypher (or failed)",
+        "stage": "query_planner",
+        "source_file": "skills/query-planner/scripts/qp_query_planner.py",
+        "data": {
+          "step_id": { "type": "integer", "description": "Step ID (1-based)" },
+          "success": { "type": "boolean", "description": "Whether translation succeeded" },
+          "cypher":  { "type": "string",  "description": "Generated Cypher query (on success)" },
+          "error":   { "type": "string",  "description": "Error message (on failure, max 500 chars)" }
+        }
+      },
+
+      "cypher_executing": {
+        "description": "A Cypher query is being sent to the Neo4j API",
+        "stage": "query_planner",
+        "source_file": "skills/query-planner/scripts/qp_query_planner.py",
+        "data": {
+          "index":  { "type": "integer", "description": "Query index (1-based)" },
+          "cypher": { "type": "string",  "description": "The Cypher query (truncated to 500 chars)" },
+          "length": { "type": "integer", "description": "Full length of the Cypher string" }
+        }
+      },
+
+      "cypher_result": {
+        "description": "Neo4j returned a result for one query",
+        "stage": "query_planner",
+        "source_file": "skills/query-planner/scripts/qp_query_planner.py",
+        "data": {
+          "index":     { "type": "integer", "description": "Query index (1-based)" },
+          "elapsed_s": { "type": "number",  "description": "Seconds the Neo4j call took" },
+          "success":   { "type": "boolean", "description": "Whether the query succeeded" },
+          "error":     { "type": ["string", "null"], "description": "Error message if failed" }
+        }
+      },
+
+      "pipeline_done": {
+        "description": "Query-planner pipeline finished",
+        "stage": "query_planner",
+        "source_file": "skills/query-planner/scripts/qp_query_planner.py",
+        "data": {
+          "elapsed_s":   { "type": "number",  "description": "Total pipeline wall-clock seconds" },
+          "plan_type":   { "type": "string",  "enum": ["chain", "parallel"] },
+          "num_steps":   { "type": "integer", "description": "Number of steps in the plan" },
+          "num_queries": { "type": "integer", "description": "Number of Cypher queries executed" },
+          "queries": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Preview of each query (truncated to 200 chars)"
+          }
+        }
+      },
+
+      "pankbase_summary": {
+        "description": "PankBaseAgent wrapper emitted its summary",
+        "stage": "pankbase",
+        "source_file": "PankBaseAgent/ai_assistant.py",
+        "data": {
+          "plan_type":   { "type": "string",  "enum": ["chain", "parallel", "unknown"] },
+          "reasoning":   { "type": "string",  "description": "Plan reasoning text" },
+          "num_steps":   { "type": "integer" },
+          "num_queries": { "type": "integer" },
+          "queries": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Preview of each query (truncated to 200 chars)"
+          }
+        }
+      },
+
+      "pankbase_interactive_response": {
+        "description": "Response from PankBaseAgent interactive mode (chat_forever only)",
+        "stage": "pankbase",
+        "source_file": "PankBaseAgent/ai_assistant.py",
+        "data": {
+          "response": { "type": "string", "description": "Truncated response (max 2000 chars)" }
+        }
+      },
+
+      "hirn_search_start": {
+        "description": "HIRN literature skill begins searching publications",
+        "stage": "hirn",
+        "source_file": "utils.py",
+        "data": {
+          "query": { "type": "string", "description": "Search query (max 200 chars)" }
+        }
+      },
+
+      "hirn_publications_loaded": {
+        "description": "HIRN publication index loaded from cache or API",
+        "stage": "hirn",
+        "source_file": "utils.py",
+        "data": {
+          "count": { "type": "integer", "description": "Number of publications in the index" }
+        }
+      },
+
+      "hirn_matches_found": {
+        "description": "Title keyword search completed",
+        "stage": "hirn",
+        "source_file": "utils.py",
+        "data": {
+          "count": { "type": "integer", "description": "Number of matching publications" }
+        }
+      },
+
+      "hirn_pmcids_resolved": {
+        "description": "PMC IDs resolved from PubMed IDs",
+        "stage": "hirn",
+        "source_file": "utils.py",
+        "data": {
+          "resolved":    { "type": "integer", "description": "Number of PMCIDs successfully resolved" },
+          "total_pmids": { "type": "integer", "description": "Total PMIDs attempted" }
+        }
+      },
+
+      "hirn_chunks_ready": {
+        "description": "Full-text chunks ranked and ready to return",
+        "stage": "hirn",
+        "source_file": "utils.py",
+        "data": {
+          "count": { "type": "integer", "description": "Number of passage chunks returned" }
+        }
+      },
+
+      "hirn_result": {
+        "description": "Final HIRN skill result (success, error, or timeout)",
+        "stage": "hirn",
+        "source_file": "utils.py",
+        "data": {
+          "status":        { "type": "string", "enum": ["success", "error", "timeout"] },
+          "query":         { "type": "string", "description": "Original query (max 200 chars)" },
+          "error":         { "type": "string", "description": "Error message (only on error, max 500 chars)" },
+          "result_length": { "type": "integer", "description": "Length of result JSON string (only on success)" }
+        }
+      },
+
+      "reasoning_start": {
+        "description": "ReasoningAgent pipeline begins",
+        "stage": "reasoning",
+        "source_file": "skills/reasoning-agent/scripts/reasoning_response.py",
+        "data": {
+          "human_query":       { "type": "string",  "description": "User question (max 200 chars)" },
+          "num_neo4j_results": { "type": "integer", "description": "Number of Neo4j result sets passed in" },
+          "use_literature":    { "type": "boolean", "description": "Whether HIRN literature is included" }
+        }
+      },
+
+      "reasoning_compress": {
+        "description": "Compression step (skipped for reasoning, used for format)",
+        "stage": "reasoning",
+        "source_file": "skills/reasoning-agent/scripts/reasoning_response.py",
+        "data": {
+          "skipped":     { "type": "boolean", "description": "True if compression was skipped" },
+          "reason":      { "type": "string",  "description": "Why compression was skipped" },
+          "num_results": { "type": "integer" }
+        }
+      },
+
+      "reasoning_claude_start": {
+        "description": "Calling Claude for multi-hop reasoning",
+        "stage": "reasoning",
+        "source_file": "skills/reasoning-agent/scripts/reasoning_response.py",
+        "data": {
+          "mode":  { "type": "string", "enum": ["WITH-LITERATURE", "NO-LITERATURE"] },
+          "model": { "type": "string", "description": "Claude model ID" }
+        }
+      },
+
+      "reasoning_claude_input": {
+        "description": "Input prepared for Claude reasoning call",
+        "stage": "reasoning",
+        "source_file": "skills/reasoning-agent/scripts/reasoning_response.py",
+        "data": {
+          "input_chars": { "type": "integer", "description": "Total characters in the prompt" },
+          "num_queries": { "type": "integer", "description": "Number of raw Neo4j queries included" }
+        }
+      },
+
+      "reasoning_claude_done": {
+        "description": "Claude returned a reasoning response",
+        "stage": "reasoning",
+        "source_file": "skills/reasoning-agent/scripts/reasoning_response.py",
+        "data": {
+          "elapsed_s":     { "type": "number",  "description": "Seconds the Claude call took" },
+          "input_tokens":  { "type": "integer", "description": "Tokens in the prompt" },
+          "output_tokens": { "type": "integer", "description": "Tokens in the response" }
+        }
+      },
+
+      "reasoning_raw_output": {
+        "description": "Raw Claude output (truncated to 3000 chars for streaming)",
+        "stage": "reasoning",
+        "source_file": "skills/reasoning-agent/scripts/reasoning_response.py",
+        "data": {
+          "output": { "type": "string", "description": "Truncated raw output" }
+        }
+      },
+
+      "reasoning_halluc_check": {
+        "description": "Hallucination check result for reasoning output",
+        "stage": "reasoning",
+        "source_file": "skills/reasoning-agent/scripts/reasoning_response.py",
+        "data": {
+          "is_clean":               { "type": "boolean", "description": "True if no hallucinations found" },
+          "hallucinated_go_terms":  { "type": "array", "items": { "type": "string" } },
+          "hallucinated_pubmed_ids":{ "type": "array", "items": { "type": "string" } },
+          "summary_go_count":       { "type": "integer" },
+          "summary_pubmed_count":   { "type": "integer" },
+          "error":                  { "type": "string", "description": "Error message if check itself failed" }
+        }
+      },
+
+      "reasoning_auto_clean": {
+        "description": "Hallucinated IDs were automatically removed from the summary",
+        "stage": "reasoning",
+        "source_file": "skills/reasoning-agent/scripts/reasoning_response.py",
+        "data": {
+          "removed_pubmed_ids": { "type": "integer", "description": "Number of fake PubMed IDs removed" },
+          "removed_go_terms":   { "type": "integer", "description": "Number of fake GO terms removed" }
+        }
+      },
+
+      "reasoning_done": {
+        "description": "ReasoningAgent pipeline finished",
+        "stage": "reasoning",
+        "source_file": "skills/reasoning-agent/scripts/reasoning_response.py",
+        "data": {
+          "elapsed_s":      { "type": "number", "description": "Total pipeline seconds" },
+          "halluc_check_s": { "type": "number", "description": "Seconds spent on hallucination check" }
+        }
+      },
+
+      "format_start": {
+        "description": "FormatAgent pipeline begins",
+        "stage": "format",
+        "source_file": "skills/format-agent/scripts/format_response.py",
+        "data": {
+          "human_query":       { "type": "string",  "description": "User question (max 200 chars)" },
+          "num_neo4j_results": { "type": "integer", "description": "Number of Neo4j result sets passed in" },
+          "use_literature":    { "type": "boolean", "description": "Whether HIRN literature is included" }
+        }
+      },
+
+      "format_compress": {
+        "description": "Neo4j results compressed for the format prompt",
+        "stage": "format",
+        "source_file": "skills/format-agent/scripts/format_response.py",
+        "data": {
+          "elapsed_s":      { "type": "number",  "description": "Seconds compression took" },
+          "num_compressed": { "type": "integer", "description": "Number of compressed result entries" }
+        }
+      },
+
+      "format_claude_start": {
+        "description": "Calling Claude for formatting",
+        "stage": "format",
+        "source_file": "skills/format-agent/scripts/format_response.py",
+        "data": {
+          "mode":  { "type": "string", "enum": ["WITH-LITERATURE", "NO-LITERATURE"] },
+          "model": { "type": "string", "description": "Claude model ID" }
+        }
+      },
+
+      "format_claude_input": {
+        "description": "Input prepared for Claude format call",
+        "stage": "format",
+        "source_file": "skills/format-agent/scripts/format_response.py",
+        "data": {
+          "input_chars": { "type": "integer", "description": "Total characters in the prompt" },
+          "total_nodes": { "type": "integer", "description": "Total nodes in compressed results" },
+          "total_edges": { "type": "integer", "description": "Total edges in compressed results" }
+        }
+      },
+
+      "format_claude_done": {
+        "description": "Claude returned a formatted response",
+        "stage": "format",
+        "source_file": "skills/format-agent/scripts/format_response.py",
+        "data": {
+          "elapsed_s":     { "type": "number",  "description": "Seconds the Claude call took" },
+          "input_tokens":  { "type": "integer", "description": "Tokens in the prompt" },
+          "output_tokens": { "type": "integer", "description": "Tokens in the response" }
+        }
+      },
+
+      "format_raw_output": {
+        "description": "Raw Claude output (truncated to 3000 chars for streaming)",
+        "stage": "format",
+        "source_file": "skills/format-agent/scripts/format_response.py",
+        "data": {
+          "output": { "type": "string", "description": "Truncated raw output" }
+        }
+      },
+
+      "format_halluc_check": {
+        "description": "Hallucination check result for format output",
+        "stage": "format",
+        "source_file": "skills/format-agent/scripts/format_response.py",
+        "data": {
+          "is_clean":               { "type": "boolean", "description": "True if no hallucinations found" },
+          "hallucinated_go_terms":  { "type": "array", "items": { "type": "string" } },
+          "hallucinated_pubmed_ids":{ "type": "array", "items": { "type": "string" } },
+          "summary_go_count":       { "type": "integer" },
+          "summary_pubmed_count":   { "type": "integer" },
+          "error":                  { "type": "string", "description": "Error message if check itself failed" }
+        }
+      },
+
+      "format_auto_clean": {
+        "description": "Hallucinated IDs were automatically removed from the summary",
+        "stage": "format",
+        "source_file": "skills/format-agent/scripts/format_response.py",
+        "data": {
+          "removed_pubmed_ids": { "type": "integer", "description": "Number of fake PubMed IDs removed" },
+          "removed_go_terms":   { "type": "integer", "description": "Number of fake GO terms removed" }
+        }
+      },
+
+      "format_done": {
+        "description": "FormatAgent pipeline finished",
+        "stage": "format",
+        "source_file": "skills/format-agent/scripts/format_response.py",
+        "data": {
+          "elapsed_s":      { "type": "number", "description": "Total pipeline seconds" },
+          "halluc_check_s": { "type": "number", "description": "Seconds spent on hallucination check" }
+        }
+      },
+
+      "hallucination_check_start": {
+        "description": "Hallucination checker is inspecting the output (shared by reasoning + format)",
+        "stage": "hallucination",
+        "source_file": "utils.py / skills/format-agent/scripts/hallucination_checker.py",
+        "data": {
+          "raw_agent_output_length": { "type": "integer", "description": "Length of raw sub-agent output" },
+          "pubmed_ids_in_output":    { "type": "array", "items": { "type": "string" }, "description": "PubMed IDs found in the raw output" }
+        }
+      }
+
+    }
+  }
+}
+

@@ -304,11 +304,23 @@ function MarkdownBody({ text, graphData, onPmidClick }) {
     const lines = text.split(/\n/);
     const blocks = [];
     let paragraph = [];
+    let isFirstLineOfBlock = true;
 
     const flushParagraph = () => {
         if (paragraph.length === 0) return;
         const paragraphText = paragraph.join("\n");
-        blocks.push({ type: "paragraph", text: paragraphText });
+        
+        // Split paragraph by first line as subtitle if there are multiple lines
+        if (paragraph.length > 1) {
+            const firstLine = paragraph[0];
+            const restLines = paragraph.slice(1).join("\n");
+            
+            blocks.push({ type: "subtitle", text: firstLine });
+            blocks.push({ type: "paragraph", text: restLines });
+        } else {
+            blocks.push({ type: "paragraph", text: paragraphText });
+        }
+        
         paragraph = [];
     };
 
@@ -344,6 +356,18 @@ function MarkdownBody({ text, graphData, onPmidClick }) {
                     >
                         {block.text}
                     </Typography>
+                ) : block.type === "subtitle" ? (
+                    <Typography
+                        key={`subtitle-${index}`}
+                        sx={{
+                            fontSize: 13,
+                            fontWeight: 700,
+                            color: "#0F766E",
+                            marginBottom: "-8px",
+                        }}
+                    >
+                        {block.text}
+                    </Typography>
                 ) : (
                     <BodyText
                         key={`paragraph-${index}`}
@@ -358,10 +382,11 @@ function MarkdownBody({ text, graphData, onPmidClick }) {
 }
 
 function EvidenceItem({ item, onSelect, isActive }) {
-    const isLink = Boolean(item?.href);
-    const clickable = Boolean(isLink || item?.onClick || onSelect);
+    const isLink = Boolean(item?.href && !item?.isSkeleton);
+    const clickable = Boolean((isLink || item?.onClick || onSelect) && !item?.isSkeleton);
     const Component = isLink ? "a" : clickable ? "button" : "div";
     const handleClick = (event) => {
+        if (item?.isSkeleton) return;
         item?.onClick?.(item, event);
         onSelect?.(item, event);
     };
@@ -395,72 +420,103 @@ function EvidenceItem({ item, onSelect, isActive }) {
             }}
         >
             <Stack direction="row" spacing={3} alignItems="flex-start">
-                <Chip
-                    label={String(item.id)}
-                    size="small"
-                    sx={{
-                        mt: 0.2,
-                        flexShrink: 0,
-                        fontWeight: 900,
-                        fontSize: "10px",
-                        bgcolor: "transparent",
-                        color: "#008C8C",
-                        border: "1px solid #008C8C",
-                        width: "24px",
-                        height: "24px",
-                        borderRadius: "50%",
-                        "& .MuiChip-label": {
-                            padding: 0,
-                        },
-                    }}
-                />
-                <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Typography
+                {item.isSkeleton ? (
+                    <Skeleton
+                        variant="circular"
+                        width={24}
+                        height={24}
                         sx={{
-                            fontSize: 14,
-                            fontWeight: 700,
-                            color: "#008C8C",
-                            mb: 0.35,
-                            display: "-webkit-box",
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: "vertical",
-                            overflow: "hidden",
+                            mt: 0.2,
+                            flexShrink: 0,
                         }}
-                    >
-                        {item.title}
-                    </Typography>
-                    {item.subtitle ? (
-                        <Typography
-                            sx={{
-                                fontSize: 9,
-                                fontWeight: 700,
-                                color: "#94A3B8",
-                                letterSpacing: "0.02em",
-                            }}
-                        >
-                            {item.subtitle}
-                        </Typography>
-                    ) : null}
+                    />
+                ) : (
+                    <Chip
+                        label={String(item.id)}
+                        size="small"
+                        sx={{
+                            mt: 0.2,
+                            flexShrink: 0,
+                            fontWeight: 900,
+                            fontSize: "10px",
+                            bgcolor: "transparent",
+                            color: "#008C8C",
+                            border: "1px solid #008C8C",
+                            width: "24px",
+                            height: "24px",
+                            borderRadius: "50%",
+                            "& .MuiChip-label": {
+                                padding: 0,
+                            },
+                        }}
+                    />
+                )}
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                    {item.isSkeleton ? (
+                        <>
+                            <Skeleton variant="text" width="85%" height={20} sx={{ mb: 0.5 }} />
+                            <Skeleton variant="text" width="75%" height={20} sx={{ mb: 1 }} />
+                            <Skeleton variant="text" width="60%" height={16} />
+                        </>
+                    ) : (
+                        <>
+                            <Typography
+                                sx={{
+                                    fontSize: 14,
+                                    fontWeight: 700,
+                                    color: "#008C8C",
+                                    mb: 0.35,
+                                    display: "-webkit-box",
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: "vertical",
+                                    overflow: "hidden",
+                                }}
+                            >
+                                {item.title}
+                            </Typography>
+                            {item.subtitle ? (
+                                <Typography
+                                    sx={{
+                                        fontSize: 9,
+                                        fontWeight: 700,
+                                        color: "#94A3B8",
+                                        letterSpacing: "0.02em",
+                                    }}
+                                >
+                                    {item.subtitle}
+                                </Typography>
+                            ) : null}
+                        </>
+                    )}
                 </Box>
             </Stack>
         </Paper>
     );
 }
 
-export default function QuestionAnswerPage({ data }) {
+export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
     const [visualTab, setVisualTab] = React.useState(0);
     const [evidenceTab, setEvidenceTab] = React.useState(0);
     const [activeReference, setActiveReference] = React.useState(null);
     const aiOverviewRef = React.useRef(null);
     const [aiOverviewHeight, setAiOverviewHeight] = React.useState(0);
     const isSingleColumn = useMediaQuery("(max-width:1199.95px)");
+    const visualTabs = data?.visualMaterial?.tabs ?? [];
+    const normalizedVisualIndex = visualTab < visualTabs.length ? visualTab : 0;
+    const activeVisualMinHeight = visualTabs[normalizedVisualIndex]?.minHeight;
     const singleColumnHeight = (minPx, vw, maxPx) => `clamp(${minPx}px, ${vw}vw, ${maxPx}px)`;
     const desktopClamp = "clamp(260px, 28vw, 420px)";
-    const visualPanelHeight = isSingleColumn
-        ? singleColumnHeight(400, 55, 520)
-        : aiOverviewHeight
-            ? `max(${desktopClamp}, ${aiOverviewHeight}px)`
-            : desktopClamp;
+    const maxAiOverviewHeight = 520;
+    const baseSingleHeight = singleColumnHeight(400, 55, 520);
+    const cappedAiOverviewHeight = aiOverviewHeight
+        ? Math.min(aiOverviewHeight, maxAiOverviewHeight)
+        : 0;
+    const baseDesktopHeight = cappedAiOverviewHeight
+        ? `max(${desktopClamp}, ${cappedAiOverviewHeight}px)`
+        : desktopClamp;
+    const visualPanelHeight = activeVisualMinHeight
+        ? `max(${activeVisualMinHeight}px, ${isSingleColumn ? baseSingleHeight : baseDesktopHeight})`
+        : (isSingleColumn ? baseSingleHeight : baseDesktopHeight);
     const visualPanelMaxWidth = isSingleColumn ? 640 : "100%";
 
     const handleVisualTabChange = (newTab) => {
@@ -509,11 +565,21 @@ export default function QuestionAnswerPage({ data }) {
         };
     }, [activeReference, evidenceTab, referencesTabIndex]);
 
-    const visualTabs = data?.visualMaterial?.tabs ?? [];
     const evidenceTabs = data?.evidences?.tabs ?? [];
     const showVisualSection = Boolean(data?.visualMaterial);
     const showEvidenceSection = Boolean(data?.evidences);
     const showFollowUpSection = Boolean(data?.followUp);
+    const anchorPrefix = React.useMemo(() => {
+        if (contentAnchorPrefix) return contentAnchorPrefix;
+        if (data?.questionId) {
+            return `result-${String(data.questionId).replace(/[^a-zA-Z0-9-_]/g, "-")}`;
+        }
+        return "result";
+    }, [contentAnchorPrefix, data?.questionId]);
+    const buildAnchorId = React.useCallback(
+        (suffix) => `${anchorPrefix}-${suffix}`,
+        [anchorPrefix]
+    );
 
     React.useEffect(() => {
         if (visualTab > 0 && visualTab >= visualTabs.length) {
@@ -540,6 +606,15 @@ export default function QuestionAnswerPage({ data }) {
         observer.observe(element);
         return () => observer.disconnect();
     }, [data?.aiOverview?.sections]);
+
+    // Handle scroll to top signal from parent
+    React.useEffect(() => {
+        if (data?.scrollToTop && aiOverviewRef.current) {
+            requestAnimationFrame(() => {
+                aiOverviewRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+    }, [data?.scrollToTop]);
 
     const getItemLabel = (item) => {
         if (typeof item === "string") return item;
@@ -579,28 +654,40 @@ export default function QuestionAnswerPage({ data }) {
                 {/* Main two-column area (AI Overview + Visual Material) */}
                 <Grid container spacing={2.5} alignItems="stretch">
                     {/* AI Overview */}
-                    <Grid item xs={12} md={12} lg={7} order={{ xs: 1, md: 1, lg: 1 }}>
+                    <Grid item xs={12} md={12} lg={7} order={{ xs: 1, md: 1, lg: 1 }} id={buildAnchorId("ai-overview")}>
                         <SectionCard title="AI Overview">
-                            <Stack spacing={1.5} ref={aiOverviewRef}>
-                                {(data?.aiOverview?.sections ?? []).map((sec, idx) => (
-                                    <Box key={`${sec.heading}-${idx}`}>
-                                        {sec.heading && !(typeof sec.body === "string" && sec.body.includes("###")) ? (
-                                            <Typography sx={{ fontSize: 14, fontWeight: 600, color: "#3A838B", mb: 0.6 }}>
-                                                <span style={{ marginRight: '6px' }}>✨</span>
-                                                {sec.heading}
-                                            </Typography>
-                                        ) : null}
-                                        {sec.content ? sec.content : <MarkdownBody text={sec.body} graphData={data?.graphData} onPmidClick={handlePmidClick} />}
-                                    </Box>
-                                ))}
-                            </Stack>
+                            <Box
+                                sx={{
+                                    height: 520,
+                                    minHeight: 520,
+                                    maxHeight: 520,
+                                    overflowY: "auto",
+                                    overflowX: "hidden",
+                                    pr: { xs: 0, lg: 1 },
+                                }}
+                                ref={aiOverviewRef}
+                            >
+                                <Stack spacing={1.5}>
+                                    {(data?.aiOverview?.sections ?? []).map((sec, idx) => (
+                                        <Box key={`${sec.heading}-${idx}`} id={buildAnchorId(`ai-overview-${idx + 1}`)}>
+                                            {sec.heading && !(typeof sec.body === "string" && sec.body.includes("###")) ? (
+                                                <Typography sx={{ fontSize: 14, fontWeight: 600, color: "#3A838B", mb: 0.6 }}>
+                                                    <span style={{ marginRight: '6px' }}>✨</span>
+                                                    {sec.heading}
+                                                </Typography>
+                                            ) : null}
+                                            {sec.content ? sec.content : <MarkdownBody text={sec.body} graphData={data?.graphData} onPmidClick={handlePmidClick} />}
+                                        </Box>
+                                    ))}
+                                </Stack>
+                            </Box>
                         </SectionCard>
                     </Grid>
 
                     {/* Visual Material */}
                     {showVisualSection ? (
-                        <Grid item xs={12} md={12} lg={5} order={{ xs: 2, md: 2, lg: 2 }}>
-                            <SectionCard sx={{ height: "100%" }}>
+                        <Grid item xs={12} md={12} lg={5} order={{ xs: 2, md: 2, lg: 2 }} id={buildAnchorId("visual-material")}>
+                            <SectionCard title={isSingleColumn ? (data?.visualMaterial?.title || "Visual Material") : null} sx={{ height: "100%" }}>
                                 {visualTabs.length > 1 ? (
                                     <Box sx={{ mb: 1 }}>
                                         <ContentTabs
@@ -686,9 +773,9 @@ export default function QuestionAnswerPage({ data }) {
 
                     {/* Evidences */}
                     {showEvidenceSection ? (
-                        <Grid item xs={12} md={12} lg={7} order={{ xs: 3, md: 3, lg: 3 }}>
-                            <SectionCard>
-                                {evidenceTabs.length > 1 ? (
+                        <Grid item xs={12} md={12} lg={7} order={{ xs: 3, md: 3, lg: 3 }} id={buildAnchorId("evidences")}>
+                            <SectionCard title={isSingleColumn ? (data?.evidences?.title || "Evidences") : null}>
+                                {evidenceTabs.length > 0 ? (
                                     <Box sx={{ mb: 1 }}>
                                         <ContentTabs
                                             tabs={evidenceTabs}
@@ -737,7 +824,7 @@ export default function QuestionAnswerPage({ data }) {
 
                     {/* Follow Up */}
                     {showFollowUpSection ? (
-                        <Grid item xs={12} md={12} lg={5} order={{ xs: 4, md: 4, lg: 4 }}>
+                        <Grid item xs={12} md={12} lg={5} order={{ xs: 4, md: 4, lg: 4 }} id={buildAnchorId("follow-up")}>
                             <SectionCard title={data?.followUp?.title ?? "Follow Up"} sx={{ height: "100%" }}>
                                 <Stack spacing={1.25}>
                                     {(data?.followUp?.items ?? []).map((item, idx) => {

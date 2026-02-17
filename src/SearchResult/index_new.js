@@ -164,7 +164,7 @@ const LoadingSkeleton = () => (
     </Container>
 )
 
-function SearchResult({ demoIndex = 1 } = {}) {
+function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}) {
     const dispatch = useDispatch();
     const location = useLocation();
     const demoMode = React.useMemo(
@@ -697,12 +697,6 @@ function SearchResult({ demoIndex = 1 } = {}) {
         return `${authorText}${citation ? ` • ${citation}` : ''}${details ? ` • ${details}` : ''} • PMID: ${ref.pmid}`;
     };
 
-    if (error) return <ErrorComponent errorTitle={viewSchema?.result_error_title} errorMessage={viewSchema?.result_error_message} />;
-
-    if (!(queryResultPage?.combined_query_result) && !demoMode) {
-        return <ResultComponentSkeleton />;
-    }
-
     const referencesItems = articlesData.map((ref, index) => ({
         id: index + 1,
         title: ref.data?.title || `PMID: ${ref.pmid}`,
@@ -863,9 +857,12 @@ function SearchResult({ demoIndex = 1 } = {}) {
                 { label: "Knowledge Graph", content: demoKnowledgeGraphContent },
                 {
                     label: "Genome Browser",
+                    minHeight: 676,
                     content: (
                         <GenomeBrowserEmbed
                             locus="chr7:55,085,725-55,276,031"
+                            compact
+                            height="100%"
                             tracks={[
                                 {
                                     name: "Phase 3 WGS variants",
@@ -965,6 +962,30 @@ function SearchResult({ demoIndex = 1 } = {}) {
                 })),
         },
     };
+    const resolvedPageData = demoMode ? buildDemoPageData(demoIndex) : pageData;
+    const anchorPrefix = contentAnchorPrefix || `result-${demoIndex}`;
+
+    useEffect(() => {
+        if (!onContentMeta) return;
+        const aiHeadings = (resolvedPageData?.aiOverview?.sections ?? [])
+            .map((section, index) => (section?.heading ? ({ label: section.heading, index }) : null))
+            .filter(Boolean);
+        onContentMeta({
+            anchorPrefix,
+            aiHeadings,
+            hasVisual: Boolean(resolvedPageData?.visualMaterial),
+            hasEvidences: Boolean(resolvedPageData?.evidences),
+            hasFollowUp: Boolean(resolvedPageData?.followUp),
+        });
+    }, [anchorPrefix, onContentMeta, resolvedPageData]);
+
+    if (error) {
+        return <ErrorComponent errorTitle={viewSchema?.result_error_title} errorMessage={viewSchema?.result_error_message} />;
+    }
+
+    if (!(queryResultPage?.combined_query_result) && !demoMode) {
+        return <ResultComponentSkeleton />;
+    }
 
     return (
         <>
@@ -985,7 +1006,7 @@ function SearchResult({ demoIndex = 1 } = {}) {
                     />
                 </Backdrop>
             ) : null}
-            <QuestionAnswerPage data={demoMode ? buildDemoPageData(demoIndex) : pageData} />
+            <QuestionAnswerPage data={resolvedPageData} contentAnchorPrefix={anchorPrefix} />
         </>
     );
 }
