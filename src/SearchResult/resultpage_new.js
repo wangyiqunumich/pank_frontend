@@ -6,6 +6,8 @@ import React, {
   useState,
 } from 'react';
 
+import igv from 'https://cdn.jsdelivr.net/npm/igv@3.0.2/dist/igv.esm.min.js';
+import JSON5 from 'json5';
 import {
   useDispatch,
   useSelector,
@@ -36,6 +38,7 @@ import {
 
 import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 import { ErrorComponent } from '../components/IntermediatePage';
+import { GenomeBrowserEmbed } from './AgentResult';
 import KnowledgeGraph from '../components/KnowledgeGraph';
 import QuestionAnswerPage, {
   ResultComponentSkeleton,
@@ -192,14 +195,14 @@ const NoGraphData = () => (
         height: '600px',
         width: '100%',
         justifyContent: 'center',
-        backgroundColor: '#F9FAFB',
+        backgroundColor: 'transparent',
     }}>
 
-        <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '24px', color: '#43AABA', marginBottom: '-12px', whiteSpace: 'nowrap' }}>
+        <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '16px', color: '#43AABA', marginBottom: '-12px', whiteSpace: 'nowrap' }}>
             No Knowledge Graph available for this answer.
         </Typography>
 
-        <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 400, fontSize: '20px', color: '#6C6C6C' }}>
+        <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 400, fontSize: '14px', color: '#6C6C6C' }}>
             Please contact PanKbase team for support.
         </Typography>
 
@@ -231,7 +234,7 @@ const NoGraphData = () => (
     </Box>
 );
 
-function SearchResult({ demoIndex = 1 } = {}) {
+function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}) {
     const dispatch = useDispatch();
     const location = useLocation();
     const demoMode = React.useMemo(
@@ -260,6 +263,14 @@ function SearchResult({ demoIndex = 1 } = {}) {
     const navigate = useNavigate();
     const [debug, setDebug] = useState(false);
     const [question, setQuestion] = useState('');
+    const [streamedSummary, setStreamedSummary] = useState('');
+    const [streamedEvents, setStreamedEvents] = useState([]);
+    const [thinkingLines, setThinkingLines] = useState([]);
+    const [streamAnswer, setStreamAnswer] = useState('');
+    const [streamComplete, setStreamComplete] = useState(false);
+    const streamSummaryRef = useRef('');
+    const streamAnswerRef = useRef('');
+    const thinkingBoxRef = useRef(null);
 
     useEffect(() => {
         if (demoMode) {
@@ -345,6 +356,13 @@ function SearchResult({ demoIndex = 1 } = {}) {
             return;
         }
 
+        if (debug) {
+            setCurrentQuestion(question);
+            setAiLoading(false);
+            // In debug mode, don't disable graph - it will be populated from final_response event
+            return;
+        }
+
         console.log('Querying AI agent...');
         const thunk = dispatch(queryAiAgent(debug ? { debug: true } : { question: question, "agent_name": "pankbase" }));
         thunkref.current = thunk;
@@ -366,7 +384,9 @@ function SearchResult({ demoIndex = 1 } = {}) {
                 window.location.href = newUrl;
                 return;
             }
-            setAiAnswer(agentResult.summary || {});
+            if (!debug) {
+                setAiAnswer(agentResult.summary || {});
+            }
             // setMainCypher(agentResult.cypher || '');
 
             setCurrentQuestion(question);
@@ -389,37 +409,354 @@ function SearchResult({ demoIndex = 1 } = {}) {
                 return;
             }
             setAiLoading(false);
-            console.log('Querying graph data...');
-            dispatch(queryQueryResultPage({
-                payload: {
-                    "cypher": agentResult.cypher,
-                    "rdb_query": ""
-                }, agent: true
-            })).then((response) => {
-                console.log('Graph data received:', response.payload);
-                if (!response.payload?.combined_query_result) {
-                    console.log('[ERROR] No combined query result found');
-                    setNoGraph(true);
-                    // setError(true);
-                    return;
-                }
-                setGraphData(response.payload?.combined_query_result || {});
-                setCoordData(response.payload?.xy_json || {});
-            });
+            console.log('Graph query disabled: skipping queryQueryResultPage');
+            setNoGraph(true);
         });
     }, []);
+
+    useEffect(() => {
+        if (!debug || demoMode) {
+            return undefined;
+        }
+
+        let chunkTimer = null;
+        setStreamedEvents([]);
+        setThinkingLines([]);
+        setStreamAnswer('');
+        streamAnswerRef.current = '';
+        setStreamedSummary('');
+        streamSummaryRef.current = '';
+        setStreamComplete(false);
+
+        // Call real streaming API
+        const callStreamingAPI = async () => {
+            try {
+                console.log('[Stream API] Calling:', 'https://agent.pankgraph.org/query/stream', 'with question:', question);
+                const response = await fetch('https://agent.pankgraph.org/query/stream', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ question: question || '' }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines[lines.length - 1];
+
+                    for (let i = 0; i < lines.length - 1; i++) {
+                        const line = lines[i].trim();
+                        if (!line) continue;
+
+                        // Skip lines that don't look like JSON (filter out server logs)
+                        if (!line.startsWith('{') && !line.startsWith('[')) {
+                            console.debug('[Stream API] Skipping non-JSON line:', line.substring(0, 50));
+                            continue;
+                        }
+
+                        try {
+                            const event = JSON.parse(line);
+                            console.log('[Stream API] Event received:', event.event);
+                            // Process event with the same handler as simulator
+                            handleStreamEvent(event);
+                        } catch (e) {
+                            console.error('[Stream API] Failed to parse event line:', e, 'line:', line.substring(0, 100));
+                        }
+                    }
+                }
+
+                // Process any remaining buffer
+                if (buffer.trim()) {
+                    // Skip if buffer doesn't look like JSON
+                    if (buffer.trim().startsWith('{') || buffer.trim().startsWith('[')) {
+                        try {
+                            const event = JSON.parse(buffer);
+                            console.log('[Stream API] Final event:', event.event);
+                            handleStreamEvent(event);
+                        } catch (e) {
+                            console.error('[Stream API] Failed to parse final event:', e);
+                        }
+                    } else {
+                        console.debug('[Stream API] Skipping non-JSON buffer:', buffer.substring(0, 50));
+                    }
+                }
+
+                // Mark stream as complete
+                setStreamComplete(true);
+            } catch (error) {
+                console.error('[Stream API] Error:', error);
+                setStreamComplete(true);
+            }
+        };
+
+        const handleStreamEvent = (event) => {
+            setStreamedEvents((prev) => [...prev, event]);
+
+            if (event?.event === 'stream_complete') {
+                if (streamAnswerRef.current || streamSummaryRef.current) {
+                    setStreamComplete(true);
+                }
+                return;
+            }
+
+            if (event?.event === 'format_done') {
+                if (streamAnswerRef.current || streamSummaryRef.current) {
+                    setStreamComplete(true);
+                }
+            }
+
+            if (event?.event === 'format_raw_output' && event?.data?.output) {
+                let summaryText = '';
+                let parsedResult = null;
+                let parseError = null;
+                const rawOutput = event.data.output;
+
+                console.log('[format_raw_output] ========== RAW OUTPUT ==========');
+                console.log('[format_raw_output] Type:', typeof rawOutput);
+                console.log('[format_raw_output] Length:', typeof rawOutput === 'string' ? rawOutput.length : 'N/A');
+                console.log('[format_raw_output] Content:', rawOutput);
+                console.log('[format_raw_output] ===================================');
+                console.log('[format_raw_output] Attempting to parse output...');
+
+                // Try JSON5 first (more lenient parser)
+                try {
+                    parsedResult = typeof rawOutput === 'string' ? JSON5.parse(rawOutput) : rawOutput;
+                    summaryText = parsedResult?.text?.summary || '';
+                    console.log('[format_raw_output] ✓ JSON5 parse successful, summary length:', summaryText.length);
+                } catch (err) {
+                    parseError = err;
+                    console.error('[format_raw_output] JSON5 parse failed:', err.message);
+
+                    // Try standard JSON.parse as fallback
+                    try {
+                        parsedResult = typeof rawOutput === 'string' ? JSON.parse(rawOutput) : rawOutput;
+                        summaryText = parsedResult?.text?.summary || '';
+                        console.log('[format_raw_output] ✓ JSON.parse fallback successful, summary length:', summaryText.length);
+                    } catch (err2) {
+                        console.error('[format_raw_output] JSON.parse fallback also failed:', err2.message);
+                        console.error('[format_raw_output] Raw output preview:', typeof rawOutput === 'string' ? rawOutput.substring(0, 200) : rawOutput);
+                    }
+                }
+
+                // If parsing failed, try regex extraction
+                if (!summaryText && typeof rawOutput === 'string') {
+                    console.log('[format_raw_output] Attempting regex extraction...');
+                    const match = rawOutput.match(/"summary"\s*:\s*"([\s\S]*?)"\s*[},]/);
+                    if (match?.[1]) {
+                        summaryText = match[1]
+                            .replace(/\\n/g, '\n')
+                            .replace(/\\"/g, '"')
+                            .replace(/\\\\/g, '\\');
+                        console.log('[format_raw_output] ✓ Regex extraction successful, summary length:', summaryText.length);
+                    } else {
+                        console.error('[format_raw_output] ✗ Regex extraction failed - no match found');
+                    }
+                }
+
+                if (summaryText.startsWith('Answer\n')) {
+                    summaryText = summaryText.slice('Answer\n'.length);
+                }
+
+                if (!summaryText) {
+                    console.error('[format_raw_output] ✗ FINAL RESULT: No summary text extracted');
+                    if (parseError) {
+                        console.error('[format_raw_output] Parse error details:', parseError);
+                    }
+                    return;
+                }
+
+                console.log('[format_raw_output] ✓ FINAL RESULT: Summary ready, length:', summaryText.length);
+
+                setStreamAnswer(summaryText);
+                streamAnswerRef.current = summaryText;
+
+                if (chunkTimer) {
+                    clearInterval(chunkTimer);
+                }
+
+                const chunkSize = 160;
+                setStreamedSummary(summaryText.slice(0, chunkSize));
+                streamSummaryRef.current = summaryText.slice(0, chunkSize);
+                let index = 0;
+                chunkTimer = setInterval(() => {
+                    index += chunkSize;
+                    const nextChunk = summaryText.slice(0, index);
+                    setStreamedSummary(nextChunk);
+                    streamSummaryRef.current = nextChunk;
+                    if (index >= summaryText.length) {
+                        clearInterval(chunkTimer);
+                        chunkTimer = null;
+                        setStreamedSummary(summaryText);
+                        streamSummaryRef.current = summaryText;
+                    }
+                }, 200);
+            }
+
+            if (!event?.event) {
+                return;
+            }
+
+            if (event?.event === 'final_response' && event?.data?.response) {
+                console.log('[final_response] Processing final response...');
+                console.log('[final_response] Raw response type:', typeof event.data.response);
+                console.log('[final_response] Raw response (first 200 chars):', 
+                    typeof event.data.response === 'string' 
+                        ? event.data.response.substring(0, 200) 
+                        : JSON.stringify(event.data.response).substring(0, 200)
+                );
+                
+                try {
+                    let responseData = typeof event.data.response === 'string'
+                        ? JSON5.parse(event.data.response)
+                        : event.data.response;
+
+                    console.log('[final_response] Parsed response data:', responseData);
+                    console.log('[final_response] Response structure:', {
+                        hasTo: !!responseData?.to,
+                        hasText: !!responseData?.text,
+                        hasTemplate: !!responseData?.text?.template_matching,
+                        hasCypher: !!responseData?.text?.cypher,
+                        hasSummary: !!responseData?.text?.summary,
+                    });
+
+                    const cypherQueries = responseData?.text?.cypher || [];
+                    const summary = responseData?.text?.summary || '';
+                    
+                    console.log('[final_response] Extracted cypher queries:', cypherQueries.length, 'queries');
+                    console.log('[final_response] Summary length:', summary.length, 'chars');
+
+                    // Update summary from final_response
+                    if (summary) {
+                        console.log('[final_response] Setting summary from final_response');
+                        setStreamAnswer(summary);
+                        streamAnswerRef.current = summary;
+                    }
+
+                    if (cypherQueries.length > 0) {
+                        console.log('[final_response] Querying graph data with', cypherQueries.length, 'queries...');
+                        dispatch(queryQueryResultPage({
+                            payload: {
+                                "cypher": cypherQueries,
+                                "rdb_query": ""
+                            }, agent: true
+                        })).then((response) => {
+                            console.log('[final_response] Graph data received:', response?.payload);
+                            if (response?.payload?.combined_query_result) {
+                                setGraphData(response.payload.combined_query_result);
+                                console.log('[final_response] ✓ Graph data set successfully');
+                            } else {
+                                console.log('[final_response] ⚠ No combined query result found');
+                                setNoGraph(true);
+                            }
+                        }).catch((err) => {
+                            console.error('[final_response] ✗ Graph query error:', err?.message || err);
+                            setNoGraph(true);
+                        });
+                    } else {
+                        console.log('[final_response] ⚠ No cypher queries found');
+                    }
+                } catch (err) {
+                    console.error('[final_response] ✗ Error processing response:');
+                    console.error('[final_response] Error message:', err.message);
+                    console.error('[final_response] Error stack:', err.stack);
+                    console.error('[final_response] Raw response:', event.data.response);
+                }
+            }
+
+            const formatTime = (ts) => {
+                if (!ts) return '';
+                try {
+                    return new Date(ts * 1000).toLocaleTimeString();
+                } catch (err) {
+                    return '';
+                }
+            };
+            const compactData = (data, eventName) => {
+                if (!data) return '';
+                if (eventName === 'format_raw_output') {
+                    const outputValue = data?.output;
+                    const size = typeof outputValue === 'string'
+                        ? outputValue.length
+                        : JSON.stringify(outputValue || {}).length;
+                    return `output_chars=${size}`;
+                }
+                const raw = JSON.stringify(data);
+                if (!raw) return '';
+                return raw.length > 180 ? `${raw.slice(0, 180)}...` : raw;
+            };
+
+            const timeText = formatTime(event.ts);
+            const dataText = compactData(event.data, event.event);
+            const line = [timeText, event.event, dataText].filter(Boolean).join(' | ');
+            setThinkingLines((prev) => [...prev, line]);
+        };
+
+        callStreamingAPI();
+
+        return () => {
+            if (chunkTimer) {
+                clearInterval(chunkTimer);
+            }
+        };
+    }, [debug, demoMode, question, dispatch]);
 
     const removeConsecutiveAsterisks = (text) => {
         return text.replace(/\*\*/g, '');
     };
 
+    // Skeleton placeholder for summary loading
+    const SummarySkeleton = () => (
+        <Box sx={{ width: '100%' }}>
+            <Skeleton variant="text" width="90%" height={24} sx={{ mb: 1 }} />
+            <Skeleton variant="text" width="95%" height={24} sx={{ mb: 1 }} />
+            <Skeleton variant="text" width="88%" height={24} sx={{ mb: 1 }} />
+            <Skeleton variant="text" width="92%" height={24} sx={{ mb: 2 }} />
+            <Skeleton variant="text" width="85%" height={24} sx={{ mb: 1 }} />
+            <Skeleton variant="text" width="93%" height={24} sx={{ mb: 1 }} />
+            <Skeleton variant="text" width="70%" height={24} />
+        </Box>
+    );
+
     const summaryPlaceholder = "AI summary is generating...";
     const normalizedAnswer = typeof aiAnswer === "string" ? aiAnswer : "";
-    const isAiSummaryLoading = !demoMode && !normalizedAnswer;
+    const activeSummary = debug
+        ? (streamComplete ? (streamAnswer || streamedSummary) : streamedSummary)
+        : normalizedAnswer;
+    const isAiSummaryLoading = !demoMode && !activeSummary;
+
+    // Auto-scroll thinking process if near bottom
+    useEffect(() => {
+        if (!thinkingBoxRef.current) return;
+        const element = thinkingBoxRef.current;
+        // Check if user is near the bottom (within 50px)
+        const isNearBottom = element.scrollHeight - element.scrollTop - element.clientHeight < 50;
+        if (isNearBottom) {
+            // Scroll to bottom on next frame
+            requestAnimationFrame(() => {
+                element.scrollTop = element.scrollHeight;
+            });
+        }
+    }, [thinkingLines]);
+
+    // Show skeleton if we're in debug mode streaming but haven't received summary yet
+    const shouldShowSkeleton = debug && !streamedSummary && !streamComplete;
+
     const displaySummary = removeConsecutiveAsterisks(
         demoMode
             ? (sampleSummaryData?.summary || '')
-            : (normalizedAnswer || summaryPlaceholder)
+            : (activeSummary || summaryPlaceholder)
     );
 
     const stripHtml = (value) => (value ? value.replace(/<[^>]*>/g, '') : '');
@@ -502,54 +839,117 @@ function SearchResult({ demoIndex = 1 } = {}) {
         return "\n\n\n==LOG===========================\nQuestion:\n" + question + "\n\nRaw AI Agent Result:\n" + JSON.stringify(agentRawResult, null, 2);
     }
 
-    // Fetch articles data based on aiAnswer
+    // Track if references are loading
+    const [referencesLoading, setReferencesLoading] = useState(false);
+
+    // Fetch articles data in PRODUCTION mode based on aiAnswer
     useEffect(() => {
-        if (demoMode) {
+        if (demoMode || debug) {
+            // Skip in demo or debug mode
             return;
         }
+
         if (!!aiAnswer) {
             const pmidsFromText = ProcessLinks2({ text: aiAnswer })?.filter(part => part.type === "pubmedid").map(part => (part.text)) || [];
             const pmids = [...new Set(pmidsFromText)].slice(0, 50);
-            console.log('Fetching articles for PMIDs:', pmids);
-            dispatch(queryArticles({
-                db: 'pubmed',
-                id: pmids.join(','),
-                retmode: 'json',
-            })).then((response) => {
-                console.log('Articles data received:', response.payload);
-                if (!response.payload ||
-                    Object.keys(response.payload.result || {})
-                        .some(pmid => pmid !== "uids" && !response.payload.result[pmid]?.authors)
-                ) {
-                    console.log('[ERROR] Invalid article data');
-                    setError(true);
-                    return;
-                }
-                setArticlesData(
-                    pmids.map(pmid => ({
-                        pmid: pmid,
-                        data: response.payload.result[pmid] || {},
-                        doi: response.payload.result[pmid]?.articleids?.find(id => id.idtype === 'doi')?.value || ''
-                    }))
-                );
-            });
+            console.log('[Production Mode] Fetching articles for PMIDs:', pmids);
+            if (pmids.length > 0) {
+                setReferencesLoading(true);
+                dispatch(queryArticles({
+                    db: 'pubmed',
+                    id: pmids.join(','),
+                    retmode: 'json',
+                })).then((response) => {
+                    setReferencesLoading(false);
+                    console.log('[Production Mode] Articles data received:', response.payload);
+                    if (!response.payload ||
+                        Object.keys(response.payload.result || {})
+                            .some(pmid => pmid !== "uids" && !response.payload.result[pmid]?.authors)
+                    ) {
+                        console.log('[ERROR] Invalid article data');
+                        setError(true);
+                        return;
+                    }
+                    setArticlesData(
+                        pmids.map(pmid => ({
+                            pmid: pmid,
+                            data: response.payload.result[pmid] || {},
+                            doi: response.payload.result[pmid]?.articleids?.find(id => id.idtype === 'doi')?.value || ''
+                        }))
+                    );
+                }).catch((err) => {
+                    setReferencesLoading(false);
+                    console.error('[Production Mode] Article fetch error:', err);
+                });
+            }
         }
-    }, [aiAnswer]);
+    }, [aiAnswer, demoMode, debug, dispatch]);
 
-    if (error) return <ErrorComponent errorTitle={"Question Not Relevant"} errorMessage={"Your query doesn't match any relevant topic in PanKgraph. Please try rephrasing or explore related tutorials."} log={debugMessage(question, agentRawResult)} />;
+    // Fetch articles data in DEBUG mode based on streamComplete
+    useEffect(() => {
+        if (demoMode || !debug || !streamComplete) {
+            // Skip in demo mode or if not in debug mode or stream not complete
+            return;
+        }
 
-    // Show loading skeleton if queryResultPage is not ready
-    if (aiLoading && !demoMode) {
-        return <ResultComponentSkeleton />;
-    }
+        const textToExtractFrom = streamAnswer || streamedSummary;
 
-    const referencesItems = articlesData.map((ref, index) => ({
-        id: index + 1,
-        title: ref.data?.title || `PMID: ${ref.pmid}`,
-        subtitle: buildReferenceSubtitle(ref),
-        href: `https://pubmed.gov/${ref.pmid}`,
-        anchorId: `reference-item-${ref.pmid}`,
+        if (!!textToExtractFrom) {
+            const pmidsFromText = ProcessLinks2({ text: textToExtractFrom })?.filter(part => part.type === "pubmedid").map(part => (part.text)) || [];
+            const pmids = [...new Set(pmidsFromText)].slice(0, 50);
+            console.log('[Debug Mode] Fetching articles for PMIDs:', pmids);
+            if (pmids.length > 0) {
+                setReferencesLoading(true);
+                dispatch(queryArticles({
+                    db: 'pubmed',
+                    id: pmids.join(','),
+                    retmode: 'json',
+                })).then((response) => {
+                    setReferencesLoading(false);
+                    console.log('[Debug Mode] Articles data received:', response.payload);
+                    if (!response.payload ||
+                        Object.keys(response.payload.result || {})
+                            .some(pmid => pmid !== "uids" && !response.payload.result[pmid]?.authors)
+                    ) {
+                        console.log('[Debug Mode ERROR] Invalid article data');
+                        // Don't set error in debug mode - just skip articles
+                        return;
+                    }
+                    setArticlesData(
+                        pmids.map(pmid => ({
+                            pmid: pmid,
+                            data: response.payload.result[pmid] || {},
+                            doi: response.payload.result[pmid]?.articleids?.find(id => id.idtype === 'doi')?.value || ''
+                        }))
+                    );
+                }).catch((err) => {
+                    setReferencesLoading(false);
+                    console.error('[Debug Mode] Article fetch error:', err);
+                });
+            }
+        }
+    }, [streamComplete, demoMode, debug, streamAnswer, streamedSummary, dispatch]);
+
+    // Create skeleton placeholder items for references while loading
+    const referencesSkeletonItems = Array.from({ length: 3 }, (_, index) => ({
+        id: `skeleton-${index}`,
+        title: '',
+        subtitle: '',
+        isSkeleton: true,
     }));
+
+    // Show skeleton while loading, otherwise show actual articles
+    const showReferenceSkeleton = referencesLoading && articlesData.length === 0;
+
+    const referencesItems = showReferenceSkeleton
+        ? referencesSkeletonItems
+        : articlesData.map((ref, index) => ({
+            id: index + 1,
+            title: ref.data?.title || `PMID: ${ref.pmid}`,
+            subtitle: buildReferenceSubtitle(ref),
+            href: `https://pubmed.gov/${ref.pmid}`,
+            anchorId: `reference-item-${ref.pmid}`,
+        }));
 
     const empiricalEvidenceContent = referenceData?.empirical_evidence ? (
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4, alignItems: 'center' }}>
@@ -651,12 +1051,26 @@ function SearchResult({ demoIndex = 1 } = {}) {
         href: link[2],
     }));
 
+    console.log('[References Debug]', {
+        debug,
+        showReferenceSkeleton,
+        referencesLoading,
+        referencesItemsLength: referencesItems.length,
+        articlesDataLength: articlesData.length,
+        streamedSummary: streamedSummary ? `${streamedSummary.substring(0, 100)}...` : 'empty',
+    });
+
     const evidenceTabs = [
-        referencesItems.length ? { label: 'References', items: referencesItems } : null,
+        (referencesItems.length || referencesLoading || debug) ? { label: 'References', items: referencesItems } : null,
         empiricalEvidenceContent ? { label: 'Empirical Evidence', content: empiricalEvidenceContent } : null,
         pankbaseItems.length ? { label: 'Pankbase Links', items: pankbaseItems } : null,
         externalItems.length ? { label: 'External Links', items: externalItems } : null,
     ].filter(Boolean);
+
+    console.log('[Evidences Debug]', {
+        evidenceTabsLength: evidenceTabs.length,
+        evidenceTabsLabels: evidenceTabs.map(t => t.label),
+    });
 
     const knowledgeGraphContent = (
         graphData ? (
@@ -688,6 +1102,24 @@ function SearchResult({ demoIndex = 1 } = {}) {
         </Box>
     );
 
+    // Reusable visual material tabs definition
+    const buildVisualMaterialTabs = (graphContent) => [
+        { label: "Knowledge Graph", content: graphContent },
+        {
+            label: "Genome Browser",
+            minHeight: 676,
+            content: (
+                <GenomeBrowserEmbed
+                    locus="chr7:55,085,725-55,276,031"
+                    compact
+                    height="100%"
+                    tracks={[]}
+                />
+            ),
+            fullBleed: true,
+        },
+    ];
+
     const buildDemoPageData = (index) => ({
         questionId: `Q${index}`,
         title: `Demo Question ${index}: CFTR gene function overview`,
@@ -701,27 +1133,7 @@ function SearchResult({ demoIndex = 1 } = {}) {
         graphData: demoGraphData,
         visualMaterial: {
             title: "Visual Material",
-            tabs: [
-                { label: "Knowledge Graph", content: demoKnowledgeGraphContent },
-                {
-                    label: "Pathway",
-                    content: (
-                        <Box sx={{ p: 2, textAlign: "center", color: "#64748B" }}>
-                            <Typography sx={{ fontSize: 14, fontWeight: 600, mb: 1 }}>Pathway Visualization</Typography>
-                            <Typography sx={{ fontSize: 13 }}>CFTR regulation pathway in pancreatic beta cells</Typography>
-                        </Box>
-                    )
-                },
-                {
-                    label: "Expression",
-                    content: (
-                        <Box sx={{ p: 2, textAlign: "center", color: "#64748B" }}>
-                            <Typography sx={{ fontSize: 14, fontWeight: 600, mb: 1 }}>Expression Data</Typography>
-                            <Typography sx={{ fontSize: 13 }}>Tissue-specific expression profile across GTEx samples</Typography>
-                        </Box>
-                    )
-                },
-            ],
+            tabs: buildVisualMaterialTabs(demoKnowledgeGraphContent),
         },
         evidences: {
             title: "Evidences",
@@ -764,36 +1176,41 @@ function SearchResult({ demoIndex = 1 } = {}) {
         aiOverview: {
             sections: [
                 {
-                    heading: isAiSummaryLoading ? undefined : "Summary",
-                    body: displaySummary,
+                    heading: undefined,
+                    body: shouldShowSkeleton ? undefined : displaySummary,
+                    content: shouldShowSkeleton ? <SummarySkeleton /> : undefined,
                 },
-            ].filter((section) => section.body),
+                debug && !streamComplete ? {
+                    heading: "Thinking Process",
+                    content: (
+                        <Box ref={thinkingBoxRef} sx={{
+                            whiteSpace: "pre-wrap",
+                            wordBreak: "break-word",
+                            overflowX: "auto",
+                            overflowY: "auto",
+                            maxHeight: 300,
+                            fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+                            fontSize: 12,
+                            color: "#334155",
+                            backgroundColor: "#F8FAFC",
+                            border: "1px solid #E2E8F0",
+                            borderRadius: 2,
+                            padding: 2,
+                        }}>
+                            {thinkingLines.length
+                                ? thinkingLines.join("\n")
+                                : "Waiting for stream events..."}
+                        </Box>
+                    ),
+                } : null,
+            ].filter((section) => section && (section.body || section.content)),
             isLoading: isAiSummaryLoading,
+            scrollToTop: streamComplete,
         },
         graphData: graphData,
         visualMaterial: {
             title: "Visual Material",
-            tabs: [
-                { label: "Knowledge Graph", content: knowledgeGraphContent },
-                {
-                    label: "Pathway",
-                    content: (
-                        <Box sx={{ p: 2, textAlign: "center", color: "#64748B" }}>
-                            <Typography sx={{ fontSize: 14, fontWeight: 600, mb: 1 }}>Pathway Visualization</Typography>
-                            <Typography sx={{ fontSize: 13 }}>Pathway data visualization will appear here</Typography>
-                        </Box>
-                    )
-                },
-                {
-                    label: "Expression",
-                    content: (
-                        <Box sx={{ p: 2, textAlign: "center", color: "#64748B" }}>
-                            <Typography sx={{ fontSize: 14, fontWeight: 600, mb: 1 }}>Expression Data</Typography>
-                            <Typography sx={{ fontSize: 13 }}>Expression data visualization will appear here</Typography>
-                        </Box>
-                    )
-                },
-            ],
+            tabs: buildVisualMaterialTabs(knowledgeGraphContent),
         },
         evidences: evidenceTabs.length ? { title: "Evidences", tabs: evidenceTabs } : undefined,
         followUp: {
@@ -807,6 +1224,35 @@ function SearchResult({ demoIndex = 1 } = {}) {
                 })),
         },
     };
+    const resolvedPageData = demoMode ? buildDemoPageData(demoIndex) : pageData;
+    const anchorPrefix = contentAnchorPrefix || `result-${demoIndex}`;
+    const lastMetaRef = useRef("");
+
+    useEffect(() => {
+        if (!onContentMeta) return;
+        const aiHeadings = (resolvedPageData?.aiOverview?.sections ?? [])
+            .map((section, index) => (section?.heading ? ({ label: section.heading, index }) : null))
+            .filter(Boolean);
+        const meta = {
+            anchorPrefix,
+            aiHeadings,
+            hasVisual: Boolean(resolvedPageData?.visualMaterial),
+            hasEvidences: Boolean(resolvedPageData?.evidences),
+            hasFollowUp: Boolean(resolvedPageData?.followUp),
+        };
+        const serialized = JSON.stringify(meta);
+        if (serialized === lastMetaRef.current) return;
+        lastMetaRef.current = serialized;
+        onContentMeta(meta);
+    }, [anchorPrefix, onContentMeta, resolvedPageData]);
+
+    if (error) {
+        return <ErrorComponent errorTitle={"Question Not Relevant"} errorMessage={"Your query doesn't match any relevant topic in PanKgraph. Please try rephrasing or explore related tutorials."} log={debugMessage(question, agentRawResult)} />;
+    }
+
+    if (aiLoading && !demoMode) {
+        return <ResultComponentSkeleton />;
+    }
 
     return (
         <>
@@ -827,7 +1273,11 @@ function SearchResult({ demoIndex = 1 } = {}) {
                     />
                 </Backdrop>
             ) : null}
-            <QuestionAnswerPage data={demoMode ? buildDemoPageData(demoIndex) : pageData} />
+            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', px: { xs: 2, md: 3 }, py: 3 }}>
+                <Box sx={{ width: '100%' }}>
+                    <QuestionAnswerPage data={resolvedPageData} contentAnchorPrefix={anchorPrefix} />
+                </Box>
+            </Box>
         </>
     );
 }

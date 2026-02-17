@@ -1158,18 +1158,18 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
   return (
     <div style={
       !expanded ?
-        { display: "flex", flexDirection: "column", gap: "16px", position: "relative", justifyContent: "flex-start", ...sx }
+        { display: "flex", flexDirection: "column", position: "relative", justifyContent: "flex-start", width: "100%", height: "100%", ...sx }
         // position whole page, on top
         : { position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "white", display: "flex", flexDirection: "column", gap: "16px", padding: "0px", ...sx, zIndex: 9999 }
     }>
-      <SearchBox />
+      {expanded && <SearchBox />}
       <div
         ref={containerRef}
         style={{
           ...{
             width: "100%",
             height: containerHeight,
-            backgroundColor: "#F9FAFB",
+            backgroundColor: "transparent",
             border: "none",
             borderRadius: "8px",
             position: "relative",

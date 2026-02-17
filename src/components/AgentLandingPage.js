@@ -171,7 +171,7 @@ function LandingPage() {
 
   const handleSearch = (searchQuery) => {
     const encodedQuery = encodeURIComponent(utf8ToBase64(searchQuery));
-    navigate(`/result2?question=${encodedQuery}`);
+    navigate(`/result-new2?question=${encodedQuery}&debug=true`);
   };
 
   return (

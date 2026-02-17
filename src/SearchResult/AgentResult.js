@@ -8,19 +8,26 @@ import React, {
 import igv from 'https://cdn.jsdelivr.net/npm/igv@3.0.2/dist/igv.esm.min.js';
 import { useLocation } from 'react-router-dom';
 
-import { Container } from '@mui/material';
+import { Container, useMediaQuery } from '@mui/material';
 
 import SearchResult from './result';
 
 // Genome Browser Component - mounts only when tab is first selected
-export function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVisible = false, tracks = null, height = 600 }) {
+export function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVisible = false, tracks = null, height = 600, compact = false }) {
     const containerRef = useRef(null);
     const browserRef = useRef(null);
+    const fullScreenContainerRef = useRef(null);
+    const fullScreenBrowserRef = useRef(null);
+    const fullScreenOptionsRef = useRef(null);
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [hasInitialized, setHasInitialized] = useState(false);
+    const [fullScreenOpen, setFullScreenOpen] = useState(false);
+    const [fullScreenError, setFullScreenError] = useState("");
+    const [fullScreenLoading, setFullScreenLoading] = useState(false);
+    const [fullScreenInitialized, setFullScreenInitialized] = useState(false);
 
-    const options = useMemo(() => {
+    const baseOptions = useMemo(() => {
         return {
             genome: "hg38",
             locus: locus,
@@ -29,6 +36,19 @@ export function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVis
             tracks: tracks || [],
         };
     }, [locus, tracks]);
+
+    const inlineOptions = useMemo(() => {
+        if (!compact) {
+            return baseOptions;
+        }
+        return {
+            ...baseOptions,
+            showNavigation: true,
+            showChromosomeWidget: false,
+            showSVGButton: false,
+            showCursorTrackGuide: true,
+        };
+    }, [baseOptions, compact]);
 
     useEffect(() => {
         // Only initialize when tab becomes visible for the first time
@@ -55,7 +75,7 @@ export function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVis
                     if (destroyed || !containerRef.current) return;
 
                     try {
-                        const browser = await igv.createBrowser(containerRef.current, options);
+                        const browser = await igv.createBrowser(containerRef.current, inlineOptions);
 
                         if (destroyed) {
                             try {
@@ -67,6 +87,18 @@ export function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVis
                         }
 
                         browserRef.current = browser;
+
+                        // Hide right navbar container in inline view
+                        if (browser.root) {
+                            const style = document.createElement('style');
+                            style.textContent = `
+                                .igv-navbar-right-container {
+                                    display: none !important;
+                                }
+                            `;
+                            browser.root.appendChild(style);
+                        }
+
                         setIsLoading(false);
                         setHasInitialized(true);
                     } catch (e) {
@@ -93,11 +125,137 @@ export function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVis
             destroyed = true;
             if (timeoutId) clearTimeout(timeoutId);
         };
-    }, [isVisible, hasInitialized, options]);
+    }, [isVisible, hasInitialized, inlineOptions]);
+
+    useEffect(() => {
+        fullScreenOptionsRef.current = baseOptions;
+    }, [baseOptions]);
+
+    useEffect(() => {
+        if (!fullScreenOpen || fullScreenInitialized) return;
+
+        let destroyed = false;
+        let timeoutId;
+
+        async function initFullScreen() {
+            setFullScreenError("");
+            setFullScreenLoading(true);
+
+            try {
+                if (!fullScreenContainerRef.current) {
+                    setFullScreenError("Container not ready");
+                    setFullScreenLoading(false);
+                    return;
+                }
+
+                fullScreenContainerRef.current.innerHTML = "";
+
+                timeoutId = setTimeout(async () => {
+                    if (destroyed || !fullScreenContainerRef.current) return;
+
+                    try {
+                        const browser = await igv.createBrowser(fullScreenContainerRef.current, fullScreenOptionsRef.current || baseOptions);
+
+                        if (destroyed) {
+                            try {
+                                browser?.dispose?.();
+                            } catch (e) {
+                                console.warn("Error disposing fullscreen browser on cleanup:", e);
+                            }
+                            return;
+                        }
+
+                        fullScreenBrowserRef.current = browser;
+                        setFullScreenLoading(false);
+                        setFullScreenInitialized(true);
+                    } catch (e) {
+                        console.error("IGV fullscreen initialization error:", e);
+                        if (!destroyed) {
+                            setFullScreenError(String(e?.message || "Failed to initialize fullscreen genome browser"));
+                            setFullScreenLoading(false);
+                        }
+                    }
+                }, 100);
+
+            } catch (e) {
+                console.error("Fullscreen setup error:", e);
+                if (!destroyed) {
+                    setFullScreenError(String(e?.message || e));
+                    setFullScreenLoading(false);
+                }
+            }
+        }
+
+        initFullScreen();
+
+        return () => {
+            destroyed = true;
+            if (timeoutId) clearTimeout(timeoutId);
+        };
+    }, [fullScreenOpen, fullScreenInitialized]);
+
+    useEffect(() => {
+        return () => {
+            if (fullScreenBrowserRef.current) {
+                try {
+                    fullScreenBrowserRef.current.dispose?.();
+                } catch (e) {
+                    console.warn("Error disposing fullscreen browser:", e);
+                }
+                fullScreenBrowserRef.current = null;
+            }
+        };
+    }, []);
+
+    const getInlineLocus = () => {
+        const browser = browserRef.current;
+        if (!browser) return locus;
+        const referenceFrame = browser?.referenceFrameList?.[0];
+        const refLocus = referenceFrame?.getLocusString?.() || referenceFrame?.locus;
+        return browser?.currentLocus || browser?.locus || refLocus || locus;
+    };
+
+    const openFullScreen = () => {
+        const nextLocus = getInlineLocus();
+        fullScreenOptionsRef.current = {
+            ...(fullScreenOptionsRef.current || baseOptions),
+            locus: nextLocus,
+        };
+        setFullScreenOpen(true);
+        if (fullScreenBrowserRef.current?.search) {
+            try {
+                fullScreenBrowserRef.current.search(nextLocus);
+            } catch (e) {
+                console.warn("Error syncing fullscreen locus:", e);
+            }
+        }
+    };
+
+    const closeFullScreen = () => {
+        setFullScreenOpen(false);
+    };
+
+    useEffect(() => {
+        if (!fullScreenOpen) return;
+
+        const onKeyDown = (event) => {
+            if (event.key === "Escape") {
+                closeFullScreen();
+            }
+        };
+
+        document.body.style.overflow = "hidden";
+        window.addEventListener("keydown", onKeyDown);
+
+        return () => {
+            document.body.style.overflow = "";
+            window.removeEventListener("keydown", onKeyDown);
+        };
+    }, [fullScreenOpen]);
 
     // Don't render container until tab is visible
     if (!isVisible && !hasInitialized) {
-        return <div style={{ width: "100%", height }} />;
+        return <div style={{ width: "100%", height, minHeight: 676 }} />;
     }
 
     return (
@@ -112,18 +270,100 @@ export function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVis
                     ⚠️ {error}
                 </div>
             )}
+            <div style={{ position: "relative" }}>
+                <div
+                    ref={containerRef}
+                    style={{
+                        width: "100%",
+                        height: height,
+                        minHeight: 676,
+                        border: "1px solid #ddd",
+                        borderRadius: 8,
+                        overflow: "hidden",
+                        background: "#fafafa",
+                        position: "relative"
+                    }}
+                />
+                <button
+                    type="button"
+                    onClick={openFullScreen}
+                    style={{
+                        position: "absolute",
+                        top: 10,
+                        right: 10,
+                        padding: "6px 10px",
+                        borderRadius: 6,
+                        border: "1px solid #d4d4d4",
+                        background: "#ffffff",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        color: "#334155",
+                        cursor: "pointer",
+                        boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+                    }}
+                >
+                    Fullscreen
+                </button>
+            </div>
             <div
-                ref={containerRef}
                 style={{
-                    width: "100%",
-                    height: height,
-                    border: "1px solid #ddd",
-                    borderRadius: 8,
-                    overflow: "hidden",
-                    background: "#fafafa",
-                    position: "relative"
+                    position: "fixed",
+                    inset: 0,
+                    background: "#ffffff",
+                    zIndex: 2000,
+                    display: fullScreenOpen ? "flex" : "none",
+                    flexDirection: "column",
                 }}
-            />
+            >
+                <div
+                    style={{
+                        height: 54,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "0 16px",
+                        borderBottom: "1px solid #e2e8f0",
+                    }}
+                >
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>Genome Browser</div>
+                    <button
+                        type="button"
+                        onClick={closeFullScreen}
+                        style={{
+                            padding: "6px 10px",
+                            borderRadius: 6,
+                            border: "1px solid #d4d4d4",
+                            background: "#ffffff",
+                            fontSize: 12,
+                            fontWeight: 600,
+                            color: "#334155",
+                            cursor: "pointer",
+                        }}
+                    >
+                        Exit Fullscreen
+                    </button>
+                </div>
+                <div style={{ flex: 1, position: "relative" }}>
+                    {fullScreenLoading && (
+                        <div style={{ margin: 12, color: "#0066cc", fontSize: 12 }}>
+                            Loading genome browser...
+                        </div>
+                    )}
+                    {fullScreenError && (
+                        <div style={{ margin: 12, color: "#b00020", fontSize: 12, padding: "8px 12px", background: "#ffebee", borderRadius: 4 }}>
+                            ⚠️ {fullScreenError}
+                        </div>
+                    )}
+                    <div
+                        ref={fullScreenContainerRef}
+                        style={{
+                            width: "100%",
+                            height: "100%",
+                            background: "#fafafa",
+                        }}
+                    />
+                </div>
+            </div>
         </div>
     );
 }
@@ -150,11 +390,32 @@ export function AgentResultLayout({
     const [activeResultIndex, setActiveResultIndex] = useState(0);
     const [hoveredResultIndex, setHoveredResultIndex] = useState(null);
     const [menuOpen, setMenuOpen] = useState(false);
+    const [contentMetaByIndex, setContentMetaByIndex] = useState({});
     const menuTimersRef = useRef({ open: null, close: null });
     const resultsContainerRef = useRef(null);
     const scrollRafRef = useRef(null);
     const scrollLockRef = useRef({ active: false, until: 0, index: null });
     const canSearch = effectiveAllowMulti && allowSearch;
+    const isSingleColumn = useMediaQuery("(max-width:1199.95px)");
+
+    const getAnchorPrefix = (index) => `result-${index + 1}`;
+    const handleContentMeta = (index) => (meta) => {
+        if (!meta) return;
+        setContentMetaByIndex((prev) => ({
+            ...prev,
+            [index]: {
+                ...meta,
+                anchorPrefix: meta.anchorPrefix || getAnchorPrefix(index),
+            },
+        }));
+    };
+
+    const scrollToAnchor = (anchorId, index) => {
+        const target = document.getElementById(anchorId);
+        if (!target) return;
+        setActiveResultIndex(index);
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
 
     useEffect(() => {
         if (demoMode && results.length < 2) {
@@ -326,7 +587,16 @@ export function AgentResultLayout({
         >
             {/* Results display */}
             <div ref={resultsContainerRef} style={{ paddingBottom: 40 }}>
-                {results.map((result, index) => (
+                {results.map((result, index) => {
+                    const resultViewProps = getResultViewProps(result, index) || {};
+                    const anchorPrefix = resultViewProps.contentAnchorPrefix || getAnchorPrefix(index);
+                    const mergedProps = {
+                        ...resultViewProps,
+                        contentAnchorPrefix: anchorPrefix,
+                        onContentMeta: resultViewProps.onContentMeta || handleContentMeta(index),
+                    };
+
+                    return (
                     <div
                         key={result.id}
                         style={{
@@ -351,11 +621,12 @@ export function AgentResultLayout({
                                 marginBottom: '24px',
                                 paddingBottom: '24px',
                             }}>
-                                <ResultView {...getResultViewProps(result, index)} />
+                                <ResultView {...mergedProps} />
                             </Container>
                         </div>
                     </div>
-                ))}
+                    );
+                })}
             </div>
 
             {results.length > 1 && (
@@ -417,35 +688,150 @@ export function AgentResultLayout({
                         }}
                     >
                         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                            {results.map((result, index) => (
-                                <button
-                                    key={result.id}
-                                    onMouseEnter={() => setHoveredResultIndex(index)}
-                                    onMouseLeave={() => setHoveredResultIndex(null)}
-                                    onClick={() => scrollToResult(index)}
-                                    style={{
-                                        width: "100%",
-                                        borderRadius: 8,
-                                        border: "1px solid transparent",
-                                        backgroundColor: hoveredResultIndex === index ? "rgba(20, 184, 166, 0.2)" : "transparent",
-                                        cursor: "pointer",
-                                        fontWeight: 600,
-                                        color: activeResultIndex === index || hoveredResultIndex === index ? "#3A838B" : "#818181",
-                                        fontSize: 14,
-                                        fontFamily: "Open Sans, sans-serif",
-                                        textAlign: "left",
-                                        padding: "6px 10px",
-                                        whiteSpace: "nowrap",
-                                        overflow: "hidden",
-                                        textOverflow: "ellipsis",
-                                        transition: "background-color 0.2s ease, color 0.2s ease",
-                                    }}
-                                    title={`Q${index + 1} ${result.query}`}
-                                >
-                                    <span style={{ fontSize: 14, fontWeight: 700, marginRight: 6 }}>{`Q${index + 1}`}</span>
-                                    <span style={{ fontSize: 14, fontWeight: activeResultIndex === index || hoveredResultIndex === index ? 700 : 600 }}>{result.query}</span>
-                                </button>
-                            ))}
+                            {results.map((result, index) => {
+                                const isActive = activeResultIndex === index;
+                                const meta = contentMetaByIndex[index];
+                                const anchorPrefix = meta?.anchorPrefix || getAnchorPrefix(index);
+                                const aiHeadings = meta?.aiHeadings || [];
+                                const showVisual = meta?.hasVisual ?? true;
+                                const showEvidences = meta?.hasEvidences ?? true;
+                                const showFollowUp = meta?.hasFollowUp ?? true;
+
+                                return (
+                                    <div key={result.id}>
+                                        <button
+                                            onMouseEnter={() => setHoveredResultIndex(index)}
+                                            onMouseLeave={() => setHoveredResultIndex(null)}
+                                            onClick={() => scrollToResult(index)}
+                                            style={{
+                                                width: "100%",
+                                                borderRadius: 8,
+                                                border: "1px solid transparent",
+                                                backgroundColor: hoveredResultIndex === index ? "rgba(20, 184, 166, 0.2)" : "transparent",
+                                                cursor: "pointer",
+                                                fontWeight: 600,
+                                                color: isActive || hoveredResultIndex === index ? "#3A838B" : "#818181",
+                                                fontSize: 14,
+                                                fontFamily: "Open Sans, sans-serif",
+                                                textAlign: "left",
+                                                padding: "6px 10px",
+                                                whiteSpace: "nowrap",
+                                                overflow: "hidden",
+                                                textOverflow: "ellipsis",
+                                                transition: "background-color 0.2s ease, color 0.2s ease",
+                                            }}
+                                            title={`Q${index + 1} ${result.query}`}
+                                        >
+                                            <span style={{ fontSize: 14, fontWeight: 700, marginRight: 6 }}>{`Q${index + 1}`}</span>
+                                            <span style={{ fontSize: 14, fontWeight: isActive || hoveredResultIndex === index ? 700 : 600 }}>{result.query}</span>
+                                        </button>
+
+                                        {isSingleColumn && isActive ? (
+                                            <div style={{ display: "flex", flexDirection: "column", gap: 2, paddingLeft: 18, marginBottom: 6 }}>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => scrollToAnchor(`${anchorPrefix}-ai-overview`, index)}
+                                                    style={{
+                                                        width: "100%",
+                                                        borderRadius: 6,
+                                                        border: "1px solid transparent",
+                                                        background: "transparent",
+                                                        color: "#64748B",
+                                                        fontSize: 12,
+                                                        fontWeight: 600,
+                                                        textAlign: "left",
+                                                        padding: "4px 6px",
+                                                        cursor: "pointer",
+                                                    }}
+                                                >
+                                                    AI Overview
+                                                </button>
+                                                {aiHeadings.map((heading) => (
+                                                    <button
+                                                        key={`${anchorPrefix}-heading-${heading.index}`}
+                                                        type="button"
+                                                        onClick={() => scrollToAnchor(`${anchorPrefix}-ai-overview-${heading.index + 1}`, index)}
+                                                        style={{
+                                                            width: "100%",
+                                                            borderRadius: 6,
+                                                            border: "1px solid transparent",
+                                                            background: "transparent",
+                                                            color: "#94A3B8",
+                                                            fontSize: 11.5,
+                                                            fontWeight: 600,
+                                                            textAlign: "left",
+                                                            padding: "2px 6px",
+                                                            cursor: "pointer",
+                                                        }}
+                                                    >
+                                                        {heading.label}
+                                                    </button>
+                                                ))}
+                                                {showVisual ? (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => scrollToAnchor(`${anchorPrefix}-visual-material`, index)}
+                                                        style={{
+                                                            width: "100%",
+                                                            borderRadius: 6,
+                                                            border: "1px solid transparent",
+                                                            background: "transparent",
+                                                            color: "#64748B",
+                                                            fontSize: 12,
+                                                            fontWeight: 600,
+                                                            textAlign: "left",
+                                                            padding: "4px 6px",
+                                                            cursor: "pointer",
+                                                        }}
+                                                    >
+                                                        Visual Material
+                                                    </button>
+                                                ) : null}
+                                                {showEvidences ? (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => scrollToAnchor(`${anchorPrefix}-evidences`, index)}
+                                                        style={{
+                                                            width: "100%",
+                                                            borderRadius: 6,
+                                                            border: "1px solid transparent",
+                                                            background: "transparent",
+                                                            color: "#64748B",
+                                                            fontSize: 12,
+                                                            fontWeight: 600,
+                                                            textAlign: "left",
+                                                            padding: "4px 6px",
+                                                            cursor: "pointer",
+                                                        }}
+                                                    >
+                                                        Evidences
+                                                    </button>
+                                                ) : null}
+                                                {showFollowUp ? (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => scrollToAnchor(`${anchorPrefix}-follow-up`, index)}
+                                                        style={{
+                                                            width: "100%",
+                                                            borderRadius: 6,
+                                                            border: "1px solid transparent",
+                                                            background: "transparent",
+                                                            color: "#64748B",
+                                                            fontSize: 12,
+                                                            fontWeight: 600,
+                                                            textAlign: "left",
+                                                            padding: "4px 6px",
+                                                            cursor: "pointer",
+                                                        }}
+                                                    >
+                                                        Follow Up
+                                                    </button>
+                                                ) : null}
+                                            </div>
+                                        ) : null}
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 </>
