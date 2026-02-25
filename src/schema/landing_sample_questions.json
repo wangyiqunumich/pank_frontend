@@ -1,7 +1,7 @@
 {
     "default": [
         {
-            "question": "Which SNP serves as the lead QTL for CFTR?",
+            "question": "demo check",
             "link": "/result?sourceTerm=snp@rs2402203&targetTerm=gene@ENSG00000001626&relationship=QTL"
         },
         {
