@@ -6,7 +6,6 @@ import React, {
   useState,
 } from 'react';
 
-import igv from 'https://cdn.jsdelivr.net/npm/igv@3.0.2/dist/igv.esm.min.js';
 import JSON5 from 'json5';
 import {
   useDispatch,
@@ -38,7 +37,6 @@ import {
 
 import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 import { ErrorComponent } from '../components/IntermediatePage';
-import { GenomeBrowserEmbed } from './AgentResult';
 import KnowledgeGraph from '../components/KnowledgeGraph';
 import QuestionAnswerPage, {
   ResultComponentSkeleton,
@@ -51,10 +49,12 @@ import { querySupportingMaterial } from '../redux/supportingMaterialSlice';
 import { queryImage } from '../redux/typeToImageSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import { addHighlight } from '../utils/textProcessing';
+import { GenomeBrowserEmbed } from './AgentResult';
 import {
   demoCoordData,
   demoGraphData,
 } from './demo_graph_data';
+import SearchResultLoading from './loading';
 import sampleSummaryData from './sample.json';
 
 // const tabs = [
@@ -74,6 +74,82 @@ const defaultNextQuestion = {
     question: 'How does {INS} expression change in {beta cell} in T1D vs non-diabetic samples?',
     link: '/result?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type&relationship=express_in'
 }
+
+const DEBUG_STREAM_LOADING_ENTRIES = [
+    {
+        short_title: 'complexity',
+        title: 'Complexity Classification',
+        steps: ['Classifying query complexity...'],
+    },
+    {
+        short_title: 'planning',
+        title: 'Planning',
+        steps: ['Generating execution plan...'],
+    },
+    {
+        short_title: 'hirn',
+        title: 'HIRN Literature Search',
+        steps: ['Searching HIRN literature evidence...'],
+    },
+    {
+        short_title: 'cypher',
+        title: 'Cypher Generation',
+        steps: ['Preparing Cypher execution...'],
+    },
+];
+
+const getInitialStreamMilestones = () => ({
+    complexityDone: false,
+    planningDone: false,
+    hirnDone: false,
+    cypherStarted: false,
+});
+
+const buildDebugStreamLoadingProgress = (milestones) => {
+    const entryStates = DEBUG_STREAM_LOADING_ENTRIES.map(() => ({ step: -1, isFinished: false }));
+
+    if (!milestones.complexityDone) {
+        entryStates[0] = { step: 0, isFinished: false };
+    } else {
+        entryStates[0] = { step: 1, isFinished: true };
+        if (!milestones.planningDone) {
+            entryStates[1] = { step: 0, isFinished: false };
+        } else {
+            entryStates[1] = { step: 1, isFinished: true };
+            if (!milestones.hirnDone) {
+                entryStates[2] = { step: 0, isFinished: false };
+            } else {
+                entryStates[2] = { step: 1, isFinished: true };
+                entryStates[3] = { step: 0, isFinished: false };
+            }
+        }
+    }
+
+    const completedCount = [
+        milestones.complexityDone,
+        milestones.planningDone,
+        milestones.hirnDone,
+    ].filter(Boolean).length;
+
+    let shortTitle = DEBUG_STREAM_LOADING_ENTRIES[0].short_title;
+    if (milestones.complexityDone && !milestones.planningDone) {
+        shortTitle = DEBUG_STREAM_LOADING_ENTRIES[1].short_title;
+    } else if (milestones.planningDone && !milestones.hirnDone) {
+        shortTitle = DEBUG_STREAM_LOADING_ENTRIES[2].short_title;
+    } else if (milestones.hirnDone) {
+        shortTitle = DEBUG_STREAM_LOADING_ENTRIES[3].short_title;
+    }
+
+    return {
+        title: 'Answering your question...',
+        tip: 'Streaming progress is based on backend events.',
+        cancel: 'Cancel and ask a new question',
+        entries: DEBUG_STREAM_LOADING_ENTRIES,
+        entryStates,
+        shortTitle,
+        progress: (completedCount / DEBUG_STREAM_LOADING_ENTRIES.length) * 100,
+    };
+};
 
 export const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
 export const base64ToUtf8 = (base64) => {
@@ -268,6 +344,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const [thinkingLines, setThinkingLines] = useState([]);
     const [streamAnswer, setStreamAnswer] = useState('');
     const [streamComplete, setStreamComplete] = useState(false);
+    const [streamMilestones, setStreamMilestones] = useState(getInitialStreamMilestones());
     const streamSummaryRef = useRef('');
     const streamAnswerRef = useRef('');
     const thinkingBoxRef = useRef(null);
@@ -427,6 +504,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         setStreamedSummary('');
         streamSummaryRef.current = '';
         setStreamComplete(false);
+        setStreamMilestones(getInitialStreamMilestones());
 
         // Call real streaming API
         const callStreamingAPI = async () => {
@@ -503,6 +581,22 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
         const handleStreamEvent = (event) => {
             setStreamedEvents((prev) => [...prev, event]);
+
+            if (event?.event === 'complexity_classified') {
+                setStreamMilestones((prev) => ({ ...prev, complexityDone: true }));
+            }
+
+            if (event?.event === 'plan_generated' || event?.event === 'planner_decision') {
+                setStreamMilestones((prev) => ({ ...prev, planningDone: true }));
+            }
+
+            if (event?.event === 'hirn_result') {
+                setStreamMilestones((prev) => ({ ...prev, hirnDone: true }));
+            }
+
+            if (event?.event === 'cypher_executing') {
+                setStreamMilestones((prev) => ({ ...prev, cypherStarted: true }));
+            }
 
             if (event?.event === 'stream_complete') {
                 if (streamAnswerRef.current || streamSummaryRef.current) {
@@ -611,12 +705,12 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             if (event?.event === 'final_response' && event?.data?.response) {
                 console.log('[final_response] Processing final response...');
                 console.log('[final_response] Raw response type:', typeof event.data.response);
-                console.log('[final_response] Raw response (first 200 chars):', 
-                    typeof event.data.response === 'string' 
-                        ? event.data.response.substring(0, 200) 
+                console.log('[final_response] Raw response (first 200 chars):',
+                    typeof event.data.response === 'string'
+                        ? event.data.response.substring(0, 200)
                         : JSON.stringify(event.data.response).substring(0, 200)
                 );
-                
+
                 try {
                     let responseData = typeof event.data.response === 'string'
                         ? JSON5.parse(event.data.response)
@@ -633,7 +727,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
                     const cypherQueries = responseData?.text?.cypher || [];
                     const summary = responseData?.text?.summary || '';
-                    
+
                     console.log('[final_response] Extracted cypher queries:', cypherQueries.length, 'queries');
                     console.log('[final_response] Summary length:', summary.length, 'chars');
 
@@ -1227,6 +1321,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const resolvedPageData = demoMode ? buildDemoPageData(demoIndex) : pageData;
     const anchorPrefix = contentAnchorPrefix || `result-${demoIndex}`;
     const lastMetaRef = useRef("");
+    const showDebugStreamLoading = !demoMode && debug && !streamComplete && !streamMilestones.cypherStarted;
 
     useEffect(() => {
         if (!onContentMeta) return;
@@ -1252,6 +1347,20 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
     if (aiLoading && !demoMode) {
         return <ResultComponentSkeleton />;
+    }
+
+    if (showDebugStreamLoading) {
+        return (
+            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px' }}>
+                <SearchResultLoading
+                    streamProgress={buildDebugStreamLoadingProgress(streamMilestones)}
+                    handleClose={() => {
+                        if (thunkref.current) thunkref.current.abort();
+                        navigate('/');
+                    }}
+                />
+            </Box>
+        );
     }
 
     return (

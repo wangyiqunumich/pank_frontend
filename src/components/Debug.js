@@ -17,6 +17,7 @@ import Image from '../image/Pasted Graphic 1.png';
 import { queryQueryResultPage } from '../redux/queryResultPage';
 import sampleLinks from '../schema/sample_links.json';
 import { GenomeBrowserEmbed } from '../SearchResult/AgentResult';
+import SearchResultLoading from '../SearchResult/loading';
 import MultiLineInputList from './DebugComponent';
 import KnowledgeGraph from './KnowledgeGraph';
 import {
@@ -268,6 +269,7 @@ export default function DebugPage() {
                     />}
                 </Box>
             </div>
+            <SearchResultLoading open={loadingOpen} onClose={() => setLoadingOpen(false)} />
             <div style={{ padding: '20px', width: '100%' }}>
                 <h2>IGV.js Genome Browser - Full Width Demo</h2>
                 <Box sx={{ width: '100%', height: '700px', border: '1px solid #ccc', backgroundColor: '#fafafa' }}>
