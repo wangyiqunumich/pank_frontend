@@ -147,9 +147,15 @@ function LoadingEntry({ step, entry }) {
     );
 }
 
-export default function SearchResultLoading({ open, handleClose }) {
+export default function SearchResultLoading({ open, handleClose, streamProgress }) {
+    const resolvedEntries = streamProgress?.entries || texts.entries;
+    const resolvedTitle = streamProgress?.title || texts.title;
+    const resolvedTip = streamProgress?.tip || texts.tip;
+    const resolvedCancel = streamProgress?.cancel || texts.cancel;
+    const isControlled = Boolean(streamProgress);
+
     const [entryStates, setEntryStates] = useState(
-        texts.entries.map((entry, index) => ({
+        resolvedEntries.map((entry, index) => ({
             step: index === 0 ? 0 : -1,
             isFinished: false,
         }))
@@ -157,12 +163,35 @@ export default function SearchResultLoading({ open, handleClose }) {
     const timeForEach = [2000, 5000, 5000, 5000, 1000];
     const entryStatesRef = useRef(entryStates);
     const [progress, setProgress] = useState(0);
-    const [shortTitle, setShortTitle] = useState(texts.entries[0].short_title);
+    const [shortTitle, setShortTitle] = useState(resolvedEntries[0]?.short_title || '');
+
+    const displayedEntryStates = isControlled ? (streamProgress?.entryStates || []) : entryStates;
+    const displayedProgress = isControlled ? (streamProgress?.progress || 0) : progress;
+    const displayedShortTitle = isControlled ? (streamProgress?.shortTitle || resolvedEntries[0]?.short_title || '') : shortTitle;
+
     useEffect(() => {
         entryStatesRef.current = entryStates;
     }, [entryStates]);
+
+    useEffect(() => {
+        if (isControlled) {
+            return;
+        }
+        setEntryStates(
+            resolvedEntries.map((entry, index) => ({
+                step: index === 0 ? 0 : -1,
+                isFinished: false,
+            }))
+        );
+        setProgress(0);
+        setShortTitle(resolvedEntries[0]?.short_title || '');
+    }, [isControlled, resolvedEntries]);
+
     const timeoutRef = useRef(null);
     useEffect(() => {
+        if (isControlled) {
+            return;
+        }
         // simulate progress through steps
         // 2s per step, from first to last entry
         const timeoutHandler = () => {
@@ -178,7 +207,7 @@ export default function SearchResultLoading({ open, handleClose }) {
                 let newStates = [...prevStates];
                 let entryState = { ...newStates[stepToProceed] };
                 entryState.step++;
-                entryState.isFinished = entryState.step >= texts.entries[stepToProceed].steps.length;
+                entryState.isFinished = entryState.step >= resolvedEntries[stepToProceed].steps.length;
                 newStates[stepToProceed] = entryState;
                 if (entryState.isFinished) {
                     // start the next entry
@@ -187,11 +216,11 @@ export default function SearchResultLoading({ open, handleClose }) {
                             step: 0,
                             isFinished: false,
                         };
-                        setShortTitle(texts.entries[stepToProceed + 1].short_title);
+                        setShortTitle(resolvedEntries[stepToProceed + 1].short_title);
                     }
                     stepToProceed++;
                 }
-                setProgress(prog => (prog + 100 / texts.entries.map(({ steps }) => steps.length).reduce((a, b) => a + b, 0)));
+                setProgress(prog => (prog + 100 / resolvedEntries.map(({ steps }) => steps.length).reduce((a, b) => a + b, 0)));
                 return newStates;
             });
             timeoutRef.current = setTimeout(timeoutHandler, timeForEach[stepToProceed] * (Math.random() * 0.5 + 0.75));
@@ -202,7 +231,7 @@ export default function SearchResultLoading({ open, handleClose }) {
                 clearTimeout(timeoutRef.current);
             }
         }
-    }, []);
+    }, [isControlled, resolvedEntries]);
     return <Box sx={{
         width: '704px',
         padding: '32px',
@@ -219,7 +248,7 @@ export default function SearchResultLoading({ open, handleClose }) {
         boxSizing: 'content-box',
     }}>
         <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
-            <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '24px', color: '#263824' }}>{texts.title}</Typography>
+            <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '24px', color: '#263824' }}>{resolvedTitle}</Typography>
             <Box sx={{
                 color: 'black',
                 border: '0.63px solid #E0F0F3',
@@ -234,7 +263,7 @@ export default function SearchResultLoading({ open, handleClose }) {
                 color: '#7F7D7D',
                 fontSize: '14px',
             }}>
-                Agent Status:&nbsp;<span style={{ color: '#078AA3', fontWeight: 600 }}>{shortTitle}</span>
+                Agent Status:&nbsp;<span style={{ color: '#078AA3', fontWeight: 600 }}>{displayedShortTitle}</span>
             </Box>
         </Box>
         <Box sx={{
@@ -246,11 +275,11 @@ export default function SearchResultLoading({ open, handleClose }) {
             flexDirection: 'column',
             justifyContent: 'center',
         }}>
-            {texts.entries.map((entry, entryIndex) => (
+            {resolvedEntries.map((entry, entryIndex) => (
                 <LoadingEntry
                     key={entryIndex}
                     entry={entry}
-                    step={entryStates[entryIndex].step}
+                    step={displayedEntryStates?.[entryIndex]?.step ?? -1}
                     totalSteps={entry.steps.length} />
             ))}
         </Box>
@@ -260,14 +289,14 @@ export default function SearchResultLoading({ open, handleClose }) {
             ".MuiLinearProgress-bar": {
                 backgroundColor: '#078AA3'
             }
-        }} value={progress} />
+        }} value={displayedProgress} />
         <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
             <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 400, fontSize: '14px', color: '#9E9E9E' }}>
-                {texts.tip}
+                {resolvedTip}
             </Typography>
             <Button sx={{ backgroundColor: 'white', textTransform: 'none', borderRadius: '16.5px' }} onClick={handleClose}>
                 <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '14px', color: '#078AA3', px: '4px' }}>
-                    {texts.cancel}
+                    {resolvedCancel}
                 </Typography>
             </Button>
         </Box>

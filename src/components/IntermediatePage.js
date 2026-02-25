@@ -264,15 +264,16 @@ function IntermediatePage({ onContinue }) {
       // console.log(queryResult.results);
       let cleanedResult;
       if (isNeptune) {
-        const lines = queryResult.results.trim().split('\n').slice(1);
-        cleanedResult = lines.map((line) => {
-          const [dataSource, credibleSets] = JSON5.parse(`[${line}]`);
-          return ({
-            "data_source": dataSource,
-            "credible_sets": credibleSets
-          });
-        }
-        );
+        cleanedResult = JSON5.parse(queryResult.results) || [];
+        // const lines = queryResult.results.trim().split('\n').slice(1);
+        // cleanedResult = lines.map((line) => {
+        //   const [dataSource, credibleSets] = JSON5.parse(`[${line}]`);
+        //   return ({
+        //     "data_source": dataSource,
+        //     "credible_sets": credibleSets
+        //   });
+        // }
+        // );
       }
       else {
         cleanedResult = queryResult.results?.[0]?.credible_sets?.map((cs) => ({
