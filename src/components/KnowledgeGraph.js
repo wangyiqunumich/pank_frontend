@@ -44,6 +44,7 @@ import {
 import graphInfocard from '../schema/graph_viewer_schema.json';
 import graphInfocardReview from '../schema/review_page/graph_schema.json';
 import { addWhitespace } from '../utils/textProcessing';
+import { SEARCH_TARGETS } from './data/node_schema';
 import {
   edgeIsInverted,
   edgeLabels,
@@ -753,26 +754,48 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
 
   const focusElementByKey = (key) => {
     const cy = cyRef.current;
-    if (!cy || !key) return;
+    const trimmed = typeof key === 'string' ? key.trim() : '';
+    if (!cy || !trimmed) return;
 
-    let ele = cy.getElementById(key);
-    if (!ele || ele.empty()) {
-      ele = cy.elements().filter(e => e.data('label') === key);
-      if (!ele || ele.empty()) {
-        console.log("No node/edge with element:", key);
-        return;
+    const searchLower = trimmed.toLowerCase();
+    const searchTargetSet = new Set(SEARCH_TARGETS);
+
+    const valueMatches = (val) => {
+      if (val == null) return false;
+      if (typeof val === 'string') return val.toLowerCase().includes(searchLower);
+      if (typeof val === 'number') return String(val).includes(trimmed);
+      if (Array.isArray(val)) return val.some((v) => valueMatches(v));
+      if (typeof val === 'object') return false;
+      return String(val).toLowerCase().includes(searchLower);
+    };
+
+    const nodeMatches = (node) => {
+      if (!node.isNode()) return false;
+      const data = node.data();
+      if (valueMatches(data.id)) return true;
+      if (valueMatches(data.label)) return true;
+      for (const [k, v] of Object.entries(data)) {
+        if (k === 'id' || k === 'label') continue;
+        if (searchTargetSet.has(k) && valueMatches(v)) return true;
       }
+      return false;
+    };
+
+    const matchingNodes = cy.nodes().filter(nodeMatches);
+    if (!matchingNodes.length) {
+      console.log("No node matching:", trimmed);
+      return;
     }
 
     cy.elements().unselect();
     cy.elements().removeClass('highlight');
 
-    ele.select();
-    ele.addClass('highlight');
+    matchingNodes.addClass('highlight');
+    if (selectable) matchingNodes.select();
 
     cy.animate(
       {
-        center: { eles: ele },
+        center: { eles: matchingNodes },
         zoom: Math.max(cy.zoom(), 3.0),
       },
       { duration: 400 }
@@ -1051,14 +1074,28 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
           }
         }] : []),
         {
-          selector: '.highlight',
+          selector: 'node.highlight',
           style: {
-            'border-width': 6,
-            'border-color': '#3B82F6',
-            'overlay-color': '#3B82F6',
-            'overlay-opacity': 0.15,
-            'overlay-padding': 10,
-            'z-index': 9999
+            'overlay-color': '#0EA5E9',
+            'overlay-opacity': 0.35,
+            'overlay-padding': 4,
+            'z-index': 9999,
+            'transition-property': 'overlay-opacity overlay-padding',
+            'transition-duration': '0.35s',
+            'transition-timing-function': 'cubic-bezier(0.4, 0, 0.2, 1)'
+          }
+        },
+        {
+          selector: 'edge.highlight',
+          style: {
+            'width': 5,
+            'line-color': '#0EA5E9',
+            'target-arrow-color': '#0EA5E9',
+            'opacity': 1,
+            'z-index': 9999,
+            'transition-property': 'width line-color target-arrow-color',
+            'transition-duration': '0.35s',
+            'transition-timing-function': 'cubic-bezier(0.4, 0, 0.2, 1)'
           }
         }
       ]),
