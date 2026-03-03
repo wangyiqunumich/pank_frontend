@@ -1,48 +1,51 @@
 import './scoped.css';
 
 import React, {
-  useEffect,
-  useRef,
-  useState,
+    useEffect,
+    useRef,
+    useState,
 } from 'react';
 
 import JSON5 from 'json5';
+import ReactMarkdown from 'react-markdown';
 import {
-  useDispatch,
-  useSelector,
+    useDispatch,
+    useSelector,
 } from 'react-redux';
 import {
-  useLocation,
-  useNavigate,
+    useLocation,
+    useNavigate,
 } from 'react-router-dom';
+import rehypeRaw from 'rehype-raw';
+import remarkGfm from 'remark-gfm';
 
 import {
-  InfoOutlined as InfoOutlineIcon,
-  Mail as MailIcon,
+    InfoOutlined as InfoOutlineIcon,
+    Mail as MailIcon,
 } from '@mui/icons-material';
 import {
-  Backdrop,
-  Box,
-  Button,
-  CircularProgress,
-  Container,
-  Grid,
-  Link,
-  Skeleton,
-  styled,
-  Tooltip,
-  tooltipClasses,
-  Typography,
+    Backdrop,
+    Box,
+    Button,
+    CircularProgress,
+    Container,
+    Grid,
+    Link,
+    Skeleton,
+    styled,
+    Tooltip,
+    tooltipClasses,
+    Typography,
 } from '@mui/material';
 
 import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 import { ErrorComponent } from '../components/IntermediatePage';
 import KnowledgeGraph from '../components/KnowledgeGraph';
 import QuestionAnswerPage, {
-  ResultComponentSkeleton,
+    PlanConfirmationPage,
+    ResultComponentSkeleton,
 } from '../components/ResultComponent';
 import VisuImage from '../image/output.png';
-import { queryAiAgent } from '../redux/aiAgentSlice';
 import { queryArticles } from '../redux/articlesSlice';
 import { queryQueryResultPage } from '../redux/queryResultPage';
 import { querySupportingMaterial } from '../redux/supportingMaterialSlice';
@@ -51,8 +54,8 @@ import tooltipsSchema from '../schema/tool_tips_schema.json';
 import { addHighlight } from '../utils/textProcessing';
 import { GenomeBrowserEmbed } from './AgentResult';
 import {
-  demoCoordData,
-  demoGraphData,
+    demoCoordData,
+    demoGraphData,
 } from './demo_graph_data';
 import SearchResultLoading from './loading';
 import sampleSummaryData from './sample.json';
@@ -77,11 +80,6 @@ const defaultNextQuestion = {
 
 const DEBUG_STREAM_LOADING_ENTRIES = [
     {
-        short_title: 'complexity',
-        title: 'Complexity Classification',
-        steps: ['Classifying query complexity...'],
-    },
-    {
         short_title: 'planning',
         title: 'Planning',
         steps: ['Generating execution plan...'],
@@ -92,51 +90,61 @@ const DEBUG_STREAM_LOADING_ENTRIES = [
         steps: ['Searching HIRN literature evidence...'],
     },
     {
-        short_title: 'cypher',
+        short_title: 'cypher_generation',
         title: 'Cypher Generation',
-        steps: ['Preparing Cypher execution...'],
+        steps: ['Building Cypher queries from plan...'],
+    },
+    {
+        short_title: 'cypher_execution',
+        title: 'Cypher Execution',
+        steps: ['Executing Cypher against database...'],
     },
 ];
 
 const getInitialStreamMilestones = () => ({
-    complexityDone: false,
     planningDone: false,
     hirnDone: false,
-    cypherStarted: false,
+    cypherGenerated: false,
+    cypherExecuted: false,
 });
 
 const buildDebugStreamLoadingProgress = (milestones) => {
     const entryStates = DEBUG_STREAM_LOADING_ENTRIES.map(() => ({ step: -1, isFinished: false }));
 
-    if (!milestones.complexityDone) {
+    if (!milestones.planningDone) {
         entryStates[0] = { step: 0, isFinished: false };
     } else {
         entryStates[0] = { step: 1, isFinished: true };
-        if (!milestones.planningDone) {
+        if (!milestones.hirnDone) {
             entryStates[1] = { step: 0, isFinished: false };
         } else {
             entryStates[1] = { step: 1, isFinished: true };
-            if (!milestones.hirnDone) {
+            if (!milestones.cypherGenerated) {
                 entryStates[2] = { step: 0, isFinished: false };
             } else {
                 entryStates[2] = { step: 1, isFinished: true };
-                entryStates[3] = { step: 0, isFinished: false };
+                if (!milestones.cypherExecuted) {
+                    entryStates[3] = { step: 0, isFinished: false };
+                } else {
+                    entryStates[3] = { step: 1, isFinished: true };
+                }
             }
         }
     }
 
     const completedCount = [
-        milestones.complexityDone,
         milestones.planningDone,
         milestones.hirnDone,
+        milestones.cypherGenerated,
+        milestones.cypherExecuted,
     ].filter(Boolean).length;
 
     let shortTitle = DEBUG_STREAM_LOADING_ENTRIES[0].short_title;
-    if (milestones.complexityDone && !milestones.planningDone) {
+    if (milestones.planningDone && !milestones.hirnDone) {
         shortTitle = DEBUG_STREAM_LOADING_ENTRIES[1].short_title;
-    } else if (milestones.planningDone && !milestones.hirnDone) {
+    } else if (milestones.hirnDone && !milestones.cypherGenerated) {
         shortTitle = DEBUG_STREAM_LOADING_ENTRIES[2].short_title;
-    } else if (milestones.hirnDone) {
+    } else if (milestones.cypherGenerated && !milestones.cypherExecuted) {
         shortTitle = DEBUG_STREAM_LOADING_ENTRIES[3].short_title;
     }
 
@@ -150,6 +158,8 @@ const buildDebugStreamLoadingProgress = (milestones) => {
         progress: (completedCount / DEBUG_STREAM_LOADING_ENTRIES.length) * 100,
     };
 };
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
 export const base64ToUtf8 = (base64) => {
@@ -313,10 +323,29 @@ const NoGraphData = () => (
 function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}) {
     const dispatch = useDispatch();
     const location = useLocation();
-    const demoMode = React.useMemo(
-        () => new URLSearchParams(location.search).get('demo') === 'true',
+    const searchParams = React.useMemo(
+        () => new URLSearchParams(location.search),
         [location.search]
     );
+    const demoMode = React.useMemo(
+        () => searchParams.get('demo') === 'true',
+        [searchParams]
+    );
+    const terminalMode = React.useMemo(
+        () => searchParams.get('terminal') === 'true' || searchParams.get('debug') === 'true',
+        [searchParams]
+    );
+    const planDemoMode = React.useMemo(
+        () => searchParams.get('plandemo') === 'true',
+        [searchParams]
+    );
+    const planDemoQuestion = React.useMemo(() => {
+        const encoded = searchParams.get('question');
+        if (!encoded) {
+            return 'What is the function of TP53 in type 1 diabetes context?';
+        }
+        return base64ToUtf8(encoded) || encoded;
+    }, [searchParams]);
 
     const { viewSchema } = useSelector((state) => state.viewSchema);
     const { typeToImage } = useSelector((state) => state.typeToImage);
@@ -345,12 +374,189 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const [streamAnswer, setStreamAnswer] = useState('');
     const [streamComplete, setStreamComplete] = useState(false);
     const [streamMilestones, setStreamMilestones] = useState(getInitialStreamMilestones());
+    const [terminalPhase, setTerminalPhase] = useState('idle');
+    const [terminalLoading, setTerminalLoading] = useState(false);
+    const [terminalConfirming, setTerminalConfirming] = useState(false);
+    const [terminalSummaryLoading, setTerminalSummaryLoading] = useState(false);
+    const [planSummary, setPlanSummary] = useState('');
+    const [planParsedTitle, setPlanParsedTitle] = useState('');
+    const [planSessionId, setPlanSessionId] = useState('');
     const streamSummaryRef = useRef('');
     const streamAnswerRef = useRef('');
     const thinkingBoxRef = useRef(null);
+    const terminalInitializedRef = useRef(false);
+
+    const stripCypherQueriesSection = React.useCallback((markdownText) => {
+        const normalized = String(markdownText || '').replace(/\r\n/g, '\n');
+        return normalized.replace(/\n?##\s*Cypher\s+Queries[\s\S]*$/i, '').replace(/\s+$/g, '');
+    }, []);
+
+    const parseSummaryFromRawOutput = (rawOutput) => {
+        let summaryText = '';
+        let parsedResult = null;
+
+        try {
+            parsedResult = typeof rawOutput === 'string' ? JSON5.parse(rawOutput) : rawOutput;
+            summaryText = parsedResult?.text?.summary || '';
+        } catch (err) {
+            try {
+                parsedResult = typeof rawOutput === 'string' ? JSON.parse(rawOutput) : rawOutput;
+                summaryText = parsedResult?.text?.summary || '';
+            } catch (err2) {
+                // noop
+            }
+        }
+
+        if (!summaryText && typeof rawOutput === 'string') {
+            const match = rawOutput.match(/"summary"\s*:\s*"([\s\S]*?)"\s*[},]/);
+            if (match?.[1]) {
+                summaryText = match[1]
+                    .replace(/\\n/g, '\n')
+                    .replace(/\\"/g, '"')
+                    .replace(/\\\\/g, '\\');
+            }
+        }
+
+        if (summaryText.startsWith('Answer\n')) {
+            summaryText = summaryText.slice('Answer\n'.length);
+        }
+
+        return stripCypherQueriesSection(summaryText);
+    };
+
+    const parseFinalResponsePayload = (rawResponse) => {
+        const responseData = typeof rawResponse === 'string'
+            ? JSON5.parse(rawResponse)
+            : rawResponse;
+        return {
+            summary: stripCypherQueriesSection(responseData?.text?.summary || ''),
+            cypherQueries: responseData?.text?.cypher || [],
+            followUpQuestions: responseData?.text?.follow_up_questions || [],
+        };
+    };
+
+    const parseAnswerStringPayload = (answerString) => {
+        const outer = JSON5.parse(answerString || '{}');
+        const text = outer?.text;
+        if (!text) {
+            return { summary: '', cypherQueries: [], followUpQuestions: [] };
+        }
+        if (typeof text === 'string') {
+            return { summary: stripCypherQueriesSection(text), cypherQueries: [], followUpQuestions: [] };
+        }
+        return {
+            summary: stripCypherQueriesSection(text.summary || ''),
+            cypherQueries: text.cypher || [],
+            followUpQuestions: text.follow_up_questions || [],
+        };
+    };
+
+    const extractParsedTitle = (summaryText, fallbackQuestion) => {
+        const lines = (summaryText || '')
+            .split('\n')
+            .map((line) => line.replace(/^#+\s*/, '').trim())
+            .filter(Boolean);
+        return lines[0] || fallbackQuestion || 'Agent-generated execution plan';
+    };
+
+    const removeTerminalPromptTail = (markdownText) => {
+        const lines = String(markdownText || '').replace(/\r\n/g, '\n').split('\n');
+        // Drop the last 2 lines because they are agent terminal prompt instructions.
+        const trimmedLines = lines.length > 2 ? lines.slice(0, -2) : [];
+        return trimmedLines.join('\n').replace(/\s+$/g, '');
+    };
+
+    const parsePlanMarkdownForUI = (markdownText) => {
+        const cleaned = removeTerminalPromptTail(markdownText || '');
+        const lines = cleaned.split('\n');
+
+        let firstNonEmpty = 0;
+        while (firstNonEmpty < lines.length && !lines[firstNonEmpty].trim()) {
+            firstNonEmpty += 1;
+        }
+
+        if (lines[firstNonEmpty]?.trim() !== '## Interpreted Question') {
+            return {
+                interpretedQuestion: '',
+                planMarkdown: cleaned,
+            };
+        }
+
+        let cursor = firstNonEmpty + 1;
+        while (cursor < lines.length && !/^##\s+/.test(lines[cursor].trim())) {
+            cursor += 1;
+        }
+
+        const interpretedQuestion = lines
+            .slice(firstNonEmpty + 1, cursor)
+            .join('\n')
+            .trim();
+
+        const remaining = [
+            ...lines.slice(0, firstNonEmpty),
+            ...lines.slice(cursor),
+        ];
+
+        while (remaining.length && !remaining[0].trim()) {
+            remaining.shift();
+        }
+
+        return {
+            interpretedQuestion,
+            planMarkdown: remaining.join('\n').replace(/^\s*\n+/, ''),
+        };
+    };
+
+    const extractPlanCypherQueries = React.useCallback((planJson) => {
+        const steps = Array.isArray(planJson?.steps) ? planJson.steps : [];
+        return steps
+            .map((step) => (typeof step?.cypher === 'string' ? step.cypher.trim() : ''))
+            .filter((cypher) => cypher && cypher.toLowerCase() !== 'undefined');
+    }, []);
+
+    const fetchGraphFromCypher = React.useCallback(async (cypherQueries) => {
+        if (!cypherQueries?.length) {
+            setNoGraph(true);
+            return;
+        }
+        try {
+            const response = await dispatch(queryQueryResultPage({
+                payload: {
+                    cypher: cypherQueries,
+                    rdb_query: '',
+                },
+                agent: true,
+            }));
+            if (response?.payload?.combined_query_result) {
+                setGraphData(response.payload.combined_query_result);
+                setNoGraph(false);
+            } else {
+                setNoGraph(true);
+            }
+        } catch (err) {
+            console.error('[Terminal Flow] Graph query error:', err?.message || err);
+            setNoGraph(true);
+        }
+    }, [dispatch]);
+
+    const updateMilestoneSequence = (stage) => {
+        if (stage === 'start') {
+            setStreamMilestones(getInitialStreamMilestones());
+        } else if (stage === 'revise') {
+            setStreamMilestones(getInitialStreamMilestones());
+        }
+    };
+
+    const runPlanLoadingMilestones = React.useCallback(async () => {
+        setStreamMilestones((prev) => ({ ...prev, planningDone: true }));
+        await sleep(1200);
+        setStreamMilestones((prev) => ({ ...prev, hirnDone: true }));
+        await sleep(1200);
+        setStreamMilestones((prev) => ({ ...prev, cypherGenerated: true }));
+    }, []);
 
     useEffect(() => {
-        if (demoMode) {
+        if (demoMode || planDemoMode) {
             return;
         }
         const helperFunction = async () => {
@@ -376,11 +582,11 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             setNextQuestions(replacedList);
         }
         helperFunction();
-    }, [allNextQuestions]);
+    }, [allNextQuestions, demoMode, planDemoMode]);
 
     // initialize the reference data from viewSchema w/ replacements
     useEffect(() => {
-        if (demoMode) {
+        if (demoMode || planDemoMode) {
             return;
         }
         if (!!graphData) {
@@ -414,85 +620,41 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         //         external_links: newExternalLinks
         //     });
         // }
-    }, [graphData]);
+    }, [graphData, demoMode, planDemoMode]);
 
     // init: get URL parameters and dispatch actions
     useEffect(() => {
-        if (demoMode) {
+        if (demoMode || planDemoMode) {
             return;
         }
         const params = new URLSearchParams(window.location.search);
-        const question = base64ToUtf8(params?.get('question'));
-        setQuestion(question);
+        const decodedQuestion = base64ToUtf8(params?.get('question'));
+        setQuestion(decodedQuestion);
         const debug = params.get('debug') === 'true';
         setDebug(debug);
-        console.log('Received question:', question);
-        if (!question) {
+        console.log('Received question:', decodedQuestion);
+        if (!decodedQuestion) {
             console.log('[ERROR] No question found in URL parameters.');
             setError(true);
             return;
         }
 
+        if (terminalMode) {
+            setCurrentQuestion(decodedQuestion);
+            setAiLoading(false);
+            return;
+        }
+
         if (debug) {
-            setCurrentQuestion(question);
+            setCurrentQuestion(decodedQuestion);
             setAiLoading(false);
             // In debug mode, don't disable graph - it will be populated from final_response event
             return;
         }
-
-        console.log('Querying AI agent...');
-        const thunk = dispatch(queryAiAgent(debug ? { debug: true } : { question: question, "agent_name": "pankbase" }));
-        thunkref.current = thunk;
-        thunk.then((response) => {
-            const agentResult = JSON.parse(response.payload.answer || '{}')?.text || {};
-            console.log('AI Agent Result:', agentResult);
-            if (agentResult.template_matching !== 'agent_answer') {
-                console.log('Template matching result:', agentResult.template_matching);
-                //should be aaa - bbb - ccc
-                //navigate to /result?sourceTerm=aaa&targetTerm=ccc&relationship=bbb
-                if (!agentResult.template_matching || agentResult.template_matching.split(' - ').length !== 3) {
-                    console.log('[ERROR] Invalid template matching');
-                    setError(true);
-                    return;
-                }
-                const [sourceTerm, relationship, targetTerm] = agentResult.template_matching.split(' - ');
-                const page = relationship === 'express_in' ? 'result' : 'intermediate';
-                const newUrl = `/${page}?sourceTerm=${sourceTerm}&targetTerm=${targetTerm}&relationship=${relationship}`;
-                window.location.href = newUrl;
-                return;
-            }
-            if (!debug) {
-                setAiAnswer(agentResult.summary || {});
-            }
-            // setMainCypher(agentResult.cypher || '');
-
-            setCurrentQuestion(question);
-            // dispatch(queryQueryResult({ query: agentResult.cypher, isNeptune: true })).then((response) => {
-            //     if (!response.payload || response.error) {
-            //         setError(true);
-            //         return;
-            //     }
-            //     // setGraphData(response.payload?.results?.[0] || {});
-            //     dispatch(queryGraphviewer({ "query_result": response.payload })).then((response) => {
-            //         setGraphData(response.payload?.filtered_graph?.results?.[0] || {});
-            //         setCoordData(response.payload?.xy_coords || {});
-            //         setAiLoading(false);
-            //     });
-            // });
-            console.log('Cypher query:', agentResult.cypher);
-            if (!agentResult.cypher || agentResult.cypher.length === 0) {
-                console.log('[ERROR] Invalid Cypher query');
-                setError(true);
-                return;
-            }
-            setAiLoading(false);
-            console.log('Graph query disabled: skipping queryQueryResultPage');
-            setNoGraph(true);
-        });
-    }, []);
+    }, [demoMode, planDemoMode, terminalMode]);
 
     useEffect(() => {
-        if (!debug || demoMode) {
+        if (!debug || terminalMode || demoMode || planDemoMode) {
             return undefined;
         }
 
@@ -515,7 +677,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ question: question || '' }),
+                    body: JSON.stringify({ question: question || '', agent_name: 'pankbase' }),
                 });
 
                 if (!response.ok) {
@@ -583,11 +745,11 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             setStreamedEvents((prev) => [...prev, event]);
 
             if (event?.event === 'complexity_classified') {
-                setStreamMilestones((prev) => ({ ...prev, complexityDone: true }));
+                setStreamMilestones((prev) => ({ ...prev, planningDone: true }));
             }
 
             if (event?.event === 'plan_generated' || event?.event === 'planner_decision') {
-                setStreamMilestones((prev) => ({ ...prev, planningDone: true }));
+                setStreamMilestones((prev) => ({ ...prev, planningDone: true, cypherGenerated: true }));
             }
 
             if (event?.event === 'hirn_result') {
@@ -595,7 +757,11 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             }
 
             if (event?.event === 'cypher_executing') {
-                setStreamMilestones((prev) => ({ ...prev, cypherStarted: true }));
+                setStreamMilestones((prev) => ({ ...prev, cypherGenerated: true }));
+            }
+
+            if (event?.event === 'cypher_result') {
+                setStreamMilestones((prev) => ({ ...prev, cypherExecuted: true }));
             }
 
             if (event?.event === 'stream_complete') {
@@ -671,6 +837,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     return;
                 }
 
+                summaryText = stripCypherQueriesSection(summaryText);
                 console.log('[format_raw_output] ✓ FINAL RESULT: Summary ready, length:', summaryText.length);
 
                 setStreamAnswer(summaryText);
@@ -705,10 +872,10 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             if (event?.event === 'final_response' && event?.data?.response) {
                 console.log('[final_response] Processing final response...');
                 console.log('[final_response] Raw response type:', typeof event.data.response);
-                console.log('[final_response] Raw response (first 200 chars):',
+                console.log('[final_response] Raw response:',
                     typeof event.data.response === 'string'
-                        ? event.data.response.substring(0, 200)
-                        : JSON.stringify(event.data.response).substring(0, 200)
+                        ? event.data.response
+                        : JSON.stringify(event.data.response)
                 );
 
                 try {
@@ -726,7 +893,8 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     });
 
                     const cypherQueries = responseData?.text?.cypher || [];
-                    const summary = responseData?.text?.summary || '';
+                    const summary = stripCypherQueriesSection(responseData?.text?.summary || '');
+                    const followUpQuestions = responseData?.text?.follow_up_questions || [];
 
                     console.log('[final_response] Extracted cypher queries:', cypherQueries.length, 'queries');
                     console.log('[final_response] Summary length:', summary.length, 'chars');
@@ -736,6 +904,14 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         console.log('[final_response] Setting summary from final_response');
                         setStreamAnswer(summary);
                         streamAnswerRef.current = summary;
+                    }
+
+                    if (Array.isArray(followUpQuestions) && followUpQuestions.length > 0) {
+                        setNextQuestions(
+                            followUpQuestions
+                                .filter((item) => typeof item === 'string' && item.trim())
+                                .map((item) => ({ question: item.trim(), link: '' }))
+                        );
                     }
 
                     if (cypherQueries.length > 0) {
@@ -760,6 +936,8 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         });
                     } else {
                         console.log('[final_response] ⚠ No cypher queries found');
+                        setGraphData(null);
+                        setNoGraph(true);
                     }
                 } catch (err) {
                     console.error('[final_response] ✗ Error processing response:');
@@ -804,11 +982,136 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 clearInterval(chunkTimer);
             }
         };
-    }, [debug, demoMode, question, dispatch]);
+    }, [debug, terminalMode, demoMode, planDemoMode, question, dispatch]);
 
-    const removeConsecutiveAsterisks = (text) => {
-        return text.replace(/\*\*/g, '');
-    };
+    const runPlanningCycle = React.useCallback(async (inputText) => {
+        if (!inputText) return;
+        setTerminalLoading(true);
+        updateMilestoneSequence(planSessionId ? 'revise' : 'start');
+        setStreamedEvents([]);
+        setThinkingLines([]);
+        setStreamComplete(false);
+        setStreamedSummary('');
+        setStreamAnswer('');
+        streamSummaryRef.current = '';
+        streamAnswerRef.current = '';
+        try {
+            if (!planSessionId) {
+                const startResponse = await flaskBackendAxiosInstanceNew.post('https://agent.pankgraph.org/plan/start', {
+                    question: inputText,
+                    rigor: true,
+                    use_literature: true,
+                }, {
+                    headers: { 'Content-Type': 'application/json' },
+                });
+                const startData = startResponse?.data || {};
+                if (!startData?.session_id) {
+                    throw new Error(startData?.error || 'Missing session_id from /plan/start');
+                }
+                setPlanSessionId(startData.session_id);
+                const { interpretedQuestion, planMarkdown } = parsePlanMarkdownForUI(startData?.plan_markdown || '');
+                setPlanSummary(planMarkdown);
+                setPlanParsedTitle(interpretedQuestion || currentQuestion || question || inputText);
+                setAiAnswer(planMarkdown);
+                await runPlanLoadingMilestones();
+                const planCypherQueries = extractPlanCypherQueries(startData?.plan_json);
+                if (planCypherQueries.length) {
+                    await fetchGraphFromCypher(planCypherQueries);
+                    setStreamMilestones((prev) => ({ ...prev, cypherExecuted: true }));
+                } else {
+                    setGraphData(null);
+                    setNoGraph(true);
+                    setStreamMilestones((prev) => ({ ...prev, cypherExecuted: true }));
+                }
+            } else {
+                const reviseResponse = await flaskBackendAxiosInstanceNew.post('https://agent.pankgraph.org/plan/revise', {
+                    session_id: planSessionId,
+                    prompt: inputText,
+                }, {
+                    headers: { 'Content-Type': 'application/json' },
+                });
+                const reviseData = reviseResponse?.data || {};
+                const { interpretedQuestion, planMarkdown } = parsePlanMarkdownForUI(reviseData?.plan_markdown || '');
+                setPlanSummary(planMarkdown);
+                setPlanParsedTitle(interpretedQuestion || currentQuestion || question || inputText);
+                setAiAnswer(planMarkdown);
+                await runPlanLoadingMilestones();
+                const planCypherQueries = extractPlanCypherQueries(reviseData?.plan_json);
+                if (planCypherQueries.length) {
+                    await fetchGraphFromCypher(planCypherQueries);
+                    setStreamMilestones((prev) => ({ ...prev, cypherExecuted: true }));
+                } else {
+                    setGraphData(null);
+                    setNoGraph(true);
+                    setStreamMilestones((prev) => ({ ...prev, cypherExecuted: true }));
+                }
+            }
+            setTerminalPhase('confirm');
+            setStreamComplete(true);
+        } catch (err) {
+            console.error('[Terminal Flow] Planning cycle failed:', err);
+            setError(true);
+        } finally {
+            setTerminalLoading(false);
+        }
+    }, [planSessionId, currentQuestion, question, extractPlanCypherQueries, fetchGraphFromCypher, runPlanLoadingMilestones]);
+
+    const runConfirmCycle = React.useCallback(async () => {
+        if (!planSessionId) {
+            setError(true);
+            return;
+        }
+        setAiAnswer('');
+        setStreamAnswer('');
+        setStreamedSummary('');
+        streamAnswerRef.current = '';
+        streamSummaryRef.current = '';
+        setTerminalConfirming(true);
+        setTerminalSummaryLoading(true);
+        setTerminalPhase('result');
+        setStreamComplete(false);
+        try {
+            const confirmResponse = await flaskBackendAxiosInstanceNew.post('https://agent.pankgraph.org/plan/confirm', {
+                session_id: planSessionId,
+            }, {
+                headers: { 'Content-Type': 'application/json' },
+            });
+            const confirmData = confirmResponse?.data || {};
+            const { summary, followUpQuestions } = parseAnswerStringPayload(confirmData.answer || '{}');
+            if (summary) {
+                setAiAnswer(summary);
+                setStreamAnswer(summary);
+                setStreamedSummary(summary);
+                streamAnswerRef.current = summary;
+                streamSummaryRef.current = summary;
+            }
+            if (Array.isArray(followUpQuestions) && followUpQuestions.length > 0) {
+                setNextQuestions(
+                    followUpQuestions
+                        .filter((item) => typeof item === 'string' && item.trim())
+                        .map((item) => ({ question: item.trim(), link: '' }))
+                );
+            }
+            setStreamComplete(true);
+            setPlanSessionId('');
+        } catch (err) {
+            console.error('[Terminal Flow] Confirm failed:', err);
+            setError(true);
+        } finally {
+            setTerminalConfirming(false);
+            setTerminalSummaryLoading(false);
+        }
+    }, [planSessionId]);
+
+    useEffect(() => {
+        if (!terminalMode || demoMode || planDemoMode || !question || terminalInitializedRef.current) {
+            return;
+        }
+        terminalInitializedRef.current = true;
+        setPlanSessionId('');
+        setTerminalPhase('loading');
+        runPlanningCycle(question);
+    }, [terminalMode, demoMode, planDemoMode, question, runPlanningCycle]);
 
     // Skeleton placeholder for summary loading
     const SummarySkeleton = () => (
@@ -844,13 +1147,173 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         }
     }, [thinkingLines]);
 
-    // Show skeleton if we're in debug mode streaming but haven't received summary yet
-    const shouldShowSkeleton = debug && !streamedSummary && !streamComplete;
+    // Show skeleton during debug streaming and terminal confirm-in-flight summary generation.
+    const shouldShowSkeleton =
+        (debug && !streamedSummary && !streamComplete)
+        || (terminalMode && terminalPhase === 'result' && terminalSummaryLoading);
 
-    const displaySummary = removeConsecutiveAsterisks(
+    const displaySummary = (
         demoMode
             ? (sampleSummaryData?.summary || '')
             : (activeSummary || summaryPlaceholder)
+    );
+
+    const scrollToReferenceAnchor = (href, event) => {
+        if (!href || !href.startsWith('#reference-item-')) {
+            return;
+        }
+        event.preventDefault();
+        const target = document.getElementById(href.slice(1));
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    };
+
+    const renderInlineWithPmids = (value, keyPrefix) => {
+        if (typeof value !== 'string' || !value) {
+            return value;
+        }
+
+        const parts = value.split(/(\b\d{8}\b)/g);
+        return parts.map((part, index) => {
+            if (/^\d{8}$/.test(part)) {
+                const href = `#reference-item-${part}`;
+                return (
+                    <Link
+                        key={`${keyPrefix}-pmid-${part}-${index}`}
+                        href={href}
+                        sx={{
+                            color: '#1976d2',
+                            fontWeight: 400,
+                            textDecoration: 'none',
+                            '&:hover': {
+                                textDecoration: 'underline',
+                            },
+                        }}
+                        onClick={(event) => scrollToReferenceAnchor(href, event)}
+                    >
+                        {part}
+                    </Link>
+                );
+            }
+            return <React.Fragment key={`${keyPrefix}-text-${index}`}>{part}</React.Fragment>;
+        });
+    };
+
+    const renderChildrenWithPmids = (children, keyPrefix, skipStringLinkify = false) =>
+        React.Children.toArray(children).map((child, childIndex) => {
+            const childKey = `${keyPrefix}-${childIndex}`;
+            if (typeof child === 'string') {
+                return skipStringLinkify ? <React.Fragment key={childKey}>{child}</React.Fragment> : renderInlineWithPmids(child, childKey);
+            }
+            if (!React.isValidElement(child)) {
+                return child;
+            }
+
+            const childType = typeof child.type === 'string' ? child.type : '';
+            if (childType === 'a') {
+                return React.cloneElement(child, {
+                    key: child.key || childKey,
+                    children: child.props.children,
+                });
+            }
+
+            return React.cloneElement(child, {
+                key: child.key || childKey,
+                children: renderChildrenWithPmids(child.props.children, childKey, skipStringLinkify),
+            });
+        });
+
+    const markdownSummaryContent = (
+        <Box
+            sx={{
+                fontSize: 16,
+                fontWeight: 400,
+                color: '#475569',
+                lineHeight: 1.7,
+                '& p': { margin: '0 0 0.85em 0' },
+                '& ul, & ol': { margin: '0.2em 0 0.85em 1.4em', padding: 0 },
+                '& li': { marginBottom: '0.25em' },
+                '& h1, & h2, & h3, & h4': {
+                    margin: '0.9em 0 0.45em 0',
+                    color: '#0F172A',
+                    fontWeight: 700,
+                    lineHeight: 1.3,
+                },
+                '& :not(pre) > code': {
+                    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+                    backgroundColor: '#F1F5F9',
+                    borderRadius: '4px',
+                    padding: '0 4px',
+                    fontSize: '0.92em',
+                },
+                '& pre': {
+                    backgroundColor: '#F8FAFC',
+                    border: '1px solid #E2E8F0',
+                    borderRadius: '8px',
+                    padding: '12px',
+                    overflowX: 'hidden',
+                    margin: '0.8em 0',
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    overflowWrap: 'anywhere',
+                },
+                '& pre code': {
+                    backgroundColor: 'transparent',
+                    padding: 0,
+                    borderRadius: 0,
+                    whiteSpace: 'inherit',
+                    wordBreak: 'inherit',
+                    overflowWrap: 'inherit',
+                    fontSize: 'inherit',
+                },
+                '& table': {
+                    width: '100%',
+                    borderCollapse: 'collapse',
+                    margin: '0.8em 0',
+                    borderTop: '1px solid #CBD5E1',
+                },
+                '& thead tr': {
+                    borderBottom: '1px solid #CBD5E1',
+                },
+                '& tbody tr': {
+                    borderBottom: '1px solid #CBD5E1',
+                },
+                '& th, & td': {
+                    textAlign: 'left',
+                    padding: '8px 10px',
+                    verticalAlign: 'top',
+                },
+            }}
+        >
+            <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeRaw]}
+                components={{
+                    p: ({ children }) => <Typography component="p" sx={{ fontSize: 16, fontWeight: 400, color: '#475569' }}>{renderChildrenWithPmids(children, 'p')}</Typography>,
+                    li: ({ children }) => <Typography component="li" sx={{ fontSize: 16, fontWeight: 400, color: '#475569' }}>{renderChildrenWithPmids(children, 'li')}</Typography>,
+                    a: ({ href, children }) => (
+                        <Link
+                            href={href}
+                            target={href?.startsWith('#reference-item-') ? undefined : '_blank'}
+                            rel={href?.startsWith('#reference-item-') ? undefined : 'noreferrer'}
+                            sx={{ color: '#0069c2', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+                            onClick={(event) => scrollToReferenceAnchor(href, event)}
+                        >
+                            {renderChildrenWithPmids(children, 'a', true)}
+                        </Link>
+                    ),
+                    strong: ({ children }) => <strong>{renderChildrenWithPmids(children, 'strong')}</strong>,
+                    em: ({ children }) => <em>{renderChildrenWithPmids(children, 'em')}</em>,
+                    h1: ({ children }) => <Typography component="h1" sx={{ fontSize: 26 }}>{renderChildrenWithPmids(children, 'h1')}</Typography>,
+                    h2: ({ children }) => <Typography component="h2" sx={{ fontSize: 22 }}>{renderChildrenWithPmids(children, 'h2')}</Typography>,
+                    h3: ({ children }) => <Typography component="h3" sx={{ fontSize: 18 }}>{renderChildrenWithPmids(children, 'h3')}</Typography>,
+                    h4: ({ children }) => <Typography component="h4" sx={{ fontSize: 16 }}>{renderChildrenWithPmids(children, 'h4')}</Typography>,
+                }}
+            >
+                {displaySummary}
+            </ReactMarkdown>
+        </Box>
     );
 
     const stripHtml = (value) => (value ? value.replace(/<[^>]*>/g, '') : '');
@@ -938,7 +1401,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
     // Fetch articles data in PRODUCTION mode based on aiAnswer
     useEffect(() => {
-        if (demoMode || debug) {
+        if (demoMode || planDemoMode || debug) {
             // Skip in demo or debug mode
             return;
         }
@@ -977,11 +1440,11 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 });
             }
         }
-    }, [aiAnswer, demoMode, debug, dispatch]);
+    }, [aiAnswer, demoMode, planDemoMode, debug, dispatch]);
 
     // Fetch articles data in DEBUG mode based on streamComplete
     useEffect(() => {
-        if (demoMode || !debug || !streamComplete) {
+        if (demoMode || planDemoMode || !debug || !streamComplete) {
             // Skip in demo mode or if not in debug mode or stream not complete
             return;
         }
@@ -1022,7 +1485,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 });
             }
         }
-    }, [streamComplete, demoMode, debug, streamAnswer, streamedSummary, dispatch]);
+    }, [streamComplete, demoMode, planDemoMode, debug, streamAnswer, streamedSummary, dispatch]);
 
     // Create skeleton placeholder items for references while loading
     const referencesSkeletonItems = Array.from({ length: 3 }, (_, index) => ({
@@ -1220,7 +1683,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         aiOverview: {
             sections: [
                 {
-                    body: displaySummary,
+                    content: markdownSummaryContent,
                 },
             ],
         },
@@ -1264,6 +1727,51 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         },
     });
 
+    const buildPlanDemoPageData = () => ({
+        questionId: 'PLAN',
+        title: 'Confirm Query & Execution Steps',
+        originalQuestion: planDemoQuestion,
+        parsedTitle: 'TP53 function, ontology annotations, and T1D-relevant evidence synthesis',
+        agentPlan: `### Planned Steps
+1. Validate the original query intent and core entities.
+2. Retrieve TP53 functional and ontology evidence from PanKgraph.
+3. Cross-check literature support for T1D-relevant context.
+4. Prepare response summary and related graph visualization.
+
+Please review this plan and provide edits if needed.`,
+        onSendFeedback: (text) => {
+            console.log('[Plan Demo] User feedback:', text);
+        },
+        onProceed: () => {
+            console.log('[Plan Demo] Proceed confirmed');
+        },
+        graphData: demoGraphData,
+        visualMaterial: {
+            title: 'Visual Material',
+            tabs: [{ label: 'Knowledge Graph', content: demoKnowledgeGraphContent }],
+        },
+    });
+
+    const buildTerminalPlanPageData = () => ({
+        questionId: 'PLAN',
+        title: 'Confirm Query & Execution Steps',
+        originalQuestion: currentQuestion || question,
+        parsedTitle: currentQuestion || question,
+        agentPlan: planSummary || streamAnswer || streamedSummary || 'No plan generated yet.',
+        onSendFeedback: async (text) => {
+            await runPlanningCycle(text);
+        },
+        onProceed: async () => {
+            if (terminalConfirming) return;
+            await runConfirmCycle();
+        },
+        graphData,
+        visualMaterial: {
+            title: 'Visual Material',
+            tabs: [{ label: 'Knowledge Graph', content: knowledgeGraphContent }],
+        },
+    });
+
     const pageData = {
         questionId: "Q1",
         title: currentQuestion || question || "Question",
@@ -1271,8 +1779,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             sections: [
                 {
                     heading: undefined,
-                    body: shouldShowSkeleton ? undefined : displaySummary,
-                    content: shouldShowSkeleton ? <SummarySkeleton /> : undefined,
+                    content: shouldShowSkeleton ? <SummarySkeleton /> : markdownSummaryContent,
                 },
                 debug && !streamComplete ? {
                     heading: "Thinking Process",
@@ -1318,10 +1825,14 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 })),
         },
     };
-    const resolvedPageData = demoMode ? buildDemoPageData(demoIndex) : pageData;
+    const resolvedPageData = planDemoMode
+        ? buildPlanDemoPageData()
+        : (terminalMode && terminalPhase === 'confirm'
+            ? buildTerminalPlanPageData()
+            : (demoMode ? buildDemoPageData(demoIndex) : pageData));
     const anchorPrefix = contentAnchorPrefix || `result-${demoIndex}`;
     const lastMetaRef = useRef("");
-    const showDebugStreamLoading = !demoMode && debug && !streamComplete && !streamMilestones.cypherStarted;
+    const showDebugStreamLoading = !terminalMode && !demoMode && !planDemoMode && debug && !streamComplete && !streamMilestones.cypherGenerated;
 
     useEffect(() => {
         if (!onContentMeta) return;
@@ -1345,8 +1856,19 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         return <ErrorComponent errorTitle={"Question Not Relevant"} errorMessage={"Your query doesn't match any relevant topic in PanKgraph. Please try rephrasing or explore related tutorials."} log={debugMessage(question, agentRawResult)} />;
     }
 
-    if (aiLoading && !demoMode) {
+    if (aiLoading && !demoMode && !planDemoMode) {
         return <ResultComponentSkeleton />;
+    }
+
+    if (terminalMode && terminalLoading && terminalPhase !== 'confirm') {
+        return (
+            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px' }}>
+                <SearchResultLoading
+                    streamProgress={buildDebugStreamLoadingProgress(streamMilestones)}
+                    handleClose={() => navigate('/')}
+                />
+            </Box>
+        );
     }
 
     if (showDebugStreamLoading) {
@@ -1365,6 +1887,17 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
     return (
         <>
+            <Backdrop
+                sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 2 })}
+                open={terminalMode && terminalPhase === 'confirm' && terminalLoading}
+            >
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
+                    <CircularProgress size={32} sx={{ color: '#FFFFFF' }} />
+                    <Typography sx={{ color: '#FFFFFF', fontSize: 14, fontWeight: 600 }}>
+                        Revising plan...
+                    </Typography>
+                </Box>
+            </Backdrop>
             {referenceData?.empirical_evidence ? (
                 <Backdrop
                     sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
@@ -1384,7 +1917,13 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             ) : null}
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', px: { xs: 2, md: 3 }, py: 3 }}>
                 <Box sx={{ width: '100%' }}>
-                    <QuestionAnswerPage data={resolvedPageData} contentAnchorPrefix={anchorPrefix} />
+                    {planDemoMode ? (
+                        <PlanConfirmationPage data={resolvedPageData} contentAnchorPrefix={anchorPrefix} />
+                    ) : (terminalMode && terminalPhase === 'confirm') ? (
+                        <PlanConfirmationPage data={resolvedPageData} contentAnchorPrefix={anchorPrefix} />
+                    ) : (
+                        <QuestionAnswerPage data={resolvedPageData} contentAnchorPrefix={anchorPrefix} />
+                    )}
                 </Box>
             </Box>
         </>

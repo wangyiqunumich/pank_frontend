@@ -21,7 +21,7 @@ export const queryQueryResult = createAsyncThunk('/openCypherToQueryResult',
                         "Content-Type": "application/json"
                     }
                 })
-                .then((response) => response.data)
+                .then((response) => ({ results: JSON.stringify(response.data?.records) }))
                 .catch((response) => {
                     console.log(response);
                 });

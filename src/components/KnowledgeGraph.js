@@ -50,7 +50,6 @@ import {
   edgeLabels,
   getContrastingColor,
   legendSchema,
-  nodeColors,
   nodeStyle,
 } from './style.js';
 
@@ -525,6 +524,9 @@ const InfocardMenu = ({ hoveredData, review }) => {
       (isEdge ? graphInfocard?.edges : graphInfocard?.nodes)?.[hoveredData?.type]?.info_panel;
   const titleColumn = schema?.find(([label, _]) => label === "Title");
   const footerInfo = schema?.find(([label, _]) => label === "Footer")?.[1];
+  if (!hoveredData) {
+    console.log(JSON.stringify(hoveredData));
+  }
   return (
     hoveredData && (schema?.length > 0
       ? (
@@ -993,7 +995,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
     const properties = review ? "properties" : "~properties";
     const nodes = Object.values(uniqueNodesMap).map((node) => {
       // Determine type based on the labels
-      const type = review ? "cell_type" : node["~labels"].find((label) => nodeColors[label]) || "coding_elements";
+      const type = review ? "cell_type" : node["~labels"].find((label) => graphInfocard.nodes[label]?.info_panel) || "coding_elements";
       // Use the provided positionData and extract the Level property.
       const posData = positionData[node["~id"]] || {
         x: Math.random() * 250 - 125,
@@ -1022,6 +1024,8 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
         position: pos,
       };
     });
+
+    console.log(nodes);
 
     const nodeNameMap =
       nodes.reduce((acc, node) => {

@@ -1,16 +1,18 @@
 import React, {
-  useEffect,
-  useRef,
-  useState,
+    useEffect,
+    useRef,
+    useState,
 } from 'react';
 
 import cytoscape from 'cytoscape';
 import { useDispatch } from 'react-redux';
 
 import {
-  Box,
-  Button,
-  CircularProgress,
+    Box,
+    Button,
+    Chip,
+    CircularProgress,
+    Typography,
 } from '@mui/material';
 
 import Image from '../image/Pasted Graphic 1.png';
@@ -21,9 +23,9 @@ import SearchResultLoading from '../SearchResult/loading';
 import MultiLineInputList from './DebugComponent';
 import KnowledgeGraph from './KnowledgeGraph';
 import {
-  edgeIsInverted,
-  edgeLabels,
-  nodeStyle,
+    edgeIsInverted,
+    edgeLabels,
+    nodeStyle,
 } from './style.js';
 
 export default function DebugPage() {
@@ -92,7 +94,42 @@ export default function DebugPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [igvVisible, setIgvVisible] = useState(true);
+    const [plannerHealth, setPlannerHealth] = useState({
+        status: 'checking',
+        label: 'Checking PlannerAgent API...',
+        detail: '',
+    });
+    const [healthChecking, setHealthChecking] = useState(false);
     const dispatch = useDispatch();
+
+    const checkPlannerHealth = React.useCallback(async () => {
+        setHealthChecking(true);
+        try {
+            const response = await fetch('https://agent.pankgraph.org/health');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            const data = await response.json();
+            const status = String(data?.status || '').toLowerCase() === 'healthy' ? 'healthy' : 'degraded';
+            setPlannerHealth({
+                status,
+                label: status === 'healthy' ? 'PlannerAgent Healthy' : 'PlannerAgent Degraded',
+                detail: data?.message || '',
+            });
+        } catch (err) {
+            setPlannerHealth({
+                status: 'down',
+                label: 'PlannerAgent Unreachable',
+                detail: err?.message || 'Health check failed',
+            });
+        } finally {
+            setHealthChecking(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        checkPlannerHealth();
+    }, [checkPlannerHealth]);
     const handleQuery = (queryRaw) => {
         const query = queryRaw?.filter(line => line.trim().length > 0);
         if (!query || query.length === 0) return;
@@ -251,6 +288,46 @@ export default function DebugPage() {
     }, [graphJson]);
     return (
         <>
+            <Box sx={{ mx: '10px', mt: '10px', mb: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+                    <Typography sx={{ fontSize: 14, fontWeight: 700, color: '#334155' }}>
+                        PlannerAgent API
+                    </Typography>
+                    <Chip
+                        label={plannerHealth.label}
+                        size="small"
+                        sx={{
+                            fontWeight: 700,
+                            backgroundColor:
+                                plannerHealth.status === 'healthy'
+                                    ? '#DCFCE7'
+                                    : plannerHealth.status === 'checking'
+                                        ? '#E2E8F0'
+                                        : '#FEE2E2',
+                            color:
+                                plannerHealth.status === 'healthy'
+                                    ? '#166534'
+                                    : plannerHealth.status === 'checking'
+                                        ? '#334155'
+                                        : '#991B1B',
+                        }}
+                    />
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={checkPlannerHealth}
+                        disabled={healthChecking}
+                        sx={{ textTransform: 'none' }}
+                    >
+                        {healthChecking ? 'Checking...' : 'Refresh'}
+                    </Button>
+                    {plannerHealth.detail ? (
+                        <Typography sx={{ fontSize: 12, color: '#64748B' }}>
+                            {plannerHealth.detail}
+                        </Typography>
+                    ) : null}
+                </Box>
+            </Box>
             <div style={{ padding: '20px', width: '1000px', border: '1px solid #ccc', marginBottom: '20px', margin: '10px' }}>
                 <MultiLineInputList onChange={(data) => { setQuery(data); }} />
                 <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 2, pb: 2 }}>
