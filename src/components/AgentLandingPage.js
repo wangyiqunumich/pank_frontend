@@ -14,8 +14,10 @@ import {
   Autocomplete,
   Box,
   Button,
+  CircularProgress,
   Collapse,
   Container,
+  IconButton,
   Link,
   Paper,
   TextField,
@@ -171,7 +173,7 @@ function LandingPage() {
 
   const handleSearch = (searchQuery) => {
     const encodedQuery = encodeURIComponent(utf8ToBase64(searchQuery));
-    navigate(`/result-new2?question=${encodedQuery}&debug=true`);
+    navigate(`/result-new2?question=${encodedQuery}&terminal=true`);
   };
 
   return (
@@ -340,6 +342,17 @@ function LandingPage() {
                     {...params}
                     size="small"
                     placeholder="Ask a question about [GENE], [SNP], QTL, or T1D"
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        event.preventDefault();
+                        if (!query.trim()) {
+                          setShowWarning("Please ensure all boxes are filled out before submitting");
+                          return;
+                        }
+                        setShowLoading(true);
+                        handleSearch(query.trim());
+                      }
+                    }}
                     sx={{
                       height: '85px', // Increase the height of the input box
                       width: '100%',
@@ -349,13 +362,14 @@ function LandingPage() {
                         width: '100%',
                         height: '85px',
                         alignItems: 'center',
-                        padding: '14px 25px !important',
+                        padding: '14px 20px !important',
                         '& fieldset': {
                           border: 'none',
                         },
                       },
                       '& .MuiInputBase-input': {
-                        paddingRight: '150px !important',
+                        padding: '0 !important',
+                        minWidth: 0,
                       },
                       '& .MuiOutlinedInput-notchedOutline': {
                         borderColor: 'grey',
@@ -365,26 +379,26 @@ function LandingPage() {
                     InputProps={{
                       ...params.InputProps,
                       startAdornment: (
-                        <>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mr: 1.5 }}>
                           <SearchIcon sx={{ fontSize: '40px', color: '#98A1AE' }} />
                           {params.InputProps.startAdornment}
-                        </>
+                        </Box>
                       ),
                       endAdornment: (
-                        <Box display="flex" alignItems="center" sx={{
-                          position: 'absolute',
-                          right: '25px',
-                        }}>
+                        <Box display="flex" alignItems="center" sx={{ gap: 1, ml: 1, flexShrink: 0 }}>
                           {/* Clear Icon */}
                           {query !== "" ? <CloseIcon
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }}
                             onClick={() => {
                               setQuery(''); // Clear the input field
                             }}
                             sx={{
                               color: 'grey.500',
                               cursor: 'pointer',
-                              fontSize: '20px', // Adjust size as needed
-                              marginRight: '8px', // Add spacing from the SendIcon
+                              fontSize: '20px',
                             }}
                           /> : <Box sx={{
                             height: "28px",
@@ -404,38 +418,71 @@ function LandingPage() {
                             ?
                           </Box>}
                           {/* Search Icon */}
-                          <Box
-                            sx={{
-                              height: "60px",
-                              width: "150px",
-                              borderRadius: "16px",
-                              background: !query.trim() ? "#21919780" : "#219197",
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-
-                              cursor: !query.trim() ? 'not-allowed' : 'pointer',
-                            }}
+                          <Button
+                            type="button"
+                            disableElevation
+                            disabled={!query.trim() || showLoading}
                             onClick={!query.trim()
                               ? () => { setShowWarning("Please ensure all boxes are filled out before submitting") }
                               : () => {
                                 setShowLoading(true);
                                 handleSearch(query.trim());
                               }}
+                            sx={{
+                              height: "54px",
+                              minWidth: { xs: "110px", md: "132px" },
+                              borderRadius: "16px",
+                              px: 2,
+                              textTransform: 'none',
+                              backgroundColor: '#219197',
+                              color: '#FFFFFF',
+                              fontFamily: 'Open Sans',
+                              fontSize: '20px',
+                              fontWeight: 600,
+                              transition: 'transform 120ms ease, box-shadow 160ms ease, background-color 160ms ease, filter 160ms ease',
+                              boxShadow: '0 6px 14px rgba(33,145,151,0.28)',
+                              '&:hover': {
+                                backgroundColor: '#1D838A',
+                                boxShadow: '0 10px 20px rgba(33,145,151,0.34)',
+                                transform: 'translateY(-1px)',
+                              },
+                              '&:active': {
+                                transform: 'translateY(1px) scale(0.985)',
+                                boxShadow: '0 4px 10px rgba(33,145,151,0.26)',
+                              },
+                              '&.Mui-focusVisible': {
+                                outline: '2px solid #84D6DB',
+                                outlineOffset: '2px',
+                              },
+                              '&.Mui-disabled': {
+                                backgroundColor: '#21919780',
+                                color: 'rgba(255,255,255,0.92)',
+                                boxShadow: 'none',
+                              },
+                            }}
                           >
-                            <Typography
-                              className="search-button"
-
-                              sx={{
-                                color: 'white',
-                                fontFamily: 'Open Sans',
-                                fontSize: '24px',
-                                fontWeight: 600,
-                              }}
-                            >
-                              Search
-                            </Typography>
-                          </Box>
+                            {showLoading ? (
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <CircularProgress size={16} sx={{ color: '#FFFFFF' }} />
+                                <Typography sx={{ color: 'inherit', fontFamily: 'inherit', fontSize: '16px', fontWeight: 700 }}>
+                                  Searching...
+                                </Typography>
+                              </Box>
+                            ) : (
+                              <Typography
+                                className="search-button"
+                                sx={{
+                                  color: 'inherit',
+                                  fontFamily: 'inherit',
+                                  fontSize: '20px',
+                                  fontWeight: 700,
+                                  letterSpacing: '0.01em',
+                                }}
+                              >
+                                Search
+                              </Typography>
+                            )}
+                          </Button>
                         </Box>
                       ),
                     }}
@@ -457,13 +504,22 @@ function LandingPage() {
                       alignContent: 'center',
                       height: '220px',
                       "& .MuiAutocomplete-option.Mui-focused": {
-                        backgroundColor: '#E2EAEB !important',
+                        backgroundColor: '#E8F5F6 !important',
                       },
                       "& .MuiAutocomplete-option": {
                         backgroundColor: '#F2FAFB !important',
                         height: '50px',
                         borderRadius: '8px',
                         marginBottom: '12px',
+                        transition: 'transform 120ms ease, background-color 150ms ease, box-shadow 150ms ease',
+                      },
+                      "& .MuiAutocomplete-option:hover": {
+                        backgroundColor: '#E8F5F6 !important',
+                        transform: 'translateY(-1px)',
+                        boxShadow: '0 3px 10px rgba(15,118,110,0.10)',
+                      },
+                      "& .MuiAutocomplete-option:active": {
+                        transform: 'translateY(0px) scale(0.995)',
                       },
                     }}
                   >
@@ -498,8 +554,13 @@ function LandingPage() {
                     key={option.question}
                     sx={{
                       minHeight: '36px !important',
-                      '& .MuiAutocomplete-option': {
-                        backgroundColor: '#F3F5FF !important',
+                      cursor: 'pointer',
+                      '& .highlight-arrow': {
+                        transition: 'transform 140ms ease, color 140ms ease',
+                      },
+                      '&:hover .highlight-arrow': {
+                        transform: 'translateX(3px)',
+                        color: '#0F766E',
                       },
                     }}
                   >
@@ -547,14 +608,34 @@ function LandingPage() {
                       {showExamples} Examples
                     </Typography>
                   </Box>
-                  <CloseIcon
+                  <IconButton
+                    size="small"
+                    aria-label="close examples"
                     onClick={() => setShowExamples(undefined)}
                     sx={{
-                      color: 'grey.500',
-                      cursor: 'pointer',
-                      fontSize: '20px',
+                      width: 32,
+                      height: 32,
+                      border: '1px solid #D7E3EA',
+                      color: '#64748B',
+                      backgroundColor: '#FFFFFF',
+                      transition: 'background-color 150ms ease, color 150ms ease, border-color 150ms ease, transform 120ms ease',
+                      '&:hover': {
+                        backgroundColor: '#EEF6F7',
+                        color: '#0F766E',
+                        borderColor: '#9FD5DC',
+                        transform: 'translateY(-1px)',
+                      },
+                      '&:active': {
+                        transform: 'translateY(0px) scale(0.96)',
+                      },
+                      '&.Mui-focusVisible': {
+                        outline: '2px solid #84D6DB',
+                        outlineOffset: '2px',
+                      },
                     }}
-                  />
+                  >
+                    <CloseIcon sx={{ fontSize: 18 }} />
+                  </IconButton>
                 </Box>
                 <Box sx={{
                   display: 'flex',
@@ -565,12 +646,12 @@ function LandingPage() {
                   {ExampleQueries[showExamples].map((example, index) => (
                     <Link key={index} href="#" sx={{
                       textDecoration: 'none',
+                      display: 'block',
                       "&:hover": {
-                        ".MuiBox-root": {
-                          backgroundColor: '#E2EAEB !important',
-                        },
+                        textDecoration: 'none',
                       },
                     }} onClick={(e) => {
+                      e.preventDefault();
                       setQuery(example.question);
                       if (example.link) {
                         window.location.href = example.link;
@@ -588,6 +669,23 @@ function LandingPage() {
                         fontSize: '16px',
                         color: '#183B5C',
                         justifyContent: 'space-between',
+                        alignItems: 'center',
+                        transition: 'background-color 150ms ease, transform 120ms ease, box-shadow 150ms ease',
+                        '& .highlight-arrow': {
+                          transition: 'transform 140ms ease, color 140ms ease',
+                        },
+                        '&:hover': {
+                          backgroundColor: '#E8F5F6',
+                          boxShadow: '0 3px 10px rgba(15,118,110,0.10)',
+                          transform: 'translateY(-1px)',
+                        },
+                        '&:hover .highlight-arrow': {
+                          transform: 'translateX(3px)',
+                          color: '#0F766E',
+                        },
+                        '&:active': {
+                          transform: 'translateY(0px) scale(0.996)',
+                        },
                       }}>
                         {example.question}
                         <span className={"highlight-arrow"} style={{ color: 'black' }}><ArrowOutwardIcon fontSize="small" /></span>
@@ -617,14 +715,26 @@ function LandingPage() {
                     padding: '8px 16px',
                     border: `1px solid ${ExampleClasses[key].bdcolor}`,
                     textTransform: 'none',
+                    transition: 'transform 120ms ease, box-shadow 160ms ease, background-color 160ms ease, border-color 160ms ease',
+                    boxShadow: showExamples === key ? '0 5px 12px rgba(15,118,110,0.18)' : 'none',
+                    '&:hover': {
+                      backgroundColor: '#EAF7F8',
+                      borderColor: '#8DCFD6',
+                      transform: 'translateY(-1px)',
+                      boxShadow: '0 6px 12px rgba(15,118,110,0.16)',
+                    },
+                    '&:active': {
+                      transform: 'translateY(0px) scale(0.985)',
+                    },
                   }} onClick={() => {
                     setShowExamples(showExamples === key ? undefined : key);
                   }}>
                     <Typography sx={{
                       fontFamily: 'Open Sans',
-                      fontWeight: 400,
+                      fontWeight: showExamples === key ? 700 : 500,
                       fontSize: '16px',
                       color: ExampleClasses[key].color,
+                      transition: 'color 160ms ease',
                     }}>
                       {key}
                     </Typography>
