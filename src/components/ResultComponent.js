@@ -115,7 +115,7 @@ export function ResultComponentSkeleton() {
                     <Skeleton variant="text" width="60%" height={36} />
                 </Stack>
 
-                <Grid container spacing={2.5} alignItems="stretch">
+                <Grid container columnSpacing={4.5} rowSpacing={2.5} alignItems="stretch">
                     <Grid item xs={12} md={12} lg={7}>
                         <Skeleton variant="rounded" height={320} sx={{ borderRadius: 3 }} />
                     </Grid>
@@ -656,7 +656,7 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                     </Box>
                 </Box>
 
-                <Grid container spacing={2.5} alignItems="stretch">
+                <Grid container columnSpacing={4.5} rowSpacing={2.5} alignItems="stretch">
                     <Grid item xs={12} md={12} lg={7} id={buildAnchorId('agent-plan')} sx={{ display: 'flex', height: confirmationColumnsHeight }}>
                         <Stack spacing={2} sx={{ width: '100%', height: '100%', minWidth: 0 }}>
                             <SectionCard title="Agent Plan" sx={{ width: '100%', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
@@ -1088,7 +1088,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                 </Stack>
 
                 {/* Main two-column area (AI Overview + Visual Material) */}
-                <Grid container spacing={2.5} alignItems="stretch">
+                <Grid container columnSpacing={4.5} rowSpacing={2.5} alignItems="stretch">
                     {/* AI Overview */}
                     <Grid item xs={12} md={12} lg={7} order={{ xs: 1, md: 1, lg: 1 }} id={buildAnchorId("ai-overview")}>
                         <SectionCard title="AI Overview">
@@ -1125,7 +1125,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                         <Grid item xs={12} md={12} lg={5} order={{ xs: 2, md: 2, lg: 2 }} id={buildAnchorId("visual-material")}>
                             <SectionCard title={isSingleColumn ? (data?.visualMaterial?.title || "Visual Material") : null} sx={{ height: "100%" }}>
                                 {visualTabs.length > 1 ? (
-                                    <Box sx={{ mb: 1 }}>
+                                    <Box sx={{ mb: 2, transform: 'translateY(-3px)' }}>
                                         <ContentTabs
                                             tabs={visualTabs}
                                             value={visualTab}
@@ -1212,7 +1212,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                         <Grid item xs={12} md={12} lg={7} order={{ xs: 3, md: 3, lg: 3 }} id={buildAnchorId("evidences")}>
                             <SectionCard title={isSingleColumn ? (data?.evidences?.title || "Evidences") : null}>
                                 {evidenceTabs.length > 0 ? (
-                                    <Box sx={{ mb: 1 }}>
+                                    <Box sx={{ mb: 2, transform: 'translateY(-3px)' }}>
                                         <ContentTabs
                                             tabs={evidenceTabs}
                                             value={evidenceTab}
@@ -1221,7 +1221,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                     </Box>
                                 ) : null}
 
-                                <Stack spacing={1.25}>
+                                <Stack spacing={3}>
                                     {evidenceTabs.length ? (
                                         evidenceTabs.map((tab, tabIdx) => (
                                             <Box
@@ -1262,7 +1262,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                     {showFollowUpSection ? (
                         <Grid item xs={12} md={12} lg={5} order={{ xs: 4, md: 4, lg: 4 }} id={buildAnchorId("follow-up")}>
                             <SectionCard title={data?.followUp?.title ?? "Follow Up"} sx={{ height: "100%" }}>
-                                <Stack spacing={1.25}>
+                                <Stack spacing={3}>
                                     {data?.followUp?.loading ? (
                                         Array.from({ length: 3 }).map((_, idx) => (
                                             <Paper
@@ -1321,7 +1321,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                                             : undefined,
                                                     }}
                                                 >
-                                                    <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: "#0F172A" }}>{label}</Typography>
+                                                    <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: "#475569" }}>{label}</Typography>
                                                 </Paper>
                                             );
                                         })

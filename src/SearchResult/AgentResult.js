@@ -1,14 +1,17 @@
 import React, {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
 } from 'react';
 
 import igv from 'https://cdn.jsdelivr.net/npm/igv@3.0.2/dist/igv.esm.min.js';
 import { useLocation } from 'react-router-dom';
 
-import { Container, useMediaQuery } from '@mui/material';
+import {
+    Container,
+    useMediaQuery,
+} from '@mui/material';
 
 import SearchResult from './result';
 
@@ -373,6 +376,7 @@ export function AgentResultLayout({
     getResultViewProps = (result, index) => ({ demoIndex: index + 1, result }),
     allowMulti = false,
     allowSearch = false,
+    showFloatingSearchBar = false,
 }) {
     const location = useLocation();
     const demoMode = useMemo(
@@ -597,34 +601,34 @@ export function AgentResultLayout({
                     };
 
                     return (
-                    <div
-                        key={result.id}
-                        style={{
-                            padding: effectiveAllowMulti && results.length > 1 ? "28px 16px" : "0",
-                            display: "flex",
-                            justifyContent: "center",
-                        }}
-                    >
                         <div
+                            key={result.id}
                             style={{
-                                backgroundColor: effectiveAllowMulti && results.length > 1 ? "#ffffff" : "transparent",
-                                borderRadius: effectiveAllowMulti && results.length > 1 ? 16 : 0,
-                                boxShadow: effectiveAllowMulti && results.length > 1 ? "0 6px 18px rgba(15, 23, 42, 0.08)" : "none",
-                                padding: effectiveAllowMulti && results.length > 1 ? "16px" : "0",
-                                width: "100%",
-                                maxWidth: effectiveAllowMulti && results.length > 1 ? 1344 : "100%",
+                                padding: effectiveAllowMulti && results.length > 1 ? "28px 16px" : "0",
+                                display: "flex",
+                                justifyContent: "center",
                             }}
                         >
-                            <Container maxWidth={false} disableGutters sx={{
-                                display: 'flex',
-                                marginTop: index > 0 ? '12px' : '0px',
-                                marginBottom: '24px',
-                                paddingBottom: '24px',
-                            }}>
-                                <ResultView {...mergedProps} />
-                            </Container>
+                            <div
+                                style={{
+                                    backgroundColor: effectiveAllowMulti && results.length > 1 ? "#ffffff" : "transparent",
+                                    borderRadius: effectiveAllowMulti && results.length > 1 ? 16 : 0,
+                                    boxShadow: effectiveAllowMulti && results.length > 1 ? "0 6px 18px rgba(15, 23, 42, 0.08)" : "none",
+                                    padding: effectiveAllowMulti && results.length > 1 ? "16px" : "0",
+                                    width: "100%",
+                                    maxWidth: effectiveAllowMulti && results.length > 1 ? 1344 : "100%",
+                                }}
+                            >
+                                <Container maxWidth={false} disableGutters sx={{
+                                    display: 'flex',
+                                    marginTop: index > 0 ? '12px' : '0px',
+                                    marginBottom: '24px',
+                                    paddingBottom: '24px',
+                                }}>
+                                    <ResultView {...mergedProps} />
+                                </Container>
+                            </div>
                         </div>
-                    </div>
                     );
                 })}
             </div>
@@ -838,71 +842,73 @@ export function AgentResultLayout({
             )}
 
             {/* Floating search bar at bottom */}
-            <div
-                style={{
-                    position: "fixed",
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    backgroundColor: "#fff",
-                    borderTop: "1px solid #e0e0e0",
-                    boxShadow: "0 -2px 12px rgba(0,0,0,0.08)",
-                    padding: "16px",
-                    zIndex: 99,
-                }}
-            >
-                <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", gap: 12 }}>
-                    <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        placeholder="Enter your search query..."
-                        disabled={!canSearch}
-                        style={{
-                            flex: 1,
-                            padding: "12px 16px",
-                            borderRadius: 8,
-                            border: "1px solid #ddd",
-                            fontSize: 14,
-                            fontFamily: "inherit",
-                            outline: "none",
-                            transition: "border-color 0.2s ease",
-                            backgroundColor: canSearch ? "#fff" : "#F1F5F9",
-                            cursor: canSearch ? "text" : "not-allowed",
-                        }}
-                        onFocus={(e) => {
-                            if (canSearch) e.target.style.borderColor = "#3A838B";
-                        }}
-                        onBlur={(e) => {
-                            if (canSearch) e.target.style.borderColor = "#ddd";
-                        }}
-                    />
-                    <button
-                        onClick={handleSearch}
-                        disabled={!canSearch}
-                        style={{
-                            padding: "12px 24px",
-                            borderRadius: 8,
-                            border: "none",
-                            backgroundColor: canSearch ? "#3A838B" : "#94A3B8",
-                            color: "#fff",
-                            fontWeight: 600,
-                            cursor: canSearch ? "pointer" : "not-allowed",
-                            fontSize: 14,
-                            transition: "background-color 0.2s ease",
-                        }}
-                        onMouseEnter={(e) => {
-                            if (canSearch) e.target.style.backgroundColor = "#2d6a70";
-                        }}
-                        onMouseLeave={(e) => {
-                            if (canSearch) e.target.style.backgroundColor = "#3A838B";
-                        }}
-                    >
-                        Search
-                    </button>
+            {showFloatingSearchBar ? (
+                <div
+                    style={{
+                        position: "fixed",
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        backgroundColor: "#fff",
+                        borderTop: "1px solid #e0e0e0",
+                        boxShadow: "0 -2px 12px rgba(0,0,0,0.08)",
+                        padding: "16px",
+                        zIndex: 99,
+                    }}
+                >
+                    <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", gap: 12 }}>
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyPress={handleKeyPress}
+                            placeholder="Enter your search query..."
+                            disabled={!canSearch}
+                            style={{
+                                flex: 1,
+                                padding: "12px 16px",
+                                borderRadius: 8,
+                                border: "1px solid #ddd",
+                                fontSize: 14,
+                                fontFamily: "inherit",
+                                outline: "none",
+                                transition: "border-color 0.2s ease",
+                                backgroundColor: canSearch ? "#fff" : "#F1F5F9",
+                                cursor: canSearch ? "text" : "not-allowed",
+                            }}
+                            onFocus={(e) => {
+                                if (canSearch) e.target.style.borderColor = "#3A838B";
+                            }}
+                            onBlur={(e) => {
+                                if (canSearch) e.target.style.borderColor = "#ddd";
+                            }}
+                        />
+                        <button
+                            onClick={handleSearch}
+                            disabled={!canSearch}
+                            style={{
+                                padding: "12px 24px",
+                                borderRadius: 8,
+                                border: "none",
+                                backgroundColor: canSearch ? "#3A838B" : "#94A3B8",
+                                color: "#fff",
+                                fontWeight: 600,
+                                cursor: canSearch ? "pointer" : "not-allowed",
+                                fontSize: 14,
+                                transition: "background-color 0.2s ease",
+                            }}
+                            onMouseEnter={(e) => {
+                                if (canSearch) e.target.style.backgroundColor = "#2d6a70";
+                            }}
+                            onMouseLeave={(e) => {
+                                if (canSearch) e.target.style.backgroundColor = "#3A838B";
+                            }}
+                        >
+                            Search
+                        </button>
+                    </div>
                 </div>
-            </div>
+            ) : null}
         </div>
     );
 }
