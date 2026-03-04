@@ -713,40 +713,40 @@ function LandingPage() {
                 exampleClassKeys.map((key, index) => {
                   const style = ExampleClassStyles[index % ExampleClassStyles.length];
                   return (
-                  <Button key={key} className="example-class" sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    margin: '8px',
-                    cursor: 'pointer',
-                    backgroundColor: style.bgcolor,
-                    borderRadius: '20px',
-                    padding: '8px 16px',
-                    border: `1px solid ${style.bdcolor}`,
-                    textTransform: 'none',
-                    transition: 'transform 120ms ease, box-shadow 160ms ease, background-color 160ms ease, border-color 160ms ease',
-                    boxShadow: showExamples === key ? '0 5px 12px rgba(15,118,110,0.18)' : 'none',
-                    '&:hover': {
-                      backgroundColor: '#EAF7F8',
-                      borderColor: '#8DCFD6',
-                      transform: 'translateY(-1px)',
-                      boxShadow: '0 6px 12px rgba(15,118,110,0.16)',
-                    },
-                    '&:active': {
-                      transform: 'translateY(0px) scale(0.985)',
-                    },
-                  }} onClick={() => {
-                    setShowExamples(showExamples === key ? undefined : key);
-                  }}>
-                    <Typography sx={{
-                      fontFamily: 'Open Sans',
-                      fontWeight: showExamples === key ? 700 : 500,
-                      fontSize: '16px',
-                      color: style.color,
-                      transition: 'color 160ms ease',
+                    <Button key={key} className="example-class" sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      margin: '8px',
+                      cursor: 'pointer',
+                      backgroundColor: style.bgcolor,
+                      borderRadius: '20px',
+                      padding: '8px 16px',
+                      border: `1px solid ${style.bdcolor}`,
+                      textTransform: 'none',
+                      transition: 'transform 120ms ease, box-shadow 160ms ease, background-color 160ms ease, border-color 160ms ease',
+                      boxShadow: showExamples === key ? '0 5px 12px rgba(15,118,110,0.18)' : 'none',
+                      '&:hover': {
+                        backgroundColor: '#EAF7F8',
+                        borderColor: '#8DCFD6',
+                        transform: 'translateY(-1px)',
+                        boxShadow: '0 6px 12px rgba(15,118,110,0.16)',
+                      },
+                      '&:active': {
+                        transform: 'translateY(0px) scale(0.985)',
+                      },
+                    }} onClick={() => {
+                      setShowExamples(showExamples === key ? undefined : key);
                     }}>
-                      {key}
-                    </Typography>
-                  </Button>
+                      <Typography sx={{
+                        fontFamily: 'Open Sans',
+                        fontWeight: showExamples === key ? 700 : 500,
+                        fontSize: '16px',
+                        color: style.color,
+                        transition: 'color 160ms ease',
+                      }}>
+                        {key}
+                      </Typography>
+                    </Button>
                   );
                 })
               }
