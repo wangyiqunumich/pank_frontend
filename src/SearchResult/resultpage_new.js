@@ -1756,6 +1756,26 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         )
     );
 
+    const planKnowledgeGraphContent = (
+        graphData ? (
+            <Box sx={{ width: '100%', height: '100%' }}>
+                <KnowledgeGraph
+                    graphData={graphData}
+                    coordData={coordData}
+                    sx={{ height: "100%" }}
+                    containerHeight="100%"
+                    defaultLegendVisible={false}
+                />
+            </Box>
+        ) : noGraph ? (
+            <NoGraphData />
+        ) : (
+            <Box sx={{ width: '100%', minHeight: 280, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <CircularProgress size={28} />
+            </Box>
+        )
+    );
+
     const demoKnowledgeGraphContent = (
         <Box sx={{ width: '100%', height: '100%' }}>
             <KnowledgeGraph
@@ -1877,7 +1897,7 @@ Please review this plan and provide edits if needed.`,
         graphData,
         visualMaterial: {
             title: 'Visual Material',
-            tabs: [{ label: 'Knowledge Graph', content: knowledgeGraphContent }],
+            tabs: [{ label: 'Knowledge Graph', content: planKnowledgeGraphContent }],
         },
     });
 
