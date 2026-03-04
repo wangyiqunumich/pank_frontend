@@ -45,6 +45,7 @@ import QuestionAnswerPage, {
     PlanConfirmationPage,
     ResultComponentSkeleton,
 } from '../components/ResultComponent';
+import { AlertMessage } from '../components/SupportingMaterial';
 import agentErrorImage from '../image/agent_error.png';
 import VisuImage from '../image/output.png';
 import { queryArticles } from '../redux/articlesSlice';
@@ -381,6 +382,8 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const [planSummary, setPlanSummary] = useState('');
     const [planParsedTitle, setPlanParsedTitle] = useState('');
     const [planSessionId, setPlanSessionId] = useState('');
+    const [planRevisionWarningOpen, setPlanRevisionWarningOpen] = useState(false);
+    const [planRevisionWarningMessage, setPlanRevisionWarningMessage] = useState('');
     const [questionLoadingStartedAt, setQuestionLoadingStartedAt] = useState(null);
     const [questionLoadingNow, setQuestionLoadingNow] = useState(Date.now());
     const streamSummaryRef = useRef('');
@@ -1027,6 +1030,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
     const runPlanningCycle = React.useCallback(async (inputText) => {
         if (!inputText) return;
+        setPlanRevisionWarningOpen(false);
         setTerminalLoading(true);
         updateMilestoneSequence(planSessionId ? 'revise' : 'start');
         setStreamedEvents([]);
@@ -1072,6 +1076,16 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     headers: { 'Content-Type': 'application/json' },
                 });
                 const reviseData = reviseResponse?.data || {};
+                if (reviseData?.error !== null && reviseData?.error !== undefined) {
+                    const failureMessage = typeof reviseData.error === 'string'
+                        ? reviseData.error
+                        : JSON.stringify(reviseData.error);
+                    setPlanRevisionWarningMessage(failureMessage || 'Plan revision failed. Previous plan is kept.');
+                    setPlanRevisionWarningOpen(true);
+                    setTerminalPhase('confirm');
+                    setStreamComplete(true);
+                    return;
+                }
                 const { interpretedQuestion, planMarkdown } = parsePlanMarkdownForUI(reviseData?.plan_markdown || '');
                 setPlanSummary(planMarkdown);
                 setPlanParsedTitle(interpretedQuestion || currentQuestion || question || inputText);
@@ -1855,6 +1869,7 @@ Please review this plan and provide edits if needed.`,
             await runPlanningCycle(text);
         },
         onProceed: async () => {
+            setPlanRevisionWarningOpen(false);
             if (terminalConfirming) return;
             await runConfirmCycle();
         },
@@ -1970,7 +1985,7 @@ Please review this plan and provide edits if needed.`,
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px' }}>
                 <SearchResultLoading
                     streamProgress={buildDebugStreamLoadingProgress(streamMilestones, { minimumProgress: presetFirstStepProgress })}
-                    handleClose={() => navigate('/')}
+                    handleClose={() => navigate('/agent-landing')}
                 />
             </Box>
         );
@@ -1992,6 +2007,29 @@ Please review this plan and provide edits if needed.`,
 
     return (
         <>
+            <AlertMessage
+                type="warning"
+                content={
+                    /^Revision Failed:/i.test(planRevisionWarningMessage || '')
+                        ? planRevisionWarningMessage
+                        : `Revision Failed: ${planRevisionWarningMessage || ''}`.trim()
+                }
+                open={planRevisionWarningOpen}
+                onClose={() => setPlanRevisionWarningOpen(false)}
+                sx={{
+                    '& .MuiSnackbar-root': {
+                        position: 'static',
+                        transform: 'none',
+                        top: 'auto',
+                        left: 'auto',
+                        right: 'auto',
+                        bottom: 'auto',
+                    },
+                    '& .MuiAlert-root': {
+                        marginBottom: '10px',
+                    }
+                }}
+            />
             <Backdrop
                 sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 2 })}
                 open={terminalMode && terminalPhase === 'confirm' && terminalLoading}
