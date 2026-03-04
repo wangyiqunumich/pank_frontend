@@ -1063,7 +1063,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
 
             <Box sx={{ px: { xs: 2, md: 4 }, pt: { xs: 2.5, md: 3.5 }, pb: { xs: 0.5, md: 1 }, maxWidth: 1344, width: "100%", mx: "auto" }}>
                 {/* Header */}
-                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 2 }}>
+                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: '62px', columnGap: '40px' }}>
                     <Chip
                         label={data.questionId || "Q1"}
                         sx={{
