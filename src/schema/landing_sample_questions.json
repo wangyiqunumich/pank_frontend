@@ -1,12 +1,12 @@
 {
     "default": [
         {
-            "question": "demo check",
-            "link": "/result?sourceTerm=snp@rs2402203&targetTerm=gene@ENSG00000001626&relationship=QTL"
+            "question": "Is PLEKHM1 differentially expressed in any cell type in T1D?",
+            "link": ""
         },
         {
             "question": "How does INS expression change in T1D versus non-diabetic samples?",
-            "link": "/result?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type&relationship=express_in"
+            "link": ""
         },
         {
             "question": "Describe PTPN22’s involvement in T1D, covering its associated QTL signals, expression patterns, and reported effector genes evidence.",
