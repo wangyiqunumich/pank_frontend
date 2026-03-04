@@ -105,7 +105,7 @@ const getInitialStreamMilestones = () => ({
     cypherExecuted: false,
 });
 
-const buildDebugStreamLoadingProgress = (milestones) => {
+const buildDebugStreamLoadingProgress = (milestones, options = {}) => {
     const entryStates = DEBUG_STREAM_LOADING_ENTRIES.map(() => ({ step: -1, isFinished: false }));
 
     if (!milestones.planningDone) {
@@ -145,6 +145,9 @@ const buildDebugStreamLoadingProgress = (milestones) => {
         shortTitle = DEBUG_STREAM_LOADING_ENTRIES[3].short_title;
     }
 
+    const baseProgress = (completedCount / DEBUG_STREAM_LOADING_ENTRIES.length) * 100;
+    const minimumProgress = Number(options?.minimumProgress || 0);
+
     return {
         title: 'Answering your question...',
         tip: 'Streaming progress is based on backend events.',
@@ -152,7 +155,7 @@ const buildDebugStreamLoadingProgress = (milestones) => {
         entries: DEBUG_STREAM_LOADING_ENTRIES,
         entryStates,
         shortTitle,
-        progress: (completedCount / DEBUG_STREAM_LOADING_ENTRIES.length) * 100,
+        progress: Math.max(baseProgress, minimumProgress),
     };
 };
 
@@ -378,6 +381,8 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const [planSummary, setPlanSummary] = useState('');
     const [planParsedTitle, setPlanParsedTitle] = useState('');
     const [planSessionId, setPlanSessionId] = useState('');
+    const [questionLoadingStartedAt, setQuestionLoadingStartedAt] = useState(null);
+    const [questionLoadingNow, setQuestionLoadingNow] = useState(Date.now());
     const streamSummaryRef = useRef('');
     const streamAnswerRef = useRef('');
     const thinkingBoxRef = useRef(null);
@@ -1148,12 +1153,50 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         terminalInitializedQuestionRef.current = question;
         setPlanSessionId('');
         setTerminalPhase('loading');
+        setQuestionLoadingStartedAt(Date.now());
         setStreamComplete(false);
         setNoGraph(false);
         setGraphData(null);
         setAiAnswer('');
         runPlanningCycle(question);
     }, [terminalMode, demoMode, planDemoMode, question, runPlanningCycle]);
+
+    useEffect(() => {
+        const shouldAnimatePreset =
+            terminalMode
+            && terminalLoading
+            && terminalPhase === 'loading'
+            && !!questionLoadingStartedAt
+            && !streamMilestones.planningDone;
+
+        if (!shouldAnimatePreset) {
+            return;
+        }
+
+        setQuestionLoadingNow(Date.now());
+        const intervalId = setInterval(() => {
+            setQuestionLoadingNow(Date.now());
+        }, 120);
+
+        return () => clearInterval(intervalId);
+    }, [terminalMode, terminalLoading, terminalPhase, questionLoadingStartedAt, streamMilestones.planningDone]);
+
+    const presetFirstStepProgress = React.useMemo(() => {
+        const shouldApplyPreset =
+            terminalMode
+            && terminalLoading
+            && terminalPhase === 'loading'
+            && !!questionLoadingStartedAt
+            && !streamMilestones.planningDone;
+
+        if (!shouldApplyPreset) {
+            return 0;
+        }
+
+        const elapsedMs = Math.max(0, questionLoadingNow - questionLoadingStartedAt);
+        const ratio = Math.min(elapsedMs / 5000, 1);
+        return ratio * (100 / 6);
+    }, [terminalMode, terminalLoading, terminalPhase, questionLoadingStartedAt, questionLoadingNow, streamMilestones.planningDone]);
 
     const startFollowUpQuestion = React.useCallback((label) => {
         const cleanQuestion = stripHtml(label || '').trim();
@@ -1925,7 +1968,7 @@ Please review this plan and provide edits if needed.`,
         return (
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px' }}>
                 <SearchResultLoading
-                    streamProgress={buildDebugStreamLoadingProgress(streamMilestones)}
+                    streamProgress={buildDebugStreamLoadingProgress(streamMilestones, { minimumProgress: presetFirstStepProgress })}
                     handleClose={() => navigate('/')}
                 />
             </Box>
