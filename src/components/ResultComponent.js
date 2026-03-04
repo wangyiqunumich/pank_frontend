@@ -110,7 +110,7 @@ export function ResultComponentSkeleton() {
         <ThemeProvider theme={theme}>
             <CssBaseline />
             <Box sx={{ px: { xs: 2, md: 4 }, pt: { xs: 2.5, md: 3.5 }, pb: { xs: 0.5, md: 1 }, maxWidth: 1344, width: "100%", mx: "auto" }}>
-                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 2 }}>
+                <Stack direction="row" spacing={0} alignItems="center" sx={{ mb: '62px', columnGap: '40px' }}>
                     <Skeleton variant="rounded" width={48} height={30} />
                     <Skeleton variant="text" width="60%" height={36} />
                 </Stack>
@@ -623,7 +623,7 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                     <Box
                         sx={{
                             height: '130px',
-                            backgroundColor: '#EDF0F4',
+                            backgroundColor: '#F2F7F9',
                             px: 2,
                             py: 2,
                             display: 'flex',
