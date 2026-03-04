@@ -525,10 +525,11 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             cursor += 1;
         }
 
-        const interpretedQuestion = lines
-            .slice(firstNonEmpty + 1, cursor)
-            .join('\n')
-            .trim();
+        const interpretedQuestion = (
+            lines
+                .slice(firstNonEmpty + 1, cursor)
+                .find((line) => line.trim()) || ''
+        ).trim();
 
         const remaining = [
             ...lines.slice(0, firstNonEmpty),
@@ -1848,7 +1849,7 @@ Please review this plan and provide edits if needed.`,
         questionId: 'PLAN',
         title: 'Confirm Query & Execution Steps',
         originalQuestion: currentQuestion || question,
-        parsedTitle: currentQuestion || question,
+        parsedTitle: planParsedTitle || currentQuestion || question,
         agentPlan: planSummary || streamAnswer || streamedSummary || 'No plan generated yet.',
         onSendFeedback: async (text) => {
             await runPlanningCycle(text);
@@ -1866,7 +1867,7 @@ Please review this plan and provide edits if needed.`,
 
     const pageData = {
         questionId: "Q1",
-        title: currentQuestion || question || "Question",
+        title: planParsedTitle || currentQuestion || question || "Question",
         aiOverview: {
             sections: [
                 {
