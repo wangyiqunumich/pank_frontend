@@ -9,7 +9,7 @@ import remarkGfm from 'remark-gfm';
 import {
     AutoAwesome as AutoAwesomeIcon,
     ChatBubbleOutline as ChatBubbleOutlineIcon,
-    CheckCircleOutline as CheckCircleOutlineIcon,
+    Check as CheckIcon,
     Send as SendIcon,
 } from '@mui/icons-material';
 import {
@@ -822,7 +822,7 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                 <Button
                                     type="button"
                                     variant="contained"
-                                    startIcon={<CheckCircleOutlineIcon sx={{ fontSize: 18 }} />}
+                                    startIcon={<CheckIcon sx={{ fontSize: 18 }} />}
                                     onClick={handleProceed}
                                     sx={{
                                         whiteSpace: 'nowrap',
