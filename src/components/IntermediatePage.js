@@ -47,7 +47,7 @@ import {
   Typography,
 } from '@mui/material';
 
-import errorImage from '../image/datanotfound.png';
+import defaultErrorImage from '../image/datanotfound.png';
 import notRelevant from '../image/not_relevant.png';
 import { queryQueryResult } from '../redux/queryResultSlice';
 import { setSearchTerms } from '../redux/searchSlice';
@@ -107,7 +107,7 @@ const WarningSNP = (
   </Alert>
 );
 
-export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "No answer for your question in PanKgraph", agent = true, log = undefined }) {
+export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "No answer for your question in PanKgraph", agent = true, log = undefined, errorImageSrc = undefined, homePath = '/' }) {
   return (
     <Container sx={{
       padding: 0, display: 'flex',
@@ -144,7 +144,7 @@ export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "
           justifyContent: 'center',
           backgroundColor: 'white',
         }}>
-          <Box component="img" src={agent ? notRelevant : errorImage} alt="Error" sx={{ width: "200px", marginTop: "-20px", marginBottom: '-20px' }} />
+          <Box component="img" src={errorImageSrc || (agent ? notRelevant : defaultErrorImage)} alt="Error" sx={{ width: "200px", marginTop: "-20px", marginBottom: '-20px' }} />
           <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '36px', color: '#43AABA', marginBottom: '-12px', whiteSpace: 'nowrap' }}>
             {errorTitle}
           </Typography>
@@ -154,7 +154,7 @@ export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "
           <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '24px' }}>
             <Button
               variant="contained"
-              onClick={() => window.location.href = '/'}
+              onClick={() => window.location.href = homePath}
               sx={{
                 backgroundColor: "#219197",
                 border: "1px solid #219197",

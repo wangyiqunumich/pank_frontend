@@ -1263,48 +1263,71 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                         <Grid item xs={12} md={12} lg={5} order={{ xs: 4, md: 4, lg: 4 }} id={buildAnchorId("follow-up")}>
                             <SectionCard title={data?.followUp?.title ?? "Follow Up"} sx={{ height: "100%" }}>
                                 <Stack spacing={1.25}>
-                                    {(data?.followUp?.items ?? []).map((item, idx) => {
-                                        const label = getItemLabel(item);
-                                        const isLink = Boolean(item?.href);
-                                        const clickable = Boolean(isLink || item?.onClick || data?.followUp?.onSelect);
-                                        const Component = isLink ? "a" : clickable ? "button" : "div";
-                                        const handleClick = (event) => {
-                                            item?.onClick?.(item, event);
-                                            data?.followUp?.onSelect?.(item, event);
-                                        };
-
-                                        return (
+                                    {data?.followUp?.loading ? (
+                                        Array.from({ length: 3 }).map((_, idx) => (
                                             <Paper
-                                                key={`${idx}-${label}`}
+                                                key={`follow-up-skeleton-${idx}`}
                                                 elevation={0}
-                                                component={Component}
-                                                href={isLink ? item.href : undefined}
-                                                target={isLink ? item.target || "_blank" : undefined}
-                                                rel={isLink ? "noreferrer" : undefined}
-                                                onClick={clickable ? handleClick : undefined}
-                                                type={Component === "button" ? "button" : undefined}
                                                 sx={{
                                                     bgcolor: "#F8FAFC",
                                                     py: 2,
                                                     px: 3,
                                                     borderRadius: "16px",
-                                                    cursor: clickable ? "pointer" : "default",
-                                                    transition: clickable ? "all 0.2s ease" : "none",
-                                                    textAlign: "left",
-                                                    textDecoration: "none",
-                                                    "&:hover": clickable
-                                                        ? {
-                                                            bgcolor: "#EFF6FF",
-                                                        }
-                                                        : undefined,
                                                 }}
                                             >
-                                                <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: "#0F172A" }}>{label}</Typography>
+                                                <Skeleton variant="text" width="92%" height={20} sx={{ mb: 0.5 }} />
+                                                <Skeleton variant="text" width="74%" height={18} />
                                             </Paper>
-                                        );
-                                    })}
+                                        ))
+                                    ) : null}
 
-                                    {!data?.followUp?.items?.length ? (
+                                    {!data?.followUp?.loading ? (
+                                        (data?.followUp?.items ?? []).map((item, idx) => {
+                                            const label = getItemLabel(item);
+                                            const isLink = Boolean(item?.href);
+                                            const clickable = Boolean(isLink || item?.onClick || data?.followUp?.onSelect);
+                                            const Component = isLink ? "a" : clickable ? "button" : "div";
+                                            const handleClick = (event) => {
+                                                item?.onClick?.(item, event);
+                                                data?.followUp?.onSelect?.(item, event);
+                                            };
+
+                                            return (
+                                                <Paper
+                                                    key={`${idx}-${label}`}
+                                                    elevation={0}
+                                                    component={Component}
+                                                    href={isLink ? item.href : undefined}
+                                                    target={isLink ? item.target || "_blank" : undefined}
+                                                    rel={isLink ? "noreferrer" : undefined}
+                                                    onClick={clickable ? handleClick : undefined}
+                                                    type={Component === "button" ? "button" : undefined}
+                                                    sx={{
+                                                        bgcolor: "#F8FAFC",
+                                                        py: 2,
+                                                        px: 3,
+                                                        borderRadius: "16px",
+                                                        border: "none",
+                                                        outline: "none",
+                                                        appearance: "none",
+                                                        cursor: clickable ? "pointer" : "default",
+                                                        transition: clickable ? "all 0.2s ease" : "none",
+                                                        textAlign: "left",
+                                                        textDecoration: "none",
+                                                        "&:hover": clickable
+                                                            ? {
+                                                                bgcolor: "#EFF6FF",
+                                                            }
+                                                            : undefined,
+                                                    }}
+                                                >
+                                                    <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: "#0F172A" }}>{label}</Typography>
+                                                </Paper>
+                                            );
+                                        })
+                                    ) : null}
+
+                                    {!data?.followUp?.loading && !data?.followUp?.items?.length ? (
                                         <Typography sx={{ fontSize: 13, color: "#94A3B8", fontWeight: 700, py: 2 }}>
                                             No follow-up questions.
                                         </Typography>

@@ -45,11 +45,13 @@ import QuestionAnswerPage, {
     PlanConfirmationPage,
     ResultComponentSkeleton,
 } from '../components/ResultComponent';
+import agentErrorImage from '../image/agent_error.png';
 import VisuImage from '../image/output.png';
 import { queryArticles } from '../redux/articlesSlice';
 import { queryQueryResultPage } from '../redux/queryResultPage';
 import { querySupportingMaterial } from '../redux/supportingMaterialSlice';
 import { queryImage } from '../redux/typeToImageSlice';
+import agentErrorSchema from '../schema/agent_error.json';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import { addHighlight } from '../utils/textProcessing';
 import { GenomeBrowserEmbed } from './AgentResult';
@@ -72,11 +74,6 @@ const tabLabels = {
     pankbase_links: 'PanKbase Links',
     external_links: 'External Links'
 };
-
-const defaultNextQuestion = {
-    question: 'How does {INS} expression change in {beta cell} in T1D vs non-diabetic samples?',
-    link: '/result?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type&relationship=express_in'
-}
 
 const DEBUG_STREAM_LOADING_ENTRIES = [
     {
@@ -359,9 +356,9 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const [referenceData, setReferenceData] = useState({});
     const [articlesData, setArticlesData] = useState([]);
     const [imagePopupOpen, setImagePopupOpen] = useState(false);
-    const [nextQuestions, setNextQuestions] = useState([{ question: '[WIP]' }]);
+    const [nextQuestions, setNextQuestions] = useState([]);
     const [allNextQuestions, setAllNextQuestions] = useState(null);
-    const [error, setError] = useState(false);
+    const [agentErrorType, setAgentErrorType] = useState(null);
     const [aiLoading, setAiLoading] = useState(true);
     const [noGraph, setNoGraph] = useState(false);
     const thunkref = useRef(null);
@@ -384,7 +381,43 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const streamSummaryRef = useRef('');
     const streamAnswerRef = useRef('');
     const thinkingBoxRef = useRef(null);
-    const terminalInitializedRef = useRef(false);
+    const terminalInitializedQuestionRef = useRef('');
+
+    const resolveAgentErrorType = React.useCallback((err, fallbackType = 'critical_error') => {
+        const status = err?.response?.status;
+        const code = String(err?.code || '').toLowerCase();
+        const detail = String(err?.response?.data?.detail || '');
+        const message = String(err?.response?.data?.message || err?.message || '');
+        const merged = `${detail} ${message}`.toLowerCase();
+
+        if (status === 408 || status === 504 || code.includes('timeout') || code.includes('econnaborted') || merged.includes('timeout') || merged.includes('timed out')) {
+            return 'time_out';
+        }
+
+        if (merged.includes('plan') || merged.includes('session_id') || merged.includes('/plan')) {
+            return 'planning_failed';
+        }
+
+        if (merged.includes('answer') || merged.includes('summary') || merged.includes('final_response')) {
+            return 'fail_to_give_answer';
+        }
+
+        return fallbackType;
+    }, []);
+
+    const getAgentErrorPayload = React.useCallback((errorType) => {
+        const fallback = agentErrorSchema?.critical_error || {};
+        const selected = agentErrorSchema?.[errorType] || fallback;
+        const imageMap = {
+            'agent_error.png': agentErrorImage,
+        };
+
+        return {
+            title: selected?.title || fallback?.title || 'Critical Error',
+            content: selected?.content || fallback?.content || 'An unexpected error occurred.',
+            imageSrc: imageMap[selected?.image] || agentErrorImage,
+        };
+    }, []);
 
     const stripCypherQueriesSection = React.useCallback((markdownText) => {
         const normalized = String(markdownText || '').replace(/\r\n/g, '\n');
@@ -572,7 +605,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     validatedQuestion[0] ? [validatedQuestion[0]] : []
             )
 
-            const replacedList = (validatedList?.length > 0 ? validatedList : [defaultNextQuestion])
+            const replacedList = (validatedList?.length > 0 ? validatedList : [])
                 .map(
                     (validatedQuestion) => ({
                         ...validatedQuestion,
@@ -627,17 +660,19 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         if (demoMode || planDemoMode) {
             return;
         }
-        const params = new URLSearchParams(window.location.search);
-        const decodedQuestion = base64ToUtf8(params?.get('question'));
+        const decodedQuestion = base64ToUtf8(searchParams?.get('question'));
         setQuestion(decodedQuestion);
-        const debug = params.get('debug') === 'true';
+        const debug = searchParams.get('debug') === 'true';
         setDebug(debug);
         console.log('Received question:', decodedQuestion);
         if (!decodedQuestion) {
             console.log('[ERROR] No question found in URL parameters.');
-            setError(true);
+            setAgentErrorType('critical_error');
             return;
         }
+
+        setAgentErrorType(null);
+        setNextQuestions([]);
 
         if (terminalMode) {
             setCurrentQuestion(decodedQuestion);
@@ -651,7 +686,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             // In debug mode, don't disable graph - it will be populated from final_response event
             return;
         }
-    }, [demoMode, planDemoMode, terminalMode]);
+    }, [demoMode, planDemoMode, terminalMode, searchParams]);
 
     useEffect(() => {
         if (!debug || terminalMode || demoMode || planDemoMode) {
@@ -1050,15 +1085,15 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             setStreamComplete(true);
         } catch (err) {
             console.error('[Terminal Flow] Planning cycle failed:', err);
-            setError(true);
+            setAgentErrorType(resolveAgentErrorType(err, 'planning_failed'));
         } finally {
             setTerminalLoading(false);
         }
-    }, [planSessionId, currentQuestion, question, extractPlanCypherQueries, fetchGraphFromCypher, runPlanLoadingMilestones]);
+    }, [planSessionId, currentQuestion, question, extractPlanCypherQueries, fetchGraphFromCypher, runPlanLoadingMilestones, resolveAgentErrorType]);
 
     const runConfirmCycle = React.useCallback(async () => {
         if (!planSessionId) {
-            setError(true);
+            setAgentErrorType('planning_failed');
             return;
         }
         setAiAnswer('');
@@ -1084,6 +1119,9 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 setStreamedSummary(summary);
                 streamAnswerRef.current = summary;
                 streamSummaryRef.current = summary;
+            } else {
+                setAgentErrorType('fail_to_give_answer');
+                return;
             }
             if (Array.isArray(followUpQuestions) && followUpQuestions.length > 0) {
                 setNextQuestions(
@@ -1096,22 +1134,33 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             setPlanSessionId('');
         } catch (err) {
             console.error('[Terminal Flow] Confirm failed:', err);
-            setError(true);
+            setAgentErrorType(resolveAgentErrorType(err, 'fail_to_give_answer'));
         } finally {
             setTerminalConfirming(false);
             setTerminalSummaryLoading(false);
         }
-    }, [planSessionId]);
+    }, [planSessionId, resolveAgentErrorType]);
 
     useEffect(() => {
-        if (!terminalMode || demoMode || planDemoMode || !question || terminalInitializedRef.current) {
+        if (!terminalMode || demoMode || planDemoMode || !question || terminalInitializedQuestionRef.current === question) {
             return;
         }
-        terminalInitializedRef.current = true;
+        terminalInitializedQuestionRef.current = question;
         setPlanSessionId('');
         setTerminalPhase('loading');
+        setStreamComplete(false);
+        setNoGraph(false);
+        setGraphData(null);
+        setAiAnswer('');
         runPlanningCycle(question);
     }, [terminalMode, demoMode, planDemoMode, question, runPlanningCycle]);
+
+    const startFollowUpQuestion = React.useCallback((label) => {
+        const cleanQuestion = stripHtml(label || '').trim();
+        if (!cleanQuestion) return;
+        const encodedQuery = encodeURIComponent(utf8ToBase64(cleanQuestion));
+        navigate(`/result-new2?question=${encodedQuery}&terminal=true`);
+    }, [navigate]);
 
     // Skeleton placeholder for summary loading
     const SummarySkeleton = () => (
@@ -1424,7 +1473,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                             .some(pmid => pmid !== "uids" && !response.payload.result[pmid]?.authors)
                     ) {
                         console.log('[ERROR] Invalid article data');
-                        setError(true);
+                        setAgentErrorType('fail_to_give_answer');
                         return;
                     }
                     setArticlesData(
@@ -1816,12 +1865,15 @@ Please review this plan and provide edits if needed.`,
         evidences: evidenceTabs.length ? { title: "Evidences", tabs: evidenceTabs } : undefined,
         followUp: {
             title: "Follow Up",
+            loading: terminalMode && (!streamComplete || terminalSummaryLoading || terminalPhase !== 'result'),
+            onSelect: (item, event) => {
+                event?.preventDefault?.();
+                startFollowUpQuestion(item?.label || item?.question || '');
+            },
             items: (nextQuestions || [])
                 .filter((item) => item?.question)
                 .map((item) => ({
                     label: stripHtml(item.question),
-                    href: item.link,
-                    target: "_blank",
                 })),
         },
     };
@@ -1852,8 +1904,17 @@ Please review this plan and provide edits if needed.`,
         onContentMeta(meta);
     }, [anchorPrefix, onContentMeta, resolvedPageData]);
 
-    if (error) {
-        return <ErrorComponent errorTitle={"Question Not Relevant"} errorMessage={"Your query doesn't match any relevant topic in PanKgraph. Please try rephrasing or explore related tutorials."} log={debugMessage(question, agentRawResult)} />;
+    if (agentErrorType) {
+        const agentErrorPayload = getAgentErrorPayload(agentErrorType);
+        return (
+            <ErrorComponent
+                errorTitle={agentErrorPayload.title}
+                errorMessage={agentErrorPayload.content}
+                errorImageSrc={agentErrorPayload.imageSrc}
+                homePath="/agent-landing"
+                log={debugMessage(question, agentRawResult)}
+            />
+        );
     }
 
     if (aiLoading && !demoMode && !planDemoMode) {
