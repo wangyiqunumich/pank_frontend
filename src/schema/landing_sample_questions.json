@@ -13,7 +13,7 @@
             "link": ""
         }
     ],
-    "QTL Analysis": [
+    "QTL Analysis (OLD)": [
         {
             "question": "Which SNP serves as the lead QTL for CFTR?",
             "link": "/result?sourceTerm=snp@rs2402203&targetTerm=gene@ENSG00000001626&relationship=QTL"
@@ -31,7 +31,7 @@
             "link": "/match?qid=3"
         }
     ],
-    "Gene Expression": [
+    "Gene Expression (OLD)": [
         {
             "question": "How does INS expression change in T1D versus non-diabetic samples?",
             "link": "/result?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type&relationship=express_in"
@@ -41,7 +41,7 @@
             "link": "/match?qid=0"
         }
     ],
-    "Key Gene in T1D": [
+    "Key Gene in T1D (Agent)": [
         {
             "question": "What is the functional impact of rs2402203 on T1D?",
             "link": ""
