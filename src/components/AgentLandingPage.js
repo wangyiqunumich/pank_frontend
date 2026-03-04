@@ -81,29 +81,28 @@ function BetaBadge({ sx }) {
   );
 }
 
-const ExampleClasses = {
-  "QTL Analysis": {
+const ExampleClassStyles = [
+  {
     color: "#067A71",
     bgcolor: "#F1FDFA",
     bdcolor: "#95F6E4",
   },
-  "Gene Expression": {
+  {
     color: "#2654E9",
     bgcolor: "#EFF6FF",
     bdcolor: "#BFDBFF",
-
   },
-  "SNP Studies": {
+  {
     color: "#008236",
     bgcolor: "#EFFDF4",
     bdcolor: "#B9F8CF",
   },
-  "T1D Research": {
+  {
     color: "#007595",
     bgcolor: "#ECFEFF",
     bdcolor: "#A2F4FD",
-  }
-};
+  },
+];
 
 function LandingPage() {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -117,6 +116,13 @@ function LandingPage() {
   const [currentQuery, setCurrentQuery] = useState(undefined);
   const refCurrentQuery = useRef(currentQuery);
   const navigate = useNavigate();
+  const exampleClassKeys = React.useMemo(
+    () => Object
+      .keys(ExampleQueries || {})
+      .filter((key) => key !== 'default' && Array.isArray(ExampleQueries?.[key]))
+      .slice(0, 4),
+    []
+  );
 
   useEffect(() => {
     refCurrentQuery.current = currentQuery;
@@ -643,7 +649,7 @@ function LandingPage() {
                   gap: '16px',
                   flexWrap: 'wrap',
                 }}>
-                  {ExampleQueries[showExamples].map((example, index) => (
+                  {(ExampleQueries?.[showExamples] || []).map((example, index) => (
                     <Link key={index} href="#" sx={{
                       textDecoration: 'none',
                       display: 'block',
@@ -704,16 +710,18 @@ function LandingPage() {
               marginTop: '24px',
             }}>
               {
-                Object.keys(ExampleClasses).map((key) => (
+                exampleClassKeys.map((key, index) => {
+                  const style = ExampleClassStyles[index % ExampleClassStyles.length];
+                  return (
                   <Button key={key} className="example-class" sx={{
                     display: 'flex',
                     alignItems: 'center',
                     margin: '8px',
                     cursor: 'pointer',
-                    backgroundColor: ExampleClasses[key].bgcolor,
+                    backgroundColor: style.bgcolor,
                     borderRadius: '20px',
                     padding: '8px 16px',
-                    border: `1px solid ${ExampleClasses[key].bdcolor}`,
+                    border: `1px solid ${style.bdcolor}`,
                     textTransform: 'none',
                     transition: 'transform 120ms ease, box-shadow 160ms ease, background-color 160ms ease, border-color 160ms ease',
                     boxShadow: showExamples === key ? '0 5px 12px rgba(15,118,110,0.18)' : 'none',
@@ -733,13 +741,14 @@ function LandingPage() {
                       fontFamily: 'Open Sans',
                       fontWeight: showExamples === key ? 700 : 500,
                       fontSize: '16px',
-                      color: ExampleClasses[key].color,
+                      color: style.color,
                       transition: 'color 160ms ease',
                     }}>
                       {key}
                     </Typography>
                   </Button>
-                ))
+                  );
+                })
               }
             </Box>
           </Box>
