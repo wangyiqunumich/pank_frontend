@@ -709,7 +709,7 @@ const InfocardMenu = ({ hoveredData, review }) => {
 }
 
 // Main KnowledgeGraph component
-export default function KnowledgeGraph({ selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, review = false, containerHeight = "600px" }) {
+export default function KnowledgeGraph({ selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, review = false, containerHeight = "600px", defaultLegendVisible = true }) {
   const cyRef = useRef(null);
   const containerRef = useRef(null);
   const infocardRef = useRef(null);
@@ -734,7 +734,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
   const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
 
   // toggle buttons & graph state
-  const [legendVisible, setLegendVisible] = useState(true);
+  const [legendVisible, setLegendVisible] = useState(defaultLegendVisible);
   const [zoomLevel, setZoomLevel] = useState(1.5);
   const [initZoom, setInitZoom] = useState(1.5); // default zoom scale
   const [infocardEnabled, setInfocardEnabled] = useState(true);
@@ -1352,7 +1352,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
             zIndex: 10,
             userSelect: "none",
             height: "fit-content",
-            width: legendVisible ? "380px" : "100px",
+            width: legendVisible ? "380px" : "110px",
             transition: "width 0.3s, height 0.3s, opacity 0.3s, box-shadow 0.3s",
           }}
         >
@@ -1363,7 +1363,12 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
             </div>
             <IconButton
               onClick={() => setLegendVisible(!legendVisible)}
-              style={{ padding: "20px", margin: "-20px" }}
+              style={{
+                padding: "4px",
+                width: "28px",
+                height: "28px",
+                borderRadius: "50%",
+              }}
             >
               {legendVisible ? (
                 <KeyboardArrowLeftIcon style={{ color: "#172A3A", fontSize: "20px" }} />
