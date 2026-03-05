@@ -43,7 +43,11 @@
     ],
     "Key Genes in T1D": [
         {
-            "question": "What is the functional impact of rs2402203 on T1D?",
+            "question": "Is PLEKHM1 differentially expressed in any cell type in T1D?",
+            "link": ""
+        },
+        {
+            "question": "CTLA4 is annotated with which biological processes/functions?",
             "link": ""
         },
         {
