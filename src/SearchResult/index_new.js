@@ -1,40 +1,40 @@
 import './scoped.css';
 
 import React, {
-  useEffect,
-  useMemo,
-  useState,
+    useEffect,
+    useMemo,
+    useState,
 } from 'react';
 
 import {
-  useDispatch,
-  useSelector,
+    useDispatch,
+    useSelector,
 } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 
 import { InfoOutlined as InfoOutlineIcon } from '@mui/icons-material';
 import {
-  Backdrop,
-  Box,
-  CircularProgress,
-  Container,
-  Grid,
-  Link,
-  Skeleton,
-  styled,
-  Tooltip,
-  tooltipClasses,
-  Typography,
+    Backdrop,
+    Box,
+    CircularProgress,
+    Container,
+    Grid,
+    Link,
+    Skeleton,
+    styled,
+    Tooltip,
+    tooltipClasses,
+    Typography,
 } from '@mui/material';
 
 import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 import {
-  ErrorComponent,
-  tabsQTL,
+    ErrorComponent,
+    tabsQTL,
 } from '../components/IntermediatePage';
 import KnowledgeGraph from '../components/KnowledgeGraph';
 import QuestionAnswerPage, {
-  ResultComponentSkeleton,
+    ResultComponentSkeleton,
 } from '../components/ResultComponent';
 import VisuImage from '../image/output.png';
 import { queryAiAnswer } from '../redux/aiAnswerSlice';
@@ -46,14 +46,14 @@ import { queryImage } from '../redux/typeToImageSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import {
-  addHighlight,
-  replaceNextQuestion,
-  replaceVariables,
+    addHighlight,
+    replaceNextQuestion,
+    replaceVariables,
 } from '../utils/textProcessing';
 import { GenomeBrowserEmbed } from './AgentResult';
 import {
-  demoCoordData,
-  demoGraphData,
+    demoCoordData,
+    demoGraphData,
 } from './demo_graph_data';
 import sampleSummaryData from './sample.json';
 
