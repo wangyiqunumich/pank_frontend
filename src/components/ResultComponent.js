@@ -75,7 +75,7 @@ const theme = createTheme({
     shape: { borderRadius: 14 },
 });
 
-function SectionCard({ title, children, sx }) {
+function SectionCard({ title, children, sx, showTitleDivider = true }) {
     return (
         <Paper
             elevation={0}
@@ -97,7 +97,7 @@ function SectionCard({ title, children, sx }) {
                     >
                         {title}
                     </Typography>
-                    <Divider sx={{ flex: 1, borderColor: "#E6EAF2" }} />
+                    {showTitleDivider ? <Divider sx={{ flex: 1, borderColor: "#E6EAF2" }} /> : null}
                 </Box>
             ) : null}
             {children}
@@ -110,7 +110,7 @@ export function ResultComponentSkeleton() {
         <ThemeProvider theme={theme}>
             <CssBaseline />
             <Box sx={{ px: { xs: 2, md: 4 }, pt: { xs: 2.5, md: 3.5 }, pb: { xs: 0.5, md: 1 }, maxWidth: 1344, width: "100%", mx: "auto" }}>
-                <Stack direction="row" spacing={0} alignItems="center" sx={{ mb: '62px', columnGap: '40px' }}>
+                <Stack direction="row" spacing={0} alignItems="center" sx={{ mb: '62px', columnGap: '30px' }}>
                     <Skeleton variant="rounded" width={48} height={30} />
                     <Skeleton variant="text" width="60%" height={36} />
                 </Stack>
@@ -565,6 +565,7 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                         fontSize: 20,
                         color: '#1E293B',
                         textAlign: 'left',
+                        textTransform: 'uppercase',
                         mb: 2,
                     }}
                 >
@@ -659,7 +660,19 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                 <Grid container columnSpacing={4.5} rowSpacing={2.5} alignItems="stretch">
                     <Grid item xs={12} md={12} lg={7} id={buildAnchorId('agent-plan')} sx={{ display: 'flex', height: confirmationColumnsHeight }}>
                         <Stack spacing={2} sx={{ width: '100%', height: '100%', minWidth: 0 }}>
-                            <SectionCard title="Agent Plan" sx={{ width: '100%', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+                            <SectionCard sx={{ width: '100%', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+                                <Typography
+                                    sx={{
+                                        fontSize: 14,
+                                        letterSpacing: '0.08em',
+                                        fontWeight: 600,
+                                        color: '#94A3B8',
+                                        whiteSpace: 'nowrap',
+                                        mb: 1.5,
+                                    }}
+                                >
+                                    Agent Plan
+                                </Typography>
                                 <Box sx={{ flex: 1, minHeight: 0, overflowY: isSingleColumn ? 'visible' : 'auto', pr: 0.5 }}>
                                     {agentPlanText ? (
                                         <Box
@@ -739,10 +752,10 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                                             {children}
                                                         </Link>
                                                     ),
-                                                    h1: ({ children }) => <Typography component="h1" sx={{ fontSize: 26 }}>{children}</Typography>,
-                                                    h2: ({ children }) => <Typography component="h2" sx={{ fontSize: 22 }}>{children}</Typography>,
-                                                    h3: ({ children }) => <Typography component="h3" sx={{ fontSize: 18 }}>{children}</Typography>,
-                                                    h4: ({ children }) => <Typography component="h4" sx={{ fontSize: 16 }}>{children}</Typography>,
+                                                    h1: ({ children }) => <Typography component="h1" sx={{ fontSize: 18 }}>{children}</Typography>,
+                                                    h2: ({ children }) => <Typography component="h2" sx={{ fontSize: 16 }}>{children}</Typography>,
+                                                    h3: ({ children }) => <Typography component="h3" sx={{ fontSize: 15 }}>{children}</Typography>,
+                                                    h4: ({ children }) => <Typography component="h4" sx={{ fontSize: 14 }}>{children}</Typography>,
                                                 }}
                                             >
                                                 {agentPlanText}
@@ -850,7 +863,19 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                     </Grid>
 
                     <Grid item xs={12} md={12} lg={5} id={buildAnchorId('visual-material')} sx={{ display: 'flex', height: confirmationColumnsHeight }}>
-                        <SectionCard title={data?.visualMaterial?.title || 'Visual Material'} sx={{ height: '100%', width: '100%', flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+                        <SectionCard sx={{ height: '100%', width: '100%', flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+                            <Typography
+                                sx={{
+                                    fontSize: 14,
+                                    letterSpacing: '0.08em',
+                                    fontWeight: 600,
+                                    color: '#94A3B8',
+                                    whiteSpace: 'nowrap',
+                                    mb: 1.5,
+                                }}
+                            >
+                                {data?.visualMaterial?.title || 'Visual Material'}
+                            </Typography>
                             {visualTabs.length > 1 ? (
                                 <Box sx={{ mb: 1 }}>
                                     <ContentTabs
@@ -1063,7 +1088,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
 
             <Box sx={{ px: { xs: 2, md: 4 }, pt: { xs: 2.5, md: 3.5 }, pb: { xs: 0.5, md: 1 }, maxWidth: 1344, width: "100%", mx: "auto" }}>
                 {/* Header */}
-                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: '62px', columnGap: '40px' }}>
+                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: '62px', columnGap: '30px' }}>
                     <Chip
                         label={data.questionId || "Q1"}
                         sx={{
