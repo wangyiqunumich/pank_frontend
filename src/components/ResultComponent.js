@@ -7,31 +7,31 @@ import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 
 import {
-    AutoAwesome as AutoAwesomeIcon,
-    ChatBubbleOutline as ChatBubbleOutlineIcon,
-    Check as CheckIcon,
-    Send as SendIcon,
+  AutoAwesome as AutoAwesomeIcon,
+  ChatBubbleOutline as ChatBubbleOutlineIcon,
+  Check as CheckIcon,
+  Send as SendIcon,
 } from '@mui/icons-material';
 import {
-    Box,
-    Button,
-    Chip,
-    createTheme,
-    CssBaseline,
-    Divider,
-    Grid,
-    IconButton,
-    InputAdornment,
-    Link,
-    Paper,
-    Skeleton,
-    Stack,
-    Tab,
-    Tabs,
-    TextField,
-    ThemeProvider,
-    Typography,
-    useMediaQuery,
+  Box,
+  Button,
+  Chip,
+  createTheme,
+  CssBaseline,
+  Divider,
+  Grid,
+  IconButton,
+  InputAdornment,
+  Link,
+  Paper,
+  Skeleton,
+  Stack,
+  Tab,
+  Tabs,
+  TextField,
+  ThemeProvider,
+  Typography,
+  useMediaQuery,
 } from '@mui/material';
 
 /**
@@ -1088,7 +1088,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
 
             <Box sx={{ px: { xs: 2, md: 4 }, pt: { xs: 2.5, md: 3.5 }, pb: { xs: 0.5, md: 1 }, maxWidth: 1344, width: "100%", mx: "auto" }}>
                 {/* Header */}
-                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: '62px', columnGap: '30px' }}>
+                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: '62px', columnGap: '20px' }}>
                     <Chip
                         label={data.questionId || "Q1"}
                         sx={{
