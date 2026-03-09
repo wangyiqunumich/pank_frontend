@@ -47,7 +47,7 @@ import {
   Typography,
 } from '@mui/material';
 
-import errorImage from '../image/datanotfound.png';
+import defaultErrorImage from '../image/datanotfound.png';
 import notRelevant from '../image/not_relevant.png';
 import { queryQueryResult } from '../redux/queryResultSlice';
 import { setSearchTerms } from '../redux/searchSlice';
@@ -107,16 +107,17 @@ const WarningSNP = (
   </Alert>
 );
 
-export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "No answer for your question in PanKgraph", agent = true, log = undefined }) {
+export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "No answer for your question in PanKgraph", agent = true, log = undefined, errorImageSrc = undefined, homePath = '/' }) {
   return (
     <Container sx={{
       padding: 0, display: 'flex',
       justifyContent: 'space-evenly',
-      alignSelf: 'center',
+      alignSelf: 'stretch',
       width: '100%',
-      minWidth: '1000px',
-      marginLeft: '20px',
-      marginRight: '20px',
+      minWidth: 0,
+      maxWidth: '100%',
+      marginLeft: 0,
+      marginRight: 0,
       flexDirection: 'column',
       flexGrow: 1,
       transform: 'translateY(-21px)',
@@ -137,14 +138,14 @@ export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "
           flexDirection: 'column',
           alignItems: 'center',
           gap: '36px',
-          width: '400px',
-          paddingX: '65px',
+          width: '460px',
+          paddingX: '75px',
           paddingY: '75px',
           borderRadius: '32px',
           justifyContent: 'center',
           backgroundColor: 'white',
         }}>
-          <Box component="img" src={agent ? notRelevant : errorImage} alt="Error" sx={{ width: "200px", marginTop: "-20px", marginBottom: '-20px' }} />
+          <Box component="img" src={errorImageSrc || (agent ? notRelevant : defaultErrorImage)} alt="Error" sx={{ width: "200px", marginTop: "-20px", marginBottom: '-20px' }} />
           <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '36px', color: '#43AABA', marginBottom: '-12px', whiteSpace: 'nowrap' }}>
             {errorTitle}
           </Typography>
@@ -154,13 +155,14 @@ export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "
           <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '24px' }}>
             <Button
               variant="contained"
-              onClick={() => window.location.href = '/'}
+              onClick={() => window.location.href = homePath}
               sx={{
                 backgroundColor: "#219197",
                 border: "1px solid #219197",
                 height: "50px",
                 borderRadius: "25px",
-                paddingX: "32px",
+                minWidth: "184px",
+                paddingX: "37px",
                 boxShadow: "none",
                 "&:hover": {
                   backgroundColor: "#1A747A",
@@ -185,7 +187,8 @@ export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "
                 border: "1px solid #219197",
                 height: "50px",
                 borderRadius: "25px",
-                paddingX: "32px",
+                minWidth: "184px",
+                paddingX: "37px",
                 "&:hover": {
                   backgroundColor: "#CAD4DA",
                 },
@@ -227,7 +230,8 @@ export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "
             border: "1px solid #219197",
             height: "50px",
             borderRadius: "25px",
-            paddingX: "32px",
+            minWidth: "184px",
+            paddingX: "37px",
             "&:hover": {
               backgroundColor: "#CAD4DA",
             },
@@ -264,15 +268,16 @@ function IntermediatePage({ onContinue }) {
       // console.log(queryResult.results);
       let cleanedResult;
       if (isNeptune) {
-        const lines = queryResult.results.trim().split('\n').slice(1);
-        cleanedResult = lines.map((line) => {
-          const [dataSource, credibleSets] = JSON5.parse(`[${line}]`);
-          return ({
-            "data_source": dataSource,
-            "credible_sets": credibleSets
-          });
-        }
-        );
+        cleanedResult = JSON5.parse(queryResult.results) || [];
+        // const lines = queryResult.results.trim().split('\n').slice(1);
+        // cleanedResult = lines.map((line) => {
+        //   const [dataSource, credibleSets] = JSON5.parse(`[${line}]`);
+        //   return ({
+        //     "data_source": dataSource,
+        //     "credible_sets": credibleSets
+        //   });
+        // }
+        // );
       }
       else {
         cleanedResult = queryResult.results?.[0]?.credible_sets?.map((cs) => ({

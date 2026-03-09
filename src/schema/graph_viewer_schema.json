@@ -274,7 +274,7 @@
                 ],
                 [
                     "Description",
-                    "definition"
+                    "description"
                 ],
                 [
                     "Footer",
@@ -778,7 +778,7 @@
                 ]
             ]
         },
-        "regulation": {
+        "genetic_interaction": {
             "text_color": "#000000",
             "edge_label": "genetically regulates",
             "inverted": "FALSE",

@@ -592,11 +592,11 @@ function SearchResult() {
         return segs.map((seg, idx) => {
             const key = `${keyPrefix}-${idx}`;
             if (idx % 2 === 1) {
-            return (
-                <mark key={key} className="hl">
-                {seg}
-                </mark>
-            );
+                return (
+                    <mark key={key} className="hl">
+                        {seg}
+                    </mark>
+                );
             }
             return <React.Fragment key={key}>{seg}</React.Fragment>;
         });
@@ -644,39 +644,39 @@ function SearchResult() {
             const children = highlightText(part.text, term, `p-${index}`);
 
             if (part.type === "pubmedid") {
-            return (
-                <Link
-                key={index}
-                href={`#reference-item-${part.text}`}
-                sx={{
-                    color: "#1976d2",
-                    fontWeight: 400,
-                    textDecoration: "none",
-                    "&:hover": { textDecoration: "underline" },
-                }}
-                onClick={(e) => {
-                    e.preventDefault();
-                    setCurrTab("references");
-                    setActiveReference(part.text);
-                }}
-                >
-                {children}
-                </Link>
-            );
+                return (
+                    <Link
+                        key={index}
+                        href={`#reference-item-${part.text}`}
+                        sx={{
+                            color: "#1976d2",
+                            fontWeight: 400,
+                            textDecoration: "none",
+                            "&:hover": { textDecoration: "underline" },
+                        }}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            setCurrTab("references");
+                            setActiveReference(part.text);
+                        }}
+                    >
+                        {children}
+                    </Link>
+                );
             }
 
             if (part.type === "link") {
-            return (
-                <a
-                key={index}
-                href={part.url}
-                target="_blank"
-                rel="noreferrer"
-                style={{ color: "#0069c2", textDecoration: "none" }}
-                >
-                {children}
-                </a>
-            );
+                return (
+                    <a
+                        key={index}
+                        href={part.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ color: "#0069c2", textDecoration: "none" }}
+                    >
+                        {children}
+                    </a>
+                );
             }
 
             return <span key={index}>{children}</span>;
@@ -691,15 +691,13 @@ function SearchResult() {
     useEffect(() => {
         const answer2 = aiAnswer;
         const geneId = hoverId;
-        if (hoverState)
-        {
+        if (hoverState) {
             // console.log(hoverId)
             setRenderedAiAnswer(answer2?.answers?.map(answer =>
                 <ProcessLinksHighlighted text={answer} term={geneId} />
             ) || null);
         }
-        else
-        {
+        else {
             setRenderedAiAnswer(answer2?.answers?.map(answer =>
                 <ProcessLinks text={answer} />
             ) || null);
@@ -843,7 +841,6 @@ function SearchResult() {
                                                     fontWeight: 400,
                                                     fontSize: '20px'
                                                 }}>
-                                                    <span style={{ color: '#FFD700' }}>✨</span>
                                                     {aiAnswerSubtitle[index]}
                                                 </Typography>
                                             )}
@@ -885,7 +882,7 @@ function SearchResult() {
                                 position: 'relative',
                                 borderRadius: '20px'
                             }}>
-                                
+
                                 <Typography sx={{
                                     fontFamily: 'Open Sans',
                                     fontWeight: 800,
@@ -895,6 +892,7 @@ function SearchResult() {
                                 </Typography>
                                 <Box sx={{
                                     position: 'relative',
+                                    flex: 1,
                                     minHeight: '450px',
                                     overflow: 'visible',
                                     backgroundColor: '#F9FAFB',
@@ -903,7 +901,7 @@ function SearchResult() {
                                     textAlign: 'left',
                                     maxWidth: '100%',
                                 }}>
-                                    <KnowledgeGraph />
+                                    <KnowledgeGraph containerHeight="100%" sx={{ height: "100%" }} />
                                 </Box>
                             </Box>
                         </Grid>

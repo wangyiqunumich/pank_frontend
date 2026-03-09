@@ -5,26 +5,28 @@ import React, {
 } from 'react';
 
 import cytoscape from 'cytoscape';
+import { useDispatch } from 'react-redux';
 
 import {
     Box,
     Button,
+    Chip,
     CircularProgress,
+    Typography,
 } from '@mui/material';
 
 import Image from '../image/Pasted Graphic 1.png';
+import { queryQueryResultPage } from '../redux/queryResultPage';
 import sampleLinks from '../schema/sample_links.json';
+import { GenomeBrowserEmbed } from '../SearchResult/AgentResult';
 import SearchResultLoading from '../SearchResult/loading';
+import MultiLineInputList from './DebugComponent';
 import KnowledgeGraph from './KnowledgeGraph';
 import {
     edgeIsInverted,
     edgeLabels,
     nodeStyle,
 } from './style.js';
-
-import MultiLineInputList from './DebugComponent';
-import { useDispatch } from 'react-redux';
-import { queryQueryResultPage } from '../redux/queryResultPage';
 
 export default function DebugPage() {
     const [graphJson, setGraphJson] = useState("");
@@ -91,7 +93,43 @@ export default function DebugPage() {
     const [coordData, setCoordData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [igvVisible, setIgvVisible] = useState(true);
+    const [plannerHealth, setPlannerHealth] = useState({
+        status: 'checking',
+        label: 'Checking PlannerAgent API...',
+        detail: '',
+    });
+    const [healthChecking, setHealthChecking] = useState(false);
     const dispatch = useDispatch();
+
+    const checkPlannerHealth = React.useCallback(async () => {
+        setHealthChecking(true);
+        try {
+            const response = await fetch('https://agent.pankgraph.org/health');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            const data = await response.json();
+            const status = String(data?.status || '').toLowerCase() === 'healthy' ? 'healthy' : 'degraded';
+            setPlannerHealth({
+                status,
+                label: status === 'healthy' ? 'PlannerAgent Healthy' : 'PlannerAgent Degraded',
+                detail: data?.message || '',
+            });
+        } catch (err) {
+            setPlannerHealth({
+                status: 'down',
+                label: 'PlannerAgent Unreachable',
+                detail: err?.message || 'Health check failed',
+            });
+        } finally {
+            setHealthChecking(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        checkPlannerHealth();
+    }, [checkPlannerHealth]);
     const handleQuery = (queryRaw) => {
         const query = queryRaw?.filter(line => line.trim().length > 0);
         if (!query || query.length === 0) return;
@@ -250,6 +288,46 @@ export default function DebugPage() {
     }, [graphJson]);
     return (
         <>
+            <Box sx={{ mx: '10px', mt: '10px', mb: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+                    <Typography sx={{ fontSize: 14, fontWeight: 700, color: '#334155' }}>
+                        PlannerAgent API
+                    </Typography>
+                    <Chip
+                        label={plannerHealth.label}
+                        size="small"
+                        sx={{
+                            fontWeight: 700,
+                            backgroundColor:
+                                plannerHealth.status === 'healthy'
+                                    ? '#DCFCE7'
+                                    : plannerHealth.status === 'checking'
+                                        ? '#E2E8F0'
+                                        : '#FEE2E2',
+                            color:
+                                plannerHealth.status === 'healthy'
+                                    ? '#166534'
+                                    : plannerHealth.status === 'checking'
+                                        ? '#334155'
+                                        : '#991B1B',
+                        }}
+                    />
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={checkPlannerHealth}
+                        disabled={healthChecking}
+                        sx={{ textTransform: 'none' }}
+                    >
+                        {healthChecking ? 'Checking...' : 'Refresh'}
+                    </Button>
+                    {plannerHealth.detail ? (
+                        <Typography sx={{ fontSize: 12, color: '#64748B' }}>
+                            {plannerHealth.detail}
+                        </Typography>
+                    ) : null}
+                </Box>
+            </Box>
             <div style={{ padding: '20px', width: '1000px', border: '1px solid #ccc', marginBottom: '20px', margin: '10px' }}>
                 <MultiLineInputList onChange={(data) => { setQuery(data); }} />
                 <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 2, pb: 2 }}>
@@ -266,6 +344,35 @@ export default function DebugPage() {
                     {graphData && <KnowledgeGraph selectable={false} sx={{ zIndex: 2 }}
                         graphData={graphData} coordData={coordData}
                     />}
+                </Box>
+            </div>
+            <SearchResultLoading open={loadingOpen} onClose={() => setLoadingOpen(false)} />
+            <div style={{ padding: '20px', width: '100%' }}>
+                <h2>IGV.js Genome Browser - Full Width Demo</h2>
+                <Box sx={{ width: '100%', height: '700px', border: '1px solid #ccc', backgroundColor: '#fafafa' }}>
+                    <GenomeBrowserEmbed
+                        locus="chr7:55,085,725-55,276,031"
+                        isVisible={igvVisible}
+                        height={700}
+                        compact
+                        tracks={[
+                            {
+                                name: "Phase 3 WGS variants",
+                                type: "variant",
+                                format: "vcf",
+                                url: "https://s3.amazonaws.com/1000genomes/release/20130502/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.vcf.gz",
+                                indexURL: "https://s3.amazonaws.com/1000genomes/release/20130502/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.vcf.gz.tbi",
+                            },
+                            {
+                                type: "alignment",
+                                format: "bam",
+                                name: "HG00096",
+                                url: "https://s3.amazonaws.com/1000genomes/phase3/data/HG00096/exome_alignment/HG00096.mapped.ILLUMINA.bwa.GBR.exome.20120522.bam",
+                                indexURL: "https://s3.amazonaws.com/1000genomes/phase3/data/HG00096/exome_alignment/HG00096.mapped.ILLUMINA.bwa.GBR.exome.20120522.bam.bai",
+                                height: 400,
+                            },
+                        ]}
+                    />
                 </Box>
             </div>
             <div style={{ padding: '20px', width: '1440px' }}>

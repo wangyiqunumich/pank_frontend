@@ -49,6 +49,7 @@ import { querySupportingMaterial } from '../redux/supportingMaterialSlice';
 import { queryImage } from '../redux/typeToImageSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import { addHighlight } from '../utils/textProcessing';
+import { DebugThinkingPanel } from './DebugThinkingPanel';
 import SearchResultLoading from './loading';
 
 // const tabs = [
@@ -1025,6 +1026,9 @@ function SearchResult() {
                     </Collapse>
                 </Box>
             </Container>
+            {debug && <Box sx={{ marginTop: '30px', marginX: '20px' }}>
+                <DebugThinkingPanel agentRawResult={agentRawResult} question={currentQuestion || question} />
+            </Box>}
         </Container>
         );
 }
