@@ -524,9 +524,16 @@ const InfocardMenu = ({ hoveredData, review }) => {
       (isEdge ? graphInfocard?.edges : graphInfocard?.nodes)?.[hoveredData?.type]?.info_panel;
   const titleColumn = schema?.find(([label, _]) => label === "Title");
   const footerInfo = schema?.find(([label, _]) => label === "Footer")?.[1];
-  if (!hoveredData) {
-    console.log(JSON.stringify(hoveredData));
-  }
+
+  // GO 节点：按 name 长度决定标题展示 GO id 还是 GO term（name 即 ~properties.name，id 即 ~id）
+  const rawId = hoveredData?.id;
+  const goTerm = hoveredData?.name;
+  const isGoNode = typeof rawId === "string" && rawId.startsWith("GO_");
+  const titleDisplayValue = isGoNode
+    ? (goTerm && goTerm.length > 15 ? rawId : (goTerm ?? rawId))
+    : hoveredData?.[titleColumn?.[1]]?.replace(/_/g, " ");
+  const titleDisplayConfig = isGoNode ? undefined : titleColumn?.[2];
+
   return (
     hoveredData && (schema?.length > 0
       ? (
@@ -546,7 +553,7 @@ const InfocardMenu = ({ hoveredData, review }) => {
               fontSize: "20px",
               lineHeight: "20px",
             }}>
-              <InfocardData value={hoveredData[titleColumn?.[1]]?.replace(/_/g, " ")} dataKey={titleColumn?.[1]} config={titleColumn?.[2]} />
+              <InfocardData value={titleDisplayValue?.replace(/_/g, " ")} dataKey={titleColumn?.[1]} config={titleDisplayConfig} />
             </Typography>
           </Box>
           {
@@ -590,7 +597,16 @@ const InfocardMenu = ({ hoveredData, review }) => {
                             }}>
                               {
                                 Array.isArray(content) ? (
-                                  content.map(([label, key, config]) => ( // Data Row
+                                  (() => {
+                                    // GO 节点：name>15 只展示 GO id 行，否则只展示 GO Term 行
+                                    const rows = isGoNode
+                                      ? content.filter(([label]) => {
+                                        if (label === "GO id") return (goTerm?.length ?? 0) > 15;
+                                        if (label === "GO Term") return (goTerm?.length ?? 0) <= 15;
+                                        return true;
+                                      })
+                                      : content;
+                                    return rows.map(([label, key, config]) => ( // Data Row
                                     <Box key={key} sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
                                       <Typography sx={{
                                         fontFamily: "Open Sans",
@@ -618,7 +634,9 @@ const InfocardMenu = ({ hoveredData, review }) => {
                                         <InfocardData value={hoveredData[key]} dataKey={key} config={config} />
                                       </Typography>
                                     </Box>
-                                  )))
+                                  ));
+                                  })()
+                                )
                                   : ( // Text Content
                                     <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                                       <Typography
@@ -710,6 +728,8 @@ const InfocardMenu = ({ hoveredData, review }) => {
 
 // Main KnowledgeGraph component
 export default function KnowledgeGraph({ selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, review = false, containerHeight = "600px", defaultLegendVisible = true }) {
+  console.log('KnowledgeGraph props graphData, coordData:', { graphData, coordData });
+
   const cyRef = useRef(null);
   const containerRef = useRef(null);
   const infocardRef = useRef(null);
