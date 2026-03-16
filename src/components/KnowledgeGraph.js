@@ -525,6 +525,10 @@ const InfocardMenu = ({ hoveredData, review }) => {
   const titleColumn = schema?.find(([label, _]) => label === "Title");
   const footerInfo = schema?.find(([label, _]) => label === "Footer")?.[1];
 
+  if (!hoveredData)
+  {
+    console.log(JSON.stringify(hoveredData));
+  }
   // GO 节点：按 name 长度决定标题展示 GO id 还是 GO term（name 即 ~properties.name，id 即 ~id）
   const rawId = hoveredData?.id;
   const goTerm = hoveredData?.name;
@@ -553,7 +557,7 @@ const InfocardMenu = ({ hoveredData, review }) => {
               fontSize: "20px",
               lineHeight: "20px",
             }}>
-              <InfocardData value={titleDisplayValue?.replace(/_/g, " ")} dataKey={titleColumn?.[1]} config={titleDisplayConfig} />
+              <InfocardData value={hoveredData[titleColumn?.[1]]?.replace(/_/g, " ")} dataKey={titleColumn?.[1]} config={titleDisplayConfig} />
             </Typography>
           </Box>
           {
@@ -597,16 +601,7 @@ const InfocardMenu = ({ hoveredData, review }) => {
                             }}>
                               {
                                 Array.isArray(content) ? (
-                                  (() => {
-                                    // GO 节点：name>15 只展示 GO id 行，否则只展示 GO Term 行
-                                    const rows = isGoNode
-                                      ? content.filter(([label]) => {
-                                        if (label === "GO id") return (goTerm?.length ?? 0) > 15;
-                                        if (label === "GO Term") return (goTerm?.length ?? 0) <= 15;
-                                        return true;
-                                      })
-                                      : content;
-                                    return rows.map(([label, key, config]) => ( // Data Row
+                                  content.map(([label, key, config]) => ( // Data Row
                                     <Box key={key} sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
                                       <Typography sx={{
                                         fontFamily: "Open Sans",
@@ -634,9 +629,7 @@ const InfocardMenu = ({ hoveredData, review }) => {
                                         <InfocardData value={hoveredData[key]} dataKey={key} config={config} />
                                       </Typography>
                                     </Box>
-                                  ));
-                                  })()
-                                )
+                                  )))
                                   : ( // Text Content
                                     <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                                       <Typography
@@ -1023,21 +1016,26 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
         Level: "Core",
       };
       const pos = { x: posData.x, y: posData.y };
+
+      const baseName = node[properties]?.name;
+      const baseId = node[properties]?.id || node["~id"];
+
+      let labelText;
+      if (review) {
+        labelText = baseName;
+      } else if (node["~labels"].includes("disease")) {
+        labelText = "T1D";
+      } else if (baseName && baseName.length <= 15) {
+        labelText = baseName;
+      } else {
+        labelText = baseId;
+      }
+
       return {
         data: {
           id: node["~id"],
           ...node[properties],
-          label: (
-            review ? node[properties]["name"] :
-              node["~labels"].includes("disease")
-                ? "T1D"
-                : (node["~labels"].includes("gene") ||
-                  node["~labels"].includes("OCR") ||
-                  node["~id"].startsWith("CL_")
-                )
-                  ? (node[properties].name || node[properties].id)
-                  : node[properties].id
-          ).replace(/_/g, " "),
+          label: (labelText || "").replace(/_/g, " "),
           type,
           Level: posData.Level,
         },
