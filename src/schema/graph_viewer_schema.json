@@ -1,4 +1,5 @@
 {
+    
     "$comment": {
         "valid_datatypes": [
             "link",
@@ -9,7 +10,8 @@
             "float(number_of_decimals)",
             "string"
         ],
-        "description": "All others are directly displayed"
+        "description": "All others are directly displayed",
+        "display logic": "In the graph viewer, we first check the name of the node. If the node's name length is more than 15 char, then we display the node id for the users. If the name length is less than 15 char, then directly display the name."
     },
     "nodes": {
         "coding_elements": {
