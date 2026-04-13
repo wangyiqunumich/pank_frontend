@@ -6,6 +6,7 @@ import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import {
   BrowserRouter,
+  Navigate,
   Route,
   Routes,
 } from 'react-router-dom';
@@ -35,6 +36,9 @@ import { AgentResultLayout } from './SearchResult/AgentResult';
 import ResultPageNew from './SearchResult/index_new';
 import ResultPage2 from './SearchResult/resultpage';
 import ResultPageNew2 from './SearchResult/resultpage_new';
+
+const isDevelopmentStage =
+  (process.env.REACT_APP_API_GATEWAY_STAGE_NAME || '').toLowerCase() === 'development';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -72,7 +76,10 @@ root.render(
               <Route path="/agent-landing" element={<AgentLandingPage />} />
               <Route path="/result2" element={<ResultPage2 />} />
               <Route path="/" element={<LandingPage />} />
-              <Route path="/debug" element={<DebugPage />} />
+              <Route
+                path="/debug"
+                element={isDevelopmentStage ? <DebugPage /> : <Navigate to="/" replace />}
+              />
               <Route path="/igv" element={<IgvPage />} />
               <Route path="/agent-result" element={<AgentResultLayout ResultView={ResultPageNew2} allowMulti={false} allowSearch={false} />} />
               <Route path="*" element={<LandingPage />} />

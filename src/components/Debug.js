@@ -349,28 +349,40 @@ export default function DebugPage() {
             <SearchResultLoading open={loadingOpen} onClose={() => setLoadingOpen(false)} />
             <div style={{ padding: '20px', width: '100%' }}>
                 <h2>IGV.js Genome Browser - Full Width Demo</h2>
-                <Box sx={{ width: '100%', height: '700px', border: '1px solid #ccc', backgroundColor: '#fafafa' }}>
+                <Box sx={{ width: '100%', height: '800px', border: '1px solid #ccc', backgroundColor: '#fafafa' }}>
                     <GenomeBrowserEmbed
-                        locus="chr7:55,085,725-55,276,031"
+                        locus="chr6:53,510,000-53,530,000"
                         isVisible={igvVisible}
-                        height={700}
+                        height={800}
                         compact
                         tracks={[
+                            // {
+                            //     name: "Phase 3 WGS variants",
+                            //     type: "variant",
+                            //     format: "vcf",
+                            //     url: "https://s3.amazonaws.com/1000genomes/release/20130502/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.vcf.gz",
+                            //     indexURL: "https://s3.amazonaws.com/1000genomes/release/20130502/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.vcf.gz.tbi",
+                            // },
+                            // {
+                            //     type: "alignment",
+                            //     format: "bam",
+                            //     name: "HG00096",
+                            //     url: "https://s3.amazonaws.com/1000genomes/phase3/data/HG00096/exome_alignment/HG00096.mapped.ILLUMINA.bwa.GBR.exome.20120522.bam",
+                            //     indexURL: "https://s3.amazonaws.com/1000genomes/phase3/data/HG00096/exome_alignment/HG00096.mapped.ILLUMINA.bwa.GBR.exome.20120522.bam.bai",
+                            //     height: 400,
+                            // },
                             {
-                                name: "Phase 3 WGS variants",
-                                type: "variant",
-                                format: "vcf",
-                                url: "https://s3.amazonaws.com/1000genomes/release/20130502/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.vcf.gz",
-                                indexURL: "https://s3.amazonaws.com/1000genomes/release/20130502/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.vcf.gz.tbi",
-                            },
-                            {
-                                type: "alignment",
-                                format: "bam",
-                                name: "HG00096",
-                                url: "https://s3.amazonaws.com/1000genomes/phase3/data/HG00096/exome_alignment/HG00096.mapped.ILLUMINA.bwa.GBR.exome.20120522.bam",
-                                indexURL: "https://s3.amazonaws.com/1000genomes/phase3/data/HG00096/exome_alignment/HG00096.mapped.ILLUMINA.bwa.GBR.exome.20120522.bam.bai",
-                                height: 400,
-                            },
+                                name: "credibleSet1",
+                                type: "qtl",
+                                format: "qtl",
+                                url: "https://pank-s3-to-share.s3.us-east-1.amazonaws.com/genome-browser/ENSG00000001084__GCLC__ENSG00000001084.6_53373974_53375246__credibleSet1.qtl.tsv",
+                                chrColumn: 1,
+                                posColumn: 2,
+                                snpColumn: 3,
+                                pValueColumn: 4,
+                                phenotypeColumn: 5,
+                                height: 164
+                            }
                         ]}
                     />
                 </Box>
