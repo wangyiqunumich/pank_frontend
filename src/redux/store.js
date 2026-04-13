@@ -16,6 +16,7 @@ import supportingMaterialReducer from './supportingMaterialSlice';
 import typeToImageReducer from './typeToImageSlice';
 import variablesReducer from './variablesSlice';
 import viewSchemaReducer from './viewSchemaSlice';
+import hoverReducer from './hoverSlice';
 
 const store = configureStore({
     reducer: {
@@ -35,6 +36,7 @@ const store = configureStore({
         graphviewer: graphviewerReducer,
         supportingMaterial: supportingMaterialReducer,
         aiAgent: aiAgentReducer,
+        hover: hoverReducer,
     },
 });
 

@@ -1,19 +1,19 @@
 {
     "default": [
         {
-            "question": "Which SNP serves as the lead QTL for CFTR?",
-            "link": "/result?sourceTerm=snp@rs2402203&targetTerm=gene@ENSG00000001626&relationship=QTL"
+            "question": "Is PLEKHM1 differentially expressed in any cell type in T1D?",
+            "link": ""
         },
         {
-            "question": "How does INS expression change in T1D versus non-diabetic samples?",
-            "link": "/result?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type&relationship=express_in"
+            "question": "CTLA4 is annotated with which biological processes/functions?",
+            "link": ""
         },
         {
             "question": "Describe PTPN22’s involvement in T1D, covering its associated QTL signals, expression patterns, and reported effector genes evidence.",
             "link": ""
         }
     ],
-    "QTL Analysis": [
+    "QTL (OLD)": [
         {
             "question": "Which SNP serves as the lead QTL for CFTR?",
             "link": "/result?sourceTerm=snp@rs2402203&targetTerm=gene@ENSG00000001626&relationship=QTL"
@@ -31,7 +31,7 @@
             "link": "/match?qid=3"
         }
     ],
-    "Gene Expression": [
+    "DEG (OLD)": [
         {
             "question": "How does INS expression change in T1D versus non-diabetic samples?",
             "link": "/result?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type&relationship=express_in"
@@ -41,9 +41,13 @@
             "link": "/match?qid=0"
         }
     ],
-    "SNP Studies": [
+    "Key Genes in T1D": [
         {
-            "question": "What is the functional impact of rs2402203 on T1D?",
+            "question": "Is PLEKHM1 differentially expressed in any cell type in T1D?",
+            "link": ""
+        },
+        {
+            "question": "CTLA4 is annotated with which biological processes/functions?",
             "link": ""
         },
         {

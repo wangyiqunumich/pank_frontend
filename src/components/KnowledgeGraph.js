@@ -10,7 +10,10 @@ import React, {
 
 import cytoscape from 'cytoscape';
 import JSON5 from 'json5';
-import { useSelector } from 'react-redux';
+import {
+  useDispatch,
+  useSelector,
+} from 'react-redux';
 import { useLocation } from 'react-router-dom';
 
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -34,15 +37,19 @@ import fullscreenExitIcon from '../image/quit_fullscreen.svg';
 import recenterIcon from '../image/recenter.svg';
 import zoomInIcon from '../image/zoom-minus.svg';
 import zoomOutIcon from '../image/zoom-plus.svg';
+import {
+  setHoverId,
+  setHoverState,
+} from '../redux/hoverSlice.js';
 import graphInfocard from '../schema/graph_viewer_schema.json';
 import graphInfocardReview from '../schema/review_page/graph_schema.json';
 import { addWhitespace } from '../utils/textProcessing';
+import { SEARCH_TARGETS } from './data/node_schema';
 import {
   edgeIsInverted,
   edgeLabels,
   getContrastingColor,
   legendSchema,
-  nodeColors,
   nodeStyle,
 } from './style.js';
 
@@ -517,6 +524,20 @@ const InfocardMenu = ({ hoveredData, review }) => {
       (isEdge ? graphInfocard?.edges : graphInfocard?.nodes)?.[hoveredData?.type]?.info_panel;
   const titleColumn = schema?.find(([label, _]) => label === "Title");
   const footerInfo = schema?.find(([label, _]) => label === "Footer")?.[1];
+
+  if (!hoveredData)
+  {
+    console.log(JSON.stringify(hoveredData));
+  }
+  // GO 节点：按 name 长度决定标题展示 GO id 还是 GO term（name 即 ~properties.name，id 即 ~id）
+  const rawId = hoveredData?.id;
+  const goTerm = hoveredData?.name;
+  const isGoNode = typeof rawId === "string" && rawId.startsWith("GO_");
+  const titleDisplayValue = isGoNode
+    ? (goTerm && goTerm.length > 15 ? rawId : (goTerm ?? rawId))
+    : hoveredData?.[titleColumn?.[1]]?.replace(/_/g, " ");
+  const titleDisplayConfig = isGoNode ? undefined : titleColumn?.[2];
+
   return (
     hoveredData && (schema?.length > 0
       ? (
@@ -536,7 +557,7 @@ const InfocardMenu = ({ hoveredData, review }) => {
               fontSize: "20px",
               lineHeight: "20px",
             }}>
-              <InfocardData value={hoveredData[titleColumn?.[1]]?.replace(/_/g, " ")} dataKey={titleColumn?.[1]} config={titleColumn?.[2]} />
+              <InfocardData value={hoveredData[titleColumn?.[1]]?.replace(/_/g, " ")} dataKey={titleColumn?.[1]} config={titleDisplayConfig} />
             </Typography>
           </Box>
           {
@@ -699,8 +720,11 @@ const InfocardMenu = ({ hoveredData, review }) => {
 }
 
 // Main KnowledgeGraph component
-export default function KnowledgeGraph({ selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, review = false }) {
+export default function KnowledgeGraph({ selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, review = false, containerHeight = "600px", defaultLegendVisible = true }) {
+  console.log('KnowledgeGraph props graphData, coordData:', { graphData, coordData });
+
   const cyRef = useRef(null);
+  const containerRef = useRef(null);
   const infocardRef = useRef(null);
   const activeNodeRef = useRef(null);
   const [activeNode, setActiveNode] = useState(null);
@@ -711,6 +735,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
   const [hoverExpand, setHoverExpand] = useState(false);
   // hover id ref
   const hoveredIdRef = useRef(hoveredId);
+  const dispatch = useDispatch();
   useEffect(() => {
     hoveredIdRef.current = hoveredId;
   }, [hoveredId]);
@@ -722,13 +747,15 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
   const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
 
   // toggle buttons & graph state
-  const [legendVisible, setLegendVisible] = useState(true);
+  const [legendVisible, setLegendVisible] = useState(defaultLegendVisible);
   const [zoomLevel, setZoomLevel] = useState(1.5);
   const [initZoom, setInitZoom] = useState(1.5); // default zoom scale
   const [infocardEnabled, setInfocardEnabled] = useState(true);
   const [expanded, setExpanded] = useState(false);
 
   const [selectedID, setSelectedID] = useState([]);
+  // const [inputValue, setInputValue] = useState("")
+  const inputRef = useRef("");
 
   const center =
     cyRef.current
@@ -737,6 +764,75 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
         y: (cyRef.current.height() / 2),
       }
       : { x: 0, y: 0 };
+
+  const focusElementByKey = (key) => {
+    const cy = cyRef.current;
+    const trimmed = typeof key === 'string' ? key.trim() : '';
+    if (!cy || !trimmed) return;
+
+    const searchLower = trimmed.toLowerCase();
+    const searchTargetSet = new Set(SEARCH_TARGETS);
+
+    const valueMatches = (val) => {
+      if (val == null) return false;
+      if (typeof val === 'string') return val.toLowerCase().includes(searchLower);
+      if (typeof val === 'number') return String(val).includes(trimmed);
+      if (Array.isArray(val)) return val.some((v) => valueMatches(v));
+      if (typeof val === 'object') return false;
+      return String(val).toLowerCase().includes(searchLower);
+    };
+
+    const nodeMatches = (node) => {
+      if (!node.isNode()) return false;
+      const data = node.data();
+      if (valueMatches(data.id)) return true;
+      if (valueMatches(data.label)) return true;
+      for (const [k, v] of Object.entries(data)) {
+        if (k === 'id' || k === 'label') continue;
+        if (searchTargetSet.has(k) && valueMatches(v)) return true;
+      }
+      return false;
+    };
+
+    const matchingNodes = cy.nodes().filter(nodeMatches);
+    if (!matchingNodes.length) {
+      console.log("No node matching:", trimmed);
+      return;
+    }
+
+    cy.elements().unselect();
+    cy.elements().removeClass('highlight');
+
+    matchingNodes.addClass('highlight');
+    if (selectable) matchingNodes.select();
+
+    cy.animate(
+      {
+        center: { eles: matchingNodes },
+        zoom: Math.max(cy.zoom(), 3.0),
+      },
+      { duration: 400 }
+    );
+  };
+
+
+
+  const SearchBox = () => {
+    return (
+      <input
+        defaultValue=""
+        onInput={(e) => {
+          inputRef.current = e.target.value;
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            focusElementByKey(inputRef.current.trim());
+          }
+        }}
+      />
+    );
+  };
 
   const handleZoomIn = () =>
     cyRef.current && cyRef.current.zoom({ level: cyRef.current.zoom() / 1.2, renderedPosition: center });
@@ -768,7 +864,10 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
 
 
   useEffect(() => {
-    const container = document.getElementById("cy-container");
+    const container = containerRef.current;
+    if (!container) {
+      return;
+    }
     const { width: containerWidth, top: containerTop, left: containerLeft } = container.getBoundingClientRect();
 
     const ele = activeNode;
@@ -782,8 +881,12 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
     const x = modelX * cyRef.current.zoom() + cyRef.current.pan().x;
     const y = modelY * cyRef.current.zoom() + cyRef.current.pan().y;
 
-    const infocard = document.getElementById("infocard");
-    if (!infocard) return;
+    const infocard = infocardRef.current;
+    if (!infocard) {
+      console.log(x);
+      console.log(y);
+      return;
+    }
     infocard.style.display = "block";
     // infocard.style.opacity = "1";
     const { width: infocardWidth, height: infocardHeight } = infocard.getBoundingClientRect();
@@ -896,12 +999,16 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
     const result = graphData || queryResultPage?.combined_query_result;
     const positionData = coordData || queryResultPage?.xy_json || {};
 
+    if (!result?.nodes || !result?.edges) {
+      return undefined;
+    }
+
     const uniqueNodesMap = {};
     result.nodes?.forEach((node) => (uniqueNodesMap[node["~id"]] = node));
     const properties = review ? "properties" : "~properties";
     const nodes = Object.values(uniqueNodesMap).map((node) => {
       // Determine type based on the labels
-      const type = review ? "cell_type" : node["~labels"].find((label) => nodeColors[label]) || "coding_elements";
+      const type = review ? "cell_type" : node["~labels"].find((label) => graphInfocard.nodes[label]?.info_panel) || "coding_elements";
       // Use the provided positionData and extract the Level property.
       const posData = positionData[node["~id"]] || {
         x: Math.random() * 250 - 125,
@@ -909,27 +1016,34 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
         Level: "Core",
       };
       const pos = { x: posData.x, y: posData.y };
+
+      const baseName = node[properties]?.name;
+      const baseId = node[properties]?.id || node["~id"];
+
+      let labelText;
+      if (review) {
+        labelText = baseName;
+      } else if (node["~labels"].includes("disease")) {
+        labelText = "T1D";
+      } else if (baseName && baseName.length <= 15) {
+        labelText = baseName;
+      } else {
+        labelText = baseId;
+      }
+
       return {
         data: {
           id: node["~id"],
           ...node[properties],
-          label: (
-            review ? node[properties]["name"] :
-              node["~labels"].includes("disease")
-                ? "T1D"
-                : (node["~labels"].includes("gene") ||
-                  node["~labels"].includes("OCR") ||
-                  node["~id"].startsWith("CL_")
-                )
-                  ? (node[properties].name || node[properties].id)
-                  : node[properties].id
-          ).replace(/_/g, " "),
+          label: (labelText || "").replace(/_/g, " "),
           type,
           Level: posData.Level,
         },
         position: pos,
       };
     });
+
+    console.log(nodes);
 
     const nodeNameMap =
       nodes.reduce((acc, node) => {
@@ -952,21 +1066,57 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
       },
     }));
 
+    const container = containerRef.current;
+    if (!container) {
+      return undefined;
+    }
+    if (cyRef.current) {
+      cyRef.current.destroy();
+      cyRef.current = null;
+    }
+
     cyRef.current = cytoscape({
-      container: document.getElementById("cy-container"),
+      container,
       elements: { nodes, edges },
-      style: nodeStyle.concat(selectable ? [{
-        selector: "node:selected",
-        style: {
-          "border-width": 1,
-          "border-color": "#EB5325",
+      style: nodeStyle.concat([
+        ...(selectable ? [{
+          selector: "node:selected",
+          style: {
+            "border-width": 1,
+            "border-color": "#EB5325",
+          },
+        }, {
+          selector: "edge:selected",
+          style: {
+            "line-color": "#EB5325",
+          }
+        }] : []),
+        {
+          selector: 'node.highlight',
+          style: {
+            'overlay-color': '#0EA5E9',
+            'overlay-opacity': 0.35,
+            'overlay-padding': 4,
+            'z-index': 9999,
+            'transition-property': 'overlay-opacity overlay-padding',
+            'transition-duration': '0.35s',
+            'transition-timing-function': 'cubic-bezier(0.4, 0, 0.2, 1)'
+          }
         },
-      }, {
-        selector: "edge:selected",
-        style: {
-          "line-color": "#EB5325",
+        {
+          selector: 'edge.highlight',
+          style: {
+            'width': 5,
+            'line-color': '#0EA5E9',
+            'target-arrow-color': '#0EA5E9',
+            'opacity': 1,
+            'z-index': 9999,
+            'transition-property': 'width line-color target-arrow-color',
+            'transition-duration': '0.35s',
+            'transition-timing-function': 'cubic-bezier(0.4, 0, 0.2, 1)'
+          }
         }
-      }] : []),
+      ]),
       layout: { name: "preset" },
       zoom: 1.5,
       minZoom: 0.6,
@@ -979,18 +1129,23 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
       document.body.style.cursor = "pointer";
       setNodeHovered(true);
       setHoveredId(evt.target.id());
+      dispatch(setHoverState(true));
+      dispatch(setHoverId(evt.target.id()));
+      // console.log("Hovered ID set to:", evt.target.id());
     };
 
     const handleOut = (evt) => {
       // Only proceed with hiding if we're leaving the active node
       if (evt.target.id() === hoveredIdRef.current) {
         document.body.style.cursor = "default";
+        dispatch(setHoverState(false));
         setNodeHovered(false);
       }
     };
 
     const handleLeave = (_) => {
       document.body.style.cursor = "default";
+      dispatch(setHoverState(false));
       setNodeHovered(false);
     };
 
@@ -1036,8 +1191,10 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
 
     return () => {
       document.body.style.cursor = "default";
-      cyRef.current.removeAllListeners();
-      cyRef.current?.container().removeEventListener("mouseleave", handleLeave);
+      cyRef.current?.removeAllListeners();
+      cyRef.current?.container()?.removeEventListener("mouseleave", handleLeave);
+      cyRef.current?.destroy();
+      cyRef.current = null;
     };
   }, [queryResultPage]);
 
@@ -1060,20 +1217,23 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
   return (
     <div style={
       !expanded ?
-        { display: "flex", flexDirection: "column", gap: "16px", position: "relative", justifyContent: "flex-start", ...sx }
+        { display: "flex", flexDirection: "column", position: "relative", justifyContent: "flex-start", width: "100%", height: "100%", ...sx }
         // position whole page, on top
         : { position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "white", display: "flex", flexDirection: "column", gap: "16px", padding: "0px", ...sx, zIndex: 9999 }
     }>
+      {expanded && <SearchBox />}
       <div
-        id="cy-container"
+        ref={containerRef}
         style={{
           ...{
             width: "100%",
-            height: "600px",
-            backgroundColor: "#F9FAFB",
+            height: containerHeight,
+            backgroundColor: "transparent",
             border: "none",
             borderRadius: "8px",
             position: "relative",
+            flex: 1,
+            minHeight: 0,
           }, ...(expanded ? { height: "100%", borderRadius: "0px" } : {})
         }}
       >
@@ -1162,7 +1322,6 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
         </Typography>
       </Box>
       <div
-        id="infocard"
         ref={infocardRef}
         onMouseEnter={() => {
           setInfocardHovered(true);
@@ -1211,7 +1370,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
             zIndex: 10,
             userSelect: "none",
             height: "fit-content",
-            width: legendVisible ? "380px" : "100px",
+            width: legendVisible ? "380px" : "110px",
             transition: "width 0.3s, height 0.3s, opacity 0.3s, box-shadow 0.3s",
           }}
         >
@@ -1222,7 +1381,12 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
             </div>
             <IconButton
               onClick={() => setLegendVisible(!legendVisible)}
-              style={{ padding: "8px", margin: "-8px" }}
+              style={{
+                padding: "4px",
+                width: "28px",
+                height: "28px",
+                borderRadius: "50%",
+              }}
             >
               {legendVisible ? (
                 <KeyboardArrowLeftIcon style={{ color: "#172A3A", fontSize: "20px" }} />

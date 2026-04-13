@@ -34,10 +34,15 @@ export const queryAiAgent = createAsyncThunk(
       };
     }
 
+    const normalizedPayload = {
+      ...(payload || {}),
+      agent_name: "pankbase",
+    };
+
     try {
       const response = await axios.post(
         "https://agent.pankgraph.org/query",
-        payload,
+        normalizedPayload,
         {
           headers: {
             "Content-Type": "application/json",

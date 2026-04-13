@@ -1,0 +1,22 @@
+{
+  "critical_error": {
+    "title": "Critical Error",
+    "content": "A critical issue occurred while processing your request. Please try again. If this keeps happening, contact support.",
+    "image": "agent_error.png"
+  },
+  "planning_failed": {
+    "title": "Planning Failed",
+    "content": "The planner could not generate or revise a valid execution plan. Please adjust your query and try again.",
+    "image": "agent_error.png"
+  },
+  "time_out": {
+    "title": "Time Out",
+    "content": "The request took too long to complete and timed out. Please try again with a simpler query.",
+    "image": "agent_error.png"
+  },
+  "fail_to_give_answer": {
+    "title": "Fail to Give Answer",
+    "content": "The agent completed processing but did not return a usable final answer. Please retry.",
+    "image": "agent_error.png"
+  }
+}

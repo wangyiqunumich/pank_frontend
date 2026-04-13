@@ -1,8 +1,12 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { flaskBackendAxiosInstanceNew } from "../axios/axios";
-import { QueryStatus } from "@reduxjs/toolkit/query";
+import {
+    createAsyncThunk,
+    createSlice,
+} from '@reduxjs/toolkit';
+import { QueryStatus } from '@reduxjs/toolkit/query';
 
+import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 
+// Unused
 export const queryVocab = createAsyncThunk("/inputToVocab",
     async (payload) => {
         return await flaskBackendAxiosInstanceNew
