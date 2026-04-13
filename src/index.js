@@ -73,7 +73,10 @@ root.render(
               <Route path="/docs/*" element={<DocPage />} />
               <Route path="/match" element={<MatchPage />} />
               <Route path="/review/*" element={<ReviewPage />} />
-              <Route path="/agent-landing" element={<AgentLandingPage />} />
+              <Route
+                path="/agent-landing"
+                element={isDevelopmentStage ? <AgentLandingPage /> : <Navigate to="/" replace />}
+              />
               <Route path="/result2" element={<ResultPage2 />} />
               <Route path="/" element={<LandingPage />} />
               <Route
