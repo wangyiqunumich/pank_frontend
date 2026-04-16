@@ -283,8 +283,8 @@ function AgentLandingPage() {
                             </Box>
                         </Typography>
                         <Typography sx={{ mt: 2, fontFamily: 'Inter', fontWeight: 400, fontSize: 18, lineHeight: 1.625, color: '#4C6261' }}>
-                            Explore our comprehensive database of T1D–related data,
-                            knowledge, and insights. Simply type your question—our
+                            Explore our comprehensive database of T1D–related data,<br />
+                            knowledge, and insights. Simply type your question—our<br />
                             PanKgraph agent finds the answers.
                         </Typography>
                     </Box>
