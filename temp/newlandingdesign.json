@@ -1,0 +1,2216 @@
+{
+    "$comment": "This is structural design data exported by the Figma Raw plugin. It is formatted to help LLMs (Large Language Models) understand design structures and components from Figma designs.",
+    "name": "Landing Page-search",
+    "type": "FRAME",
+    "width": 1728,
+    "height": 1117,
+    "layoutMode": "NONE",
+    "primaryAxisSizingMode": "AUTO",
+    "counterAxisSizingMode": "FIXED",
+    "primaryAxisAlignItems": "MIN",
+    "counterAxisAlignItems": "MIN",
+    "fills": [
+        {
+            "type": "SOLID",
+            "opacity": 1,
+            "color": {
+                "r": 1,
+                "g": 1,
+                "b": 1,
+                "a": 1,
+                "hex": "#ffffff"
+            }
+        }
+    ],
+    "strokeWeight": 1,
+    "strokeAlign": "INSIDE",
+    "strokeCap": "NONE",
+    "strokeJoin": "MITER",
+    "children": [
+        {
+            "name": "Rectangle 3458",
+            "type": "RECTANGLE",
+            "width": 1449,
+            "height": 813,
+            "fills": [
+                {
+                    "type": "SOLID",
+                    "opacity": 1,
+                    "color": {
+                        "r": 0.9490196108818054,
+                        "g": 0.9803921580314636,
+                        "b": 0.9843137264251709,
+                        "a": 1,
+                        "hex": "#f2fafb"
+                    }
+                }
+            ],
+            "strokeWeight": 1,
+            "strokeAlign": "INSIDE",
+            "strokeCap": "NONE",
+            "strokeJoin": "MITER"
+        },
+        {
+            "name": "image 14",
+            "type": "RECTANGLE",
+            "skippedByOptimize": true
+        },
+        {
+            "name": "Visual",
+            "type": "TEXT",
+            "skippedByOptimize": true
+        },
+        {
+            "name": "Label Container",
+            "type": "FRAME",
+            "width": 93,
+            "height": 2,
+            "layoutMode": "HORIZONTAL",
+            "primaryAxisSizingMode": "AUTO",
+            "counterAxisSizingMode": "FIXED",
+            "primaryAxisAlignItems": "MIN",
+            "counterAxisAlignItems": "CENTER",
+            "paddingLeft": 4,
+            "paddingRight": 4,
+            "itemSpacing": 10,
+            "fills": [
+                {
+                    "name": "Variable #918:337",
+                    "fullName": "Variable #918:337",
+                    "notFound": true,
+                    "actualValue": {
+                        "type": "SOLID",
+                        "opacity": 1,
+                        "color": {
+                            "r": 1,
+                            "g": 1,
+                            "b": 1,
+                            "a": 1,
+                            "hex": "#ffffff"
+                        }
+                    }
+                }
+            ],
+            "strokeWeight": 1,
+            "strokeAlign": "INSIDE",
+            "strokeCap": "NONE",
+            "strokeJoin": "MITER",
+            "variables": {
+                "fills": [
+                    {
+                        "name": "Variable #918:337",
+                        "fullName": "Variable #918:337",
+                        "notFound": true,
+                        "actualValue": {
+                            "type": "SOLID",
+                            "opacity": 1,
+                            "color": {
+                                "r": 1,
+                                "g": 1,
+                                "b": 1,
+                                "a": 1,
+                                "hex": "#ffffff"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "PanKbase.org",
+            "type": "TEXT",
+            "width": 170,
+            "height": 38,
+            "fills": [
+                {
+                    "type": "SOLID",
+                    "opacity": 1,
+                    "color": {
+                        "r": 1,
+                        "g": 1,
+                        "b": 1,
+                        "a": 1,
+                        "hex": "#ffffff"
+                    }
+                }
+            ],
+            "strokeWeight": 1,
+            "strokeAlign": "OUTSIDE",
+            "strokeCap": "NONE",
+            "strokeJoin": "MITER",
+            "characters": "PanKbase.org",
+            "fontSize": 28,
+            "fontName": {
+                "family": "Open Sans",
+                "style": "Italic"
+            },
+            "fontWeight": 400,
+            "letterSpacing": {
+                "unit": "PERCENT",
+                "value": 0
+            },
+            "lineHeight": {
+                "unit": "AUTO"
+            },
+            "textAlignHorizontal": "LEFT",
+            "textAlignVertical": "TOP",
+            "textAutoResize": "WIDTH_AND_HEIGHT",
+            "textCase": "ORIGINAL",
+            "textDecoration": "NONE"
+        },
+        {
+            "name": "image 63",
+            "type": "RECTANGLE",
+            "width": 1730,
+            "height": 86,
+            "fills": [
+                {
+                    "type": "IMAGE",
+                    "opacity": 1,
+                    "imageHash": "d3975ca293e1eb95a19cfa427fddc47dd5bc3677",
+                    "scaleMode": "FILL",
+                    "imageTransform": [
+                        [
+                            1,
+                            0,
+                            0
+                        ],
+                        [
+                            0,
+                            1,
+                            0
+                        ]
+                    ]
+                }
+            ],
+            "strokeWeight": 1,
+            "strokeAlign": "INSIDE",
+            "strokeCap": "NONE",
+            "strokeJoin": "MITER"
+        },
+        {
+            "name": "Rectangle 44",
+            "type": "VECTOR",
+            "width": 115,
+            "height": 33,
+            "cornerRadius": 10,
+            "fills": [
+                {
+                    "type": "SOLID",
+                    "opacity": 1,
+                    "color": {
+                        "r": 0.8941176533699036,
+                        "g": 0.9411764740943909,
+                        "b": 0.9450980424880981,
+                        "a": 1,
+                        "hex": "#e4f0f1"
+                    }
+                }
+            ],
+            "strokeWeight": 1,
+            "strokeAlign": "INSIDE",
+            "strokeCap": "NONE",
+            "strokeJoin": "MITER"
+        },
+        {
+            "name": "PanKgraph",
+            "type": "TEXT",
+            "width": 96,
+            "height": 25,
+            "fills": [
+                {
+                    "type": "SOLID",
+                    "opacity": 1,
+                    "color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0,
+                        "a": 1,
+                        "hex": "#000000"
+                    }
+                }
+            ],
+            "strokeWeight": 1,
+            "strokeAlign": "OUTSIDE",
+            "strokeCap": "NONE",
+            "strokeJoin": "MITER",
+            "characters": "PanKgraph",
+            "fontSize": 18,
+            "fontName": {
+                "family": "Open Sans",
+                "style": "SemiBold"
+            },
+            "fontWeight": 600,
+            "letterSpacing": {
+                "unit": "PERCENT",
+                "value": 0
+            },
+            "lineHeight": {
+                "unit": "AUTO"
+            },
+            "textAlignHorizontal": "LEFT",
+            "textAlignVertical": "TOP",
+            "textAutoResize": "WIDTH_AND_HEIGHT",
+            "textCase": "ORIGINAL",
+            "textDecoration": "NONE"
+        },
+        {
+            "name": "image 94",
+            "type": "RECTANGLE",
+            "width": 311,
+            "height": 77,
+            "fills": [
+                {
+                    "type": "IMAGE",
+                    "opacity": 1,
+                    "imageHash": "e82d3b794732726e258e2a3d82a247377d691e30",
+                    "scaleMode": "FILL",
+                    "imageTransform": [
+                        [
+                            1,
+                            0,
+                            0
+                        ],
+                        [
+                            0,
+                            1,
+                            0
+                        ]
+                    ]
+                }
+            ],
+            "strokeWeight": 1,
+            "strokeAlign": "INSIDE",
+            "strokeCap": "NONE",
+            "strokeJoin": "MITER"
+        },
+        {
+            "name": "image 96",
+            "type": "RECTANGLE",
+            "width": 718,
+            "height": 85,
+            "strokeWeight": 1,
+            "strokeAlign": "INSIDE",
+            "strokeCap": "NONE",
+            "strokeJoin": "MITER"
+        },
+        {
+            "name": "image 97",
+            "type": "RECTANGLE",
+            "width": 1729,
+            "height": 220,
+            "fills": [
+                {
+                    "type": "IMAGE",
+                    "opacity": 1,
+                    "imageHash": "c8d2e493f94c5b44054abf9d5642430e2c84774b",
+                    "scaleMode": "FILL",
+                    "imageTransform": [
+                        [
+                            1,
+                            0,
+                            0
+                        ],
+                        [
+                            0,
+                            1,
+                            0
+                        ]
+                    ]
+                }
+            ],
+            "strokeWeight": 1,
+            "strokeAlign": "INSIDE",
+            "strokeCap": "NONE",
+            "strokeJoin": "MITER"
+        },
+        {
+            "name": "Aside - SideNavBar Anchor",
+            "type": "FRAME",
+            "width": 288,
+            "height": 813,
+            "layoutMode": "VERTICAL",
+            "primaryAxisSizingMode": "FIXED",
+            "counterAxisSizingMode": "FIXED",
+            "primaryAxisAlignItems": "MIN",
+            "counterAxisAlignItems": "MIN",
+            "paddingLeft": 24,
+            "paddingRight": 24,
+            "paddingTop": 24,
+            "paddingBottom": 24,
+            "itemSpacing": 8,
+            "fills": [
+                {
+                    "type": "SOLID",
+                    "opacity": 1,
+                    "color": {
+                        "r": 0.9411764740943909,
+                        "g": 0.95686274766922,
+                        "b": 0.95686274766922,
+                        "a": 1,
+                        "hex": "#f0f4f4"
+                    }
+                }
+            ],
+            "strokeWeight": 1,
+            "strokeAlign": "INSIDE",
+            "strokeCap": "NONE",
+            "strokeJoin": "MITER",
+            "children": [
+                {
+                    "name": "Aside - SideNavBar Anchor:shadow",
+                    "type": "RECTANGLE",
+                    "width": 288,
+                    "height": 1024,
+                    "fills": [
+                        {
+                            "type": "SOLID",
+                            "opacity": 0.0020000000949949026,
+                            "color": {
+                                "r": 1,
+                                "g": 1,
+                                "b": 1,
+                                "a": 0.0020000000949949026,
+                                "hex": "#ffffff01"
+                            }
+                        }
+                    ],
+                    "strokeWeight": 1,
+                    "strokeAlign": "INSIDE",
+                    "strokeCap": "NONE",
+                    "strokeJoin": "MITER",
+                    "effects": [
+                        {
+                            "type": "DROP_SHADOW",
+                            "radius": 64,
+                            "spread": -20,
+                            "offset": {
+                                "x": 32,
+                                "y": 0
+                            },
+                            "color": {
+                                "r": 0,
+                                "g": 0.4156862795352936,
+                                "b": 0.4156862795352936,
+                                "a": 0.03999999910593033,
+                                "hex": "#006a6a0a"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Margin",
+                    "type": "FRAME",
+                    "width": 240,
+                    "height": 40,
+                    "layoutMode": "VERTICAL",
+                    "primaryAxisSizingMode": "AUTO",
+                    "counterAxisSizingMode": "FIXED",
+                    "primaryAxisAlignItems": "MIN",
+                    "counterAxisAlignItems": "MIN",
+                    "paddingBottom": 12,
+                    "strokeWeight": 1,
+                    "strokeAlign": "INSIDE",
+                    "strokeCap": "NONE",
+                    "strokeJoin": "MITER",
+                    "children": [
+                        {
+                            "name": "Container",
+                            "type": "FRAME",
+                            "width": 240,
+                            "height": 28,
+                            "layoutMode": "HORIZONTAL",
+                            "primaryAxisSizingMode": "FIXED",
+                            "counterAxisSizingMode": "AUTO",
+                            "primaryAxisAlignItems": "MIN",
+                            "counterAxisAlignItems": "CENTER",
+                            "itemSpacing": 12,
+                            "strokeWeight": 1,
+                            "strokeAlign": "INSIDE",
+                            "strokeCap": "NONE",
+                            "strokeJoin": "MITER",
+                            "children": [
+                                {
+                                    "name": "Container",
+                                    "type": "FRAME",
+                                    "width": 70.19000244140625,
+                                    "height": 28,
+                                    "layoutMode": "VERTICAL",
+                                    "primaryAxisSizingMode": "AUTO",
+                                    "counterAxisSizingMode": "FIXED",
+                                    "primaryAxisAlignItems": "MIN",
+                                    "counterAxisAlignItems": "MIN",
+                                    "strokeWeight": 1,
+                                    "strokeAlign": "INSIDE",
+                                    "strokeCap": "NONE",
+                                    "strokeJoin": "MITER",
+                                    "children": [
+                                        {
+                                            "name": "Heading 2",
+                                            "type": "FRAME",
+                                            "width": 70.19000244140625,
+                                            "height": 28,
+                                            "layoutMode": "VERTICAL",
+                                            "primaryAxisSizingMode": "AUTO",
+                                            "counterAxisSizingMode": "FIXED",
+                                            "primaryAxisAlignItems": "MIN",
+                                            "counterAxisAlignItems": "MIN",
+                                            "strokeWeight": 1,
+                                            "strokeAlign": "INSIDE",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "MITER"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "Nav",
+                    "type": "FRAME",
+                    "width": 240,
+                    "height": 641,
+                    "layoutMode": "VERTICAL",
+                    "primaryAxisSizingMode": "FIXED",
+                    "counterAxisSizingMode": "FIXED",
+                    "primaryAxisAlignItems": "MIN",
+                    "counterAxisAlignItems": "MIN",
+                    "itemSpacing": 4,
+                    "strokeWeight": 1,
+                    "strokeAlign": "INSIDE",
+                    "strokeCap": "NONE",
+                    "strokeJoin": "MITER",
+                    "children": [
+                        {
+                            "name": "Link - Active State Mapping: New Chat",
+                            "type": "FRAME",
+                            "width": 240,
+                            "height": 44,
+                            "cornerRadius": 9999,
+                            "layoutMode": "HORIZONTAL",
+                            "primaryAxisSizingMode": "FIXED",
+                            "counterAxisSizingMode": "AUTO",
+                            "primaryAxisAlignItems": "MIN",
+                            "counterAxisAlignItems": "CENTER",
+                            "paddingLeft": 16,
+                            "paddingRight": 16,
+                            "paddingTop": 12,
+                            "paddingBottom": 12,
+                            "itemSpacing": 12,
+                            "fills": [
+                                {
+                                    "type": "SOLID",
+                                    "opacity": 1,
+                                    "color": {
+                                        "r": 1,
+                                        "g": 1,
+                                        "b": 1,
+                                        "a": 1,
+                                        "hex": "#ffffff"
+                                    }
+                                }
+                            ],
+                            "strokeWeight": 1,
+                            "strokeAlign": "INSIDE",
+                            "strokeCap": "NONE",
+                            "strokeJoin": "MITER",
+                            "effects": [
+                                {
+                                    "type": "DROP_SHADOW",
+                                    "radius": 2,
+                                    "spread": 0,
+                                    "offset": {
+                                        "x": 0,
+                                        "y": 1
+                                    },
+                                    "color": {
+                                        "r": 0,
+                                        "g": 0,
+                                        "b": 0,
+                                        "a": 0.05000000074505806,
+                                        "hex": "#0000000d"
+                                    }
+                                }
+                            ],
+                            "children": [
+                                {
+                                    "name": "Container",
+                                    "type": "FRAME",
+                                    "width": 20,
+                                    "height": 20,
+                                    "layoutMode": "VERTICAL",
+                                    "primaryAxisSizingMode": "AUTO",
+                                    "counterAxisSizingMode": "AUTO",
+                                    "primaryAxisAlignItems": "MIN",
+                                    "counterAxisAlignItems": "MIN",
+                                    "strokeWeight": 1,
+                                    "strokeAlign": "INSIDE",
+                                    "strokeCap": "NONE",
+                                    "strokeJoin": "MITER",
+                                    "children": [
+                                        {
+                                            "name": "Icon",
+                                            "type": "VECTOR",
+                                            "width": 20,
+                                            "height": 20,
+                                            "fills": [
+                                                {
+                                                    "type": "SOLID",
+                                                    "opacity": 1,
+                                                    "color": {
+                                                        "r": 0,
+                                                        "g": 0.40392157435417175,
+                                                        "b": 0.4000000059604645,
+                                                        "a": 1,
+                                                        "hex": "#006766"
+                                                    }
+                                                }
+                                            ],
+                                            "strokeWeight": 0,
+                                            "strokeAlign": "CENTER",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "BEVEL"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "Text",
+                                    "type": "TEXT",
+                                    "width": 65.33000183105469,
+                                    "height": 20,
+                                    "fills": [
+                                        {
+                                            "type": "SOLID",
+                                            "opacity": 1,
+                                            "color": {
+                                                "r": 0,
+                                                "g": 0.40392157435417175,
+                                                "b": 0.4000000059604645,
+                                                "a": 1,
+                                                "hex": "#006766"
+                                            }
+                                        }
+                                    ],
+                                    "strokeWeight": 1,
+                                    "strokeAlign": "OUTSIDE",
+                                    "strokeCap": "NONE",
+                                    "strokeJoin": "MITER",
+                                    "characters": "New Chat",
+                                    "fontSize": 14,
+                                    "fontName": {
+                                        "family": "Inter",
+                                        "style": "Medium"
+                                    },
+                                    "fontWeight": 500,
+                                    "letterSpacing": {
+                                        "unit": "PIXELS",
+                                        "value": 0
+                                    },
+                                    "lineHeight": {
+                                        "unit": "PIXELS",
+                                        "value": 20
+                                    },
+                                    "textAlignHorizontal": "LEFT",
+                                    "textAlignVertical": "CENTER",
+                                    "textAutoResize": "NONE",
+                                    "textCase": "ORIGINAL",
+                                    "textDecoration": "NONE"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Link",
+                            "type": "FRAME",
+                            "width": 240,
+                            "height": 44,
+                            "cornerRadius": 9999,
+                            "layoutMode": "HORIZONTAL",
+                            "primaryAxisSizingMode": "FIXED",
+                            "counterAxisSizingMode": "AUTO",
+                            "primaryAxisAlignItems": "MIN",
+                            "counterAxisAlignItems": "CENTER",
+                            "paddingLeft": 16,
+                            "paddingRight": 16,
+                            "paddingTop": 12,
+                            "paddingBottom": 12,
+                            "itemSpacing": 12,
+                            "strokeWeight": 1,
+                            "strokeAlign": "INSIDE",
+                            "strokeCap": "NONE",
+                            "strokeJoin": "MITER",
+                            "children": [
+                                {
+                                    "name": "Container",
+                                    "type": "FRAME",
+                                    "width": 22,
+                                    "height": 19,
+                                    "layoutMode": "VERTICAL",
+                                    "primaryAxisSizingMode": "AUTO",
+                                    "counterAxisSizingMode": "AUTO",
+                                    "primaryAxisAlignItems": "MIN",
+                                    "counterAxisAlignItems": "MIN",
+                                    "strokeWeight": 1,
+                                    "strokeAlign": "INSIDE",
+                                    "strokeCap": "NONE",
+                                    "strokeJoin": "MITER",
+                                    "children": [
+                                        {
+                                            "name": "Icon",
+                                            "type": "VECTOR",
+                                            "width": 22,
+                                            "height": 19,
+                                            "fills": [
+                                                {
+                                                    "type": "SOLID",
+                                                    "opacity": 1,
+                                                    "color": {
+                                                        "r": 0.3529411852359772,
+                                                        "g": 0.3803921639919281,
+                                                        "b": 0.3803921639919281,
+                                                        "a": 1,
+                                                        "hex": "#5a6161"
+                                                    }
+                                                }
+                                            ],
+                                            "strokeWeight": 0,
+                                            "strokeAlign": "CENTER",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "BEVEL"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "Text",
+                                    "type": "TEXT",
+                                    "width": 64.30000305175781,
+                                    "height": 20,
+                                    "fills": [
+                                        {
+                                            "type": "SOLID",
+                                            "opacity": 1,
+                                            "color": {
+                                                "r": 0.3529411852359772,
+                                                "g": 0.3803921639919281,
+                                                "b": 0.3803921639919281,
+                                                "a": 1,
+                                                "hex": "#5a6161"
+                                            }
+                                        }
+                                    ],
+                                    "strokeWeight": 1,
+                                    "strokeAlign": "OUTSIDE",
+                                    "strokeCap": "NONE",
+                                    "strokeJoin": "MITER",
+                                    "characters": "Subagent",
+                                    "fontSize": 14,
+                                    "fontName": {
+                                        "family": "Inter",
+                                        "style": "Medium"
+                                    },
+                                    "fontWeight": 500,
+                                    "letterSpacing": {
+                                        "unit": "PIXELS",
+                                        "value": 0
+                                    },
+                                    "lineHeight": {
+                                        "unit": "PIXELS",
+                                        "value": 20
+                                    },
+                                    "textAlignHorizontal": "LEFT",
+                                    "textAlignVertical": "CENTER",
+                                    "textAutoResize": "NONE",
+                                    "textCase": "ORIGINAL",
+                                    "textDecoration": "NONE"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Link",
+                            "type": "FRAME",
+                            "width": 240,
+                            "height": 44,
+                            "cornerRadius": 9999,
+                            "layoutMode": "HORIZONTAL",
+                            "primaryAxisSizingMode": "FIXED",
+                            "counterAxisSizingMode": "AUTO",
+                            "primaryAxisAlignItems": "MIN",
+                            "counterAxisAlignItems": "CENTER",
+                            "paddingLeft": 16,
+                            "paddingRight": 16,
+                            "paddingTop": 12,
+                            "paddingBottom": 12,
+                            "itemSpacing": 12,
+                            "strokeWeight": 1,
+                            "strokeAlign": "INSIDE",
+                            "strokeCap": "NONE",
+                            "strokeJoin": "MITER",
+                            "children": [
+                                {
+                                    "name": "Container",
+                                    "type": "FRAME",
+                                    "width": 18,
+                                    "height": 18,
+                                    "layoutMode": "VERTICAL",
+                                    "primaryAxisSizingMode": "AUTO",
+                                    "counterAxisSizingMode": "AUTO",
+                                    "primaryAxisAlignItems": "MIN",
+                                    "counterAxisAlignItems": "MIN",
+                                    "strokeWeight": 1,
+                                    "strokeAlign": "INSIDE",
+                                    "strokeCap": "NONE",
+                                    "strokeJoin": "MITER",
+                                    "children": [
+                                        {
+                                            "name": "Icon",
+                                            "type": "VECTOR",
+                                            "width": 18,
+                                            "height": 18,
+                                            "fills": [
+                                                {
+                                                    "type": "SOLID",
+                                                    "opacity": 1,
+                                                    "color": {
+                                                        "r": 0.3529411852359772,
+                                                        "g": 0.3803921639919281,
+                                                        "b": 0.3803921639919281,
+                                                        "a": 1,
+                                                        "hex": "#5a6161"
+                                                    }
+                                                }
+                                            ],
+                                            "strokeWeight": 0,
+                                            "strokeAlign": "CENTER",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "BEVEL"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "Text",
+                                    "type": "TEXT",
+                                    "width": 46.59000015258789,
+                                    "height": 20,
+                                    "fills": [
+                                        {
+                                            "type": "SOLID",
+                                            "opacity": 1,
+                                            "color": {
+                                                "r": 0.3529411852359772,
+                                                "g": 0.3803921639919281,
+                                                "b": 0.3803921639919281,
+                                                "a": 1,
+                                                "hex": "#5a6161"
+                                            }
+                                        }
+                                    ],
+                                    "strokeWeight": 1,
+                                    "strokeAlign": "OUTSIDE",
+                                    "strokeCap": "NONE",
+                                    "strokeJoin": "MITER",
+                                    "characters": "Recent",
+                                    "fontSize": 14,
+                                    "fontName": {
+                                        "family": "Inter",
+                                        "style": "Medium"
+                                    },
+                                    "fontWeight": 500,
+                                    "letterSpacing": {
+                                        "unit": "PIXELS",
+                                        "value": 0
+                                    },
+                                    "lineHeight": {
+                                        "unit": "PIXELS",
+                                        "value": 20
+                                    },
+                                    "textAlignHorizontal": "LEFT",
+                                    "textAlignVertical": "CENTER",
+                                    "textAutoResize": "NONE",
+                                    "textCase": "ORIGINAL",
+                                    "textDecoration": "NONE"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "Container",
+                    "type": "FRAME",
+                    "width": 240,
+                    "height": 68,
+                    "layoutMode": "VERTICAL",
+                    "primaryAxisSizingMode": "AUTO",
+                    "counterAxisSizingMode": "FIXED",
+                    "primaryAxisAlignItems": "MIN",
+                    "counterAxisAlignItems": "MIN",
+                    "paddingTop": 24,
+                    "itemSpacing": 16,
+                    "strokeWeight": 1,
+                    "strokeAlign": "INSIDE",
+                    "strokeCap": "NONE",
+                    "strokeJoin": "MITER",
+                    "children": [
+                        {
+                            "name": "Link",
+                            "type": "FRAME",
+                            "width": 240,
+                            "height": 44,
+                            "cornerRadius": 9999,
+                            "layoutMode": "HORIZONTAL",
+                            "primaryAxisSizingMode": "FIXED",
+                            "counterAxisSizingMode": "AUTO",
+                            "primaryAxisAlignItems": "MIN",
+                            "counterAxisAlignItems": "CENTER",
+                            "paddingLeft": 16,
+                            "paddingRight": 16,
+                            "paddingTop": 12,
+                            "paddingBottom": 12,
+                            "itemSpacing": 12,
+                            "strokeWeight": 1,
+                            "strokeAlign": "INSIDE",
+                            "strokeCap": "NONE",
+                            "strokeJoin": "MITER",
+                            "children": [
+                                {
+                                    "name": "Container",
+                                    "type": "FRAME",
+                                    "width": 20.100000381469727,
+                                    "height": 20,
+                                    "layoutMode": "VERTICAL",
+                                    "primaryAxisSizingMode": "AUTO",
+                                    "counterAxisSizingMode": "AUTO",
+                                    "primaryAxisAlignItems": "MIN",
+                                    "counterAxisAlignItems": "MIN",
+                                    "strokeWeight": 1,
+                                    "strokeAlign": "INSIDE",
+                                    "strokeCap": "NONE",
+                                    "strokeJoin": "MITER",
+                                    "children": [
+                                        {
+                                            "name": "Icon",
+                                            "type": "VECTOR",
+                                            "width": 20.100000381469727,
+                                            "height": 20,
+                                            "fills": [
+                                                {
+                                                    "type": "SOLID",
+                                                    "opacity": 1,
+                                                    "color": {
+                                                        "r": 0.3529411852359772,
+                                                        "g": 0.3803921639919281,
+                                                        "b": 0.3803921639919281,
+                                                        "a": 1,
+                                                        "hex": "#5a6161"
+                                                    }
+                                                }
+                                            ],
+                                            "strokeWeight": 0,
+                                            "strokeAlign": "CENTER",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "BEVEL"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "Text",
+                                    "type": "TEXT",
+                                    "width": 100.36000061035156,
+                                    "height": 20,
+                                    "fills": [
+                                        {
+                                            "type": "SOLID",
+                                            "opacity": 1,
+                                            "color": {
+                                                "r": 0.3529411852359772,
+                                                "g": 0.3803921639919281,
+                                                "b": 0.3803921639919281,
+                                                "a": 1,
+                                                "hex": "#5a6161"
+                                            }
+                                        }
+                                    ],
+                                    "strokeWeight": 1,
+                                    "strokeAlign": "OUTSIDE",
+                                    "strokeCap": "NONE",
+                                    "strokeJoin": "MITER",
+                                    "characters": "Settings & help",
+                                    "fontSize": 14,
+                                    "fontName": {
+                                        "family": "Inter",
+                                        "style": "Medium"
+                                    },
+                                    "fontWeight": 500,
+                                    "letterSpacing": {
+                                        "unit": "PIXELS",
+                                        "value": 0
+                                    },
+                                    "lineHeight": {
+                                        "unit": "PIXELS",
+                                        "value": 20
+                                    },
+                                    "textAlignHorizontal": "LEFT",
+                                    "textAlignVertical": "CENTER",
+                                    "textAutoResize": "NONE",
+                                    "textCase": "ORIGINAL",
+                                    "textDecoration": "NONE"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Centered Chat Interface",
+            "type": "FRAME",
+            "width": 1441,
+            "height": 811,
+            "layoutMode": "VERTICAL",
+            "primaryAxisSizingMode": "FIXED",
+            "counterAxisSizingMode": "FIXED",
+            "primaryAxisAlignItems": "CENTER",
+            "counterAxisAlignItems": "CENTER",
+            "paddingLeft": 24,
+            "paddingRight": 24,
+            "strokeWeight": 1,
+            "strokeAlign": "INSIDE",
+            "strokeCap": "NONE",
+            "strokeJoin": "MITER",
+            "children": [
+                {
+                    "name": "New Background Graphic using IMAGE_4",
+                    "type": "FRAME",
+                    "width": 1441,
+                    "height": 811,
+                    "layoutMode": "HORIZONTAL",
+                    "primaryAxisSizingMode": "FIXED",
+                    "counterAxisSizingMode": "FIXED",
+                    "primaryAxisAlignItems": "CENTER",
+                    "counterAxisAlignItems": "CENTER",
+                    "paddingTop": 80.30000305175781,
+                    "paddingBottom": 144.30999755859375,
+                    "strokeWeight": 1,
+                    "strokeAlign": "INSIDE",
+                    "strokeCap": "NONE",
+                    "strokeJoin": "MITER",
+                    "children": [
+                        {
+                            "name": "Pancreatic data visualization background",
+                            "type": "FRAME",
+                            "width": 992,
+                            "height": 670.3900146484375,
+                            "layoutMode": "NONE",
+                            "primaryAxisSizingMode": "AUTO",
+                            "counterAxisSizingMode": "AUTO",
+                            "primaryAxisAlignItems": "MIN",
+                            "counterAxisAlignItems": "MIN",
+                            "fills": [
+                                {
+                                    "type": "IMAGE",
+                                    "opacity": 1,
+                                    "imageHash": "2db8ec0e3201043fa5d9ec9ed3185d2bf4738784",
+                                    "scaleMode": "CROP",
+                                    "imageTransform": [
+                                        [
+                                            1.0000040531158447,
+                                            0,
+                                            -0.000002009325953622465
+                                        ],
+                                        [
+                                            0,
+                                            1,
+                                            0
+                                        ]
+                                    ]
+                                }
+                            ],
+                            "strokeWeight": 1,
+                            "strokeAlign": "INSIDE",
+                            "strokeCap": "NONE",
+                            "strokeJoin": "MITER"
+                        }
+                    ]
+                },
+                {
+                    "name": "Floating decorative background elements removed for cleaner integration of primary image",
+                    "type": "FRAME",
+                    "width": 768,
+                    "height": 546,
+                    "layoutMode": "VERTICAL",
+                    "primaryAxisSizingMode": "AUTO",
+                    "counterAxisSizingMode": "FIXED",
+                    "primaryAxisAlignItems": "MIN",
+                    "counterAxisAlignItems": "MIN",
+                    "itemSpacing": 32,
+                    "strokeWeight": 1,
+                    "strokeAlign": "INSIDE",
+                    "strokeCap": "NONE",
+                    "strokeJoin": "MITER",
+                    "children": [
+                        {
+                            "name": "Branding Context",
+                            "type": "FRAME",
+                            "width": 768,
+                            "height": 162,
+                            "layoutMode": "VERTICAL",
+                            "primaryAxisSizingMode": "AUTO",
+                            "counterAxisSizingMode": "FIXED",
+                            "primaryAxisAlignItems": "MIN",
+                            "counterAxisAlignItems": "CENTER",
+                            "itemSpacing": 16,
+                            "strokeWeight": 1,
+                            "strokeAlign": "INSIDE",
+                            "strokeCap": "NONE",
+                            "strokeJoin": "MITER",
+                            "children": [
+                                {
+                                    "name": "Heading 1",
+                                    "type": "FRAME",
+                                    "width": 768,
+                                    "height": 58,
+                                    "layoutMode": "VERTICAL",
+                                    "primaryAxisSizingMode": "AUTO",
+                                    "counterAxisSizingMode": "FIXED",
+                                    "primaryAxisAlignItems": "MIN",
+                                    "counterAxisAlignItems": "CENTER",
+                                    "strokeWeight": 1,
+                                    "strokeAlign": "INSIDE",
+                                    "strokeCap": "NONE",
+                                    "strokeJoin": "MITER",
+                                    "children": [
+                                        {
+                                            "name": "What would you like to explore?",
+                                            "type": "TEXT",
+                                            "width": 707,
+                                            "height": 58,
+                                            "fills": "Symbol(figma.mixed)",
+                                            "strokeWeight": 1,
+                                            "strokeAlign": "OUTSIDE",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "MITER",
+                                            "characters": "What would you like to explore?",
+                                            "fontSize": 48,
+                                            "fontName": {
+                                                "family": "Inter",
+                                                "style": "Black"
+                                            },
+                                            "fontWeight": 900,
+                                            "letterSpacing": "Symbol(figma.mixed)",
+                                            "lineHeight": "Symbol(figma.mixed)",
+                                            "textAlignHorizontal": "CENTER",
+                                            "textAlignVertical": "CENTER",
+                                            "textAutoResize": "WIDTH_AND_HEIGHT",
+                                            "textCase": "ORIGINAL",
+                                            "textDecoration": "NONE"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "Container",
+                                    "type": "FRAME",
+                                    "width": 576,
+                                    "height": 88,
+                                    "layoutMode": "VERTICAL",
+                                    "primaryAxisSizingMode": "AUTO",
+                                    "counterAxisSizingMode": "FIXED",
+                                    "primaryAxisAlignItems": "MIN",
+                                    "counterAxisAlignItems": "CENTER",
+                                    "strokeWeight": 1,
+                                    "strokeAlign": "INSIDE",
+                                    "strokeCap": "NONE",
+                                    "strokeJoin": "MITER",
+                                    "children": [
+                                        {
+                                            "name": "Explore our comprehensive database of T1D–related data, knowledge, and insights. Simply type your question—our PanKgraph agent finds the answers.",
+                                            "type": "TEXT",
+                                            "width": 576,
+                                            "height": 88,
+                                            "fills": [
+                                                {
+                                                    "type": "SOLID",
+                                                    "opacity": 1,
+                                                    "color": {
+                                                        "r": 0.2980392277240753,
+                                                        "g": 0.3843137323856354,
+                                                        "b": 0.3803921639919281,
+                                                        "a": 1,
+                                                        "hex": "#4c6261"
+                                                    }
+                                                }
+                                            ],
+                                            "strokeWeight": 1,
+                                            "strokeAlign": "OUTSIDE",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "MITER",
+                                            "characters": "Explore our comprehensive database of T1D–related data,\nknowledge, and insights. Simply type your question—our\nPanKgraph agent finds the answers.",
+                                            "fontSize": 18,
+                                            "fontName": {
+                                                "family": "Inter",
+                                                "style": "Regular"
+                                            },
+                                            "fontWeight": 400,
+                                            "letterSpacing": {
+                                                "unit": "PIXELS",
+                                                "value": 0
+                                            },
+                                            "lineHeight": {
+                                                "unit": "PIXELS",
+                                                "value": 29.25
+                                            },
+                                            "textAlignHorizontal": "CENTER",
+                                            "textAlignVertical": "CENTER",
+                                            "textAutoResize": "NONE",
+                                            "textCase": "ORIGINAL",
+                                            "textDecoration": "NONE"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Chat Input Shell (The \"Floating Tool\")",
+                            "type": "FRAME",
+                            "width": 768,
+                            "height": 117,
+                            "layoutMode": "VERTICAL",
+                            "primaryAxisSizingMode": "AUTO",
+                            "counterAxisSizingMode": "FIXED",
+                            "primaryAxisAlignItems": "MIN",
+                            "counterAxisAlignItems": "MIN",
+                            "paddingTop": 16,
+                            "strokeWeight": 1,
+                            "strokeAlign": "INSIDE",
+                            "strokeCap": "NONE",
+                            "strokeJoin": "MITER",
+                            "children": [
+                                {
+                                    "name": "Gradient+Blur",
+                                    "type": "RECTANGLE",
+                                    "width": 776,
+                                    "height": 109,
+                                    "cornerRadius": 48,
+                                    "fills": [
+                                        {
+                                            "type": "GRADIENT_LINEAR",
+                                            "opacity": 1,
+                                            "gradientType": "GRADIENT_LINEAR",
+                                            "gradientStops": [
+                                                {
+                                                    "position": 0,
+                                                    "color": {
+                                                        "r": 0,
+                                                        "g": 0.40392157435417175,
+                                                        "b": 0.4000000059604645,
+                                                        "a": 0.20000000298023224,
+                                                        "hex": "#00676633"
+                                                    }
+                                                },
+                                                {
+                                                    "position": 1,
+                                                    "color": {
+                                                        "r": 0,
+                                                        "g": 0.5098039507865906,
+                                                        "b": 0.5058823823928833,
+                                                        "a": 0.20000000298023224,
+                                                        "hex": "#00828133"
+                                                    }
+                                                }
+                                            ],
+                                            "gradientTransform": [
+                                                [
+                                                    1,
+                                                    0,
+                                                    0
+                                                ],
+                                                [
+                                                    0,
+                                                    1,
+                                                    0
+                                                ]
+                                            ]
+                                        }
+                                    ],
+                                    "strokeWeight": 1,
+                                    "strokeAlign": "INSIDE",
+                                    "strokeCap": "NONE",
+                                    "strokeJoin": "MITER",
+                                    "effects": [
+                                        {
+                                            "type": "LAYER_BLUR",
+                                            "radius": 8
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "Background+Border",
+                                    "type": "FRAME",
+                                    "width": 768,
+                                    "height": 101,
+                                    "cornerRadius": 48,
+                                    "layoutMode": "HORIZONTAL",
+                                    "primaryAxisSizingMode": "FIXED",
+                                    "counterAxisSizingMode": "AUTO",
+                                    "primaryAxisAlignItems": "MIN",
+                                    "counterAxisAlignItems": "CENTER",
+                                    "paddingLeft": 8,
+                                    "paddingRight": 8,
+                                    "paddingTop": 8,
+                                    "paddingBottom": 8,
+                                    "fills": [
+                                        {
+                                            "type": "SOLID",
+                                            "opacity": 1,
+                                            "color": {
+                                                "r": 1,
+                                                "g": 1,
+                                                "b": 1,
+                                                "a": 1,
+                                                "hex": "#ffffff"
+                                            }
+                                        }
+                                    ],
+                                    "strokes": [
+                                        {
+                                            "type": "SOLID",
+                                            "opacity": 0.10000000149011612,
+                                            "color": {
+                                                "r": 0.7411764860153198,
+                                                "g": 0.7882353067398071,
+                                                "b": 0.7843137383460999,
+                                                "a": 0.10000000149011612,
+                                                "hex": "#bdc9c81a"
+                                            }
+                                        }
+                                    ],
+                                    "strokeWeight": 1,
+                                    "strokeAlign": "INSIDE",
+                                    "strokeCap": "NONE",
+                                    "strokeJoin": "MITER",
+                                    "children": [
+                                        {
+                                            "name": "Overlay+Shadow",
+                                            "type": "RECTANGLE",
+                                            "width": 768,
+                                            "height": 101,
+                                            "cornerRadius": 48,
+                                            "fills": [
+                                                {
+                                                    "type": "SOLID",
+                                                    "opacity": 0.0020000000949949026,
+                                                    "color": {
+                                                        "r": 1,
+                                                        "g": 1,
+                                                        "b": 1,
+                                                        "a": 0.0020000000949949026,
+                                                        "hex": "#ffffff01"
+                                                    }
+                                                }
+                                            ],
+                                            "strokeWeight": 1,
+                                            "strokeAlign": "INSIDE",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "MITER",
+                                            "effects": [
+                                                {
+                                                    "type": "DROP_SHADOW",
+                                                    "radius": 10,
+                                                    "spread": -6,
+                                                    "offset": {
+                                                        "x": 0,
+                                                        "y": 8
+                                                    },
+                                                    "color": {
+                                                        "r": 0,
+                                                        "g": 0.40392157435417175,
+                                                        "b": 0.4000000059604645,
+                                                        "a": 0.05000000074505806,
+                                                        "hex": "#0067660d"
+                                                    }
+                                                },
+                                                {
+                                                    "type": "DROP_SHADOW",
+                                                    "radius": 25,
+                                                    "spread": -5,
+                                                    "offset": {
+                                                        "x": 0,
+                                                        "y": 20
+                                                    },
+                                                    "color": {
+                                                        "r": 0,
+                                                        "g": 0.40392157435417175,
+                                                        "b": 0.4000000059604645,
+                                                        "a": 0.05000000074505806,
+                                                        "hex": "#0067660d"
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "name": "Container",
+                                            "type": "FRAME",
+                                            "width": 42,
+                                            "height": 18,
+                                            "layoutMode": "VERTICAL",
+                                            "primaryAxisSizingMode": "AUTO",
+                                            "counterAxisSizingMode": "AUTO",
+                                            "primaryAxisAlignItems": "MIN",
+                                            "counterAxisAlignItems": "MIN",
+                                            "paddingLeft": 16,
+                                            "paddingRight": 8,
+                                            "strokeWeight": 1,
+                                            "strokeAlign": "INSIDE",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "MITER"
+                                        },
+                                        {
+                                            "name": "Input",
+                                            "type": "FRAME",
+                                            "width": 568.2166748046875,
+                                            "height": 83,
+                                            "layoutMode": "VERTICAL",
+                                            "primaryAxisSizingMode": "AUTO",
+                                            "counterAxisSizingMode": "FIXED",
+                                            "primaryAxisAlignItems": "MIN",
+                                            "counterAxisAlignItems": "MIN",
+                                            "paddingLeft": 12,
+                                            "paddingRight": 12,
+                                            "paddingTop": 19,
+                                            "paddingBottom": 20,
+                                            "strokeWeight": 1,
+                                            "strokeAlign": "INSIDE",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "MITER"
+                                        },
+                                        {
+                                            "name": "Button",
+                                            "type": "FRAME",
+                                            "width": 139.78334045410156,
+                                            "height": 48,
+                                            "cornerRadius": 32,
+                                            "layoutMode": "HORIZONTAL",
+                                            "primaryAxisSizingMode": "AUTO",
+                                            "counterAxisSizingMode": "AUTO",
+                                            "primaryAxisAlignItems": "MIN",
+                                            "counterAxisAlignItems": "CENTER",
+                                            "paddingLeft": 32,
+                                            "paddingRight": 32,
+                                            "paddingTop": 12,
+                                            "paddingBottom": 12,
+                                            "itemSpacing": 8,
+                                            "fills": [
+                                                {
+                                                    "type": "SOLID",
+                                                    "opacity": 1,
+                                                    "color": {
+                                                        "r": 0.12941177189350128,
+                                                        "g": 0.5686274766921997,
+                                                        "b": 0.5921568870544434,
+                                                        "a": 1,
+                                                        "hex": "#219197"
+                                                    }
+                                                }
+                                            ],
+                                            "strokeWeight": 1,
+                                            "strokeAlign": "INSIDE",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "MITER"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Quick-Start Bento Grid",
+                            "type": "FRAME",
+                            "width": 768,
+                            "height": 126,
+                            "layoutMode": "GRID",
+                            "primaryAxisSizingMode": "FIXED",
+                            "counterAxisSizingMode": "AUTO",
+                            "primaryAxisAlignItems": "MIN",
+                            "counterAxisAlignItems": "MIN",
+                            "strokeWeight": 1,
+                            "strokeAlign": "INSIDE",
+                            "strokeCap": "NONE",
+                            "strokeJoin": "MITER",
+                            "children": [
+                                {
+                                    "name": "Button",
+                                    "type": "FRAME",
+                                    "width": 180,
+                                    "height": 119,
+                                    "cornerRadius": 32,
+                                    "layoutMode": "VERTICAL",
+                                    "primaryAxisSizingMode": "AUTO",
+                                    "counterAxisSizingMode": "AUTO",
+                                    "primaryAxisAlignItems": "MIN",
+                                    "counterAxisAlignItems": "MIN",
+                                    "paddingLeft": 24,
+                                    "paddingRight": 58.939998626708984,
+                                    "paddingTop": 24,
+                                    "paddingBottom": 24,
+                                    "fills": [
+                                        {
+                                            "type": "SOLID",
+                                            "opacity": 0.800000011920929,
+                                            "color": {
+                                                "r": 0.9411764740943909,
+                                                "g": 0.95686274766922,
+                                                "b": 0.95686274766922,
+                                                "a": 0.800000011920929,
+                                                "hex": "#f0f4f4cc"
+                                            }
+                                        }
+                                    ],
+                                    "strokes": [
+                                        {
+                                            "type": "SOLID",
+                                            "opacity": 0.05000000074505806,
+                                            "color": {
+                                                "r": 0.7411764860153198,
+                                                "g": 0.7882353067398071,
+                                                "b": 0.7843137383460999,
+                                                "a": 0.05000000074505806,
+                                                "hex": "#bdc9c80d"
+                                            }
+                                        }
+                                    ],
+                                    "strokeWeight": 1,
+                                    "strokeAlign": "INSIDE",
+                                    "strokeCap": "NONE",
+                                    "strokeJoin": "MITER",
+                                    "effects": [
+                                        {
+                                            "type": "BACKGROUND_BLUR",
+                                            "radius": 4
+                                        }
+                                    ],
+                                    "children": [
+                                        {
+                                            "name": "Margin",
+                                            "type": "FRAME",
+                                            "width": 22,
+                                            "height": 29,
+                                            "layoutMode": "VERTICAL",
+                                            "primaryAxisSizingMode": "AUTO",
+                                            "counterAxisSizingMode": "AUTO",
+                                            "primaryAxisAlignItems": "MIN",
+                                            "counterAxisAlignItems": "MIN",
+                                            "paddingBottom": 12,
+                                            "strokeWeight": 1,
+                                            "strokeAlign": "INSIDE",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "MITER"
+                                        },
+                                        {
+                                            "name": "Margin",
+                                            "type": "FRAME",
+                                            "width": 70.2699966430664,
+                                            "height": 20,
+                                            "layoutMode": "VERTICAL",
+                                            "primaryAxisSizingMode": "AUTO",
+                                            "counterAxisSizingMode": "AUTO",
+                                            "primaryAxisAlignItems": "MIN",
+                                            "counterAxisAlignItems": "MIN",
+                                            "paddingBottom": 4,
+                                            "strokeWeight": 1,
+                                            "strokeAlign": "INSIDE",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "MITER"
+                                        },
+                                        {
+                                            "name": "Text",
+                                            "type": "TEXT",
+                                            "width": 95.05999755859375,
+                                            "height": 20,
+                                            "fills": [
+                                                {
+                                                    "type": "SOLID",
+                                                    "opacity": 1,
+                                                    "color": {
+                                                        "r": 0.0941176488995552,
+                                                        "g": 0.10980392247438431,
+                                                        "b": 0.11372549086809158,
+                                                        "a": 1,
+                                                        "hex": "#181c1d"
+                                                    }
+                                                }
+                                            ],
+                                            "strokeWeight": 1,
+                                            "strokeAlign": "OUTSIDE",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "MITER",
+                                            "characters": "eQTL analysis",
+                                            "fontSize": 14,
+                                            "fontName": {
+                                                "family": "Inter",
+                                                "style": "Semi Bold"
+                                            },
+                                            "fontWeight": 600,
+                                            "letterSpacing": {
+                                                "unit": "PIXELS",
+                                                "value": 0
+                                            },
+                                            "lineHeight": {
+                                                "unit": "PIXELS",
+                                                "value": 20
+                                            },
+                                            "textAlignHorizontal": "LEFT",
+                                            "textAlignVertical": "CENTER",
+                                            "textAutoResize": "NONE",
+                                            "textCase": "ORIGINAL",
+                                            "textDecoration": "NONE"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "Button",
+                                    "type": "FRAME",
+                                    "width": 180,
+                                    "height": 124,
+                                    "cornerRadius": 32,
+                                    "layoutMode": "VERTICAL",
+                                    "primaryAxisSizingMode": "AUTO",
+                                    "counterAxisSizingMode": "AUTO",
+                                    "primaryAxisAlignItems": "MIN",
+                                    "counterAxisAlignItems": "MIN",
+                                    "paddingLeft": 24,
+                                    "paddingRight": 40.5,
+                                    "paddingTop": 24,
+                                    "paddingBottom": 24,
+                                    "fills": [
+                                        {
+                                            "type": "SOLID",
+                                            "opacity": 0.800000011920929,
+                                            "color": {
+                                                "r": 0.9411764740943909,
+                                                "g": 0.95686274766922,
+                                                "b": 0.95686274766922,
+                                                "a": 0.800000011920929,
+                                                "hex": "#f0f4f4cc"
+                                            }
+                                        }
+                                    ],
+                                    "strokes": [
+                                        {
+                                            "type": "SOLID",
+                                            "opacity": 0.05000000074505806,
+                                            "color": {
+                                                "r": 0.7411764860153198,
+                                                "g": 0.7882353067398071,
+                                                "b": 0.7843137383460999,
+                                                "a": 0.05000000074505806,
+                                                "hex": "#bdc9c80d"
+                                            }
+                                        }
+                                    ],
+                                    "strokeWeight": 1,
+                                    "strokeAlign": "INSIDE",
+                                    "strokeCap": "NONE",
+                                    "strokeJoin": "MITER",
+                                    "effects": [
+                                        {
+                                            "type": "BACKGROUND_BLUR",
+                                            "radius": 4
+                                        }
+                                    ],
+                                    "children": [
+                                        {
+                                            "name": "Margin",
+                                            "type": "FRAME",
+                                            "width": 14,
+                                            "height": 34,
+                                            "layoutMode": "VERTICAL",
+                                            "primaryAxisSizingMode": "AUTO",
+                                            "counterAxisSizingMode": "AUTO",
+                                            "primaryAxisAlignItems": "MIN",
+                                            "counterAxisAlignItems": "MIN",
+                                            "paddingBottom": 12,
+                                            "strokeWeight": 1,
+                                            "strokeAlign": "INSIDE",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "MITER"
+                                        },
+                                        {
+                                            "name": "Margin",
+                                            "type": "FRAME",
+                                            "width": 70.44999694824219,
+                                            "height": 20,
+                                            "layoutMode": "VERTICAL",
+                                            "primaryAxisSizingMode": "AUTO",
+                                            "counterAxisSizingMode": "AUTO",
+                                            "primaryAxisAlignItems": "MIN",
+                                            "counterAxisAlignItems": "MIN",
+                                            "paddingBottom": 4,
+                                            "strokeWeight": 1,
+                                            "strokeAlign": "INSIDE",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "MITER"
+                                        },
+                                        {
+                                            "name": "Text",
+                                            "type": "TEXT",
+                                            "width": 113.5,
+                                            "height": 20,
+                                            "fills": [
+                                                {
+                                                    "type": "SOLID",
+                                                    "opacity": 1,
+                                                    "color": {
+                                                        "r": 0.0941176488995552,
+                                                        "g": 0.10980392247438431,
+                                                        "b": 0.11372549086809158,
+                                                        "a": 1,
+                                                        "hex": "#181c1d"
+                                                    }
+                                                }
+                                            ],
+                                            "strokeWeight": 1,
+                                            "strokeAlign": "OUTSIDE",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "MITER",
+                                            "characters": "Gene expression",
+                                            "fontSize": 14,
+                                            "fontName": {
+                                                "family": "Inter",
+                                                "style": "Semi Bold"
+                                            },
+                                            "fontWeight": 600,
+                                            "letterSpacing": {
+                                                "unit": "PIXELS",
+                                                "value": 0
+                                            },
+                                            "lineHeight": {
+                                                "unit": "PIXELS",
+                                                "value": 20
+                                            },
+                                            "textAlignHorizontal": "LEFT",
+                                            "textAlignVertical": "CENTER",
+                                            "textAutoResize": "NONE",
+                                            "textCase": "ORIGINAL",
+                                            "textDecoration": "NONE"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "Button",
+                                    "type": "FRAME",
+                                    "width": 180,
+                                    "height": 123.9000015258789,
+                                    "cornerRadius": 32,
+                                    "layoutMode": "VERTICAL",
+                                    "primaryAxisSizingMode": "AUTO",
+                                    "counterAxisSizingMode": "AUTO",
+                                    "primaryAxisAlignItems": "MIN",
+                                    "counterAxisAlignItems": "MIN",
+                                    "paddingLeft": 24,
+                                    "paddingRight": 75.69999694824219,
+                                    "paddingTop": 24,
+                                    "paddingBottom": 24,
+                                    "fills": [
+                                        {
+                                            "type": "SOLID",
+                                            "opacity": 0.800000011920929,
+                                            "color": {
+                                                "r": 0.9411764740943909,
+                                                "g": 0.95686274766922,
+                                                "b": 0.95686274766922,
+                                                "a": 0.800000011920929,
+                                                "hex": "#f0f4f4cc"
+                                            }
+                                        }
+                                    ],
+                                    "strokes": [
+                                        {
+                                            "type": "SOLID",
+                                            "opacity": 0.05000000074505806,
+                                            "color": {
+                                                "r": 0.7411764860153198,
+                                                "g": 0.7882353067398071,
+                                                "b": 0.7843137383460999,
+                                                "a": 0.05000000074505806,
+                                                "hex": "#bdc9c80d"
+                                            }
+                                        }
+                                    ],
+                                    "strokeWeight": 1,
+                                    "strokeAlign": "INSIDE",
+                                    "strokeCap": "NONE",
+                                    "strokeJoin": "MITER",
+                                    "effects": [
+                                        {
+                                            "type": "BACKGROUND_BLUR",
+                                            "radius": 4
+                                        }
+                                    ],
+                                    "children": [
+                                        {
+                                            "name": "Margin",
+                                            "type": "FRAME",
+                                            "width": 21.899999618530273,
+                                            "height": 33.900001525878906,
+                                            "layoutMode": "VERTICAL",
+                                            "primaryAxisSizingMode": "AUTO",
+                                            "counterAxisSizingMode": "AUTO",
+                                            "primaryAxisAlignItems": "MIN",
+                                            "counterAxisAlignItems": "MIN",
+                                            "paddingBottom": 12,
+                                            "strokeWeight": 1,
+                                            "strokeAlign": "INSIDE",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "MITER"
+                                        },
+                                        {
+                                            "name": "Margin",
+                                            "type": "FRAME",
+                                            "width": 62.75,
+                                            "height": 20,
+                                            "layoutMode": "VERTICAL",
+                                            "primaryAxisSizingMode": "AUTO",
+                                            "counterAxisSizingMode": "AUTO",
+                                            "primaryAxisAlignItems": "MIN",
+                                            "counterAxisAlignItems": "MIN",
+                                            "paddingBottom": 4,
+                                            "strokeWeight": 1,
+                                            "strokeAlign": "INSIDE",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "MITER"
+                                        },
+                                        {
+                                            "name": "Text",
+                                            "type": "TEXT",
+                                            "width": 78.30000305175781,
+                                            "height": 20,
+                                            "fills": [
+                                                {
+                                                    "type": "SOLID",
+                                                    "opacity": 1,
+                                                    "color": {
+                                                        "r": 0.0941176488995552,
+                                                        "g": 0.10980392247438431,
+                                                        "b": 0.11372549086809158,
+                                                        "a": 1,
+                                                        "hex": "#181c1d"
+                                                    }
+                                                }
+                                            ],
+                                            "strokeWeight": 1,
+                                            "strokeAlign": "OUTSIDE",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "MITER",
+                                            "characters": "SNP lookup",
+                                            "fontSize": 14,
+                                            "fontName": {
+                                                "family": "Inter",
+                                                "style": "Semi Bold"
+                                            },
+                                            "fontWeight": 600,
+                                            "letterSpacing": {
+                                                "unit": "PIXELS",
+                                                "value": 0
+                                            },
+                                            "lineHeight": {
+                                                "unit": "PIXELS",
+                                                "value": 20
+                                            },
+                                            "textAlignHorizontal": "LEFT",
+                                            "textAlignVertical": "CENTER",
+                                            "textAutoResize": "NONE",
+                                            "textCase": "ORIGINAL",
+                                            "textDecoration": "NONE"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "Button",
+                                    "type": "FRAME",
+                                    "width": 180,
+                                    "height": 121.05000305175781,
+                                    "cornerRadius": 32,
+                                    "layoutMode": "VERTICAL",
+                                    "primaryAxisSizingMode": "AUTO",
+                                    "counterAxisSizingMode": "AUTO",
+                                    "primaryAxisAlignItems": "MIN",
+                                    "counterAxisAlignItems": "MIN",
+                                    "paddingLeft": 24,
+                                    "paddingRight": 38.470001220703125,
+                                    "paddingTop": 24,
+                                    "paddingBottom": 24,
+                                    "fills": [
+                                        {
+                                            "type": "SOLID",
+                                            "opacity": 0.800000011920929,
+                                            "color": {
+                                                "r": 0.9411764740943909,
+                                                "g": 0.95686274766922,
+                                                "b": 0.95686274766922,
+                                                "a": 0.800000011920929,
+                                                "hex": "#f0f4f4cc"
+                                            }
+                                        }
+                                    ],
+                                    "strokes": [
+                                        {
+                                            "type": "SOLID",
+                                            "opacity": 0.05000000074505806,
+                                            "color": {
+                                                "r": 0.7411764860153198,
+                                                "g": 0.7882353067398071,
+                                                "b": 0.7843137383460999,
+                                                "a": 0.05000000074505806,
+                                                "hex": "#bdc9c80d"
+                                            }
+                                        }
+                                    ],
+                                    "strokeWeight": 1,
+                                    "strokeAlign": "INSIDE",
+                                    "strokeCap": "NONE",
+                                    "strokeJoin": "MITER",
+                                    "effects": [
+                                        {
+                                            "type": "BACKGROUND_BLUR",
+                                            "radius": 4
+                                        }
+                                    ],
+                                    "children": [
+                                        {
+                                            "name": "Margin",
+                                            "type": "FRAME",
+                                            "width": 18,
+                                            "height": 31.049999237060547,
+                                            "layoutMode": "VERTICAL",
+                                            "primaryAxisSizingMode": "AUTO",
+                                            "counterAxisSizingMode": "AUTO",
+                                            "primaryAxisAlignItems": "MIN",
+                                            "counterAxisAlignItems": "MIN",
+                                            "paddingBottom": 12,
+                                            "strokeWeight": 1,
+                                            "strokeAlign": "INSIDE",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "MITER"
+                                        },
+                                        {
+                                            "name": "Margin",
+                                            "type": "FRAME",
+                                            "width": 97.61000061035156,
+                                            "height": 20,
+                                            "layoutMode": "VERTICAL",
+                                            "primaryAxisSizingMode": "AUTO",
+                                            "counterAxisSizingMode": "AUTO",
+                                            "primaryAxisAlignItems": "MIN",
+                                            "counterAxisAlignItems": "MIN",
+                                            "paddingBottom": 4,
+                                            "strokeWeight": 1,
+                                            "strokeAlign": "INSIDE",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "MITER"
+                                        },
+                                        {
+                                            "name": "Text",
+                                            "type": "TEXT",
+                                            "width": 115.52999877929688,
+                                            "height": 20,
+                                            "fills": [
+                                                {
+                                                    "type": "SOLID",
+                                                    "opacity": 1,
+                                                    "color": {
+                                                        "r": 0.0941176488995552,
+                                                        "g": 0.10980392247438431,
+                                                        "b": 0.11372549086809158,
+                                                        "a": 1,
+                                                        "hex": "#181c1d"
+                                                    }
+                                                }
+                                            ],
+                                            "strokeWeight": 1,
+                                            "strokeAlign": "OUTSIDE",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "MITER",
+                                            "characters": "Chromatin states",
+                                            "fontSize": 14,
+                                            "fontName": {
+                                                "family": "Inter",
+                                                "style": "Semi Bold"
+                                            },
+                                            "fontWeight": 600,
+                                            "letterSpacing": {
+                                                "unit": "PIXELS",
+                                                "value": 0
+                                            },
+                                            "lineHeight": {
+                                                "unit": "PIXELS",
+                                                "value": 20
+                                            },
+                                            "textAlignHorizontal": "LEFT",
+                                            "textAlignVertical": "CENTER",
+                                            "textAutoResize": "NONE",
+                                            "textCase": "ORIGINAL",
+                                            "textDecoration": "NONE"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Subtle Beta Disclaimer",
+                            "type": "FRAME",
+                            "width": 768,
+                            "height": 45,
+                            "layoutMode": "VERTICAL",
+                            "primaryAxisSizingMode": "AUTO",
+                            "counterAxisSizingMode": "FIXED",
+                            "primaryAxisAlignItems": "MIN",
+                            "counterAxisAlignItems": "CENTER",
+                            "paddingTop": 16,
+                            "strokeWeight": 1,
+                            "strokeAlign": "INSIDE",
+                            "strokeCap": "NONE",
+                            "strokeJoin": "MITER",
+                            "children": [
+                                {
+                                    "name": "Overlay+Border",
+                                    "type": "FRAME",
+                                    "width": 222.63999938964844,
+                                    "height": 29,
+                                    "cornerRadius": 9999,
+                                    "layoutMode": "HORIZONTAL",
+                                    "primaryAxisSizingMode": "AUTO",
+                                    "counterAxisSizingMode": "AUTO",
+                                    "primaryAxisAlignItems": "MIN",
+                                    "counterAxisAlignItems": "CENTER",
+                                    "paddingLeft": 16,
+                                    "paddingRight": 16,
+                                    "paddingTop": 6,
+                                    "paddingBottom": 6,
+                                    "itemSpacing": 8,
+                                    "fills": [
+                                        {
+                                            "type": "SOLID",
+                                            "opacity": 0.30000001192092896,
+                                            "color": {
+                                                "r": 0.800000011920929,
+                                                "g": 0.8941176533699036,
+                                                "b": 0.8901960849761963,
+                                                "a": 0.30000001192092896,
+                                                "hex": "#cce4e34d"
+                                            }
+                                        }
+                                    ],
+                                    "strokes": [
+                                        {
+                                            "type": "SOLID",
+                                            "opacity": 0.10000000149011612,
+                                            "color": {
+                                                "r": 0,
+                                                "g": 0.40392157435417175,
+                                                "b": 0.4000000059604645,
+                                                "a": 0.10000000149011612,
+                                                "hex": "#0067661a"
+                                            }
+                                        }
+                                    ],
+                                    "strokeWeight": 1,
+                                    "strokeAlign": "INSIDE",
+                                    "strokeCap": "NONE",
+                                    "strokeJoin": "MITER",
+                                    "children": [
+                                        {
+                                            "name": "Background",
+                                            "type": "RECTANGLE",
+                                            "width": 6,
+                                            "height": 6,
+                                            "cornerRadius": 9999,
+                                            "fills": [
+                                                {
+                                                    "type": "SOLID",
+                                                    "opacity": 1,
+                                                    "color": {
+                                                        "r": 0,
+                                                        "g": 0.40392157435417175,
+                                                        "b": 0.4000000059604645,
+                                                        "a": 1,
+                                                        "hex": "#006766"
+                                                    }
+                                                }
+                                            ],
+                                            "strokeWeight": 1,
+                                            "strokeAlign": "INSIDE",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "MITER"
+                                        },
+                                        {
+                                            "name": "Text",
+                                            "type": "TEXT",
+                                            "width": 174.63999938964844,
+                                            "height": 15,
+                                            "fills": [
+                                                {
+                                                    "type": "SOLID",
+                                                    "opacity": 1,
+                                                    "color": {
+                                                        "r": 0,
+                                                        "g": 0.40392157435417175,
+                                                        "b": 0.4000000059604645,
+                                                        "a": 1,
+                                                        "hex": "#006766"
+                                                    }
+                                                }
+                                            ],
+                                            "strokeWeight": 1,
+                                            "strokeAlign": "OUTSIDE",
+                                            "strokeCap": "NONE",
+                                            "strokeJoin": "MITER",
+                                            "characters": "Precision Engine v2.4 Beta",
+                                            "fontSize": 10,
+                                            "fontName": {
+                                                "family": "Inter",
+                                                "style": "Bold"
+                                            },
+                                            "fontWeight": 700,
+                                            "letterSpacing": {
+                                                "unit": "PIXELS",
+                                                "value": 1
+                                            },
+                                            "lineHeight": {
+                                                "unit": "PIXELS",
+                                                "value": 15
+                                            },
+                                            "textAlignHorizontal": "CENTER",
+                                            "textAlignVertical": "CENTER",
+                                            "textAutoResize": "NONE",
+                                            "textCase": "UPPER",
+                                            "textDecoration": "NONE"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "textContent": [
+        {
+            "name": "PanKbase.org",
+            "text": "PanKbase.org",
+            "path": "Landing Page-search/PanKbase.org",
+            "nodeType": "TEXT"
+        },
+        {
+            "name": "PanKgraph",
+            "text": "PanKgraph",
+            "path": "Landing Page-search/PanKgraph",
+            "nodeType": "TEXT"
+        },
+        {
+            "name": "PanKgraph",
+            "text": "PanKgraph",
+            "path": "Landing Page-search/Aside - SideNavBar Anchor/Margin/Container/Container/Heading 2/PanKgraph",
+            "nodeType": "TEXT"
+        },
+        {
+            "name": "Text",
+            "text": "New Chat",
+            "path": "Landing Page-search/Aside - SideNavBar Anchor/Nav/Link - Active State Mapping: New Chat/Text",
+            "nodeType": "TEXT"
+        },
+        {
+            "name": "Text",
+            "text": "Subagent",
+            "path": "Landing Page-search/Aside - SideNavBar Anchor/Nav/Link/Text",
+            "nodeType": "TEXT"
+        },
+        {
+            "name": "Text",
+            "text": "Recent",
+            "path": "Landing Page-search/Aside - SideNavBar Anchor/Nav/Link/Text",
+            "nodeType": "TEXT"
+        },
+        {
+            "name": "Text",
+            "text": "Settings & help",
+            "path": "Landing Page-search/Aside - SideNavBar Anchor/Container/Link/Text",
+            "nodeType": "TEXT"
+        },
+        {
+            "name": "What would you like to explore?",
+            "text": "What would you like to explore?",
+            "path": "Landing Page-search/Centered Chat Interface/Floating decorative background elements removed for cleaner integration of primary image/Branding Context/Heading 1/What would you like to explore?",
+            "nodeType": "TEXT"
+        },
+        {
+            "name": "Explore our comprehensive database of T1D–related data, knowledge, and insights. Simply type your question—our PanKgraph agent finds the answers.",
+            "text": "Explore our comprehensive database of T1D–related data,\nknowledge, and insights. Simply type your question—our\nPanKgraph agent finds the answers.",
+            "path": "Landing Page-search/Centered Chat Interface/Floating decorative background elements removed for cleaner integration of primary image/Branding Context/Container/Explore our comprehensive database of T1D–related data, knowledge, and insights. Simply type your question—our PanKgraph agent finds the answers.",
+            "nodeType": "TEXT"
+        },
+        {
+            "name": "Ask about GWAS signals, tissue-specific expression, or SNP impacts...",
+            "text": "Ask about GWAS signals, tissue-specific expression, or SNP impacts...",
+            "path": "Landing Page-search/Centered Chat Interface/Floating decorative background elements removed for cleaner integration of primary image/Chat Input Shell (The \"Floating Tool\")/Background+Border/Input/Container/Ask about GWAS signals, tissue-specific expression, or SNP impacts...",
+            "nodeType": "TEXT"
+        },
+        {
+            "name": "Text",
+            "text": "Search",
+            "path": "Landing Page-search/Centered Chat Interface/Floating decorative background elements removed for cleaner integration of primary image/Chat Input Shell (The \"Floating Tool\")/Background+Border/Button/Text",
+            "nodeType": "TEXT"
+        },
+        {
+            "name": "Text",
+            "text": "Analysis",
+            "path": "Landing Page-search/Centered Chat Interface/Floating decorative background elements removed for cleaner integration of primary image/Quick-Start Bento Grid/Button/Margin/Text",
+            "nodeType": "TEXT"
+        },
+        {
+            "name": "Text",
+            "text": "eQTL analysis",
+            "path": "Landing Page-search/Centered Chat Interface/Floating decorative background elements removed for cleaner integration of primary image/Quick-Start Bento Grid/Button/Text",
+            "nodeType": "TEXT"
+        },
+        {
+            "name": "Text",
+            "text": "Genetics",
+            "path": "Landing Page-search/Centered Chat Interface/Floating decorative background elements removed for cleaner integration of primary image/Quick-Start Bento Grid/Button/Margin/Text",
+            "nodeType": "TEXT"
+        },
+        {
+            "name": "Text",
+            "text": "Gene expression",
+            "path": "Landing Page-search/Centered Chat Interface/Floating decorative background elements removed for cleaner integration of primary image/Quick-Start Bento Grid/Button/Text",
+            "nodeType": "TEXT"
+        },
+        {
+            "name": "Text",
+            "text": "Variant",
+            "path": "Landing Page-search/Centered Chat Interface/Floating decorative background elements removed for cleaner integration of primary image/Quick-Start Bento Grid/Button/Margin/Text",
+            "nodeType": "TEXT"
+        },
+        {
+            "name": "Text",
+            "text": "SNP lookup",
+            "path": "Landing Page-search/Centered Chat Interface/Floating decorative background elements removed for cleaner integration of primary image/Quick-Start Bento Grid/Button/Text",
+            "nodeType": "TEXT"
+        },
+        {
+            "name": "Text",
+            "text": "Epigenomics",
+            "path": "Landing Page-search/Centered Chat Interface/Floating decorative background elements removed for cleaner integration of primary image/Quick-Start Bento Grid/Button/Margin/Text",
+            "nodeType": "TEXT"
+        },
+        {
+            "name": "Text",
+            "text": "Chromatin states",
+            "path": "Landing Page-search/Centered Chat Interface/Floating decorative background elements removed for cleaner integration of primary image/Quick-Start Bento Grid/Button/Text",
+            "nodeType": "TEXT"
+        },
+        {
+            "name": "Text",
+            "text": "Precision Engine v2.4 Beta",
+            "path": "Landing Page-search/Centered Chat Interface/Floating decorative background elements removed for cleaner integration of primary image/Subtle Beta Disclaimer/Overlay+Border/Text",
+            "nodeType": "TEXT"
+        }
+    ]
+}

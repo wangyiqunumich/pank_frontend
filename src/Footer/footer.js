@@ -85,7 +85,7 @@ function PkbFooter() {
                     marginBottom: '20px'
                 }}>
                     <div className="logo">
-                        <a href="/">
+                        <a href="/old-landing">
                             <img
                                 style={{ height: "37px", width: '200px' }}
                                 src="https://hugeampkpncms.org/sites/default/files/users/user32/pankbase/PanKbase_logo-black.svg"

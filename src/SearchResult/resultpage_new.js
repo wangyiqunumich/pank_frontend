@@ -1991,7 +1991,7 @@ Please review this plan and provide edits if needed.`,
                 errorTitle={agentErrorPayload.title}
                 errorMessage={agentErrorPayload.content}
                 errorImageSrc={agentErrorPayload.imageSrc}
-                homePath="/agent-landing"
+                homePath="/"
                 log={debugMessage(question, agentRawResult)}
             />
         );
@@ -2006,7 +2006,7 @@ Please review this plan and provide edits if needed.`,
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px' }}>
                 <SearchResultLoading
                     streamProgress={buildDebugStreamLoadingProgress(streamMilestones, { minimumProgress: presetFirstStepProgress })}
-                    handleClose={() => navigate('/agent-landing')}
+                    handleClose={() => navigate('/')}
                 />
             </Box>
         );

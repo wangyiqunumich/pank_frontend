@@ -2,6 +2,7 @@ import './styles.css';
 
 import React, {
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -482,6 +483,11 @@ function MatchPage() {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const cancelPath = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    const requestedReturnTo = params.get('returnTo');
+    return requestedReturnTo && requestedReturnTo.startsWith('/') ? requestedReturnTo : '/';
+  }, [location.search]);
   const [questionData, setQuestioData] = useState(null);
   const [visualPattern, setVisualPattern] = useState(questionData?.pattern_for_the_matched_page);
 
@@ -505,16 +511,16 @@ function MatchPage() {
 
   // Extract this page's question and qid from URL
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(location.search);
     const questionFromUrl = params.get('qid'); // 获取'question'参数
     if (!landingPageSchema?.[parseInt(questionFromUrl)]) {
-      navigate('/');
+      navigate('/old-landing');
       return;
     }
     const questionData = landingPageSchema[parseInt(questionFromUrl)];
     setQuestioData(questionData);
     setSelectedQuestion(questionData.question);
-  }, []);
+  }, [location.search, navigate]);
 
   // useEffect(() => {
   //   function handleResize() {
@@ -540,7 +546,7 @@ function MatchPage() {
     }
 
     if (selectedQuestion.startsWith('How does')) {
-      const url = `/result?sourceTerm=gene@${geneId.split('(')[1].slice(0, -1)}&targetTerm=cell_type&relationship=express_in`
+      const url = `/result-new?sourceTerm=gene@${geneId.split('(')[1].slice(0, -1)}&targetTerm=cell_type&relationship=express_in`
       navigate(url);
     }
     else {
@@ -579,7 +585,7 @@ function MatchPage() {
         // if (source.startsWith('rs'))
         sourceTerm = source;
       }
-      let url = `/${targetTerm === "disease" ? "result" : "intermediate"}?sourceTerm=${sourceTerm}&relationship=${relationTerm}&targetTerm=${targetTerm}`;
+      let url = `/${targetTerm === "disease" ? "result-new" : "intermediate"}?sourceTerm=${sourceTerm}&relationship=${relationTerm}&targetTerm=${targetTerm}`;
       if (targetSymbol) {
         url += `&targetSymbol=${targetSymbol}`;
       }
@@ -788,7 +794,11 @@ function MatchPage() {
               {questionData?.matched_page_title}
             </Typography>
             <Link
-              href="/"
+              href={cancelPath}
+              onClick={(event) => {
+                event.preventDefault();
+                navigate(cancelPath);
+              }}
               sx={{
                 textDecoration: 'underline',
                 color: '#398289',

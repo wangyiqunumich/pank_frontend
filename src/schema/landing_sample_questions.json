@@ -1,68 +1,90 @@
 {
-    "default": [
+    "search_examples": {
+        "text_before_title": "Example",
+        "title": "Examples",
+        "entries": [
+            {
+                "question": "Is PLEKHM1 differentially expressed in any cell type in T1D?",
+                "link": ""
+            },
+            {
+                "question": "CTLA4 is annotated with which biological processes/functions?",
+                "link": ""
+            },
+            {
+                "question": "Describe PTPN22’s involvement in T1D, covering its associated QTL signals, expression patterns, and reported effector genes evidence.",
+                "link": ""
+            }
+        ]
+    },
+    "example_buttons": [
         {
-            "question": "Is PLEKHM1 differentially expressed in any cell type in T1D?",
-            "link": ""
+            "text_before_title": "Example",
+            "title": "QTL (OLD)",
+            "entries": [
+                {
+                    "question": "Which SNP serves as the lead QTL for CFTR?",
+                    "link": "/result?sourceTerm=snp@rs2402203&targetTerm=gene@ENSG00000001626&relationship=QTL"
+                },
+                {
+                    "question": "Which SNP serves as the lead QTL for [GENE]?",
+                    "link": "/match?qid=1"
+                },
+                {
+                    "question": "Which GENE is regulated by [SNP] as a QTL?",
+                    "link": "/match?qid=2"
+                },
+                {
+                    "question": "Does [SNP] serves as a QTL for [GENE]?",
+                    "link": "/match?qid=3"
+                }
+            ]
         },
         {
-            "question": "CTLA4 is annotated with which biological processes/functions?",
-            "link": ""
+            "text_before_title": "Example",
+            "title": "DEG (OLD)",
+            "entries": [
+                {
+                    "question": "How does INS expression change in T1D versus non-diabetic samples?",
+                    "link": "/result?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type&relationship=express_in"
+                },
+                {
+                    "question": "How does [GENE] expression change in T1D versus non-diabetic samples?",
+                    "link": "/match?qid=0"
+                }
+            ]
         },
         {
-            "question": "Describe PTPN22’s involvement in T1D, covering its associated QTL signals, expression patterns, and reported effector genes evidence.",
-            "link": ""
-        }
-    ],
-    "QTL (OLD)": [
-        {
-            "question": "Which SNP serves as the lead QTL for CFTR?",
-            "link": "/result?sourceTerm=snp@rs2402203&targetTerm=gene@ENSG00000001626&relationship=QTL"
+            "text_before_title": "Example",
+            "title": "Key Genes in T1D",
+            "entries": [
+                {
+                    "question": "Is PLEKHM1 differentially expressed in any cell type in T1D?",
+                    "link": ""
+                },
+                {
+                    "question": "CTLA4 is annotated with which biological processes/functions?",
+                    "link": ""
+                },
+                {
+                    "question": "More questions will be added after the November data update.",
+                    "link": ""
+                }
+            ]
         },
         {
-            "question": "Which SNP serves as the lead QTL for [GENE]?",
-            "link": "/match?qid=1"
-        },
-        {
-            "question": "Which GENE is regulated by [SNP] as a QTL?",
-            "link": "/match?qid=2"
-        },
-        {
-            "question": "Does [SNP] serves as a QTL for [GENE]?",
-            "link": "/match?qid=3"
-        }
-    ],
-    "DEG (OLD)": [
-        {
-            "question": "How does INS expression change in T1D versus non-diabetic samples?",
-            "link": "/result?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type&relationship=express_in"
-        },
-        {
-            "question": "How does [GENE] expression change in T1D versus non-diabetic samples?",
-            "link": "/match?qid=0"
-        }
-    ],
-    "Key Genes in T1D": [
-        {
-            "question": "Is PLEKHM1 differentially expressed in any cell type in T1D?",
-            "link": ""
-        },
-        {
-            "question": "CTLA4 is annotated with which biological processes/functions?",
-            "link": ""
-        },
-        {
-            "question": "More questions will be added after the November data update.",
-            "link": ""
-        }
-    ],
-    "T1D Research": [
-        {
-            "question": "Describe PTPN22’s involvement in T1D, covering its associated QTL signals, expression patterns, and reported effector genes evidence.",
-            "link": ""
-        },
-        {
-            "question": "More questions will be added after the November data update.",
-            "link": ""
+            "text_before_title": "Example",
+            "title": "T1D Research",
+            "entries": [
+                {
+                    "question": "Describe PTPN22’s involvement in T1D, covering its associated QTL signals, expression patterns, and reported effector genes evidence.",
+                    "link": ""
+                },
+                {
+                    "question": "More questions will be added after the November data update.",
+                    "link": ""
+                }
+            ]
         }
     ]
 }
