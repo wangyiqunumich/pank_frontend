@@ -84,7 +84,7 @@ function NavBar() {
                 </div>
               </div>
               <div className="menu-item-wrapper">
-                <a className="menu-item" href="/">Data</a>
+                <a className="menu-item" href="/old-landing">Data</a>
                 <div className="submenu">
                   {/*<a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/data-browser.html'}>Data Browser</a>*/}
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/donor-metadata.html'}>Donor Summary</a>
@@ -93,7 +93,7 @@ function NavBar() {
                 </div>
               </div>
               <div className="menu-item-wrapper">
-                <a className="menu-item" href="/">Resources</a>
+                <a className="menu-item" href="/old-landing">Resources</a>
                 <div className="submenu">
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}>Integrated Cell Browser</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/diff-exp.html'}>Differential Gene Expression Browser</a>
@@ -105,7 +105,7 @@ function NavBar() {
                 </div>
               </div>
               <div className="menu-item-wrapper">
-                <a className="menu-item" href="/">About</a>
+                <a className="menu-item" href="/old-landing">About</a>
                 <div className="submenu">
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/projects.html'}>PanKbase Program</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/people.html'}>People</a>
@@ -115,7 +115,7 @@ function NavBar() {
                 </div>
               </div>
               <div className="menu-item-wrapper">
-                <a className="menu-item" href="/">Help</a>
+                <a className="menu-item" href="/old-landing">Help</a>
                 <div className="submenu">
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/contact.html'}>Contact | Feedback</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/tutorials.html'}>Tutorials</a>

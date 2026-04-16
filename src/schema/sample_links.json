@@ -2,11 +2,11 @@
     "$comment": "Explanary file, not for use in production.",
     "landing_page": [
         {
-            "link": "/",
+            "link": "/old-landing",
             "dictionary": {}
         },
         {
-            "link": "/agent-landing",
+            "link": "/",
             "dictionary": {}
         }
     ],

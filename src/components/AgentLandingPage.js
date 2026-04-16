@@ -1,24 +1,31 @@
 import React, {
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
 
-import { useNavigate } from 'react-router-dom';
-
-import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
-import CloseIcon from '@mui/icons-material/Close';
-import SearchIcon from '@mui/icons-material/Search';
-import TerminalIcon from '@mui/icons-material/Terminal';
 import {
-  Autocomplete,
+    useLocation,
+    useNavigate,
+} from 'react-router-dom';
+
+import AddCommentOutlinedIcon from '@mui/icons-material/AddCommentOutlined';
+import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
+import AutoGraphOutlinedIcon from '@mui/icons-material/AutoGraphOutlined';
+import CloseIcon from '@mui/icons-material/Close';
+import FlareOutlinedIcon from '@mui/icons-material/FlareOutlined';
+import SearchIcon from '@mui/icons-material/Search';
+import SendRoundedIcon from '@mui/icons-material/SendRounded';
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
+import StorageOutlinedIcon from '@mui/icons-material/StorageOutlined';
+import TravelExploreOutlinedIcon
+  from '@mui/icons-material/TravelExploreOutlined';
+import {
   Box,
   Button,
   CircularProgress,
-  Collapse,
-  Container,
   IconButton,
-  Link,
   Paper,
   TextField,
   Typography,
@@ -28,745 +35,490 @@ import landingPageLogo from '../image/landing image cropped.png';
 import ExampleQueries from '../schema/landing_sample_questions.json';
 
 export const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
-export const base64ToUtf8 = (base64) => decodeURIComponent(escape(atob(base64)));
 
-function BetaBadge({ sx }) {
-  const [hover, setHover] = useState(false);
+function AgentLandingPage() {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [query, setQuery] = useState('');
+    const [showLoading, setShowLoading] = useState(false);
+    const [activeExampleGroup, setActiveExampleGroup] = useState(undefined);
+    const examplesPanelRef = useRef(null);
 
-  return (
-    <Box
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      sx={{
-        display: "inline-flex",
-        height: 'fit-content',
-        alignItems: "center",
-        border: "1.5px solid #f0d98c",
-        borderRadius: "9999px",
-        backgroundColor: "#FFFFFF",
-        px: 1.5,
-        py: '6px',
-        cursor: "default",
-        transition: "all 0.3s ease",
-        ...sx
-      }}
-    >
-      <Collapse in={hover} orientation="horizontal" collapsedSize={0}>
-        <Typography
-          sx={{
-            color: "#d4aa00",
-            fontWeight: 800,
-            fontSize: "16px",
-            whiteSpace: "nowrap",
-            fontFamily: 'Inter',
-          }}
-        >
-          This is the beta version — data coverage is currently limited.
-        </Typography>
-      </Collapse>
-      <Collapse in={!hover} orientation="horizontal" collapsedSize={0}>
-        <Typography
-          sx={{
-            color: "#d4aa00",
-            fontWeight: 800,
-            fontSize: "16px",
-            whiteSpace: "nowrap",
-            fontFamily: 'Inter',
-          }}
-        >
-          Beta
-        </Typography>
-      </Collapse>
-    </Box>
-  );
-}
+    const searchExampleGroup = useMemo(() => {
+        const group = ExampleQueries?.search_examples;
+        if (group && Array.isArray(group.entries)) {
+            return group;
+        }
 
-const ExampleClassStyles = [
-  {
-    color: "#067A71",
-    bgcolor: "#F1FDFA",
-    bdcolor: "#95F6E4",
-  },
-  {
-    color: "#2654E9",
-    bgcolor: "#EFF6FF",
-    bdcolor: "#BFDBFF",
-  },
-  {
-    color: "#008236",
-    bgcolor: "#EFFDF4",
-    bdcolor: "#B9F8CF",
-  },
-  {
-    color: "#007595",
-    bgcolor: "#ECFEFF",
-    bdcolor: "#A2F4FD",
-  },
-];
+        return {
+            text_before_title: 'Search',
+            title: 'Examples',
+            entries: [
+                {
+                    question: 'Is PLEKHM1 differentially expressed in any cell type in T1D?',
+                    link: '',
+                },
+                {
+                    question: 'CTLA4 is annotated with which biological processes/functions?',
+                    link: '',
+                },
+                {
+                    question: 'Describe PTPN22’s involvement in T1D, covering its associated QTL signals, expression patterns, and reported effector genes evidence.',
+                    link: '',
+                },
+            ],
+        };
+    }, []);
 
-function LandingPage() {
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  const [selectedQuestion, setSelectedQuestion] = useState('');
-  const [openSnackbar, setOpenSnackbar] = useState(true);
-  const [query, setQuery] = useState('');
-  const [showExamples, setShowExamples] = useState(undefined);
-  const [focused, setFocused] = useState(false);
-  const [showWarning, setShowWarning] = useState(undefined);
-  const [lastWarning, setLastWarning] = useState(undefined);
-  const [currentQuery, setCurrentQuery] = useState(undefined);
-  const refCurrentQuery = useRef(currentQuery);
-  const navigate = useNavigate();
-  const exampleClassKeys = React.useMemo(
-    () => Object
-      .keys(ExampleQueries || {})
-      .filter((key) => key !== 'default' && Array.isArray(ExampleQueries?.[key]))
-      .slice(0, 4),
-    []
-  );
+    const quickCards = useMemo(() => {
+        const groups = Array.isArray(ExampleQueries?.example_buttons) ? ExampleQueries.example_buttons : [];
+        const fallbackGroups = [
+            {
+                text_before_title: 'Analysis',
+                title: 'eQTL analysis',
+                entries: [
+                    {
+                        question: 'Which SNP serves as the lead QTL for CFTR?',
+                        link: '/result?sourceTerm=snp@rs2402203&targetTerm=gene@ENSG00000001626&relationship=QTL',
+                    },
+                ],
+            },
+            {
+                text_before_title: 'Genetics',
+                title: 'Gene expression',
+                entries: [
+                    {
+                        question: 'How does INS expression change in T1D versus non-diabetic samples?',
+                        link: '/result?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type&relationship=express_in',
+                    },
+                ],
+            },
+            {
+                text_before_title: 'Variant',
+                title: 'SNP lookup',
+                entries: [
+                    {
+                        question: 'Is PLEKHM1 differentially expressed in any cell type in T1D?',
+                        link: '',
+                    },
+                ],
+            },
+            {
+                text_before_title: 'Epigenomics',
+                title: 'Chromatin states',
+                entries: [
+                    {
+                        question: 'Describe PTPN22’s involvement in T1D, covering its associated QTL signals, expression patterns, and reported effector genes evidence.',
+                        link: '',
+                    },
+                ],
+            },
+        ];
 
-  useEffect(() => {
-    refCurrentQuery.current = currentQuery;
-  }, [currentQuery]);
+        const sourceGroups = groups.length > 0 ? groups : fallbackGroups;
 
-  useEffect(() => {
-    if (showWarning) {
-      setLastWarning(showWarning);
-    }
-  }, [showWarning]);
-  const [showLoading, setShowLoading] = useState(false);
-  const [showCard, setShowCard] = useState(true);
+        return sourceGroups.map((group, index) => ({
+            key: group.title,
+            title: group.title,
+            textBeforeTitle: group.text_before_title || '',
+            entries: Array.isArray(group.entries) ? group.entries : [],
+            icon: [
+                <AutoGraphOutlinedIcon key="analysis" sx={{ color: '#006766' }} />,
+                <StorageOutlinedIcon key="genetics" sx={{ color: '#006766' }} />,
+                <TravelExploreOutlinedIcon key="variant" sx={{ color: '#006766' }} />,
+                <FlareOutlinedIcon key="epigenomics" sx={{ color: '#006766' }} />,
+            ][index] || <AutoGraphOutlinedIcon sx={{ color: '#006766' }} />,
+        }));
+    }, []);
 
-  const paperRef = useRef();
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (paperRef.current && !paperRef.current.contains(event.target)) {
-        setShowExamples(false);
-      }
-    }
+    const activeCard = quickCards.find((card) => card.key === activeExampleGroup);
+    const activeExamples = activeExampleGroup === 'search' ? searchExampleGroup.entries : (activeCard?.entries || []);
+    const activeTitle = activeExampleGroup === 'search' ? searchExampleGroup.title : (activeCard?.title || 'Examples');
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+    const handleSearch = (searchQuery) => {
+        const normalized = (searchQuery || '').trim();
+        if (!normalized) return;
+        const encodedQuery = encodeURIComponent(utf8ToBase64(normalized));
+        navigate(`/result-new2?question=${encodedQuery}&terminal=true`);
     };
-  }, []);
 
+    const handleExampleClick = (example) => {
+        const nextQuery = (example?.question || '').trim();
+        if (nextQuery) {
+            setQuery(nextQuery);
+        }
+        setActiveExampleGroup(undefined);
 
-  const isSearchBarDisabled = !selectedQuestion;
-
-  useEffect(() => {
-    function handleResize() {
-      setWindowWidth(window.innerWidth)
-    }
-    window.addEventListener('resize', handleResize);
-    return (_) => {
-      window.removeEventListener('resize', handleResize);
-    };
-  });
-
-  const handleTargetTermChange = (newTargetTerm) => {
-    console.log(newTargetTerm);
-    if (newTargetTerm) {
-      setSelectedQuestion(`Which SNP serves as the quantitative trait locus (QTL) for ${newTargetTerm.toUpperCase()}?`);
-    }
-  };
-
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setOpenSnackbar(false);
-  };
-
-  const handleSearch = (searchQuery) => {
-    const encodedQuery = encodeURIComponent(utf8ToBase64(searchQuery));
-    navigate(`/result-new2?question=${encodedQuery}&terminal=true`);
-  };
-
-  return (
-    <Container maxWidth={false} disableGutters sx={{
-      flex: 1,
-      display: 'flex',
-      alignItems: 'center',
-      marginTop: '0px',
-      // marginBottom: '40px',
-    }}>
-      <Container maxWidth={false} disableGutters sx={{
-        display: 'flex',
-        flexDirection: { sm: 'column', md: 'row' }, justifyContent: 'center',
-        alignItems: 'center',
-        paddingTop: '0px',
-        paddingBottom: '0px',
-        height: "100%",
-      }}>
-        {/* <Snackbar
-        open={openSnackbar}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert 
-          onClose={handleCloseSnackbar} 
-          severity="info" 
-          sx={{ 
-            width: '100%',
-            backgroundColor: '#E4F0F1',
-            '& .MuiAlert-icon': {
-              color: '#219197'
+        const nextLink = (example?.link || '').trim();
+        if (nextLink) {
+            if (nextLink.startsWith('/match')) {
+                const separator = nextLink.includes('?') ? '&' : '?';
+                const returnTo = encodeURIComponent(`${location.pathname}${location.search}`);
+                navigate(`${nextLink}${separator}returnTo=${returnTo}`);
+                return;
             }
-          }}
-        >
-          LLM page is currently under maintenance. We apologize for any inconvenience.
-        </Alert>
-      </Snackbar> */}
+            navigate(nextLink);
+        }
+    };
 
-        {/* 左侧图片 */}
-        <Box sx={{
-          width: { sm: '90%', md: '45%' },
-          position: 'relative',
-          margin: '30px',
-          marginLeft: '60px',
-          marginRight: '10px',
-          paddingBottom: '100px',
-          height: '425px',
-          '& img': {
-            width: { sm: '100%', md: '100%' },
-            maxHeight: '425px',
-            objectFit: 'contain',
-            objectPosition: 'center',
-            marginTop: { sm: '0px', md: '50px' },
-            marginLeft: { sm: '0px', md: '0' },
-            transform: { sm: 'none', md: 'translateX(-4%)' }
-          },
-        }}>
-          <Box sx={{
-            position: { sm: 'relative', md: 'absolute' },
-            top: { sm: '0', md: '0' },
-            left: 0,
-            right: 0,
-            bottom: 0,
-            margin: 'auto',
-            display: 'flex', flexDirection: 'column', justifyContent: 'top', alignItems: 'flex-start',
-          }}>
-            <img src={landingPageLogo} alt="PanKgraph" />
-            <Box sx={{
-              display: 'flex',
-              position: "relative",
-              justifyContent: 'center',
-              marginTop: '20px',
-              alignItems: 'center',
-              left: "calc(50% - 20px)",
-              transform: { sm: 'none', md: 'translateX(-50%)' }
-            }}>
-              <TerminalIcon sx={{ width: '30px', color: '#C48E25' }} />
-              <Typography sx={{ marginLeft: '10px', fontSize: '20px' }}>
-                Access PanKgraph with <Link
-                  href={process.env.REACT_APP_PANKGRAPH_LINK + '/api'}
-                  sx={{ textDecoration: 'underline', color: 'black', textAlign: 'right' }}>API</Link>
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
+    useEffect(() => {
+        if (!activeExampleGroup) {
+            return undefined;
+        }
 
+        const handleOutsideClick = (event) => {
+            if (examplesPanelRef.current && !examplesPanelRef.current.contains(event.target)) {
+                setActiveExampleGroup(undefined);
+            }
+        };
 
-        {/* 右侧内容区域 */}
-        <Box sx={{
-          width: { sm: '90%', md: '55%' },
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 3,
-          marginRight: 1,
-          justifyContent: 'center',
-          marginLeft: { sm: '5%', md: 0 },
-          marginTop: '-20px',
-          paddingTop: '20px',
-          paddingX: '40px',
-          minHeight: { sm: 'unset', md: '500px' },
-          backgroundColor: '#F2FAFB',
-        }}>
+        document.addEventListener('mousedown', handleOutsideClick);
+        return () => {
+            document.removeEventListener('mousedown', handleOutsideClick);
+        };
+    }, [activeExampleGroup]);
 
-          {/* 更新 Question 组件，传入 setSelectedQuestion */}
-          {/* <Question
-            selectedQuestion={selectedQuestion}
-            setSelectedQuestion={setSelectedQuestion}
-          /> */}
-          <Box className="content-wrapper" sx={{
-            width: '100%',
-            maxWidth: '1200px',
-            justifyContent: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'flex-start',
-            paddingBottom: '100px',
-          }}>
-            <Box sx={{
-              display: 'flex',
-              flexDirection: 'row',
-              paddingBottom: '20px',
-              alignItems: 'center',
-              gap: '5px',
-              flexWrap: 'wrap',
-            }}>
-              <Typography sx={{ color: '#4E4E4E', fontSize: 32, fontFamily: 'Open Sans', fontWeight: '700' }}>
-                Search PanKgraph
-              </Typography>
-              <Box sx={{ width: '400px' }} >
-                <BetaBadge sx={{ transform: 'translateY(4px)' }} />
-              </Box>
-            </Box>
-            <Typography sx={{ paddingBottom: '32px', color: '#5A5555', fontSize: 20, fontFamily: 'Open Sans', fontWeight: '600' }}>
-              Explore our comprehensive database of T1D–related data, knowledge, and insights. Simply type your question—our PanKgraph agent finds the answers.
+    const renderButtonLabel = (card) => (
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 0.25, width: '100%' }}>
+            <Typography sx={{ color: '#6D7979', fontSize: 12, fontFamily: 'Inter', fontWeight: 700, textTransform: 'uppercase', lineHeight: '16px', letterSpacing: '1.20px', wordWrap: 'break-word' }}>
+                {card.textBeforeTitle}
             </Typography>
-            <Box className="llm-searchbar" sx={{
-              width: 'calc(100% - 20px)',
-              display: 'flex',
-              gap: 2,
-              backgroundColor: 'white',
-              borderRadius: '12px',
-              boxShadow: "0px 10px 35px 0px #00000014"
-            }}>
-              <Autocomplete
-                freeSolo
-                fullWidth
-                options={ExampleQueries.default}
-                filterOptions={(options) => (query?.trim() === '' ? options : [])}
-                onChange={(event, newValue) => {
-                  setQuery(newValue.question || '');
-                  if (!!newValue.link) {
-                    window.location.href = newValue.link;
-                  }
-                }}
-                onInputChange={(event, newInputValue) => {
-                  setQuery(newInputValue || '');
-                }}
-                openOnFocus
-                getOptionLabel={(option) => option.question}
-                onFocus={() => setFocused(true)}
-                onBlur={() => setFocused(false)}
-                inputValue={query}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    size="small"
-                    placeholder="Ask a question about [GENE], [SNP], QTL, or T1D"
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter') {
-                        event.preventDefault();
-                        if (!query.trim()) {
-                          setShowWarning("Please ensure all boxes are filled out before submitting");
-                          return;
-                        }
-                        setShowLoading(true);
-                        handleSearch(query.trim());
-                      }
-                    }}
-                    sx={{
-                      height: '85px', // Increase the height of the input box
-                      width: '100%',
-                      '& .MuiInputBase-root': {
-                        fontSize: '22px',
-                        borderRadius: '12px',
-                        width: '100%',
-                        height: '85px',
-                        alignItems: 'center',
-                        padding: '14px 20px !important',
-                        '& fieldset': {
-                          border: 'none',
-                        },
-                      },
-                      '& .MuiInputBase-input': {
-                        padding: '0 !important',
-                        minWidth: 0,
-                      },
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'grey',
-                      },
-                    }}
-                    fullWidth
-                    InputProps={{
-                      ...params.InputProps,
-                      startAdornment: (
-                        <Box sx={{ display: 'flex', alignItems: 'center', mr: 1.5 }}>
-                          <SearchIcon sx={{ fontSize: '40px', color: '#98A1AE' }} />
-                          {params.InputProps.startAdornment}
-                        </Box>
-                      ),
-                      endAdornment: (
-                        <Box display="flex" alignItems="center" sx={{ gap: 1, ml: 1, flexShrink: 0 }}>
-                          {/* Clear Icon */}
-                          {query !== "" ? <CloseIcon
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                            }}
-                            onClick={() => {
-                              setQuery(''); // Clear the input field
-                            }}
-                            sx={{
-                              color: 'grey.500',
-                              cursor: 'pointer',
-                              fontSize: '20px',
-                            }}
-                          /> : <Box sx={{
-                            height: "28px",
-                            width: "28px",
-                            borderRadius: "50%",
-                            background: '#CEDDFF',
-                            // display: 'flex',
-                            display: 'none',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            marginRight: '8px',
-                            fontFamily: 'Open Sans',
-                            fontWeight: 300,
-                            color: '#3e6396',
-                            cursor: 'pointer',
-                          }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
-                            ?
-                          </Box>}
-                          {/* Search Icon */}
-                          <Button
-                            type="button"
-                            disableElevation
-                            disabled={!query.trim() || showLoading}
-                            onClick={!query.trim()
-                              ? () => { setShowWarning("Please ensure all boxes are filled out before submitting") }
-                              : () => {
-                                setShowLoading(true);
-                                handleSearch(query.trim());
-                              }}
-                            sx={{
-                              height: "54px",
-                              minWidth: { xs: "110px", md: "132px" },
-                              borderRadius: "16px",
-                              px: 2,
-                              textTransform: 'none',
-                              backgroundColor: '#219197',
-                              color: '#FFFFFF',
-                              fontFamily: 'Open Sans',
-                              fontSize: '20px',
-                              fontWeight: 600,
-                              transition: 'transform 120ms ease, box-shadow 160ms ease, background-color 160ms ease, filter 160ms ease',
-                              boxShadow: '0 6px 14px rgba(33,145,151,0.28)',
-                              '&:hover': {
-                                backgroundColor: '#1D838A',
-                                boxShadow: '0 10px 20px rgba(33,145,151,0.34)',
-                                transform: 'translateY(-1px)',
-                              },
-                              '&:active': {
-                                transform: 'translateY(1px) scale(0.985)',
-                                boxShadow: '0 4px 10px rgba(33,145,151,0.26)',
-                              },
-                              '&.Mui-focusVisible': {
-                                outline: '2px solid #84D6DB',
-                                outlineOffset: '2px',
-                              },
-                              '&.Mui-disabled': {
-                                backgroundColor: '#21919780',
-                                color: 'rgba(255,255,255,0.92)',
-                                boxShadow: 'none',
-                              },
-                            }}
-                          >
-                            {showLoading ? (
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <CircularProgress size={16} sx={{ color: '#FFFFFF' }} />
-                                <Typography sx={{ color: 'inherit', fontFamily: 'inherit', fontSize: '16px', fontWeight: 700 }}>
-                                  Searching...
-                                </Typography>
-                              </Box>
-                            ) : (
-                              <Typography
-                                className="search-button"
-                                sx={{
-                                  color: 'inherit',
-                                  fontFamily: 'inherit',
-                                  fontSize: '20px',
-                                  fontWeight: 700,
-                                  letterSpacing: '0.01em',
-                                }}
-                              >
-                                Search
-                              </Typography>
-                            )}
-                          </Button>
-                        </Box>
-                      ),
-                    }}
-
-                  />
-                )}
-                PaperComponent={({ children }) => (
-                  <Paper
-                    sx={{
-                      borderRadius: '16px',
-                      border: "1.5px solid #E6F0FC",
-                      boxShadow: 'none',
-                      padding: '20px',
-                      marginTop: '16px',
-                      overflow: 'hidden',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
-                      alignContent: 'center',
-                      height: '220px',
-                      "& .MuiAutocomplete-option.Mui-focused": {
-                        backgroundColor: '#E8F5F6 !important',
-                      },
-                      "& .MuiAutocomplete-option": {
-                        backgroundColor: '#F2FAFB !important',
-                        height: '50px',
-                        borderRadius: '8px',
-                        marginBottom: '12px',
-                        transition: 'transform 120ms ease, background-color 150ms ease, box-shadow 150ms ease',
-                      },
-                      "& .MuiAutocomplete-option:hover": {
-                        backgroundColor: '#E8F5F6 !important',
-                        transform: 'translateY(-1px)',
-                        boxShadow: '0 3px 10px rgba(15,118,110,0.10)',
-                      },
-                      "& .MuiAutocomplete-option:active": {
-                        transform: 'translateY(0px) scale(0.995)',
-                      },
-                    }}
-                  >
-                    <Box>
-                      {children}
-                    </Box>
-                    <Link component={"button"}
-                      sx={{
-                        textDecoration: 'none',
-                        textAlign: 'center',
-                        alignSelf: 'center',
-                        color: '#219197',
-                        fontFamily: 'Open Sans',
-                        fontWeight: 700,
-                        fontSize: '16px',
-                      }} onClick={(e) => {
-                        navigate("/docs/api");
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }} onMouseDown={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }}>
-                      What PanKgraph can tell you?
-                    </Link>
-                  </Paper>
-                )}
-                renderOption={(props, option) => (
-                  <Box
-                    component="li"
-                    {...props}
-                    key={option.question}
-                    sx={{
-                      minHeight: '36px !important',
-                      cursor: 'pointer',
-                      '& .highlight-arrow': {
-                        transition: 'transform 140ms ease, color 140ms ease',
-                      },
-                      '&:hover .highlight-arrow': {
-                        transform: 'translateX(3px)',
-                        color: '#0F766E',
-                      },
-                    }}
-                  >
-                    {option.question}
-                    <span className={"highlight-arrow"} style={{ color: 'black', marginLeft: 'auto' }}><ArrowOutwardIcon fontSize="small" /></span>
-                  </Box>
-                )}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.defaultMuiPrevented = true;
-                    if (query.trim() === '') {
-                      setShowWarning("Please ensure all boxes are filled out before submitting");
-                    } else {
-                      e.preventDefault();
-                      setShowLoading(true);
-                      console.log(query.trim());
-                      handleSearch(query.trim());
-                    }
-                  }
-                }}
-              />
-
-            </Box>
-            <Box className="example-class" sx={{ height: '0px', width: '100%' }}>
-              {showExamples && <Paper
-                ref={paperRef}
-                sx={{
-                  width: 'calc(100% - 52px)',
-                  maxWidth: '1200px',
-                  marginTop: '24px',
-                  padding: '16px',
-                  borderRadius: '16px',
-                  boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
-                  position: 'relative',
-                  zIndex: 1000,
-                }}>
-                <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '16px' }}>
-                  <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                    <Typography sx={{
-                      fontFamily: 'Open Sans',
-                      fontWeight: 600,
-                      fontSize: '18px',
-                      color: '#219197',
-                    }}>
-                      {showExamples} Examples
-                    </Typography>
-                  </Box>
-                  <IconButton
-                    size="small"
-                    aria-label="close examples"
-                    onClick={() => setShowExamples(undefined)}
-                    sx={{
-                      width: 32,
-                      height: 32,
-                      border: '1px solid #D7E3EA',
-                      color: '#64748B',
-                      backgroundColor: '#FFFFFF',
-                      transition: 'background-color 150ms ease, color 150ms ease, border-color 150ms ease, transform 120ms ease',
-                      '&:hover': {
-                        backgroundColor: '#EEF6F7',
-                        color: '#0F766E',
-                        borderColor: '#9FD5DC',
-                        transform: 'translateY(-1px)',
-                      },
-                      '&:active': {
-                        transform: 'translateY(0px) scale(0.96)',
-                      },
-                      '&.Mui-focusVisible': {
-                        outline: '2px solid #84D6DB',
-                        outlineOffset: '2px',
-                      },
-                    }}
-                  >
-                    <CloseIcon sx={{ fontSize: 18 }} />
-                  </IconButton>
-                </Box>
-                <Box sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '16px',
-                  flexWrap: 'wrap',
-                }}>
-                  {(ExampleQueries?.[showExamples] || []).map((example, index) => (
-                    <Link key={index} href="#" sx={{
-                      textDecoration: 'none',
-                      display: 'block',
-                      "&:hover": {
-                        textDecoration: 'none',
-                      },
-                    }} onClick={(e) => {
-                      e.preventDefault();
-                      setQuery(example.question);
-                      if (example.link) {
-                        window.location.href = example.link;
-                        return;
-                      }
-                      setShowExamples(undefined);
-                    }}>
-                      <Box sx={{
-                        display: 'flex',
-                        padding: '12px',
-                        backgroundColor: '#F2FAFB',
-                        borderRadius: '8px',
-                        fontFamily: 'Open Sans',
-                        fontWeight: 400,
-                        fontSize: '16px',
-                        color: '#183B5C',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        transition: 'background-color 150ms ease, transform 120ms ease, box-shadow 150ms ease',
-                        '& .highlight-arrow': {
-                          transition: 'transform 140ms ease, color 140ms ease',
-                        },
-                        '&:hover': {
-                          backgroundColor: '#E8F5F6',
-                          boxShadow: '0 3px 10px rgba(15,118,110,0.10)',
-                          transform: 'translateY(-1px)',
-                        },
-                        '&:hover .highlight-arrow': {
-                          transform: 'translateX(3px)',
-                          color: '#0F766E',
-                        },
-                        '&:active': {
-                          transform: 'translateY(0px) scale(0.996)',
-                        },
-                      }}>
-                        {example.question}
-                        <span className={"highlight-arrow"} style={{ color: 'black' }}><ArrowOutwardIcon fontSize="small" /></span>
-                      </Box>
-                    </Link>
-                  ))}
-                </Box>
-              </Paper>}
-            </Box>
-            <Box className="example-classes" sx={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              textAlign: 'center',
-              marginTop: '24px',
-            }}>
-              {
-                exampleClassKeys.map((key, index) => {
-                  const style = ExampleClassStyles[index % ExampleClassStyles.length];
-                  return (
-                    <Button key={key} className="example-class" sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      margin: '8px',
-                      cursor: 'pointer',
-                      backgroundColor: style.bgcolor,
-                      borderRadius: '20px',
-                      padding: '8px 16px',
-                      border: `1px solid ${style.bdcolor}`,
-                      textTransform: 'none',
-                      transition: 'transform 120ms ease, box-shadow 160ms ease, background-color 160ms ease, border-color 160ms ease',
-                      boxShadow: showExamples === key ? '0 5px 12px rgba(15,118,110,0.18)' : 'none',
-                      '&:hover': {
-                        backgroundColor: '#EAF7F8',
-                        borderColor: '#8DCFD6',
-                        transform: 'translateY(-1px)',
-                        boxShadow: '0 6px 12px rgba(15,118,110,0.16)',
-                      },
-                      '&:active': {
-                        transform: 'translateY(0px) scale(0.985)',
-                      },
-                    }} onClick={() => {
-                      setShowExamples(showExamples === key ? undefined : key);
-                    }}>
-                      <Typography sx={{
-                        fontFamily: 'Open Sans',
-                        fontWeight: showExamples === key ? 700 : 500,
-                        fontSize: '16px',
-                        color: style.color,
-                        transition: 'color 160ms ease',
-                      }}>
-                        {key}
-                      </Typography>
-                    </Button>
-                  );
-                })
-              }
-            </Box>
-          </Box>
-
-          {/* SearchBar 组件
-        <SearchBar 
-          onTargetTermChange={handleTargetTermChange}
-          question={selectedQuestion}
-        /> */}
-          {/* <Link href={process.env.REACT_APP_PANKGRAPH_LINK + '/result?snpId=rs2402203&leadSnp=rs2402203&geneId=ENSG00000001626&relationship=fine_mapped_eQTL&tissueKey=pancreas&dataSource=splicing%3B+GTEx&geneSymbol=CFTR'}
-              sx={{ textDecoration: 'underline', color: 'black', fontSize: '14px' }}
-        >
-          Example query: How does the SNP rs2402203 influence the splicing of CFTR (ENSG00000001626) in pancreas, as reported by GTEx?
-        </Link> */}
+            <Typography sx={{ color: '#181C1D', fontSize: 14, fontFamily: 'Inter', fontWeight: 600, lineHeight: '20px', wordWrap: 'break-word' }}>
+                {card.title}
+            </Typography>
         </Box>
-      </Container>
-    </Container>
-  );
+    );
+
+    return (
+        <Box sx={{ flex: 1, bgcolor: '#FFFFFF', display: 'flex', minHeight: 0 }}>
+            <Box
+                sx={{
+                    width: 288,
+                    bgcolor: '#F0F4F4',
+                    px: 3,
+                    py: 3,
+                    display: { xs: 'none', lg: 'flex' },
+                    flexDirection: 'column',
+                    boxShadow: '32px 0 64px -20px rgba(0, 106, 106, 0.04)',
+                }}
+            >
+                <Typography sx={{ fontFamily: 'Inter', fontWeight: 700, fontSize: 24, color: '#006766', mb: 2 }}>
+                    PanKgraph
+                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, flex: 1 }}>
+                    <Button
+                        disableElevation
+                        startIcon={<AddCommentOutlinedIcon sx={{ color: '#006766' }} />}
+                        sx={{
+                            justifyContent: 'flex-start',
+                            borderRadius: '9999px',
+                            bgcolor: '#FFFFFF',
+                            color: '#006766',
+                            fontFamily: 'Inter',
+                            fontSize: 14,
+                            fontWeight: 500,
+                            textTransform: 'none',
+                            height: 44,
+                            px: 2,
+                        }}
+                    >
+                        New Chat
+                    </Button>
+                    <Button
+                        startIcon={<AutoGraphOutlinedIcon sx={{ color: '#5A6161' }} />}
+                        sx={{ justifyContent: 'flex-start', borderRadius: '9999px', color: '#5A6161', fontFamily: 'Inter', fontSize: 14, fontWeight: 500, textTransform: 'none', height: 44, px: 2 }}
+                    >
+                        Subagent
+                    </Button>
+                    <Button
+                        startIcon={<TravelExploreOutlinedIcon sx={{ color: '#5A6161' }} />}
+                        sx={{ justifyContent: 'flex-start', borderRadius: '9999px', color: '#5A6161', fontFamily: 'Inter', fontSize: 14, fontWeight: 500, textTransform: 'none', height: 44, px: 2 }}
+                    >
+                        Recent
+                    </Button>
+                </Box>
+                <Button
+                    startIcon={<SettingsOutlinedIcon sx={{ color: '#5A6161' }} />}
+                    sx={{ justifyContent: 'flex-start', borderRadius: '9999px', color: '#5A6161', fontFamily: 'Inter', fontSize: 14, fontWeight: 500, textTransform: 'none', height: 44, px: 2 }}
+                >
+                    Settings & help
+                </Button>
+            </Box>
+
+            <Box
+                sx={{
+                    flex: 1,
+                    px: { xs: 2, md: 4 },
+                    py: { xs: 4, md: 6 },
+                    position: 'relative',
+                    overflow: 'visible',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: { xs: 'flex-start', md: 'center' },
+                }}
+            >
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        inset: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        opacity: 0.12,
+                        pointerEvents: 'none',
+                        filter: 'blur(2px)',
+                    }}
+                >
+                    <Box component="img" src={landingPageLogo} alt="background" sx={{ width: { xs: '95%', md: 980 }, maxWidth: '96%', objectFit: 'contain' }} />
+                </Box>
+
+                <Box sx={{ maxWidth: 992, mx: 'auto', position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                    <Box sx={{ width: '100%', maxWidth: 768, textAlign: 'center' }}>
+                        <Typography sx={{ fontFamily: 'Inter', fontWeight: 900, fontSize: 48, lineHeight: '48px', letterSpacing: '-2.4px' }}>
+                            <Box component="span" sx={{ color: '#4E4E4E', fontSize: 48, fontFamily: 'Inter', fontWeight: 900, lineHeight: '48px', letterSpacing: '-2.4px', wordWrap: 'break-word' }}>
+                                What would you like to{' '}
+                            </Box>
+                            <Box component="span" sx={{ color: '#219197', fontSize: 48, fontFamily: 'Inter', fontWeight: 900, letterSpacing: 'normal', wordWrap: 'break-word' }}>
+                                explore?
+                            </Box>
+                        </Typography>
+                        <Typography sx={{ mt: 2, fontFamily: 'Inter', fontWeight: 400, fontSize: 18, lineHeight: 1.625, color: '#4C6261' }}>
+                            Explore our comprehensive database of T1D–related data,<br />
+                            knowledge, and insights. Simply type your question—our<br />
+                            PanKgraph agent finds the answers.
+                        </Typography>
+                    </Box>
+
+                    <Box sx={{ width: '100%', maxWidth: 768, position: 'relative', pt: 2 }}>
+                        <Box
+                            sx={{
+                                position: 'absolute',
+                                inset: '16px -4px 0 -4px',
+                                borderRadius: '48px',
+                                background: 'linear-gradient(90deg, rgba(0,103,102,0.2) 0%, rgba(0,130,129,0.2) 100%)',
+                                filter: 'blur(8px)',
+                                pointerEvents: 'none',
+                            }}
+                        />
+                        <Box
+                            sx={{
+                                height: 101,
+                                borderRadius: '48px',
+                                bgcolor: '#FFFFFF',
+                                border: '1px solid rgba(189,201,200,0.1)',
+                                boxShadow: '0 8px 20px -6px rgba(0,103,102,0.05), 0 20px 50px -5px rgba(0,103,102,0.05)',
+                                px: 1,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                                position: 'relative',
+                            }}
+                        >
+                            <Box sx={{ px: 1.5, display: 'flex', alignItems: 'center' }}>
+                                <SearchIcon sx={{ fontSize: 26, color: '#006766' }} />
+                            </Box>
+                            <TextField
+                                variant="standard"
+                                fullWidth
+                                value={query}
+                                onChange={(event) => setQuery(event.target.value || '')}
+                                onFocus={() => {
+                                    if (searchExampleGroup.entries.length > 0) {
+                                        setActiveExampleGroup('search');
+                                    }
+                                }}
+                                onKeyDown={(event) => {
+                                    if (event.key === 'Enter') {
+                                        event.preventDefault();
+                                        setShowLoading(true);
+                                        handleSearch(query);
+                                    }
+                                }}
+                                placeholder="Ask about GWAS signals, tissue-specific expression, or SNP impacts..."
+                                InputProps={{ disableUnderline: true }}
+                                sx={{
+                                    '& .MuiInputBase-input': {
+                                        fontFamily: 'Inter',
+                                        fontSize: { xs: 16, md: 20 },
+                                        color: '#181C1D',
+                                        p: 0,
+                                    },
+                                }}
+                            />
+                            {query.length > 0 && (
+                                <IconButton
+                                    size="small"
+                                    onMouseDown={(event) => {
+                                        event.preventDefault();
+                                    }}
+                                    onClick={() => {
+                                        setQuery('');
+                                    }}
+                                    sx={{
+                                        color: '#98A1AE',
+                                        width: 28,
+                                        height: 28,
+                                        mr: 0.25,
+                                    }}
+                                >
+                                    <CloseIcon sx={{ fontSize: 18 }} />
+                                </IconButton>
+                            )}
+                            <Button
+                                disableElevation
+                                onClick={() => {
+                                    setShowLoading(true);
+                                    handleSearch(query);
+                                }}
+                                disabled={!query.trim() || showLoading}
+                                sx={{
+                                    height: 48,
+                                    borderRadius: '32px',
+                                    px: 4,
+                                    mr: 0.5,
+                                    textTransform: 'none',
+                                    bgcolor: '#219197',
+                                    color: '#FFFFFF',
+                                    fontFamily: 'Inter',
+                                    fontSize: 16,
+                                    fontWeight: 600,
+                                    '&:hover': { bgcolor: '#1C7E83' },
+                                    '&.Mui-disabled': { bgcolor: 'rgba(33,145,151,0.45)', color: '#FFFFFF' },
+                                }}
+                                endIcon={showLoading ? <CircularProgress size={14} sx={{ color: '#FFFFFF' }} /> : <SendRoundedIcon sx={{ fontSize: 18 }} />}
+                            >
+                                Search
+                            </Button>
+                        </Box>
+                    </Box>
+
+                    <Box sx={{ width: '100%', maxWidth: 768, position: 'relative' }}>
+                        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 1.5 }}>
+                            {quickCards.map((card) => (
+                                <Button
+                                    key={card.key}
+                                    onClick={() => {
+                                        setActiveExampleGroup((prev) => (prev === card.key ? undefined : card.key));
+                                    }}
+                                    sx={{
+                                        borderRadius: '32px',
+                                        minHeight: 132,
+                                        px: 3,
+                                        py: 3,
+                                        textTransform: 'none',
+                                        justifyContent: 'flex-start',
+                                        alignItems: 'flex-start',
+                                        flexDirection: 'column',
+                                        gap: 1.5,
+                                        bgcolor: 'rgba(240,244,244,0.8)',
+                                        border: '1px solid rgba(189,201,200,0.05)',
+                                        backdropFilter: 'blur(4px)',
+                                        color: '#181C1D',
+                                        boxShadow: activeExampleGroup === card.key ? '0 5px 12px rgba(15,118,110,0.14)' : 'none',
+                                        '&:hover': {
+                                            bgcolor: 'rgba(235,242,242,0.95)',
+                                        },
+                                    }}
+                                >
+                                    {card.icon}
+                                    {renderButtonLabel(card)}
+                                </Button>
+                            ))}
+                        </Box>
+
+                        {activeExampleGroup && (
+                            <Paper
+                                ref={examplesPanelRef}
+                                sx={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    right: 0,
+                                    zIndex: 30,
+                                    borderRadius: '16px',
+                                    border: '1px solid #E6F0FC',
+                                    boxShadow: '0 8px 22px rgba(15,118,110,0.12)',
+                                    p: 2,
+                                }}
+                            >
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1.5 }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        {activeExampleGroup === 'search' ? null : activeCard?.icon}
+                                        <Typography
+                                            sx={{
+                                                fontFamily: 'Inter',
+                                                fontWeight: 700,
+                                                fontSize: 18,
+                                                color: '#006766',
+                                                textTransform: 'none',
+                                                lineHeight: '22px',
+                                            }}
+                                        >
+                                            {activeTitle}
+                                        </Typography>
+                                    </Box>
+                                    <Button
+                                        onClick={() => setActiveExampleGroup(undefined)}
+                                        sx={{ minWidth: 'auto', p: 0.5, color: '#64748B' }}
+                                    >
+                                        <CloseIcon sx={{ fontSize: 18 }} />
+                                    </Button>
+                                </Box>
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                                    {activeExamples.map((example, index) => (
+                                        <Button
+                                            key={`${activeExampleGroup}-${index}`}
+                                            onClick={() => handleExampleClick(example)}
+                                            sx={{
+                                                minHeight: 50,
+                                                px: 1.5,
+                                                py: 1,
+                                                borderRadius: '8px',
+                                                textTransform: 'none',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                bgcolor: '#F2FAFB',
+                                                color: '#183B5C',
+                                                fontFamily: 'Inter',
+                                                fontSize: 15,
+                                                fontWeight: 400,
+                                                textAlign: 'left',
+                                                '&:hover': {
+                                                    bgcolor: '#E8F5F6',
+                                                },
+                                            }}
+                                        >
+                                            <Box sx={{ pr: 1.5, textAlign: 'left' }}>{example.question}</Box>
+                                            <ArrowOutwardIcon sx={{ fontSize: 18, color: '#0F766E', flexShrink: 0 }} />
+                                        </Button>
+                                    ))}
+                                </Box>
+                            </Paper>
+                        )}
+                    </Box>
+
+                    <Box
+                        sx={{
+                            mt: 0.5,
+                            borderRadius: '9999px',
+                            px: 2,
+                            py: 0.75,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 1,
+                            bgcolor: 'rgba(204,228,227,0.3)',
+                            border: '1px solid rgba(0,103,102,0.1)',
+                        }}
+                    >
+                        <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: '#006766' }} />
+                        <Typography sx={{ fontFamily: 'Inter', fontWeight: 700, fontSize: 10, letterSpacing: 1, textTransform: 'uppercase', color: '#006766' }}>
+                            Precision Engine v2.4 Beta
+                        </Typography>
+                    </Box>
+                </Box>
+            </Box>
+        </Box>
+    );
 }
 
-export default LandingPage;
+export default AgentLandingPage;
