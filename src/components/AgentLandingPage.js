@@ -6,8 +6,8 @@ import React, {
 } from 'react';
 
 import {
-    useLocation,
-    useNavigate,
+  useLocation,
+  useNavigate,
 } from 'react-router-dom';
 
 import AddCommentOutlinedIcon from '@mui/icons-material/AddCommentOutlined';
@@ -249,7 +249,7 @@ function AgentLandingPage() {
                 sx={{
                     flex: 1,
                     px: { xs: 2, md: 4 },
-                    py: { xs: 4, md: 6 },
+                    py: { xs: 8, md: 12 },
                     position: 'relative',
                     overflow: 'visible',
                     display: 'flex',

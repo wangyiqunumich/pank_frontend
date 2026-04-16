@@ -1,49 +1,49 @@
 import './scoped.css';
 
 import React, {
-    useEffect,
-    useRef,
-    useState,
+  useEffect,
+  useRef,
+  useState,
 } from 'react';
 
 import JSON5 from 'json5';
 import ReactMarkdown from 'react-markdown';
 import {
-    useDispatch,
-    useSelector,
+  useDispatch,
+  useSelector,
 } from 'react-redux';
 import {
-    useLocation,
-    useNavigate,
+  useLocation,
+  useNavigate,
 } from 'react-router-dom';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 
 import {
-    InfoOutlined as InfoOutlineIcon,
-    Mail as MailIcon,
+  InfoOutlined as InfoOutlineIcon,
+  Mail as MailIcon,
 } from '@mui/icons-material';
 import {
-    Backdrop,
-    Box,
-    Button,
-    CircularProgress,
-    Container,
-    Grid,
-    Link,
-    Skeleton,
-    styled,
-    Tooltip,
-    tooltipClasses,
-    Typography,
+  Backdrop,
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  Grid,
+  Link,
+  Skeleton,
+  styled,
+  Tooltip,
+  tooltipClasses,
+  Typography,
 } from '@mui/material';
 
 import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 import { ErrorComponent } from '../components/IntermediatePage';
 import KnowledgeGraph from '../components/KnowledgeGraph';
 import QuestionAnswerPage, {
-    PlanConfirmationPage,
-    ResultComponentSkeleton,
+  PlanConfirmationPage,
+  ResultComponentSkeleton,
 } from '../components/ResultComponent';
 import { AlertMessage } from '../components/SupportingMaterial';
 import agentErrorImage from '../image/agent_error.png';
@@ -57,8 +57,8 @@ import tooltipsSchema from '../schema/tool_tips_schema.json';
 import { addHighlight } from '../utils/textProcessing';
 import { GenomeBrowserEmbed } from './AgentResult';
 import {
-    demoCoordData,
-    demoGraphData,
+  demoCoordData,
+  demoGraphData,
 } from './demo_graph_data';
 import SearchResultLoading from './loading';
 import sampleSummaryData from './sample.json';
