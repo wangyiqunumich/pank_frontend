@@ -488,6 +488,7 @@ function MatchPage() {
     const requestedReturnTo = params.get('returnTo');
     return requestedReturnTo && requestedReturnTo.startsWith('/') ? requestedReturnTo : '/';
   }, [location.search]);
+  const useOldResultLayout = useMemo(() => cancelPath.startsWith('/old-landing'), [cancelPath]);
   const [questionData, setQuestioData] = useState(null);
   const [visualPattern, setVisualPattern] = useState(questionData?.pattern_for_the_matched_page);
 
@@ -546,7 +547,8 @@ function MatchPage() {
     }
 
     if (selectedQuestion.startsWith('How does')) {
-      const url = `/result-new?sourceTerm=gene@${geneId.split('(')[1].slice(0, -1)}&targetTerm=cell_type&relationship=express_in`
+      const resultPath = useOldResultLayout ? '/result' : '/result-new';
+      const url = `${resultPath}?sourceTerm=gene@${geneId.split('(')[1].slice(0, -1)}&targetTerm=cell_type&relationship=express_in`;
       navigate(url);
     }
     else {
@@ -585,9 +587,13 @@ function MatchPage() {
         // if (source.startsWith('rs'))
         sourceTerm = source;
       }
-      let url = `/${targetTerm === "disease" ? "result-new" : "intermediate"}?sourceTerm=${sourceTerm}&relationship=${relationTerm}&targetTerm=${targetTerm}`;
+      const resultPath = useOldResultLayout ? 'result' : 'result-new';
+      let url = `/${targetTerm === "disease" ? resultPath : "intermediate"}?sourceTerm=${sourceTerm}&relationship=${relationTerm}&targetTerm=${targetTerm}`;
       if (targetSymbol) {
         url += `&targetSymbol=${targetSymbol}`;
+      }
+      if (targetTerm !== 'disease') {
+        url += `&resultLayout=${useOldResultLayout ? 'old' : 'new'}`;
       }
       navigate(url);
     }
@@ -713,7 +719,7 @@ function MatchPage() {
       flex: 1,
       display: 'flex',
       alignItems: 'center',
-      marginTop: '0px',
+      marginTop: '24px',
       marginBottom: '40px',
     }}>
       <Container maxWidth={false} disableGutters sx={{

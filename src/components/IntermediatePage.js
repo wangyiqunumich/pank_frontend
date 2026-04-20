@@ -510,7 +510,9 @@ function IntermediatePage({ onContinue }) {
       targetTerm: targetTerm.includes("@") ? targetTerm : `${targetTerm}@${item[targetTerm]}`,
       relationship,
     });
-    window.location.href = `/result?${params.toString()}`;
+    const resultLayout = new URLSearchParams(window.location.search).get('resultLayout');
+    const resultPath = resultLayout === 'old' ? '/result' : '/result-new';
+    window.location.href = `${resultPath}?${params.toString()}`;
   };
 
   // function to get the credible set label based on the data source and index
@@ -632,6 +634,7 @@ function IntermediatePage({ onContinue }) {
     alignSelf: 'center',
     maxWidth: '1440px',
     minWidth: '1000px',
+    marginTop: '24px',
     marginLeft: '20px',
     marginRight: '20px',
     flexDirection: 'column',

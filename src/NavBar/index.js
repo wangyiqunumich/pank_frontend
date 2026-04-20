@@ -25,7 +25,7 @@ function NavBar() {
   };
 
   return (
-    <>
+    <div style={{ position: 'relative' }}>
       <div className="pkb-nav">
         <div className="logo">
           <a href={process.env.REACT_APP_PANKBASE_LINK}>
@@ -134,7 +134,8 @@ function NavBar() {
         </div>
       </div>
       <Typography sx={{
-        position: 'relative',
+        position: 'absolute',
+        top: '100%',
         left: '20px',
         padding: '0px 15px',
         fontSize: '14px',
@@ -143,7 +144,7 @@ function NavBar() {
         color: 'white',
         width: 'fit-content',
       }}>beta</Typography>
-    </>
+    </div>
   );
 }
 

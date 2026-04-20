@@ -16,7 +16,6 @@ import AutoGraphOutlinedIcon from '@mui/icons-material/AutoGraphOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import FlareOutlinedIcon from '@mui/icons-material/FlareOutlined';
 import SearchIcon from '@mui/icons-material/Search';
-import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import StorageOutlinedIcon from '@mui/icons-material/StorageOutlined';
 import TravelExploreOutlinedIcon
@@ -32,6 +31,7 @@ import {
 } from '@mui/material';
 
 import landingPageLogo from '../image/landing image cropped.png';
+import landingSendIcon from '../image/landing_send.svg';
 import ExampleQueries from '../schema/landing_sample_questions.json';
 
 export const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
@@ -264,12 +264,12 @@ function AgentLandingPage() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        opacity: 0.12,
+                        opacity: 0.06,
                         pointerEvents: 'none',
-                        filter: 'blur(2px)',
+                        // filter: 'blur(2px)',
                     }}
                 >
-                    <Box component="img" src={landingPageLogo} alt="background" sx={{ width: { xs: '95%', md: 980 }, maxWidth: '96%', objectFit: 'contain' }} />
+                    <Box component="img" src={landingPageLogo} alt="background" sx={{ width: { xs: '95%', md: 992 }, maxWidth: '96%', objectFit: 'contain', transform: 'translateY(-60px)' }} />
                 </Box>
 
                 <Box sx={{ maxWidth: 992, mx: 'auto', position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
@@ -302,8 +302,8 @@ function AgentLandingPage() {
                         />
                         <Box
                             sx={{
-                                height: 101,
-                                borderRadius: '48px',
+                                height: 100,
+                                borderRadius: '50px',
                                 bgcolor: '#FFFFFF',
                                 border: '1px solid rgba(189,201,200,0.1)',
                                 boxShadow: '0 8px 20px -6px rgba(0,103,102,0.05), 0 20px 50px -5px rgba(0,103,102,0.05)',
@@ -385,7 +385,7 @@ function AgentLandingPage() {
                                     '&:hover': { bgcolor: '#1C7E83' },
                                     '&.Mui-disabled': { bgcolor: 'rgba(33,145,151,0.45)', color: '#FFFFFF' },
                                 }}
-                                endIcon={showLoading ? <CircularProgress size={14} sx={{ color: '#FFFFFF' }} /> : <SendRoundedIcon sx={{ fontSize: 18 }} />}
+                                endIcon={showLoading ? <CircularProgress size={14} sx={{ color: '#FFFFFF' }} /> : <Box component="img" src={landingSendIcon} alt="send" sx={{ width: 18, height: 18 }} />}
                             >
                                 Search
                             </Button>
