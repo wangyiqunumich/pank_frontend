@@ -136,6 +136,7 @@ const LoadingSkeleton = () => (
         alignSelf: 'center',
         maxWidth: '1440px',
         minWidth: '1000px',
+        marginTop: '24px',
         marginLeft: '20px',
         marginRight: '20px',
         flexGrow: 1,
@@ -710,7 +711,7 @@ function SearchResult() {
 
     // Show loading skeleton if queryResultPage is not ready
     return !(queryResultPage?.combined_query_result) ? <LoadingSkeleton /> :
-        (<Container sx={{ width: '100%', overflowX: 'auto', maxWidth: '1440px', marginX: '20px', alignSelf: 'center', overflow: 'visible' }} maxWidth={false}>
+        (<Container sx={{ width: '100%', overflowX: 'auto', maxWidth: '1440px', marginTop: '24px', marginX: '20px', alignSelf: 'center', overflow: 'visible' }} maxWidth={false}>
             <Backdrop
                 sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
                 open={imagePopupOpen}

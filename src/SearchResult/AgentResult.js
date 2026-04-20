@@ -379,6 +379,7 @@ export function AgentResultLayout({
     showFloatingSearchBar = false,
 }) {
     const location = useLocation();
+    const isResultNewRoute = location.pathname === '/result-new';
     const demoMode = useMemo(
         () => new URLSearchParams(location.search).get('demo') === 'true',
         [location.search]
@@ -621,7 +622,7 @@ export function AgentResultLayout({
                             >
                                 <Container maxWidth={false} disableGutters sx={{
                                     display: 'flex',
-                                    marginTop: index > 0 ? '12px' : '0px',
+                                    marginTop: index > 0 ? '12px' : (isResultNewRoute ? '24px' : '0px'),
                                     marginBottom: '24px',
                                     paddingBottom: '24px',
                                 }}>
