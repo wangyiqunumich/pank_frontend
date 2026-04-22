@@ -37,6 +37,38 @@ import { readRecentChats } from '../utils/chatSessionStorage';
 
 export const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
 
+function BetaBadge({ sx }) {
+    return (
+        <Box
+            sx={{
+                display: 'inline-flex',
+                height: 'fit-content',
+                alignItems: 'center',
+                border: '1.5px solid #f0d98c',
+                borderRadius: '9999px',
+                backgroundColor: '#FFFFFF',
+                px: { xs: 1, md: 1.5 },
+                py: { xs: '4px', md: '6px' },
+                flexShrink: 0,
+                ...sx,
+            }}
+        >
+            <Typography
+                sx={{
+                    color: '#d4aa00',
+                    fontWeight: 800,
+                    fontSize: { xs: '13px', md: '16px' },
+                    whiteSpace: 'nowrap',
+                    fontFamily: 'Inter',
+                    lineHeight: 1,
+                }}
+            >
+                Beta
+            </Typography>
+        </Box>
+    );
+}
+
 function AgentLandingPage() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -294,7 +326,7 @@ function AgentLandingPage() {
                 sx={{
                     flex: 1,
                     px: { xs: 2, md: 4 },
-                    py: { xs: 8, md: 12 },
+                    py: { xs: 16, md: 20 },
                     position: 'relative',
                     overflow: 'visible',
                     display: 'flex',
@@ -317,16 +349,19 @@ function AgentLandingPage() {
                     <Box component="img" src={landingPageLogo} alt="background" sx={{ width: { xs: '95%', md: 992 }, maxWidth: '96%', objectFit: 'contain', transform: 'translateY(-60px)' }} />
                 </Box>
 
-                <Box sx={{ maxWidth: 992, mx: 'auto', position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                <Box sx={{ maxWidth: 992, mx: 'auto', pt: { xs: 2, md: 3 }, pb: { xs: 4, md: 6 }, position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                     <Box sx={{ width: '100%', maxWidth: 768, textAlign: 'center' }}>
-                        <Typography sx={{ fontFamily: 'Inter', fontWeight: 900, fontSize: 48, lineHeight: '48px', letterSpacing: '-2.4px' }}>
-                            <Box component="span" sx={{ color: '#4E4E4E', fontSize: 48, fontFamily: 'Inter', fontWeight: 900, lineHeight: '48px', letterSpacing: '-2.4px', wordWrap: 'break-word' }}>
-                                What would you like to{' '}
-                            </Box>
-                            <Box component="span" sx={{ color: '#219197', fontSize: 48, fontFamily: 'Inter', fontWeight: 900, letterSpacing: 'normal', wordWrap: 'break-word' }}>
-                                explore?
-                            </Box>
-                        </Typography>
+                        <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: { xs: 1, md: 1.5 }, flexWrap: 'nowrap', justifyContent: 'center', maxWidth: '100%' }}>
+                            <Typography sx={{ fontFamily: 'Inter', fontWeight: 900, fontSize: { xs: 28, sm: 36, md: 48 }, lineHeight: { xs: '32px', sm: '40px', md: '48px' }, letterSpacing: { xs: '-1.2px', sm: '-1.8px', md: '-2.4px' }, whiteSpace: 'nowrap', flexShrink: 1 }}>
+                                <Box component="span" sx={{ color: '#4E4E4E', fontSize: { xs: 28, sm: 36, md: 48 }, fontFamily: 'Inter', fontWeight: 900, lineHeight: { xs: '32px', sm: '40px', md: '48px' }, letterSpacing: { xs: '-1.2px', sm: '-1.8px', md: '-2.4px' }, whiteSpace: 'nowrap' }}>
+                                    What would you like to{' '}
+                                </Box>
+                                <Box component="span" sx={{ color: '#219197', fontSize: { xs: 28, sm: 36, md: 48 }, fontFamily: 'Inter', fontWeight: 900, letterSpacing: 'normal', whiteSpace: 'nowrap' }}>
+                                    explore?
+                                </Box>
+                            </Typography>
+                            <BetaBadge sx={{ transform: 'translateY(2px)' }} />
+                        </Box>
                         <Typography sx={{ mt: 2, fontFamily: 'Inter', fontWeight: 400, fontSize: 18, lineHeight: 1.625, color: '#4C6261' }}>
                             Explore our comprehensive database of T1D–related data,<br />
                             knowledge, and insights. Simply type your question—our<br />
@@ -542,24 +577,6 @@ function AgentLandingPage() {
                         )}
                     </Box>
 
-                    <Box
-                        sx={{
-                            mt: 0.5,
-                            borderRadius: '9999px',
-                            px: 2,
-                            py: 0.75,
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 1,
-                            bgcolor: 'rgba(204,228,227,0.3)',
-                            border: '1px solid rgba(0,103,102,0.1)',
-                        }}
-                    >
-                        <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: '#006766' }} />
-                        <Typography sx={{ fontFamily: 'Inter', fontWeight: 700, fontSize: 10, letterSpacing: 1, textTransform: 'uppercase', color: '#006766' }}>
-                            Precision Engine v2.4 Beta
-                        </Typography>
-                    </Box>
                 </Box>
             </Box>
         </Box>
