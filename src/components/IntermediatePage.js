@@ -120,7 +120,6 @@ export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "
       marginRight: 0,
       flexDirection: 'column',
       flexGrow: 1,
-      transform: 'translateY(-21px)',
       marginBottom: '-21px',
     }} disableGutters maxWidth={false}>
       <Box sx={{

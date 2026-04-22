@@ -33,6 +33,7 @@ import {
 import landingPageLogo from '../image/landing image cropped.png';
 import landingSendIcon from '../image/landing_send.svg';
 import ExampleQueries from '../schema/landing_sample_questions.json';
+import { readRecentChats } from '../utils/chatSessionStorage';
 
 export const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
 
@@ -42,7 +43,12 @@ function AgentLandingPage() {
     const [query, setQuery] = useState('');
     const [showLoading, setShowLoading] = useState(false);
     const [activeExampleGroup, setActiveExampleGroup] = useState(undefined);
+    const [recentChats, setRecentChats] = useState([]);
     const examplesPanelRef = useRef(null);
+
+    useEffect(() => {
+        setRecentChats(readRecentChats());
+    }, [location.pathname, location.search]);
 
     const searchExampleGroup = useMemo(() => {
         const group = ExampleQueries?.search_examples;
@@ -209,6 +215,11 @@ function AgentLandingPage() {
                     <Button
                         disableElevation
                         startIcon={<AddCommentOutlinedIcon sx={{ color: '#006766' }} />}
+                        onClick={() => {
+                            setQuery('');
+                            setActiveExampleGroup(undefined);
+                            navigate('/');
+                        }}
                         sx={{
                             justifyContent: 'flex-start',
                             borderRadius: '9999px',
@@ -236,6 +247,40 @@ function AgentLandingPage() {
                     >
                         Recent
                     </Button>
+                    <Box sx={{ mt: 0.5, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                        {recentChats.length > 0 ? recentChats.map((chat) => {
+                            const encodedQuestion = encodeURIComponent(utf8ToBase64(chat.firstQuestion || ''));
+                            const target = `/result-new2?question=${encodedQuestion}&terminal=true&session_id=${encodeURIComponent(chat.sessionId)}`;
+                            return (
+                                <Button
+                                    key={chat.sessionId}
+                                    onClick={() => navigate(target)}
+                                    sx={{
+                                        justifyContent: 'flex-start',
+                                        borderRadius: '12px',
+                                        color: '#405252',
+                                        fontFamily: 'Inter',
+                                        fontSize: 12,
+                                        fontWeight: 500,
+                                        textTransform: 'none',
+                                        minHeight: 34,
+                                        px: 1.5,
+                                        py: 0.75,
+                                        bgcolor: 'rgba(255,255,255,0.75)',
+                                        '&:hover': { bgcolor: '#FFFFFF' },
+                                    }}
+                                >
+                                    <Box sx={{ textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>
+                                        {chat.firstQuestion}
+                                    </Box>
+                                </Button>
+                            );
+                        }) : (
+                            <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#7B8A8A', px: 2 }}>
+                                No recent conversations yet.
+                            </Typography>
+                        )}
+                    </Box>
                 </Box>
                 <Button
                     startIcon={<SettingsOutlinedIcon sx={{ color: '#5A6161' }} />}

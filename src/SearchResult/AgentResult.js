@@ -1,16 +1,16 @@
 import React, {
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from 'react';
 
 import igv from 'https://cdn.jsdelivr.net/npm/igv@3.0.2/dist/igv.esm.min.js';
 import { useLocation } from 'react-router-dom';
 
 import {
-    Container,
-    useMediaQuery,
+  Container,
+  useMediaQuery,
 } from '@mui/material';
 
 import SearchResult from './result';
@@ -400,7 +400,12 @@ export function AgentResultLayout({
     const resultsContainerRef = useRef(null);
     const scrollRafRef = useRef(null);
     const scrollLockRef = useRef({ active: false, until: 0, index: null });
-    const canSearch = effectiveAllowMulti && allowSearch;
+    const activeMeta = contentMetaByIndex[activeResultIndex];
+    const activeQuestionComplete = activeMeta?.isQuestionComplete ?? false;
+    const canSearch = allowSearch
+        && (effectiveAllowMulti || showFloatingSearchBar)
+        && !Boolean(activeMeta?.isPlanning)
+        && (effectiveAllowMulti || activeQuestionComplete);
     const isSingleColumn = useMediaQuery("(max-width:1199.95px)");
 
     const getAnchorPrefix = (index) => `result-${index + 1}`;
@@ -509,21 +514,30 @@ export function AgentResultLayout({
 
     const handleSearch = () => {
         if (!canSearch) return;
-        if (searchQuery.trim()) {
-            const newResult = {
-                id: results.length + 1,
-                query: searchQuery,
-            };
-            setResults([...results, newResult]);
-            setSearchQuery("");
-            setActiveResultIndex(results.length);
+        const trimmed = searchQuery.trim();
+        if (!trimmed) return;
 
-            // Scroll to new result
-            setTimeout(() => {
-                const resultElement = resultsContainerRef.current?.children[results.length];
-                resultElement?.scrollIntoView({ behavior: "smooth", block: "start" });
-            }, 100);
+        // In chat mode the active result exposes a followUpHandler — delegate to it
+        // so /chat/message is called on the existing session instead of mounting a new component.
+        const followUpHandler = activeMeta?.followUpHandler;
+        if (followUpHandler) {
+            followUpHandler(trimmed);
+            setSearchQuery("");
+            return;
         }
+
+        // Non-chat: mount a new result component as before
+        const newResult = {
+            id: results.length + 1,
+            query: trimmed,
+        };
+        setResults([...results, newResult]);
+        setSearchQuery("");
+        setActiveResultIndex(results.length);
+        setTimeout(() => {
+            const resultElement = resultsContainerRef.current?.children[results.length];
+            resultElement?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 100);
     };
 
     const handleKeyPress = (e) => {

@@ -5,6 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { flushSync } from 'react-dom';
 
 import JSON5 from 'json5';
 import ReactMarkdown from 'react-markdown';
@@ -54,6 +55,12 @@ import { querySupportingMaterial } from '../redux/supportingMaterialSlice';
 import { queryImage } from '../redux/typeToImageSlice';
 import agentErrorSchema from '../schema/agent_error.json';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
+import {
+  appendConversationMessages,
+  readConversationHistory,
+  replaceConversationHistory,
+  upsertRecentChat,
+} from '../utils/chatSessionStorage';
 import { addHighlight } from '../utils/textProcessing';
 import { GenomeBrowserEmbed } from './AgentResult';
 import {
@@ -161,6 +168,16 @@ const buildDebugStreamLoadingProgress = (milestones, options = {}) => {
 };
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const CHAT_START_CACHE_KEY = 'pank_chat_start_cache_v1';
+const CHAT_PENDING_PLAN_CACHE_KEY = 'pank_chat_pending_plan_v1';
+
+const safeParseJson = (rawValue, fallback = null) => {
+    try {
+        return rawValue ? JSON.parse(rawValue) : fallback;
+    } catch (err) {
+        return fallback;
+    }
+};
 
 export const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
 export const base64ToUtf8 = (base64) => {
@@ -348,6 +365,9 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         }
         return base64ToUtf8(encoded) || encoded;
     }, [searchParams]);
+    const chatSessionIdFromUrl = React.useMemo(() => searchParams.get('session_id') || '', [searchParams]);
+    const pendingPlanSessionIdFromUrl = React.useMemo(() => searchParams.get('pending_plan_session_id') || '', [searchParams]);
+    const chatRouteFromUrl = React.useMemo(() => searchParams.get('route') || '', [searchParams]);
 
     const { viewSchema } = useSelector((state) => state.viewSchema);
     const { typeToImage } = useSelector((state) => state.typeToImage);
@@ -391,6 +411,23 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const streamAnswerRef = useRef('');
     const thinkingBoxRef = useRef(null);
     const terminalInitializedQuestionRef = useRef('');
+    const chatBootstrapRef = useRef('');
+    const chatBootstrapRunIdRef = useRef(0);
+    const [chatSessionId, setChatSessionId] = useState(chatSessionIdFromUrl);
+    const [followUpDraft, setFollowUpDraft] = useState('');
+    const [followUpSubmitting, setFollowUpSubmitting] = useState(false);
+    const [chatHistoryCompressed, setChatHistoryCompressed] = useState(false);
+    const [followUpBlocks, setFollowUpBlocks] = useState([]);
+    const [conversationRound, setConversationRound] = useState(1);
+    const followUpPendingAnchorRef = useRef(null);
+    const [chatStartPendingPlanSessionId, setChatStartPendingPlanSessionId] = useState('');
+    const [chatStartRevisionPrompt, setChatStartRevisionPrompt] = useState('');
+    const [chatStartQuestion, setChatStartQuestion] = useState('');
+    const [chatStartPlanConfirming, setChatStartPlanConfirming] = useState(false);
+    const [isPlanRevisionInProgress, setIsPlanRevisionInProgress] = useState(false);
+    const [chatRouteState, setChatRouteState] = useState('');
+    const [forceResultView, setForceResultView] = useState(false);
+    const isChatApiMode = terminalMode && !debug && !demoMode && !planDemoMode;
 
     const resolveAgentErrorType = React.useCallback((err, fallbackType = 'critical_error') => {
         const status = err?.response?.status;
@@ -492,6 +529,82 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             followUpQuestions: text.follow_up_questions || [],
         };
     };
+
+    const normalizeFollowUpItems = React.useCallback((items) => {
+        if (!Array.isArray(items)) return [];
+        return items
+            .filter((item) => typeof item === 'string' && item.trim())
+            .map((item) => ({ question: item.trim(), link: '' }));
+    }, []);
+
+    const parseChatResponseContent = React.useCallback((payload) => {
+        const answerMarkdown = String(payload?.answer_markdown || '').trim();
+        if (answerMarkdown) {
+            return {
+                summary: answerMarkdown,
+                followUpQuestions: normalizeFollowUpItems(payload?.follow_up_questions),
+            };
+        }
+
+        try {
+            const parsed = parseAnswerStringPayload(payload?.answer || '{}');
+            return {
+                summary: parsed.summary || '',
+                followUpQuestions: normalizeFollowUpItems(parsed.followUpQuestions || []),
+            };
+        } catch (err) {
+            return {
+                summary: '',
+                followUpQuestions: [],
+            };
+        }
+    }, [normalizeFollowUpItems]);
+
+    const revisePlanSession = React.useCallback(async (sessionId, prompt) => {
+        const response = await flaskBackendAxiosInstanceNew.post(
+            'https://jieliulab3.dcmb.med.umich.edu/pankgraph-agent/plan/revise',
+            {
+                session_id: sessionId,
+                prompt,
+            },
+            {
+                headers: { 'Content-Type': 'application/json' },
+            }
+        );
+        return response?.data || {};
+    }, []);
+
+    const buildFollowUpAnswerData = React.useCallback((block, index) => {
+        const title = block?.title || block?.question || `Follow-up ${index + 1}`;
+        const answerText = block?.summary || (block?.confirming ? 'AI summary is generating...' : '');
+        return {
+            questionId: `F${index + 1}`,
+            title,
+            aiOverview: {
+                sections: [
+                    {
+                        content: (
+                            <Box sx={{ fontSize: 16, color: '#475569', lineHeight: 1.7 }}>
+                                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                                    {answerText}
+                                </ReactMarkdown>
+                            </Box>
+                        ),
+                    },
+                ],
+            },
+            followUp: {
+                title: 'Follow Up',
+                items: (block?.followUpQuestions || []).map((item) => ({ label: stripHtml(item.question) })),
+                onSelect: (item, event) => {
+                    event?.preventDefault?.();
+                    const text = stripHtml(item?.label || item?.question || '');
+                    if (!text) return;
+                    setFollowUpDraft(text);
+                },
+            },
+        };
+    }, []);
 
     const extractParsedTitle = (summaryText, fallbackQuestion) => {
         const lines = (summaryText || '')
@@ -1033,6 +1146,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         if (!inputText) return;
         setPlanRevisionWarningOpen(false);
         setTerminalLoading(true);
+        setIsPlanRevisionInProgress(Boolean(planSessionId));
         updateMilestoneSequence(planSessionId ? 'revise' : 'start');
         setStreamedEvents([]);
         setThinkingLines([]);
@@ -1109,6 +1223,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             setAgentErrorType(resolveAgentErrorType(err, 'planning_failed'));
         } finally {
             setTerminalLoading(false);
+            setIsPlanRevisionInProgress(false);
         }
     }, [planSessionId, currentQuestion, question, extractPlanCypherQueries, fetchGraphFromCypher, runPlanLoadingMilestones, resolveAgentErrorType]);
 
@@ -1163,7 +1278,543 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     }, [planSessionId, resolveAgentErrorType]);
 
     useEffect(() => {
-        if (!terminalMode || demoMode || planDemoMode || !question || terminalInitializedQuestionRef.current === question) {
+        setChatSessionId(chatSessionIdFromUrl || '');
+    }, [chatSessionIdFromUrl]);
+
+    const applyMainChatResponse = React.useCallback(async (payload, fallbackQuestion, preferredTitle = '') => {
+        const parsed = parseChatResponseContent(payload);
+        const resolvedQuestion = fallbackQuestion || currentQuestion || question;
+        const route = String(payload?.route || 'new_query');
+
+        setCurrentQuestion(resolvedQuestion);
+        setChatRouteState(route);
+        setAiAnswer(parsed.summary || '');
+        setStreamAnswer(parsed.summary || '');
+        setStreamedSummary(parsed.summary || '');
+        streamAnswerRef.current = parsed.summary || '';
+        streamSummaryRef.current = parsed.summary || '';
+        setPlanParsedTitle(preferredTitle || planParsedTitle || resolvedQuestion);
+        setNextQuestions(parsed.followUpQuestions || []);
+        setChatHistoryCompressed(Boolean(payload?.history_compressed));
+        setConversationRound(Number(payload?.round || 1));
+        setTerminalPhase('result');
+        setTerminalSummaryLoading(false);
+        setTerminalLoading(false);
+        setStreamComplete(true);
+
+        const planCypherQueries = extractPlanCypherQueries(payload?.plan_json || {});
+        if (planCypherQueries.length) {
+            await fetchGraphFromCypher(planCypherQueries);
+        } else {
+            setGraphData(null);
+            setNoGraph(true);
+        }
+    }, [parseChatResponseContent, currentQuestion, question, planParsedTitle, extractPlanCypherQueries, fetchGraphFromCypher]);
+
+    const handleConfirmPendingPlan = React.useCallback(async (blockId) => {
+        const block = followUpBlocks.find((item) => item.id === blockId);
+        if (!block || !chatSessionId || !block.planSessionId) {
+            return;
+        }
+
+        setFollowUpBlocks((prev) => prev.map((item) => (
+            item.id === blockId
+                ? {
+                    ...item,
+                    type: 'answer',
+                    summary: '',
+                    followUpQuestions: [],
+                    confirming: true,
+                    error: '',
+                }
+                : item
+        )));
+
+        try {
+            const response = await flaskBackendAxiosInstanceNew.post(
+                'https://jieliulab3.dcmb.med.umich.edu/pankgraph-agent/chat/plan/confirm',
+                {
+                    chat_session_id: chatSessionId,
+                    plan_session_id: block.planSessionId,
+                    revision_prompt: block.revisionPrompt || null,
+                },
+                {
+                    headers: { 'Content-Type': 'application/json' },
+                }
+            );
+
+            const payload = response?.data || {};
+            const parsed = parseChatResponseContent(payload);
+
+            setFollowUpBlocks((prev) => prev.map((item) => (
+                item.id === blockId
+                    ? {
+                        ...item,
+                        type: 'answer',
+                        summary: parsed.summary,
+                        followUpQuestions: parsed.followUpQuestions,
+                        title: item.title || item.question,
+                        confirming: false,
+                        error: '',
+                    }
+                    : item
+            )));
+
+            appendConversationMessages(chatSessionId, [
+                { role: 'assistant', content: parsed.summary || '' },
+            ]);
+            upsertRecentChat({ sessionId: chatSessionId, firstQuestion: question || currentQuestion || block.question });
+            setChatHistoryCompressed(Boolean(payload?.history_compressed));
+            setConversationRound(Number(payload?.round || conversationRound));
+        } catch (err) {
+            setFollowUpBlocks((prev) => prev.map((item) => (
+                item.id === blockId
+                    ? {
+                        ...item,
+                        type: 'plan',
+                        confirming: false,
+                        error: err?.response?.data?.detail || err?.message || 'Failed to confirm plan.',
+                    }
+                    : item
+            )));
+        }
+    }, [followUpBlocks, chatSessionId, parseChatResponseContent, extractParsedTitle, question, currentQuestion, conversationRound]);
+
+    const handleSendFollowUp = React.useCallback(async (value) => {
+        const cleaned = stripHtml(value || '').trim();
+        if (!cleaned || !chatSessionId) {
+            return;
+        }
+
+        const blockId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        setFollowUpSubmitting(true);
+        setFollowUpDraft('');
+        setFollowUpBlocks((prev) => [...prev, { id: blockId, question: cleaned, type: 'loading', error: '' }]);
+
+        try {
+            appendConversationMessages(chatSessionId, [{ role: 'user', content: cleaned }]);
+            const response = await flaskBackendAxiosInstanceNew.post(
+                'https://jieliulab3.dcmb.med.umich.edu/pankgraph-agent/chat/message',
+                {
+                    session_id: chatSessionId,
+                    question: cleaned,
+                },
+                {
+                    headers: { 'Content-Type': 'application/json' },
+                }
+            );
+
+            const payload = response?.data || {};
+            const parsed = parseChatResponseContent(payload);
+            setChatRouteState(String(payload?.route || ''));
+            setChatHistoryCompressed(Boolean(payload?.history_compressed));
+            setConversationRound(Number(payload?.round || conversationRound));
+
+            if (payload?.route === 'new_query_pending') {
+                const { interpretedQuestion } = parsePlanMarkdownForUI(payload?.plan_markdown || '');
+                setFollowUpBlocks((prev) => prev.map((item) => (
+                    item.id === blockId
+                        ? {
+                            ...item,
+                            type: 'plan',
+                            title: interpretedQuestion || cleaned,
+                            planMarkdown: payload?.plan_markdown || '',
+                            planSessionId: payload?.pending_plan_session_id || '',
+                            revisionPrompt: '',
+                            confirming: false,
+                            error: '',
+                        }
+                        : item
+                )));
+            } else if (payload?.route === 'follow_up' || payload?.route === 'new_query') {
+                setFollowUpBlocks((prev) => prev.map((item) => (
+                    item.id === blockId
+                        ? {
+                            ...item,
+                            type: 'answer',
+                            summary: parsed.summary,
+                            followUpQuestions: parsed.followUpQuestions,
+                            title: cleaned,
+                            error: '',
+                        }
+                        : item
+                )));
+                appendConversationMessages(chatSessionId, [
+                    { role: 'assistant', content: parsed.summary || '' },
+                ]);
+            } else {
+                throw new Error(`Unsupported chat/message route: ${String(payload?.route || 'unknown')}`);
+            }
+
+            upsertRecentChat({ sessionId: chatSessionId, firstQuestion: question || currentQuestion || cleaned });
+        } catch (err) {
+            setFollowUpBlocks((prev) => prev.map((item) => (
+                item.id === blockId
+                    ? {
+                        ...item,
+                        type: 'error',
+                        error: err?.response?.data?.detail || err?.message || 'Follow-up request failed.',
+                    }
+                    : item
+            )));
+        } finally {
+            setFollowUpSubmitting(false);
+        }
+    }, [chatSessionId, parseChatResponseContent, conversationRound, question, currentQuestion, parsePlanMarkdownForUI]);
+
+    const runChatStartConfirmCycle = React.useCallback(async () => {
+        if (!chatSessionId || !chatStartPendingPlanSessionId) {
+            setAgentErrorType('planning_failed');
+            return;
+        }
+
+        const confirmPlanSessionId = chatStartPendingPlanSessionId;
+        const confirmQuestionText = chatStartQuestion || question;
+        // Cancel any in-flight bootstrap conversation work so it cannot re-open planner state.
+        chatBootstrapRunIdRef.current += 1;
+
+        flushSync(() => {
+            setChatStartPlanConfirming(true);
+            setTerminalSummaryLoading(true);
+            setTerminalLoading(false);
+            setForceResultView(true);
+            setTerminalPhase('result');
+            setStreamComplete(false);
+            // Immediately switch out of planner view while waiting for confirm response.
+            setChatRouteState('new_query');
+            setChatStartPendingPlanSessionId('');
+            setAiAnswer('');
+            setStreamAnswer('');
+            setStreamedSummary('');
+        });
+        streamAnswerRef.current = '';
+        streamSummaryRef.current = '';
+
+        // Drop pending-plan URL markers immediately so remounts cannot restore planner while confirm is in-flight.
+        navigate(`/result-new2?question=${encodeURIComponent(utf8ToBase64(confirmQuestionText))}&terminal=true&session_id=${encodeURIComponent(chatSessionId)}`, { replace: true });
+
+        try {
+            const confirmResponse = await flaskBackendAxiosInstanceNew.post(
+                'https://jieliulab3.dcmb.med.umich.edu/pankgraph-agent/chat/plan/confirm',
+                {
+                    chat_session_id: chatSessionId,
+                    plan_session_id: confirmPlanSessionId,
+                    revision_prompt: chatStartRevisionPrompt || null,
+                },
+                {
+                    headers: { 'Content-Type': 'application/json' },
+                }
+            );
+
+            const confirmPayload = confirmResponse?.data || {};
+            await applyMainChatResponse(confirmPayload, confirmQuestionText, planParsedTitle || confirmQuestionText);
+            setChatRouteState('new_query');
+            setChatStartPendingPlanSessionId('');
+            setChatStartRevisionPrompt('');
+            sessionStorage.removeItem(CHAT_START_CACHE_KEY);
+            sessionStorage.removeItem(CHAT_PENDING_PLAN_CACHE_KEY);
+
+            const summaryForHistory = String(confirmPayload?.answer_markdown || '').trim();
+            if (summaryForHistory) {
+                appendConversationMessages(chatSessionId, [{ role: 'assistant', content: summaryForHistory }]);
+            }
+        } catch (err) {
+            console.error('[Chat Flow] First-turn plan confirm failed:', err);
+            // Restore planner state so the user can retry confirm/revise.
+            setForceResultView(false);
+            setTerminalPhase('confirm');
+            setChatRouteState('new_query_pending');
+            setChatStartPendingPlanSessionId(confirmPlanSessionId);
+            navigate(`/result-new2?question=${encodeURIComponent(utf8ToBase64(confirmQuestionText))}&terminal=true&session_id=${encodeURIComponent(chatSessionId)}&pending_plan_session_id=${encodeURIComponent(confirmPlanSessionId)}&route=new_query_pending`, { replace: true });
+            setAgentErrorType(resolveAgentErrorType(err, 'planning_failed'));
+        } finally {
+            setChatStartPlanConfirming(false);
+            setTerminalSummaryLoading(false);
+            setTerminalLoading(false);
+        }
+    }, [chatSessionId, chatStartPendingPlanSessionId, chatStartRevisionPrompt, applyMainChatResponse, chatStartQuestion, question, resolveAgentErrorType, planParsedTitle, navigate]);
+
+    const runChatStartPlanReviseCycle = React.useCallback(async (prompt) => {
+        const cleaned = String(prompt || '').trim();
+        if (!chatStartPendingPlanSessionId || !cleaned) {
+            return;
+        }
+
+        setPlanRevisionWarningOpen(false);
+        setTerminalLoading(true);
+        setIsPlanRevisionInProgress(true);
+
+        try {
+            const revised = await revisePlanSession(chatStartPendingPlanSessionId, cleaned);
+            if (revised?.error !== null && revised?.error !== undefined) {
+                const failureMessage = typeof revised.error === 'string'
+                    ? revised.error
+                    : JSON.stringify(revised.error);
+                setPlanRevisionWarningMessage(failureMessage || 'Plan revision failed. Previous plan is kept.');
+                setPlanRevisionWarningOpen(true);
+                return;
+            }
+
+            const { interpretedQuestion, planMarkdown } = parsePlanMarkdownForUI(revised?.plan_markdown || '');
+            setPlanSummary(planMarkdown || revised?.plan_markdown || '');
+            setPlanParsedTitle(interpretedQuestion || chatStartQuestion || question);
+            setChatStartRevisionPrompt(cleaned);
+
+            const planCypherQueries = extractPlanCypherQueries(revised?.plan_json || {});
+            if (planCypherQueries.length) {
+                await fetchGraphFromCypher(planCypherQueries);
+            } else {
+                setGraphData(null);
+                setNoGraph(true);
+            }
+        } catch (err) {
+            const failureMessage = err?.response?.data?.detail || err?.message || 'Plan revision failed. Previous plan is kept.';
+            setPlanRevisionWarningMessage(failureMessage);
+            setPlanRevisionWarningOpen(true);
+        } finally {
+            setTerminalLoading(false);
+            setIsPlanRevisionInProgress(false);
+        }
+    }, [chatStartPendingPlanSessionId, revisePlanSession, parsePlanMarkdownForUI, chatStartQuestion, question, extractPlanCypherQueries, fetchGraphFromCypher]);
+
+    useEffect(() => {
+        if (!isChatApiMode || !question) {
+            return;
+        }
+
+        const bootstrapKey = `${chatSessionIdFromUrl || 'new'}::${question}`;
+        if (chatBootstrapRef.current === bootstrapKey) {
+            return;
+        }
+        chatBootstrapRef.current = bootstrapKey;
+
+        const bootstrapConversation = async () => {
+            const runId = ++chatBootstrapRunIdRef.current;
+            const isStale = () => runId !== chatBootstrapRunIdRef.current;
+
+            setForceResultView(false);
+            setChatRouteState('');
+            setTerminalPhase('loading');
+            setTerminalLoading(true);
+            setStreamComplete(false);
+            setAiAnswer('');
+            setFollowUpBlocks([]);
+            setAgentErrorType(null);
+            setGraphData(null);
+            setNoGraph(false);
+            setQuestionLoadingStartedAt(Date.now());
+
+            try {
+                const cachedPendingPlan = safeParseJson(sessionStorage.getItem(CHAT_PENDING_PLAN_CACHE_KEY), null);
+
+                if (
+                    cachedPendingPlan
+                    && cachedPendingPlan.question === question
+                    && cachedPendingPlan.sessionId
+                    && cachedPendingPlan.pendingPlanSessionId
+                    && cachedPendingPlan.payload?.route === 'new_query_pending'
+                ) {
+                    const cachedPayload = cachedPendingPlan.payload || {};
+                    const { interpretedQuestion, planMarkdown } = parsePlanMarkdownForUI(cachedPayload?.plan_markdown || '');
+
+                    setChatSessionId(cachedPendingPlan.sessionId);
+                    setChatRouteState('new_query_pending');
+                    setChatStartPendingPlanSessionId(cachedPendingPlan.pendingPlanSessionId);
+                    setChatStartRevisionPrompt('');
+                    setChatStartQuestion(question);
+                    setCurrentQuestion(question);
+                    setPlanSummary(planMarkdown || cachedPayload?.plan_markdown || '');
+                    setPlanParsedTitle(interpretedQuestion || question);
+                    setTerminalPhase('confirm');
+                    setTerminalLoading(false);
+                    setStreamComplete(true);
+
+                    const planCypherQueries = extractPlanCypherQueries(cachedPayload?.plan_json || {});
+                    if (planCypherQueries.length) {
+                        await fetchGraphFromCypher(planCypherQueries);
+                    } else {
+                        setGraphData(null);
+                        setNoGraph(true);
+                    }
+
+                    if (isStale()) return;
+
+                    const desiredPendingUrl = `/result-new2?question=${encodeURIComponent(utf8ToBase64(question))}&terminal=true&session_id=${encodeURIComponent(cachedPendingPlan.sessionId)}&pending_plan_session_id=${encodeURIComponent(cachedPendingPlan.pendingPlanSessionId)}&route=new_query_pending`;
+                    const currentUrl = `${location.pathname}${location.search}`;
+                    if (currentUrl !== desiredPendingUrl) {
+                        navigate(desiredPendingUrl, { replace: true });
+                    }
+                    return;
+                }
+
+                if (chatSessionIdFromUrl && (pendingPlanSessionIdFromUrl || chatRouteFromUrl === 'new_query_pending')) {
+                    if (
+                        cachedPendingPlan
+                        && cachedPendingPlan.sessionId === chatSessionIdFromUrl
+                        && cachedPendingPlan.pendingPlanSessionId === pendingPlanSessionIdFromUrl
+                        && cachedPendingPlan.question === question
+                    ) {
+                        const cachedPayload = cachedPendingPlan.payload || {};
+                        const { interpretedQuestion, planMarkdown } = parsePlanMarkdownForUI(cachedPayload?.plan_markdown || '');
+
+                        setChatSessionId(chatSessionIdFromUrl);
+                        setChatRouteState('new_query_pending');
+                        setChatStartPendingPlanSessionId(pendingPlanSessionIdFromUrl || cachedPayload?.pending_plan_session_id || '');
+                        setChatStartRevisionPrompt('');
+                        setChatStartQuestion(question);
+                        setCurrentQuestion(question);
+                        setPlanSummary(planMarkdown || cachedPayload?.plan_markdown || '');
+                        setPlanParsedTitle(interpretedQuestion || question);
+                        setTerminalPhase('confirm');
+                        setTerminalLoading(false);
+                        setStreamComplete(true);
+
+                        const planCypherQueries = extractPlanCypherQueries(cachedPayload?.plan_json || {});
+                        if (planCypherQueries.length) {
+                            await fetchGraphFromCypher(planCypherQueries);
+                        } else {
+                            setGraphData(null);
+                            setNoGraph(true);
+                        }
+
+                        if (isStale()) return;
+                        return;
+                    }
+
+                    setTerminalLoading(false);
+                    setStreamComplete(false);
+                    setAgentErrorType('planning_failed');
+                    return;
+                }
+
+                if (chatSessionIdFromUrl) {
+                    const cachedHistory = readConversationHistory(chatSessionIdFromUrl);
+                    let history = cachedHistory;
+                    if (!history.length) {
+                        const historyResponse = await flaskBackendAxiosInstanceNew.get(
+                            'https://jieliulab3.dcmb.med.umich.edu/pankgraph-agent/chat/history',
+                            {
+                                params: { session_id: chatSessionIdFromUrl },
+                            }
+                        );
+                        if (isStale()) return;
+                        history = Array.isArray(historyResponse?.data?.history) ? historyResponse.data.history : [];
+                        replaceConversationHistory(chatSessionIdFromUrl, history);
+                    }
+
+                    const assistantTurns = history.filter((item) => item?.role === 'assistant');
+                    const userTurns = history.filter((item) => item?.role === 'user');
+                    const latestAssistant = assistantTurns[assistantTurns.length - 1]?.content || '';
+                    const firstQuestion = userTurns[0]?.content || question;
+
+                    setChatSessionId(chatSessionIdFromUrl);
+                    setCurrentQuestion(firstQuestion);
+                    setAiAnswer(latestAssistant);
+                    setPlanParsedTitle(extractParsedTitle(latestAssistant, firstQuestion));
+                    setTerminalPhase('result');
+                    setTerminalLoading(false);
+                    setStreamComplete(true);
+                    upsertRecentChat({ sessionId: chatSessionIdFromUrl, firstQuestion });
+                    return;
+                }
+
+                const startResponse = await flaskBackendAxiosInstanceNew.post(
+                    'https://jieliulab3.dcmb.med.umich.edu/pankgraph-agent/chat/start',
+                    {
+                        question,
+                        rigor: true,
+                        use_literature: true,
+                    },
+                    {
+                        headers: { 'Content-Type': 'application/json' },
+                    }
+                );
+                if (isStale()) return;
+
+                const payload = startResponse?.data || {};
+                const sessionId = payload?.session_id || '';
+                if (!sessionId) {
+                    throw new Error('Missing session_id from /chat/start');
+                }
+
+                sessionStorage.setItem(CHAT_START_CACHE_KEY, JSON.stringify({
+                    question,
+                    sessionId,
+                    payload,
+                    savedAt: Date.now(),
+                }));
+
+                setChatSessionId(sessionId);
+                upsertRecentChat({ sessionId, firstQuestion: question });
+                replaceConversationHistory(sessionId, [
+                    { role: 'user', content: question },
+                ]);
+
+                if (payload?.route === 'new_query_pending') {
+                    setChatRouteState('new_query_pending');
+                    const { interpretedQuestion, planMarkdown } = parsePlanMarkdownForUI(payload?.plan_markdown || '');
+                    setChatStartPendingPlanSessionId(payload?.pending_plan_session_id || '');
+                    setChatStartRevisionPrompt('');
+                    setChatStartQuestion(question);
+                    setPlanSummary(planMarkdown || payload?.plan_markdown || '');
+                    setPlanParsedTitle(interpretedQuestion || question);
+                    // Show planner page immediately; graph area shows its own spinner while fetching.
+                    setTerminalPhase('confirm');
+                    setTerminalLoading(false);
+                    setStreamComplete(true);
+                    const planCypherQueries = extractPlanCypherQueries(payload?.plan_json || {});
+                    if (planCypherQueries.length) {
+                        await fetchGraphFromCypher(planCypherQueries);
+                    } else {
+                        setGraphData(null);
+                        setNoGraph(true);
+                    }
+                    if (isStale()) return;
+                    sessionStorage.setItem(CHAT_PENDING_PLAN_CACHE_KEY, JSON.stringify({
+                        question,
+                        sessionId,
+                        pendingPlanSessionId: payload?.pending_plan_session_id || '',
+                        payload,
+                        savedAt: Date.now(),
+                    }));
+                    navigate(`/result-new2?question=${encodeURIComponent(utf8ToBase64(question))}&terminal=true&session_id=${encodeURIComponent(sessionId)}&pending_plan_session_id=${encodeURIComponent(payload?.pending_plan_session_id || '')}&route=new_query_pending`, { replace: true });
+                } else if (payload?.route === 'follow_up' || payload?.route === 'new_query') {
+                    setChatRouteState(String(payload?.route || 'new_query'));
+                    await applyMainChatResponse(payload, question);
+                    if (isStale()) return;
+                    const summaryForHistory = String(payload?.answer_markdown || '').trim();
+                    if (summaryForHistory) {
+                        appendConversationMessages(sessionId, [{ role: 'assistant', content: summaryForHistory }]);
+                    }
+                    navigate(`/result-new2?question=${encodeURIComponent(utf8ToBase64(question))}&terminal=true&session_id=${encodeURIComponent(sessionId)}`, { replace: true });
+                } else {
+                    throw new Error(`Unsupported chat/start route: ${String(payload?.route || 'unknown')}`);
+                }
+            } catch (err) {
+                if (isStale()) return;
+                setTerminalLoading(false);
+                setStreamComplete(false);
+                setAgentErrorType(resolveAgentErrorType(err, 'critical_error'));
+            }
+        };
+
+        bootstrapConversation();
+    }, [
+        isChatApiMode,
+        question,
+        chatSessionIdFromUrl,
+        pendingPlanSessionIdFromUrl,
+        chatRouteFromUrl,
+        applyMainChatResponse,
+        extractParsedTitle,
+        extractPlanCypherQueries,
+        fetchGraphFromCypher,
+        navigate,
+        resolveAgentErrorType,
+    ]);
+
+    useEffect(() => {
+        if (!terminalMode || demoMode || planDemoMode || isChatApiMode || !question || terminalInitializedQuestionRef.current === question) {
             return;
         }
         terminalInitializedQuestionRef.current = question;
@@ -1175,7 +1826,20 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         setGraphData(null);
         setAiAnswer('');
         runPlanningCycle(question);
-    }, [terminalMode, demoMode, planDemoMode, question, runPlanningCycle]);
+    }, [terminalMode, demoMode, planDemoMode, isChatApiMode, question, runPlanningCycle]);
+
+    useEffect(() => {
+        if (!isChatApiMode || !followUpBlocks.length) {
+            return;
+        }
+        const latestBlock = followUpBlocks[followUpBlocks.length - 1];
+        if (latestBlock?.type !== 'plan') {
+            return;
+        }
+        requestAnimationFrame(() => {
+            followUpPendingAnchorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }, [isChatApiMode, followUpBlocks]);
 
     useEffect(() => {
         const shouldAnimatePreset =
@@ -1214,12 +1878,28 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         return ratio * (100 / 6);
     }, [terminalMode, terminalLoading, terminalPhase, questionLoadingStartedAt, questionLoadingNow, streamMilestones.planningDone]);
 
+    const hasPendingFollowUpWork = React.useMemo(
+        () => followUpSubmitting || followUpBlocks.some((block) => block?.type === 'loading' || block?.type === 'plan' || block?.confirming),
+        [followUpSubmitting, followUpBlocks]
+    );
+
+    const isQuestionComplete = React.useMemo(
+        () => !aiLoading && !terminalLoading && !terminalSummaryLoading && terminalPhase !== 'confirm' && !hasPendingFollowUpWork,
+        [aiLoading, terminalLoading, terminalSummaryLoading, terminalPhase, hasPendingFollowUpWork]
+    );
+    const isPlanningPhase = terminalPhase === 'confirm' || hasPendingFollowUpWork;
+
     const startFollowUpQuestion = React.useCallback((label) => {
         const cleanQuestion = stripHtml(label || '').trim();
         if (!cleanQuestion) return;
+        if (!isQuestionComplete) return;
+        if (isChatApiMode) {
+            handleSendFollowUp(cleanQuestion);
+            return;
+        }
         const encodedQuery = encodeURIComponent(utf8ToBase64(cleanQuestion));
         navigate(`/result-new2?question=${encodedQuery}&terminal=true`);
-    }, [navigate]);
+    }, [isQuestionComplete, isChatApiMode, handleSendFollowUp, navigate]);
 
     // Skeleton placeholder for summary loading
     const SummarySkeleton = () => (
@@ -1258,7 +1938,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     // Show skeleton during debug streaming and terminal confirm-in-flight summary generation.
     const shouldShowSkeleton =
         (debug && !streamedSummary && !streamComplete)
-        || (terminalMode && terminalPhase === 'result' && terminalSummaryLoading);
+        || (terminalMode && terminalPhase === 'result' && terminalSummaryLoading && !isChatApiMode);
 
     const displaySummary = (
         demoMode
@@ -1517,7 +2197,6 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         if (!!aiAnswer) {
             const pmidsFromText = ProcessLinks2({ text: aiAnswer })?.filter(part => part.type === "pubmedid").map(part => (part.text)) || [];
             const pmids = [...new Set(pmidsFromText)].slice(0, 50);
-            console.log('[Production Mode] Fetching articles for PMIDs:', pmids);
             if (pmids.length > 0) {
                 setReferencesLoading(true);
                 dispatch(queryArticles({
@@ -1526,12 +2205,10 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     retmode: 'json',
                 })).then((response) => {
                     setReferencesLoading(false);
-                    console.log('[Production Mode] Articles data received:', response.payload);
                     if (!response.payload ||
                         Object.keys(response.payload.result || {})
                             .some(pmid => pmid !== "uids" && !response.payload.result[pmid]?.authors)
                     ) {
-                        console.log('[ERROR] Invalid article data');
                         setAgentErrorType('fail_to_give_answer');
                         return;
                     }
@@ -1562,7 +2239,6 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         if (!!textToExtractFrom) {
             const pmidsFromText = ProcessLinks2({ text: textToExtractFrom })?.filter(part => part.type === "pubmedid").map(part => (part.text)) || [];
             const pmids = [...new Set(pmidsFromText)].slice(0, 50);
-            console.log('[Debug Mode] Fetching articles for PMIDs:', pmids);
             if (pmids.length > 0) {
                 setReferencesLoading(true);
                 dispatch(queryArticles({
@@ -1571,12 +2247,10 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     retmode: 'json',
                 })).then((response) => {
                     setReferencesLoading(false);
-                    console.log('[Debug Mode] Articles data received:', response.payload);
                     if (!response.payload ||
                         Object.keys(response.payload.result || {})
                             .some(pmid => pmid !== "uids" && !response.payload.result[pmid]?.authors)
                     ) {
-                        console.log('[Debug Mode ERROR] Invalid article data');
                         // Don't set error in debug mode - just skip articles
                         return;
                     }
@@ -1716,26 +2390,12 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         href: link[2],
     }));
 
-    console.log('[References Debug]', {
-        debug,
-        showReferenceSkeleton,
-        referencesLoading,
-        referencesItemsLength: referencesItems.length,
-        articlesDataLength: articlesData.length,
-        streamedSummary: streamedSummary ? `${streamedSummary.substring(0, 100)}...` : 'empty',
-    });
-
     const evidenceTabs = [
         (referencesItems.length || referencesLoading || debug) ? { label: 'References', items: referencesItems } : null,
         empiricalEvidenceContent ? { label: 'Empirical Evidence', content: empiricalEvidenceContent } : null,
         pankbaseItems.length ? { label: 'Pankbase Links', items: pankbaseItems } : null,
         externalItems.length ? { label: 'External Links', items: externalItems } : null,
     ].filter(Boolean);
-
-    console.log('[Evidences Debug]', {
-        evidenceTabsLength: evidenceTabs.length,
-        evidenceTabsLabels: evidenceTabs.map(t => t.label),
-    });
 
     const knowledgeGraphContent = (
         graphData ? (
@@ -1813,6 +2473,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 {
                     content: markdownSummaryContent,
                 },
+                parsePlanMarkdownForUI,
             ],
         },
         graphData: demoGraphData,
@@ -1887,10 +2548,19 @@ Please review this plan and provide edits if needed.`,
         parsedTitle: planParsedTitle || currentQuestion || question,
         agentPlan: planSummary || streamAnswer || streamedSummary || 'No plan generated yet.',
         onSendFeedback: async (text) => {
+            if (isChatApiMode && chatStartPendingPlanSessionId) {
+                await runChatStartPlanReviseCycle(text || '');
+                return;
+            }
             await runPlanningCycle(text);
         },
         onProceed: async () => {
             setPlanRevisionWarningOpen(false);
+            if (isChatApiMode && chatStartPendingPlanSessionId) {
+                if (chatStartPlanConfirming) return;
+                await runChatStartConfirmCycle();
+                return;
+            }
             if (terminalConfirming) return;
             await runConfirmCycle();
         },
@@ -1945,7 +2615,7 @@ Please review this plan and provide edits if needed.`,
         evidences: evidenceTabs.length ? { title: "Evidences", tabs: evidenceTabs } : undefined,
         followUp: {
             title: "Follow Up",
-            loading: terminalMode && (!streamComplete || terminalSummaryLoading || terminalPhase !== 'result'),
+            loading: (terminalMode && !isChatApiMode && (!streamComplete || terminalSummaryLoading || terminalPhase !== 'result')) || hasPendingFollowUpWork,
             onSelect: (item, event) => {
                 event?.preventDefault?.();
                 startFollowUpQuestion(item?.label || item?.question || '');
@@ -1957,9 +2627,16 @@ Please review this plan and provide edits if needed.`,
                 })),
         },
     };
+    const shouldShowPlannerPage = planDemoMode
+        || (!forceResultView && (
+            (terminalMode && terminalPhase === 'confirm')
+            || (isChatApiMode && chatRouteState === 'new_query_pending')
+            || (isChatApiMode && Boolean(chatStartPendingPlanSessionId))
+        ));
+
     const resolvedPageData = planDemoMode
         ? buildPlanDemoPageData()
-        : (terminalMode && terminalPhase === 'confirm'
+        : (shouldShowPlannerPage
             ? buildTerminalPlanPageData()
             : (demoMode ? buildDemoPageData(demoIndex) : pageData));
     const anchorPrefix = contentAnchorPrefix || `result-${demoIndex}`;
@@ -1971,18 +2648,20 @@ Please review this plan and provide edits if needed.`,
         const aiHeadings = (resolvedPageData?.aiOverview?.sections ?? [])
             .map((section, index) => (section?.heading ? ({ label: section.heading, index }) : null))
             .filter(Boolean);
-        const meta = {
+        const serializableMeta = {
             anchorPrefix,
             aiHeadings,
             hasVisual: Boolean(resolvedPageData?.visualMaterial),
             hasEvidences: Boolean(resolvedPageData?.evidences),
             hasFollowUp: Boolean(resolvedPageData?.followUp),
+            isQuestionComplete,
+            isPlanning: isPlanningPhase,
         };
-        const serialized = JSON.stringify(meta);
+        const serialized = JSON.stringify(serializableMeta);
         if (serialized === lastMetaRef.current) return;
         lastMetaRef.current = serialized;
-        onContentMeta(meta);
-    }, [anchorPrefix, onContentMeta, resolvedPageData]);
+        onContentMeta({ ...serializableMeta, followUpHandler: isChatApiMode ? handleSendFollowUp : null });
+    }, [anchorPrefix, onContentMeta, resolvedPageData, isQuestionComplete, isPlanningPhase, isChatApiMode, handleSendFollowUp]);
 
     if (agentErrorType) {
         const agentErrorPayload = getAgentErrorPayload(agentErrorType);
@@ -2053,7 +2732,18 @@ Please review this plan and provide edits if needed.`,
             />
             <Backdrop
                 sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 2 })}
-                open={terminalMode && terminalPhase === 'confirm' && terminalLoading}
+                open={followUpSubmitting}
+            >
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
+                    <CircularProgress size={32} sx={{ color: '#FFFFFF' }} />
+                    <Typography sx={{ color: '#FFFFFF', fontSize: 14, fontWeight: 600 }}>
+                        Analyzing your question...
+                    </Typography>
+                </Box>
+            </Backdrop>
+            <Backdrop
+                sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 2 })}
+                open={isPlanRevisionInProgress}
             >
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
                     <CircularProgress size={32} sx={{ color: '#FFFFFF' }} />
@@ -2080,14 +2770,108 @@ Please review this plan and provide edits if needed.`,
                 </Backdrop>
             ) : null}
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', px: { xs: 2, md: 3 }, py: 3 }}>
-                <Box sx={{ width: '100%' }}>
+                <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 3 }}>
                     {planDemoMode ? (
                         <PlanConfirmationPage data={resolvedPageData} contentAnchorPrefix={anchorPrefix} />
-                    ) : (terminalMode && terminalPhase === 'confirm') ? (
+                    ) : shouldShowPlannerPage ? (
                         <PlanConfirmationPage data={resolvedPageData} contentAnchorPrefix={anchorPrefix} />
                     ) : (
                         <QuestionAnswerPage data={resolvedPageData} contentAnchorPrefix={anchorPrefix} />
                     )}
+
+                    {isChatApiMode ? followUpBlocks.map((block, index) => {
+                        if (block.type === 'loading') {
+                            return null;
+                        }
+
+                        if (block.type === 'plan') {
+                            const followUpPlanData = {
+                                questionId: `P${index + 1}`,
+                                title: 'Confirm Follow-up Plan',
+                                originalQuestion: block.question,
+                                parsedTitle: block.title || block.question,
+                                agentPlan: block.planMarkdown || '',
+                                onSendFeedback: async (text) => {
+                                    const revisedPrompt = String(text || '').trim();
+                                    if (!revisedPrompt) return;
+                                    setFollowUpBlocks((prev) => prev.map((item) => (
+                                        item.id === block.id ? { ...item, error: '', revising: true } : item
+                                    )));
+                                    try {
+                                        const revised = await revisePlanSession(block.planSessionId, revisedPrompt);
+                                        if (revised?.error !== null && revised?.error !== undefined) {
+                                            const failureMessage = typeof revised.error === 'string' ? revised.error : JSON.stringify(revised.error);
+                                            setFollowUpBlocks((prev) => prev.map((item) => (
+                                                item.id === block.id ? { ...item, revising: false, error: failureMessage || 'Plan revision failed. Previous plan is kept.' } : item
+                                            )));
+                                            return;
+                                        }
+
+                                        const { interpretedQuestion, planMarkdown } = parsePlanMarkdownForUI(revised?.plan_markdown || '');
+                                        setFollowUpBlocks((prev) => prev.map((item) => (
+                                            item.id === block.id
+                                                ? {
+                                                    ...item,
+                                                    title: interpretedQuestion || item.question,
+                                                    planMarkdown: planMarkdown || revised?.plan_markdown || item.planMarkdown,
+                                                    revisionPrompt: revisedPrompt,
+                                                    revising: false,
+                                                    error: '',
+                                                }
+                                                : item
+                                        )));
+
+                                        const planCypherQueries = extractPlanCypherQueries(revised?.plan_json || {});
+                                        if (planCypherQueries.length) {
+                                            await fetchGraphFromCypher(planCypherQueries);
+                                        }
+                                    } catch (err) {
+                                        setFollowUpBlocks((prev) => prev.map((item) => (
+                                            item.id === block.id
+                                                ? { ...item, revising: false, error: err?.response?.data?.detail || err?.message || 'Plan revision failed. Previous plan is kept.' }
+                                                : item
+                                        )));
+                                    }
+                                },
+                                onProceed: async () => {
+                                    await handleConfirmPendingPlan(block.id);
+                                },
+                            };
+
+                            return (
+                                <Box key={block.id} ref={index === followUpBlocks.length - 1 ? followUpPendingAnchorRef : undefined}>
+                                    <PlanConfirmationPage data={followUpPlanData} contentAnchorPrefix={`${anchorPrefix}-followup-plan-${index + 1}`} />
+                                    {block.error ? (
+                                        <Typography sx={{ color: '#B91C1C', fontSize: 13, mt: 1 }}>{block.error}</Typography>
+                                    ) : null}
+                                </Box>
+                            );
+                        }
+
+                        if (block.type === 'answer') {
+                            return (
+                                <QuestionAnswerPage
+                                    key={block.id}
+                                    data={buildFollowUpAnswerData(block, index)}
+                                    contentAnchorPrefix={`${anchorPrefix}-followup-${index + 1}`}
+                                />
+                            );
+                        }
+
+                        return (
+                            <Box key={block.id} sx={{ border: '1px solid #FECACA', borderRadius: 2, p: 2, bgcolor: '#FEF2F2' }}>
+                                <Typography sx={{ color: '#B91C1C', fontSize: 14 }}>
+                                    {block.error || 'Follow-up request failed.'}
+                                </Typography>
+                            </Box>
+                        );
+                    }) : null}
+
+                    {isChatApiMode && chatHistoryCompressed ? (
+                        <Typography sx={{ fontSize: 12, color: '#64748B' }}>
+                            Older messages were summarized by the server to fit context.
+                        </Typography>
+                    ) : null}
                 </Box>
             </Box>
         </>
