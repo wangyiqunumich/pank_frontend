@@ -392,8 +392,8 @@ function AgentLandingPage() {
                         />
                         <Box
                             sx={{
-                                height: 100,
-                                borderRadius: '50px',
+                                height: 79,
+                                borderRadius: '48px',
                                 bgcolor: '#FFFFFF',
                                 border: '1px solid rgba(189,201,200,0.1)',
                                 boxShadow: '0 8px 20px -6px rgba(0,103,102,0.05), 0 20px 50px -5px rgba(0,103,102,0.05)',
