@@ -20,6 +20,10 @@ import { queryQueryResultPage } from '../redux/queryResultPage';
 import sampleLinks from '../schema/sample_links.json';
 import { GenomeBrowserEmbed } from '../SearchResult/AgentResult';
 import SearchResultLoading from '../SearchResult/loading';
+import {
+    clearConversationStorage,
+    readRecentChats,
+} from '../utils/chatSessionStorage';
 import MultiLineInputList from './DebugComponent';
 import KnowledgeGraph from './KnowledgeGraph';
 import {
@@ -100,12 +104,13 @@ export default function DebugPage() {
         detail: '',
     });
     const [healthChecking, setHealthChecking] = useState(false);
+    const [historyActionMessage, setHistoryActionMessage] = useState('');
     const dispatch = useDispatch();
 
     const checkPlannerHealth = React.useCallback(async () => {
         setHealthChecking(true);
         try {
-            const response = await fetch('https://agent.pankgraph.org/health');
+            const response = await fetch('https://jieliulab3.dcmb.med.umich.edu/pankgraph-agent/health');
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}`);
             }
@@ -125,6 +130,17 @@ export default function DebugPage() {
         } finally {
             setHealthChecking(false);
         }
+    }, []);
+
+    const clearAllConversationHistory = React.useCallback(() => {
+        const beforeRecent = readRecentChats().length;
+        const result = clearConversationStorage({ keepRecent: 0 });
+        setHistoryActionMessage(`Cleared ${result.removedHistoryKeys} history records and removed ${beforeRecent} recent items.`);
+    }, []);
+
+    const clearHistoryKeepRecentTen = React.useCallback(() => {
+        const result = clearConversationStorage({ keepRecent: 10 });
+        setHistoryActionMessage(`Cleared ${result.removedHistoryKeys} history records and kept ${result.keptRecent} recent items.`);
     }, []);
 
     useEffect(() => {
@@ -321,9 +337,31 @@ export default function DebugPage() {
                     >
                         {healthChecking ? 'Checking...' : 'Refresh'}
                     </Button>
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        color="error"
+                        onClick={clearAllConversationHistory}
+                        sx={{ textTransform: 'none' }}
+                    >
+                        Clear Conversation History
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={clearHistoryKeepRecentTen}
+                        sx={{ textTransform: 'none' }}
+                    >
+                        Clear History, Keep Recent 10
+                    </Button>
                     {plannerHealth.detail ? (
                         <Typography sx={{ fontSize: 12, color: '#64748B' }}>
                             {plannerHealth.detail}
+                        </Typography>
+                    ) : null}
+                    {historyActionMessage ? (
+                        <Typography sx={{ fontSize: 12, color: '#64748B' }}>
+                            {historyActionMessage}
                         </Typography>
                     ) : null}
                 </Box>

@@ -1082,9 +1082,11 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
         if (typeof item === "string") return item;
         return item?.label || item?.question || item?.title || "";
     };
+    const isFollowUpDisabled = Boolean(data?.followUp?.disabled);
     const followUpInputValue = data?.followUp?.inputValue ?? "";
     const showFollowUpComposer = Boolean(data?.followUp?.showComposer);
     const handleFollowUpSubmit = () => {
+        if (isFollowUpDisabled) return;
         const submit = data?.followUp?.onSubmit;
         if (typeof submit === "function") {
             submit(followUpInputValue);
@@ -1318,6 +1320,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                             <TextField
                                                 value={followUpInputValue}
                                                 onChange={(event) => data?.followUp?.onChange?.(event.target.value || "")}
+                                                disabled={isFollowUpDisabled}
                                                 onKeyDown={(event) => {
                                                     if (event.key === "Enter" && !event.shiftKey) {
                                                         event.preventDefault();
@@ -1345,7 +1348,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                             <IconButton
                                                 type="submit"
                                                 aria-label="send follow up"
-                                                disabled={Boolean(data?.followUp?.submitting) || !String(followUpInputValue || "").trim()}
+                                                disabled={isFollowUpDisabled || Boolean(data?.followUp?.submitting) || !String(followUpInputValue || "").trim()}
                                                 sx={{
                                                     borderRadius: "999px",
                                                     color: "#3A838B",
@@ -1382,9 +1385,13 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                         (data?.followUp?.items ?? []).map((item, idx) => {
                                             const label = getItemLabel(item);
                                             const isLink = Boolean(item?.href);
-                                            const clickable = Boolean(isLink || item?.onClick || data?.followUp?.onSelect);
+                                            const clickable = Boolean(!isFollowUpDisabled && (isLink || item?.onClick || data?.followUp?.onSelect));
                                             const Component = isLink ? "a" : clickable ? "button" : "div";
                                             const handleClick = (event) => {
+                                                if (isFollowUpDisabled) {
+                                                    event?.preventDefault?.();
+                                                    return;
+                                                }
                                                 item?.onClick?.(item, event);
                                                 data?.followUp?.onSelect?.(item, event);
                                             };
@@ -1400,14 +1407,14 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                                     onClick={clickable ? handleClick : undefined}
                                                     type={Component === "button" ? "button" : undefined}
                                                     sx={{
-                                                        bgcolor: "#F8FAFC",
+                                                        bgcolor: isFollowUpDisabled ? "#F1F5F9" : "#F8FAFC",
                                                         py: 2,
                                                         px: 3,
                                                         borderRadius: "16px",
                                                         border: "none",
                                                         outline: "none",
                                                         appearance: "none",
-                                                        cursor: clickable ? "pointer" : "default",
+                                                        cursor: clickable ? "pointer" : "not-allowed",
                                                         transition: clickable ? "all 0.2s ease" : "none",
                                                         textAlign: "left",
                                                         textDecoration: "none",
@@ -1416,6 +1423,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                                                 bgcolor: "#EFF6FF",
                                                             }
                                                             : undefined,
+                                                        opacity: isFollowUpDisabled ? 0.65 : 1,
                                                     }}
                                                 >
                                                     <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: "#475569" }}>{label}</Typography>

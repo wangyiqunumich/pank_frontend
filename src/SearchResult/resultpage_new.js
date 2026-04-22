@@ -418,6 +418,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const [followUpSubmitting, setFollowUpSubmitting] = useState(false);
     const [chatHistoryCompressed, setChatHistoryCompressed] = useState(false);
     const [followUpBlocks, setFollowUpBlocks] = useState([]);
+    const followUpSendHandlerRef = useRef(null);
     const [conversationRound, setConversationRound] = useState(1);
     const followUpPendingAnchorRef = useRef(null);
     const [chatStartPendingPlanSessionId, setChatStartPendingPlanSessionId] = useState('');
@@ -539,10 +540,22 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
     const parseChatResponseContent = React.useCallback((payload) => {
         const answerMarkdown = String(payload?.answer_markdown || '').trim();
+        let parsedFollowUps = [];
+
+        try {
+            const parsed = parseAnswerStringPayload(payload?.answer || '{}');
+            parsedFollowUps = normalizeFollowUpItems(parsed.followUpQuestions || []);
+        } catch (err) {
+            parsedFollowUps = [];
+        }
+
+        const topLevelFollowUps = normalizeFollowUpItems(payload?.follow_up_questions);
+        const mergedFollowUps = parsedFollowUps.length ? parsedFollowUps : topLevelFollowUps;
+
         if (answerMarkdown) {
             return {
                 summary: answerMarkdown,
-                followUpQuestions: normalizeFollowUpItems(payload?.follow_up_questions),
+                followUpQuestions: mergedFollowUps,
             };
         }
 
@@ -550,12 +563,12 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             const parsed = parseAnswerStringPayload(payload?.answer || '{}');
             return {
                 summary: parsed.summary || '',
-                followUpQuestions: normalizeFollowUpItems(parsed.followUpQuestions || []),
+                followUpQuestions: mergedFollowUps,
             };
         } catch (err) {
             return {
                 summary: '',
-                followUpQuestions: [],
+                followUpQuestions: mergedFollowUps,
             };
         }
     }, [normalizeFollowUpItems]);
@@ -574,11 +587,41 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         return response?.data || {};
     }, []);
 
+    const hasPendingFollowUpWork = React.useMemo(
+        () => followUpSubmitting || followUpBlocks.some((block) => block?.type === 'loading' || block?.type === 'plan' || block?.confirming),
+        [followUpSubmitting, followUpBlocks]
+    );
+
+    const isQuestionComplete = React.useMemo(
+        () => !aiLoading && !terminalLoading && !terminalSummaryLoading && terminalPhase !== 'confirm' && !hasPendingFollowUpWork,
+        [aiLoading, terminalLoading, terminalSummaryLoading, terminalPhase, hasPendingFollowUpWork]
+    );
+
     const buildFollowUpAnswerData = React.useCallback((block, index) => {
         const title = block?.title || block?.question || `Follow-up ${index + 1}`;
         const answerText = block?.summary || (block?.confirming ? 'AI summary is generating...' : '');
+        const showGraphSection = String(block?.route || '') !== 'follow_up';
+        const followUpKnowledgeGraphContent = block?.graphData ? (
+            <Box sx={{ width: '100%', height: '100%' }}>
+                <KnowledgeGraph
+                    graphData={block.graphData}
+                    coordData={block.coordData}
+                    sx={{ height: '100%' }}
+                    containerHeight="100%"
+                />
+            </Box>
+        ) : block?.graphLoading ? (
+            <Box sx={{ width: '100%', minHeight: 280, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <CircularProgress size={28} />
+            </Box>
+        ) : block?.noGraph ? (
+            <NoGraphData />
+        ) : (
+            <NoGraphData />
+        );
+
         return {
-            questionId: `F${index + 1}`,
+            questionId: `Q${index + 2}`,
             title,
             aiOverview: {
                 sections: [
@@ -593,18 +636,46 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     },
                 ],
             },
+            ...(showGraphSection ? {
+                visualMaterial: {
+                    title: 'Visual Material',
+                    tabs: [
+                        { label: 'Knowledge Graph', content: followUpKnowledgeGraphContent },
+                        {
+                            label: 'Genome Browser',
+                            minHeight: 676,
+                            content: (
+                                <GenomeBrowserEmbed
+                                    locus="chr7:55,085,725-55,276,031"
+                                    compact
+                                    height="100%"
+                                    tracks={[]}
+                                />
+                            ),
+                            fullBleed: true,
+                        },
+                    ],
+                },
+            } : {}),
             followUp: {
                 title: 'Follow Up',
+                disabled: !isQuestionComplete,
                 items: (block?.followUpQuestions || []).map((item) => ({ label: stripHtml(item.question) })),
                 onSelect: (item, event) => {
                     event?.preventDefault?.();
                     const text = stripHtml(item?.label || item?.question || '');
                     if (!text) return;
-                    setFollowUpDraft(text);
+                    if (!isQuestionComplete) return;
+                    if (isChatApiMode) {
+                        followUpSendHandlerRef.current?.(text);
+                        return;
+                    }
+                    const encodedQuery = encodeURIComponent(utf8ToBase64(text));
+                    navigate(`/result-new2?question=${encodedQuery}&terminal=true`);
                 },
             },
         };
-    }, []);
+    }, [isQuestionComplete, isChatApiMode, navigate]);
 
     const extractParsedTitle = (summaryText, fallbackQuestion) => {
         const lines = (summaryText || '')
@@ -670,11 +741,15 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             .filter((cypher) => cypher && cypher.toLowerCase() !== 'undefined');
     }, []);
 
-    const fetchGraphFromCypher = React.useCallback(async (cypherQueries) => {
+    const queryGraphFromCypher = React.useCallback(async (cypherQueries) => {
         if (!cypherQueries?.length) {
-            setNoGraph(true);
-            return;
+            return {
+                graphData: null,
+                coordData: null,
+                noGraph: true,
+            };
         }
+
         try {
             const response = await dispatch(queryQueryResultPage({
                 payload: {
@@ -683,17 +758,40 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 },
                 agent: true,
             }));
+
             if (response?.payload?.combined_query_result) {
-                setGraphData(response.payload.combined_query_result);
-                setNoGraph(false);
-            } else {
-                setNoGraph(true);
+                return {
+                    graphData: response.payload.combined_query_result,
+                    coordData: response?.payload?.xy_json || null,
+                    noGraph: false,
+                };
             }
+
+            return {
+                graphData: null,
+                coordData: null,
+                noGraph: true,
+            };
         } catch (err) {
             console.error('[Terminal Flow] Graph query error:', err?.message || err);
-            setNoGraph(true);
+            return {
+                graphData: null,
+                coordData: null,
+                noGraph: true,
+            };
         }
     }, [dispatch]);
+
+    const fetchGraphFromCypher = React.useCallback(async (cypherQueries) => {
+        const graphResult = await queryGraphFromCypher(cypherQueries);
+        if (graphResult.graphData) {
+            setGraphData(graphResult.graphData);
+            setCoordData(graphResult.coordData || null);
+            setNoGraph(false);
+        } else {
+            setNoGraph(true);
+        }
+    }, [queryGraphFromCypher]);
 
     const updateMilestoneSequence = (stage) => {
         if (stage === 'start') {
@@ -1345,6 +1443,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
             const payload = response?.data || {};
             const parsed = parseChatResponseContent(payload);
+            const route = String(payload?.route || 'new_query');
 
             setFollowUpBlocks((prev) => prev.map((item) => (
                 item.id === blockId
@@ -1354,11 +1453,32 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         summary: parsed.summary,
                         followUpQuestions: parsed.followUpQuestions,
                         title: item.title || item.question,
+                        route,
+                        graphData: null,
+                        coordData: null,
+                        noGraph: route === 'follow_up',
+                        graphLoading: route !== 'follow_up',
                         confirming: false,
                         error: '',
                     }
                     : item
             )));
+
+            if (route !== 'follow_up') {
+                const planCypherQueries = extractPlanCypherQueries(payload?.plan_json || {});
+                const graphResult = await queryGraphFromCypher(planCypherQueries);
+                setFollowUpBlocks((prev) => prev.map((item) => (
+                    item.id === blockId
+                        ? {
+                            ...item,
+                            graphData: graphResult.graphData,
+                            coordData: graphResult.coordData,
+                            noGraph: graphResult.noGraph,
+                            graphLoading: false,
+                        }
+                        : item
+                )));
+            }
 
             appendConversationMessages(chatSessionId, [
                 { role: 'assistant', content: parsed.summary || '' },
@@ -1373,12 +1493,13 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         ...item,
                         type: 'plan',
                         confirming: false,
+                        graphLoading: false,
                         error: err?.response?.data?.detail || err?.message || 'Failed to confirm plan.',
                     }
                     : item
             )));
         }
-    }, [followUpBlocks, chatSessionId, parseChatResponseContent, extractParsedTitle, question, currentQuestion, conversationRound]);
+    }, [followUpBlocks, chatSessionId, parseChatResponseContent, extractPlanCypherQueries, queryGraphFromCypher, question, currentQuestion, conversationRound]);
 
     const handleSendFollowUp = React.useCallback(async (value) => {
         const cleaned = stripHtml(value || '').trim();
@@ -1417,6 +1538,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         ? {
                             ...item,
                             type: 'plan',
+                            route: 'new_query_pending',
                             title: interpretedQuestion || cleaned,
                             planMarkdown: payload?.plan_markdown || '',
                             planSessionId: payload?.pending_plan_session_id || '',
@@ -1427,6 +1549,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         : item
                 )));
             } else if (payload?.route === 'follow_up' || payload?.route === 'new_query') {
+                const route = String(payload?.route || 'follow_up');
                 setFollowUpBlocks((prev) => prev.map((item) => (
                     item.id === blockId
                         ? {
@@ -1434,11 +1557,33 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                             type: 'answer',
                             summary: parsed.summary,
                             followUpQuestions: parsed.followUpQuestions,
+                            route,
+                            graphData: null,
+                            coordData: null,
+                            noGraph: route === 'follow_up',
+                            graphLoading: route !== 'follow_up',
                             title: cleaned,
                             error: '',
                         }
                         : item
                 )));
+
+                if (route !== 'follow_up') {
+                    const planCypherQueries = extractPlanCypherQueries(payload?.plan_json || {});
+                    const graphResult = await queryGraphFromCypher(planCypherQueries);
+                    setFollowUpBlocks((prev) => prev.map((item) => (
+                        item.id === blockId
+                            ? {
+                                ...item,
+                                graphData: graphResult.graphData,
+                                coordData: graphResult.coordData,
+                                noGraph: graphResult.noGraph,
+                                graphLoading: false,
+                            }
+                            : item
+                    )));
+                }
+
                 appendConversationMessages(chatSessionId, [
                     { role: 'assistant', content: parsed.summary || '' },
                 ]);
@@ -1460,7 +1605,11 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         } finally {
             setFollowUpSubmitting(false);
         }
-    }, [chatSessionId, parseChatResponseContent, conversationRound, question, currentQuestion, parsePlanMarkdownForUI]);
+    }, [chatSessionId, parseChatResponseContent, conversationRound, question, currentQuestion, parsePlanMarkdownForUI, extractPlanCypherQueries, queryGraphFromCypher]);
+
+    useEffect(() => {
+        followUpSendHandlerRef.current = handleSendFollowUp;
+    }, [handleSendFollowUp]);
 
     const runChatStartConfirmCycle = React.useCallback(async () => {
         if (!chatSessionId || !chatStartPendingPlanSessionId) {
@@ -1878,15 +2027,6 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         return ratio * (100 / 6);
     }, [terminalMode, terminalLoading, terminalPhase, questionLoadingStartedAt, questionLoadingNow, streamMilestones.planningDone]);
 
-    const hasPendingFollowUpWork = React.useMemo(
-        () => followUpSubmitting || followUpBlocks.some((block) => block?.type === 'loading' || block?.type === 'plan' || block?.confirming),
-        [followUpSubmitting, followUpBlocks]
-    );
-
-    const isQuestionComplete = React.useMemo(
-        () => !aiLoading && !terminalLoading && !terminalSummaryLoading && terminalPhase !== 'confirm' && !hasPendingFollowUpWork,
-        [aiLoading, terminalLoading, terminalSummaryLoading, terminalPhase, hasPendingFollowUpWork]
-    );
     const isPlanningPhase = terminalPhase === 'confirm' || hasPendingFollowUpWork;
 
     const startFollowUpQuestion = React.useCallback((label) => {
@@ -2616,6 +2756,7 @@ Please review this plan and provide edits if needed.`,
         followUp: {
             title: "Follow Up",
             loading: (terminalMode && !isChatApiMode && (!streamComplete || terminalSummaryLoading || terminalPhase !== 'result')) || hasPendingFollowUpWork,
+            disabled: !isQuestionComplete,
             onSelect: (item, event) => {
                 event?.preventDefault?.();
                 startFollowUpQuestion(item?.label || item?.question || '');
@@ -2786,7 +2927,7 @@ Please review this plan and provide edits if needed.`,
 
                         if (block.type === 'plan') {
                             const followUpPlanData = {
-                                questionId: `P${index + 1}`,
+                                questionId: `Q${index + 2}`,
                                 title: 'Confirm Follow-up Plan',
                                 originalQuestion: block.question,
                                 parsedTitle: block.title || block.question,

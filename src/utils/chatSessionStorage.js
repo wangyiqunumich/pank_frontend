@@ -1,5 +1,7 @@
 const RECENT_CHAT_KEY = 'pank_recent_conversations_v1';
 const CHAT_HISTORY_PREFIX = 'pank_chat_history_v1:';
+const CHAT_START_CACHE_KEY = 'pank_chat_start_cache_v1';
+const CHAT_PENDING_PLAN_CACHE_KEY = 'pank_chat_pending_plan_v1';
 
 const canUseSessionStorage = () => typeof window !== 'undefined' && typeof window.sessionStorage !== 'undefined';
 
@@ -61,4 +63,38 @@ export const readConversationHistory = (sessionId) => {
   const key = `${CHAT_HISTORY_PREFIX}${sessionId}`;
   const history = safeParse(window.sessionStorage.getItem(key), []);
   return Array.isArray(history) ? history : [];
+};
+
+export const clearConversationStorage = ({ keepRecent = 0 } = {}) => {
+  if (!canUseSessionStorage()) {
+    return { removedHistoryKeys: 0, keptRecent: 0 };
+  }
+
+  const desiredRecent = Math.max(0, Number(keepRecent) || 0);
+  const currentRecent = readRecentChats();
+  const keptRecentList = desiredRecent > 0 ? currentRecent.slice(0, desiredRecent) : [];
+
+  if (keptRecentList.length) {
+    window.sessionStorage.setItem(RECENT_CHAT_KEY, JSON.stringify(keptRecentList));
+  } else {
+    window.sessionStorage.removeItem(RECENT_CHAT_KEY);
+  }
+
+  const keysToDelete = [];
+  for (let i = 0; i < window.sessionStorage.length; i += 1) {
+    const key = window.sessionStorage.key(i);
+    if (!key) continue;
+    if (key.startsWith(CHAT_HISTORY_PREFIX)) {
+      keysToDelete.push(key);
+    }
+  }
+
+  keysToDelete.forEach((key) => window.sessionStorage.removeItem(key));
+  window.sessionStorage.removeItem(CHAT_START_CACHE_KEY);
+  window.sessionStorage.removeItem(CHAT_PENDING_PLAN_CACHE_KEY);
+
+  return {
+    removedHistoryKeys: keysToDelete.length,
+    keptRecent: keptRecentList.length,
+  };
 };
