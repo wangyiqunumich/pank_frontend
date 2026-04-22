@@ -628,9 +628,18 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     {
                         content: (
                             <Box sx={{ fontSize: 16, color: '#475569', lineHeight: 1.7 }}>
-                                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
-                                    {answerText}
-                                </ReactMarkdown>
+                                {block?.confirming ? (
+                                    <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
+                                        <Typography component="span" sx={{ fontSize: 16, color: '#475569' }}>
+                                            AI summary is generating...
+                                        </Typography>
+                                        <CircularProgress size={14} />
+                                    </Box>
+                                ) : (
+                                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                                        {answerText}
+                                    </ReactMarkdown>
+                                )}
                             </Box>
                         ),
                     },
