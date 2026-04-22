@@ -1,18 +1,18 @@
 import React, {
-    useEffect,
-    useRef,
-    useState,
+  useEffect,
+  useRef,
+  useState,
 } from 'react';
 
 import cytoscape from 'cytoscape';
 import { useDispatch } from 'react-redux';
 
 import {
-    Box,
-    Button,
-    Chip,
-    CircularProgress,
-    Typography,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Typography,
 } from '@mui/material';
 
 import Image from '../image/Pasted Graphic 1.png';
@@ -21,15 +21,15 @@ import sampleLinks from '../schema/sample_links.json';
 import { GenomeBrowserEmbed } from '../SearchResult/AgentResult';
 import SearchResultLoading from '../SearchResult/loading';
 import {
-    clearConversationStorage,
-    readRecentChats,
+  clearConversationStorage,
+  readRecentChats,
 } from '../utils/chatSessionStorage';
 import MultiLineInputList from './DebugComponent';
 import KnowledgeGraph from './KnowledgeGraph';
 import {
-    edgeIsInverted,
-    edgeLabels,
-    nodeStyle,
+  edgeIsInverted,
+  edgeLabels,
+  nodeStyle,
 } from './style.js';
 
 export default function DebugPage() {

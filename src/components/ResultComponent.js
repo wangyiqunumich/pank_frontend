@@ -16,7 +16,6 @@ import {
   Box,
   Button,
   Chip,
-    CircularProgress,
   createTheme,
   CssBaseline,
   Divider,
@@ -416,6 +415,7 @@ function EvidenceItem({ item, onSelect, isActive }) {
             onClick={clickable ? handleClick : undefined}
             type={Component === "button" ? "button" : undefined}
             id={item?.anchorId}
+            data-pmid={item?.pmid || undefined}
             sx={{
                 background: isActive ? "#ECFEFF" : "#fff",
                 border: isActive ? "1px solid #67E8F9" : "1px solid #E7EBEF",
@@ -1008,7 +1008,9 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
         if (!activeReference) return undefined;
         if (referencesTabIndex < 0 || evidenceTab !== referencesTabIndex) return undefined;
 
-        const el = document.getElementById(`reference-item-${activeReference}`);
+        const el =
+            document.getElementById(`reference-item-${activeReference}`)
+            || document.querySelector(`[data-pmid="${activeReference}"]`);
         if (el) {
             el.scrollIntoView({ behavior: "smooth", block: "center" });
             if (referenceTimeoutRef.current) {
@@ -1031,6 +1033,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
     const showVisualSection = Boolean(data?.visualMaterial);
     const showEvidenceSection = Boolean(data?.evidences);
     const showFollowUpSection = Boolean(data?.followUp);
+    const preferFollowUpBeforeVisual = Boolean(showFollowUpSection && (!showVisualSection || data?.visualMaterial?.noGraph));
     const anchorPrefix = React.useMemo(() => {
         if (contentAnchorPrefix) return contentAnchorPrefix;
         if (data?.questionId) {
@@ -1083,6 +1086,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
         return item?.label || item?.question || item?.title || "";
     };
     const isFollowUpDisabled = Boolean(data?.followUp?.disabled);
+    const isFollowUpLoading = Boolean(data?.followUp?.loading);
     const followUpInputValue = data?.followUp?.inputValue ?? "";
     const showFollowUpComposer = Boolean(data?.followUp?.showComposer);
     const handleFollowUpSubmit = () => {
@@ -1158,7 +1162,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
 
                     {/* Visual Material */}
                     {showVisualSection ? (
-                        <Grid item xs={12} md={12} lg={5} order={{ xs: 2, md: 2, lg: 2 }} id={buildAnchorId("visual-material")}>
+                        <Grid item xs={12} md={12} lg={5} order={{ xs: 2, md: 2, lg: preferFollowUpBeforeVisual ? 4 : 2 }} id={buildAnchorId("visual-material")}>
                             <SectionCard title={isSingleColumn ? (data?.visualMaterial?.title || "Visual Material") : null} sx={{ height: "100%" }}>
                                 {visualTabs.length > 1 ? (
                                     <Box sx={{ mb: 2, transform: 'translateY(-3px)' }}>
@@ -1273,7 +1277,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                                                 key={`${it.id}-${it.title}`}
                                                                 item={it}
                                                                 onSelect={data?.evidences?.onSelect}
-                                                                isActive={Boolean(activeReference) && it.anchorId === `reference-item-${activeReference}`}
+                                                                isActive={Boolean(activeReference) && (String(it?.pmid || '') === String(activeReference) || it.anchorId === `reference-item-${activeReference}`)}
                                                             />
                                                         ))}
                                                     </Stack>
@@ -1296,7 +1300,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
 
                     {/* Follow Up */}
                     {showFollowUpSection ? (
-                        <Grid item xs={12} md={12} lg={5} order={{ xs: 4, md: 4, lg: 4 }} id={buildAnchorId("follow-up")}>
+                        <Grid item xs={12} md={12} lg={5} order={{ xs: 4, md: 4, lg: preferFollowUpBeforeVisual ? 2 : 4 }} id={buildAnchorId("follow-up")}>
                             <SectionCard title={data?.followUp?.title ?? "Follow Up"} sx={{ height: "100%" }}>
                                 <Stack spacing={3}>
                                     {showFollowUpComposer && typeof data?.followUp?.onSubmit === "function" ? (
@@ -1363,26 +1367,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                             </IconButton>
                                         </Box>
                                     ) : null}
-                                    {data?.followUp?.loading ? (
-                                        Array.from({ length: 3 }).map((_, idx) => (
-                                            <Paper
-                                                key={`follow-up-skeleton-${idx}`}
-                                                elevation={0}
-                                                sx={{
-                                                    bgcolor: "#F8FAFC",
-                                                    py: 2,
-                                                    px: 3,
-                                                    borderRadius: "16px",
-                                                }}
-                                            >
-                                                <Skeleton variant="text" width="92%" height={20} sx={{ mb: 0.5 }} />
-                                                <Skeleton variant="text" width="74%" height={18} />
-                                            </Paper>
-                                        ))
-                                    ) : null}
-
-                                    {!data?.followUp?.loading ? (
-                                        (data?.followUp?.items ?? []).map((item, idx) => {
+                                    {(data?.followUp?.items ?? []).map((item, idx) => {
                                             const label = getItemLabel(item);
                                             const isLink = Boolean(item?.href);
                                             const clickable = Boolean(!isFollowUpDisabled && (isLink || item?.onClick || data?.followUp?.onSelect));
@@ -1407,7 +1392,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                                     onClick={clickable ? handleClick : undefined}
                                                     type={Component === "button" ? "button" : undefined}
                                                     sx={{
-                                                        bgcolor: isFollowUpDisabled ? "#F1F5F9" : "#F8FAFC",
+                                                        bgcolor: (isFollowUpDisabled || isFollowUpLoading) ? "#EDF2F7" : "#F8FAFC",
                                                         py: 2,
                                                         px: 3,
                                                         borderRadius: "16px",
@@ -1423,18 +1408,17 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                                                 bgcolor: "#EFF6FF",
                                                             }
                                                             : undefined,
-                                                        opacity: isFollowUpDisabled ? 0.65 : 1,
+                                                        opacity: (isFollowUpDisabled || isFollowUpLoading) ? 0.7 : 1,
                                                     }}
                                                 >
                                                     <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: "#475569" }}>{label}</Typography>
                                                 </Paper>
                                             );
-                                        })
-                                    ) : null}
+                                        })}
 
-                                    {!data?.followUp?.loading && !data?.followUp?.items?.length ? (
+                                    {!data?.followUp?.items?.length ? (
                                         <Typography sx={{ fontSize: 13, color: "#94A3B8", fontWeight: 700, py: 2 }}>
-                                            No follow-up questions.
+                                            {isFollowUpLoading ? 'Loading follow-up questions...' : 'No follow-up questions.'}
                                         </Typography>
                                     ) : null}
                                 </Stack>

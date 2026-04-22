@@ -279,7 +279,17 @@ function AgentLandingPage() {
                     >
                         Recent
                     </Button>
-                    <Box sx={{ mt: 0.5, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                    <Box
+                        sx={{
+                            mt: 0.5,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 0.5,
+                            maxHeight: '42vh',
+                            overflowY: 'auto',
+                            pr: 0.5,
+                        }}
+                    >
                         {recentChats.length > 0 ? recentChats.map((chat) => {
                             const encodedQuestion = encodeURIComponent(utf8ToBase64(chat.firstQuestion || ''));
                             const target = `/result-new2?question=${encodedQuestion}&terminal=true&session_id=${encodeURIComponent(chat.sessionId)}`;
