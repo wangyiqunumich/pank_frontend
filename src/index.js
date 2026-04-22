@@ -67,7 +67,7 @@ root.render(
               <Route path="/resultpage" element={<ResultPage2 />} />
               <Route
                 path="/result-new2"
-                element={<AgentResultLayout ResultView={ResultPageNew2} allowMulti={false} allowSearch={false} />}
+                element={<AgentResultLayout ResultView={ResultPageNew2} allowMulti={false} allowSearch={true} showFloatingSearchBar={true} />}
               />
               <Route path="/usecases" element={<UsecasesPage />} />
               <Route path="/docs/*" element={<DocPage />} />
@@ -82,7 +82,7 @@ root.render(
                 element={isDevelopmentStage ? <DebugPage /> : <Navigate to="/old-landing" replace />}
               />
               <Route path="/igv" element={<IgvPage />} />
-              <Route path="/agent-result" element={<AgentResultLayout ResultView={ResultPageNew2} allowMulti={false} allowSearch={false} />} />
+              <Route path="/agent-result" element={<AgentResultLayout ResultView={ResultPageNew2} allowMulti={false} allowSearch={true} showFloatingSearchBar={true} />} />
               <Route path="*" element={<AgentLandingPage />} />
             </Routes>
           </div>

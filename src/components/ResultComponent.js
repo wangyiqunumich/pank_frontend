@@ -16,6 +16,7 @@ import {
   Box,
   Button,
   Chip,
+    CircularProgress,
   createTheme,
   CssBaseline,
   Divider,
@@ -1081,6 +1082,14 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
         if (typeof item === "string") return item;
         return item?.label || item?.question || item?.title || "";
     };
+    const followUpInputValue = data?.followUp?.inputValue ?? "";
+    const showFollowUpComposer = Boolean(data?.followUp?.showComposer);
+    const handleFollowUpSubmit = () => {
+        const submit = data?.followUp?.onSubmit;
+        if (typeof submit === "function") {
+            submit(followUpInputValue);
+        }
+    };
 
     return (
         <ThemeProvider theme={theme}>
@@ -1288,6 +1297,69 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                         <Grid item xs={12} md={12} lg={5} order={{ xs: 4, md: 4, lg: 4 }} id={buildAnchorId("follow-up")}>
                             <SectionCard title={data?.followUp?.title ?? "Follow Up"} sx={{ height: "100%" }}>
                                 <Stack spacing={3}>
+                                    {showFollowUpComposer && typeof data?.followUp?.onSubmit === "function" ? (
+                                        <Box
+                                            component="form"
+                                            onSubmit={(event) => {
+                                                event.preventDefault();
+                                                handleFollowUpSubmit();
+                                            }}
+                                            sx={{
+                                                border: "1px solid #ECF0F5",
+                                                borderRadius: "12px",
+                                                p: 1,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: 1,
+                                                backgroundColor: "#FFFFFF",
+                                                boxShadow: "0px 2px 8px -3px #64646F40",
+                                            }}
+                                        >
+                                            <TextField
+                                                value={followUpInputValue}
+                                                onChange={(event) => data?.followUp?.onChange?.(event.target.value || "")}
+                                                onKeyDown={(event) => {
+                                                    if (event.key === "Enter" && !event.shiftKey) {
+                                                        event.preventDefault();
+                                                        handleFollowUpSubmit();
+                                                    }
+                                                }}
+                                                placeholder={data?.followUp?.inputPlaceholder || "Ask a follow-up question..."}
+                                                variant="standard"
+                                                fullWidth
+                                                InputProps={{
+                                                    disableUnderline: true,
+                                                    startAdornment: (
+                                                        <InputAdornment position="start">
+                                                            <ChatBubbleOutlineIcon sx={{ color: "#94A3B8", fontSize: 20, marginLeft: "4px" }} />
+                                                        </InputAdornment>
+                                                    ),
+                                                }}
+                                                sx={{
+                                                    "& .MuiInputBase-input": {
+                                                        fontSize: 14,
+                                                        color: "#334155",
+                                                    },
+                                                }}
+                                            />
+                                            <IconButton
+                                                type="submit"
+                                                aria-label="send follow up"
+                                                disabled={Boolean(data?.followUp?.submitting) || !String(followUpInputValue || "").trim()}
+                                                sx={{
+                                                    borderRadius: "999px",
+                                                    color: "#3A838B",
+                                                    width: 34,
+                                                    height: 34,
+                                                    "&:hover": {
+                                                        backgroundColor: "#F0FAFB",
+                                                    },
+                                                }}
+                                            >
+                                                {data?.followUp?.submitting ? <Skeleton variant="circular" width={20} height={20} /> : <SendIcon sx={{ fontSize: 20 }} />}
+                                            </IconButton>
+                                        </Box>
+                                    ) : null}
                                     {data?.followUp?.loading ? (
                                         Array.from({ length: 3 }).map((_, idx) => (
                                             <Paper
