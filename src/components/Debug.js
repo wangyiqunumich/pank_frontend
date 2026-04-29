@@ -22,6 +22,7 @@ import { GenomeBrowserEmbed } from '../SearchResult/AgentResult';
 import SearchResultLoading from '../SearchResult/loading';
 import {
   clearConversationStorage,
+    exportConversationStorageSnapshot,
   readRecentChats,
 } from '../utils/chatSessionStorage';
 import MultiLineInputList from './DebugComponent';
@@ -141,6 +142,24 @@ export default function DebugPage() {
     const clearHistoryKeepRecentTen = React.useCallback(() => {
         const result = clearConversationStorage({ keepRecent: 10 });
         setHistoryActionMessage(`Cleared ${result.removedHistoryKeys} history records and kept ${result.keptRecent} recent items.`);
+    }, []);
+
+    const exportCachedHistory = React.useCallback(() => {
+        const snapshot = exportConversationStorageSnapshot();
+        const fileName = `pank_cached_history_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+        const payload = JSON.stringify(snapshot, null, 2);
+        const blob = new Blob([payload], { type: 'application/json' });
+        const downloadUrl = window.URL.createObjectURL(blob);
+
+        const anchor = document.createElement('a');
+        anchor.href = downloadUrl;
+        anchor.download = fileName;
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+        window.URL.revokeObjectURL(downloadUrl);
+
+        setHistoryActionMessage(`Exported cache snapshot to ${fileName}.`);
     }, []);
 
     useEffect(() => {
@@ -353,6 +372,14 @@ export default function DebugPage() {
                         sx={{ textTransform: 'none' }}
                     >
                         Clear History, Keep Recent 10
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={exportCachedHistory}
+                        sx={{ textTransform: 'none' }}
+                    >
+                        Export Cached History
                     </Button>
                     {plannerHealth.detail ? (
                         <Typography sx={{ fontSize: 12, color: '#64748B' }}>

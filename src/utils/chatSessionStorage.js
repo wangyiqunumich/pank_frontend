@@ -65,6 +65,36 @@ export const readConversationHistory = (sessionId) => {
   return Array.isArray(history) ? history : [];
 };
 
+export const exportConversationStorageSnapshot = () => {
+  if (!canUseSessionStorage()) {
+    return {
+      exportedAt: new Date().toISOString(),
+      recentChats: [],
+      chatStartCache: null,
+      pendingPlanCache: null,
+      histories: {},
+    };
+  }
+
+  const histories = {};
+  for (let i = 0; i < window.sessionStorage.length; i += 1) {
+    const key = window.sessionStorage.key(i);
+    if (!key || !key.startsWith(CHAT_HISTORY_PREFIX)) continue;
+
+    const sessionId = key.slice(CHAT_HISTORY_PREFIX.length);
+    const parsed = safeParse(window.sessionStorage.getItem(key), []);
+    histories[sessionId] = Array.isArray(parsed) ? parsed : [];
+  }
+
+  return {
+    exportedAt: new Date().toISOString(),
+    recentChats: readRecentChats(),
+    chatStartCache: safeParse(window.sessionStorage.getItem(CHAT_START_CACHE_KEY), null),
+    pendingPlanCache: safeParse(window.sessionStorage.getItem(CHAT_PENDING_PLAN_CACHE_KEY), null),
+    histories,
+  };
+};
+
 export const clearConversationStorage = ({ keepRecent = 0 } = {}) => {
   if (!canUseSessionStorage()) {
     return { removedHistoryKeys: 0, keptRecent: 0 };
