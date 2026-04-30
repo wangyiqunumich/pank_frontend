@@ -798,11 +798,11 @@ export default function FunctionalDataPage() {
                   </Box>
                 </Box>
 
-                {/* Step 5 (full width) */}
+                {/* Step 4 (full width) */}
                 <StepCard
-                  step={5}
-                  title={steps.step5.title}
-                  titleInfo={steps.step5.titleInfo}
+                  step={4}
+                  title={steps.step4.title}
+                  titleInfo={steps.step4.titleInfo}
                   extra={
                     <Button
                       size="small"
