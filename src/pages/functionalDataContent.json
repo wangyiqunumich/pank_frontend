@@ -19,7 +19,7 @@
       "title": "Explore trait distribution",
       "titleInfo": "Review trait-level distribution changes after cohort filtering to identify outliers and subgroup shifts."
     },
-    "step5": {
+    "step4": {
       "title": "Inspect donor metadata",
       "titleInfo": "Audit donor-level rows and export the filtered table for downstream analysis."
     }
