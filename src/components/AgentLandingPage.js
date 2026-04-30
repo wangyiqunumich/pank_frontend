@@ -5,18 +5,13 @@ import React, {
   useState,
 } from 'react';
 
-import {
-  useLocation,
-  useNavigate,
-} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-import AddCommentOutlinedIcon from '@mui/icons-material/AddCommentOutlined';
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import AutoGraphOutlinedIcon from '@mui/icons-material/AutoGraphOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import FlareOutlinedIcon from '@mui/icons-material/FlareOutlined';
 import SearchIcon from '@mui/icons-material/Search';
-import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import StorageOutlinedIcon from '@mui/icons-material/StorageOutlined';
 import TravelExploreOutlinedIcon
   from '@mui/icons-material/TravelExploreOutlined';
@@ -33,7 +28,7 @@ import {
 import landingPageLogo from '../image/landing image cropped.png';
 import landingSendIcon from '../image/landing_send.svg';
 import ExampleQueries from '../schema/landing_sample_questions.json';
-import { readRecentChats } from '../utils/chatSessionStorage';
+import AgentSidebar from './AgentSidebar';
 
 export const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
 
@@ -71,16 +66,10 @@ function BetaBadge({ sx }) {
 
 function AgentLandingPage() {
     const navigate = useNavigate();
-    const location = useLocation();
     const [query, setQuery] = useState('');
     const [showLoading, setShowLoading] = useState(false);
     const [activeExampleGroup, setActiveExampleGroup] = useState(undefined);
-    const [recentChats, setRecentChats] = useState([]);
     const examplesPanelRef = useRef(null);
-
-    useEffect(() => {
-        setRecentChats(readRecentChats());
-    }, [location.pathname, location.search]);
 
     const searchExampleGroup = useMemo(() => {
         const group = ExampleQueries?.search_examples;
@@ -191,7 +180,7 @@ function AgentLandingPage() {
         if (nextLink) {
             if (nextLink.startsWith('/match')) {
                 const separator = nextLink.includes('?') ? '&' : '?';
-                const returnTo = encodeURIComponent(`${location.pathname}${location.search}`);
+                const returnTo = encodeURIComponent(`${window.location.pathname}${window.location.search}`);
                 navigate(`${nextLink}${separator}returnTo=${returnTo}`);
                 return;
             }
@@ -229,108 +218,7 @@ function AgentLandingPage() {
 
     return (
         <Box sx={{ flex: 1, bgcolor: '#FFFFFF', display: 'flex', minHeight: 0 }}>
-            <Box
-                sx={{
-                    width: 288,
-                    bgcolor: '#F0F4F4',
-                    px: 3,
-                    py: 3,
-                    display: { xs: 'none', lg: 'flex' },
-                    flexDirection: 'column',
-                    boxShadow: '32px 0 64px -20px rgba(0, 106, 106, 0.04)',
-                }}
-            >
-                <Typography sx={{ fontFamily: 'Inter', fontWeight: 700, fontSize: 24, color: '#006766', mb: 2 }}>
-                    PanKgraph
-                </Typography>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, flex: 1 }}>
-                    <Button
-                        disableElevation
-                        startIcon={<AddCommentOutlinedIcon sx={{ color: '#006766' }} />}
-                        onClick={() => {
-                            setQuery('');
-                            setActiveExampleGroup(undefined);
-                            navigate('/');
-                        }}
-                        sx={{
-                            justifyContent: 'flex-start',
-                            borderRadius: '9999px',
-                            bgcolor: '#FFFFFF',
-                            color: '#006766',
-                            fontFamily: 'Inter',
-                            fontSize: 14,
-                            fontWeight: 500,
-                            textTransform: 'none',
-                            height: 44,
-                            px: 2,
-                        }}
-                    >
-                        New Chat
-                    </Button>
-                    <Button
-                        startIcon={<AutoGraphOutlinedIcon sx={{ color: '#5A6161' }} />}
-                        sx={{ justifyContent: 'flex-start', borderRadius: '9999px', color: '#5A6161', fontFamily: 'Inter', fontSize: 14, fontWeight: 500, textTransform: 'none', height: 44, px: 2 }}
-                    >
-                        Subagent
-                    </Button>
-                    <Button
-                        startIcon={<TravelExploreOutlinedIcon sx={{ color: '#5A6161' }} />}
-                        sx={{ justifyContent: 'flex-start', borderRadius: '9999px', color: '#5A6161', fontFamily: 'Inter', fontSize: 14, fontWeight: 500, textTransform: 'none', height: 44, px: 2 }}
-                    >
-                        Recent
-                    </Button>
-                    <Box
-                        sx={{
-                            mt: 0.5,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: 0.5,
-                            maxHeight: '42vh',
-                            overflowY: 'auto',
-                            pr: 0.5,
-                        }}
-                    >
-                        {recentChats.length > 0 ? recentChats.map((chat) => {
-                            const encodedQuestion = encodeURIComponent(utf8ToBase64(chat.firstQuestion || ''));
-                            const target = `/result-new2?question=${encodedQuestion}&terminal=true&session_id=${encodeURIComponent(chat.sessionId)}`;
-                            return (
-                                <Button
-                                    key={chat.sessionId}
-                                    onClick={() => navigate(target)}
-                                    sx={{
-                                        justifyContent: 'flex-start',
-                                        borderRadius: '12px',
-                                        color: '#405252',
-                                        fontFamily: 'Inter',
-                                        fontSize: 12,
-                                        fontWeight: 500,
-                                        textTransform: 'none',
-                                        minHeight: 34,
-                                        px: 1.5,
-                                        py: 0.75,
-                                        bgcolor: 'rgba(255,255,255,0.75)',
-                                        '&:hover': { bgcolor: '#FFFFFF' },
-                                    }}
-                                >
-                                    <Box sx={{ textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>
-                                        {chat.firstQuestion}
-                                    </Box>
-                                </Button>
-                            );
-                        }) : (
-                            <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#7B8A8A', px: 2 }}>
-                                No recent conversations yet.
-                            </Typography>
-                        )}
-                    </Box>
-                </Box>
-                <Button
-                    startIcon={<SettingsOutlinedIcon sx={{ color: '#5A6161' }} />}
-                    sx={{ justifyContent: 'flex-start', borderRadius: '9999px', color: '#5A6161', fontFamily: 'Inter', fontSize: 14, fontWeight: 500, textTransform: 'none', height: 44, px: 2 }}
-                >
-                    Settings & help
-                </Button>
-            </Box>
+            <AgentSidebar activeNav="new-chat" />
 
             <Box
                 sx={{
@@ -586,7 +474,6 @@ function AgentLandingPage() {
                             </Paper>
                         )}
                     </Box>
-
                 </Box>
             </Box>
         </Box>

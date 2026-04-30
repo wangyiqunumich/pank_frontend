@@ -1,0 +1,56 @@
+{
+  "pageSubtitle": [
+    "Explore donor-level functional data across conditions using interactive filtering and visualization.",
+    "Designed for rapid hypothesis generation, not formal statistical testing."
+  ],
+  "steps": {
+    "step1": {
+      "title": "Define donor cohort",
+      "titleInfo": "Use metadata and range filters to define the analysis cohort before exploring functional signals."
+    },
+    "step2": {
+      "title": "Functional feature plots",
+      "titleInfo": "Inspect response trajectories across stimulation windows for the currently filtered donors.",
+      "subtitle": "Time-series / stimulation response",
+      "subtitleInfo": "This panel emphasizes temporal dynamics, donor variability, and mean trend under stimulation.",
+      "responseTypeInfo": "Switch analytes to compare secretion profiles (e.g., INS, GCG, SST) under the same cohort filter."
+    },
+    "step3": {
+      "title": "Explore trait distribution",
+      "titleInfo": "Review trait-level distribution changes after cohort filtering to identify outliers and subgroup shifts."
+    },
+    "step5": {
+      "title": "Inspect donor metadata",
+      "titleInfo": "Audit donor-level rows and export the filtered table for downstream analysis."
+    }
+  },
+  "rightPanel": {
+    "aboutTitle": "About Functional Data",
+    "aboutInfo": "Background context for what functional data represents and how to interpret this page.",
+    "aboutBody": "Functional data represents physiological responses (e.g., insulin secretion) measured across stimuli or time.",
+    "importantTitle": "Important",
+    "importantBody": "This tool is designed for filtering and visualization, not statistical testing. For hypothesis validation, use downstream statistical pipelines.",
+    "whyUseTitle": "Why use this skill?",
+    "whyUseItems": [
+      "No need to process raw scRNA-seq or functional datasets",
+      "Instant cohort-level exploration",
+      "Integrated with PanKgraph knowledge system",
+      "Seamless transition to agent-based interpretation"
+    ],
+    "exampleUseCasesTitle": "Example use cases",
+    "exampleUseCases": [
+      {
+        "icon": "search",
+        "text": "Identify insulin response differences across BMI groups"
+      },
+      {
+        "icon": "psychology",
+        "text": "Explore donor heterogeneity in stimulation assays"
+      },
+      {
+        "icon": "biotech",
+        "text": "Generate hypotheses for functional phenotypes"
+      }
+    ]
+  }
+}
