@@ -21,9 +21,9 @@ import sampleLinks from '../schema/sample_links.json';
 import { GenomeBrowserEmbed } from '../SearchResult/AgentResult';
 import SearchResultLoading from '../SearchResult/loading';
 import {
-    clearConversationContentKeepIds,
+  clearConversationContentKeepIds,
   clearConversationStorage,
-    exportConversationStorageSnapshot,
+  exportConversationStorageSnapshot,
   readRecentChats,
 } from '../utils/chatSessionStorage';
 import MultiLineInputList from './DebugComponent';

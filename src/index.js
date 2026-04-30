@@ -3,8 +3,8 @@ import './index.css';
 import React from 'react';
 
 import ReactDOM from 'react-dom/client';
-import { Provider } from 'react-redux';
 import { AuthProvider } from 'react-oidc-context';
+import { Provider } from 'react-redux';
 import {
   BrowserRouter,
   Navigate,
@@ -24,11 +24,11 @@ import PkbFooter from './Footer/footer';
 import NavBar from './NavBar';
 import ApiPage from './pages/ApiPage';
 import DocPage from './pages/DocPage';
+import FunctionalDataPage from './pages/FunctionalDataPage';
 import Ontology from './pages/Ontology';
 import Pipeline from './pages/Pipeline';
 import QTLDataSource from './pages/QTL_data_source';
 import ReviewPage from './pages/ReviewPage';
-import FunctionalDataPage from './pages/FunctionalDataPage';
 import SkillsPage from './pages/SkillsPage';
 import StatPage from './pages/StatPage';
 import Tutorial from './pages/Tutorial';

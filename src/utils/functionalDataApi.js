@@ -2,11 +2,11 @@
  * Functional Data Page API Service
  * 
  * Wraps all API calls to the functional data backend.
- * Base URL: http://pankgraph-functional-alb-231928945.us-east-1.elb.amazonaws.com
+ * Base URL: https://pankgraph-functional-alb-231928945.us-east-1.elb.amazonaws.com
  */
 
 const BASE_URL = process.env.REACT_APP_FUNCTIONAL_DATA_API_URL || 
-  'http://pankgraph-functional-alb-231928945.us-east-1.elb.amazonaws.com';
+  'https://pankgraph-functional-alb-231928945.us-east-1.elb.amazonaws.com';
 
 /**
  * Health check endpoint
