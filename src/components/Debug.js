@@ -21,6 +21,7 @@ import sampleLinks from '../schema/sample_links.json';
 import { GenomeBrowserEmbed } from '../SearchResult/AgentResult';
 import SearchResultLoading from '../SearchResult/loading';
 import {
+    clearConversationContentKeepIds,
   clearConversationStorage,
     exportConversationStorageSnapshot,
   readRecentChats,
@@ -142,6 +143,11 @@ export default function DebugPage() {
     const clearHistoryKeepRecentTen = React.useCallback(() => {
         const result = clearConversationStorage({ keepRecent: 10 });
         setHistoryActionMessage(`Cleared ${result.removedHistoryKeys} history records and kept ${result.keptRecent} recent items.`);
+    }, []);
+
+    const clearHistoryContentKeepIds = React.useCallback(() => {
+        const result = clearConversationContentKeepIds();
+        setHistoryActionMessage(`Cleared ${result.removedHistoryKeys} history records while preserving ${result.keptRecent} cached session IDs.`);
     }, []);
 
     const exportCachedHistory = React.useCallback(() => {
@@ -364,6 +370,14 @@ export default function DebugPage() {
                         sx={{ textTransform: 'none' }}
                     >
                         Clear Conversation History
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={clearHistoryContentKeepIds}
+                        sx={{ textTransform: 'none' }}
+                    >
+                        Clear History Content (Keep IDs)
                     </Button>
                     <Button
                         variant="outlined"

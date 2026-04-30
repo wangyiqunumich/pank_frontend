@@ -199,7 +199,7 @@ function ChartPlaceholder({ height = 240, icon: Icon, loading = false, error = n
 
 export default function FunctionalDataPage() {
   const navigate = useNavigate();
-  const { pageSubtitle, steps, rightPanel } = functionalDataContent;
+  const { pageSubtitle, steps, rightPanel, captions } = functionalDataContent;
   const exampleIconMap = {
     search: SearchIcon,
     psychology: PsychologyIcon,
@@ -233,10 +233,15 @@ export default function FunctionalDataPage() {
 
   const step1Options = useMemo(() => {
     const options = summaryData?.options || {};
+    const diseaseCandidates = options.disease || [];
+    const t1d = diseaseCandidates.find((v) => v.toUpperCase() === 'T1D');
+    const healthy = diseaseCandidates.find((v) => v.toUpperCase().includes('HEALTH'));
+    const constrainedDisease = [t1d, healthy].filter(Boolean);
+
     return {
-      disease: ['All', ...(options.disease || [])],
+      disease: constrainedDisease.length ? constrainedDisease : ['T1D', 'Healthy'],
       sex: ['All', ...(options.sex || [])],
-      center: ['All', ...(options.center || [])],
+      center: ['HPAP', 'Will add more later'],
     };
   }, [summaryData]);
 
@@ -306,9 +311,9 @@ export default function FunctionalDataPage() {
   useEffect(() => {
     if (!summaryData || hasInitializedFilters) return;
 
-    setDisease(step1Options.disease.includes('T1D') ? 'T1D' : 'All');
+    setDisease(step1Options.disease.includes('T1D') ? 'T1D' : step1Options.disease[0]);
     setSex('All');
-    setCenter('All');
+    setCenter(step1Options.center[0]);
     setAgeRange([step1Ranges.age.min, step1Ranges.age.max]);
     setBmiRange([step1Ranges.bmi.min, step1Ranges.bmi.max]);
     setDebouncedAgeRange([step1Ranges.age.min, step1Ranges.age.max]);
@@ -470,7 +475,7 @@ export default function FunctionalDataPage() {
               startIcon={<ChevronLeftIcon />}
               sx={{ textTransform: 'none', color: '#64748B', fontFamily: 'Inter', fontSize: 13, mb: 1.5, px: 0, minWidth: 0 }}
             >
-              Back to Subagent Library
+              {captions.backToLibrary}
             </Button>
 
             {/* Page header */}
@@ -481,11 +486,11 @@ export default function FunctionalDataPage() {
                     <ShowChartIcon sx={{ fontSize: 20, color: '#0F766E' }} />
                   </Box>
                   <Typography sx={{ fontFamily: 'Inter', fontWeight: 800, fontSize: { xs: 18, md: 22 }, color: '#0F172A' }}>
-                    Functional Data Explorer
+                    HIPP Functional Data Skill
                   </Typography>
                   <Chip label="v1.0" size="small" sx={{ fontFamily: 'Inter', fontSize: 11, fontWeight: 600, bgcolor: '#F1F5F9', color: '#64748B', height: 22 }} />
                   <Chip
-                    label="Filter-driven Analysis"
+                    label="Interactive Cohort Filtering"
                     size="small"
                     sx={{
                       fontFamily: 'Inter',
@@ -498,7 +503,7 @@ export default function FunctionalDataPage() {
                     }}
                   />
                   <Chip
-                    label="No 2G+ Download"
+                    label="Agent-Ready Interpretation"
                     size="small"
                     sx={{
                       fontFamily: 'Inter',
@@ -547,7 +552,7 @@ export default function FunctionalDataPage() {
                     },
                   }}
                 >
-                  Save cohort
+                  {captions.saveCohort}
                 </Button>
               </Box>
             </Box>
@@ -563,8 +568,8 @@ export default function FunctionalDataPage() {
                   <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 1.25, mb: 2 }}>
                     {[
                       { label: 'Disease', value: disease, set: setDisease, options: step1Options.disease },
-                      { label: 'Sex',     value: sex,     set: setSex,     options: step1Options.sex },
-                      { label: 'Center',  value: center,  set: setCenter,  options: step1Options.center },
+                      { label: 'Genetic sex', value: sex, set: setSex, options: step1Options.sex },
+                      { label: 'Center', value: center, set: setCenter, options: step1Options.center },
                     ].map(({ label, value, set, options }) => (
                       <Box key={label}>
                         <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#64748B', mb: 0.5 }}>{label}</Typography>
@@ -617,9 +622,9 @@ export default function FunctionalDataPage() {
                       size="small"
                       startIcon={<RefreshIcon sx={{ fontSize: 15 }} />}
                       onClick={() => {
-                        setDisease(step1Options.disease.includes('T1D') ? 'T1D' : 'All');
+                        setDisease(step1Options.disease.includes('T1D') ? 'T1D' : step1Options.disease[0]);
                         setSex('All');
-                        setCenter('All');
+                        setCenter(step1Options.center[0]);
                         setAgeRange([step1Ranges.age.min, step1Ranges.age.max]);
                         setBmiRange([step1Ranges.bmi.min, step1Ranges.bmi.max]);
                         setDebouncedAgeRange([step1Ranges.age.min, step1Ranges.age.max]);
@@ -627,7 +632,7 @@ export default function FunctionalDataPage() {
                       }}
                       sx={{ textTransform: 'none', fontFamily: 'Inter', fontSize: 13, color: '#475569', border: '1px solid #E2E8F0', borderRadius: '8px', px: 1.5, mb: 3 }}
                     >
-                      Reset filters
+                      {captions.resetFilters}
                     </Button>
                   </Box>
                 </StepCard>
@@ -642,9 +647,10 @@ export default function FunctionalDataPage() {
                     subtitle={steps.step2.subtitle}
                     subtitleInfo={steps.step2.subtitleInfo}
                     showAgent
+                    agentLabel={captions.explainWithAgent}
                   >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5, flexWrap: 'wrap' }}>
-                      <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#64748B' }}>Response type</Typography>
+                      <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#64748B' }}>{captions.responseType}</Typography>
                       <Tooltip title={steps.step2.responseTypeInfo} arrow>
                         <InfoOutlinedIcon sx={{ fontSize: 13, color: '#94A3B8', cursor: 'help' }} />
                       </Tooltip>
@@ -680,9 +686,9 @@ export default function FunctionalDataPage() {
                     </Box>
                   </StepCard>
 
-                  <StepCard step={3} title={steps.step3.title} titleInfo={steps.step3.titleInfo} showAgent>
+                  <StepCard step={3} title={steps.step3.title} titleInfo={steps.step3.titleInfo} showAgent agentLabel={captions.explainWithAgent}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 0.5, mb: 1.5 }}>
-                      <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#64748B' }}>Trait</Typography>
+                      <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#64748B' }}>{captions.trait}</Typography>
                       <Select autoWidth size="small" value={trait} onChange={(e) => setTrait(e.target.value)} sx={{ ...SEL_SX, minWidth: 220 }}>
                         {traitOptions.map((o) => (
                           <MenuItem key={o} value={o} sx={{ fontFamily: 'Inter', fontSize: 12 }}>{o}</MenuItem>
@@ -718,7 +724,7 @@ export default function FunctionalDataPage() {
                       startIcon={<DownloadOutlinedIcon sx={{ fontSize: 14 }} />}
                       sx={{ textTransform: 'none', fontFamily: 'Inter', fontSize: 12, color: '#475569', border: '1px solid #E2E8F0', borderRadius: '7px' }}
                     >
-                      Download CSV
+                      {captions.downloadCsv}
                     </Button>
                   }
                 >
@@ -749,7 +755,7 @@ export default function FunctionalDataPage() {
                       ))
                     ) : (
                       <Box sx={{ px: 1.5, py: 2, textAlign: 'center' }}>
-                        <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#94A3B8' }}>No donors found</Typography>
+                        <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#94A3B8' }}>{captions.noDonorsFound}</Typography>
                       </Box>
                     )}
                     {!isLoadingDonors && donorCount > tableRows.length && (
@@ -766,7 +772,7 @@ export default function FunctionalDataPage() {
                       endIcon={<ExpandMoreIcon sx={{ fontSize: 16 }} />}
                       sx={{ textTransform: 'none', fontFamily: 'Inter', fontSize: 13, color: '#0F766E', fontWeight: 600, mt: 1, px: 0 }}
                     >
-                      Show more ({donorCount} donors)
+                      {captions.showMore} ({donorCount} donors)
                     </Button>
                   )}
                 </StepCard>
@@ -939,7 +945,7 @@ export default function FunctionalDataPage() {
                   minWidth: 0,
                 }}
               >
-                Download CSV
+                {captions.downloadCsv}
               </Button>
               <IconButton
                 onClick={() => setIsTableOverlayOpen(false)}
@@ -989,7 +995,7 @@ export default function FunctionalDataPage() {
               ))
             ) : (
               <Box sx={{ textAlign: 'center', py: 5 }}>
-                <Typography sx={{ fontFamily: 'Inter', fontSize: 13, color: '#94A3B8' }}>No donors found</Typography>
+                <Typography sx={{ fontFamily: 'Inter', fontSize: 13, color: '#94A3B8' }}>{captions.noDonorsFound}</Typography>
               </Box>
             )}
           </Box>

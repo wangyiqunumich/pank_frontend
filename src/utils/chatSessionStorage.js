@@ -128,3 +128,27 @@ export const clearConversationStorage = ({ keepRecent = 0 } = {}) => {
     keptRecent: keptRecentList.length,
   };
 };
+
+export const clearConversationContentKeepIds = () => {
+  if (!canUseSessionStorage()) {
+    return { removedHistoryKeys: 0, keptRecent: 0 };
+  }
+
+  const currentRecent = readRecentChats();
+
+  const keysToDelete = [];
+  for (let i = 0; i < window.sessionStorage.length; i += 1) {
+    const key = window.sessionStorage.key(i);
+    if (!key) continue;
+    if (key.startsWith(CHAT_HISTORY_PREFIX)) {
+      keysToDelete.push(key);
+    }
+  }
+
+  keysToDelete.forEach((key) => window.sessionStorage.removeItem(key));
+
+  return {
+    removedHistoryKeys: keysToDelete.length,
+    keptRecent: currentRecent.length,
+  };
+};
