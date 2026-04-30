@@ -13,7 +13,7 @@ import {
 
 import AgentSidebar from '../components/AgentSidebar';
 
-function SkillCard({ icon, title, description, actionLabel, onAction, accent = '#0F766E' }) {
+function SkillCard({ icon, title, description, actionLabel, onAction, accent = '#0F766E', disabled = false }) {
   return (
     <Paper
       elevation={0}
@@ -51,17 +51,23 @@ function SkillCard({ icon, title, description, actionLabel, onAction, accent = '
         <Button
           variant="outlined"
           onClick={onAction}
+          disabled={disabled}
           sx={{
             textTransform: 'none',
             borderRadius: '12px',
-            borderColor: accent,
-            color: accent,
+            borderColor: disabled ? '#CBD5E1' : accent,
+            color: disabled ? '#94A3B8' : accent,
             fontFamily: 'Inter',
             fontWeight: 700,
             px: 3,
+            cursor: disabled ? 'not-allowed' : 'pointer',
             '&:hover': {
-              borderColor: accent,
-              bgcolor: 'rgba(15,118,110,0.06)',
+              borderColor: disabled ? '#CBD5E1' : accent,
+              bgcolor: disabled ? 'transparent' : 'rgba(15,118,110,0.06)',
+            },
+            '&.Mui-disabled': {
+              borderColor: '#CBD5E1',
+              color: '#94A3B8',
             },
           }}
         >
@@ -96,6 +102,7 @@ export default function SkillsPage() {
               actionLabel="Launch"
               onAction={() => navigate('/functional-data?tool=ssgsea')}
               accent="#0F766E"
+              disabled
             />
 
             <SkillCard

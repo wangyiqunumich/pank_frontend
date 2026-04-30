@@ -1,4 +1,8 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import { useNavigate } from 'react-router-dom';
 
@@ -9,6 +13,7 @@ import BiotechIcon from '@mui/icons-material/Biotech';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import CloseIcon from '@mui/icons-material/Close';
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -20,6 +25,7 @@ import SendIcon from '@mui/icons-material/Send';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
 import {
+  Backdrop,
   Box,
   Button,
   Chip,
@@ -35,8 +41,8 @@ import {
 } from '@mui/material';
 
 import AgentSidebar from '../components/AgentSidebar';
-import functionalDataContent from './functionalDataContent.json';
 import functionalDataApi from '../utils/functionalDataApi';
+import functionalDataContent from './functionalDataContent.json';
 
 const SEL_SX = {
   borderRadius: '8px',
@@ -206,9 +212,13 @@ export default function FunctionalDataPage() {
   const [center, setCenter] = useState('All');
   const [ageRange, setAgeRange] = useState([3, 65]);
   const [bmiRange, setBmiRange] = useState([12, 45.5]);
-  const [responseType, setResponseType] = useState('INS');
+  const [debouncedAgeRange, setDebouncedAgeRange] = useState([3, 65]);
+  const [debouncedBmiRange, setDebouncedBmiRange] = useState([12, 45.5]);
+  const [responseType, setResponseType] = useState('ins_ieq');
   const [trait, setTrait] = useState('INS-IEQ G 16.7 SI');
   const [prompt, setPrompt] = useState('');
+  const [hasInitializedFilters, setHasInitializedFilters] = useState(false);
+  const [isTableOverlayOpen, setIsTableOverlayOpen] = useState(false);
 
   // API state
   const [summaryData, setSummaryData] = useState(null);
@@ -221,16 +231,60 @@ export default function FunctionalDataPage() {
   const [isLoadingTraitChart, setIsLoadingTraitChart] = useState(false);
   const [errors, setErrors] = useState({});
 
+  const step1Options = useMemo(() => {
+    const options = summaryData?.options || {};
+    return {
+      disease: ['All', ...(options.disease || [])],
+      sex: ['All', ...(options.sex || [])],
+      center: ['All', ...(options.center || [])],
+    };
+  }, [summaryData]);
+
+  const step1Ranges = useMemo(() => {
+    const ranges = summaryData?.ranges || {};
+    return {
+      age: {
+        min: ranges.age?.min ?? 3,
+        max: ranges.age?.max ?? 65,
+      },
+      bmi: {
+        min: ranges.bmi?.min ?? 12,
+        max: ranges.bmi?.max ?? 45.5,
+      },
+    };
+  }, [summaryData]);
+
+  const responseTypeOptions = useMemo(() => {
+    return summaryData?.summary?.trace_types || ['ins_ieq', 'ins_content', 'gcg_ieq', 'gcg_content'];
+  }, [summaryData]);
+
+  const traitOptions = useMemo(() => {
+    return summaryData?.traits || ['INS-IEQ G 16.7 SI'];
+  }, [summaryData]);
+
+  const formatResponseTypeLabel = (traceType) => {
+    return (traceType || '').toUpperCase().replaceAll('_', ' ');
+  };
+
   // Helper to build filter object
   const getFilters = () => ({
     disease: disease !== 'All' ? disease : null,
     sex: sex !== 'All' ? sex : null,
     center: center !== 'All' ? center : null,
-    age_min: ageRange[0],
-    age_max: ageRange[1],
-    bmi_min: bmiRange[0],
-    bmi_max: bmiRange[1],
+    age_min: debouncedAgeRange[0],
+    age_max: debouncedAgeRange[1],
+    bmi_min: debouncedBmiRange[0],
+    bmi_max: debouncedBmiRange[1],
   });
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedAgeRange(ageRange);
+      setDebouncedBmiRange(bmiRange);
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [ageRange, bmiRange]);
 
   // Fetch summary on mount
   useEffect(() => {
@@ -249,6 +303,28 @@ export default function FunctionalDataPage() {
     fetchSummary();
   }, []);
 
+  useEffect(() => {
+    if (!summaryData || hasInitializedFilters) return;
+
+    setDisease(step1Options.disease.includes('T1D') ? 'T1D' : 'All');
+    setSex('All');
+    setCenter('All');
+    setAgeRange([step1Ranges.age.min, step1Ranges.age.max]);
+    setBmiRange([step1Ranges.bmi.min, step1Ranges.bmi.max]);
+    setDebouncedAgeRange([step1Ranges.age.min, step1Ranges.age.max]);
+    setDebouncedBmiRange([step1Ranges.bmi.min, step1Ranges.bmi.max]);
+
+    if (traitOptions.length && !traitOptions.includes(trait)) {
+      setTrait(traitOptions[0]);
+    }
+
+    if (responseTypeOptions.length && !responseTypeOptions.includes(responseType)) {
+      setResponseType(responseTypeOptions[0]);
+    }
+
+    setHasInitializedFilters(true);
+  }, [summaryData, hasInitializedFilters, step1Options, step1Ranges, trait, traitOptions, responseType, responseTypeOptions]);
+
   // Fetch donors when filters change
   useEffect(() => {
     const fetchDonors = async () => {
@@ -265,14 +341,14 @@ export default function FunctionalDataPage() {
       }
     };
     fetchDonors();
-  }, [disease, sex, center, ageRange, bmiRange]);
+  }, [disease, sex, center, debouncedAgeRange, debouncedBmiRange]);
 
   // Fetch trace chart when filters or response type change
   useEffect(() => {
     const fetchTraceChart = async () => {
       setIsLoadingTraceChart(true);
       try {
-        const blob = await functionalDataApi.getCohortTracesPng('ins_ieq', getFilters());
+        const blob = await functionalDataApi.getCohortTracesPng(responseType, getFilters());
         const url = URL.createObjectURL(blob);
         setTraceImageUrl(url);
         setErrors(prev => ({ ...prev, traceChart: null }));
@@ -284,7 +360,7 @@ export default function FunctionalDataPage() {
       }
     };
     fetchTraceChart();
-  }, [disease, sex, center, ageRange, bmiRange, responseType]);
+  }, [disease, sex, center, debouncedAgeRange, debouncedBmiRange, responseType]);
 
   // Fetch trait summary chart when filters or trait change
   useEffect(() => {
@@ -303,7 +379,7 @@ export default function FunctionalDataPage() {
       }
     };
     fetchTraitChart();
-  }, [disease, sex, center, ageRange, bmiRange, trait]);
+  }, [disease, sex, center, debouncedAgeRange, debouncedBmiRange, trait]);
 
   // Convert donor data to table rows
   const tableRows = useMemo(() => {
@@ -318,6 +394,60 @@ export default function FunctionalDataPage() {
       trait: donor.trait_value ? parseFloat(donor.trait_value).toFixed(1) : 'N/A',
     }));
   }, [donorData, disease]);
+
+  const fullTableRows = useMemo(() => {
+    if (!donorData || !donorData.donors) return [];
+    return donorData.donors.map((donor) => ({
+      donorId: donor.donor_id || 'N/A',
+      disease: donor.disease || disease,
+      age: donor.age || 'N/A',
+      sex: donor.sex || 'N/A',
+      bmi: donor.bmi ? parseFloat(donor.bmi).toFixed(1) : 'N/A',
+      center: donor.center || 'N/A',
+      trait: donor.trait_value ? parseFloat(donor.trait_value).toFixed(1) : 'N/A',
+    }));
+  }, [donorData, disease]);
+
+  const tableHeaders = ['Donor ID', 'Disease', 'Age', 'Sex', 'BMI (kg/m²)', 'Center', 'INS-IEQ G 16.7 SI (AUC)'];
+  const tableGridTemplate = '1.5fr 1fr 0.7fr 0.7fr 1fr 0.8fr 1.4fr';
+
+  const downloadDonorsCsv = () => {
+    if (!fullTableRows.length) return;
+
+    const escapeCsvCell = (value) => {
+      const raw = value === null || value === undefined ? '' : String(value);
+      if (raw.includes(',') || raw.includes('"') || raw.includes('\n')) {
+        return `"${raw.replaceAll('"', '""')}"`;
+      }
+      return raw;
+    };
+
+    const csvRows = [
+      tableHeaders.join(','),
+      ...fullTableRows.map((row) => [
+        row.donorId,
+        row.disease,
+        row.age,
+        row.sex,
+        row.bmi,
+        row.center,
+        row.trait,
+      ].map(escapeCsvCell).join(',')),
+    ];
+
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const now = new Date().toISOString().slice(0, 10);
+
+    link.href = url;
+    link.setAttribute('download', `functional-data-donors-${now}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
 
   const donorCount = donorData?.count || 0;
   const totalDonors = summaryData?.summary?.available_donors || 114;
@@ -401,8 +531,21 @@ export default function FunctionalDataPage() {
                 </Box>
                 <Button
                   variant="outlined"
+                  disabled
                   startIcon={<BookmarkBorderIcon />}
-                  sx={{ textTransform: 'none', fontFamily: 'Inter', fontWeight: 600, fontSize: 13, borderRadius: '8px', borderColor: '#E2E8F0', color: '#334155', '&:hover': { borderColor: '#CBD5E1' } }}
+                  sx={{
+                    textTransform: 'none',
+                    fontFamily: 'Inter',
+                    fontWeight: 600,
+                    fontSize: 13,
+                    borderRadius: '8px',
+                    borderColor: '#E2E8F0',
+                    color: '#94A3B8',
+                    '&.Mui-disabled': {
+                      borderColor: '#E2E8F0',
+                      color: '#94A3B8',
+                    },
+                  }}
                 >
                   Save cohort
                 </Button>
@@ -419,9 +562,9 @@ export default function FunctionalDataPage() {
                 <StepCard step={1} title={steps.step1.title} titleInfo={steps.step1.titleInfo}>
                   <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 1.25, mb: 2 }}>
                     {[
-                      { label: 'Disease', value: disease, set: setDisease, options: ['All', 'T1D', 'ND'] },
-                      { label: 'Sex',     value: sex,     set: setSex,     options: ['All', 'M', 'F'] },
-                      { label: 'Center',  value: center,  set: setCenter,  options: ['All', 'CPC', 'BWH', 'UIC', 'UMN'] },
+                      { label: 'Disease', value: disease, set: setDisease, options: step1Options.disease },
+                      { label: 'Sex',     value: sex,     set: setSex,     options: step1Options.sex },
+                      { label: 'Center',  value: center,  set: setCenter,  options: step1Options.center },
                     ].map(({ label, value, set, options }) => (
                       <Box key={label}>
                         <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#64748B', mb: 0.5 }}>{label}</Typography>
@@ -440,7 +583,9 @@ export default function FunctionalDataPage() {
                         <Slider
                           value={ageRange}
                           onChange={(_, v) => setAgeRange(v)}
-                          min={0} max={80} step={1}
+                          min={step1Ranges.age.min}
+                          max={step1Ranges.age.max}
+                          step={1}
                           valueLabelDisplay="auto"
                           sx={{ color: '#0F766E', '& .MuiSlider-thumb': { width: 14, height: 14 } }}
                         />
@@ -456,7 +601,9 @@ export default function FunctionalDataPage() {
                         <Slider
                           value={bmiRange}
                           onChange={(_, v) => setBmiRange(v)}
-                          min={10} max={55} step={0.5}
+                          min={step1Ranges.bmi.min}
+                          max={step1Ranges.bmi.max}
+                          step={0.5}
                           valueLabelDisplay="auto"
                           sx={{ color: '#0F766E', '& .MuiSlider-thumb': { width: 14, height: 14 } }}
                         />
@@ -469,7 +616,15 @@ export default function FunctionalDataPage() {
                     <Button
                       size="small"
                       startIcon={<RefreshIcon sx={{ fontSize: 15 }} />}
-                      onClick={() => { setDisease('T1D'); setSex('All'); setCenter('All'); setAgeRange([3, 65]); setBmiRange([12, 45.5]); }}
+                      onClick={() => {
+                        setDisease(step1Options.disease.includes('T1D') ? 'T1D' : 'All');
+                        setSex('All');
+                        setCenter('All');
+                        setAgeRange([step1Ranges.age.min, step1Ranges.age.max]);
+                        setBmiRange([step1Ranges.bmi.min, step1Ranges.bmi.max]);
+                        setDebouncedAgeRange([step1Ranges.age.min, step1Ranges.age.max]);
+                        setDebouncedBmiRange([step1Ranges.bmi.min, step1Ranges.bmi.max]);
+                      }}
                       sx={{ textTransform: 'none', fontFamily: 'Inter', fontSize: 13, color: '#475569', border: '1px solid #E2E8F0', borderRadius: '8px', px: 1.5, mb: 3 }}
                     >
                       Reset filters
@@ -493,9 +648,9 @@ export default function FunctionalDataPage() {
                       <Tooltip title={steps.step2.responseTypeInfo} arrow>
                         <InfoOutlinedIcon sx={{ fontSize: 13, color: '#94A3B8', cursor: 'help' }} />
                       </Tooltip>
-                      <Select size="small" value={responseType} onChange={(e) => setResponseType(e.target.value)} sx={{ ...SEL_SX, minWidth: 80 }}>
-                        {['INS', 'GCG', 'SST'].map((o) => (
-                          <MenuItem key={o} value={o} sx={{ fontFamily: 'Inter', fontSize: 13 }}>{o}</MenuItem>
+                      <Select size="small" value={responseType} onChange={(e) => setResponseType(e.target.value)} sx={{ ...SEL_SX, minWidth: 140 }}>
+                        {responseTypeOptions.map((o) => (
+                          <MenuItem key={o} value={o} sx={{ fontFamily: 'Inter', fontSize: 13 }}>{formatResponseTypeLabel(o)}</MenuItem>
                         ))}
                       </Select>
                       <IconButton size="small" sx={{ border: '1px solid #E2E8F0', borderRadius: '6px', p: 0.4 }}>
@@ -519,7 +674,7 @@ export default function FunctionalDataPage() {
                         <Typography sx={{ fontFamily: 'Inter', fontSize: 11, color: '#64748B' }}>Mean response</Typography>
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <Box sx={{ width: 22, height: 12, bgcolor: 'rgba(100,116,139,0.15)', border: '1px solid #CBD5E1' }} />
+                        <Box sx={{ width: 22, height: 12, bgcolor: '#E5F0F2', border: '1px solid #E5F0F2' }} />
                         <Typography sx={{ fontFamily: 'Inter', fontSize: 11, color: '#64748B' }}>Stimulus window</Typography>
                       </Box>
                     </Box>
@@ -528,8 +683,8 @@ export default function FunctionalDataPage() {
                   <StepCard step={3} title={steps.step3.title} titleInfo={steps.step3.titleInfo} showAgent>
                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 0.5, mb: 1.5 }}>
                       <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#64748B' }}>Trait</Typography>
-                      <Select autoWidth size="small" value={trait} onChange={(e) => setTrait(e.target.value)} sx={{ ...SEL_SX, minWidth: 180 }}>
-                        {['INS-IEQ G 16.7 SI', 'GCG G 16.7 SI', 'INS/GCG ratio'].map((o) => (
+                      <Select autoWidth size="small" value={trait} onChange={(e) => setTrait(e.target.value)} sx={{ ...SEL_SX, minWidth: 220 }}>
+                        {traitOptions.map((o) => (
                           <MenuItem key={o} value={o} sx={{ fontFamily: 'Inter', fontSize: 12 }}>{o}</MenuItem>
                         ))}
                       </Select>
@@ -543,7 +698,7 @@ export default function FunctionalDataPage() {
                     />
                     <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <Box sx={{ width: 16, height: 2, bgcolor: '#0F766E' }} />
+                        <Box sx={{ width: 16, height: 4, bgcolor: '#478F95' }} />
                         <Typography sx={{ fontFamily: 'Inter', fontSize: 11, color: '#64748B' }}>Top filtered donors</Typography>
                       </Box>
                     </Box>
@@ -558,6 +713,8 @@ export default function FunctionalDataPage() {
                   extra={
                     <Button
                       size="small"
+                      onClick={downloadDonorsCsv}
+                      disabled={!fullTableRows.length}
                       startIcon={<DownloadOutlinedIcon sx={{ fontSize: 14 }} />}
                       sx={{ textTransform: 'none', fontFamily: 'Inter', fontSize: 12, color: '#475569', border: '1px solid #E2E8F0', borderRadius: '7px' }}
                     >
@@ -566,8 +723,8 @@ export default function FunctionalDataPage() {
                   }
                 >
                   <Box sx={{ border: '1px solid #E2E8F0', borderRadius: '8px', overflow: 'hidden' }}>
-                    <Box sx={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 0.7fr 0.7fr 1fr 0.8fr 1.4fr', px: 1.5, py: 1, bgcolor: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
-                      {['Donor ID', 'Disease', 'Age', 'Sex', 'BMI (kg/m²)', 'Center', 'INS-IEQ G 16.7 SI (AUC)'].map((h) => (
+                    <Box sx={{ display: 'grid', gridTemplateColumns: tableGridTemplate, px: 1.5, py: 1, bgcolor: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+                      {tableHeaders.map((h) => (
                         <Typography key={h} sx={{ fontFamily: 'Inter', fontSize: 11, fontWeight: 700, color: '#334155' }}>{h}</Typography>
                       ))}
                     </Box>
@@ -579,7 +736,7 @@ export default function FunctionalDataPage() {
                       tableRows.map((row) => (
                         <Box
                           key={row.donorId}
-                          sx={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 0.7fr 0.7fr 1fr 0.8fr 1.4fr', px: 1.5, py: 0.9, borderBottom: '1px solid #F1F5F9', '&:hover': { bgcolor: '#FAFAFA' } }}
+                          sx={{ display: 'grid', gridTemplateColumns: tableGridTemplate, px: 1.5, py: 0.9, borderBottom: '1px solid #F1F5F9', '&:hover': { bgcolor: '#FAFAFA' } }}
                         >
                           <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155', fontWeight: 500 }}>{row.donorId}</Typography>
                           <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.disease}</Typography>
@@ -596,7 +753,7 @@ export default function FunctionalDataPage() {
                       </Box>
                     )}
                     {!isLoadingDonors && donorCount > tableRows.length && (
-                      <Box sx={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 0.7fr 0.7fr 1fr 0.8fr 1.4fr', px: 1.5, py: 0.9 }}>
+                      <Box sx={{ display: 'grid', gridTemplateColumns: tableGridTemplate, px: 1.5, py: 0.9 }}>
                         {['...', '...', '...', '...', '...', '...', '...'].map((d, i) => (
                           <Typography key={i} sx={{ fontFamily: 'Inter', fontSize: 12, color: '#94A3B8' }}>{d}</Typography>
                         ))}
@@ -605,6 +762,7 @@ export default function FunctionalDataPage() {
                   </Box>
                   {donorCount > tableRows.length && (
                     <Button
+                      onClick={() => setIsTableOverlayOpen(true)}
                       endIcon={<ExpandMoreIcon sx={{ fontSize: 16 }} />}
                       sx={{ textTransform: 'none', fontFamily: 'Inter', fontSize: 13, color: '#0F766E', fontWeight: 600, mt: 1, px: 0 }}
                     >
@@ -701,12 +859,142 @@ export default function FunctionalDataPage() {
                 Your message will be sent with the current filter and visualization context.
               </Typography>
               <Typography sx={{ fontFamily: 'Inter', fontSize: 11, color: '#94A3B8' }}>
-                Powered by PanKgraph Agent �?
+                Powered by PanKgraph Agent
               </Typography>
             </Box>
           </Box>
         </Box>
       </Box>
+
+      <Backdrop
+        open={isTableOverlayOpen}
+        sx={{ zIndex: 1300, bgcolor: 'rgba(15, 23, 42, 0.45)', backdropFilter: 'blur(2px)' }}
+      >
+        <Paper
+          elevation={0}
+          sx={{
+            width: 'min(1200px, 96vw)',
+            height: 'min(860px, 92vh)',
+            borderRadius: '10px',
+            border: '1px solid #E2E8F0',
+            bgcolor: '#FFFFFF',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <Box
+            sx={{
+              px: 2,
+              py: 1.25,
+              borderBottom: '1px solid #E2E8F0',
+              bgcolor: '#FFFFFF',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box sx={{ width: 28, height: 28, borderRadius: '8px', bgcolor: '#F0FDFA', border: '1px solid #99F6E4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <PeopleAltOutlinedIcon sx={{ fontSize: 16, color: '#0F766E' }} />
+              </Box>
+              <Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.25 }}>
+                  <Typography sx={{ fontFamily: 'Inter', fontSize: 15, fontWeight: 700, color: '#0F172A' }}>
+                    Donor Metadata
+                  </Typography>
+                  <Chip
+                    label="Full Screen"
+                    size="small"
+                    sx={{
+                      fontFamily: 'Inter',
+                      fontSize: 11,
+                      fontWeight: 600,
+                      bgcolor: '#ECFDF5',
+                      color: '#047857',
+                      border: '1px solid #A7F3D0',
+                      height: 20,
+                    }}
+                  />
+                </Box>
+                <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#64748B' }}>
+                  {donorCount} donors under current filters
+                </Typography>
+              </Box>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Button
+                size="small"
+                onClick={downloadDonorsCsv}
+                disabled={!fullTableRows.length}
+                startIcon={<DownloadOutlinedIcon sx={{ fontSize: 14 }} />}
+                sx={{
+                  textTransform: 'none',
+                  fontFamily: 'Inter',
+                  fontSize: 12,
+                  color: '#475569',
+                  border: '1px solid #E2E8F0',
+                  borderRadius: '7px',
+                  px: 1,
+                  minWidth: 0,
+                }}
+              >
+                Download CSV
+              </Button>
+              <IconButton
+                onClick={() => setIsTableOverlayOpen(false)}
+                sx={{ color: '#64748B', border: '1px solid #E2E8F0', borderRadius: '8px' }}
+              >
+                <CloseIcon />
+              </IconButton>
+            </Box>
+          </Box>
+
+          <Box sx={{ borderBottom: '1px solid #E2E8F0', px: 2, py: 1, bgcolor: '#F8FAFC' }}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: tableGridTemplate, columnGap: 1 }}>
+              {tableHeaders.map((h) => (
+                <Typography key={h} sx={{ fontFamily: 'Inter', fontSize: 11, fontWeight: 700, color: '#334155' }}>
+                  {h}
+                </Typography>
+              ))}
+            </Box>
+          </Box>
+
+          <Box sx={{ flex: 1, overflowY: 'auto', px: 2, py: 1, bgcolor: '#FFFFFF' }}>
+            {isLoadingDonors ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
+                <CircularProgress size={30} sx={{ color: '#0F766E' }} />
+              </Box>
+            ) : fullTableRows.length > 0 ? (
+              fullTableRows.map((row) => (
+                <Box
+                  key={row.donorId}
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: tableGridTemplate,
+                    columnGap: 1,
+                    py: 0.95,
+                    borderBottom: '1px solid #F1F5F9',
+                    '&:hover': { bgcolor: '#FAFAFA' },
+                  }}
+                >
+                  <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155', fontWeight: 500 }}>{row.donorId}</Typography>
+                  <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.disease}</Typography>
+                  <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.age}</Typography>
+                  <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.sex}</Typography>
+                  <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.bmi}</Typography>
+                  <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.center}</Typography>
+                  <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.trait}</Typography>
+                </Box>
+              ))
+            ) : (
+              <Box sx={{ textAlign: 'center', py: 5 }}>
+                <Typography sx={{ fontFamily: 'Inter', fontSize: 13, color: '#94A3B8' }}>No donors found</Typography>
+              </Box>
+            )}
+          </Box>
+        </Paper>
+      </Backdrop>
     </Box>
   );
 }
