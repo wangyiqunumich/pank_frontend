@@ -52,6 +52,12 @@ const SEL_SX = {
   bgcolor: '#FFFFFF',
 };
 
+// Each step card has the same horizontal chrome (padding + border),
+// so outer step widths should be slightly offset from 2:1 to keep
+// inner plot areas at the target 2:1 ratio with equal heights.
+const STEP_WIDTH_COMPENSATION_PX = 11.3;
+const STEP_GRID_GAP_PX = 16;
+
 function StepBadge({ n }) {
   return (
     <Box
@@ -67,26 +73,26 @@ function StepBadge({ n }) {
   );
 }
 
-function AgentBtn({ label }) {
+function AgentBtn() {
   return (
     <Button
       size="small"
-      startIcon={<AutoGraphIcon sx={{ fontSize: 13 }} />}
+      aria-label="Agent"
       sx={{
-        textTransform: 'none', fontFamily: 'Inter', fontSize: 12,
-        color: '#0F766E', fontWeight: 600, px: 1, py: 0.25,
+        minWidth: 0,
+        color: '#0F766E', px: 0.75, py: 0.25,
         border: '1px solid #CCFBF1', borderRadius: '6px', bgcolor: '#F0FDFA',
         '&:hover': { bgcolor: '#CCFBF1' },
       }}
     >
-      {label || 'Explain with Agent'}
+      <AutoGraphIcon sx={{ fontSize: 14 }} />
     </Button>
   );
 }
 
-function StepCard({ step, title, titleInfo, subtitle, subtitleInfo, showAgent, agentLabel, extra, children }) {
+function StepCard({ step, title, titleInfo, subtitle, subtitleInfo, showAgent, extra, children }) {
   return (
-    <Paper elevation={0} sx={{ p: 2, borderRadius: '10px', border: '1px solid #E2E8F0' }}>
+    <Paper elevation={0} sx={{ p: 2, borderRadius: '10px', border: '1px solid #E2E8F0', width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
       {/* Line 1: badge + title + AgentBtn | extra + chat icon */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: subtitle ? 0.5 : 1.5, gap: 1, flexWrap: 'wrap' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
@@ -102,7 +108,7 @@ function StepCard({ step, title, titleInfo, subtitle, subtitleInfo, showAgent, a
           {extra}
           {showAgent && (
             <>
-              <AgentBtn label={agentLabel} />
+              <AgentBtn />
               <ChatBubbleOutlineIcon sx={{ fontSize: 15, color: '#94A3B8', cursor: 'pointer' }} />
             </>
           )}
@@ -124,14 +130,16 @@ function StepCard({ step, title, titleInfo, subtitle, subtitleInfo, showAgent, a
   );
 }
 
-function ChartPlaceholder({ height = 240, icon: Icon, loading = false, error = null, imageUrl = null }) {
+function ChartPlaceholder({ height = 240, aspectRatio = null, icon: Icon, loading = false, error = null, imageUrl = null }) {
   const PlaceholderIcon = Icon || ShowChartIcon;
+  const sizeSx = aspectRatio ? { aspectRatio } : { height };
   
   if (loading) {
     return (
       <Box
         sx={{
-          height, bgcolor: '#F8FAFC', borderRadius: '8px',
+          ...sizeSx,
+          bgcolor: '#F8FAFC', borderRadius: '8px',
           border: '1.5px dashed #CBD5E1',
           display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center', gap: 1.5,
@@ -149,7 +157,8 @@ function ChartPlaceholder({ height = 240, icon: Icon, loading = false, error = n
     return (
       <Box
         sx={{
-          height, bgcolor: '#FEF2F2', borderRadius: '8px',
+          ...sizeSx,
+          bgcolor: '#FEF2F2', borderRadius: '8px',
           border: '1.5px solid #FCA5A5',
           display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center', gap: 1,
@@ -170,7 +179,7 @@ function ChartPlaceholder({ height = 240, icon: Icon, loading = false, error = n
     return (
       <Box
         sx={{
-          height,
+          ...sizeSx,
           bgcolor: '#F8FAFC', borderRadius: '8px',
           border: '1.5px solid #E2E8F0',
           overflow: 'hidden',
@@ -196,7 +205,8 @@ function ChartPlaceholder({ height = 240, icon: Icon, loading = false, error = n
   return (
     <Box
       sx={{
-        height, bgcolor: '#F8FAFC', borderRadius: '8px',
+        ...sizeSx,
+        bgcolor: '#F8FAFC', borderRadius: '8px',
         border: '1.5px dashed #CBD5E1',
         display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center', gap: 1.5,
@@ -623,10 +633,10 @@ export default function FunctionalDataPage() {
             </Box>
 
             {/* Two-column layout */}
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', xl: '1fr 200px' }, gap: 2.5, alignItems: 'start' }}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', xl: 'minmax(0, 1fr) 200px' }, gap: 2.5, alignItems: 'start' }}>
 
               {/* Left: step cards */}
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
 
                 {/* Step 1 */}
                 <StepCard step={1} title={steps.step1.title} titleInfo={steps.step1.titleInfo}>
@@ -702,18 +712,27 @@ export default function FunctionalDataPage() {
                   </Box>
                 </StepCard>
 
-                {/* Step 2 + Step 3 (1:1) */}
-                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' }, gap: 2 }}>
+                {/* Step 2 + Step 3 (2:1) */}
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: {
+                      xs: '1fr',
+                      lg: `minmax(0, calc((100% - ${STEP_GRID_GAP_PX}px) * 0.6667 - ${STEP_WIDTH_COMPENSATION_PX}px)) minmax(0, calc((100% - ${STEP_GRID_GAP_PX}px) * 0.3333 + ${STEP_WIDTH_COMPENSATION_PX}px))`,
+                    },
+                    gap: 2,
+                  }}
+                >
 
-                  <StepCard
-                    step={2}
-                    title={steps.step2.title}
-                    titleInfo={steps.step2.titleInfo}
-                    subtitle={steps.step2.subtitle}
-                    subtitleInfo={steps.step2.subtitleInfo}
-                    showAgent
-                    agentLabel={captions.explainWithAgent}
-                  >
+                  <Box sx={{ minWidth: 0 }}>
+                    <StepCard
+                      step={2}
+                      title={steps.step2.title}
+                      titleInfo={steps.step2.titleInfo}
+                      subtitle={steps.step2.subtitle}
+                      subtitleInfo={steps.step2.subtitleInfo}
+                      showAgent
+                    >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5, flexWrap: 'wrap' }}>
                       <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#64748B' }}>{captions.responseType}</Typography>
                       <Tooltip title={steps.step2.responseTypeInfo} arrow>
@@ -729,7 +748,7 @@ export default function FunctionalDataPage() {
                       </IconButton>
                     </Box>
                     <ChartPlaceholder 
-                      height={300} 
+                      aspectRatio={2}
                       icon={ShowChartIcon}
                       loading={isLoadingTraceChart}
                       error={errors.traceChart}
@@ -749,9 +768,11 @@ export default function FunctionalDataPage() {
                         <Typography sx={{ fontFamily: 'Inter', fontSize: 11, color: '#64748B' }}>Stimulus window</Typography>
                       </Box>
                     </Box>
-                  </StepCard>
+                    </StepCard>
+                  </Box>
 
-                  <StepCard step={3} title={steps.step3.title} titleInfo={steps.step3.titleInfo} showAgent agentLabel={captions.explainWithAgent}>
+                  <Box sx={{ minWidth: 0 }}>
+                    <StepCard step={3} title={steps.step3.title} titleInfo={steps.step3.titleInfo} showAgent>
                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 0.5, mb: 1.5 }}>
                       <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#64748B' }}>{captions.trait}</Typography>
                       <Select autoWidth size="small" value={trait} onChange={(e) => setTrait(e.target.value)} sx={{ ...SEL_SX, minWidth: 220 }}>
@@ -761,7 +782,7 @@ export default function FunctionalDataPage() {
                       </Select>
                     </Box>
                     <ChartPlaceholder 
-                      height={300} 
+                      aspectRatio={1}
                       icon={BarChartIcon}
                       loading={isLoadingTraitChart}
                       error={errors.traitChart}
@@ -773,7 +794,8 @@ export default function FunctionalDataPage() {
                         <Typography sx={{ fontFamily: 'Inter', fontSize: 11, color: '#64748B' }}>Top filtered donors</Typography>
                       </Box>
                     </Box>
-                  </StepCard>
+                    </StepCard>
+                  </Box>
                 </Box>
 
                 {/* Step 5 (full width) */}
