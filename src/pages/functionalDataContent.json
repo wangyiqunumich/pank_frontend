@@ -1,11 +1,11 @@
 {
   "pageSubtitle": [
-    "Explore donor-level functional data across conditions using interactive filtering and visualization.",
-    "Designed for rapid hypothesis generation, not formal statistical testing."
+    "Explore donor-level functional data across selected biological contexts using interactive filtering and visualization.",
+    "Designed for rapid hypothesis generation, transparent cohort review, and future agent-assisted interpretation."
   ],
   "steps": {
     "step1": {
-      "title": "Define donor cohort",
+      "title": "Interactive Cohort Filtering",
       "titleInfo": "Use metadata and range filters to define the analysis cohort before exploring functional signals."
     },
     "step2": {
@@ -27,30 +27,40 @@
   "rightPanel": {
     "aboutTitle": "About Functional Data",
     "aboutInfo": "Background context for what functional data represents and how to interpret this page.",
-    "aboutBody": "Functional data represents physiological responses (e.g., insulin secretion) measured across stimuli or time.",
+    "aboutBody": "HIPP functional data capture physiological responses, such as insulin or glucagon secretion, measured across stimuli or time. This skill visualizes HIPP-generated functional readouts together with PanKgraph-linked donor context.",
     "importantTitle": "Important",
-    "importantBody": "This tool is designed for filtering and visualization, not statistical testing. For hypothesis validation, use downstream statistical pipelines.",
+    "importantBody": "This skill supports interactive filtering and visualization of HIPP-generated functional data. Formal statistical conclusions should be based on the corresponding HIPP analyses and publication.",
     "whyUseTitle": "Why use this skill?",
     "whyUseItems": [
-      "No need to process raw scRNA-seq or functional datasets",
-      "Instant cohort-level exploration",
-      "Integrated with PanKgraph knowledge system",
-      "Seamless transition to agent-based interpretation"
+      "Access HIPP-generated functional readouts",
+      "Filter donors and biological contexts interactively",
+      "Connect visual patterns to agent-assisted interpretation and future HIPP publication evidence"
     ],
     "exampleUseCasesTitle": "Example use cases",
     "exampleUseCases": [
       {
         "icon": "search",
-        "text": "Identify insulin response differences across BMI groups"
+        "text": "Show insulin secretion patterns for selected HIPP donors."
       },
       {
         "icon": "psychology",
-        "text": "Explore donor heterogeneity in stimulation assays"
+        "text": "Ask the agent to interpret observed features and relevant metadata."
       },
       {
         "icon": "biotech",
-        "text": "Generate hypotheses for functional phenotypes"
+        "text": "Link this visual pattern to available HIPP study evidence when available."
       }
     ]
+  },
+  "captions": {
+    "backToLibrary": "Back to Skill library",
+    "saveCohort": "Save cohort",
+    "resetFilters": "Reset filters",
+    "downloadCsv": "Download CSV",
+    "showMore": "Show more",
+    "explainWithAgent": "Explain with Agent",
+    "responseType": "Response type",
+    "trait": "Trait",
+    "noDonorsFound": "No donors found"
   }
 }
