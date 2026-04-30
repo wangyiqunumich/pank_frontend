@@ -170,12 +170,25 @@ function ChartPlaceholder({ height = 240, icon: Icon, loading = false, error = n
     return (
       <Box
         sx={{
-          height, bgcolor: '#F8FAFC', borderRadius: '8px',
+          height,
+          bgcolor: '#F8FAFC', borderRadius: '8px',
           border: '1.5px solid #E2E8F0',
           overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
       >
-        <img src={imageUrl} alt="chart" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <img
+          src={imageUrl}
+          alt="chart"
+          style={{
+            width: '100%',
+            height: '100%',
+            display: 'block',
+            objectFit: 'contain',
+          }}
+        />
       </Box>
     );
   }
@@ -235,11 +248,14 @@ export default function FunctionalDataPage() {
     const options = summaryData?.options || {};
     const diseaseCandidates = options.disease || [];
     const t1d = diseaseCandidates.find((v) => v.toUpperCase() === 'T1D');
-    const healthy = diseaseCandidates.find((v) => v.toUpperCase().includes('HEALTH'));
-    const constrainedDisease = [t1d, healthy].filter(Boolean);
+    const nonDiabetic = diseaseCandidates.find((v) => {
+      const normalized = v.toUpperCase();
+      return normalized === 'NON-DIABETIC' || normalized === 'NON DIABETIC' || normalized.includes('HEALTH');
+    });
+    const constrainedDisease = [t1d, nonDiabetic].filter(Boolean);
 
     return {
-      disease: constrainedDisease.length ? constrainedDisease : ['T1D', 'Healthy'],
+      disease: constrainedDisease.length ? constrainedDisease : ['T1D', 'Non-Diabetic'],
       sex: ['All', ...(options.sex || [])],
       center: ['HPAP', 'Will add more later'],
     };
@@ -386,17 +402,55 @@ export default function FunctionalDataPage() {
     fetchTraitChart();
   }, [disease, sex, center, debouncedAgeRange, debouncedBmiRange, trait]);
 
+  const getNumericValue = (value) => {
+    if (value === null || value === undefined || value === '') return null;
+    const num = Number(value);
+    return Number.isFinite(num) ? num : null;
+  };
+
+  const getTraitFromString = (traitsString, key) => {
+    if (!traitsString || typeof traitsString !== 'string') return null;
+    const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const match = traitsString.match(new RegExp(`${escapedKey}=([^;}]*)`));
+    return getNumericValue(match?.[1]);
+  };
+
+  const getDonorTraitValue = (donor, traitKey, fallbackDirectKeys = []) => {
+    const directCandidates = [donor?.[traitKey], ...fallbackDirectKeys.map((k) => donor?.[k])];
+    for (const candidate of directCandidates) {
+      const parsed = getNumericValue(candidate);
+      if (parsed !== null) return parsed;
+    }
+
+    if (donor?.traits && typeof donor.traits === 'object' && !Array.isArray(donor.traits)) {
+      const parsed = getNumericValue(donor.traits[traitKey]);
+      if (parsed !== null) return parsed;
+    }
+
+    if (typeof donor?.traits === 'string') {
+      return getTraitFromString(donor.traits, traitKey);
+    }
+
+    return null;
+  };
+
+  const formatDonorSiTrait = (donor) => {
+    const si = getDonorTraitValue(donor, 'INS-IEQ G 16.7 SI', ['trait_value', 'traitValue']);
+    return si === null ? 'N/A' : si.toFixed(1);
+  };
+
   // Convert donor data to table rows
   const tableRows = useMemo(() => {
     if (!donorData || !donorData.donors) return [];
     return donorData.donors.slice(0, 5).map((donor) => ({
       donorId: donor.donor_id || 'N/A',
+      centerId: donor.hpap_id || 'N/A',
       disease: donor.disease || disease,
       age: donor.age || 'N/A',
       sex: donor.sex || 'N/A',
       bmi: donor.bmi ? parseFloat(donor.bmi).toFixed(1) : 'N/A',
       center: donor.center || 'N/A',
-      trait: donor.trait_value ? parseFloat(donor.trait_value).toFixed(1) : 'N/A',
+      trait: formatDonorSiTrait(donor),
     }));
   }, [donorData, disease]);
 
@@ -404,20 +458,22 @@ export default function FunctionalDataPage() {
     if (!donorData || !donorData.donors) return [];
     return donorData.donors.map((donor) => ({
       donorId: donor.donor_id || 'N/A',
+      centerId: donor.hpap_id || 'N/A',
       disease: donor.disease || disease,
       age: donor.age || 'N/A',
       sex: donor.sex || 'N/A',
       bmi: donor.bmi ? parseFloat(donor.bmi).toFixed(1) : 'N/A',
       center: donor.center || 'N/A',
-      trait: donor.trait_value ? parseFloat(donor.trait_value).toFixed(1) : 'N/A',
+      trait: formatDonorSiTrait(donor),
     }));
   }, [donorData, disease]);
 
-  const tableHeaders = ['Donor ID', 'Disease', 'Age', 'Sex', 'BMI (kg/m²)', 'Center', 'INS-IEQ G 16.7 SI (AUC)'];
-  const tableGridTemplate = '1.5fr 1fr 0.7fr 0.7fr 1fr 0.8fr 1.4fr';
+  const tableHeaders = ['RRID', 'Center ID', 'Disease', 'Age', 'Genetic sex', 'BMI (kg/m²)', 'Center', 'INS-IEQ G 16.7 SI'];
+  const tableGridTemplate = '1.5fr 1.1fr 1fr 0.7fr 0.8fr 1fr 0.9fr 1.4fr';
 
   const downloadDonorsCsv = () => {
-    if (!fullTableRows.length) return;
+    const sourceDonors = donorData?.donors || [];
+    if (!sourceDonors.length) return;
 
     const escapeCsvCell = (value) => {
       const raw = value === null || value === undefined ? '' : String(value);
@@ -427,17 +483,26 @@ export default function FunctionalDataPage() {
       return raw;
     };
 
+    const orderedKeys = [];
+    const seenKeys = new Set();
+    sourceDonors.forEach((donor) => {
+      Object.keys(donor || {}).forEach((key) => {
+        if (!seenKeys.has(key)) {
+          seenKeys.add(key);
+          orderedKeys.push(key);
+        }
+      });
+    });
+
     const csvRows = [
-      tableHeaders.join(','),
-      ...fullTableRows.map((row) => [
-        row.donorId,
-        row.disease,
-        row.age,
-        row.sex,
-        row.bmi,
-        row.center,
-        row.trait,
-      ].map(escapeCsvCell).join(',')),
+      orderedKeys.map(escapeCsvCell).join(','),
+      ...sourceDonors.map((donor) => orderedKeys.map((key) => {
+        const value = donor?.[key];
+        if (value !== null && typeof value === 'object') {
+          return escapeCsvCell(JSON.stringify(value));
+        }
+        return escapeCsvCell(value);
+      }).join(',')),
     ];
 
     const csvContent = csvRows.join('\n');
@@ -664,7 +729,7 @@ export default function FunctionalDataPage() {
                       </IconButton>
                     </Box>
                     <ChartPlaceholder 
-                      height={250} 
+                      height={300} 
                       icon={ShowChartIcon}
                       loading={isLoadingTraceChart}
                       error={errors.traceChart}
@@ -696,7 +761,7 @@ export default function FunctionalDataPage() {
                       </Select>
                     </Box>
                     <ChartPlaceholder 
-                      height={250} 
+                      height={300} 
                       icon={BarChartIcon}
                       loading={isLoadingTraitChart}
                       error={errors.traitChart}
@@ -745,6 +810,7 @@ export default function FunctionalDataPage() {
                           sx={{ display: 'grid', gridTemplateColumns: tableGridTemplate, px: 1.5, py: 0.9, borderBottom: '1px solid #F1F5F9', '&:hover': { bgcolor: '#FAFAFA' } }}
                         >
                           <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155', fontWeight: 500 }}>{row.donorId}</Typography>
+                          <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.centerId}</Typography>
                           <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.disease}</Typography>
                           <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.age}</Typography>
                           <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.sex}</Typography>
@@ -760,7 +826,7 @@ export default function FunctionalDataPage() {
                     )}
                     {!isLoadingDonors && donorCount > tableRows.length && (
                       <Box sx={{ display: 'grid', gridTemplateColumns: tableGridTemplate, px: 1.5, py: 0.9 }}>
-                        {['...', '...', '...', '...', '...', '...', '...'].map((d, i) => (
+                        {['...', '...', '...', '...', '...', '...', '...', '...'].map((d, i) => (
                           <Typography key={i} sx={{ fontFamily: 'Inter', fontSize: 12, color: '#94A3B8' }}>{d}</Typography>
                         ))}
                       </Box>
@@ -985,6 +1051,7 @@ export default function FunctionalDataPage() {
                   }}
                 >
                   <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155', fontWeight: 500 }}>{row.donorId}</Typography>
+                  <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.centerId}</Typography>
                   <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.disease}</Typography>
                   <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.age}</Typography>
                   <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.sex}</Typography>

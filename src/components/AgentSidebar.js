@@ -3,17 +3,18 @@ import React, {
   useState,
 } from 'react';
 
+import { useAuth } from 'react-oidc-context';
 import {
   useLocation,
   useNavigate,
 } from 'react-router-dom';
-import { useAuth } from 'react-oidc-context';
 
 import AddCommentOutlinedIcon from '@mui/icons-material/AddCommentOutlined';
 import AutoGraphOutlinedIcon from '@mui/icons-material/AutoGraphOutlined';
 import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
-import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
+import PersonOutlineOutlinedIcon
+  from '@mui/icons-material/PersonOutlineOutlined';
 import {
   Avatar,
   Box,
