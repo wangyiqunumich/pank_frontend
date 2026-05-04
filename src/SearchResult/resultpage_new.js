@@ -715,6 +715,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                                             ),
                                             strong: ({ children }) => <strong>{renderChildrenWithPmids(children, `followup-strong-${block?.id || index}`, false, followUpAnchorByPmid)}</strong>,
                                             em: ({ children }) => <em>{renderChildrenWithPmids(children, `followup-em-${block?.id || index}`, false, followUpAnchorByPmid)}</em>,
+                                            table: ({ children }) => <MarkdownTableWithTools>{children}</MarkdownTableWithTools>,
                                         }}
                                     >
                                         {answerText}
@@ -2376,6 +2377,8 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             : (activeSummary || summaryPlaceholder)
     );
 
+    const overviewSummary = stripCypherQueriesSection(displaySummary);
+
     const scrollToReferenceAnchor = (href, event) => {
         if (!href || !href.startsWith('#')) {
             return;
@@ -2475,6 +2478,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const renderChildrenWithPmids = (children, keyPrefix, skipStringLinkify = false, referenceAnchorByPmid = {}) =>
         React.Children.toArray(children).map((child, childIndex) => {
             const childKey = `${keyPrefix}-${childIndex}`;
+            const voidHtmlTags = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
             if (typeof child === 'string') {
                 return skipStringLinkify
                     ? <React.Fragment key={childKey}>{child}</React.Fragment>
@@ -2492,11 +2496,148 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 });
             }
 
+            if (childType && voidHtmlTags.has(childType.toLowerCase())) {
+                return React.cloneElement(child, {
+                    key: child.key || childKey,
+                });
+            }
+
+            if (child.props.children === null || child.props.children === undefined) {
+                return React.cloneElement(child, {
+                    key: child.key || childKey,
+                });
+            }
+
             return React.cloneElement(child, {
                 key: child.key || childKey,
                 children: renderChildrenWithPmids(child.props.children, childKey, skipStringLinkify, referenceAnchorByPmid),
             });
         });
+
+    const extractTextFromNode = (node) => {
+        if (node === null || node === undefined || typeof node === 'boolean') return '';
+        if (typeof node === 'string' || typeof node === 'number') return String(node);
+        if (Array.isArray(node)) return node.map(extractTextFromNode).join('');
+        if (React.isValidElement(node)) return extractTextFromNode(node.props?.children);
+        return '';
+    };
+
+    const extractTableMatrix = (children) => {
+        const elements = React.Children.toArray(children).filter((child) => React.isValidElement(child));
+        const thead = elements.find((el) => el.type === 'thead');
+        const tbody = elements.find((el) => el.type === 'tbody');
+
+        const parseRows = (sectionEl) => {
+            if (!sectionEl || !React.isValidElement(sectionEl)) return [];
+
+            const rowEls = React.Children.toArray(sectionEl.props?.children).filter(
+                (child) => React.isValidElement(child) && child.type === 'tr'
+            );
+
+            return rowEls.map((rowEl) => {
+                const cellEls = React.Children.toArray(rowEl.props?.children).filter((child) => React.isValidElement(child));
+                return cellEls.map((cellEl) => extractTextFromNode(cellEl.props?.children).replace(/\s+/g, ' ').trim());
+            });
+        };
+
+        const headerRows = parseRows(thead);
+        const bodyRows = parseRows(tbody);
+
+        return {
+            header: headerRows[0] || [],
+            bodyRows,
+        };
+    };
+
+    const buildTableCsv = (header, bodyRows) => {
+        const escapeCsvCell = (value) => {
+            const raw = value === null || value === undefined ? '' : String(value);
+            if (raw.includes(',') || raw.includes('"') || raw.includes('\n')) {
+                return `"${raw.replaceAll('"', '""')}"`;
+            }
+            return raw;
+        };
+
+        const rows = [];
+        if (header.length) rows.push(header);
+        rows.push(...bodyRows);
+
+        return rows.map((row) => row.map(escapeCsvCell).join(',')).join('\n');
+    };
+
+    function MarkdownTableWithTools({ children }) {
+        const [expanded, setExpanded] = React.useState(false);
+        const { header, bodyRows } = React.useMemo(() => extractTableMatrix(children), [children]);
+        const shouldShowToggle = bodyRows.length > 3;
+
+        const handleDownloadCsv = React.useCallback(() => {
+            const csvContent = buildTableCsv(header, bodyRows);
+            if (!csvContent) return;
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'ai-overview-table.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        }, [header, bodyRows]);
+
+        return (
+            <Box sx={{ my: 1.25 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 0.75 }}>
+                    <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={handleDownloadCsv}
+                        disabled={!header.length && !bodyRows.length}
+                        sx={{
+                            textTransform: 'none',
+                            fontSize: 12,
+                            fontWeight: 600,
+                            borderColor: '#CBD5E1',
+                            color: '#475569',
+                            minWidth: 0,
+                            px: 1.25,
+                            py: 0.4,
+                        }}
+                    >
+                        Download CSV
+                    </Button>
+                </Box>
+
+                <Box
+                    sx={{
+                        overflowX: 'auto',
+                        overflowY: expanded ? 'auto' : 'visible',
+                        maxHeight: expanded ? 420 : 'none',
+                        '& tbody tr:nth-of-type(n+4)': expanded ? undefined : { display: 'none' },
+                    }}
+                >
+                    <table>{children}</table>
+                </Box>
+
+                {shouldShowToggle ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 0.75 }}>
+                        <Button
+                            size="small"
+                            onClick={() => setExpanded((v) => !v)}
+                            sx={{
+                                textTransform: 'none',
+                                fontSize: 12,
+                                color: '#0F766E',
+                                fontWeight: 700,
+                            }}
+                        >
+                            {expanded ? 'Collapse' : 'Show more'}
+                        </Button>
+                    </Box>
+                ) : null}
+            </Box>
+        );
+    }
 
     const markdownSummaryContent = (
         <Box
@@ -2583,9 +2724,10 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     h2: ({ children }) => <Typography component="h2" sx={{ fontSize: 22 }}>{renderChildrenWithPmids(children, 'h2', false, mainReferenceAnchorByPmid)}</Typography>,
                     h3: ({ children }) => <Typography component="h3" sx={{ fontSize: 18 }}>{renderChildrenWithPmids(children, 'h3', false, mainReferenceAnchorByPmid)}</Typography>,
                     h4: ({ children }) => <Typography component="h4" sx={{ fontSize: 16 }}>{renderChildrenWithPmids(children, 'h4', false, mainReferenceAnchorByPmid)}</Typography>,
+                    table: ({ children }) => <MarkdownTableWithTools>{children}</MarkdownTableWithTools>,
                 }}
             >
-                {displaySummary}
+                {overviewSummary}
             </ReactMarkdown>
         </Box>
     );

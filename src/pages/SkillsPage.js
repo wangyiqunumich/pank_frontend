@@ -80,6 +80,7 @@ function SkillCard({ icon, title, description, actionLabel, onAction, accent = '
 
 export default function SkillsPage() {
   const navigate = useNavigate();
+  const showSsgsea = false;
 
   return (
     <Box sx={{ flex: 1, bgcolor: '#FFFFFF', display: 'flex', minHeight: 0 }}>
@@ -94,16 +95,27 @@ export default function SkillsPage() {
             Specialized tools for focused analysis on PanKbase data.
           </Typography>
 
-          <Box sx={{ mt: 4, display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-            <SkillCard
-              icon={<ExtensionOutlinedIcon sx={{ fontSize: 30 }} />}
-              title="SsGSEA"
-              description="Runs single-sample gene set enrichment analysis (ssGSEA) to score pathway activity at the sample or cell level."
-              actionLabel="Launch"
-              onAction={() => navigate('/functional-data?tool=ssgsea')}
-              accent="#0F766E"
-              disabled
-            />
+          <Box
+            sx={{
+              mt: 4,
+              display: 'grid',
+              gridTemplateColumns: showSsgsea
+                ? { xs: '1fr', md: '1fr 1fr' }
+                : { xs: '1fr', md: '1fr' },
+              gap: 3,
+            }}
+          >
+            {showSsgsea ? (
+              <SkillCard
+                icon={<ExtensionOutlinedIcon sx={{ fontSize: 30 }} />}
+                title="SsGSEA"
+                description="Runs single-sample gene set enrichment analysis (ssGSEA) to score pathway activity at the sample or cell level."
+                actionLabel="Launch"
+                onAction={() => navigate('/functional-data?tool=ssgsea')}
+                accent="#0F766E"
+                disabled
+              />
+            ) : null}
 
             <SkillCard
               icon={<InsightsOutlinedIcon sx={{ fontSize: 30 }} />}
