@@ -9,9 +9,9 @@ import {
   useNavigate,
 } from 'react-router-dom';
 
-import AddCommentOutlinedIcon from '@mui/icons-material/AddCommentOutlined';
-import AutoGraphOutlinedIcon from '@mui/icons-material/AutoGraphOutlined';
-import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import AddIcon from '@mui/icons-material/Add';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import PersonOutlineOutlinedIcon
   from '@mui/icons-material/PersonOutlineOutlined';
@@ -19,41 +19,83 @@ import {
   Avatar,
   Box,
   Button,
+  IconButton,
   ListItemIcon,
   ListItemText,
   Menu,
   MenuItem,
+  Tooltip,
   Typography,
 } from '@mui/material';
 
 import { readRecentChats } from '../utils/chatSessionStorage';
+import { ReactComponent as SidebarLeftIcon } from '../image/sidebar.left.svg';
 
 const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
+const SIDEBAR_EXPANDED_WIDTH = 280;
+const SIDEBAR_COLLAPSED_WIDTH = 80;
 
-function SidebarButton({ active, icon, label, onClick }) {
-  return (
+function SidebarButton({ active, icon, label, onClick, open }) {
+  const button = (
     <Button
       disableElevation
-      startIcon={icon}
       onClick={onClick}
       sx={{
+        minWidth: 0,
         justifyContent: 'flex-start',
-        borderRadius: '9999px',
-        bgcolor: active ? '#FFFFFF' : 'transparent',
-        color: active ? '#006766' : '#5A6161',
-        fontFamily: 'Inter',
+        borderRadius: open ? '20px' : '50%',
+        bgcolor: open && active ? '#D9EAEB' : 'transparent',
+        color: '#7D7D7D',
+        fontFamily: 'DM Sans, Inter, sans-serif',
         fontSize: 14,
-        fontWeight: 500,
+        fontWeight: 600,
         textTransform: 'none',
-        height: 44,
-        px: 2,
-        '&:hover': {
-          bgcolor: active ? '#FFFFFF' : 'rgba(255,255,255,0.6)',
-        },
+        height: 40,
+        px: 1.25,
+        width: '100%',
+        '&:hover': { bgcolor: open && active ? '#D9EAEB' : 'transparent' },
+        '&:hover .sidebar-icon-bubble': { bgcolor: open ? 'transparent' : (active ? '#D9EAEB' : 'transparent') },
       }}
     >
-      {label}
+      <Box
+        className="sidebar-icon-bubble"
+        sx={{
+          width: 40,
+          height: 40,
+          borderRadius: '50%',
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'inherit',
+          flexShrink: 0,
+          bgcolor: open ? 'transparent' : (active ? '#D9EAEB' : 'transparent'),
+          transition: 'background-color 150ms ease',
+        }}
+      >
+        {icon}
+      </Box>
+      <Box
+        component="span"
+        sx={{
+          ml: open ? 1.1 : 0,
+          overflow: 'hidden',
+          whiteSpace: 'nowrap',
+          maxWidth: open ? 160 : 0,
+          opacity: open ? 1 : 0,
+          transition: 'max-width 200ms ease, opacity 150ms ease',
+        }}
+      >
+        {label}
+      </Box>
     </Button>
+  );
+
+  if (open) return button;
+
+  return (
+    <Tooltip title={label} placement="right" arrow>
+      <Box sx={{ display: 'flex', justifyContent: 'center' }}>{button}</Box>
+    </Tooltip>
   );
 }
 
@@ -63,15 +105,33 @@ export default function AgentSidebar({ activeNav = 'new-chat' }) {
   const auth = useAuth();
   const [recentChats, setRecentChats] = useState([]);
   const [userMenuAnchorEl, setUserMenuAnchorEl] = useState(null);
+  const [open, setOpen] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    const stored = window.localStorage.getItem('pank-sidebar-open');
+    if (stored === null) return true;
+    return stored === 'true';
+  });
 
   useEffect(() => {
     setRecentChats(readRecentChats());
   }, [location.pathname, location.search]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem('pank-sidebar-open', String(open));
+  }, [open]);
+
   const isUserMenuOpen = Boolean(userMenuAnchorEl);
   const userProfile = auth?.user?.profile || {};
   const userDisplayName = userProfile?.email || userProfile?.name || userProfile?.preferred_username || 'Account';
   const isAuthenticated = Boolean(auth?.isAuthenticated);
+  const accountIcon = isAuthenticated ? (
+    <Avatar sx={{ width: 24, height: 24, bgcolor: '#DDF4F0', color: '#006766', fontSize: 12, fontWeight: 700 }}>
+      {String(userDisplayName || 'A').charAt(0).toUpperCase()}
+    </Avatar>
+  ) : (
+    <PersonOutlineOutlinedIcon sx={{ color: '#5A6161' }} />
+  );
 
   const handleOpenUserMenu = (event) => {
     setUserMenuAnchorEl(event.currentTarget);
@@ -101,98 +161,167 @@ export default function AgentSidebar({ activeNav = 'new-chat' }) {
   return (
     <Box
       sx={{
-        width: 288,
-        bgcolor: '#F0F4F4',
-        px: 3,
-        py: 3,
+        width: open ? SIDEBAR_EXPANDED_WIDTH : SIDEBAR_COLLAPSED_WIDTH,
+        minWidth: open ? SIDEBAR_EXPANDED_WIDTH : SIDEBAR_COLLAPSED_WIDTH,
+        bgcolor: '#FFFFFF',
+        borderRight: '1px solid #E2E8F0',
+        px: open ? 2 : 1,
+        pt: open ? 4.5 : 4,
+        pb: 3,
         display: { xs: 'none', lg: 'flex' },
         flexDirection: 'column',
-        boxShadow: '32px 0 64px -20px rgba(0, 106, 106, 0.04)',
+        boxSizing: 'border-box',
+        transition: 'width 220ms ease, min-width 220ms ease, padding 220ms ease',
       }}
     >
-      <Typography sx={{ fontFamily: 'Inter', fontWeight: 700, fontSize: 24, color: '#006766', mb: 2 }}>
-        PanKgraph
-      </Typography>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, flex: 1 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: open ? 'space-between' : 'center', mb: 2 }}>
+        {open ? (
+          <Typography sx={{ fontFamily: 'Archivo, DM Sans, Inter, sans-serif', fontWeight: 600, fontSize: 22, color: '#3A838B' }}>
+            PanKgraph
+          </Typography>
+        ) : null}
+        <Tooltip title={open ? 'Collapse sidebar' : 'Expand sidebar'} placement="right" arrow>
+          <IconButton
+            onClick={() => setOpen((v) => !v)}
+            size="small"
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: '50%',
+              color: '#7D7D7D',
+              bgcolor: 'transparent',
+              border: 'none',
+              '&:hover': { bgcolor: '#D9EAEB' },
+            }}
+          >
+            <SidebarLeftIcon
+              style={{
+                width: 18,
+                height: 14,
+              }}
+            />
+          </IconButton>
+        </Tooltip>
+      </Box>
+
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75, flex: 1, minHeight: 0 }}>
         <SidebarButton
           active={activeNav === 'new-chat'}
-          icon={<AddCommentOutlinedIcon sx={{ color: activeNav === 'new-chat' ? '#006766' : '#5A6161' }} />}
+          open={open}
+          icon={<AddIcon />}
           label="New Chat"
           onClick={() => navigate('/')}
         />
         <SidebarButton
           active={activeNav === 'skills'}
-          icon={<AutoGraphOutlinedIcon sx={{ color: activeNav === 'skills' ? '#006766' : '#5A6161' }} />}
+          open={open}
+          icon={<AssignmentIcon />}
           label="Skills"
           onClick={() => navigate('/skills')}
         />
         <SidebarButton
           active={activeNav === 'recent'}
-          icon={<HistoryOutlinedIcon sx={{ color: activeNav === 'recent' ? '#006766' : '#5A6161' }} />}
+          open={open}
+          icon={<AccessTimeIcon />}
           label="Recent"
           onClick={() => {}}
         />
 
-        <Box
-          sx={{
-            mt: 0.5,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 0.5,
-            maxHeight: '42vh',
-            overflowY: 'auto',
-            pr: 0.5,
-          }}
-        >
-          {recentChats.length > 0 ? recentChats.map((chat) => {
-            const encodedQuestion = encodeURIComponent(utf8ToBase64(chat.firstQuestion || ''));
-            const target = `/result-new2?question=${encodedQuestion}&terminal=true&session_id=${encodeURIComponent(chat.sessionId)}`;
-            return (
-              <Button
-                key={chat.sessionId}
-                onClick={() => navigate(target)}
-                sx={{
-                  justifyContent: 'flex-start',
-                  borderRadius: '12px',
-                  color: '#405252',
-                  fontFamily: 'Inter',
-                  fontSize: 12,
-                  fontWeight: 500,
-                  textTransform: 'none',
-                  minHeight: 34,
-                  px: 1.5,
-                  py: 0.75,
-                  bgcolor: 'rgba(255,255,255,0.75)',
-                  '&:hover': { bgcolor: '#FFFFFF' },
-                }}
-              >
-                <Box sx={{ textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>
-                  {chat.firstQuestion}
-                </Box>
-              </Button>
-            );
-          }) : (
-            <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#7B8A8A', px: 2 }}>
-              No recent conversations yet.
-            </Typography>
-          )}
-        </Box>
+        {open && (
+          <Box
+            sx={{
+              mt: 0.5,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 0.5,
+              maxHeight: '42vh',
+              overflowY: 'auto',
+              pr: 0.5,
+            }}
+          >
+            {recentChats.length > 0 ? recentChats.map((chat) => {
+              const encodedQuestion = encodeURIComponent(utf8ToBase64(chat.firstQuestion || ''));
+              const target = `/result-new2?question=${encodedQuestion}&terminal=true&session_id=${encodeURIComponent(chat.sessionId)}`;
+              return (
+                <Button
+                  key={chat.sessionId}
+                  onClick={() => navigate(target)}
+                  sx={{
+                    justifyContent: 'flex-start',
+                    borderRadius: '10px',
+                    color: '#164563',
+                    fontFamily: 'DM Sans, Inter, sans-serif',
+                    fontSize: 12,
+                    fontWeight: 500,
+                    textTransform: 'none',
+                    minHeight: 32,
+                    px: 1,
+                    py: 0.5,
+                    '&:hover': { bgcolor: '#E7F1FF' },
+                  }}
+                >
+                  <Box sx={{ textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>
+                    {chat.firstQuestion}
+                  </Box>
+                </Button>
+              );
+            }) : (
+              <Typography sx={{ fontFamily: 'DM Sans, Inter, sans-serif', fontSize: 12, color: '#94A3B8', px: 1 }}>
+                No recent conversations yet.
+              </Typography>
+            )}
+          </Box>
+        )}
       </Box>
+
       <Box>
         <Button
-          startIcon={(
-            isAuthenticated ? (
-              <Avatar sx={{ width: 24, height: 24, bgcolor: '#DDF4F0', color: '#006766', fontSize: 12, fontWeight: 700 }}>
-                {String(userDisplayName || 'A').charAt(0).toUpperCase()}
-              </Avatar>
-            ) : (
-              <PersonOutlineOutlinedIcon sx={{ color: '#5A6161' }} />
-            )
-          )}
           onClick={handleOpenUserMenu}
-          sx={{ justifyContent: 'flex-start', borderRadius: '9999px', color: '#5A6161', fontFamily: 'Inter', fontSize: 14, fontWeight: 500, textTransform: 'none', height: 44, px: 2, width: '100%' }}
+          sx={{
+            minWidth: 0,
+            justifyContent: 'flex-start',
+            borderRadius: open ? '20px' : '50%',
+            color: '#64748B',
+            fontFamily: 'DM Sans, Inter, sans-serif',
+            fontSize: 14,
+            fontWeight: 500,
+            textTransform: 'none',
+            height: 40,
+            px: 1.25,
+            width: '100%',
+            '&:hover': { bgcolor: open ? '#F3F8FF' : 'transparent' },
+            '&:hover .sidebar-account-bubble': { bgcolor: '#F3F8FF' },
+          }}
         >
-          {isAuthenticated ? userDisplayName : 'Sign in'}
+          <Box
+            className="sidebar-account-bubble"
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: '50%',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              bgcolor: open ? 'transparent' : '#F3F8FF',
+              transition: 'background-color 150ms ease',
+            }}
+          >
+            {accountIcon}
+          </Box>
+          <Box
+            component="span"
+            sx={{
+              ml: open ? 1.1 : 0,
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+              maxWidth: open ? 160 : 0,
+              opacity: open ? 1 : 0,
+              transition: 'max-width 200ms ease, opacity 150ms ease',
+            }}
+          >
+            {isAuthenticated ? userDisplayName : 'Sign in'}
+          </Box>
         </Button>
       </Box>
 
