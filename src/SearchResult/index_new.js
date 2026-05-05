@@ -88,6 +88,47 @@ const handleDownload = (data_source, credibleSet) => {
     return `https://pank-s3-to-share.s3.us-east-1.amazonaws.com/${folder}/${credibleSet}.txt`;
 };
 
+const buildGenomeBrowserLocusFromLink = (linkPath) => {
+    const raw = String(linkPath || '').trim();
+    if (!raw) return 'chr7:55,085,725-55,276,031';
+
+    const decoded = decodeURIComponent(raw);
+    const locusPart = decoded.match(/__(chr[^_]+)__/i)?.[1] || '';
+    if (!locusPart) return 'chr7:55,085,725-55,276,031';
+
+    const tokens = locusPart.split(':');
+    if (tokens.length >= 3) {
+        const chr = tokens[0];
+        const start = tokens[1];
+        const end = tokens[2];
+        if (/^chr/i.test(chr) && /^\d+$/.test(start) && /^\d+$/.test(end)) {
+            return `${chr}:${start}-${end}`;
+        }
+    }
+
+    return locusPart;
+};
+
+const buildGenomeBrowserTracksFromLink = (linkPath) => {
+    const raw = String(linkPath || '').trim();
+    if (!raw) return [];
+
+    return [
+        {
+            name: raw.split('/').pop() || 'QTL credible set',
+            type: 'qtl',
+            format: 'qtl',
+            url: `https://pank-s3-to-share.s3.amazonaws.com/genome-browser/${raw}.igv_qtl.tsv`,
+            chrColumn: 1,
+            posColumn: 2,
+            snpColumn: 3,
+            pValueColumn: 4,
+            phenotypeColumn: 5,
+            height: 164,
+        },
+    ];
+};
+
 const HtmlTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} classes={{ popper: className }} />
 ))(({ theme }) => ({
@@ -180,6 +221,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const [variables, setVariables] = useState({});
     const [referenceData, setReferenceData] = useState({});
     const [articlesData, setArticlesData] = useState([]);
+    const [typeToImageRequestLink, setTypeToImageRequestLink] = useState('');
     const [imagePopupOpen, setImagePopupOpen] = useState(false);
     const [nextQuestions, setNextQuestions] = useState([{ question: 'Loading...' }]);
     const [allNextQuestions, setAllNextQuestions] = useState(null);
@@ -284,6 +326,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         if (demoMode) {
             return;
         }
+        setTypeToImageRequestLink('');
         const params = new URLSearchParams(window.location.search);
         const sourceTerm = params.get('sourceTerm');
         const relationship = params.get('relationship');
@@ -354,9 +397,11 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                                 if (!credible_set) {
                                     console.log('[WARNING] credible_set is missing.');
                                 } else {
+                                    const imageLink = `${relationship === "GWAS" ? "1_t1d-susie" : tabsQTL.find(tab => tab.data_source === dataSource)?.folder || ''}/${credible_set}`;
+                                    setTypeToImageRequestLink(imageLink);
                                     dispatch(queryImage({
                                         imageType: 'manhattan',
-                                        link: `${relationship === "GWAS" ? "1_t1d-susie" : tabsQTL.find(tab => tab.data_source === dataSource)?.folder || ''}/${credible_set}`
+                                        link: imageLink
                                     })).catch((error) => {
                                         console.log('[WARNING] Error fetching image:', error);
                                     });
@@ -840,6 +885,23 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         </Box>
     );
 
+    const genomeBrowserLinkPath = useMemo(() => {
+        if (typeof typeToImage === 'object' && typeof typeToImage?.link === 'string' && typeToImage.link.trim()) {
+            return typeToImage.link.trim();
+        }
+        return typeToImageRequestLink;
+    }, [typeToImage, typeToImageRequestLink]);
+
+    const genomeBrowserLocus = useMemo(
+        () => buildGenomeBrowserLocusFromLink(genomeBrowserLinkPath),
+        [genomeBrowserLinkPath]
+    );
+
+    const genomeBrowserTracks = useMemo(
+        () => buildGenomeBrowserTracksFromLink(genomeBrowserLinkPath),
+        [genomeBrowserLinkPath]
+    );
+
     const buildDemoPageData = (index) => ({
         questionId: `Q${index}`,
         title: `Demo Question ${index}: CFTR gene function overview`,
@@ -931,22 +993,17 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             tabs: [
                 { label: "Knowledge Graph", content: knowledgeGraphContent },
                 {
-                    label: "Pathway",
+                    label: "Genome Browser",
+                    minHeight: 676,
                     content: (
-                        <Box sx={{ p: 2, textAlign: "center", color: "#64748B" }}>
-                            <Typography sx={{ fontSize: 14, fontWeight: 600, mb: 1 }}>Pathway Visualization</Typography>
-                            <Typography sx={{ fontSize: 13 }}>Pathway data visualization will appear here</Typography>
-                        </Box>
-                    )
-                },
-                {
-                    label: "Expression",
-                    content: (
-                        <Box sx={{ p: 2, textAlign: "center", color: "#64748B" }}>
-                            <Typography sx={{ fontSize: 14, fontWeight: 600, mb: 1 }}>Expression Data</Typography>
-                            <Typography sx={{ fontSize: 13 }}>Expression data visualization will appear here</Typography>
-                        </Box>
-                    )
+                        <GenomeBrowserEmbed
+                            locus={genomeBrowserLocus}
+                            compact
+                            height="100%"
+                            tracks={genomeBrowserTracks}
+                        />
+                    ),
+                    fullBleed: true,
                 },
             ],
         },
