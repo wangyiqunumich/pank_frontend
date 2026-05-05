@@ -28,8 +28,8 @@ import {
   Typography,
 } from '@mui/material';
 
-import { readRecentChats } from '../utils/chatSessionStorage';
 import { ReactComponent as SidebarLeftIcon } from '../image/sidebar.left.svg';
+import { readRecentChats } from '../utils/chatSessionStorage';
 
 const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
 const SIDEBAR_EXPANDED_WIDTH = 280;
@@ -45,7 +45,7 @@ function SidebarButton({ active, icon, label, onClick, open }) {
         justifyContent: 'flex-start',
         borderRadius: open ? '20px' : '50%',
         bgcolor: open && active ? '#D9EAEB' : 'transparent',
-        color: '#7D7D7D',
+        color: active ? '#3A838B' : '#7D7D7D',
         fontFamily: 'DM Sans, Inter, sans-serif',
         fontSize: 14,
         fontWeight: 600,
@@ -163,7 +163,7 @@ export default function AgentSidebar({ activeNav = 'new-chat' }) {
       sx={{
         width: open ? SIDEBAR_EXPANDED_WIDTH : SIDEBAR_COLLAPSED_WIDTH,
         minWidth: open ? SIDEBAR_EXPANDED_WIDTH : SIDEBAR_COLLAPSED_WIDTH,
-        bgcolor: '#FFFFFF',
+        bgcolor: '#F8FBFC',
         borderRight: '1px solid #E2E8F0',
         px: open ? 2 : 1,
         pt: open ? 4.5 : 4,

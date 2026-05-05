@@ -24,7 +24,6 @@ import PkbFooter from './Footer/footer';
 import NavBar from './NavBar';
 import ApiPage from './pages/ApiPage';
 import DocPage from './pages/DocPage';
-import FunctionalDataPage from './pages/FunctionalDataPage';
 import Ontology from './pages/Ontology';
 import Pipeline from './pages/Pipeline';
 import QTLDataSource from './pages/QTL_data_source';
@@ -39,6 +38,9 @@ import { AgentResultLayout } from './SearchResult/AgentResult';
 import ResultPageNew from './SearchResult/index_new';
 import ResultPage2 from './SearchResult/resultpage';
 import ResultPageNew2 from './SearchResult/resultpage_new';
+import FunctionalDataPage from './skills/FunctionalDataPage';
+import GWASExplorerPage from './skills/GWASExplorerPage';
+import QTLExplorerPage from './skills/QTLExplorerPage';
 
 const isDevelopmentStage =
   (process.env.REACT_APP_API_GATEWAY_STAGE_NAME || '').toLowerCase() === 'development';
@@ -99,6 +101,8 @@ root.render(
                 <Route path="/match" element={<MatchPage />} />
                 <Route path="/review/*" element={<ReviewPage />} />
                 <Route path="/skills" element={<SkillsPage />} />
+                <Route path="/qtl-explorer" element={<QTLExplorerPage />} />
+                <Route path="/gwas-explorer" element={<GWASExplorerPage />} />
                 <Route path="/functional-data" element={<FunctionalDataPage />} />
                 <Route path="/agent-landing" element={<Navigate to="/" replace />} />
                 <Route path="/result2" element={<ResultPage2 />} />

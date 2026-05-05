@@ -22,6 +22,8 @@ import remarkGfm from 'remark-gfm';
 
 import {
   InfoOutlined as InfoOutlineIcon,
+  KeyboardArrowDown as KeyboardArrowDownIcon,
+  KeyboardArrowUp as KeyboardArrowUpIcon,
   Mail as MailIcon,
 } from '@mui/icons-material';
 import {
@@ -2565,7 +2567,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         return rows.map((row) => row.map(escapeCsvCell).join(',')).join('\n');
     };
 
-    function MarkdownTableWithTools({ children }) {
+    function MarkdownTableWithTools({ children, title = 'Table 1' }) {
         const [expanded, setExpanded] = React.useState(false);
         const { header, bodyRows } = React.useMemo(() => extractTableMatrix(children), [children]);
         const shouldShowToggle = bodyRows.length > 3;
@@ -2587,36 +2589,77 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
         return (
             <Box sx={{ my: 1.25 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 0.75 }}>
-                    <Button
-                        size="small"
-                        variant="outlined"
-                        onClick={handleDownloadCsv}
-                        disabled={!header.length && !bodyRows.length}
-                        sx={{
-                            textTransform: 'none',
-                            fontSize: 12,
-                            fontWeight: 600,
-                            borderColor: '#CBD5E1',
-                            color: '#475569',
-                            minWidth: 0,
-                            px: 1.25,
-                            py: 0.4,
-                        }}
-                    >
-                        Download CSV
-                    </Button>
-                </Box>
-
                 <Box
                     sx={{
-                        overflowX: 'auto',
-                        overflowY: expanded ? 'auto' : 'visible',
-                        maxHeight: expanded ? 420 : 'none',
-                        '& tbody tr:nth-of-type(n+4)': expanded ? undefined : { display: 'none' },
+                        border: '1px solid #DCE3EB',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        backgroundColor: '#FFFFFF',
                     }}
                 >
-                    <table>{children}</table>
+                    <Box
+                        sx={{
+                            px: 1.5,
+                            py: 1,
+                            backgroundColor: '#F1F5F9',
+                            borderBottom: '1px solid #DCE3EB',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: 1,
+                        }}
+                    >
+                        <Typography sx={{ fontSize: 13, fontWeight: 700, color: '#475569' }}>
+                            {title}
+                        </Typography>
+                        <Button
+                            size="small"
+                            variant="outlined"
+                            onClick={handleDownloadCsv}
+                            disabled={!header.length && !bodyRows.length}
+                            sx={{
+                                textTransform: 'none',
+                                fontSize: 12,
+                                fontWeight: 600,
+                                borderColor: '#CBD5E1',
+                                color: '#475569',
+                                minWidth: 0,
+                                px: 1.25,
+                                py: 0.4,
+                                backgroundColor: '#FFFFFF',
+                            }}
+                        >
+                            Download CSV
+                        </Button>
+                    </Box>
+
+                    <Box
+                        sx={{
+                            overflowX: 'auto',
+                            overflowY: expanded ? 'auto' : 'visible',
+                            maxHeight: expanded ? 420 : 'none',
+                            '& table': {
+                                width: '100%',
+                                borderCollapse: 'collapse',
+                                margin: 0,
+                                borderTop: 'none',
+                            },
+                            '& thead tr': {
+                                borderBottom: '1px solid #CBD5E1',
+                            },
+                            '& tbody tr': {
+                                borderBottom: '1px solid #CBD5E1',
+                            },
+                            '& th, & td': {
+                                textAlign: 'left',
+                                padding: '8px 10px',
+                                verticalAlign: 'top',
+                            },
+                            '& tbody tr:nth-of-type(n+4)': expanded ? undefined : { display: 'none' },
+                        }}
+                    >
+                        <table>{children}</table>
+                    </Box>
                 </Box>
 
                 {shouldShowToggle ? (
@@ -2624,6 +2667,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         <Button
                             size="small"
                             onClick={() => setExpanded((v) => !v)}
+                            startIcon={expanded ? <KeyboardArrowUpIcon fontSize="small" /> : <KeyboardArrowDownIcon fontSize="small" />}
                             sx={{
                                 textTransform: 'none',
                                 fontSize: 12,

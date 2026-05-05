@@ -39,20 +39,20 @@ function BetaBadge({ sx }) {
                 display: 'inline-flex',
                 height: 'fit-content',
                 alignItems: 'center',
-                border: '1.5px solid #f0d98c',
+                border: '1px solid #F6C957',
                 borderRadius: '9999px',
                 backgroundColor: '#FFFFFF',
-                px: { xs: 1, md: 1.5 },
-                py: { xs: '4px', md: '6px' },
+                px: { xs: 1, md: 1.2 },
+                py: '2px',
                 flexShrink: 0,
                 ...sx,
             }}
         >
             <Typography
                 sx={{
-                    color: '#d4aa00',
-                    fontWeight: 800,
-                    fontSize: { xs: '13px', md: '16px' },
+                    color: '#F6C957',
+                    fontWeight: 700,
+                    fontSize: { xs: 10, md: 10.5 },
                     whiteSpace: 'nowrap',
                     fontFamily: 'Inter',
                     lineHeight: 1,
@@ -150,11 +150,11 @@ function AgentLandingPage() {
             textBeforeTitle: group.text_before_title || '',
             entries: Array.isArray(group.entries) ? group.entries : [],
             icon: [
-                <AutoGraphOutlinedIcon key="analysis" sx={{ color: '#006766' }} />,
-                <StorageOutlinedIcon key="genetics" sx={{ color: '#006766' }} />,
-                <TravelExploreOutlinedIcon key="variant" sx={{ color: '#006766' }} />,
-                <FlareOutlinedIcon key="epigenomics" sx={{ color: '#006766' }} />,
-            ][index] || <AutoGraphOutlinedIcon sx={{ color: '#006766' }} />,
+                <AutoGraphOutlinedIcon key="analysis" sx={{ color: '#006766', fontSize: 18 }} />,
+                <StorageOutlinedIcon key="genetics" sx={{ color: '#006766', fontSize: 18 }} />,
+                <TravelExploreOutlinedIcon key="variant" sx={{ color: '#006766', fontSize: 18 }} />,
+                <FlareOutlinedIcon key="epigenomics" sx={{ color: '#006766', fontSize: 18 }} />,
+            ][index] || <AutoGraphOutlinedIcon sx={{ color: '#006766', fontSize: 18 }} />,
         }));
     }, []);
 
@@ -207,10 +207,10 @@ function AgentLandingPage() {
 
     const renderButtonLabel = (card) => (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 0.25, width: '100%' }}>
-            <Typography sx={{ color: '#6D7979', fontSize: 12, fontFamily: 'Inter', fontWeight: 700, textTransform: 'uppercase', lineHeight: '16px', letterSpacing: '1.20px', wordWrap: 'break-word' }}>
+            <Typography sx={{ color: '#6D7979', fontSize: 9, fontFamily: 'Inter', fontWeight: 700, textTransform: 'uppercase', lineHeight: '16px', letterSpacing: '1px', wordWrap: 'break-word' }}>
                 {card.textBeforeTitle}
             </Typography>
-            <Typography sx={{ color: '#181C1D', fontSize: 14, fontFamily: 'Inter', fontWeight: 600, lineHeight: '20px', wordWrap: 'break-word' }}>
+            <Typography sx={{ color: '#181C1D', fontSize: 12.5, fontFamily: 'Inter', fontWeight: 600, lineHeight: '18px', wordWrap: 'break-word' }}>
                 {card.title}
             </Typography>
         </Box>
@@ -247,53 +247,54 @@ function AgentLandingPage() {
                     <Box component="img" src={landingPageLogo} alt="background" sx={{ width: { xs: '95%', md: 992 }, maxWidth: '96%', objectFit: 'contain', transform: 'translateY(-60px)' }} />
                 </Box>
 
-                <Box sx={{ maxWidth: 992, mx: 'auto', pt: { xs: 2, md: 3 }, pb: { xs: 4, md: 6 }, position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                    <Box sx={{ width: '100%', maxWidth: 768, textAlign: 'center' }}>
+                <Box sx={{ maxWidth: 700, width: '100%', mx: 'auto', pt: { xs: 1, sm: 2, md: 3 }, pb: { xs: 3, sm: 4, md: 6 }, position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: { xs: 2.5, sm: 3, md: 3.25 } }}>
+                    <Box sx={{ width: '100%', maxWidth: 700, textAlign: 'center' }}>
                         <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: { xs: 1, md: 1.5 }, flexWrap: 'nowrap', justifyContent: 'center', maxWidth: '100%' }}>
-                            <Typography sx={{ fontFamily: 'Inter', fontWeight: 900, fontSize: { xs: 28, sm: 36, md: 48 }, lineHeight: { xs: '32px', sm: '40px', md: '48px' }, letterSpacing: { xs: '-1.2px', sm: '-1.8px', md: '-2.4px' }, whiteSpace: 'nowrap', flexShrink: 1 }}>
-                                <Box component="span" sx={{ color: '#4E4E4E', fontSize: { xs: 28, sm: 36, md: 48 }, fontFamily: 'Inter', fontWeight: 900, lineHeight: { xs: '32px', sm: '40px', md: '48px' }, letterSpacing: { xs: '-1.2px', sm: '-1.8px', md: '-2.4px' }, whiteSpace: 'nowrap' }}>
+                            <Typography sx={{ fontFamily: 'Inter', fontWeight: 800, fontSize: { xs: 26, sm: 32, md: 38 }, lineHeight: { xs: '30px', sm: '36px', md: '40px' }, letterSpacing: { xs: '-0.02em', md: '-0.035em' }, whiteSpace: { xs: 'normal', sm: 'nowrap' }, textAlign: 'center', flexShrink: 1 }}>
+                                <Box component="span" sx={{ color: '#181C1D', fontSize: { xs: 26, sm: 32, md: 38 }, fontFamily: 'Inter', fontWeight: 800, lineHeight: { xs: '30px', sm: '36px', md: '40px' }, letterSpacing: { xs: '-0.02em', md: '-0.035em' }, whiteSpace: { xs: 'normal', sm: 'nowrap' } }}>
                                     What would you like to{' '}
                                 </Box>
-                                <Box component="span" sx={{ color: '#219197', fontSize: { xs: 28, sm: 36, md: 48 }, fontFamily: 'Inter', fontWeight: 900, letterSpacing: 'normal', whiteSpace: 'nowrap' }}>
+                                <Box component="span" sx={{ color: '#008C8C', fontSize: { xs: 26, sm: 32, md: 38 }, fontFamily: 'Inter', fontWeight: 800, letterSpacing: 'normal', whiteSpace: { xs: 'normal', sm: 'nowrap' } }}>
                                     explore?
                                 </Box>
                             </Typography>
                             <BetaBadge sx={{ transform: 'translateY(2px)' }} />
                         </Box>
-                        <Typography sx={{ mt: 2, fontFamily: 'Inter', fontWeight: 400, fontSize: 18, lineHeight: 1.625, color: '#4C6261' }}>
-                            Explore our comprehensive database of T1D–related data,<br />
-                            knowledge, and insights. Simply type your question—our<br />
-                            PanKgraph agent finds the answers.
+                        <Typography sx={{ mt: { xs: 1.25, md: 2 }, fontFamily: 'Inter', fontWeight: 400, fontSize: { xs: 13, sm: 14, md: 14 }, lineHeight: 1.55, color: '#4C6261', maxWidth: { xs: 620, md: 640 }, mx: 'auto' }}>
+                            Explore our comprehensive database of T1D–related data, knowledge, and insights.
+                            <Box component="br" sx={{ display: 'block' }} />
+                            Simply type your question-our PanKgraph agent finds the answers.
                         </Typography>
                     </Box>
 
-                    <Box sx={{ width: '100%', maxWidth: 768, position: 'relative', pt: 2 }}>
+                    <Box sx={{ width: '100%', maxWidth: 700, position: 'relative', pt: { xs: 0.5, md: 1 } }}>
                         <Box
                             sx={{
                                 position: 'absolute',
-                                inset: '16px -4px 0 -4px',
+                                inset: '12px -4px -4px -4px',
                                 borderRadius: '48px',
-                                background: 'linear-gradient(90deg, rgba(0,103,102,0.2) 0%, rgba(0,130,129,0.2) 100%)',
-                                filter: 'blur(8px)',
+                                background: 'linear-gradient(90deg, rgba(0,103,102,0.15) 0%, rgba(0,130,129,0.15) 100%)',
+                                filter: 'blur(14px)',
+                                opacity: 0.7,
                                 pointerEvents: 'none',
                             }}
                         />
                         <Box
                             sx={{
-                                height: 79,
-                                borderRadius: '48px',
+                                height: { xs: 50, sm: 52 },
+                                borderRadius: '32px',
                                 bgcolor: '#FFFFFF',
-                                border: '1px solid rgba(189,201,200,0.1)',
-                                boxShadow: '0 8px 20px -6px rgba(0,103,102,0.05), 0 20px 50px -5px rgba(0,103,102,0.05)',
-                                px: 1,
+                                border: '1px solid rgba(189,201,200,0.3)',
+                                boxShadow: '0 6px 8px -6px rgba(0,103,102,0.05), 0 14px 20px -5px rgba(0,103,102,0.05)',
+                                px: '6px',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: 1,
+                                gap: '6px',
                                 position: 'relative',
                             }}
                         >
-                            <Box sx={{ px: 1.5, display: 'flex', alignItems: 'center' }}>
-                                <SearchIcon sx={{ fontSize: 26, color: '#006766' }} />
+                            <Box sx={{ pl: 1.5, pr: 0.5, display: 'flex', alignItems: 'center' }}>
+                                <SearchIcon sx={{ fontSize: { xs: 15, sm: 16 }, color: '#006766' }} />
                             </Box>
                             <TextField
                                 variant="standard"
@@ -317,7 +318,7 @@ function AgentLandingPage() {
                                 sx={{
                                     '& .MuiInputBase-input': {
                                         fontFamily: 'Inter',
-                                        fontSize: { xs: 16, md: 20 },
+                                        fontSize: { xs: 13, sm: 14 },
                                         color: '#181C1D',
                                         p: 0,
                                     },
@@ -350,16 +351,16 @@ function AgentLandingPage() {
                                 }}
                                 disabled={!query.trim() || showLoading}
                                 sx={{
-                                    height: 48,
-                                    borderRadius: '32px',
-                                    px: 4,
+                                    height: 40,
+                                    borderRadius: '24px',
+                                    px: { xs: 2.25, sm: 2.5 },
                                     mr: 0.5,
                                     textTransform: 'none',
                                     bgcolor: '#219197',
                                     color: '#FFFFFF',
                                     fontFamily: 'Inter',
-                                    fontSize: 16,
-                                    fontWeight: 600,
+                                    fontSize: { xs: 12.5, sm: 13 },
+                                    fontWeight: 700,
                                     '&:hover': { bgcolor: '#1C7E83' },
                                     '&.Mui-disabled': { bgcolor: 'rgba(33,145,151,0.45)', color: '#FFFFFF' },
                                 }}
@@ -370,8 +371,8 @@ function AgentLandingPage() {
                         </Box>
                     </Box>
 
-                    <Box sx={{ width: '100%', maxWidth: 768, position: 'relative' }}>
-                        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 1.5 }}>
+                    <Box sx={{ width: '100%', maxWidth: 700, position: 'relative' }}>
+                        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: '10px' }}>
                             {quickCards.map((card) => (
                                 <Button
                                     key={card.key}
@@ -379,22 +380,24 @@ function AgentLandingPage() {
                                         setActiveExampleGroup((prev) => (prev === card.key ? undefined : card.key));
                                     }}
                                     sx={{
-                                        borderRadius: '32px',
-                                        minHeight: 132,
-                                        px: 3,
-                                        py: 3,
+                                        borderRadius: '12px',
+                                        minHeight: { xs: 74, sm: 74, md: 74 },
+                                        px: '14px',
+                                        py: '10px',
                                         textTransform: 'none',
                                         justifyContent: 'flex-start',
                                         alignItems: 'flex-start',
                                         flexDirection: 'column',
-                                        gap: 1.5,
-                                        bgcolor: 'rgba(240,244,244,0.8)',
-                                        border: '1px solid rgba(189,201,200,0.05)',
-                                        backdropFilter: 'blur(4px)',
+                                        gap: '6px',
+                                        bgcolor: '#FFFFFF',
+                                        border: '1px solid #E7EBEF',
                                         color: '#181C1D',
-                                        boxShadow: activeExampleGroup === card.key ? '0 5px 12px rgba(15,118,110,0.14)' : 'none',
+                                        boxShadow: activeExampleGroup === card.key ? '0 4px 10px rgba(0,103,102,0.12)' : '0 1px 0 rgba(0,103,102,0.02)',
+                                        transition: 'transform .15s, border-color .15s, box-shadow .15s',
                                         '&:hover': {
-                                            bgcolor: 'rgba(235,242,242,0.95)',
+                                            bgcolor: '#FFFFFF',
+                                            borderColor: '#2EA7A7',
+                                            transform: 'translateY(-1px)',
                                         },
                                     }}
                                 >
@@ -413,9 +416,9 @@ function AgentLandingPage() {
                                     left: 0,
                                     right: 0,
                                     zIndex: 30,
-                                    borderRadius: '16px',
-                                    border: '1px solid #E6F0FC',
-                                    boxShadow: '0 8px 22px rgba(15,118,110,0.12)',
+                                    borderRadius: '12px',
+                                    border: '1px solid #E7EBEF',
+                                    boxShadow: '0 10px 20px rgba(0,103,102,0.08)',
                                     p: 2,
                                 }}
                             >
