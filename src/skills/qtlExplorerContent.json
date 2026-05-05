@@ -1,0 +1,147 @@
+{
+  "header": {
+    "backText": "Back to Subagent Library",
+    "title": "QTL Explorer",
+    "version": "v1.0",
+    "badges": [
+      "PanKgraph QTL",
+      "No 20G+ Download"
+    ],
+    "descriptionLines": [
+      "Search PanKgraph QTL data to explore regulatory relationships between genetic variants and genes.",
+      "Select how you would like to configure your question and proceed to QTL results."
+    ]
+  },
+  "stats": {
+    "count": "5,642,318",
+    "label": "QTL associations",
+    "subLabel": "in PanKgraph QTL",
+    "buttonText": "View QTL overview"
+  },
+  "configureSection": {
+    "title": "Configure your QTL question",
+    "subtitle": "Choose how you want to search"
+  },
+  "modes": [
+    {
+      "id": "gene",
+      "matchQid": 1,
+      "title": "Search by Gene",
+      "description": "Find SNPs that may regulate a selected gene through QTL evidence.",
+      "exampleLabel": "Example question",
+      "exampleQuestion": "Which SNP serves as the lead QTL for INS?",
+      "searchTitle": "Search by Gene",
+      "searchHint": "Enter a gene to retrieve potentially related QTL lead SNPs.",
+      "primaryLabel": "Gene",
+      "primaryPlaceholder": "Enter gene symbol or Ensembl ID (e.g., INS or ENSG00000254647)",
+      "primaryExamples": "Examples: INS, G6PC2, ENSG00000254647",
+      "questionTemplate": "Which SNP serves as the lead QTL for [GENE]?"
+    },
+    {
+      "id": "snp",
+      "matchQid": 2,
+      "title": "Search by SNP",
+      "description": "Find genes potentially regulated by a selected SNP.",
+      "exampleLabel": "Example question",
+      "exampleQuestion": "Which gene is regulated by rs123456 as a QTL?",
+      "searchTitle": "Search by SNP",
+      "searchHint": "Enter an SNP to retrieve genes potentially associated by QTL evidence.",
+      "primaryLabel": "SNP",
+      "primaryPlaceholder": "Enter rsID or genomic coordinate (e.g., rs123456 or chr1:1234567)",
+      "primaryExamples": "Examples: rs123456, chr1:1234567, 1:1234567",
+      "questionTemplate": "Which gene is regulated by [SNP] as a QTL?"
+    },
+    {
+      "id": "pair",
+      "matchQid": 3,
+      "title": "Search by SNP + Gene",
+      "description": "Check whether a specific SNP-gene pair is supported by QTL evidence.",
+      "exampleLabel": "Example question",
+      "exampleQuestion": "Does rs123456 serve as a QTL for INS?",
+      "searchTitle": "Search by SNP + Gene",
+      "searchHint": "Enter the SNP and gene to check whether this pair has QTL evidence.",
+      "primaryLabel": "SNP",
+      "primaryPlaceholder": "Enter rsID or genomic coordinate (e.g., rs123456 or chr1:1234567)",
+      "primaryExamples": "Examples: rs123456, chr1:1234567, 1:1234567",
+      "secondaryLabel": "Gene",
+      "secondaryPlaceholder": "Enter gene symbol or Ensembl ID (e.g., INS or ENSG00000254647)",
+      "secondaryExamples": "Examples: INS, G6PC2, ENSG00000254647",
+      "questionTemplate": "Does [SNP] serve as a QTL for [GENE]?"
+    }
+  ],
+  "shared": {
+    "infoBar": "PanKgraph QTL currently focuses on Type 1 Diabetes (T1D) and uses a fixed population.",
+    "whatNextTitle": "What happens next?",
+    "whatNextDescription": "PanKgraph will check whether this SNP-gene pair exists in the QTL database and take you to the QTL results page with evidence, association statistics, and linked knowledge.",
+    "workflow": [
+      {
+        "title": "Your Input",
+        "text": "SNP + Gene pair"
+      },
+      {
+        "title": "PanKgraph QTL",
+        "text": "Check pair evidence"
+      },
+      {
+        "title": "QTL Results",
+        "text": "View results and context in PanKgraph"
+      }
+    ],
+    "continueButton": "Continue to QTL results",
+    "securityNote": "All queries are processed securely. No data will be stored.",
+    "bottomSearchPlaceholder": "Ask about QTLs, genes, SNPs, or regulatory evidence... (e.g., \"Does rs123456 serve as a QTL for INS?\")",
+    "bottomSearchHint": "Your message will be sent with the current QTL search configuration.",
+    "poweredBy": "Powered by PanKgraph Agent"
+  },
+  "rightPanel": {
+    "aboutTitle": "About QTL Explorer",
+    "aboutBody": "PanKgraph QTL integrates variant-to-gene regulatory evidence to support exploration of genetic regulation in pancreatic and T1D-relevant contexts.",
+    "importantTitle": "Important",
+    "importantBodyLines": [
+      "This tool is designed for exploratory lookup and knowledge discovery.",
+      "It checks whether QTL evidence exists in PanKgraph; it does not perform new QTL mapping or causal inference."
+    ],
+    "whyTitle": "Why use this skill?",
+    "whyItems": [
+      "Search regulatory evidence from either gene or variant direction",
+      "Check specific SNP-gene QTL relationships",
+      "Connect QTL signals to PanKgraph genes, variants, GWAS, pathways, and ontology annotations",
+      "Move directly from query configuration to structured QTL results"
+    ],
+    "examplesTitle": "Example questions",
+    "examples": [
+      {
+        "text": "Which SNP serves as the lead QTL for INS?",
+        "matchQid": 1
+      },
+      {
+        "text": "Which gene is regulated by rs123456 as a QTL?",
+        "matchQid": 2
+      },
+      {
+        "text": "Does rs123456 serve as a QTL for INS?",
+        "matchQid": 3
+      },
+      {
+        "text": "What QTL evidence connects this variant to beta-cell function?"
+      }
+    ]
+  },
+  "defaults": {
+    "mode": "pair",
+    "geneOptions": [
+      "INS(ENSG00000254647)",
+      "CFTR(ENSG00000001626)",
+      "CENPO(ENSG00000138092)",
+      "G6PC2(ENSG00000131482)",
+      "ADCY3(ENSG00000138031)"
+    ],
+    "snpOptions": [
+      "rs2402203",
+      "rs113869178",
+      "rs12154969",
+      "rs1016432",
+      "rs10203386"
+    ]
+  }
+}

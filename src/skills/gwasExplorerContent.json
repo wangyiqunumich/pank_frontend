@@ -1,0 +1,101 @@
+{
+  "header": {
+    "backText": "Back to Subagent Library",
+    "title": "GWAS Explorer",
+    "version": "v1.0",
+    "badges": [
+      "PanKgraph GWAS",
+      "No 20G+ Download"
+    ],
+    "descriptionLines": [
+      "Query PanKgraph GWAS to explore associations for Type 1 Diabetes (T1D).",
+      "Configure your question below to proceed to GWAS results."
+    ]
+  },
+  "stats": {
+    "count": "29,450,215",
+    "label": "SNPs",
+    "subLabel": "in PanKgraph GWAS",
+    "buttonText": "View GWAS overview"
+  },
+  "configureSection": {
+    "title": "Configure your GWAS question",
+    "stepTitle": "1. Pick a specific SNP",
+    "snpLabel": "SNP ID",
+    "snpPlaceholder": "Enter rsID (e.g., rs123456) or chr:pos (e.g., chr1:1234567)",
+    "snpExamples": "Examples: rs123456, chr1:1234567, 1:1234567"
+  },
+  "singleQuestion": {
+    "matchQid": 4,
+    "template": "Does [SNP] have GWAS association with T1D?"
+  },
+  "shared": {
+    "traitTitle": "Trait and population",
+    "traitText": "PanKgraph GWAS is focused on Type 1 Diabetes (T1D) and uses a fixed population of individuals from the T1D meta-analysis cohorts.",
+    "whatNextTitle": "What happens next?",
+    "whatNextDescription": "We will check whether your SNP is included in PanKgraph GWAS and redirect you to the GWAS results page with summary statistics, association context, and links to relevant genes and pathways.",
+    "workflow": [
+      {
+        "title": "SNP",
+        "text": ""
+      },
+      {
+        "title": "PanKgraph GWAS",
+        "text": "Check inclusion"
+      },
+      {
+        "title": "GWAS Results",
+        "text": "View results & context"
+      }
+    ],
+    "continueButton": "Continue to GWAS results",
+    "securityNote": "All queries are processed securely. No data will be stored.",
+    "bottomSearchPlaceholder": "Ask about GWAS, SNPs, methods, or results... (e.g., \"What is this SNP associated with in T1D?\")",
+    "bottomSearchHint": "Your message will be sent with the current configuration context.",
+    "poweredBy": "Powered by PanKgraph Agent"
+  },
+  "rightPanel": {
+    "aboutTitle": "About GWAS Explorer",
+    "aboutBody": "PanKgraph GWAS integrates summary statistics from large-scale studies focused on Type 1 Diabetes (T1D) and related traits.",
+    "importantTitle": "Important",
+    "importantBodyLines": [
+      "This tool is for exploratory lookup and knowledge discovery.",
+      "It does not perform statistical analysis or fine-mapping."
+    ],
+    "whyTitle": "Why use this skill?",
+    "whyItems": [
+      "Instantly check SNPs in PanKgraph GWAS datasets",
+      "Explore trait associations and study context",
+      "View regional genes and pathways",
+      "Seamlessly connect to PanKgraph knowledge network"
+    ],
+    "examplesTitle": "Example questions",
+    "examples": [
+      {
+        "text": "Is rs123456 associated with T1D?",
+        "matchQid": 4
+      },
+      {
+        "text": "What traits is rs7891011 associated with?",
+        "matchQid": 4
+      },
+      {
+        "text": "Show me associations for chr6:32654321",
+        "matchQid": 4
+      },
+      {
+        "text": "What genes are near this SNP?",
+        "matchQid": 4
+      }
+    ]
+  },
+  "defaults": {
+    "snpOptions": [
+      "rs1016432",
+      "rs10203386",
+      "rs2402203",
+      "rs113869178",
+      "rs12154969"
+    ]
+  }
+}

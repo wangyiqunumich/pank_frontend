@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 
 import ExtensionOutlinedIcon from '@mui/icons-material/ExtensionOutlined';
 import InsightsOutlinedIcon from '@mui/icons-material/InsightsOutlined';
+import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined';
+import PolylineOutlinedIcon from '@mui/icons-material/PolylineOutlined';
 import {
   Box,
   Button,
@@ -99,9 +101,7 @@ export default function SkillsPage() {
             sx={{
               mt: 4,
               display: 'grid',
-              gridTemplateColumns: showSsgsea
-                ? { xs: '1fr', md: '1fr 1fr' }
-                : { xs: '1fr', md: '1fr' },
+              gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
               gap: 3,
             }}
           >
@@ -116,6 +116,24 @@ export default function SkillsPage() {
                 disabled
               />
             ) : null}
+
+            <SkillCard
+              icon={<PolylineOutlinedIcon sx={{ fontSize: 30 }} />}
+              title="QTL Explorer"
+              description="Configure gene and SNP-based QTL lookup with guided query setup and proceed to structured PanKgraph QTL results."
+              actionLabel="Launch"
+              onAction={() => navigate('/qtl-explorer')}
+              accent="#0B7DAA"
+            />
+
+            <SkillCard
+              icon={<PublicOutlinedIcon sx={{ fontSize: 30 }} />}
+              title="GWAS Explorer"
+              description="Explore SNP-level GWAS evidence for T1D-focused cohorts and jump to result context in PanKgraph."
+              actionLabel="Launch"
+              onAction={() => navigate('/gwas-explorer')}
+              accent="#0E7490"
+            />
 
             <SkillCard
               icon={<InsightsOutlinedIcon sx={{ fontSize: 30 }} />}
