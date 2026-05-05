@@ -30,6 +30,9 @@
       "description": "Find SNPs that may regulate a selected gene through QTL evidence.",
       "exampleLabel": "Example question",
       "exampleQuestion": "Which SNP serves as the lead QTL for INS?",
+      "exampleFill": {
+        "gene": "INS(ENSG00000254647)"
+      },
       "searchTitle": "Search by Gene",
       "searchHint": "Enter a gene to retrieve potentially related QTL lead SNPs.",
       "primaryLabel": "Gene",
@@ -44,6 +47,9 @@
       "description": "Find genes potentially regulated by a selected SNP.",
       "exampleLabel": "Example question",
       "exampleQuestion": "Which gene is regulated by rs123456 as a QTL?",
+      "exampleFill": {
+        "snp": "rs123456"
+      },
       "searchTitle": "Search by SNP",
       "searchHint": "Enter an SNP to retrieve genes potentially associated by QTL evidence.",
       "primaryLabel": "SNP",
@@ -58,6 +64,10 @@
       "description": "Check whether a specific SNP-gene pair is supported by QTL evidence.",
       "exampleLabel": "Example question",
       "exampleQuestion": "Does rs123456 serve as a QTL for INS?",
+      "exampleFill": {
+        "snp": "rs123456",
+        "gene": "INS(ENSG00000254647)"
+      },
       "searchTitle": "Search by SNP + Gene",
       "searchHint": "Enter the SNP and gene to check whether this pair has QTL evidence.",
       "primaryLabel": "SNP",
@@ -112,15 +122,28 @@
     "examples": [
       {
         "text": "Which SNP serves as the lead QTL for INS?",
-        "matchQid": 1
+        "matchQid": 1,
+        "modeId": "gene",
+        "fill": {
+          "gene": "INS(ENSG00000254647)"
+        }
       },
       {
         "text": "Which gene is regulated by rs123456 as a QTL?",
-        "matchQid": 2
+        "matchQid": 2,
+        "modeId": "snp",
+        "fill": {
+          "snp": "rs123456"
+        }
       },
       {
         "text": "Does rs123456 serve as a QTL for INS?",
-        "matchQid": 3
+        "matchQid": 3,
+        "modeId": "pair",
+        "fill": {
+          "snp": "rs123456",
+          "gene": "INS(ENSG00000254647)"
+        }
       },
       {
         "text": "What QTL evidence connects this variant to beta-cell function?"
