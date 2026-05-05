@@ -6,9 +6,7 @@ import React, {
 } from 'react';
 
 import { useDispatch } from 'react-redux';
-import {
-  useNavigate,
-} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -57,132 +55,194 @@ function QtlTermAutocomplete({
   onValidated,
 }) {
   const dispatch = useDispatch();
-  const [options, setOptions] = useState(defaultOptions || []);
-  const [loading, setLoading] = useState(false);
-  const timerRef = useRef(null);
+  const [selfOptions, setSelfOptions] = useState(defaultOptions || []);
+  const [simIsLoading, setSimIsLoading] = useState(false);
+  const [valIsLoading, setValIsLoading] = useState(false);
+  const [validatedValue, setValidatedValue] = useState('');
+  const [inputValue, setInputValue] = useState(String(value || ''));
+  const inputValueRef = useRef(String(value || ''));
+  const inputChangeTimer = useRef(null);
 
   useEffect(() => {
-    setOptions(defaultOptions || []);
+    setSelfOptions(defaultOptions || []);
   }, [defaultOptions]);
 
-  const validateGene = async (input) => {
-    const parsed = parseGeneOption(input);
-    if (parsed) {
-      onValidated(true, `${parsed.symbol}(${parsed.id})`);
-      return;
-    }
+  useEffect(() => {
+    const next = String(value || '');
+    inputValueRef.current = next;
+    setInputValue(next);
+  }, [value]);
 
-    const key = String(input || '').trim();
-    if (!key) {
-      onValidated(false, '');
-      return;
-    }
-
-    try {
-      const response = await dispatch(queryQueryResult({
-        isNeptune: false,
-        rawResponse: true,
-        query: `SELECT id, name FROM gene_name WHERE lower(name) = lower('${key}') OR lower(id) = lower('${key}') LIMIT 1;`,
-      })).unwrap();
-      const row = response?.results?.[0];
-      if (row?.id && row?.name) {
-        onValidated(true, `${row.name}(${row.id})`);
-      } else {
-        onValidated(false, '');
+  useEffect(() => {
+    return () => {
+      if (inputChangeTimer.current) {
+        clearTimeout(inputChangeTimer.current);
       }
-    } catch (error) {
-      onValidated(false, '');
+    };
+  }, []);
+
+  const markValidated = (ok, normalized = '') => {
+    if (ok && normalized) {
+      setValidatedValue(normalized);
+      setInputValue(normalized);
+      inputValueRef.current = normalized;
+      onChange(normalized);
+      onValidated(true, normalized);
+      return;
     }
+    setValidatedValue('');
+    onValidated(false, '');
   };
 
-  const validateSnp = async (input) => {
-    const snp = normalizeSnp(input);
-    if (!snp) {
-      onValidated(false, '');
+  const updateSource = async (newInputValue) => {
+    const keyWord = String(newInputValue || '').split('(')[0].trim();
+
+    if (String(newInputValue || '').length <= 1) {
+      setSelfOptions(defaultOptions || []);
+      if (String(newInputValue || '') === inputValueRef.current) {
+        setSimIsLoading(false);
+      }
+      return;
+    }
+
+    if (type !== 'gene') {
+      setSelfOptions([]);
+      if (String(newInputValue || '') === inputValueRef.current) {
+        setSimIsLoading(false);
+      }
       return;
     }
 
     try {
       const response = await dispatch(queryQueryResult({
         isNeptune: false,
-        rawResponse: true,
-        query: `SELECT snp FROM QTL_DATA WHERE snp = '${snp}' LIMIT 1;`,
+        query: `SELECT id, name FROM gene_name WHERE name % '${keyWord}'ORDER BY similarity(name, '${keyWord}') DESC LIMIT 5;`,
       })).unwrap();
-      const found = response?.results?.[0]?.snp;
-      if (found) {
-        onValidated(true, String(found));
+
+      if (String(newInputValue || '') !== inputValueRef.current) return;
+
+      const results = response?.results?.[0]?.credible_sets || [];
+      const parsedResponse = results.map((item) => `${item.name}(${item.id})`);
+      if (parsedResponse.length === 0) {
+        setSelfOptions([{ label: `${type} not found`, disabled: true, notFound: true }]);
       } else {
-        onValidated(false, '');
+        setSelfOptions(parsedResponse);
+      }
+
+      const exactMatch = results.find(
+        (result) => (result.name || '').toLowerCase() === String(newInputValue || '').toLowerCase()
+          || (result.id || '').toLowerCase() === String(newInputValue || '').toLowerCase()
+      );
+      if (exactMatch) {
+        markValidated(true, `${exactMatch.name}(${exactMatch.id})`);
       }
     } catch (error) {
-      onValidated(false, '');
-    }
-  };
-
-  const runSuggestion = async (rawInput) => {
-    const input = String(rawInput || '').trim();
-    if (!input) {
-      setOptions(defaultOptions || []);
-      return;
-    }
-
-    if (type === 'snp') {
-      const filtered = (defaultOptions || []).filter((item) => item.toLowerCase().includes(input.toLowerCase()));
-      setOptions(filtered.length ? filtered : defaultOptions || []);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await dispatch(queryQueryResult({
-        isNeptune: false,
-        query: `SELECT id, name FROM gene_name WHERE name % '${input}' ORDER BY similarity(name, '${input}') DESC LIMIT 6;`,
-      })).unwrap();
-      const rows = response?.results?.[0]?.credible_sets || [];
-      const remoteOptions = rows
-        .map((item) => `${item.name}(${item.id})`)
-        .filter(Boolean);
-      setOptions(remoteOptions.length ? remoteOptions : defaultOptions || []);
-    } catch (error) {
-      setOptions(defaultOptions || []);
+      if (String(newInputValue || '') === inputValueRef.current) {
+        setSelfOptions(defaultOptions || []);
+      }
     } finally {
-      setLoading(false);
+      if (String(newInputValue || '') === inputValueRef.current) {
+        setSimIsLoading(false);
+      }
     }
   };
+
+  const updateValidation = async (newInputValue) => {
+    if (type === 'gene') {
+      setValidatedValue('');
+      onValidated(false, '');
+      setValIsLoading(false);
+      return;
+    }
+
+    if (String(newInputValue || '').length <= 1) {
+      markValidated(false, '');
+      setValIsLoading(false);
+      return;
+    }
+
+    const termName = String(newInputValue || '').split('(')[0].trim();
+
+    try {
+      const response = await dispatch(queryQueryResult({
+        isNeptune: false,
+        rawResponse: true,
+        query: `SELECT snp FROM QTL_DATA WHERE snp = '${termName}' LIMIT 1;`,
+      })).unwrap();
+
+      if (String(newInputValue || '') !== inputValueRef.current) return;
+      const id = response?.results?.[0]?.snp;
+      if (id) {
+        markValidated(true, String(id));
+      } else {
+        markValidated(false, '');
+      }
+    } catch (error) {
+      if (String(newInputValue || '') === inputValueRef.current) {
+        markValidated(false, '');
+      }
+    } finally {
+      if (String(newInputValue || '') === inputValueRef.current) {
+        setValIsLoading(false);
+      }
+    }
+  };
+
+  const options = useMemo(() => {
+    const merged = [...(validatedValue ? [validatedValue] : []), ...selfOptions];
+    const uniqueOptions = [...new Set(merged.map((option) => option?.label || option))];
+    if (uniqueOptions.length > 0) return uniqueOptions;
+    return type !== 'gene' ? [] : [{ label: `No ${type} found`, disabled: true, notFound: true }];
+  }, [selfOptions, type, validatedValue]);
+
+  const loading = simIsLoading || valIsLoading;
 
   return (
     <Autocomplete
       freeSolo
-      value={value}
+      value={inputValue}
       options={options}
+      getOptionDisabled={(option) => Boolean(option?.disabled)}
       filterOptions={(x) => x}
-      onChange={(_, nextValue) => {
-        const finalValue = String(nextValue || '');
-        onChange(finalValue);
-        if (type === 'gene') {
-          validateGene(finalValue);
-        } else {
-          validateSnp(finalValue);
+      getOptionLabel={(option) => String(option?.label || option || '')}
+      onFocus={() => {
+        if (!inputValue && selfOptions.length === 0) {
+          setValidatedValue('');
+          updateSource('');
         }
       }}
-      onInputChange={(_, nextInputValue) => {
+      onInputChange={(_, nextInputValue, reason) => {
         const finalValue = String(nextInputValue || '');
-        onChange(finalValue);
-        onValidated(false, '');
 
-        if (timerRef.current) {
-          clearTimeout(timerRef.current);
+        if (inputChangeTimer.current) {
+          clearTimeout(inputChangeTimer.current);
         }
-        timerRef.current = setTimeout(() => {
-          runSuggestion(finalValue);
-        }, 250);
-      }}
-      onBlur={() => {
-        if (type === 'gene') {
-          validateGene(value);
-        } else {
-          validateSnp(value);
+
+        if (reason === 'reset') {
+          if (finalValue) {
+            markValidated(true, finalValue);
+          } else {
+            markValidated(false, '');
+            setInputValue('');
+            inputValueRef.current = '';
+            onChange('');
+          }
+          return;
         }
+
+        setValidatedValue('');
+        markValidated(false, '');
+        setInputValue(finalValue);
+        inputValueRef.current = finalValue;
+        onChange(finalValue);
+
+        inputChangeTimer.current = setTimeout(() => {
+          setSelfOptions([]);
+          setSimIsLoading(true);
+          updateSource(finalValue);
+          setValIsLoading(true);
+          updateValidation(finalValue);
+        }, 300);
       }}
       loading={loading}
       sx={{
@@ -238,9 +298,9 @@ export default function QTLExplorerPage() {
   const hasSnp = Boolean(normalizeSnp(snpInput));
 
   const canContinue =
-    (mode === 'gene' && hasParsedGene)
-    || (mode === 'snp' && hasSnp)
-    || (mode === 'pair' && hasParsedGene && hasSnp);
+    (mode === 'gene' && geneValid && hasParsedGene)
+    || (mode === 'snp' && snpValid && hasSnp)
+    || (mode === 'pair' && geneValid && snpValid && hasParsedGene && hasSnp);
 
   const applyExampleFill = (modeId, fill) => {
     if (modeId) {
@@ -252,9 +312,11 @@ export default function QTLExplorerPage() {
 
     if (geneValue) {
       setGeneInput(geneValue);
+      setGeneValid(Boolean(parseGeneOption(geneValue)));
     }
     if (snpValue) {
       setSnpInput(snpValue);
+      setSnpValid(true);
     }
   };
 

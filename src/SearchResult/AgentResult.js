@@ -256,30 +256,44 @@ export function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVis
         };
     }, [fullScreenOpen]);
 
+    const rootHeight = compact ? (height || "100%") : height;
+    const minHeight = compact ? 0 : 676;
+
     // Don't render container until tab is visible
     if (!isVisible && !hasInitialized) {
-        return <div style={{ width: "100%", height, minHeight: 676 }} />;
+        return <div style={{ width: "100%", height: rootHeight, minHeight }} />;
     }
 
     return (
-        <div style={{ width: "100%" }}>
+        <div
+            style={{
+                width: "100%",
+                height: rootHeight,
+                minHeight,
+                maxHeight: compact ? "100%" : undefined,
+                display: "flex",
+                flexDirection: "column",
+                overflow: "hidden",
+            }}
+        >
             {isLoading && (
-                <div style={{ marginBottom: 12, color: "#0066cc", fontSize: 12 }}>
+                <div style={{ position: "absolute", top: 12, left: 12, zIndex: 2, color: "#0066cc", fontSize: 12, background: "rgba(255,255,255,0.9)", padding: "4px 8px", borderRadius: 4 }}>
                     Loading genome browser...
                 </div>
             )}
             {error && (
-                <div style={{ marginBottom: 12, color: "#b00020", fontSize: 12, padding: "8px 12px", background: "#ffebee", borderRadius: 4 }}>
+                <div style={{ position: "absolute", top: 12, left: 12, right: 12, zIndex: 2, color: "#b00020", fontSize: 12, padding: "8px 12px", background: "#ffebee", borderRadius: 4 }}>
                     ⚠️ {error}
                 </div>
             )}
-            <div style={{ position: "relative" }}>
+            <div style={{ position: "relative", flex: 1, minHeight: 0, maxHeight: "100%", overflow: "hidden" }}>
                 <div
                     ref={containerRef}
                     style={{
                         width: "100%",
-                        height: height,
-                        minHeight: 676,
+                        height: "100%",
+                        minHeight,
+                        maxHeight: "100%",
                         border: "1px solid #ddd",
                         borderRadius: 8,
                         overflow: "hidden",

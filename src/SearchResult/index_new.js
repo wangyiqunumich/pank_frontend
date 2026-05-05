@@ -919,7 +919,6 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 { label: "Knowledge Graph", content: demoKnowledgeGraphContent },
                 {
                     label: "Genome Browser",
-                    minHeight: 676,
                     content: (
                         <GenomeBrowserEmbed
                             locus="chr7:55,085,725-55,276,031"
@@ -994,7 +993,6 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 { label: "Knowledge Graph", content: knowledgeGraphContent },
                 {
                     label: "Genome Browser",
-                    minHeight: 676,
                     content: (
                         <GenomeBrowserEmbed
                             locus={genomeBrowserLocus}
