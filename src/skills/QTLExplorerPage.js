@@ -7,7 +7,6 @@ import React, {
 
 import { useDispatch } from 'react-redux';
 import {
-  useLocation,
   useNavigate,
 } from 'react-router-dom';
 
@@ -216,7 +215,6 @@ function QtlTermAutocomplete({
 }
 
 export default function QTLExplorerPage() {
-  const location = useLocation();
   const navigate = useNavigate();
   const [mode, setMode] = useState(qtlContent.defaults.mode);
 
@@ -244,10 +242,36 @@ export default function QTLExplorerPage() {
     || (mode === 'snp' && hasSnp)
     || (mode === 'pair' && hasParsedGene && hasSnp);
 
-  const navigateToMatchWithNewUi = (qid) => {
-    if (!qid && qid !== 0) return;
-    const returnTo = encodeURIComponent(`${location.pathname}${location.search}`);
-    navigate(`/match?qid=${qid}&returnTo=${returnTo}`);
+  const applyExampleFill = (modeId, fill) => {
+    if (modeId) {
+      setMode(modeId);
+    }
+
+    const geneValue = String(fill?.gene || '').trim();
+    const snpValue = String(fill?.snp || '').trim();
+
+    if (geneValue) {
+      setGeneInput(geneValue);
+    }
+    if (snpValue) {
+      setSnpInput(snpValue);
+    }
+  };
+
+  const handleExampleQuestion = (exampleConfig) => {
+    const modeIdFromExample = String(exampleConfig?.modeId || '').trim();
+    const matchQid = exampleConfig?.matchQid;
+
+    const targetMode = modeIdFromExample
+      ? qtlContent.modes.find((item) => item.id === modeIdFromExample)
+      : qtlContent.modes.find((item) => item.matchQid === matchQid);
+
+    if (!targetMode) return;
+
+    const fill = exampleConfig?.fill || targetMode.exampleFill;
+    if (!fill) return;
+
+    applyExampleFill(targetMode.id, fill);
   };
 
   const handleContinue = () => {
@@ -398,7 +422,11 @@ export default function QTLExplorerPage() {
                         <Box
                           onClick={(event) => {
                             event.stopPropagation();
-                            navigateToMatchWithNewUi(item.matchQid);
+                            handleExampleQuestion({
+                              modeId: item.id,
+                              matchQid: item.matchQid,
+                              fill: item.exampleFill,
+                            });
                           }}
                           sx={{
                             mt: 0.5,
@@ -408,8 +436,8 @@ export default function QTLExplorerPage() {
                             bgcolor: '#ECF5F8',
                             color: '#1D6E95',
                             fontSize: 15,
-                            cursor: item.matchQid ? 'pointer' : 'default',
-                            '&:hover': item.matchQid ? { bgcolor: '#DCEFF6' } : undefined,
+                            cursor: 'pointer',
+                            '&:hover': { bgcolor: '#DCEFF6' },
                           }}
                         >
                           {item.exampleQuestion}
@@ -609,7 +637,7 @@ export default function QTLExplorerPage() {
                     return (
                     <Box
                       key={exampleText}
-                      onClick={() => navigateToMatchWithNewUi(matchQid)}
+                      onClick={() => handleExampleQuestion(item)}
                       sx={{
                         display: 'flex',
                         alignItems: 'flex-start',
