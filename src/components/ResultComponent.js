@@ -61,7 +61,7 @@ import {
 
 const theme = createTheme({
     typography: {
-        fontFamily: '"Open Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif',
+        fontFamily: 'Inter, "Open Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif',
     },
     palette: {
         background: {
@@ -75,7 +75,8 @@ const theme = createTheme({
     shape: { borderRadius: 14 },
 });
 
-function SectionCard({ title, children, sx, showTitleDivider = true }) {
+function SectionCard({ title, children, sx, showTitleDivider = true, variant = 'default' }) {
+    const isPank1 = variant === 'pank1';
     return (
         <Paper
             elevation={0}
@@ -88,8 +89,8 @@ function SectionCard({ title, children, sx, showTitleDivider = true }) {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.25, mb: 1.5 }}>
                     <Typography
                         sx={{
-                            fontSize: 14,
-                            letterSpacing: "0.08em",
+                            fontSize: isPank1 ? 12 : 14,
+                            letterSpacing: isPank1 ? "0.06em" : "0.08em",
                             fontWeight: 600,
                             color: "#94A3B8",
                             whiteSpace: "nowrap",
@@ -137,7 +138,8 @@ export function ResultComponentSkeleton() {
     );
 }
 
-function ContentTabs({ tabs, value, onChange }) {
+function ContentTabs({ tabs, value, onChange, variant = 'default' }) {
+    const isPank1 = variant === 'pank1';
     return (
         <Tabs
             value={value}
@@ -145,17 +147,17 @@ function ContentTabs({ tabs, value, onChange }) {
             variant="scrollable"
             scrollButtons={false}
             sx={{
-                minHeight: 34,
+                minHeight: 0,
                 "& .MuiTab-root": {
-                    minHeight: 34,
-                    pb: 2,
-                    pt: 0.5,
+                    minHeight: 0,
+                    pb: 1,
+                    pt: 0,
                     px: 0,
                     minWidth: "auto",
-                    marginRight: "48px",
+                    marginRight: "24px",
                     textTransform: "none",
                     fontWeight: "600 !important",
-                    fontSize: "14px !important",
+                    fontSize: isPank1 ? "12px !important" : "14px !important",
                     color: "#94A3B8 !important",
                     "&:last-child": {
                         marginRight: 0,
@@ -395,7 +397,8 @@ function MarkdownBody({ text, graphData, onPmidClick }) {
     );
 }
 
-function EvidenceItem({ item, onSelect, isActive }) {
+function EvidenceItem({ item, onSelect, isActive, variant = 'default' }) {
+    const isPank1 = variant === 'pank1';
     const isLink = Boolean(item?.href && !item?.isSkeleton);
     const clickable = Boolean((isLink || item?.onClick || onSelect) && !item?.isSkeleton);
     const Component = isLink ? "a" : clickable ? "button" : "div";
@@ -419,8 +422,8 @@ function EvidenceItem({ item, onSelect, isActive }) {
             sx={{
                 background: isActive ? "#ECFEFF" : "#fff",
                 border: isActive ? "1px solid #67E8F9" : "1px solid #E7EBEF",
-                borderRadius: "16px",
-                p: 2,
+                borderRadius: isPank1 ? "10px" : "16px",
+                p: isPank1 ? 1.25 : 2,
                 textAlign: "left",
                 width: "100%",
                 cursor: clickable ? "pointer" : "default",
@@ -477,9 +480,9 @@ function EvidenceItem({ item, onSelect, isActive }) {
                         <>
                             <Typography
                                 sx={{
-                                    fontSize: 14,
+                                    fontSize: isPank1 ? 12 : 14,
                                     fontWeight: 700,
-                                    color: "#008C8C",
+                                    color: isPank1 ? "#1E293B" : "#008C8C",
                                     mb: 0.35,
                                     display: "-webkit-box",
                                     WebkitLineClamp: 2,
@@ -492,10 +495,10 @@ function EvidenceItem({ item, onSelect, isActive }) {
                             {item.subtitle ? (
                                 <Typography
                                     sx={{
-                                        fontSize: 9,
+                                        fontSize: isPank1 ? 9.5 : 9,
                                         fontWeight: 700,
                                         color: "#94A3B8",
-                                        letterSpacing: "0.02em",
+                                        letterSpacing: isPank1 ? "0.05em" : "0.02em",
                                     }}
                                 >
                                     {item.subtitle}
@@ -878,7 +881,7 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                 {data?.visualMaterial?.title || 'Visual Material'}
                             </Typography>
                             {visualTabs.length > 1 ? (
-                                <Box sx={{ mb: 1 }}>
+                                <Box sx={{ mb: 1.2 }}>
                                     <ContentTabs
                                         tabs={visualTabs}
                                         value={visualTab}
@@ -1089,6 +1092,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
     const isFollowUpLoading = Boolean(data?.followUp?.loading);
     const followUpInputValue = data?.followUp?.inputValue ?? "";
     const showFollowUpComposer = Boolean(data?.followUp?.showComposer);
+    const isPank1Style = data?.styleVariant === 'pank1';
     const handleFollowUpSubmit = () => {
         if (isFollowUpDisabled) return;
         const submit = data?.followUp?.onSubmit;
@@ -1103,24 +1107,27 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
 
             <Box sx={{ px: { xs: 2, md: 4 }, pt: { xs: 2.5, md: 3.5 }, pb: { xs: 0.5, md: 1 }, maxWidth: 1344, width: "100%", mx: "auto" }}>
                 {/* Header */}
-                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: '62px', columnGap: '20px' }}>
+                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: isPank1Style ? '24px' : '62px', columnGap: '20px' }}>
                     <Chip
                         label={data.questionId || "Q1"}
                         sx={{
                             bgcolor: "#0F766E",
                             color: "#fff",
-                            fontWeight: 800,
-                            borderRadius: 2,
+                            fontWeight: 700,
+                            borderRadius: 1.5,
+                            fontFamily: isPank1Style ? '"Open Sans", Inter, sans-serif' : 'inherit',
+                            fontSize: isPank1Style ? 12 : 14,
                             height: 30,
                         }}
                     />
                     <Typography
                         sx={{
-                            fontSize: 32, // required
+                            fontSize: isPank1Style ? 24 : 32,
                             fontWeight: 700,
                             letterSpacing: "-0.02em",
                             color: "#1E293B",
                             lineHeight: 1.15,
+                            fontFamily: isPank1Style ? '"Open Sans", Inter, sans-serif' : 'inherit',
                         }}
                     >
                         {data.title}
@@ -1131,7 +1138,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                 <Grid container columnSpacing={4.5} rowSpacing={2.5} alignItems="stretch">
                     {/* AI Overview */}
                     <Grid item xs={12} md={12} lg={7} order={{ xs: 1, md: 1, lg: 1 }} id={buildAnchorId("ai-overview")}>
-                        <SectionCard title="AI Overview">
+                        <SectionCard title="AI Overview" variant={isPank1Style ? 'pank1' : 'default'}>
                             <Box
                                 sx={{
                                     height: 520,
@@ -1163,13 +1170,14 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                     {/* Visual Material */}
                     {showVisualSection ? (
                         <Grid item xs={12} md={12} lg={5} order={{ xs: 2, md: 2, lg: preferFollowUpBeforeVisual ? 4 : 2 }} id={buildAnchorId("visual-material")}>
-                            <SectionCard title={isSingleColumn ? (data?.visualMaterial?.title || "Visual Material") : null} sx={{ height: "100%" }}>
+                            <SectionCard title={isSingleColumn ? (data?.visualMaterial?.title || "Visual Material") : null} sx={{ height: "100%" }} variant={isPank1Style ? 'pank1' : 'default'}>
                                 {visualTabs.length > 1 ? (
-                                    <Box sx={{ mb: 2, transform: 'translateY(-3px)' }}>
+                                    <Box sx={{ mb: 1.2 }}>
                                         <ContentTabs
                                             tabs={visualTabs}
                                             value={visualTab}
                                             onChange={(_, v) => handleVisualTabChange(v)}
+                                            variant={isPank1Style ? 'pank1' : 'default'}
                                         />
                                     </Box>
                                 ) : null}
@@ -1250,13 +1258,14 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                     {/* Evidences */}
                     {showEvidenceSection ? (
                         <Grid item xs={12} md={12} lg={7} order={{ xs: 3, md: 3, lg: 3 }} id={buildAnchorId("evidences")}>
-                            <SectionCard title={isSingleColumn ? (data?.evidences?.title || "Evidences") : null}>
+                            <SectionCard title={isSingleColumn ? (data?.evidences?.title || "Evidences") : null} variant={isPank1Style ? 'pank1' : 'default'}>
                                 {evidenceTabs.length > 0 ? (
-                                    <Box sx={{ mb: 2, transform: 'translateY(-3px)' }}>
+                                    <Box sx={{ mb: 1.2 }}>
                                         <ContentTabs
                                             tabs={evidenceTabs}
                                             value={evidenceTab}
                                             onChange={(_, v) => handleEvidenceTabChange(v)}
+                                            variant={isPank1Style ? 'pank1' : 'default'}
                                         />
                                     </Box>
                                 ) : null}
@@ -1278,6 +1287,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                                                 item={it}
                                                                 onSelect={data?.evidences?.onSelect}
                                                                 isActive={Boolean(activeReference) && (String(it?.pmid || '') === String(activeReference) || it.anchorId === `reference-item-${activeReference}`)}
+                                                                variant={isPank1Style ? 'pank1' : 'default'}
                                                             />
                                                         ))}
                                                     </Stack>
@@ -1301,7 +1311,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                     {/* Follow Up */}
                     {showFollowUpSection ? (
                         <Grid item xs={12} md={12} lg={5} order={{ xs: 4, md: 4, lg: preferFollowUpBeforeVisual ? 2 : 4 }} id={buildAnchorId("follow-up")}>
-                            <SectionCard title={data?.followUp?.title ?? "Follow Up"} sx={{ height: "100%" }}>
+                            <SectionCard title={data?.followUp?.title ?? "Follow Up"} sx={{ height: "100%" }} variant={isPank1Style ? 'pank1' : 'default'}>
                                 <Stack spacing={3}>
                                     {showFollowUpComposer && typeof data?.followUp?.onSubmit === "function" ? (
                                         <Box
@@ -1392,11 +1402,11 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                                     onClick={clickable ? handleClick : undefined}
                                                     type={Component === "button" ? "button" : undefined}
                                                     sx={{
-                                                        bgcolor: (isFollowUpDisabled || isFollowUpLoading) ? "#EDF2F7" : "#F8FAFC",
-                                                        py: 2,
-                                                        px: 3,
-                                                        borderRadius: "16px",
-                                                        border: "none",
+                                                        bgcolor: (isFollowUpDisabled || isFollowUpLoading) ? "#EDF2F7" : "#FFFFFF",
+                                                        py: isPank1Style ? 1.25 : 2,
+                                                        px: isPank1Style ? 1.5 : 3,
+                                                        borderRadius: isPank1Style ? "10px" : "16px",
+                                                        border: isPank1Style ? "1px solid #E7EBEF" : "none",
                                                         outline: "none",
                                                         appearance: "none",
                                                         cursor: clickable ? "pointer" : "not-allowed",
@@ -1405,13 +1415,14 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                                         textDecoration: "none",
                                                         "&:hover": clickable
                                                             ? {
-                                                                bgcolor: "#EFF6FF",
+                                                                bgcolor: isPank1Style ? "#F0F4F4" : "#EFF6FF",
+                                                                borderColor: isPank1Style ? "#2EA7A7" : undefined,
                                                             }
                                                             : undefined,
                                                         opacity: (isFollowUpDisabled || isFollowUpLoading) ? 0.7 : 1,
                                                     }}
                                                 >
-                                                    <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: "#475569" }}>{label}</Typography>
+                                                    <Typography sx={{ fontSize: isPank1Style ? 12 : 13.5, fontWeight: isPank1Style ? 600 : 700, color: "#1E293B" }}>{label}</Typography>
                                                 </Paper>
                                             );
                                         })}
