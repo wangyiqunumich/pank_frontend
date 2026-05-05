@@ -17,10 +17,10 @@ import BiotechOutlinedIcon from '@mui/icons-material/BiotechOutlined';
 import CheckIcon from '@mui/icons-material/Check';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined';
-import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
-import ShortcutOutlinedIcon from '@mui/icons-material/ShortcutOutlined';
 import ScatterPlotOutlinedIcon from '@mui/icons-material/ScatterPlotOutlined';
 import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
+import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
+import ShortcutOutlinedIcon from '@mui/icons-material/ShortcutOutlined';
 import {
   Autocomplete,
   Box,
@@ -31,8 +31,8 @@ import {
 } from '@mui/material';
 
 import AgentSidebar from '../components/AgentSidebar';
-import qtlContent from './qtlExplorerContent.json';
 import { queryQueryResult } from '../redux/queryResultSlice';
+import qtlContent from './qtlExplorerContent.json';
 
 function parseGeneOption(value) {
   const raw = String(value || '').trim();

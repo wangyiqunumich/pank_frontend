@@ -21,10 +21,12 @@ import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 
 import {
+  Close as CloseIcon,
   InfoOutlined as InfoOutlineIcon,
   KeyboardArrowDown as KeyboardArrowDownIcon,
   KeyboardArrowUp as KeyboardArrowUpIcon,
   Mail as MailIcon,
+  OpenInFull as OpenInFullIcon,
 } from '@mui/icons-material';
 import {
   Backdrop,
@@ -639,6 +641,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     );
 
     const buildFollowUpAnswerData = React.useCallback((block, index) => {
+        let followUpTableTitleIndex = 0;
         const title = block?.title || block?.question || `Follow-up ${index + 1}`;
         const answerText = block?.summary || (block?.confirming ? 'AI summary is generating...' : '');
         const showGraphSection = String(block?.route || '') !== 'follow_up';
@@ -717,7 +720,10 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                                             ),
                                             strong: ({ children }) => <strong>{renderChildrenWithPmids(children, `followup-strong-${block?.id || index}`, false, followUpAnchorByPmid)}</strong>,
                                             em: ({ children }) => <em>{renderChildrenWithPmids(children, `followup-em-${block?.id || index}`, false, followUpAnchorByPmid)}</em>,
-                                            table: ({ children }) => <MarkdownTableWithTools>{children}</MarkdownTableWithTools>,
+                                            table: ({ children }) => {
+                                                followUpTableTitleIndex += 1;
+                                                return <MarkdownTableWithTools title={`Table ${followUpTableTitleIndex}`}>{children}</MarkdownTableWithTools>;
+                                            },
                                         }}
                                     >
                                         {answerText}
@@ -2569,8 +2575,27 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
     function MarkdownTableWithTools({ children, title = 'Table 1' }) {
         const [expanded, setExpanded] = React.useState(false);
+        const [isTableOverlayOpen, setIsTableOverlayOpen] = React.useState(false);
+        const tableRootRef = React.useRef(null);
         const { header, bodyRows } = React.useMemo(() => extractTableMatrix(children), [children]);
         const shouldShowToggle = bodyRows.length > 3;
+        const collapsedVisibleRowCount = Math.min(3, bodyRows.length);
+
+        const findScrollableAncestor = React.useCallback((node) => {
+            if (!node) return null;
+
+            let current = node.parentElement;
+            while (current) {
+                const style = window.getComputedStyle(current);
+                const canScrollY = /(auto|scroll)/.test(style.overflowY || '') || /(auto|scroll)/.test(style.overflow || '');
+                if (canScrollY && current.scrollHeight > current.clientHeight) {
+                    return current;
+                }
+                current = current.parentElement;
+            }
+
+            return null;
+        }, []);
 
         const handleDownloadCsv = React.useCallback(() => {
             const csvContent = buildTableCsv(header, bodyRows);
@@ -2587,8 +2612,33 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             window.URL.revokeObjectURL(url);
         }, [header, bodyRows]);
 
+        const handleToggleExpanded = React.useCallback(() => {
+            setExpanded((prevExpanded) => {
+                const nextExpanded = !prevExpanded;
+
+                if (!prevExpanded && nextExpanded) {
+                    requestAnimationFrame(() => {
+                        const tableRoot = tableRootRef.current;
+                        const scrollContainer = findScrollableAncestor(tableRoot);
+                        if (!tableRoot || !scrollContainer) return;
+
+                        const containerRect = scrollContainer.getBoundingClientRect();
+                        const tableRect = tableRoot.getBoundingClientRect();
+                        const delta = tableRect.top - containerRect.top;
+
+                        scrollContainer.scrollTo({
+                            top: scrollContainer.scrollTop + delta,
+                            behavior: 'smooth',
+                        });
+                    });
+                }
+
+                return nextExpanded;
+            });
+        }, [findScrollableAncestor]);
+
         return (
-            <Box sx={{ my: 1.25 }}>
+            <Box ref={tableRootRef} sx={{ my: 2.25 }}>
                 <Box
                     sx={{
                         border: '1px solid #DCE3EB',
@@ -2612,6 +2662,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         <Typography sx={{ fontSize: 13, fontWeight: 700, color: '#475569' }}>
                             {title}
                         </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Button
                             size="small"
                             variant="outlined"
@@ -2631,6 +2682,28 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         >
                             Download CSV
                         </Button>
+
+                        <Button
+                            size="small"
+                            variant="outlined"
+                            onClick={() => setIsTableOverlayOpen(true)}
+                            disabled={!header.length && !bodyRows.length}
+                            startIcon={<OpenInFullIcon sx={{ fontSize: 14 }} />}
+                            sx={{
+                                textTransform: 'none',
+                                fontSize: 12,
+                                fontWeight: 600,
+                                borderColor: '#CBD5E1',
+                                color: '#475569',
+                                minWidth: 0,
+                                px: 1.25,
+                                py: 0.4,
+                                backgroundColor: '#FFFFFF',
+                            }}
+                        >
+                            Full Screen
+                        </Button>
+                        </Box>
                     </Box>
 
                     <Box
@@ -2647,41 +2720,181 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                             '& thead tr': {
                                 borderBottom: '1px solid #CBD5E1',
                             },
+                            '& thead th': {
+                                position: 'sticky',
+                                top: 0,
+                                zIndex: 1,
+                                backgroundColor: '#F8FAFC',
+                            },
                             '& tbody tr': {
                                 borderBottom: '1px solid #CBD5E1',
                             },
                             '& th, & td': {
                                 textAlign: 'left',
                                 padding: '8px 10px',
-                                verticalAlign: 'top',
+                                verticalAlign: 'middle',
+                            },
+                            '& th': {
+                                height: 38,
                             },
                             '& tbody tr:nth-of-type(n+4)': expanded ? undefined : { display: 'none' },
+                            ...(expanded
+                                ? {
+                                    '& tbody tr:last-of-type': {
+                                        borderBottom: 'none',
+                                    },
+                                }
+                                : (collapsedVisibleRowCount > 0
+                                    ? {
+                                        [`& tbody tr:nth-of-type(${collapsedVisibleRowCount})`]: {
+                                            borderBottom: 'none',
+                                        },
+                                    }
+                                    : {})),
                         }}
                     >
                         <table>{children}</table>
                     </Box>
+
+                    {shouldShowToggle ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', py: 0.75, borderTop: '1px solid #E2E8F0', backgroundColor: '#F8FAFC' }}>
+                            <Button
+                                size="small"
+                                onClick={handleToggleExpanded}
+                                startIcon={expanded ? <KeyboardArrowUpIcon fontSize="small" /> : <KeyboardArrowDownIcon fontSize="small" />}
+                                sx={{
+                                    textTransform: 'none',
+                                    fontSize: 12,
+                                    color: '#0F766E',
+                                    fontWeight: 700,
+                                }}
+                            >
+                                {expanded ? 'Collapse' : 'Show more'}
+                            </Button>
+                        </Box>
+                    ) : null}
                 </Box>
 
-                {shouldShowToggle ? (
-                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 0.75 }}>
-                        <Button
-                            size="small"
-                            onClick={() => setExpanded((v) => !v)}
-                            startIcon={expanded ? <KeyboardArrowUpIcon fontSize="small" /> : <KeyboardArrowDownIcon fontSize="small" />}
+                <Backdrop
+                    open={isTableOverlayOpen}
+                    sx={{ zIndex: 1300, bgcolor: 'rgba(15, 23, 42, 0.45)', backdropFilter: 'blur(2px)' }}
+                    onClick={() => setIsTableOverlayOpen(false)}
+                >
+                    <Box
+                        onClick={(event) => event.stopPropagation()}
+                        sx={{
+                            width: 'min(1200px, 96vw)',
+                            height: 'min(860px, 92vh)',
+                            borderRadius: '10px',
+                            border: '1px solid #E2E8F0',
+                            bgcolor: '#FFFFFF',
+                            overflow: 'hidden',
+                            display: 'flex',
+                            flexDirection: 'column',
+                        }}
+                    >
+                        <Box
                             sx={{
-                                textTransform: 'none',
-                                fontSize: 12,
-                                color: '#0F766E',
-                                fontWeight: 700,
+                                px: 2,
+                                py: 1.25,
+                                borderBottom: '1px solid #E2E8F0',
+                                bgcolor: '#FFFFFF',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                gap: 1,
                             }}
                         >
-                            {expanded ? 'Collapse' : 'Show more'}
-                        </Button>
+                            <Typography sx={{ fontFamily: 'Inter', fontSize: 15, fontWeight: 700, color: '#0F172A' }}>
+                                {title}
+                            </Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Button
+                                    size="small"
+                                    variant="outlined"
+                                    onClick={handleDownloadCsv}
+                                    disabled={!header.length && !bodyRows.length}
+                                    sx={{
+                                        textTransform: 'none',
+                                        fontSize: 12,
+                                        fontWeight: 600,
+                                        borderColor: '#CBD5E1',
+                                        color: '#475569',
+                                        minWidth: 0,
+                                        px: 1.25,
+                                        py: 0.4,
+                                        backgroundColor: '#FFFFFF',
+                                    }}
+                                >
+                                    Download CSV
+                                </Button>
+                                <Button
+                                    size="small"
+                                    variant="outlined"
+                                    onClick={() => setIsTableOverlayOpen(false)}
+                                    startIcon={<CloseIcon sx={{ fontSize: 14 }} />}
+                                    sx={{
+                                        textTransform: 'none',
+                                        fontSize: 12,
+                                        fontWeight: 600,
+                                        borderColor: '#CBD5E1',
+                                        color: '#475569',
+                                        minWidth: 0,
+                                        px: 1.25,
+                                        py: 0.4,
+                                        backgroundColor: '#FFFFFF',
+                                    }}
+                                >
+                                    Close
+                                </Button>
+                            </Box>
+                        </Box>
+
+                        <Box
+                            sx={{
+                                flex: 1,
+                                overflow: 'auto',
+                                '& table': {
+                                    width: '100%',
+                                    borderCollapse: 'collapse',
+                                    margin: 0,
+                                    borderTop: 'none',
+                                },
+                                '& thead tr': {
+                                    borderBottom: '1px solid #CBD5E1',
+                                    backgroundColor: '#F8FAFC',
+                                },
+                                '& thead th': {
+                                    position: 'sticky',
+                                    top: 0,
+                                    zIndex: 1,
+                                    backgroundColor: '#F8FAFC',
+                                },
+                                '& tbody tr': {
+                                    borderBottom: '1px solid #CBD5E1',
+                                },
+                                '& tbody tr:last-of-type': {
+                                    borderBottom: 'none',
+                                },
+                                '& th, & td': {
+                                    textAlign: 'left',
+                                    padding: '8px 10px',
+                                    verticalAlign: 'middle',
+                                },
+                                '& th': {
+                                    height: 38,
+                                },
+                            }}
+                        >
+                            <table>{children}</table>
+                        </Box>
                     </Box>
-                ) : null}
+                </Backdrop>
             </Box>
         );
     }
+
+    let mainTableTitleIndex = 0;
 
     const markdownSummaryContent = (
         <Box
@@ -2768,7 +2981,10 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     h2: ({ children }) => <Typography component="h2" sx={{ fontSize: 22 }}>{renderChildrenWithPmids(children, 'h2', false, mainReferenceAnchorByPmid)}</Typography>,
                     h3: ({ children }) => <Typography component="h3" sx={{ fontSize: 18 }}>{renderChildrenWithPmids(children, 'h3', false, mainReferenceAnchorByPmid)}</Typography>,
                     h4: ({ children }) => <Typography component="h4" sx={{ fontSize: 16 }}>{renderChildrenWithPmids(children, 'h4', false, mainReferenceAnchorByPmid)}</Typography>,
-                    table: ({ children }) => <MarkdownTableWithTools>{children}</MarkdownTableWithTools>,
+                    table: ({ children }) => {
+                        mainTableTitleIndex += 1;
+                        return <MarkdownTableWithTools title={`Table ${mainTableTitleIndex}`}>{children}</MarkdownTableWithTools>;
+                    },
                 }}
             >
                 {overviewSummary}
@@ -3238,6 +3454,7 @@ Please review this plan and provide edits if needed.`,
     });
 
     const pageData = {
+        styleVariant: 'pank1',
         questionId: "Q1",
         title: planParsedTitle || currentQuestion || question || "Question",
         aiOverview: {
