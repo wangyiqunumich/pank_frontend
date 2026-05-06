@@ -23,10 +23,13 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
+import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import SearchIcon from '@mui/icons-material/Search';
 import {
     Autocomplete,
     Box,
+    Button,
     Container,
     TextField,
     Typography,
@@ -213,6 +216,458 @@ function findSection(html, keyword) {
     }
 }
 
+function parseGlobalTreeFromMarkdown(markdownText) {
+    const text = String(markdownText || '');
+    const blockMatch = text.match(/```text\s*([\s\S]*?)```/i);
+    const treeText = blockMatch ? blockMatch[1] : text;
+    const lines = treeText
+        .split(/\r?\n/)
+        .map((line) => line.replace(/\s+$/g, ''))
+        .filter((line) => line.trim().length > 0);
+
+    if (!lines.length) return null;
+
+    const root = { label: lines[0].trim(), children: [] };
+    const stack = [root];
+
+    for (let i = 1; i < lines.length; i += 1) {
+        const raw = lines[i];
+        const branchIndex = raw.search(/[├└]──\s+/);
+        if (branchIndex < 0) continue;
+
+        const prefix = raw.slice(0, branchIndex);
+        const label = raw.slice(branchIndex).replace(/^[├└]──\s+/, '').trim();
+        if (!label) continue;
+
+        const depthChunks = prefix.match(/(?:│   |    )/g);
+        const depth = (depthChunks ? depthChunks.length : 0) + 1;
+        const node = { label, children: [] };
+
+        while (stack.length > depth) {
+            stack.pop();
+        }
+
+        const parent = stack[stack.length - 1];
+        if (!parent.children) parent.children = [];
+        parent.children.push(node);
+        stack.push(node);
+    }
+
+    return root;
+}
+
+function GlobalTreeTopDownGraph({ markdownText }) {
+    const tree = React.useMemo(() => parseGlobalTreeFromMarkdown(markdownText), [markdownText]);
+    const [fullscreen, setFullscreen] = React.useState(false);
+
+    const parseLabelWithId = React.useCallback((rawLabel) => {
+        const label = String(rawLabel || '').trim();
+        const match = label.match(/^(.*)\s+\[([^\]]+)\]\s*$/);
+        if (!match) {
+            return { text: label, id: null, href: null };
+        }
+        const text = (match[1] || '').trim();
+        const id = (match[2] || '').trim();
+        return {
+            text,
+            id,
+            href: id ? `http://purl.obolibrary.org/obo/${id}` : null,
+        };
+    }, []);
+
+    const renderNodeLabel = React.useCallback((rawLabel, color = 'inherit') => {
+        const parsed = parseLabelWithId(rawLabel);
+        if (!parsed.href) {
+            return parsed.text;
+        }
+        return (
+            <a
+                href={parsed.href}
+                target="_blank"
+                rel="noreferrer"
+                style={{ color, textDecoration: 'underline' }}
+            >
+                {parsed.text}
+            </a>
+        );
+    }, [parseLabelWithId]);
+
+    const countSubtreeNodes = React.useCallback((node) => {
+        if (!node) return 0;
+        const children = node.children || [];
+        return 1 + children.reduce((sum, child) => sum + countSubtreeNodes(child), 0);
+    }, []);
+
+    const renderNodeList = (nodes, color, depth = 0, solidAtCurrentLevel = false) => {
+        if (!nodes?.length) return null;
+        return (
+            <ul
+                style={{
+                    margin: depth === 0 ? '0' : '6px 0 0 14px',
+                    padding: 0,
+                    paddingInlineStart: 0,
+                    listStyle: 'none',
+                    listStyleType: 'none',
+                }}
+            >
+                {nodes.map((node) => {
+                    const hasChildren = Boolean(node.children?.length);
+                    const hasWideSubtree = (node.children?.length || 0) >= 3;
+
+                    if (hasWideSubtree) {
+                        return (
+                            <li
+                                key={`${depth}-${node.label}`}
+                                style={{
+                                    margin: '0 0 10px 0',
+                                    padding: 0,
+                                    display: 'block',
+                                    listStyle: 'none',
+                                    listStyleType: 'none',
+                                }}
+                            >
+                                <Box
+                                    sx={{
+                                        border: `1px solid ${color}44`,
+                                        borderRadius: '10px',
+                                        bgcolor: '#FFFFFF',
+                                        overflow: 'hidden',
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            px: 1.2,
+                                            py: 0.7,
+                                            fontSize: 14,
+                                            fontWeight: 700,
+                                            color: '#0F172A',
+                                            borderBottom: `1px solid ${color}33`,
+                                            bgcolor: `${color}14`,
+                                            lineHeight: 1.2,
+                                        }}
+                                    >
+                                        {renderNodeLabel(node.label, '#1E4FAE')}
+                                    </Box>
+                                    <Box sx={{ px: 1, py: 0.8, bgcolor: '#FFFFFF' }}>
+                                        {renderNodeList(node.children, color, depth + 1, true)}
+                                    </Box>
+                                </Box>
+                            </li>
+                        );
+                    }
+
+                    return (
+                        <li key={`${depth}-${node.label}`} style={{ marginBottom: 8, listStyle: 'none', listStyleType: 'none' }}>
+                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                                <span style={{ color, lineHeight: '19px', fontSize: 13 }}>{(depth === 0 || solidAtCurrentLevel) ? '●' : '○'}</span>
+                                <div style={{ fontSize: 14, color: '#111827', fontWeight: 500 }}>
+                                    {renderNodeLabel(node.label, '#1E4FAE')}
+                                </div>
+                            </div>
+                            {hasChildren ? renderNodeList(node.children, color, depth + 1, false) : null}
+                        </li>
+                    );
+                })}
+            </ul>
+        );
+    };
+
+    if (!tree) {
+        return <Typography sx={{ color: '#64748B' }}>Unable to parse global tree data.</Typography>;
+    }
+
+    const topChildren = tree.children || [];
+    const sectionStyles = [
+        { bar: '#0A3D84', border: '#8DB3E2', bullet: '#0D5BB5', bg: '#F8FBFF' },
+        { bar: '#2B7A0B', border: '#8BC97A', bullet: '#1F8A2C', bg: '#F8FFF7' },
+        { bar: '#5B2A86', border: '#BE9CDE', bullet: '#6F35A5', bg: '#FCF8FF' },
+    ];
+
+    const THIRD_CARD_WIDTH = 220;
+    const THIRD_CARD_HEIGHT = 720;
+    const THIRD_GAP = 12;
+    const SECOND_GAP = 24;
+
+    const renderThirdLevelCard = (node, styleByGroup) => (
+        <Box
+            key={`third-level-${node.label}`}
+            sx={{
+                flex: `0 0 ${THIRD_CARD_WIDTH}px`,
+                width: `${THIRD_CARD_WIDTH}px`,
+                height: `${THIRD_CARD_HEIGHT}px`,
+                minHeight: `${THIRD_CARD_HEIGHT}px`,
+                maxHeight: `${THIRD_CARD_HEIGHT}px`,
+                flexShrink: 0,
+                border: `2px solid ${styleByGroup.border}`,
+                borderRadius: '12px',
+                bgcolor: '#FFFFFF',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+            }}
+        >
+            <Box
+                sx={{
+                    px: 1.5,
+                    py: 1,
+                    fontSize: 16,
+                    fontWeight: 800,
+                    color: '#0F172A',
+                    borderBottom: `1px solid ${styleByGroup.border}`,
+                    bgcolor: styleByGroup.bg,
+                    lineHeight: 1.2,
+                }}
+            >
+                {renderNodeLabel(node.label, '#1E4FAE')}
+            </Box>
+            <Box sx={{ p: 1.2, flex: 1, overflowY: 'auto', overflowX: 'hidden', bgcolor: '#FFFFFF' }}>
+                {renderNodeList(node.children || [], styleByGroup.bullet)}
+            </Box>
+        </Box>
+    );
+
+    const renderVirtualThirdLevelCard = (children, styleByGroup, cardWidth) => (
+        <Box
+            key={`virtual-third-level-${children.length}`}
+            sx={{
+                flex: `0 0 ${cardWidth}px`,
+                width: `${cardWidth}px`,
+                height: `${THIRD_CARD_HEIGHT}px`,
+                minHeight: `${THIRD_CARD_HEIGHT}px`,
+                maxHeight: `${THIRD_CARD_HEIGHT}px`,
+                flexShrink: 0,
+                border: `2px solid ${styleByGroup.border}`,
+                borderRadius: '12px',
+                bgcolor: '#FFFFFF',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+            }}
+        >
+            <Box sx={{ p: 1.2, flex: 1, overflowY: 'auto', overflowX: 'hidden', bgcolor: '#FFFFFF' }}>
+                {renderNodeList(children || [], styleByGroup.bullet)}
+            </Box>
+        </Box>
+    );
+
+    const layoutNodes = topChildren.map((node, index) => {
+        const children = node.children || [];
+        const childCount = children.length;
+        const shouldUseVirtualNode = childCount > 0 && children.every((child) => countSubtreeNodes(child) <= 4);
+        const visualChildCount = Math.max(1, shouldUseVirtualNode ? 1 : childCount);
+        const childrenRowWidth = (visualChildCount * THIRD_CARD_WIDTH) + ((visualChildCount - 1) * THIRD_GAP);
+        const subtreeWidth = Math.max(300, childrenRowWidth);
+        return {
+            node,
+            styleByGroup: sectionStyles[index % sectionStyles.length],
+            childCount,
+            visualChildCount,
+            childrenRowWidth,
+            subtreeWidth,
+            shouldUseVirtualNode,
+        };
+    });
+
+    const positionedNodes = layoutNodes.map((item, idx) => {
+        const xStart = layoutNodes
+            .slice(0, idx)
+            .reduce((sum, prev) => sum + prev.subtreeWidth, 0) + (idx * SECOND_GAP);
+        const centerX = xStart + (item.subtreeWidth / 2);
+        return {
+            ...item,
+            xStart,
+            centerX,
+        };
+    });
+
+    const topConnectorContainerWidth = layoutNodes.reduce((sum, item) => sum + item.subtreeWidth, 0)
+        + Math.max(0, layoutNodes.length - 1) * SECOND_GAP;
+    const firstTopCenter = positionedNodes[0]?.centerX ?? 0;
+    const lastTopCenter = positionedNodes[positionedNodes.length - 1]?.centerX ?? firstTopCenter;
+    const topConnectorLeft = firstTopCenter;
+    const topConnectorWidth = Math.max(2, lastTopCenter - firstTopCenter);
+    const treeCanvasWidth = Math.max(1480, topConnectorContainerWidth);
+
+    const topdownContent = (
+        <Box className="global-tree-topdown" sx={{ minWidth: treeCanvasWidth, minHeight: 980, px: 1, py: 1 }}>
+            <Box sx={{ width: `${treeCanvasWidth}px`, display: 'flex', justifyContent: 'center' }}>
+                <Box
+                    sx={{
+                        px: 3,
+                        py: 1.2,
+                        borderRadius: 1.5,
+                        bgcolor: '#0A3D84',
+                        color: '#fff',
+                        fontSize: 42,
+                        fontWeight: 900,
+                        letterSpacing: '0.02em',
+                        textTransform: 'uppercase',
+                        textAlign: 'center',
+                        mb: 0,
+                    }}
+                >
+                    {renderNodeLabel(tree.label, '#FFFFFF')}
+                </Box>
+            </Box>
+
+            <Box sx={{ width: `${treeCanvasWidth}px`, display: 'flex', justifyContent: 'center' }}>
+                <Box sx={{ width: 2, height: 40, bgcolor: '#64748B' }} />
+            </Box>
+
+            <Box sx={{ width: `${treeCanvasWidth}px`, position: 'relative', height: 2 }}>
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        left: `${topConnectorLeft}px`,
+                        width: `${topConnectorWidth}px`,
+                        height: 2,
+                        bgcolor: '#64748B',
+                    }}
+                />
+            </Box>
+
+            <Box sx={{ width: `${treeCanvasWidth}px`, display: 'flex', gap: `${SECOND_GAP}px`, alignItems: 'flex-start', pt: 0 }}>
+                {positionedNodes.map(({ node, styleByGroup, childCount, visualChildCount, childrenRowWidth, subtreeWidth, shouldUseVirtualNode }) => (
+                    <Box
+                        key={`second-layer-${node.label}`}
+                        sx={{
+                            flex: `0 0 ${subtreeWidth}px`,
+                            width: `${subtreeWidth}px`,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            minHeight: `${THIRD_CARD_HEIGHT + 120}px`,
+                        }}
+                    >
+                        <Box sx={{ width: 2, height: 24, bgcolor: '#64748B' }} />
+                        <Box
+                            sx={{
+                                px: 3,
+                                py: 1.1,
+                                borderRadius: 1.5,
+                                bgcolor: '#0A3D84',
+                                color: '#fff',
+                                fontSize: 26,
+                                fontWeight: 900,
+                                lineHeight: 1.2,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.015em',
+                                textAlign: 'center',
+                                width: 'fit-content',
+                                maxWidth: `${subtreeWidth}px`,
+                                borderRadius: 1.5,
+                            }}
+                        >
+                            {renderNodeLabel(node.label, '#FFFFFF')}
+                        </Box>
+                        <Box
+                            sx={{
+                                position: 'relative',
+                                width: `${childrenRowWidth}px`,
+                                height: '46px',
+                            }}
+                        >
+                            {(() => {
+                                const firstChildCenter = shouldUseVirtualNode
+                                    ? (childrenRowWidth / 2)
+                                    : Math.floor(THIRD_CARD_WIDTH / 2);
+                                const lastChildCenter = shouldUseVirtualNode
+                                    ? (childrenRowWidth / 2)
+                                    : firstChildCenter + Math.max(0, visualChildCount - 1) * (THIRD_CARD_WIDTH + THIRD_GAP);
+                                const connectorWidth = Math.max(2, lastChildCenter - firstChildCenter);
+                                return (
+                                    <>
+                                        <Box sx={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 2, height: 20, bgcolor: '#64748B' }} />
+                                        <Box sx={{ position: 'absolute', top: 20, left: `${firstChildCenter}px`, width: `${connectorWidth}px`, height: 2, bgcolor: '#64748B' }} />
+                                    </>
+                                );
+                            })()}
+                            {Array.from({ length: shouldUseVirtualNode ? 1 : visualChildCount }).map((_, childIndex) => (
+                                <Box
+                                    key={`subtree-drop-${node.label}-${childIndex}`}
+                                    sx={{
+                                        position: 'absolute',
+                                        top: 20,
+                                        left: shouldUseVirtualNode
+                                            ? `${childrenRowWidth / 2}px`
+                                            : `${childIndex * (THIRD_CARD_WIDTH + THIRD_GAP) + Math.floor(THIRD_CARD_WIDTH / 2)}px`,
+                                        width: 2,
+                                        height: 24,
+                                        bgcolor: '#64748B',
+                                        transform: 'translateX(-50%)',
+                                    }}
+                                />
+                            ))}
+                        </Box>
+                        <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', gap: `${THIRD_GAP}px`, overflowX: 'visible' }}>
+                            {shouldUseVirtualNode
+                                ? (
+                                    <Box key={`third-wrap-virtual-${node.label}`} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        {renderVirtualThirdLevelCard(node.children || [], styleByGroup, childrenRowWidth)}
+                                    </Box>
+                                )
+                                : (node.children || []).map((child) => (
+                                    <Box key={`third-wrap-${node.label}-${child.label}`} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        {renderThirdLevelCard(child, styleByGroup)}
+                                    </Box>
+                                ))}
+                        </Box>
+                    </Box>
+                ))}
+            </Box>
+        </Box>
+    );
+
+    return (
+        <Box sx={{ width: '100%', pb: 1, border: '1px solid #E2E8F0', borderRadius: '12px', bgcolor: '#FFFFFF' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 1 }}>
+                <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={fullscreen ? <FullscreenExitIcon fontSize="small" /> : <OpenInFullIcon fontSize="small" />}
+                    onClick={() => setFullscreen((prev) => !prev)}
+                    sx={{ textTransform: 'none', borderRadius: '10px' }}
+                >
+                    {fullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+                </Button>
+            </Box>
+
+            {fullscreen ? (
+                <Box
+                    sx={{
+                        position: 'fixed',
+                        inset: 0,
+                        bgcolor: '#FFFFFF',
+                        zIndex: 1800,
+                        p: 2,
+                        display: 'flex',
+                        flexDirection: 'column',
+                    }}
+                >
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+                        <Button
+                            size="small"
+                            variant="outlined"
+                            startIcon={<FullscreenExitIcon fontSize="small" />}
+                            onClick={() => setFullscreen(false)}
+                            sx={{ textTransform: 'none', borderRadius: '10px' }}
+                        >
+                            Exit Fullscreen
+                        </Button>
+                    </Box>
+                    <Box sx={{ flex: 1, overflowX: 'auto', overflowY: 'auto', border: '1px solid #E2E8F0', borderRadius: '10px', p: 1 }}>
+                        {topdownContent}
+                    </Box>
+                </Box>
+            ) : (
+                <Box sx={{ overflowX: 'auto', overflowY: 'auto', px: 1, pb: 1 }}>
+                    {topdownContent}
+                </Box>
+            )}
+        </Box>
+    );
+}
+
 function DocPage() {
     const [page, setPage] = useState('loading'); //current page to change
     const [frag, setFrag] = useState('');
@@ -223,6 +678,7 @@ function DocPage() {
     const [pages, setPages] = useState({}); // converted page text
     const [pageString, setpageString] = useState({}); // pages in string of html
     const [pageHTML, setpageHTML] = useState({}); // pages in jsx
+    const [pageMarkdown, setPageMarkdown] = useState({}); // raw markdown content per page
     const [cache, setCache] = useState({}); // cache for search results
     const [isLoading, setIsLoading] = useState(true);
     const [highlightKey, setHighlightKey] = useState('');
@@ -289,15 +745,21 @@ function DocPage() {
 
     const fetchPages = useCallback(async () => {
         if (!isLoading) { return };
-        const html = await Promise.all(
+        const raw = await Promise.all(
             Object.keys(Pages).map(async (page) => {
                 const module = await import(`../schema/doc/${page}.md`);
                 const response = await fetch(module.default);
                 const text = await response.text();
-                const mdhtml = renderMD(text);
-                return { [page]: mdhtml };
+                return { [page]: text };
             })
         );
+        const markdownData = Object.assign({}, ...raw);
+        setPageMarkdown(markdownData);
+
+        const html = Object.keys(markdownData).map((pg) => {
+            const mdhtml = renderMD(markdownData[pg]);
+            return { [pg]: mdhtml };
+        });
         const pageHTMLData = Object.assign({}, ...html);
         setpageHTML(pageHTMLData);
         const str =
@@ -508,6 +970,8 @@ function DocPage() {
         {children}
     </pre>
 
+    const isGlobalTreePage = page === 'ontology';
+
     return (
         <div className="App">
             <Container maxWidth="100%"
@@ -587,11 +1051,22 @@ function DocPage() {
                     ref={scrollRef}
                     sx={{
                         textAlign: 'left',
+                        ...(isGlobalTreePage
+                            ? {
+                                width: 'calc(100% - 380px)',
+                                px: 2,
+                                pb: 3,
+                            }
+                            : {}),
                     }}
-                    className={'markdown-body'}
+                    className={isGlobalTreePage ? undefined : 'markdown-body'}
                 >
                     <div ref={contentRef} >
-                        {isLoading ? loading() : pageHTML[page]}
+                        {isLoading
+                            ? loading()
+                            : (page === 'ontology'
+                                ? <GlobalTreeTopDownGraph markdownText={pageMarkdown[page]} />
+                                : pageHTML[page])}
                     </div>
                 </Box>
             </Container>

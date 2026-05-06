@@ -386,6 +386,22 @@
   background: #1f2328;
 }
 
+.markdown-body .global-tree-topdown ul,
+.markdown-body .global-tree-topdown li {
+  list-style: none !important;
+  list-style-type: none !important;
+}
+
+.markdown-body .global-tree-topdown ul {
+  padding-left: 0 !important;
+  padding-inline-start: 0 !important;
+}
+
+.markdown-body .global-tree-topdown ul li:before {
+  content: none !important;
+  display: none !important;
+}
+
 .markdown-body dd {
   margin-left: 0;
 }
