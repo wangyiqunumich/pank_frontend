@@ -22,16 +22,15 @@ anatomical sample source
 │   │   └── type EC enteroendocrine cell [CL_0000577]
 │   │
 │   ├── exocrine pancreas [UBERON_0000017]
-│   │   └── exocrine and epithelial cell types
-│   │       ├── pancreas exocrine glandular cell [CL_1001599]
-│   │       ├── pancreatic acinar cell [CL_0002064]
-│   │       ├── pancreatic ductal cell [CL_0002079]
-│   │       │   └── pancreatic ductal cell, MUC5B+ state [PANK:CL_0002079_MUC5B]
-│   │       ├── pancreatic centro-acinar cell [CL_0002080]
-│   │       ├── epithelial cell of exocrine pancreas [CL_1001433]
-│   │       ├── simple columnar epithelial cell [CL_0000146]
-│   │       ├── columnar/cuboidal epithelial cell [CL_0000075]
-│   │       └── pancreatic goblet cell [CL_1000322]
+│   │   ├── pancreas exocrine glandular cell [CL_1001599]
+│   │   ├── pancreatic acinar cell [CL_0002064]
+│   │   ├── pancreatic ductal cell [CL_0002079]
+│   │   │   └── pancreatic ductal cell, MUC5B+ state [PANK:CL_0002079_MUC5B]
+│   │   ├── pancreatic centro-acinar cell [CL_0002080]
+│   │   ├── epithelial cell of exocrine pancreas [CL_1001433]
+│   │   ├── simple columnar epithelial cell [CL_0000146]
+│   │   ├── columnar/cuboidal epithelial cell [CL_0000075]
+│   │   └── pancreatic goblet cell [CL_1000322]
 │   │
 │   ├── pancreatic vasculature
 │   │   └── endothelial cell [CL_0000115]
