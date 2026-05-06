@@ -3529,6 +3529,9 @@ Please review this plan and provide edits if needed.`,
             || (isChatApiMode && chatRouteState === 'new_query_pending')
             || (isChatApiMode && Boolean(chatStartPendingPlanSessionId))
         ));
+    const hideFloatingSearchBar = terminalMode
+        && !hasPendingFollowUpWork
+        && (terminalPhase === 'loading' || terminalPhase === 'confirm');
 
     const resolvedPageData = planDemoMode
         ? buildPlanDemoPageData()
@@ -3552,12 +3555,13 @@ Please review this plan and provide edits if needed.`,
             hasFollowUp: Boolean(resolvedPageData?.followUp),
             isQuestionComplete,
             isPlanning: isPlanningPhase,
+            hideFloatingSearchBar,
         };
         const serialized = JSON.stringify(serializableMeta);
         if (serialized === lastMetaRef.current) return;
         lastMetaRef.current = serialized;
         onContentMeta({ ...serializableMeta, followUpHandler: isChatApiMode ? handleSendFollowUp : null });
-    }, [anchorPrefix, onContentMeta, resolvedPageData, isQuestionComplete, isPlanningPhase, isChatApiMode, handleSendFollowUp]);
+    }, [anchorPrefix, onContentMeta, resolvedPageData, isQuestionComplete, isPlanningPhase, hideFloatingSearchBar, isChatApiMode, handleSendFollowUp]);
 
     if (agentErrorType) {
         const agentErrorPayload = getAgentErrorPayload(agentErrorType);

@@ -416,6 +416,7 @@ export function AgentResultLayout({
     const scrollLockRef = useRef({ active: false, until: 0, index: null });
     const activeMeta = contentMetaByIndex[activeResultIndex];
     const activeQuestionComplete = activeMeta?.isQuestionComplete ?? false;
+    const hideFloatingSearchBarByPhase = Boolean(activeMeta?.hideFloatingSearchBar);
     const canSearch = allowSearch
         && (effectiveAllowMulti || showFloatingSearchBar)
         && !Boolean(activeMeta?.isPlanning)
@@ -871,7 +872,7 @@ export function AgentResultLayout({
             )}
 
             {/* Floating search bar at bottom */}
-            {showFloatingSearchBar ? (
+            {showFloatingSearchBar && !hideFloatingSearchBarByPhase ? (
                 <div
                     style={{
                         position: "fixed",

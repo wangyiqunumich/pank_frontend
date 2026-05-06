@@ -5,11 +5,13 @@ import * as React from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
+import { ReactComponent as MynauiSendIcon } from '../image/mynaui_send.svg';
 
 import {
   AutoAwesome as AutoAwesomeIcon,
   ChatBubbleOutline as ChatBubbleOutlineIcon,
   Check as CheckIcon,
+    Settings as SettingsIcon,
   Send as SendIcon,
 } from '@mui/icons-material';
 import {
@@ -546,6 +548,7 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
     const originalQuestion = data?.originalQuestion || "";
     const parsedTitle = data?.parsedTitle || "";
     const agentPlanText = data?.agentPlan || '';
+    const isFeedbackEmpty = !feedbackText.trim();
 
     const handleSendFeedback = React.useCallback(() => {
         const trimmed = feedbackText.trim();
@@ -665,18 +668,20 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                     <Grid item xs={12} md={12} lg={7} id={buildAnchorId('agent-plan')} sx={{ display: 'flex', height: confirmationColumnsHeight }}>
                         <Stack spacing={2} sx={{ width: '100%', height: '100%', minWidth: 0 }}>
                             <SectionCard sx={{ width: '100%', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-                                <Typography
-                                    sx={{
-                                        fontSize: 14,
-                                        letterSpacing: '0.08em',
-                                        fontWeight: 600,
-                                        color: '#94A3B8',
-                                        whiteSpace: 'nowrap',
-                                        mb: 1.5,
-                                    }}
-                                >
-                                    Agent Plan
-                                </Typography>
+                                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1.5 }}>
+                                    <SettingsIcon sx={{ color: '#94A3B8', fontSize: 18 }} />
+                                    <Typography
+                                        sx={{
+                                            fontSize: 14,
+                                            letterSpacing: '0.08em',
+                                            fontWeight: 600,
+                                            color: '#94A3B8',
+                                            whiteSpace: 'nowrap',
+                                        }}
+                                    >
+                                        Proposed Execution
+                                    </Typography>
+                                </Stack>
                                 <Box sx={{ flex: 1, minHeight: 0, overflowY: isSingleColumn ? 'visible' : 'auto', pr: 0.5 }}>
                                     {agentPlanText ? (
                                         <Box
@@ -773,7 +778,22 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                 </Box>
                             </SectionCard>
 
-                            <Stack direction="row" spacing={1.25} alignItems="center" sx={{ width: '100%' }}>
+                            <Box
+                                sx={{
+                                    width: '100%',
+                                    border: '1px solid #E2E8F0',
+                                    borderRadius: '16px',
+                                    backgroundColor: '#F3F7F9',
+                                    py: 2,
+                                    px: 3,
+                                }}
+                            >
+                                <Typography sx={{ fontSize: 14, fontWeight: 700, color: '#4A7F8D', mb: 0.4 }}>
+                                    Refine The Plan
+                                </Typography>
+                                <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#64748B', mb: 1.25 }}>
+                                    Tell me how you'd like to adjust the plan. I'll update it instantly.
+                                </Typography>
                                 <Box
                                     component="form"
                                     onSubmit={(event) => {
@@ -781,15 +801,15 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                         handleSendFeedback();
                                     }}
                                     sx={{
-                                        flex: 1,
-                                        border: '1px solid #ECF0F5',
-                                        borderRadius: '12px',
+                                        width: '100%',
+                                        border: '1px solid #DCE5EE',
+                                        borderRadius: '14px',
                                         p: 1,
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: 1,
                                         backgroundColor: '#FFFFFF',
-                                        boxShadow: '0px 2px 8px -3px #64646F40'
+                                        boxShadow: '0px 2px 8px -3px #64646F30',
                                     }}
                                 >
                                     <TextField
@@ -806,63 +826,36 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                         fullWidth
                                         InputProps={{
                                             disableUnderline: true,
-                                            startAdornment: (
-                                                <InputAdornment position="start">
-                                                    <ChatBubbleOutlineIcon sx={{ color: '#94A3B8', fontSize: 20, marginLeft: '4px' }} />
-                                                </InputAdornment>
-                                            ),
                                         }}
                                         sx={{
                                             '& .MuiInputBase-input': {
                                                 fontSize: 14,
                                                 color: '#334155',
+                                                paddingLeft: '8px',
                                             },
                                         }}
                                     />
                                     <IconButton
                                         type="submit"
                                         aria-label="send"
+                                        disabled={isFeedbackEmpty}
                                         sx={{
                                             borderRadius: '999px',
-                                            color: '#3A838B',
+                                            color: isFeedbackEmpty ? '#94A3B8' : '#3A838B',
                                             width: 34,
                                             height: 34,
                                             '&:hover': {
-                                                backgroundColor: '#F0FAFB',
+                                                backgroundColor: '#F0F7FA',
+                                            },
+                                            '&.Mui-disabled': {
+                                                color: '#94A3B8',
                                             },
                                         }}
                                     >
-                                        <SendIcon sx={{ fontSize: 20 }} />
+                                        <MynauiSendIcon style={{ width: 20, height: 20 }} />
                                     </IconButton>
                                 </Box>
-
-                                <Button
-                                    type="button"
-                                    variant="contained"
-                                    startIcon={<CheckIcon sx={{ fontSize: 18 }} />}
-                                    onClick={handleProceed}
-                                    sx={{
-                                        whiteSpace: 'nowrap',
-                                        textTransform: 'none',
-                                        fontWeight: 700,
-                                        fontSize: 14,
-                                        color: '#FFFFFF',
-                                        backgroundColor: '#3A838B',
-                                        border: '1px solid #ECF0F5',
-                                        borderRadius: '12px',
-                                        boxShadow: '0px 2px 8px -3px #64646F40',
-                                        px: 2.25,
-                                        height: 52,
-                                        '&:hover': {
-                                            backgroundColor: '#2F6E75',
-                                            border: '1px solid #DCE5EE',
-                                            boxShadow: '0px 2px 8px -3px #64646F40',
-                                        },
-                                    }}
-                                >
-                                    Looks Good, Proceed
-                                </Button>
-                            </Stack>
+                            </Box>
                         </Stack>
                     </Grid>
 
@@ -954,6 +947,31 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                         </SectionCard>
                     </Grid>
                 </Grid>
+
+                <Divider sx={{ my: 2.5, borderColor: '#E2E8F0' }} />
+                <Button
+                    type="button"
+                    variant="contained"
+                    startIcon={<CheckIcon sx={{ fontSize: 20 }} />}
+                    onClick={handleProceed}
+                    sx={{
+                        width: '100%',
+                        textTransform: 'none',
+                        fontWeight: 700,
+                        fontSize: 17,
+                        letterSpacing: '0.01em',
+                        color: '#FFFFFF',
+                        backgroundColor: '#4E98A0',
+                        borderRadius: '14px',
+                        boxShadow: '0px 8px 18px -10px #1F4D5338',
+                        py: 1.8,
+                        '&:hover': {
+                            backgroundColor: '#3F848B',
+                        },
+                    }}
+                >
+                    Run These Steps
+                </Button>
             </Box>
         </ThemeProvider>
     );
