@@ -8,19 +8,18 @@ anatomical sample source
 │   │   ├── body of pancreas [UBERON_0001150]
 │   │   └── tail of pancreas [UBERON_0001151]
 │   │
-│   ├── pancreatic islet / endocrine pancreas [UBERON_0000006]
+│   ├── endocrine pancreas [UBERON_0000006]
 │   │   │
-│   │   └── endocrine cell types
-│   │       ├── pancreatic endocrine cell [CL_0008024]
-│   │       ├── pancreatic alpha cell [CL_0000171]
-│   │       │   └── alpha cell, active/cycling state [PANK:CL_0000171_active]
-│   │       ├── type beta cell [CL_0000169]
-│   │       ├── pancreatic delta cell [CL_0000173]
-│   │       ├── pancreatic PP cell / gamma cell [CL_0002275]
-│   │       ├── pancreatic epsilon cell [CL_0005019]
-│   │       ├── gamma + epsilon composite label [PANK:CL_0002275_CL_0005019]
-│   │       ├── gastrin secreting cell [CL_0000509]
-│   │       └── type EC enteroendocrine cell [CL_0000577]
+│   │   ├── pancreatic endocrine cell [CL_0008024]
+│   │   ├── pancreatic alpha cell [CL_0000171]
+│   │   │   └── alpha cell, active/cycling state [PANK:CL_0000171_active]
+│   │   ├── type beta cell [CL_0000169]
+│   │   ├── pancreatic delta cell [CL_0000173]
+│   │   ├── pancreatic PP cell / gamma cell [CL_0002275]
+│   │   ├── pancreatic epsilon cell [CL_0005019]
+│   │   ├── gamma + epsilon composite label [PANK:CL_0002275_CL_0005019]
+│   │   ├── gastrin secreting cell [CL_0000509]
+│   │   └── type EC enteroendocrine cell [CL_0000577]
 │   │
 │   ├── exocrine pancreas [UBERON_0000017]
 │   │   └── exocrine and epithelial cell types
