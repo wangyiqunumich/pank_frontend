@@ -106,7 +106,7 @@ function AgentLandingPage() {
                 entries: [
                     {
                         question: 'Which SNP serves as the lead QTL for CFTR?',
-                        link: '/result?sourceTerm=snp@rs2402203&targetTerm=gene@ENSG00000001626&relationship=QTL',
+                        link: '/result-new?sourceTerm=snp@rs2402203&targetTerm=gene@ENSG00000001626&relationship=QTL',
                     },
                 ],
             },
@@ -116,7 +116,7 @@ function AgentLandingPage() {
                 entries: [
                     {
                         question: 'How does INS expression change in T1D versus non-diabetic samples?',
-                        link: '/result?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type&relationship=express_in',
+                        link: '/result-new?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type&relationship=express_in',
                     },
                 ],
             },
