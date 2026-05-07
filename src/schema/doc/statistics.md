@@ -37,7 +37,7 @@
 | gene detected in T1D | gene | anatomical structure | 55788 | [PanKbase Team](https://data.pankbase.org/analysis-sets/PKBDS1349YHGQ/) | [Pipeline](https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/expression_pipeline.pdf), [Code](https://github.com/PanKbase/PanKbase-scRNA-seq) |
 | fGSEA pathway enriched in | Reactome pathway | anatomical structure | 81 | [PanKbase Team](https://data.pankbase.org/analysis-sets/PKBDS1349YHGQ/) |  |
 | CMDKP effector gene | gene | disease | 257 | [HuGeAMP](https://hugeamp.org/research.html?pageid=egl_241) |  |
-| Pancreas Atlas marker gene | gene | disease | 124 | [Pancreas Atlas](https://doi.org/10.48539/HBM336.TBNP.923) |  |
+| HuBMAP marker gene | gene | disease | 124 | [HuBMAP](https://doi.org/10.48539/HBM336.TBNP.923) |  |
 | has donor | disease | donor | 192 | [HPAP](https://hpap.pmacs.upenn.edu) |  |
 | has sample | anatomical structure, data modality, donor, disease | sample | 40285 | [HPAP](https://hpap.pmacs.upenn.edu) |  |
 
