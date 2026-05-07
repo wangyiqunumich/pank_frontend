@@ -241,7 +241,7 @@ function Question({}) {
           fontSize: '14px',
         }}>Example</span>
         <Link
-          to="/result?sourceTerm=snp%40rs2402203&targetTerm=gene%40ENSG00000001626&relationship=QTL"
+          to="/result-new?sourceTerm=snp%40rs2402203&targetTerm=gene%40ENSG00000001626&relationship=QTL"
           style={{
             fontSize: '14px',
             textDecoration: 'underline',
