@@ -1,7 +1,7 @@
 ## Ontology
 
 ```text
-anatomical sample source
+PanKgraph anatomical ontology tree
 ├── pancreas [UBERON_0001264]
 │   ├── pancreas anatomical regions
 │   │   ├── head of pancreas [UBERON_0001069]
