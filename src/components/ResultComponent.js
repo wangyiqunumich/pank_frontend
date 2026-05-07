@@ -5,14 +5,13 @@ import * as React from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
-import { ReactComponent as MynauiSendIcon } from '../image/mynaui_send.svg';
 
 import {
   AutoAwesome as AutoAwesomeIcon,
   ChatBubbleOutline as ChatBubbleOutlineIcon,
   Check as CheckIcon,
-    Settings as SettingsIcon,
   Send as SendIcon,
+  Settings as SettingsIcon,
 } from '@mui/icons-material';
 import {
   Box,
@@ -35,6 +34,8 @@ import {
   Typography,
   useMediaQuery,
 } from '@mui/material';
+
+import { ReactComponent as MynauiSendIcon } from '../image/mynaui_send.svg';
 
 /**
  * All information is passed in as a single object: `data`.
@@ -630,7 +631,6 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
 
                     <Box
                         sx={{
-                            height: '130px',
                             backgroundColor: '#F2F7F9',
                             px: 2,
                             py: 2,
