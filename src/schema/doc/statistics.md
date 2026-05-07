@@ -32,14 +32,11 @@
 | effector gene of | gene | disease | 257 | [HuGeAMP](https://hugeamp.org/research.html?pageid=egl_241) |  |
 | gene activity score in | gene | anatomical structure | 126091 | [PanKbase Team](https://data.pankbase.org/analysis-sets/PKBDS0470WCHR/) | [Pipeline](https://hugeampkpncms.org/sites/default/files/images/pankbase/pipelines/snATACprocessingpipeline_parul_pankbase.pdf), [Code](https://github.com/PanKbase/HPAP-scATAC-seq/blob/main/clustering_notebooks/query_snatac.ipynb) |
 | open chromatin region in | open chromatin region | anatomical structure | 5294421 | [PanKbase Team](https://data.pankbase.org/analysis-sets/PKBDS0470WCHR/) | [Pipeline](https://hugeampkpncms.org/sites/default/files/images/pankbase/pipelines/snATACprocessingpipeline_parul_pankbase.pdf), [Code](https://github.com/PanKbase/HPAP-scATAC-seq/blob/main/clustering_notebooks/query_snatac.ipynb) |
-| differentially expressed in T1D | gene | anatomical structure | 1956 | [PanKbase Team](https://data.pankbase.org/analysis-sets/PKBDS1349YHGQ/) | [Pipeline](https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/deg_pipeline.pdf), [Code](https://github.com/PanKbase/PanKbase-DEG-analysis) |
+| differentially expressed in T1D | gene | anatomical structure | 1956 | [PanKbase Team](https://data.pankbase.org/analysis-sets/PKBDS1349YHGQ/) | [Pipeline](https://pankbase.org/diff-exp.html?comparison=dea_comp_1&dataset=islet_of_Langerhans_scRNA_v3-3_Pseudobulk_Acinar), [Code](https://github.com/PanKbase/PanKbase-DEG-analysis) |
 | gene enriched in | gene | anatomical structure | 14028 | [PanKbase Team](https://data.pankbase.org/analysis-sets/PKBDS1349YHGQ/) | [Pipeline](https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/expression_pipeline.pdf), [Code](https://github.com/PanKbase/PanKbase-scRNA-seq) |
 | gene detected in ND | gene | anatomical structure | 50927 | [PanKbase Team](https://data.pankbase.org/analysis-sets/PKBDS1349YHGQ/) | [Pipeline](https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/expression_pipeline.pdf), [Code](https://github.com/PanKbase/PanKbase-scRNA-seq) |
 | gene detected in T1D | gene | anatomical structure | 55788 | [PanKbase Team](https://data.pankbase.org/analysis-sets/PKBDS1349YHGQ/) | [Pipeline](https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/expression_pipeline.pdf), [Code](https://github.com/PanKbase/PanKbase-scRNA-seq) |
 | fGSEA pathway enriched in | Reactome pathway | anatomical structure | 81 | [PanKbase Team](https://data.pankbase.org/analysis-sets/PKBDS1349YHGQ/) |  |
 | has donor | disease | donor | 192 | [HPAP](https://hpap.pmacs.upenn.edu) |  |
 | has sample | anatomical structure, data modality, donor, disease | sample | 40285 | [HPAP](https://hpap.pmacs.upenn.edu) |  |
-| part of | anatomical structure | anatomical structure | 8 | [NCBO BioPortal](https://bioportal.bioontology.org/) |  |
-| adjacent to | anatomical structure | anatomical structure | 1 | [NCBO BioPortal](https://bioportal.bioontology.org/) |  |
-| has cell type | anatomical structure | anatomical structure | 3 | [NCBO BioPortal](https://bioportal.bioontology.org/) |  |
-| lymph flows to | anatomical structure | anatomical structure | 2 | [NCBO BioPortal](https://bioportal.bioontology.org/) |  |
+
