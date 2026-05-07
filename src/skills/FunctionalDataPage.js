@@ -650,7 +650,14 @@ export default function FunctionalDataPage() {
                         <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#64748B', mb: 0.5 }}>{label}</Typography>
                         <Select size="small" fullWidth value={value} onChange={(e) => set(e.target.value)} sx={SEL_SX}>
                           {options.map((o) => (
-                            <MenuItem key={o} value={o} sx={{ fontFamily: 'Inter', fontSize: 13 }}>{o}</MenuItem>
+                            <MenuItem
+                              key={o}
+                              value={o}
+                              disabled={label === 'Center' && o === 'Will add more later'}
+                              sx={{ fontFamily: 'Inter', fontSize: 13 }}
+                            >
+                              {o}
+                            </MenuItem>
                           ))}
                         </Select>
                       </Box>
