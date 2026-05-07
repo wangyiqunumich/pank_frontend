@@ -29,7 +29,7 @@
 | Reactome pathway annotation | gene | Reactome pathway | 48545 | [Reactome](https://reactome.org/) |  |
 | physical interaction | gene | gene | 926919 | [BioGRID](https://thebiogrid.org) |  |
 | genetic interaction | gene | gene | 17226 | [BioGRID](https://thebiogrid.org) |  |
-| effector gene of | gene | disease | 257 | [HuGeAMP](https://hugeamp.org/research.html?pageid=egl_241) |  |
+| CMDKP effector gene | gene | disease | 257 | [HuGeAMP](https://hugeamp.org/research.html?pageid=egl_241) |  |
 | gene activity score in | gene | anatomical structure | 126091 | [PanKbase Team](https://data.pankbase.org/analysis-sets/PKBDS0470WCHR/) | [Pipeline](https://hugeampkpncms.org/sites/default/files/images/pankbase/pipelines/snATACprocessingpipeline_parul_pankbase.pdf), [Code](https://github.com/PanKbase/HPAP-scATAC-seq/blob/main/clustering_notebooks/query_snatac.ipynb) |
 | open chromatin region in | open chromatin region | anatomical structure | 5294421 | [PanKbase Team](https://data.pankbase.org/analysis-sets/PKBDS0470WCHR/) | [Pipeline](https://hugeampkpncms.org/sites/default/files/images/pankbase/pipelines/snATACprocessingpipeline_parul_pankbase.pdf), [Code](https://github.com/PanKbase/HPAP-scATAC-seq/blob/main/clustering_notebooks/query_snatac.ipynb) |
 | differentially expressed in T1D | gene | anatomical structure | 1956 | [PanKbase Team](https://data.pankbase.org/analysis-sets/PKBDS1349YHGQ/) | [Pipeline](https://pankbase.org/diff-exp.html?comparison=dea_comp_1&dataset=islet_of_Langerhans_scRNA_v3-3_Pseudobulk_Acinar), [Code](https://github.com/PanKbase/PanKbase-DEG-analysis) |
