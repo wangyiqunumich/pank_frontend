@@ -88,13 +88,121 @@ const handleDownload = (data_source, credibleSet) => {
     return `https://pank-s3-to-share.s3.us-east-1.amazonaws.com/${folder}/${credibleSet}.txt`;
 };
 
-const buildGenomeBrowserLocusFromLink = (linkPath) => {
+const DEFAULT_GENOME_BROWSER_LOCUS = 'chr7:55,085,725-55,276,031';
+const GENOME_BROWSER_PADDING_BP = 100000;
+
+const normalizeGenomeBrowserLinkPath = (linkPath) => String(linkPath || '').trim().replace(/^\/+/, '');
+
+const toInt = (value) => {
+    const n = Number(String(value || '').replaceAll(',', '').trim());
+    return Number.isFinite(n) ? Math.trunc(n) : null;
+};
+
+const parseLocusText = (text) => {
+    const source = String(text || '').trim();
+    if (!source) return null;
+
+    const rangeMatch = source.match(/(chr[\w]+)\s*:\s*([\d,]+)\s*[-_~]\s*([\d,]+)/i);
+    if (!rangeMatch) return null;
+
+    const chr = rangeMatch[1];
+    const start = toInt(rangeMatch[2]);
+    const end = toInt(rangeMatch[3]);
+    if (!chr || start === null || end === null) return null;
+
+    const low = Math.min(start, end);
+    const high = Math.max(start, end);
+    return { chr, start: low, end: high };
+};
+
+const formatLocus = (chr, start, end) => `${chr}:${Math.max(1, start).toLocaleString('en-US')}-${Math.max(1, end).toLocaleString('en-US')}`;
+
+const expandLocus = (locus, padding = GENOME_BROWSER_PADDING_BP) => {
+    const parsed = parseLocusText(locus);
+    if (!parsed) return DEFAULT_GENOME_BROWSER_LOCUS;
+    const start = Math.max(1, parsed.start - padding);
+    const end = parsed.end + padding;
+    return formatLocus(parsed.chr, start, end);
+};
+
+const getTsvFileNameFromLinkPath = (linkPath) => {
+    const raw = normalizeGenomeBrowserLinkPath(linkPath);
+    if (!raw) return '';
+    const baseName = raw.split('/').pop() || '';
+    if (!baseName) return '';
+    return baseName.endsWith('.tsv') ? baseName : `${baseName}.igv_qtl.tsv`;
+};
+
+const getDefaultTrackUrlFromLinkPath = (linkPath) => {
+    const raw = normalizeGenomeBrowserLinkPath(linkPath);
+    if (!raw) return '';
+    if (raw.endsWith('.tsv')) {
+        return raw.startsWith('http') ? raw : `https://pank-s3-to-share.s3.amazonaws.com/genome-browser/${raw}`;
+    }
+    return `https://pank-s3-to-share.s3.amazonaws.com/genome-browser/${raw}.igv_qtl.tsv`;
+};
+
+const flattenObjectCandidates = (value, bucket = []) => {
+    if (!value || typeof value !== 'object') return bucket;
+    if (Array.isArray(value)) {
+        value.forEach((item) => flattenObjectCandidates(item, bucket));
+        return bucket;
+    }
+    bucket.push(value);
+    Object.values(value).forEach((child) => flattenObjectCandidates(child, bucket));
+    return bucket;
+};
+
+const findSourceByTsvName = (payload, tsvFileName) => {
+    if (!payload || !tsvFileName) return null;
+    const objects = flattenObjectCandidates(payload, []);
+    return objects.find((candidate) =>
+        Object.values(candidate).some((v) => typeof v === 'string' && v.includes(tsvFileName))
+    ) || null;
+};
+
+const extractSourceLocation = (sourceObj) => {
+    if (!sourceObj || typeof sourceObj !== 'object') return '';
+    const prioritized = [
+        sourceObj.location,
+        sourceObj.locus,
+        sourceObj.range,
+        sourceObj.region,
+        sourceObj.coordinates,
+        sourceObj.coordinate,
+        sourceObj.target_region,
+        sourceObj.targetRegion,
+    ].filter(Boolean);
+
+    const direct = prioritized.find((v) => parseLocusText(v));
+    if (direct) return String(direct);
+
+    const any = Object.values(sourceObj).find((v) => typeof v === 'string' && parseLocusText(v));
+    return any ? String(any) : '';
+};
+
+const buildGenomeBrowserLocusFromLink = (linkPath, typeToImagePayload) => {
     const raw = String(linkPath || '').trim();
-    if (!raw) return 'chr7:55,085,725-55,276,031';
+    if (!raw) return DEFAULT_GENOME_BROWSER_LOCUS;
+
+    const tsvFileName = getTsvFileNameFromLinkPath(raw);
+    const matchedSource = findSourceByTsvName(typeToImagePayload, tsvFileName);
+    const sourceLocation = extractSourceLocation(matchedSource);
+    if (sourceLocation) {
+        return expandLocus(sourceLocation);
+    }
 
     const decoded = decodeURIComponent(raw);
+    const embeddedMatch = decoded.match(/(chr[\w]+)\s*[:_]\s*(\d{2,})\s*[:_]\s*(\d{2,})/i);
+    if (embeddedMatch) {
+        const chr = embeddedMatch[1];
+        const start = embeddedMatch[2];
+        const end = embeddedMatch[3];
+        return expandLocus(`${chr}:${start}-${end}`);
+    }
+
     const locusPart = decoded.match(/__(chr[^_]+)__/i)?.[1] || '';
-    if (!locusPart) return 'chr7:55,085,725-55,276,031';
+    if (!locusPart) return DEFAULT_GENOME_BROWSER_LOCUS;
 
     const tokens = locusPart.split(':');
     if (tokens.length >= 3) {
@@ -102,23 +210,29 @@ const buildGenomeBrowserLocusFromLink = (linkPath) => {
         const start = tokens[1];
         const end = tokens[2];
         if (/^chr/i.test(chr) && /^\d+$/.test(start) && /^\d+$/.test(end)) {
-            return `${chr}:${start}-${end}`;
+            return expandLocus(`${chr}:${start}-${end}`);
         }
     }
 
-    return locusPart;
+    return expandLocus(locusPart);
 };
 
-const buildGenomeBrowserTracksFromLink = (linkPath) => {
+const buildGenomeBrowserTracksFromLink = (linkPath, typeToImagePayload) => {
     const raw = String(linkPath || '').trim();
     if (!raw) return [];
 
+    const tsvFileName = getTsvFileNameFromLinkPath(raw);
+    const matchedSource = findSourceByTsvName(typeToImagePayload, tsvFileName);
+    const sourceUrl = matchedSource?.url || matchedSource?.link || matchedSource?.path;
+    const trackUrl = sourceUrl || getDefaultTrackUrlFromLinkPath(raw);
+    const trackName = matchedSource?.track || matchedSource?.name || matchedSource?.title || tsvFileName || 'QTL credible set';
+
     return [
         {
-            name: raw.split('/').pop() || 'QTL credible set',
+            name: trackName,
             type: 'qtl',
             format: 'qtl',
-            url: `https://pank-s3-to-share.s3.amazonaws.com/genome-browser/${raw}.igv_qtl.tsv`,
+            url: trackUrl,
             chrColumn: 1,
             posColumn: 2,
             snpColumn: 3,
@@ -216,7 +330,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
     const { aiAnswer } = useSelector((state) => state.aiAnswer);
     const { viewSchema } = useSelector((state) => state.viewSchema);
-    const { typeToImage } = useSelector((state) => state.typeToImage);
+    const { typeToImage, queryTypeToImageStatus } = useSelector((state) => state.typeToImage);
     const { hoverId, hoverState } = useSelector((state) => state.hover);
     const [variables, setVariables] = useState({});
     const [referenceData, setReferenceData] = useState({});
@@ -893,14 +1007,45 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     }, [typeToImage, typeToImageRequestLink]);
 
     const genomeBrowserLocus = useMemo(
-        () => buildGenomeBrowserLocusFromLink(genomeBrowserLinkPath),
-        [genomeBrowserLinkPath]
+        () => buildGenomeBrowserLocusFromLink(genomeBrowserLinkPath, typeToImage),
+        [genomeBrowserLinkPath, typeToImage]
     );
 
     const genomeBrowserTracks = useMemo(
-        () => buildGenomeBrowserTracksFromLink(genomeBrowserLinkPath),
-        [genomeBrowserLinkPath]
+        () => buildGenomeBrowserTracksFromLink(genomeBrowserLinkPath, typeToImage),
+        [genomeBrowserLinkPath, typeToImage]
     );
+
+    const normalizedRequestedGenomeBrowserLink = useMemo(
+        () => normalizeGenomeBrowserLinkPath(typeToImageRequestLink),
+        [typeToImageRequestLink]
+    );
+
+    const normalizedResolvedGenomeBrowserLink = useMemo(
+        () => normalizeGenomeBrowserLinkPath(typeToImage?.link),
+        [typeToImage]
+    );
+
+    const shouldWaitForGenomeBrowserSource = Boolean(normalizedRequestedGenomeBrowserLink)
+        && queryTypeToImageStatus === 'pending';
+
+    const genomeBrowserReady = !shouldWaitForGenomeBrowserSource && genomeBrowserTracks.length > 0;
+
+    const genomeBrowserContent = genomeBrowserReady
+        ? (
+            <GenomeBrowserEmbed
+                key={`${genomeBrowserLocus}::${genomeBrowserTracks[0]?.url || ''}`}
+                locus={genomeBrowserLocus}
+                compact
+                height="100%"
+                tracks={genomeBrowserTracks}
+            />
+        )
+        : (
+            <Box sx={{ width: '100%', minHeight: 280, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <CircularProgress size={28} />
+            </Box>
+        );
 
     const buildDemoPageData = (index) => ({
         questionId: `Q${index}`,
@@ -993,14 +1138,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 { label: "Knowledge Graph", content: knowledgeGraphContent },
                 {
                     label: "Genome Browser",
-                    content: (
-                        <GenomeBrowserEmbed
-                            locus={genomeBrowserLocus}
-                            compact
-                            height="100%"
-                            tracks={genomeBrowserTracks}
-                        />
-                    ),
+                    content: genomeBrowserContent,
                     fullBleed: true,
                 },
             ],
