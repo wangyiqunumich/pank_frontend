@@ -32,7 +32,7 @@ import { ReactComponent as SidebarLeftIcon } from '../image/sidebar.left.svg';
 import { readRecentChats } from '../utils/chatSessionStorage';
 
 const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
-const SIDEBAR_EXPANDED_WIDTH = 280;
+const SIDEBAR_EXPANDED_WIDTH = 264;
 const SIDEBAR_COLLAPSED_WIDTH = 80;
 
 function SidebarButton({ active, icon, label, onClick, open }) {
