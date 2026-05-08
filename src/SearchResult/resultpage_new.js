@@ -450,10 +450,14 @@ const FunctionalDataChartPanel = ({ requestPath = '' }) => {
     const imageUrl = React.useMemo(() => {
         if (!normalizedRequestPath) return '';
         if (normalizedRequestPath.startsWith('/api/charts/cohort-traces')) {
-            if (normalizedRequestPath.includes('/api/charts/cohort-traces.png')) {
-                return `${FUNCTIONAL_DATA_BASE_URL}${normalizedRequestPath}`;
-            }
-            return `${FUNCTIONAL_DATA_BASE_URL}${normalizedRequestPath.replace('/api/charts/cohort-traces', '/api/charts/cohort-traces.png')}`;
+            const mappedPath = normalizedRequestPath.includes('/api/charts/cohort-traces.png')
+                ? normalizedRequestPath
+                : normalizedRequestPath.replace('/api/charts/cohort-traces', '/api/charts/cohort-traces.png');
+            const [pathPart, queryPart = ''] = mappedPath.split('?');
+            const queryParams = new URLSearchParams(queryPart);
+            queryParams.set('result_page', 'Yes');
+            const nextQuery = queryParams.toString();
+            return `${FUNCTIONAL_DATA_BASE_URL}${pathPart}${nextQuery ? `?${nextQuery}` : ''}`;
         }
         if (normalizedRequestPath.includes('/api/charts/trait-summary.png')) {
             return `${FUNCTIONAL_DATA_BASE_URL}${normalizedRequestPath}`;
