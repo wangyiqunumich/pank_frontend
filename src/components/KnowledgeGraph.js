@@ -525,10 +525,6 @@ const InfocardMenu = ({ hoveredData, review }) => {
   const titleColumn = schema?.find(([label, _]) => label === "Title");
   const footerInfo = schema?.find(([label, _]) => label === "Footer")?.[1];
 
-  if (!hoveredData)
-  {
-    console.log(JSON.stringify(hoveredData));
-  }
   // GO 节点：按 name 长度决定标题展示 GO id 还是 GO term（name 即 ~properties.name，id 即 ~id）
   const rawId = hoveredData?.id;
   const goTerm = hoveredData?.name;
@@ -721,8 +717,6 @@ const InfocardMenu = ({ hoveredData, review }) => {
 
 // Main KnowledgeGraph component
 export default function KnowledgeGraph({ selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, review = false, containerHeight = "600px", defaultLegendVisible = true }) {
-  console.log('KnowledgeGraph props graphData, coordData:', { graphData, coordData });
-
   const cyRef = useRef(null);
   const containerRef = useRef(null);
   const infocardRef = useRef(null);
