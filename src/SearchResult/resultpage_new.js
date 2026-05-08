@@ -721,8 +721,12 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                                             strong: ({ children }) => <strong>{renderChildrenWithPmids(children, `followup-strong-${block?.id || index}`, false, followUpAnchorByPmid)}</strong>,
                                             em: ({ children }) => <em>{renderChildrenWithPmids(children, `followup-em-${block?.id || index}`, false, followUpAnchorByPmid)}</em>,
                                             table: ({ children }) => {
-                                                followUpTableTitleIndex += 1;
-                                                return <MarkdownTableWithTools title={`Table ${followUpTableTitleIndex}`}>{children}</MarkdownTableWithTools>;
+                                                const { header, bodyRows } = extractTableMatrix(children);
+                                                const shouldNumberTable = !(header.length > 0 && bodyRows.length === 1);
+                                                if (shouldNumberTable) {
+                                                    followUpTableTitleIndex += 1;
+                                                }
+                                                return <MarkdownTableWithTools title={shouldNumberTable ? `Table ${followUpTableTitleIndex}` : ''}>{children}</MarkdownTableWithTools>;
                                             },
                                         }}
                                     >
@@ -2578,6 +2582,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         const [isTableOverlayOpen, setIsTableOverlayOpen] = React.useState(false);
         const tableRootRef = React.useRef(null);
         const { header, bodyRows } = React.useMemo(() => extractTableMatrix(children), [children]);
+        const shouldHideToolbar = header.length > 0 && bodyRows.length === 1;
         const shouldShowToggle = bodyRows.length > 3;
         const collapsedVisibleRowCount = Math.min(3, bodyRows.length);
 
@@ -2647,64 +2652,66 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         backgroundColor: '#FFFFFF',
                     }}
                 >
-                    <Box
-                        sx={{
-                            px: 1.5,
-                            py: 1,
-                            backgroundColor: '#F1F5F9',
-                            borderBottom: '1px solid #DCE3EB',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            gap: 1,
-                        }}
-                    >
-                        <Typography sx={{ fontSize: 13, fontWeight: 700, color: '#475569' }}>
-                            {title}
-                        </Typography>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Button
-                            size="small"
-                            variant="outlined"
-                            onClick={handleDownloadCsv}
-                            disabled={!header.length && !bodyRows.length}
+                    {!shouldHideToolbar ? (
+                        <Box
                             sx={{
-                                textTransform: 'none',
-                                fontSize: 12,
-                                fontWeight: 600,
-                                borderColor: '#CBD5E1',
-                                color: '#475569',
-                                minWidth: 0,
-                                px: 1.25,
-                                py: 0.4,
-                                backgroundColor: '#FFFFFF',
+                                px: 1.5,
+                                py: 1,
+                                backgroundColor: '#F1F5F9',
+                                borderBottom: '1px solid #DCE3EB',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                gap: 1,
                             }}
                         >
-                            Download CSV
-                        </Button>
+                            <Typography sx={{ fontSize: 13, fontWeight: 700, color: '#475569' }}>
+                                {title || ''}
+                            </Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Button
+                                    size="small"
+                                    variant="outlined"
+                                    onClick={handleDownloadCsv}
+                                    disabled={!header.length && !bodyRows.length}
+                                    sx={{
+                                        textTransform: 'none',
+                                        fontSize: 12,
+                                        fontWeight: 600,
+                                        borderColor: '#CBD5E1',
+                                        color: '#475569',
+                                        minWidth: 0,
+                                        px: 1.25,
+                                        py: 0.4,
+                                        backgroundColor: '#FFFFFF',
+                                    }}
+                                >
+                                    Download CSV
+                                </Button>
 
-                        <Button
-                            size="small"
-                            variant="outlined"
-                            onClick={() => setIsTableOverlayOpen(true)}
-                            disabled={!header.length && !bodyRows.length}
-                            startIcon={<OpenInFullIcon sx={{ fontSize: 14 }} />}
-                            sx={{
-                                textTransform: 'none',
-                                fontSize: 12,
-                                fontWeight: 600,
-                                borderColor: '#CBD5E1',
-                                color: '#475569',
-                                minWidth: 0,
-                                px: 1.25,
-                                py: 0.4,
-                                backgroundColor: '#FFFFFF',
-                            }}
-                        >
-                            Full Screen
-                        </Button>
+                                <Button
+                                    size="small"
+                                    variant="outlined"
+                                    onClick={() => setIsTableOverlayOpen(true)}
+                                    disabled={!header.length && !bodyRows.length}
+                                    startIcon={<OpenInFullIcon sx={{ fontSize: 14 }} />}
+                                    sx={{
+                                        textTransform: 'none',
+                                        fontSize: 12,
+                                        fontWeight: 600,
+                                        borderColor: '#CBD5E1',
+                                        color: '#475569',
+                                        minWidth: 0,
+                                        px: 1.25,
+                                        py: 0.4,
+                                        backgroundColor: '#FFFFFF',
+                                    }}
+                                >
+                                    Full Screen
+                                </Button>
+                            </Box>
                         </Box>
-                    </Box>
+                    ) : null}
 
                     <Box
                         sx={{
@@ -2982,8 +2989,12 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     h3: ({ children }) => <Typography component="h3" sx={{ fontSize: 18 }}>{renderChildrenWithPmids(children, 'h3', false, mainReferenceAnchorByPmid)}</Typography>,
                     h4: ({ children }) => <Typography component="h4" sx={{ fontSize: 16 }}>{renderChildrenWithPmids(children, 'h4', false, mainReferenceAnchorByPmid)}</Typography>,
                     table: ({ children }) => {
-                        mainTableTitleIndex += 1;
-                        return <MarkdownTableWithTools title={`Table ${mainTableTitleIndex}`}>{children}</MarkdownTableWithTools>;
+                        const { header, bodyRows } = extractTableMatrix(children);
+                        const shouldNumberTable = !(header.length > 0 && bodyRows.length === 1);
+                        if (shouldNumberTable) {
+                            mainTableTitleIndex += 1;
+                        }
+                        return <MarkdownTableWithTools title={shouldNumberTable ? `Table ${mainTableTitleIndex}` : ''}>{children}</MarkdownTableWithTools>;
                     },
                 }}
             >
