@@ -861,18 +861,20 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
 
                     <Grid item xs={12} md={12} lg={5} id={buildAnchorId('visual-material')} sx={{ display: 'flex', height: confirmationColumnsHeight }}>
                         <SectionCard sx={{ height: '100%', width: '100%', flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-                            <Typography
-                                sx={{
-                                    fontSize: 14,
-                                    letterSpacing: '0.08em',
-                                    fontWeight: 600,
-                                    color: '#94A3B8',
-                                    whiteSpace: 'nowrap',
-                                    mb: 1.5,
-                                }}
-                            >
-                                {data?.visualMaterial?.title || 'Visual Material'}
-                            </Typography>
+                            {visualTabs.length <= 1 ? (
+                                <Typography
+                                    sx={{
+                                        fontSize: 14,
+                                        letterSpacing: '0.08em',
+                                        fontWeight: 600,
+                                        color: '#94A3B8',
+                                        whiteSpace: 'nowrap',
+                                        mb: 1.5,
+                                    }}
+                                >
+                                    {data?.visualMaterial?.title || 'Visual Material'}
+                                </Typography>
+                            ) : null}
                             {visualTabs.length > 1 ? (
                                 <Box sx={{ mb: 1.2 }}>
                                     <ContentTabs
@@ -1054,7 +1056,14 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
     const showVisualSection = Boolean(data?.visualMaterial);
     const showEvidenceSection = Boolean(data?.evidences);
     const showFollowUpSection = Boolean(data?.followUp);
-    const preferFollowUpBeforeVisual = Boolean(showFollowUpSection && (!showVisualSection || data?.visualMaterial?.noGraph));
+    const hasRenderableVisualTabs = visualTabs.length > 0;
+    const preferFollowUpBeforeVisual = Boolean(
+        showFollowUpSection
+        && (
+            !showVisualSection
+            || (data?.visualMaterial?.noGraph && !hasRenderableVisualTabs)
+        )
+    );
     const anchorPrefix = React.useMemo(() => {
         if (contentAnchorPrefix) return contentAnchorPrefix;
         if (data?.questionId) {
@@ -1188,7 +1197,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                     {/* Visual Material */}
                     {showVisualSection ? (
                         <Grid item xs={12} md={12} lg={5} order={{ xs: 2, md: 2, lg: preferFollowUpBeforeVisual ? 4 : 2 }} id={buildAnchorId("visual-material")}>
-                            <SectionCard title={isSingleColumn ? (data?.visualMaterial?.title || "Visual Material") : null} sx={{ height: "100%" }} variant={isPank1Style ? 'pank1' : 'default'}>
+                            <SectionCard title={visualTabs.length > 1 ? null : (data?.visualMaterial?.title || "Visual Material")} sx={{ height: "100%" }} variant={isPank1Style ? 'pank1' : 'default'}>
                                 {visualTabs.length > 1 ? (
                                     <Box sx={{ mb: 1.2 }}>
                                         <ContentTabs

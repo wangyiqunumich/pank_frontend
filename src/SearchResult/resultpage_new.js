@@ -66,7 +66,6 @@ import {
   upsertRecentChat,
 } from '../utils/chatSessionStorage';
 import { addHighlight } from '../utils/textProcessing';
-import { GenomeBrowserEmbed } from './AgentResult';
 import {
   demoCoordData,
   demoGraphData,
@@ -176,6 +175,68 @@ const CHAT_START_CACHE_KEY = 'pank_chat_start_cache_v1';
 const CHAT_PENDING_PLAN_CACHE_KEY = 'pank_chat_pending_plan_v1';
 const PMID_CITATION_PATTERN = /(\[\s*(?:pmid|pubmedid)\s*:\s*(\d{8})\s*\]|\(\s*(?:pmid|pubmedid)\s*:\s*(\d{8})\s*\))/gi;
 const GRAPH_QUERY_INFLIGHT = new Map();
+const FUNCTIONAL_DATA_BASE_URL = process.env.REACT_APP_FUNCTIONAL_DATA_API_URL || 'https://functional.pankgraph.org';
+
+const isGetPrefixedQuery = (rawValue) => /^\s*GET\b/i.test(String(rawValue || ''));
+
+const normalizeFunctionalDataRequestPath = (rawValue) => {
+    const source = String(rawValue || '').trim().replace(/^['"`]|['"`]$/g, '');
+    if (!source) return '';
+
+    // Accept already-normalized API paths (e.g. "/api/charts/cohort-traces?..." )
+    if (source.startsWith('/api/')) {
+        if (source.startsWith('/api/charts/trait-summary')) return source;
+        if (source.startsWith('/api/charts/cohort-traces')) return source;
+        return '';
+    }
+
+    // Accept embedded forms like: "- GET /api/..." or "```GET /api/...```"
+    const getMatch = source.match(/\bGET\s+([^\s`"']+)/i);
+    if (!getMatch) return '';
+
+    let target = String(getMatch[1] || '').trim();
+    if (!target) return '';
+
+    if (/^https?:\/\//i.test(target)) {
+        try {
+            const parsed = new URL(target);
+            target = `${parsed.pathname}${parsed.search || ''}`;
+        } catch (err) {
+            return '';
+        }
+    }
+
+    if (!target.startsWith('/')) {
+        target = `/${target}`;
+    }
+
+    if (target.startsWith('/api/charts/trait-summary')) return target;
+    if (target.startsWith('/api/charts/cohort-traces')) return target;
+    return '';
+};
+
+const extractFunctionalDataRequestPath = (cypherQueries) => {
+    if (!Array.isArray(cypherQueries)) return '';
+
+    for (const query of cypherQueries) {
+        const path = normalizeFunctionalDataRequestPath(query);
+        if (path && path.startsWith('/api/charts/trait-summary')) return path;
+    }
+
+    for (const query of cypherQueries) {
+        const path = normalizeFunctionalDataRequestPath(query);
+        if (path) return path;
+    }
+
+    return '';
+};
+
+const stripFunctionalDataRequestsFromCypher = (cypherQueries) => {
+    if (!Array.isArray(cypherQueries)) return [];
+    return cypherQueries
+        .filter((query) => typeof query === 'string' && query.trim())
+        .filter((query) => !isGetPrefixedQuery(query));
+};
 
 const safeParseJson = (rawValue, fallback = null) => {
     try {
@@ -376,6 +437,89 @@ const NoGraphData = () => (
     </Box>
 );
 
+const FunctionalDataChartPanel = ({ requestPath = '' }) => {
+    const [loaded, setLoaded] = useState(false);
+    const [errored, setErrored] = useState(false);
+    const imageRef = useRef(null);
+
+    const normalizedRequestPath = React.useMemo(() => {
+        const normalized = String(requestPath || '').trim();
+        return normalizeFunctionalDataRequestPath(normalized);
+    }, [requestPath]);
+
+    const imageUrl = React.useMemo(() => {
+        if (!normalizedRequestPath) return '';
+        if (normalizedRequestPath.startsWith('/api/charts/cohort-traces')) {
+            if (normalizedRequestPath.includes('/api/charts/cohort-traces.png')) {
+                return `${FUNCTIONAL_DATA_BASE_URL}${normalizedRequestPath}`;
+            }
+            return `${FUNCTIONAL_DATA_BASE_URL}${normalizedRequestPath.replace('/api/charts/cohort-traces', '/api/charts/cohort-traces.png')}`;
+        }
+        if (normalizedRequestPath.includes('/api/charts/trait-summary.png')) {
+            return `${FUNCTIONAL_DATA_BASE_URL}${normalizedRequestPath}`;
+        }
+        return `${FUNCTIONAL_DATA_BASE_URL}${normalizedRequestPath.replace('/api/charts/trait-summary', '/api/charts/trait-summary.png')}`;
+    }, [normalizedRequestPath]);
+
+    React.useEffect(() => {
+        setLoaded(false);
+        setErrored(false);
+    }, [imageUrl]);
+
+    React.useEffect(() => {
+        if (!imageUrl) return;
+        const imgEl = imageRef.current;
+        if (imgEl && imgEl.complete && imgEl.naturalWidth > 0) {
+            setLoaded(true);
+            setErrored(false);
+        }
+    }, [imageUrl]);
+
+    if (!normalizedRequestPath) {
+        return (
+            <Box sx={{ width: '100%', height: '100%', minHeight: 280, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Typography sx={{ fontSize: 14, color: '#64748B' }}>
+                    Functional Data request not found.
+                </Typography>
+            </Box>
+        );
+    }
+
+    return (
+        <Box sx={{ width: '100%', height: '100%', minHeight: 0, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {!loaded && !errored ? (
+                <Box sx={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <CircularProgress size={28} />
+                </Box>
+            ) : null}
+            {errored ? (
+                <Typography sx={{ fontSize: 14, color: '#64748B', textAlign: 'center', px: 2 }}>
+                    Failed to load Functional Data chart.
+                </Typography>
+            ) : null}
+            <Box
+                component="img"
+                ref={imageRef}
+                src={imageUrl}
+                alt="Functional Data chart"
+                onLoad={() => setLoaded(true)}
+                onError={() => {
+                    setErrored(true);
+                    setLoaded(false);
+                }}
+                sx={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                    display: errored ? 'none' : 'block',
+                    opacity: loaded ? 1 : 0.01,
+                    backgroundColor: '#FFFFFF',
+                }}
+            />
+        </Box>
+    );
+};
+
 function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}) {
     const dispatch = useDispatch();
     const location = useLocation();
@@ -423,6 +567,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const [agentErrorType, setAgentErrorType] = useState(null);
     const [aiLoading, setAiLoading] = useState(true);
     const [noGraph, setNoGraph] = useState(false);
+    const [functionalDataRequestPath, setFunctionalDataRequestPath] = useState('');
     const thunkref = useRef(null);
     const navigate = useNavigate();
     const [debug, setDebug] = useState(false);
@@ -684,6 +829,15 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         ) : (
             <NoGraphData />
         );
+        const followUpVisualTabs = [
+            { label: 'Knowledge Graph', content: followUpKnowledgeGraphContent },
+            ...(block?.functionalDataRequestPath
+                ? [{
+                    label: 'Functional Data',
+                    content: <FunctionalDataChartPanel requestPath={block.functionalDataRequestPath} />,
+                }]
+                : []),
+        ];
 
         return {
             questionId: `Q${index + 2}`,
@@ -741,23 +895,8 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             ...(showGraphSection ? {
                 visualMaterial: {
                     title: 'Visual Material',
-                    noGraph: Boolean(block?.noGraph),
-                    tabs: [
-                        { label: 'Knowledge Graph', content: followUpKnowledgeGraphContent },
-                        {
-                            label: 'Genome Browser',
-                            minHeight: 676,
-                            content: (
-                                <GenomeBrowserEmbed
-                                    locus="chr7:55,085,725-55,276,031"
-                                    compact
-                                    height="100%"
-                                    tracks={[]}
-                                />
-                            ),
-                            fullBleed: true,
-                        },
-                    ],
+                    noGraph: Boolean(block?.noGraph && !block?.functionalDataRequestPath),
+                    tabs: followUpVisualTabs,
                 },
             } : {}),
             ...(followUpEvidenceTabs.length ? {
@@ -846,12 +985,39 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const extractPlanCypherQueries = React.useCallback((planJson) => {
         const steps = Array.isArray(planJson?.steps) ? planJson.steps : [];
         return steps
-            .map((step) => (typeof step?.cypher === 'string' ? step.cypher.trim() : ''))
-            .filter((cypher) => cypher && cypher.toLowerCase() !== 'undefined');
+            .map((step) => (typeof step?.cypher === 'string' ? step.cypher : ''))
+            .filter((cypher) => typeof cypher === 'string' && cypher.length > 0);
     }, []);
 
+    const extractPayloadCypherQueries = React.useCallback((payload) => {
+        const answerCypherQueries = (() => {
+            try {
+                const parsed = parseAnswerStringPayload(payload?.answer || '{}');
+                return Array.isArray(parsed?.cypherQueries) ? parsed.cypherQueries : [];
+            } catch (err) {
+                return [];
+            }
+        })();
+
+        const topLevelCypherQueries = [
+            ...(Array.isArray(payload?.text?.cypher) ? payload.text.cypher : []),
+            ...(Array.isArray(payload?.cypher) ? payload.cypher : []),
+            ...(Array.isArray(payload?.cypherQueries) ? payload.cypherQueries : []),
+        ];
+
+        const planCypherQueries = extractPlanCypherQueries(payload?.plan_json || {});
+        const merged = [...answerCypherQueries, ...topLevelCypherQueries, ...planCypherQueries]
+            .filter((query) => typeof query === 'string');
+
+        return merged;
+    }, [extractPlanCypherQueries]);
+
     const queryGraphFromCypher = React.useCallback(async (cypherQueries) => {
-        if (!cypherQueries?.length) {
+        const graphCypherQueries = (Array.isArray(cypherQueries) ? cypherQueries : [])
+            .filter((query) => typeof query === 'string' && query.trim())
+            .filter((query) => !isGetPrefixedQuery(query));
+
+        if (!graphCypherQueries?.length) {
             return {
                 graphData: null,
                 coordData: null,
@@ -859,7 +1025,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             };
         }
 
-        const queryKey = JSON.stringify(cypherQueries);
+        const queryKey = JSON.stringify(graphCypherQueries);
         if (GRAPH_QUERY_INFLIGHT.has(queryKey)) {
             return GRAPH_QUERY_INFLIGHT.get(queryKey);
         }
@@ -868,7 +1034,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             try {
                 const response = await dispatch(queryQueryResultPage({
                     payload: {
-                        cypher: cypherQueries,
+                        cypher: graphCypherQueries,
                         rdb_query: '',
                     },
                     agent: true,
@@ -928,6 +1094,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     }, [dispatch]);
 
     const fetchGraphFromCypher = React.useCallback(async (cypherQueries) => {
+        setFunctionalDataRequestPath(extractFunctionalDataRequestPath(cypherQueries));
         const cypherKey = JSON.stringify(Array.isArray(cypherQueries) ? cypherQueries : []);
 
         if (activeGraphQueryKeyRef.current === cypherKey && activeGraphQueryPromiseRef.current) {
@@ -1337,21 +1504,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
                     if (cypherQueries.length > 0) {
                         console.log('[final_response] Querying graph data with', cypherQueries.length, 'queries...');
-                        dispatch(queryQueryResultPage({
-                            payload: {
-                                "cypher": cypherQueries,
-                                "rdb_query": ""
-                            }, agent: true
-                        })).then((response) => {
-                            console.log('[final_response] Graph data received:', response?.payload);
-                            if (response?.payload?.combined_query_result) {
-                                setGraphData(response.payload.combined_query_result);
-                                console.log('[final_response] ✓ Graph data set successfully');
-                            } else {
-                                console.log('[final_response] ⚠ No combined query result found');
-                                setNoGraph(true);
-                            }
-                        }).catch((err) => {
+                        fetchGraphFromCypher(cypherQueries).catch((err) => {
                             console.error('[final_response] ✗ Graph query error:', err?.message || err);
                             setNoGraph(true);
                         });
@@ -1359,6 +1512,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         console.log('[final_response] ⚠ No cypher queries found');
                         setGraphData(null);
                         setNoGraph(true);
+                        setFunctionalDataRequestPath('');
                     }
                 } catch (err) {
                     console.error('[final_response] ✗ Error processing response:');
@@ -1403,7 +1557,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 clearInterval(chunkTimer);
             }
         };
-    }, [debug, terminalMode, demoMode, planDemoMode, question, dispatch]);
+    }, [debug, terminalMode, demoMode, planDemoMode, question, dispatch, fetchGraphFromCypher]);
 
     const runPlanningCycle = React.useCallback(async (inputText) => {
         if (!inputText) return;
@@ -1444,6 +1598,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 } else {
                     setGraphData(null);
                     setNoGraph(true);
+                    setFunctionalDataRequestPath('');
                     setStreamMilestones((prev) => ({ ...prev, cypherExecuted: true }));
                 }
             } else {
@@ -1476,6 +1631,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 } else {
                     setGraphData(null);
                     setNoGraph(true);
+                    setFunctionalDataRequestPath('');
                     setStreamMilestones((prev) => ({ ...prev, cypherExecuted: true }));
                 }
             }
@@ -1565,14 +1721,15 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         setTerminalLoading(false);
         setStreamComplete(true);
 
-        const planCypherQueries = extractPlanCypherQueries(payload?.plan_json || {});
+        const planCypherQueries = extractPayloadCypherQueries(payload);
         if (planCypherQueries.length) {
             await fetchGraphFromCypher(planCypherQueries);
         } else {
             setGraphData(null);
             setNoGraph(true);
+            setFunctionalDataRequestPath('');
         }
-    }, [parseChatResponseContent, currentQuestion, question, planParsedTitle, extractPlanCypherQueries, fetchGraphFromCypher]);
+    }, [parseChatResponseContent, currentQuestion, question, planParsedTitle, extractPayloadCypherQueries, fetchGraphFromCypher]);
 
     const handleConfirmPendingPlan = React.useCallback(async (blockId) => {
         const block = followUpBlocks.find((item) => item.id === blockId);
@@ -1609,6 +1766,9 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             const payload = response?.data || {};
             const parsed = parseChatResponseContent(payload);
             const route = String(payload?.route || 'new_query');
+            const planCypherQueries = extractPayloadCypherQueries(payload);
+            const functionalPath = extractFunctionalDataRequestPath(planCypherQueries);
+            const hasGraphCypherQueries = stripFunctionalDataRequestsFromCypher(planCypherQueries).length > 0;
             const referencesData = await fetchReferenceArticles(parsed.summary || '');
 
             setFollowUpBlocks((prev) => prev.map((item) => (
@@ -1623,16 +1783,16 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         referencesData,
                         graphData: null,
                         coordData: null,
-                        noGraph: route === 'follow_up',
-                        graphLoading: route !== 'follow_up',
+                        noGraph: route === 'follow_up' ? true : !hasGraphCypherQueries,
+                        graphLoading: route !== 'follow_up' && hasGraphCypherQueries,
+                        functionalDataRequestPath: functionalPath,
                         confirming: false,
                         error: '',
                     }
                     : item
             )));
 
-            if (route !== 'follow_up') {
-                const planCypherQueries = extractPlanCypherQueries(payload?.plan_json || {});
+            if (route !== 'follow_up' && hasGraphCypherQueries) {
                 const graphResult = await queryGraphFromCypher(planCypherQueries);
                 setFollowUpBlocks((prev) => prev.map((item) => (
                     item.id === blockId
@@ -1642,6 +1802,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                             coordData: graphResult.coordData,
                             noGraph: graphResult.noGraph,
                             graphLoading: false,
+                                functionalDataRequestPath: functionalPath,
                         }
                         : item
                 )));
@@ -1652,7 +1813,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     role: 'assistant',
                     content: parsed.summary || '',
                     route,
-                    cypherQueries: extractPlanCypherQueries(payload?.plan_json || {}),
+                    cypherQueries: planCypherQueries,
                     followUpQuestions: parsed.followUpQuestions || [],
                 },
             ]);
@@ -1672,7 +1833,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     : item
             )));
         }
-    }, [followUpBlocks, chatSessionId, parseChatResponseContent, extractPlanCypherQueries, queryGraphFromCypher, question, currentQuestion, conversationRound, fetchReferenceArticles]);
+    }, [followUpBlocks, chatSessionId, parseChatResponseContent, extractPayloadCypherQueries, queryGraphFromCypher, question, currentQuestion, conversationRound, fetchReferenceArticles]);
 
     const handleSendFollowUp = React.useCallback(async (value) => {
         const cleaned = stripHtml(value || '').trim();
@@ -1700,6 +1861,9 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
             const payload = response?.data || {};
             const parsed = parseChatResponseContent(payload);
+            const planCypherQueries = extractPayloadCypherQueries(payload);
+            const functionalPath = extractFunctionalDataRequestPath(planCypherQueries);
+            const hasGraphCypherQueries = stripFunctionalDataRequestsFromCypher(planCypherQueries).length > 0;
             const referencesData = await fetchReferenceArticles(parsed.summary || '');
             setChatRouteState(String(payload?.route || ''));
             setChatHistoryCompressed(Boolean(payload?.history_compressed));
@@ -1735,16 +1899,16 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                             route,
                             graphData: null,
                             coordData: null,
-                            noGraph: route === 'follow_up',
-                            graphLoading: route !== 'follow_up',
+                            noGraph: route === 'follow_up' ? true : !hasGraphCypherQueries,
+                            graphLoading: route !== 'follow_up' && hasGraphCypherQueries,
+                            functionalDataRequestPath: functionalPath,
                             title: cleaned,
                             error: '',
                         }
                         : item
                 )));
 
-                if (route !== 'follow_up') {
-                    const planCypherQueries = extractPlanCypherQueries(payload?.plan_json || {});
+                if (route !== 'follow_up' && hasGraphCypherQueries) {
                     const graphResult = await queryGraphFromCypher(planCypherQueries);
                     setFollowUpBlocks((prev) => prev.map((item) => (
                         item.id === blockId
@@ -1754,6 +1918,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                                 coordData: graphResult.coordData,
                                 noGraph: graphResult.noGraph,
                                 graphLoading: false,
+                                functionalDataRequestPath: functionalPath,
                             }
                             : item
                     )));
@@ -1764,7 +1929,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         role: 'assistant',
                         content: parsed.summary || '',
                         route,
-                        cypherQueries: extractPlanCypherQueries(payload?.plan_json || {}),
+                        cypherQueries: planCypherQueries,
                         followUpQuestions: parsed.followUpQuestions || [],
                     },
                 ]);
@@ -1786,7 +1951,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         } finally {
             setFollowUpSubmitting(false);
         }
-    }, [chatSessionId, parseChatResponseContent, conversationRound, question, currentQuestion, parsePlanMarkdownForUI, extractPlanCypherQueries, queryGraphFromCypher, fetchReferenceArticles]);
+    }, [chatSessionId, parseChatResponseContent, conversationRound, question, currentQuestion, parsePlanMarkdownForUI, extractPayloadCypherQueries, queryGraphFromCypher, fetchReferenceArticles]);
 
     useEffect(() => {
         followUpSendHandlerRef.current = handleSendFollowUp;
@@ -1851,7 +2016,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     role: 'assistant',
                     content: summaryForHistory,
                     route: String(confirmPayload?.route || 'new_query'),
-                    cypherQueries: extractPlanCypherQueries(confirmPayload?.plan_json || {}),
+                    cypherQueries: extractPayloadCypherQueries(confirmPayload),
                     followUpQuestions: confirmParsed.followUpQuestions || [],
                 }]);
             }
@@ -1903,6 +2068,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             } else {
                 setGraphData(null);
                 setNoGraph(true);
+                setFunctionalDataRequestPath('');
             }
         } catch (err) {
             const failureMessage = err?.response?.data?.detail || err?.message || 'Plan revision failed. Previous plan is kept.';
@@ -1972,6 +2138,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     } else {
                         setGraphData(null);
                         setNoGraph(true);
+                        setFunctionalDataRequestPath('');
                     }
 
                     if (isStale()) return;
@@ -2012,6 +2179,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         } else {
                             setGraphData(null);
                             setNoGraph(true);
+                            setFunctionalDataRequestPath('');
                         }
 
                         if (isStale()) return;
@@ -2085,6 +2253,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         } else {
                             setGraphData(null);
                             setNoGraph(true);
+                            setFunctionalDataRequestPath('');
                         }
 
                         const rebuiltFollowUps = exchanges.slice(1).map((exchange, idx) => {
@@ -2092,6 +2261,8 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                             const summary = String(assistant?.content || '').trim();
                             const parsed = parseChatResponseContent({ answer_markdown: summary });
                             const cypherQueries = Array.isArray(assistant?.cypherQueries) ? assistant.cypherQueries : [];
+                            const functionalPath = extractFunctionalDataRequestPath(cypherQueries);
+                            const hasGraphCypherQueries = stripFunctionalDataRequestsFromCypher(cypherQueries).length > 0;
                             const route = String(assistant?.route || (cypherQueries.length ? 'new_query' : 'follow_up'));
                             const restoredFollowUps = Array.isArray(assistant?.followUpQuestions)
                                 ? assistant.followUpQuestions
@@ -2107,8 +2278,9 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                                 referencesData: [],
                                 graphData: null,
                                 coordData: null,
-                                noGraph: route === 'follow_up',
-                                graphLoading: route !== 'follow_up' && cypherQueries.length > 0,
+                                noGraph: route === 'follow_up' ? true : !hasGraphCypherQueries,
+                                graphLoading: route !== 'follow_up' && hasGraphCypherQueries,
+                                functionalDataRequestPath: functionalPath,
                                 cypherQueries,
                                 confirming: false,
                                 error: '',
@@ -2127,14 +2299,15 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         })));
 
                         const graphPromises = rebuiltFollowUps.map(async (block) => {
-                            if (block.route === 'follow_up' || !Array.isArray(block.cypherQueries) || !block.cypherQueries.length) {
+                            const graphCypherQueries = stripFunctionalDataRequestsFromCypher(block.cypherQueries);
+                            if (block.route === 'follow_up' || !graphCypherQueries.length) {
                                 return {
                                     graphData: null,
                                     coordData: null,
-                                    noGraph: true,
+                                    noGraph: block.route === 'follow_up' ? true : Boolean(!block.functionalDataRequestPath),
                                 };
                             }
-                            return queryGraphFromCypher(block.cypherQueries);
+                            return queryGraphFromCypher(graphCypherQueries);
                         });
                         const graphsByBlock = await Promise.all(graphPromises);
                         if (isStale()) return;
@@ -2152,6 +2325,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     } else {
                         setGraphData(null);
                         setNoGraph(true);
+                        setFunctionalDataRequestPath('');
                         setNextQuestions([]);
                         setFollowUpBlocks([]);
                     }
@@ -2210,6 +2384,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     } else {
                         setGraphData(null);
                         setNoGraph(true);
+                        setFunctionalDataRequestPath('');
                     }
                     if (isStale()) return;
                     sessionStorage.setItem(CHAT_PENDING_PLAN_CACHE_KEY, JSON.stringify({
@@ -2231,7 +2406,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                             role: 'assistant',
                             content: summaryForHistory,
                             route: String(payload?.route || 'new_query'),
-                            cypherQueries: extractPlanCypherQueries(payload?.plan_json || {}),
+                            cypherQueries: extractPayloadCypherQueries(payload),
                             followUpQuestions: startParsed.followUpQuestions || [],
                         }]);
                     }
@@ -2260,6 +2435,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         queryGraphFromCypher,
         extractParsedTitle,
         extractPlanCypherQueries,
+        extractPayloadCypherQueries,
         fetchGraphFromCypher,
         navigate,
         resolveAgentErrorType,
@@ -3341,21 +3517,14 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     );
 
     // Reusable visual material tabs definition
-    const buildVisualMaterialTabs = (graphContent) => [
+    const buildVisualMaterialTabs = (graphContent, functionalRequestPath = '') => [
         { label: "Knowledge Graph", content: graphContent },
-        {
-            label: "Genome Browser",
-            minHeight: 676,
-            content: (
-                <GenomeBrowserEmbed
-                    locus="chr7:55,085,725-55,276,031"
-                    compact
-                    height="100%"
-                    tracks={[]}
-                />
-            ),
-            fullBleed: true,
-        },
+        ...(functionalRequestPath
+            ? [{
+                label: 'Functional Data',
+                content: <FunctionalDataChartPanel requestPath={functionalRequestPath} />,
+            }]
+            : []),
     ];
 
     const buildDemoPageData = (index) => ({
@@ -3372,7 +3541,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         graphData: demoGraphData,
         visualMaterial: {
             title: "Visual Material",
-            tabs: buildVisualMaterialTabs(demoKnowledgeGraphContent),
+            tabs: buildVisualMaterialTabs(demoKnowledgeGraphContent, ''),
         },
         evidences: {
             title: "Evidences",
@@ -3515,8 +3684,8 @@ Please review this plan and provide edits if needed.`,
         graphData: graphData,
         visualMaterial: {
             title: "Visual Material",
-            noGraph: noGraph,
-            tabs: buildVisualMaterialTabs(knowledgeGraphContent),
+            noGraph: noGraph && !functionalDataRequestPath,
+            tabs: buildVisualMaterialTabs(knowledgeGraphContent, functionalDataRequestPath),
         },
         evidences: evidenceTabs.length ? { title: "Evidences", tabs: evidenceTabs } : undefined,
         followUp: {
