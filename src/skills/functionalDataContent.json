@@ -53,7 +53,7 @@
     ]
   },
   "captions": {
-    "backToLibrary": "Back to Skill library",
+    "backToLibrary": "Back to Subagent Library",
     "saveCohort": "Save cohort",
     "resetFilters": "Reset filters",
     "downloadCsv": "Download CSV",

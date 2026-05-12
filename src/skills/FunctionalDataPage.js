@@ -6,12 +6,12 @@ import React, {
 
 import { useNavigate } from 'react-router-dom';
 
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import BiotechIcon from '@mui/icons-material/Biotech';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import CheckIcon from '@mui/icons-material/Check';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import CloseIcon from '@mui/icons-material/Close';
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -543,8 +543,8 @@ export default function FunctionalDataPage() {
             {/* Back link */}
             <Button
               onClick={() => navigate('/skills')}
-              startIcon={<ChevronLeftIcon />}
-              sx={{ textTransform: 'none', color: '#2F6F6A', fontFamily: 'Inter', fontSize: 12, mb: 1.5, px: 0, py: 0, minWidth: 0 }}
+              startIcon={<ArrowBackIcon fontSize="12px" />}
+              sx={{ textTransform: 'none', color: '#2F6F6A', fontFamily: 'Inter', fontSize: 12, fontWeight: 400, mb: 1.5, px: 0, py: 0, minWidth: 0 }}
             >
               {captions.backToLibrary}
             </Button>
