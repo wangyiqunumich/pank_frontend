@@ -372,16 +372,16 @@
                   }
             }
       },
-      "gene - expression_evidence_in - anatomical_structure": {
+     "gene - express_in - cell_type": {
             "specific - relationship - general": {
                   "question": [
-                        "What evidence links {@gene_symbol@} to pancreatic cell types or anatomical structures?"
+                        "How does {@gene_symbol@} expression change in T1D versus non-diabetic samples?"
                   ],
-                  "inter_error_title": "No expression evidence found",
-                  "inter_error_message": "No detected-in, enriched-in, marker-gene, DEG, or gene-activity records were found for this gene in the current PanKgraph dataset.",
-                  "result_error_title": "No expression evidence found",
-                  "result_error_message": "No detected-in, enriched-in, marker-gene, DEG, or gene-activity records were found for this gene in the current PanKgraph dataset.",
-                  "question_for_result": "What RNA, marker-gene, DEG, and ATAC gene-activity evidence links {@gene_symbol@} to {@tissue_name@}?",
+                  "inter_error_title": "No DEG data found",
+                  "inter_error_message": "No DEG records were found for this gene in our PanKbase dataset.",
+                  "result_error_title": "No DEG data found",
+                  "result_error_message": "No DEG records were found for this gene in our PanKbase dataset.",
+                  "question_for_result": "How does {@gene_symbol@} expression change in {@tissue_name@} in T1D vs non-diabetic samples?",
                   "cypher_for_result_page_core": "MATCH (g:coding_elements:gene {id:\"@gene@\"}) OPTIONAL MATCH (g)-[deg:T1D_DEG_in]->(degCt:anatomical_structure) OPTIONAL MATCH (g)-[det:gene_detected_in]->(detCt:anatomical_structure) OPTIONAL MATCH (g)-[enr:gene_enriched_in]->(enrCt:anatomical_structure) OPTIONAL MATCH (g)-[mark:marker_gene_of|Hubmap_marker_gene_of|`marker_gene_of;Hubmap_marker_gene_of`]->(markCt:anatomical_structure) OPTIONAL MATCH (g)-[gas:gene_activity_score_in]->(gasCt:anatomical_structure) WITH collect(DISTINCT g)+collect(DISTINCT degCt)+collect(DISTINCT detCt)+collect(DISTINCT enrCt)+collect(DISTINCT markCt)+collect(DISTINCT gasCt) AS rawNodes, collect(DISTINCT deg)+collect(DISTINCT det)+collect(DISTINCT enr)+collect(DISTINCT mark)+collect(DISTINCT gas) AS rawEdges RETURN [n IN rawNodes WHERE n IS NOT NULL] AS nodes, [e IN rawEdges WHERE e IS NOT NULL] AS edges;",
                   "cypher_for_result_page_nbr": "MATCH (g:coding_elements:gene {id:\"@gene@\"}) CALL { WITH g MATCH (g)-[r1:effector_gene_of]-(nbr1) RETURN collect(DISTINCT r1) AS eff_edges, collect(DISTINCT nbr1) AS eff_nbrs } CALL { WITH g MATCH (g)-[rReg:genetic_interaction]-(nbrR:coding_elements:gene) WITH rReg, nbrR ORDER BY id(rReg) LIMIT 2 RETURN collect(rReg) AS reg_edges, collect(nbrR) AS reg_nbrs } CALL { WITH g MATCH (g)-[rBind:physical_interaction]-(nbrB:coding_elements:gene) WITH rBind, nbrB ORDER BY id(rBind) LIMIT 2 RETURN collect(rBind) AS bind_edges, collect(nbrB) AS bind_nbrs } WITH [g] AS g_list, eff_edges + reg_edges + bind_edges AS all_edges, eff_nbrs + reg_nbrs + bind_nbrs AS all_nbrs UNWIND (g_list + all_nbrs) AS n WITH collect(DISTINCT n) AS nodes, all_edges UNWIND all_edges AS e RETURN nodes, collect(DISTINCT e) AS edges;",
                   "ai_question_for_result": [
@@ -389,23 +389,26 @@
                         "Add an ATAC-seq gene-activity overview from gene_activity_score_in. Explicitly label it as OCR/gene-activity, not RNA expression, and compare non-diabetic vs type 1 diabetes mean/median values only when those properties are present.",
                         "Evaluate evidence linking gene @gene_id@ to Type 1 Diabetes (T1D), keeping detection, enrichment, marker, differential expression, and gene-activity evidence separate."
                   ],
+                   "ai_question_for_result": [
+                        "Based on the JSON data, summarize (for the specified cell type, if available) the RNA differential expression and absolute expression of @gene_id@ in T1D vs non-diabetic samples: report adjusted p-value (treat as significant if <0.05; if <0.001 or rounded to 0, write “<0.001” and never “p=0”), and log₂ fold-change (state direction; note |log₂FC|>1 as strong but keep scRNA-seq/FDR language cautious), plus per-group absolute expression summaries (e.g., mean/median/% detected) without over-claiming. Then add an ATAC-seq gene-activity overview: explicitly label it as OCR/gene-activity (not RNA expression), note it was computed by Signac GeneActivity() (promoter ±2 kb + gene body) and aggregated by cell type, compare mean/median OCR activity between T1D and non-diabetic, and state whether the direction matches RNA; if not, flag as cross-modality discordance and avoid implying contradiction or causality.",
+                        "Evaluate evidence linking gene @gene_id@ to Type 1 Diabetes (T1D), highlighting any associated expression data."
+                  ],
                   "ai_answer_sub_title": [
-                        "RNA detection, enrichment, and marker evidence:",
-                        "ATAC gene-activity overview:",
+                        "Differential expression state overview: ",
                         "Specific relation to Type 1 Diabetes:"
                   ],
                   "next_questions": [
                         {
                               "question": "Which {SNP} serve as the lead {QTL} for {@nbr_gene_symbol@}?",
                               "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@@nbr_gene_id@&targetSymbol=@nbr_gene_symbol@",
-                              "query": "MATCH (variant:sequence_variant)-[r:part_of_QTL_signal]->(gene:coding_elements {id:\"@nbr_gene_id@\"}) WITH CASE WHEN r.data_source=\"GTEx; SusieR\" THEN \"GTEx; SusieR\" WHEN r.data_source=\"INSPIRE; SusieR\" THEN \"INSPIRE; SusieR\" WHEN r.data_source=\"splicing; GTEx\" THEN \"splicing; GTEx\" WHEN r.data_source=\"exon; INSPIRE\" THEN \"exon; INSPIRE\" ELSE \"Other\" END AS data_source, r, variant WITH data_source, COLLECT({snp: variant.id, credible_set_id: r.credible_set, data_source: r.data_source, pip: r.pip, n_snp: r.n_snp, purity: r.purity, nominal_p: r.nominal_p, lbf: r.lbf, effect_allele: r.effect_allele}) AS credible_sets RETURN data_source, credible_sets ORDER BY data_source;"
+                              "query": "MATCH (variant:sequence_variant)-[r:part_of_QTL_signal]->(gene:coding_elements {id:\"@nbr_gene_id@\"}) WITH CASE WHEN r.data_source=\"GTEx; SusieR\" THEN \"GTEx; SusieR\" WHEN r.data_source=\"INSPIRE; SusieR\" THEN \"INSPIRE; SusieR\" WHEN r.data_source=\"splicing; GTEx\" THEN \"splicing; GTEx\" WHEN r.data_source=\"exon; INSPIRE\" THEN \"exon; INSPIRE\" ELSE \"Other\" END AS data_source, r, variant WITH data_source, COLLECT({snp: id(variant), credible_set_id: r.credible_set, data_source: r.data_source, pip: r.pip, n_snp: r.n_snp, purity: r.purity, nominal_p: r.nominal_p, lbf: r.lbf, effect_allele: r.effect_allele}) AS credible_sets RETURN data_source, credible_sets ORDER BY data_source;"
                         }
                   ],
                   "resources_tabs": {
                         "references": {},
                         "empirical_evidence": {
-                              "title": "Expression Evidence: Cell Browser",
-                              "description": "Explore normalized single-cell RNA profiles by pancreatic cell type. In PanKgraph, gene_detected_in records indicate detection support and should not be interpreted alone as definitive expression; gene_enriched_in records indicate cell-type enrichment; HuBMAP marker-gene records provide external marker annotations.",
+                              "title": "Expression Distribution: Violin Plot",
+                              "description": "The violin plot displays the distribution of normalized gene expression across various pancreatic cell types, including Ductal, Active Stellate, Alpha, Acinar, MUC5B+ Ductal, Beta, Endothelial, Gamma + Epsilon, Delta, Immune, Quiescent Stellate, and Cycling Alpha. Each violin shape represents the density of expression values within a cell type, with wider sections indicating higher frequencies. Boxplots within the violins show the median and interquartile range.",
                               "legend": "Example",
                               "link": "https://pankbase.org:8000/single-cell.html?datasetId=islet_of_Langerhans_scRNA_v3-3&gene=@gene_symbol@",
                               "link_text": "Visit Pankbase to explore violin plots ↗"
