@@ -23,17 +23,19 @@ Use the following commands in your command line tool (e.g., Terminal for macOS o
 
 ```bash
 curl -X POST \
-  'https://nzi5e9mb0f.execute-api.us-east-1.amazonaws.com/production/pankgraph-neo4j' \
+  'http://dev-neo4j.pankgraph.org/db/neo4j/query/v2' \
   -H 'Content-Type: application/json' \
-  -d '{"query": "YOUR_QUERY"}'
+  -u 'neo4j:PanK_development_password' \
+  -d '{"statement": "YOUR_QUERY"}'
 ```
 
 To save the output to a file, append ` > result.txt` to the command.
 ```bash
 curl -X POST \
-  'https://nzi5e9mb0f.execute-api.us-east-1.amazonaws.com/production/pankgraph-neo4j' \
+  'http://dev-neo4j.pankgraph.org/db/neo4j/query/v2' \
   -H 'Content-Type: application/json' \
-  -d '{"query": "YOUR_QUERY"}' > result.txt
+  -u 'neo4j:PanK_development_password' \
+  -d '{"statement": "YOUR_QUERY"}' > result.txt
 ```
 
 ---
@@ -45,16 +47,18 @@ Because PanKgraph is continuously updated, users are encouraged to explore the c
 
 ```bash
 curl -X POST \
-  'https://nzi5e9mb0f.execute-api.us-east-1.amazonaws.com/production/pankgraph-neo4j' \
+  'http://dev-neo4j.pankgraph.org/db/neo4j/query/v2' \
   -H 'Content-Type: application/json' \
-  -d '{"query": "MATCH (n) RETURN labels(n) AS NodeType, COUNT(n) AS Count ORDER BY Count DESC"}'
+  -u 'neo4j:PanK_development_password' \
+  -d '{"statement": "MATCH (n) RETURN labels(n) AS NodeType, COUNT(n) AS Count ORDER BY Count DESC"}'
 ```
 To inspect all supported relationship (edge) types and their frequencies:
 ```bash
 curl -X POST \
-  'https://nzi5e9mb0f.execute-api.us-east-1.amazonaws.com/production/pankgraph-neo4j' \
+  'http://dev-neo4j.pankgraph.org/db/neo4j/query/v2' \
   -H 'Content-Type: application/json' \
-  -d '{"query": "MATCH ()-[r]->() RETURN type(r) AS RelationshipType, COUNT(r) AS Count ORDER BY Count DESC"}'
+  -u 'neo4j:PanK_development_password' \
+  -d '{"statement": "MATCH ()-[r]->() RETURN type(r) AS RelationshipType, COUNT(r) AS Count ORDER BY Count DESC"}'
 ```
 
 ### Cypher Query Grammar
