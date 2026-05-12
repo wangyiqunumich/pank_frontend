@@ -20,7 +20,7 @@
   },
   "configureSection": {
     "title": "Configure your GWAS question",
-    "stepTitle": "1. Pick a specific SNP",
+    "stepTitle": "Pick a specific SNP",
     "snpLabel": "SNP ID",
     "snpPlaceholder": "Enter rsID (e.g., rs123456) or chr:pos (e.g., chr1:1234567)",
     "snpExamples": "Examples: rs123456, chr1:1234567, 1:1234567"

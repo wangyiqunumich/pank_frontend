@@ -6,12 +6,11 @@ import React, {
 
 import { useNavigate } from 'react-router-dom';
 
-import AttachFileIcon from '@mui/icons-material/AttachFile';
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import BiotechIcon from '@mui/icons-material/Biotech';
-import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import CheckIcon from '@mui/icons-material/Check';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import CloseIcon from '@mui/icons-material/Close';
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
@@ -21,9 +20,7 @@ import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
 import PsychologyIcon from '@mui/icons-material/Psychology';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import SearchIcon from '@mui/icons-material/Search';
-import SendIcon from '@mui/icons-material/Send';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
-import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
 import {
   Backdrop,
   Box,
@@ -35,12 +32,12 @@ import {
   Paper,
   Select,
   Slider,
-  TextField,
   Tooltip,
   Typography,
 } from '@mui/material';
 
 import AgentSidebar from '../components/AgentSidebar';
+import BoxSvg from '../image/Box.svg';
 import functionalDataApi from '../utils/functionalDataApi';
 import functionalDataContent from './functionalDataContent.json';
 
@@ -239,7 +236,6 @@ export default function FunctionalDataPage() {
   const [debouncedBmiRange, setDebouncedBmiRange] = useState([12, 45.5]);
   const [responseType, setResponseType] = useState('ins_ieq');
   const [trait, setTrait] = useState('INS-IEQ G 16.7 SI');
-  const [prompt, setPrompt] = useState('');
   const [hasInitializedFilters, setHasInitializedFilters] = useState(false);
   const [isTableOverlayOpen, setIsTableOverlayOpen] = useState(false);
 
@@ -542,101 +538,71 @@ export default function FunctionalDataPage() {
 
         {/* Scrollable */}
         <Box sx={{ flex: 1, overflowY: 'auto', px: { xs: 2, md: 4 }, pt: { xs: 2, md: 3 }, pb: 2 }}>
-          <Box sx={{ maxWidth: 1240, mx: 'auto' }}>
+          <Box sx={{ maxWidth: 1440, mx: 'auto' }}>
 
             {/* Back link */}
             <Button
               onClick={() => navigate('/skills')}
               startIcon={<ChevronLeftIcon />}
-              sx={{ textTransform: 'none', color: '#64748B', fontFamily: 'Inter', fontSize: 13, mb: 1.5, px: 0, minWidth: 0 }}
+              sx={{ textTransform: 'none', color: '#2F6F6A', fontFamily: 'Inter', fontSize: 12, mb: 1.5, px: 0, py: 0, minWidth: 0 }}
             >
               {captions.backToLibrary}
             </Button>
 
-            {/* Page header */}
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap', mb: 2 }}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '9fr 3fr' }, gap: 2.5, alignItems: 'start' }}>
               <Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', mb: 0.75 }}>
-                  <Box sx={{ width: 36, height: 36, borderRadius: '8px', bgcolor: '#F0FDFA', border: '1px solid #99F6E4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <ShowChartIcon sx={{ fontSize: 20, color: '#0F766E' }} />
-                  </Box>
-                  <Typography sx={{ fontFamily: 'Inter', fontWeight: 800, fontSize: { xs: 18, md: 22 }, color: '#0F172A' }}>
-                    HIPP Functional Data Skill
-                  </Typography>
-                  <Chip label="v1.0" size="small" sx={{ fontFamily: 'Inter', fontSize: 11, fontWeight: 600, bgcolor: '#F1F5F9', color: '#64748B', height: 22 }} />
-                  <Chip
-                    label="Interactive Cohort Filtering"
-                    size="small"
-                    sx={{
-                      fontFamily: 'Inter',
-                      fontSize: 11,
-                      fontWeight: 600,
-                      bgcolor: '#ECFDF5',
-                      color: '#047857',
-                      border: '1px solid #A7F3D0',
-                      height: 22,
-                    }}
-                  />
-                  <Chip
-                    label="Agent-Ready Interpretation"
-                    size="small"
-                    sx={{
-                      fontFamily: 'Inter',
-                      fontSize: 11,
-                      fontWeight: 600,
-                      bgcolor: '#ECFDF5',
-                      color: '#047857',
-                      border: '1px solid #A7F3D0',
-                      height: 22,
-                    }}
-                  />
-                </Box>
-                {pageSubtitle.map((line) => (
-                  <Typography key={line} sx={{ fontFamily: 'Inter', fontSize: 13, color: '#64748B', lineHeight: 1.6 }}>
-                    {line}
-                  </Typography>
-                ))}
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <PeopleAltOutlinedIcon sx={{ fontSize: 22, color: '#94A3B8' }} />
+                {/* Page header */}
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '7fr 2fr' }, gap: 2, mb: 2 }}>
                   <Box>
-                    <Typography sx={{ fontFamily: 'Inter', fontWeight: 700, fontSize: 14, color: '#0F172A', lineHeight: 1.25 }}>
-                      {donorCount} donors selected
-                    </Typography>
-                    <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#64748B' }}>
-                      ({percentageSelected}% of {totalDonors} total donors)
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', mb: 1 }}>
+                      <Box sx={{ width: 24, height: 24, borderRadius: '15px', bgcolor: '#6669B0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <Box component="img" src={BoxSvg} alt="Box" sx={{ width: 16, height: 16 }} />
+                      </Box>
+                      <Typography sx={{ fontFamily: 'Inter', fontWeight: '500 !important', fontSize: 20, color: '#0F172A' }}>
+                        HIPP Functional Data Skill
+                      </Typography>
+                      <Box sx={{ px: 1, py: 0.15, borderRadius: '999px', bgcolor: '#F1F5F9', color: '#64748B', fontFamily: 'Inter', fontSize: 10, fontWeight: 400, height: 22, display: 'inline-flex', alignItems: 'center' }}>
+                        v1.0
+                      </Box>
+                    </Box>
+
+                    <Box sx={{ display: 'flex', gap: 1, mb: 1, flexWrap: 'wrap' }}>
+                      {[
+                        'Interactive Cohort Filtering',
+                        'Agent-Ready Interpretation',
+                      ].map((badge) => (
+                        <Box key={badge} sx={{ px: 1.1, py: 0.25, borderRadius: '999px', bgcolor: '#EBF0F6', color: '#444D6C', fontFamily: 'Inter', fontSize: 10, fontWeight: 400, height: 10, display: 'inline-flex', alignItems: 'center' }}>
+                          {badge}
+                        </Box>
+                      ))}
+                    </Box>
+
+                    {pageSubtitle.map((line) => (
+                      <Typography key={line} sx={{ fontFamily: 'Inter', fontSize: 12, color: '#64748B', lineHeight: 1.4 }}>
+                        {line}
+                      </Typography>
+                    ))}
+                  </Box>
+
+                  <Box sx={{ borderRadius: '14px', p: 0, alignSelf: 'start' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mb: 1.5 }}>
+                      <Box sx={{ width: 32, height: 32, borderRadius: '4px', bgcolor: '#E9F6F7', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <PeopleAltOutlinedIcon sx={{ fontSize: 16, color: '#3A838B' }} />
+                      </Box>
+                      <Box>
+                        <Typography sx={{ color: '#000000', fontWeight: '600 !important', fontSize: 14 }}>
+                          {donorCount} donors selected
+                        </Typography>
+                        <Typography sx={{ color: '#000000', fontWeight: '500 !important', fontSize: 12 }}>
+                          ({percentageSelected}% of {totalDonors} total donors)
+                        </Typography>
+                      </Box>
+                    </Box>
                   </Box>
                 </Box>
-                <Button
-                  variant="outlined"
-                  disabled
-                  startIcon={<BookmarkBorderIcon />}
-                  sx={{
-                    textTransform: 'none',
-                    fontFamily: 'Inter',
-                    fontWeight: 600,
-                    fontSize: 13,
-                    borderRadius: '8px',
-                    borderColor: '#E2E8F0',
-                    color: '#94A3B8',
-                    '&.Mui-disabled': {
-                      borderColor: '#E2E8F0',
-                      color: '#94A3B8',
-                    },
-                  }}
-                >
-                  {captions.saveCohort}
-                </Button>
-              </Box>
-            </Box>
 
-            {/* Two-column layout */}
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', xl: 'minmax(0, 1fr) 200px' }, gap: 2.5, alignItems: 'start' }}>
-
-              {/* Left: step cards */}
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
+                {/* Left: step cards */}
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
 
                 {/* Step 1 */}
                 <StepCard step={1} title={steps.step1.title} titleInfo={steps.step1.titleInfo}>
@@ -871,59 +837,62 @@ export default function FunctionalDataPage() {
                     </Button>
                   )}
                 </StepCard>
+                </Box>
               </Box>
 
               {/* Right info panel */}
-              <Box sx={{ display: { xs: 'none', xl: 'flex' }, flexDirection: 'column', position: 'sticky', top: 16 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1 }}>
-                  <Tooltip title={rightPanel.aboutInfo} arrow>
-                    <InfoOutlinedIcon sx={{ fontSize: 16, color: '#3B82F6', cursor: 'help' }} />
-                  </Tooltip>
-                  <Typography sx={{ fontFamily: 'Inter', fontWeight: 700, fontSize: 13, color: '#1E40AF' }}>
-                    {rightPanel.aboutTitle}
-                  </Typography>
-                </Box>
-                <Typography sx={{ fontFamily: 'Inter', fontSize: 12.5, color: '#475569', lineHeight: 1.7, mb: 1.5 }}>
-                  {rightPanel.aboutBody}
-                </Typography>
-
-                <Box sx={{ p: 1.25, bgcolor: '#FFFBEB', borderRadius: '8px', border: '1px solid #FDE68A', mb: 2 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
-                    <WarningAmberOutlinedIcon sx={{ fontSize: 14, color: '#D97706' }} />
-                    <Typography sx={{ fontFamily: 'Inter', fontWeight: 700, fontSize: 12, color: '#92400E' }}>{rightPanel.importantTitle}</Typography>
+              <Box sx={{ border: '1px solid #E5EBF3', borderRadius: '14px', alignSelf: 'start', display: { xs: 'none', md: 'block' } }}>
+                <Box sx={{ p: 2 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6, mb: 1 }}>
+                    <Tooltip title={rightPanel.aboutInfo} arrow>
+                      <InfoOutlinedIcon sx={{ color: '#1E3F7C', fontSize: 20, cursor: 'help' }} />
+                    </Tooltip>
+                    <Typography sx={{ color: '#1E3F7C', fontWeight: '500 !important', fontSize: 12 }}>
+                      {rightPanel.aboutTitle}
+                    </Typography>
                   </Box>
-                  <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#78350F', lineHeight: 1.65 }}>
+                  <Typography sx={{ color: 'black', fontSize: 12, lineHeight: 1.4 }}>{rightPanel.aboutBody}</Typography>
+                </Box>
+
+                <Box sx={{ borderTop: '1px solid #E5EBF3', p: 2 }}>
+                  <Typography sx={{ color: '#1E3F7C', fontWeight: '500 !important', fontSize: 12, mb: 1 }}>
+                    {rightPanel.importantTitle}
+                  </Typography>
+                  <Typography sx={{ color: 'black', fontSize: 12, lineHeight: 1.4 }}>
                     {rightPanel.importantBody}
                   </Typography>
                 </Box>
 
-                <Typography sx={{ fontFamily: 'Inter', fontWeight: 700, fontSize: 13, color: '#0F172A', mb: 0.75 }}>
-                  {rightPanel.whyUseTitle}
-                </Typography>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.65, mb: 2 }}>
-                  {rightPanel.whyUseItems.map((item) => (
-                    <Box key={item} sx={{ display: 'flex', gap: 0.5 }}>
-                      <Typography component="span" sx={{ fontFamily: 'Inter', fontSize: 12, color: '#0F766E', flexShrink: 0 }}>✓</Typography>
-                      <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#0F766E', lineHeight: 1.55 }}>{item}</Typography>
-                    </Box>
-                  ))}
+                <Box sx={{ borderTop: '1px solid #E5EBF3', p: 2 }}>
+                  <Typography sx={{ color: '#1E3F7C', fontWeight: '500 !important', fontSize: 12, mb: 1 }}>
+                    {rightPanel.whyUseTitle}
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    {rightPanel.whyUseItems.map((item) => (
+                      <Box key={item} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                        <CheckIcon sx={{ color: '#1A9DC0', fontSize: 18, mt: 0.2 }} />
+                        <Typography sx={{ color: '#007A8D', fontSize: 12, lineHeight: 1.4 }}>{item}</Typography>
+                      </Box>
+                    ))}
+                  </Box>
                 </Box>
 
-                <Typography sx={{ fontFamily: 'Inter', fontWeight: 700, fontSize: 13, color: '#0F172A', mb: 0.75 }}>
-                  {rightPanel.exampleUseCasesTitle}
-                </Typography>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                  {rightPanel.exampleUseCases.map(({ icon, text }) => {
-                    const Icon = exampleIconMap[icon] || SearchIcon;
-                    return (
-                      <Box key={text} sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
-                        <Box sx={{ width: 22, height: 22, borderRadius: '50%', bgcolor: '#F0FDFA', border: '1px solid #99F6E4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, mt: 0.1 }}>
-                          <Icon sx={{ fontSize: 13, color: '#0F766E' }} />
+                <Box sx={{ borderTop: '1px solid #E5EBF3', p: 2 }}>
+                  <Typography sx={{ color: '#1E3F7C', fontWeight: '500 !important', fontSize: 12, mb: 1 }}>
+                    {rightPanel.exampleUseCasesTitle}
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.1 }}>
+                    {rightPanel.exampleUseCases.map(({ icon, text }) => {
+                      const Icon = exampleIconMap[icon] || SearchIcon;
+
+                      return (
+                        <Box key={text} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, borderRadius: '8px', px: 0.4, py: 0.2 }}>
+                          <Icon sx={{ color: '#1A9DC0', fontSize: 17, mt: 0.2 }} />
+                          <Typography sx={{ color: '#007A8D', fontSize: 12, lineHeight: 1.4 }}>{text}</Typography>
                         </Box>
-                        <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155', lineHeight: 1.55 }}>{text}</Typography>
-                      </Box>
-                    );
-                  })}
+                      );
+                    })}
+                  </Box>
                 </Box>
               </Box>
 
@@ -931,40 +900,6 @@ export default function FunctionalDataPage() {
           </Box>
         </Box>
 
-        {/* Fixed bottom prompt bar */}
-        <Box sx={{ flexShrink: 0, borderTop: '1px solid #E2E8F0', px: { xs: 2, md: 4 }, py: 1.5, bgcolor: '#FFFFFF' }}>
-          <Box sx={{ maxWidth: 1240, mx: 'auto' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, border: '1px solid #E2E8F0', borderRadius: '12px', px: 1.5, py: 0.75 }}>
-              <ChatBubbleOutlineIcon sx={{ fontSize: 18, color: '#94A3B8', flexShrink: 0 }} />
-              <TextField
-                fullWidth
-                variant="standard"
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder='Ask about this dataset or results... (e.g., "Why do older donors have lower INS response?")'
-                InputProps={{ disableUnderline: true }}
-                sx={{ '& input': { fontFamily: 'Inter', fontSize: 13, color: '#334155' } }}
-              />
-              <IconButton size="small" sx={{ color: '#94A3B8' }}>
-                <AttachFileIcon sx={{ fontSize: 18 }} />
-              </IconButton>
-              <IconButton
-                size="small"
-                sx={{ bgcolor: '#0F766E', color: '#fff', borderRadius: '8px', p: 0.75, '&:hover': { bgcolor: '#0D6660' } }}
-              >
-                <SendIcon sx={{ fontSize: 16 }} />
-              </IconButton>
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5, px: 0.5 }}>
-              <Typography sx={{ fontFamily: 'Inter', fontSize: 11, color: '#94A3B8' }}>
-                Your message will be sent with the current filter and visualization context.
-              </Typography>
-              <Typography sx={{ fontFamily: 'Inter', fontSize: 11, color: '#94A3B8' }}>
-                Powered by PanKgraph Agent
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
       </Box>
 
       <Backdrop

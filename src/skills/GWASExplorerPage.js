@@ -13,12 +13,12 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CheckIcon from '@mui/icons-material/Check';
-import DataObjectOutlinedIcon from '@mui/icons-material/DataObjectOutlined';
+import ContactSupportOutlinedIcon
+  from '@mui/icons-material/ContactSupportOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined';
+import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
 import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
-import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
-import ShortcutOutlinedIcon from '@mui/icons-material/ShortcutOutlined';
-import TrackChangesOutlinedIcon from '@mui/icons-material/TrackChangesOutlined';
 import {
   Autocomplete,
   Box,
@@ -29,6 +29,8 @@ import {
 } from '@mui/material';
 
 import AgentSidebar from '../components/AgentSidebar';
+import BoxSvg from '../image/Box.svg';
+import VectorSvg from '../image/Vector.svg';
 import { queryQueryResult } from '../redux/queryResultSlice';
 import gwasContent from './gwasExplorerContent.json';
 
@@ -114,18 +116,14 @@ function GwasSnpAutocomplete({ value, onChange, defaultOptions, onValidated }) {
       onBlur={() => validateSnp(value)}
       loading={loading}
       sx={{
+        fontFamily: 'Inter',
+        fontSize: 12,
         '& .MuiOutlinedInput-root': {
-          borderRadius: '10px',
-          height: 50,
-          fontSize: 18,
-          fontFamily: 'Inter, sans-serif',
+          borderRadius: '4px',
+          height: 32,
+          fontSize: 12,
+          fontFamily: 'Inter',
           bgcolor: '#FFFFFF',
-        },
-        '& .MuiInputBase-input': {
-          fontFamily: 'Inter, sans-serif',
-        },
-        '& .MuiInputLabel-root': {
-          fontFamily: 'Inter, sans-serif',
         },
       }}
       renderInput={(params) => (
@@ -133,7 +131,12 @@ function GwasSnpAutocomplete({ value, onChange, defaultOptions, onValidated }) {
           {...params}
           label={gwasContent.configureSection.snpLabel}
           placeholder={gwasContent.configureSection.snpPlaceholder}
-          InputLabelProps={{ shrink: true, sx: { fontFamily: 'Inter, sans-serif' } }}
+          InputLabelProps={{
+            shrink: true,
+            sx: {
+              fontFamily: 'Inter',
+            },
+          }}
           InputProps={{
             ...params.InputProps,
             endAdornment: (
@@ -171,177 +174,218 @@ export default function GWASExplorerPage() {
   };
 
   return (
-    <Box sx={{ flex: 1, bgcolor: '#FFFFFF', display: 'flex', minHeight: 0 }}>
+    <Box sx={{ flex: 1, bgcolor: '#FFFFFF', display: 'flex', minHeight: 0, fontFamily: 'Inter', fontSize: 12, lineHeight: 1.4 }}>
       <AgentSidebar activeNav="skills" />
 
       <Box
         sx={{
           flex: 1,
           px: { xs: 2, md: 3 },
-          py: { xs: 2, md: 2.5 },
+          py: { xs: 2, md: 2 },
           overflowY: 'auto',
-          fontFamily: 'Inter, sans-serif',
+          fontFamily: 'Inter',
+          fontSize: 12,
+          lineHeight: 1.4,
           '& .MuiTypography-root': {
-            fontFamily: 'Inter, sans-serif',
+            fontFamily: 'Inter',
+            fontWeight: 400,
+            lineHeight: 1.4,
           },
           '& .MuiButton-root': {
-            fontFamily: 'Inter, sans-serif',
-          },
-          '& .MuiInputBase-input': {
-            fontFamily: 'Inter, sans-serif',
-          },
-          '& .MuiInputLabel-root': {
-            fontFamily: 'Inter, sans-serif',
+            fontFamily: 'Inter',
+            fontSize: 12,
+            fontWeight: 400,
+            lineHeight: 1.4,
           },
         }}
       >
-        <Box sx={{ maxWidth: 1280, mx: 'auto' }}>
+        <Box sx={{ maxWidth: 1440, mx: 'auto' }}>
           <Button
-            startIcon={<ArrowBackIcon fontSize="small" />}
+            startIcon={<ArrowBackIcon fontSize="12px" />}
             onClick={() => navigate('/skills')}
-            sx={{ textTransform: 'none', color: '#64748B', fontFamily: 'Inter', fontSize: 13, fontWeight: 500, mb: 1.5, px: 0, minWidth: 0 }}
+            sx={{
+              textTransform: 'none',
+              color: '#2F6F6A',
+              fontFamily: 'Inter',
+              fontSize: 12,
+              fontWeight: 400,
+              mb: 1.5,
+              px: 0,
+              py: 0,
+              minWidth: 0,
+            }}
           >
             {gwasContent.header.backText}
           </Button>
 
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', xl: '1fr 320px' }, gap: 2.5 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '9fr 3fr' }, gap: 2.5 }}>
             <Box>
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 270px' }, gap: 2 }}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '7fr 2fr' }, gap: 2 }}>
                 <Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', mb: 0.75 }}>
-                    <Box sx={{ width: 36, height: 36, borderRadius: '8px', bgcolor: '#EEF2FF', border: '1px solid #C4B5FD', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <DataObjectOutlinedIcon sx={{ fontSize: 20, color: '#7C3AED' }} />
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', mb: 1 }}>
+                    <Box sx={{ width: 24, height: 24, borderRadius: '15px', bgcolor: '#6669B0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Box component="img" src={BoxSvg} alt="Box" sx={{ width: 16, height: 16 }} />
                     </Box>
-                    <Typography sx={{ fontFamily: 'Inter', fontWeight: 800, fontSize: { xs: 18, md: 22 }, color: '#0F172A' }}>
+                    <Typography sx={{ fontFamily: 'Inter', fontWeight: '500 !important', fontSize: 20, color: '#0F172A' }}>
                       {gwasContent.header.title}
                     </Typography>
-                    <Box sx={{ px: 1, py: 0.15, borderRadius: '999px', bgcolor: '#F1F5F9', color: '#64748B', fontFamily: 'Inter', fontSize: 11, fontWeight: 600, height: 22, display: 'inline-flex', alignItems: 'center' }}>
+                    <Box sx={{ px: 1, py: 0.15, borderRadius: '999px', bgcolor: '#F1F5F9', color: '#64748B', fontFamily: 'Inter', fontSize: 10, fontWeight: 400, height: 22, display: 'inline-flex', alignItems: 'center' }}>
                       {gwasContent.header.version}
                     </Box>
                   </Box>
 
-                  <Box sx={{ display: 'flex', gap: 1, mb: 1.2, flexWrap: 'wrap' }}>
+                  <Box sx={{ display: 'flex', gap: 1, mb: 1, flexWrap: 'wrap' }}>
                     {gwasContent.header.badges.map((badge) => (
-                      <Box key={badge} sx={{ px: 1.1, py: 0.15, borderRadius: '999px', bgcolor: '#ECF5FF', color: '#0369A1', border: '1px solid #BAE6FD', fontFamily: 'Inter', fontSize: 11, fontWeight: 600, height: 22, display: 'inline-flex', alignItems: 'center' }}>
+                      <Box key={badge} sx={{ px: 1.1, py: 0.25, borderRadius: '999px', bgcolor: '#EBF0F6', color: '#444D6C', fontFamily: 'Inter', fontSize: 10, fontWeight: 400, height: 10, display: 'inline-flex', alignItems: 'center' }}>
                         {badge}
                       </Box>
                     ))}
                   </Box>
 
                   {gwasContent.header.descriptionLines.map((line) => (
-                    <Typography key={line} sx={{ fontFamily: 'Inter', fontSize: 13, color: '#64748B', lineHeight: 1.6 }}>
+                    <Typography key={line} sx={{ fontFamily: 'Inter', fontSize: 12, color: '#64748B', lineHeight: 1.4 }}>
                       {line}
                     </Typography>
                   ))}
                 </Box>
 
-                <Box sx={{ border: '1px solid #E4EAF2', borderRadius: '14px', p: 2, alignSelf: 'start' }}>
-                  <Typography sx={{ color: '#173B8C', fontWeight: 800, fontSize: 36 / 1.8, whiteSpace: 'nowrap' }}>
-                    {gwasContent.stats.count} {gwasContent.stats.label}
-                  </Typography>
-                  <Typography sx={{ color: '#224488', mb: 1.5 }}>
-                    {gwasContent.stats.subLabel}
-                  </Typography>
+                <Box sx={{ borderRadius: '14px', p: 0, alignSelf: 'start' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mb: 1.5 }}>
+                    <Box
+                      sx={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: '4px',
+                        bgcolor: '#E9F6F7',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <PeopleAltOutlinedIcon sx={{ fontSize: 16, color: '#3A838B' }} />
+                    </Box>
+                    <Box>
+                      <Typography sx={{ color: '#000000', fontWeight: '600 !important', fontSize: 14 }}>
+                        {gwasContent.stats.count}
+                      </Typography>
+                      <Typography sx={{ color: '#000000', fontWeight: '500 !important', fontSize: 12 }}>
+                        {gwasContent.stats.label}
+                      </Typography>
+                      <Typography sx={{ color: '#000000', fontSize: 12 }}>
+                        {gwasContent.stats.subLabel}
+                      </Typography>
+                    </Box>
+                  </Box>
                   <Button
-                    endIcon={<ShortcutOutlinedIcon fontSize="small" />}
+                    fullWidth
+                    endIcon={<IosShareOutlinedIcon sx={{ fontSize: 10 }} />}
                     onClick={() => navigate('/qtldatasource')}
-                    sx={{ textTransform: 'none', bgcolor: '#EEF8FC', color: '#12739B', fontWeight: 700, borderRadius: '10px' }}
+                    sx={{ width: '100%', textTransform: 'none', bgcolor: '#EEF8FC', color: '#3A838B', fontWeight: 400, borderRadius: '4px', fontSize: 10 }}
                   >
                     {gwasContent.stats.buttonText}
                   </Button>
                 </Box>
               </Box>
 
-              <Box sx={{ border: '1px solid #E5EBF3', borderRadius: '14px', mt: 2, p: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.8 }}>
-                  <Box sx={{ width: 24, height: 24, borderRadius: '50%', bgcolor: '#0F8AA7', color: '#fff', fontWeight: 800, fontSize: 14, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Box sx={{ borderRadius: '14px', mt: 2, p: 0 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                  <Box sx={{ width: 20, height: 20, borderRadius: '50%', bgcolor: '#3A838B', color: '#fff', fontWeight: '500 !important', fontSize: 12, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
                     1
                   </Box>
-                  <Typography sx={{ color: '#173B8C', fontWeight: 800, fontSize: 32 / 1.8 }}>
+                  <Typography sx={{ color: 'black', fontWeight: '500 !important', fontSize: 14 }}>
                     {gwasContent.configureSection.title}
                   </Typography>
                 </Box>
 
-                <Typography sx={{ color: '#2E4F8F', mb: 1.5 }}>
-                  {gwasContent.configureSection.stepTitle}
-                </Typography>
-
-                <GwasSnpAutocomplete
-                  value={snpInput}
-                  onChange={setSnpInput}
-                  defaultOptions={gwasContent.defaults.snpOptions}
-                  onValidated={(ok, normalized) => {
-                    setSnpValid(ok);
-                    if (ok && normalized) setSnpInput(normalized);
-                  }}
-                />
-                <Typography sx={{ color: '#6A7FA7', mt: 0.6, fontSize: 14 }}>
-                  {gwasContent.configureSection.snpExamples}
-                </Typography>
-
-                <Box sx={{ mt: 1.4, border: '1px solid #DCE9F2', borderRadius: '9px', px: 1.2, py: 0.9, display: 'flex', alignItems: 'center', gap: 0.8 }}>
-                  <InfoOutlinedIcon sx={{ color: '#2A85A5', fontSize: 18 }} />
-                  <Typography sx={{ color: '#2B4E88', fontSize: 15 }}>
-                    {gwasContent.shared.traitTitle}: {gwasContent.shared.traitText}
+                <Box sx={{ borderRadius: '10px', bgcolor: '#F5F9FC', p: 2 }}>
+                  <Typography sx={{ color: '#4B5563', mb: 2, fontSize: 12 }}>
+                    {String(gwasContent.configureSection.stepTitle || '')}
                   </Typography>
+
+                  <GwasSnpAutocomplete
+                    value={snpInput}
+                    onChange={setSnpInput}
+                    defaultOptions={gwasContent.defaults.snpOptions}
+                    onValidated={(ok, normalized) => {
+                      setSnpValid(ok);
+                      if (ok && normalized) setSnpInput(normalized);
+                    }}
+                  />
+                  <Typography sx={{ color: '#8F8F8F', mt: 1, fontSize: 10 }}>
+                    {gwasContent.configureSection.snpExamples}
+                  </Typography>
+
+                  <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                    <InfoOutlinedIcon sx={{ color: '#2A85A5', fontSize: 18 }} />
+                    <Typography sx={{ color: '#4B5563', fontSize: 12 }}>
+                      {gwasContent.shared.traitTitle}: {gwasContent.shared.traitText}
+                    </Typography>
+                  </Box>
                 </Box>
 
-              <Box sx={{ mt: 1.6, borderRadius: '10px', bgcolor: '#EEF5FB', p: 1.8 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.6 }}>
-                  <TrackChangesOutlinedIcon sx={{ color: '#2E8AA9', fontSize: 24 }} />
-                  <Typography sx={{ color: '#173B8C', fontWeight: 800, fontSize: 30 / 1.8 }}>
-                    {gwasContent.shared.whatNextTitle}
-                  </Typography>
-                </Box>
-                <Typography sx={{ color: '#2E4F8F', mb: 1.2, maxWidth: 620, fontSize: 27 / 1.8 }}>
-                  {gwasContent.shared.whatNextDescription}
-                </Typography>
-
-                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr auto 1fr auto 1fr' }, alignItems: 'center', gap: 1 }}>
-                  {gwasContent.shared.workflow.map((step, index) => (
-                    <React.Fragment key={step.title}>
-                      <Box
-                        sx={{
-                          border: '1px solid #D4E1EE',
-                          borderRadius: '12px',
-                          bgcolor: index === 0 ? '#FDEED9' : index === 2 ? '#FCE7E7' : '#F5FBFF',
-                          px: 1.2,
-                          py: 1,
-                          textAlign: 'center',
-                          minHeight: 90,
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <Typography sx={{ color: '#243E6A', fontWeight: 700, fontSize: 17 }}>{step.title}</Typography>
-                        {step.text ? <Typography sx={{ color: '#2E4F8F', fontSize: 15 }}>{step.text}</Typography> : null}
+                <Box sx={{ mt: 2 }}>
+                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1.6fr' }, gap: 1.6, alignItems: 'center' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.8 }}>
+                      <Box component="img" src={VectorSvg} alt="Vector" sx={{ width: 12, height: 12, flexShrink: 0, mt: 0.2 }} />
+                      <Box>
+                        <Typography sx={{ color: 'black', fontWeight: '500 !important', fontSize: 10, mb: 0.2 }}>
+                          {gwasContent.shared.whatNextTitle}
+                        </Typography>
+                        <Typography sx={{ color: '#4B5563', fontSize: 9 }}>
+                          {gwasContent.shared.whatNextDescription}
+                        </Typography>
                       </Box>
-                      {index < gwasContent.shared.workflow.length - 1 ? (
-                        <ArrowForwardIcon sx={{ color: '#91A7C8', fontSize: 26, justifySelf: 'center' }} />
-                      ) : null}
-                    </React.Fragment>
-                  ))}
-                </Box>
-              </Box>
+                    </Box>
 
-              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 1.5, gap: 0.9 }}>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr auto 1fr auto 1fr' }, alignItems: 'center', gap: 1 }}>
+                      {gwasContent.shared.workflow.map((step, index) => (
+                        <React.Fragment key={step.title}>
+                          <Box
+                            sx={{
+                              border: '1px solid #E2E8F0',
+                              borderRadius: '6px',
+                              bgcolor: index === 0 ? '#FDEED9' : index === 2 ? '#FCE7E7' : '#F5FBFF',
+                              px: '24px',
+                              height: '60px',
+                              textAlign: 'center',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <Typography sx={{ color: '#243E6A', fontWeight: '500 !important', fontSize: 9 }}>{step.title}</Typography>
+                            {step.text ? <Typography sx={{ color: '#2E4F8F', fontSize: 9, pt: 0.75 }}>{step.text}</Typography> : null}
+                          </Box>
+                          {index < gwasContent.shared.workflow.length - 1 ? (
+                            <ArrowForwardIcon sx={{ color: '#91A7C8', fontSize: 26, justifySelf: 'center' }} />
+                          ) : null}
+                        </React.Fragment>
+                      ))}
+                    </Box>
+                  </Box>
+                </Box>
+
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 3, gap: 0.9 }}>
                 <Button
                   onClick={handleContinue}
                   disabled={!canContinue}
                   endIcon={<ArrowForwardIcon />}
                   sx={{
                     textTransform: 'none',
-                    minWidth: 360,
+                    minWidth: 540,
                     maxWidth: '100%',
-                    height: 44,
                     borderRadius: '8px',
-                    fontWeight: 700,
-                    fontSize: 22 / 1.8,
+                    fontWeight: 600,
+                    fontSize: 12,
+                    p: '10px',
                     color: '#FFFFFF',
-                    bgcolor: canContinue ? '#0898B8' : '#94B7C5',
+                    bgcolor: canContinue ? '#3A838B' : '#94B7C5',
                     '&:hover': {
-                      bgcolor: canContinue ? '#057E9A' : '#94B7C5',
+                      bgcolor: canContinue ? '#327077' : '#94B7C5',
+                    },
+                    '&.Mui-disabled': {
+                      color: '#FFFFFF',
                     },
                   }}
                 >
@@ -350,34 +394,8 @@ export default function GWASExplorerPage() {
 
                 <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.7 }}>
                   <SecurityOutlinedIcon sx={{ fontSize: 16, color: '#3B7A9B' }} />
-                  <Typography sx={{ color: '#305F8C', fontSize: 14 }}>{gwasContent.shared.securityNote}</Typography>
+                  <Typography sx={{ color: '#305F8C', fontSize: 12 }}>{gwasContent.shared.securityNote}</Typography>
                 </Box>
-              </Box>
-
-              <Box sx={{ mt: 2, border: '1px solid #E5EBF3', borderRadius: '14px', px: 1.2, py: 1.1, display: 'flex', alignItems: 'center', gap: 1 }}>
-                <TextField
-                  fullWidth
-                  disabled
-                  placeholder={gwasContent.shared.bottomSearchPlaceholder}
-                  InputProps={{
-                    sx: {
-                      height: 46,
-                      borderRadius: '10px',
-                      bgcolor: '#FFFFFF',
-                      fontFamily: 'Inter, sans-serif',
-                    },
-                  }}
-                />
-                <Button
-                  disabled
-                  sx={{ minWidth: 46, width: 46, height: 46, borderRadius: '10px', bgcolor: '#D2E7EE' }}
-                >
-                  <SendOutlinedIcon sx={{ color: '#6A9BB0' }} />
-                </Button>
-              </Box>
-              <Box sx={{ px: 0.5, mt: 0.6, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-                <Typography sx={{ color: '#6A7FA7', fontSize: 13 }}>{gwasContent.shared.bottomSearchHint}</Typography>
-                <Typography sx={{ color: '#2B79A0', fontSize: 14, fontWeight: 600 }}>{gwasContent.shared.poweredBy}</Typography>
               </Box>
 
               </Box>
@@ -385,30 +403,35 @@ export default function GWASExplorerPage() {
 
             <Box sx={{ border: '1px solid #E5EBF3', borderRadius: '14px', alignSelf: 'start' }}>
               <Box sx={{ p: 2 }}>
-                <Typography sx={{ color: '#173B8C', fontWeight: 800, fontSize: 30 / 1.8, mb: 1 }}>{gwasContent.rightPanel.aboutTitle}</Typography>
-                <Typography sx={{ color: '#1E3F7C', fontSize: 32 / 1.8, lineHeight: 1.5 }}>{gwasContent.rightPanel.aboutBody}</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6, mb: 1 }}>
+                  <InfoOutlinedIcon sx={{ color: '#1E3F7C', fontSize: 20 }} />
+                  <Typography sx={{ color: '#1E3F7C', fontWeight: '500 !important', fontSize: 12 }}>
+                    {gwasContent.rightPanel.aboutTitle}
+                  </Typography>
+                </Box>
+                <Typography sx={{ color: 'black', fontSize: 12, lineHeight: 1.4 }}>{gwasContent.rightPanel.aboutBody}</Typography>
               </Box>
               <Box sx={{ borderTop: '1px solid #E5EBF3', p: 2 }}>
-                <Typography sx={{ color: '#173B8C', fontWeight: 800, fontSize: 30 / 1.8, mb: 1 }}>{gwasContent.rightPanel.importantTitle}</Typography>
+                <Typography sx={{ color: '#1E3F7C', fontWeight: '500 !important', fontSize: 12, mb: 1 }}>{gwasContent.rightPanel.importantTitle}</Typography>
                 {gwasContent.rightPanel.importantBodyLines.map((line) => (
-                  <Typography key={line} sx={{ color: '#1E3F7C', fontSize: 32 / 1.8, lineHeight: 1.5 }}>
+                  <Typography key={line} sx={{ color: 'black', fontSize: 12, lineHeight: 1.4 }}>
                     {line}
                   </Typography>
                 ))}
               </Box>
               <Box sx={{ borderTop: '1px solid #E5EBF3', p: 2 }}>
-                <Typography sx={{ color: '#173B8C', fontWeight: 800, fontSize: 30 / 1.8, mb: 1 }}>{gwasContent.rightPanel.whyTitle}</Typography>
+                <Typography sx={{ color: '#1E3F7C', fontWeight: '500 !important', fontSize: 12, mb: 1 }}>{gwasContent.rightPanel.whyTitle}</Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                   {gwasContent.rightPanel.whyItems.map((item) => (
                     <Box key={item} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
                       <CheckIcon sx={{ color: '#1A9DC0', fontSize: 18, mt: 0.2 }} />
-                      <Typography sx={{ color: '#1E3F7C', fontSize: 32 / 1.8, lineHeight: 1.45 }}>{item}</Typography>
+                      <Typography sx={{ color: '#007A8D', fontSize: 12, lineHeight: 1.4 }}>{item}</Typography>
                     </Box>
                   ))}
                 </Box>
               </Box>
               <Box sx={{ borderTop: '1px solid #E5EBF3', p: 2 }}>
-                <Typography sx={{ color: '#173B8C', fontWeight: 800, fontSize: 30 / 1.8, mb: 1 }}>{gwasContent.rightPanel.examplesTitle}</Typography>
+                <Typography sx={{ color: '#1E3F7C', fontWeight: '500 !important', fontSize: 12, mb: 1 }}>{gwasContent.rightPanel.examplesTitle}</Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.1 }}>
                   {gwasContent.rightPanel.examples.map((item) => {
                     const exampleText = typeof item === 'string' ? item : item.text;
@@ -429,8 +452,8 @@ export default function GWASExplorerPage() {
                           '&:hover': matchQid ? { bgcolor: '#F2F8FC' } : undefined,
                         }}
                       >
-                        <InfoOutlinedIcon sx={{ color: '#1A9DC0', fontSize: 17, mt: 0.2 }} />
-                        <Typography sx={{ color: '#0F5E95', fontSize: 16, lineHeight: 1.45 }}>{exampleText}</Typography>
+                          <ContactSupportOutlinedIcon sx={{ color: '#1A9DC0', fontSize: 17, mt: 0.2 }} />
+                          <Typography sx={{ color: '#007A8D', fontSize: 12, lineHeight: 1.4 }}>{exampleText}</Typography>
                       </Box>
                     );
                   })}
