@@ -25,7 +25,7 @@ function NavBar() {
   };
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: 'relative', zIndex: 1300 }}>
       <div className="pkb-nav">
         <div className="logo">
           <a href={process.env.REACT_APP_PANKBASE_LINK}>

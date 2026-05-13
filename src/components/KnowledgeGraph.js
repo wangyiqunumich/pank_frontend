@@ -941,6 +941,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
 
   // listen to url change for fullscreen parameter
   useEffect(() => {
+    const previousHtmlOverflow = document.documentElement.style.overflow;
     const params = new URLSearchParams(location.search);
     const isFullscreen = params.get("fullscreen") === "true";
     if (isFullscreen !== expanded) setExpanded(isFullscreen);
@@ -954,7 +955,10 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
         handleRecenter();
       }
     }, 200);
-    return () => clearTimeout(timeoutId);
+    return () => {
+      clearTimeout(timeoutId);
+      document.documentElement.style.overflow = previousHtmlOverflow || "auto";
+    };
   }, [location, expanded]);
 
   const appearTimeoutRef = useRef(null);

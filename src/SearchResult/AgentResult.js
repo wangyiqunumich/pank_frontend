@@ -13,6 +13,7 @@ import {
   useMediaQuery,
 } from '@mui/material';
 
+import AgentSidebar from '../components/AgentSidebar';
 import SearchResult from './result';
 
 // Genome Browser Component - mounts only when tab is first selected
@@ -422,6 +423,14 @@ export function AgentResultLayout({
         && !Boolean(activeMeta?.isPlanning)
         && (effectiveAllowMulti || activeQuestionComplete);
     const isSingleColumn = useMediaQuery("(max-width:1199.95px)");
+    const [sidebarOpen, setSidebarOpen] = useState(() => {
+        if (typeof window === "undefined") return true;
+        const stored = window.localStorage.getItem('pank-sidebar-open');
+        if (stored === null) return true;
+        return stored === 'true';
+    });
+    const [floatingBottomOffset, setFloatingBottomOffset] = useState(0);
+    const sidebarOffset = isSingleColumn ? 0 : (sidebarOpen ? 264 : 80);
 
     const getAnchorPrefix = (index) => `result-${index + 1}`;
     const handleContentMeta = (index) => (meta) => {
@@ -609,16 +618,79 @@ export function AgentResultLayout({
         };
     }, []);
 
+    useEffect(() => {
+        if (typeof window === "undefined") return undefined;
+
+        const handleSidebarToggle = (event) => {
+            const nextOpen = Boolean(event?.detail?.open);
+            setSidebarOpen(nextOpen);
+        };
+
+        const handleStorage = (event) => {
+            if (event.key !== 'pank-sidebar-open') return;
+            setSidebarOpen(event.newValue !== 'false');
+        };
+
+        window.addEventListener('pank-sidebar-toggle', handleSidebarToggle);
+        window.addEventListener('storage', handleStorage);
+
+        return () => {
+            window.removeEventListener('pank-sidebar-toggle', handleSidebarToggle);
+            window.removeEventListener('storage', handleStorage);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return undefined;
+        if (!showFloatingSearchBar || hideFloatingSearchBarByPhase) {
+            setFloatingBottomOffset(0);
+            return undefined;
+        }
+
+        const updateFloatingOffset = () => {
+            const footerEl = document.querySelector('.pkb-footer');
+            if (!footerEl) {
+                setFloatingBottomOffset(0);
+                return;
+            }
+            const footerRect = footerEl.getBoundingClientRect();
+            const viewportHeight = window.innerHeight || 0;
+            const overlap = Math.max(0, viewportHeight - footerRect.top);
+            // Ignore sub-pixel / shadow overlap so the bar sits flush to viewport bottom.
+            const normalizedOverlap = overlap < 6 ? 0 : overlap;
+            setFloatingBottomOffset(normalizedOverlap);
+        };
+
+        updateFloatingOffset();
+        window.addEventListener('scroll', updateFloatingOffset, { passive: true });
+        window.addEventListener('resize', updateFloatingOffset);
+
+        return () => {
+            window.removeEventListener('scroll', updateFloatingOffset);
+            window.removeEventListener('resize', updateFloatingOffset);
+        };
+    }, [showFloatingSearchBar, hideFloatingSearchBarByPhase]);
+
     return (
         <div
             style={{
-                position: "relative",
-                backgroundColor: effectiveAllowMulti && results.length > 1 ? "#f5f5f5" : "transparent",
-                marginTop: effectiveAllowMulti && results.length > 1 ? -8 : 0,
-                paddingTop: effectiveAllowMulti && results.length > 1 ? 8 : 0,
-                paddingBottom: 0,
+                display: "flex",
+                minHeight: "100vh",
+                width: "100%",
             }}
         >
+            <AgentSidebar activeNav="new-chat" forceFullHeight />
+            <div
+                style={{
+                    position: "relative",
+                    flex: 1,
+                    minWidth: 0,
+                    backgroundColor: effectiveAllowMulti && results.length > 1 ? "#f5f5f5" : "transparent",
+                    marginTop: effectiveAllowMulti && results.length > 1 ? -8 : 0,
+                    paddingTop: effectiveAllowMulti && results.length > 1 ? 8 : 0,
+                    paddingBottom: 0,
+                }}
+            >
             {/* Results display */}
             <div ref={resultsContainerRef} style={{ paddingBottom: 40 }}>
                 {results.map((result, index) => {
@@ -877,13 +949,14 @@ export function AgentResultLayout({
                     style={{
                         position: "fixed",
                         bottom: 0,
-                        left: 0,
+                        left: sidebarOffset,
                         right: 0,
                         backgroundColor: "#fff",
                         borderTop: "1px solid #e0e0e0",
                         boxShadow: "0 -2px 12px rgba(0,0,0,0.08)",
                         padding: "16px",
-                        zIndex: 99,
+                        zIndex: 900,
+                        transition: "left 220ms ease, bottom 120ms ease",
                     }}
                 >
                     <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", gap: 12 }}>
@@ -939,6 +1012,7 @@ export function AgentResultLayout({
                     </div>
                 </div>
             ) : null}
+            </div>
         </div>
     );
 }
