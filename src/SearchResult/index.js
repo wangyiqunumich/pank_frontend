@@ -68,20 +68,16 @@ const defaultNextQuestion = {
     link: '/result?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type&relationship=express_in'
 }
 
-const NEO4J_QUERY_ENDPOINT = 'http://dev-neo4j.pankgraph.org/db/neo4j/query/v2';
-const NEO4J_BASIC_AUTH = 'Basic bmVvNGo6UGFuS19kZXZlbG9wbWVudF9wYXNzd29yZA==';
-
 const validateQuestions = async (questions) => {
     const fetchQueryResults = async (question) => {
         const response = flaskBackendAxiosInstanceNew
-            .post(NEO4J_QUERY_ENDPOINT,
-                { statement: question.query }, {
+            .post('/pank2-neo4j-api-development',
+                { query: question.query, action: 'query' }, {
                 headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": NEO4J_BASIC_AUTH,
+                    "Content-Type": "application/json"
                 }
             })
-            .then((response) => response.data?.values && response.data.values.length > 0)
+            .then((response) => response.data?.records && response.data?.records.length > 0)
         const valid = await response;
         return { valid, question };
     };

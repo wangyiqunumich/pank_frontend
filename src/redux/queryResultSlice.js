@@ -6,39 +6,16 @@ import { QueryStatus } from '@reduxjs/toolkit/query';
 
 import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 
-const NEO4J_QUERY_ENDPOINT = 'http://dev-neo4j.pankgraph.org/db/neo4j/query/v2';
-const NEO4J_BASIC_AUTH = 'Basic bmVvNGo6UGFuS19kZXZlbG9wbWVudF9wYXNzd29yZA==';
-
 export const queryQueryResult = createAsyncThunk('/openCypherToQueryResult',
     async (payload) => {
         if (payload.isNeptune) {
             return await flaskBackendAxiosInstanceNew
-                .post(NEO4J_QUERY_ENDPOINT, { statement: payload.query }, {
+                .post('/pank2-neo4j-api-development', { action: "query", query: payload.query }, {
                     headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": NEO4J_BASIC_AUTH,
+                        "Content-Type": "application/json"
                     }
                 })
-                .then((response) => {
-                    const fields = response.data?.data?.fields;
-                    const rows = response.data?.data?.values;
-                    const mappedRows = Array.isArray(fields) && Array.isArray(rows)
-                        ? rows
-                            .map((row) => Object.fromEntries(fields.map((field, index) => [field, row[index]])))
-                        : [];
-
-                    console.log('Mapped Rows:', mappedRows);
-                    if (mappedRows.length > 0) {
-                        return { results: JSON.stringify(mappedRows) };
-                    }
-
-                    // Fallback to older response shapes for backward compatibility.
-                    return {
-                        results: JSON.stringify(
-                            response.data?.values ?? response.data?.results ?? response.data
-                        ),
-                    };
-                })
+                .then((response) => ({ results: JSON.stringify(response.data?.records) }))
                 .catch((response) => {
                     console.log(response);
                 });
