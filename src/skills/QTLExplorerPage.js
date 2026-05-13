@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import BackupTableIcon from '@mui/icons-material/BackupTable';
 import BiotechOutlinedIcon from '@mui/icons-material/BiotechOutlined';
 import CheckIcon from '@mui/icons-material/Check';
 import ContactSupportOutlinedIcon
@@ -17,7 +18,6 @@ import ContactSupportOutlinedIcon
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined';
 import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined';
-import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
 import ScatterPlotOutlinedIcon from '@mui/icons-material/ScatterPlotOutlined';
 import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
 import {
@@ -481,7 +481,7 @@ export default function QTLExplorerPage() {
                         flexShrink: 0,
                       }}
                     >
-                      <PeopleAltOutlinedIcon sx={{ fontSize: 16, color: '#3A838B' }} />
+                      <BackupTableIcon sx={{ fontSize: 16, color: '#3A838B' }} />
                     </Box>
                     <Box>
                       <Typography sx={{ color: '#000000', fontWeight: '600 !important', fontSize: 14 }}>

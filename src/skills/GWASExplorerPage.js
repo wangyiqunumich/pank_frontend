@@ -12,12 +12,12 @@ import {
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import BackupTableIcon from '@mui/icons-material/BackupTable';
 import CheckIcon from '@mui/icons-material/Check';
 import ContactSupportOutlinedIcon
   from '@mui/icons-material/ContactSupportOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined';
-import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
 import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
 import {
   Autocomplete,
@@ -263,7 +263,7 @@ export default function GWASExplorerPage() {
                         flexShrink: 0,
                       }}
                     >
-                      <PeopleAltOutlinedIcon sx={{ fontSize: 16, color: '#3A838B' }} />
+                      <BackupTableIcon sx={{ fontSize: 16, color: '#3A838B' }} />
                     </Box>
                     <Box>
                       <Typography sx={{ color: '#000000', fontWeight: '600 !important', fontSize: 14 }}>
