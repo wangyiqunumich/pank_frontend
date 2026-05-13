@@ -169,9 +169,8 @@ def _pankbase_api_query_core(input: str, q: Queue) -> None:
         session = _get_pankbase_session()
         response = session.post(
             #'HTTPS://vcr7lwcrnh.execute-api.us-east-1.amazonaws.com/development/api',
-            'http://dev-neo4j.pankgraph.org/db/neo4j/query/v2',
-            json={'statement': cleaned_cypher},
-            auth=('neo4j', 'PanK_development_password'),
+            'https://nzi5e9mb0f.execute-api.us-east-1.amazonaws.com/development/pank2-neo4j-api-development',
+            json={'query': cleaned_cypher},
             timeout=60
         )
 
