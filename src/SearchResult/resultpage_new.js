@@ -565,6 +565,8 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const [variables, setVariables] = useState({});
     const [referenceData, setReferenceData] = useState({});
     const [articlesData, setArticlesData] = useState([]);
+    const [referencesLoading, setReferencesLoading] = useState(false);
+    const [literatureLoading, setLiteratureLoading] = useState(false);
     const [imagePopupOpen, setImagePopupOpen] = useState(false);
     const [nextQuestions, setNextQuestions] = useState([]);
     const [allNextQuestions, setAllNextQuestions] = useState(null);
@@ -656,7 +658,9 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
     const stripCypherQueriesSection = React.useCallback((markdownText) => {
         const normalized = String(markdownText || '').replace(/\r\n/g, '\n');
-        return normalized.replace(/\n?##\s*References[\s\S]*$/i, '').replace(/\s+$/g, '');
+        return normalized
+            // Keep literature sections ("## Literature Evidence" / "## References") in AI summary.
+            .replace(/\s+$/g, '');
     }, []);
 
     const parseSummaryFromRawOutput = (rawOutput) => {
@@ -761,6 +765,72 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         }
     }, [normalizeFollowUpItems]);
 
+    const summaryHasLiteratureSection = React.useCallback((summaryText) => {
+        const text = String(summaryText || '');
+        return /##\s*Literature\s*Evidence/i.test(text) || /##\s*References/i.test(text);
+    }, []);
+
+    const stripLiteratureSupportingSections = React.useCallback((markdownText) => {
+        const text = String(markdownText || '').replace(/\r\n/g, '\n');
+        if (!text) return '';
+
+        const lines = text.split('\n');
+        const output = [];
+        let skippingSection = false;
+
+        const isExcludedHeading = (lineText) => /^##\s*(Additional\s+HIRN\s+Evidence|References)\s*$/i.test(lineText.trim());
+        const isLevel2Heading = (lineText) => /^##\s+/.test(lineText.trim());
+
+        for (const line of lines) {
+            if (isExcludedHeading(line)) {
+                skippingSection = true;
+                continue;
+            }
+
+            if (skippingSection && isLevel2Heading(line)) {
+                skippingSection = false;
+            }
+
+            if (!skippingSection) {
+                output.push(line);
+            }
+        }
+
+        return output.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+    }, []);
+
+    const getReferenceParsingBody = React.useCallback((markdownText) => {
+        return stripLiteratureSupportingSections(markdownText || '');
+    }, [stripLiteratureSupportingSections]);
+
+    const appendLiteratureBlock = React.useCallback((summaryText, literatureMarkdown) => {
+        const base = String(summaryText || '').trim();
+        const block = stripLiteratureSupportingSections(literatureMarkdown || '');
+        if (!base || !block) return base;
+        if (summaryHasLiteratureSection(base)) return base;
+        return `${base}\n\n${block}`;
+    }, [summaryHasLiteratureSection, stripLiteratureSupportingSections]);
+
+    const fetchLiteratureMarkdown = React.useCallback(async (sessionId) => {
+        const sid = String(sessionId || '').trim();
+        if (!sid) return '';
+
+        setLiteratureLoading(true);
+        try {
+            const response = await flaskBackendAxiosInstanceNew.post(
+                'https://jieliulab3.dcmb.med.umich.edu/pankgraph-agent/chat/literature',
+                { session_id: sid },
+                { headers: { 'Content-Type': 'application/json' } }
+            );
+            return String(response?.data?.markdown || '').trim();
+        } catch (err) {
+            console.error('[Literature] fetch failed:', err?.response?.data || err?.message || err);
+            return '';
+        } finally {
+            setLiteratureLoading(false);
+        }
+    }, []);
+
     const revisePlanSession = React.useCallback(async (sessionId, prompt) => {
         const response = await flaskBackendAxiosInstanceNew.post(
             'https://jieliulab3.dcmb.med.umich.edu/pankgraph-agent/plan/revise',
@@ -794,7 +864,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         const title = block?.title || block?.question || `Follow-up ${index + 1}`;
         const answerText = block?.summary || (block?.confirming ? 'AI summary is generating...' : '');
         const showGraphSection = String(block?.route || '') !== 'follow_up';
-        const pmids = extractPmidsFromCitationText(block?.summary, 30);
+        const pmids = extractPmidsFromCitationText(getReferenceParsingBody(block?.summary), 30);
         const referencesData = Array.isArray(block?.referencesData) && block.referencesData.length
             ? block.referencesData
             : pmids.map((pmid) => ({ pmid, data: {} }));
@@ -859,44 +929,54 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                                         <CircularProgress size={14} />
                                     </Box>
                                 ) : (
-                                    <ReactMarkdown
-                                        remarkPlugins={[remarkGfm]}
-                                        rehypePlugins={[rehypeRaw]}
-                                        components={{
-                                            p: ({ children }) => <Typography component="p" sx={{ fontSize: 16, fontWeight: 400, color: '#475569' }}>{renderChildrenWithPmids(children, `followup-p-${block?.id || index}`, false, followUpAnchorByPmid)}</Typography>,
-                                            li: ({ children }) => <Typography component="li" sx={{ fontSize: 16, fontWeight: 400, color: '#475569' }}>{renderChildrenWithPmids(children, `followup-li-${block?.id || index}`, false, followUpAnchorByPmid)}</Typography>,
-                                            a: ({ href, children }) => {
-                                                const pmid = extractPubmedIdFromHref(href);
-                                                if (pmid) {
-                                                    return renderPmidPill(pmid, `followup-a-${block?.id || index}`, followUpAnchorByPmid);
-                                                }
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+                                        <ReactMarkdown
+                                            remarkPlugins={[remarkGfm]}
+                                            rehypePlugins={[rehypeRaw]}
+                                            components={{
+                                                p: ({ children }) => <Typography component="p" sx={{ fontSize: 16, fontWeight: 400, color: '#475569' }}>{renderChildrenWithPmids(children, `followup-p-${block?.id || index}`, false, followUpAnchorByPmid)}</Typography>,
+                                                li: ({ children }) => <Typography component="li" sx={{ fontSize: 16, fontWeight: 400, color: '#475569' }}>{renderChildrenWithPmids(children, `followup-li-${block?.id || index}`, false, followUpAnchorByPmid)}</Typography>,
+                                                a: ({ href, children }) => {
+                                                    const pmid = extractPubmedIdFromHref(href);
+                                                    if (pmid) {
+                                                        return renderPmidPill(pmid, `followup-a-${block?.id || index}`, followUpAnchorByPmid);
+                                                    }
 
-                                                return (
-                                                    <Link
-                                                        href={href}
-                                                        target={href?.startsWith('#') ? undefined : '_blank'}
-                                                        rel={href?.startsWith('#') ? undefined : 'noreferrer'}
-                                                        sx={{ color: '#0069c2', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
-                                                        onClick={(event) => scrollToReferenceAnchor(href, event)}
-                                                    >
-                                                        {renderChildrenWithPmids(children, `followup-a-${block?.id || index}`, true, followUpAnchorByPmid)}
-                                                    </Link>
-                                                );
-                                            },
-                                            strong: ({ children }) => <strong>{renderChildrenWithPmids(children, `followup-strong-${block?.id || index}`, false, followUpAnchorByPmid)}</strong>,
-                                            em: ({ children }) => <em>{renderChildrenWithPmids(children, `followup-em-${block?.id || index}`, false, followUpAnchorByPmid)}</em>,
-                                            table: ({ children }) => {
-                                                const { header, bodyRows } = extractTableMatrix(children);
-                                                const shouldNumberTable = !(header.length > 0 && bodyRows.length === 1);
-                                                if (shouldNumberTable) {
-                                                    followUpTableTitleIndex += 1;
-                                                }
-                                                return <MarkdownTableWithTools title={shouldNumberTable ? `Table ${followUpTableTitleIndex}` : ''}>{children}</MarkdownTableWithTools>;
-                                            },
-                                        }}
-                                    >
-                                        {answerText}
-                                    </ReactMarkdown>
+                                                    return (
+                                                        <Link
+                                                            href={href}
+                                                            target={href?.startsWith('#') ? undefined : '_blank'}
+                                                            rel={href?.startsWith('#') ? undefined : 'noreferrer'}
+                                                            sx={{ color: '#0069c2', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+                                                            onClick={(event) => scrollToReferenceAnchor(href, event)}
+                                                        >
+                                                            {renderChildrenWithPmids(children, `followup-a-${block?.id || index}`, true, followUpAnchorByPmid)}
+                                                        </Link>
+                                                    );
+                                                },
+                                                strong: ({ children }) => <strong>{renderChildrenWithPmids(children, `followup-strong-${block?.id || index}`, false, followUpAnchorByPmid)}</strong>,
+                                                em: ({ children }) => <em>{renderChildrenWithPmids(children, `followup-em-${block?.id || index}`, false, followUpAnchorByPmid)}</em>,
+                                                table: ({ children }) => {
+                                                    const { header, bodyRows } = extractTableMatrix(children);
+                                                    const shouldNumberTable = !(header.length > 0 && bodyRows.length === 1);
+                                                    if (shouldNumberTable) {
+                                                        followUpTableTitleIndex += 1;
+                                                    }
+                                                    return <MarkdownTableWithTools title={shouldNumberTable ? `Table ${followUpTableTitleIndex}` : ''}>{children}</MarkdownTableWithTools>;
+                                                },
+                                            }}
+                                        >
+                                            {answerText}
+                                        </ReactMarkdown>
+                                        {block?.literatureLoading ? (
+                                            <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
+                                                <Typography component="span" sx={{ fontSize: 16, color: '#475569' }}>
+                                                    Summarizing literature...
+                                                </Typography>
+                                                <CircularProgress size={14} />
+                                            </Box>
+                                        ) : null}
+                                    </Box>
                                 )}
                             </Box>
                         ),
@@ -934,7 +1014,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 },
             },
         };
-    }, [isQuestionComplete, isChatApiMode, navigate]);
+    }, [isQuestionComplete, isChatApiMode, navigate, getReferenceParsingBody]);
 
     const extractParsedTitle = (summaryText, fallbackQuestion) => {
         const lines = (summaryText || '')
@@ -1087,7 +1167,8 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     }, [dispatch]);
 
     const fetchReferenceArticles = React.useCallback(async (summaryText) => {
-        const pmids = extractPmidsFromCitationText(summaryText, 50);
+        const bodyText = getReferenceParsingBody(summaryText);
+        const pmids = extractPmidsFromCitationText(bodyText, 50);
         if (!pmids.length) {
             return [];
         }
@@ -1108,7 +1189,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             console.error('[Follow-up] Article fetch error:', err);
             return [];
         }
-    }, [dispatch]);
+    }, [dispatch, getReferenceParsingBody]);
 
     const fetchGraphFromCypher = React.useCallback(async (cypherQueries) => {
         setFunctionalDataRequestPath(extractFunctionalDataRequestPath(cypherQueries));
@@ -1723,6 +1804,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         const parsed = parseChatResponseContent(payload);
         const resolvedQuestion = fallbackQuestion || currentQuestion || question;
         const route = String(payload?.route || 'new_query');
+        const responseSessionId = String(payload?.session_id || chatSessionId || '').trim();
 
         setCurrentQuestion(resolvedQuestion);
         setChatRouteState(route);
@@ -1740,6 +1822,18 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         setTerminalLoading(false);
         setStreamComplete(true);
 
+        if (route === 'new_query' && parsed.summary && responseSessionId) {
+            const literatureMarkdown = await fetchLiteratureMarkdown(responseSessionId);
+            const mergedSummary = appendLiteratureBlock(parsed.summary, literatureMarkdown);
+            if (mergedSummary && mergedSummary !== parsed.summary) {
+                setAiAnswer(mergedSummary);
+                setStreamAnswer(mergedSummary);
+                setStreamedSummary(mergedSummary);
+                streamAnswerRef.current = mergedSummary;
+                streamSummaryRef.current = mergedSummary;
+            }
+        }
+
         const planCypherQueries = extractPayloadCypherQueries(payload);
         if (planCypherQueries.length) {
             await fetchGraphFromCypher(planCypherQueries);
@@ -1748,7 +1842,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             setNoGraph(true);
             setFunctionalDataRequestPath('');
         }
-    }, [parseChatResponseContent, currentQuestion, question, planParsedTitle, extractPayloadCypherQueries, fetchGraphFromCypher]);
+    }, [parseChatResponseContent, currentQuestion, question, chatSessionId, extractPayloadCypherQueries, fetchGraphFromCypher, fetchLiteratureMarkdown, appendLiteratureBlock]);
 
     const handleConfirmPendingPlan = React.useCallback(async (blockId) => {
         const block = followUpBlocks.find((item) => item.id === blockId);
@@ -1788,25 +1882,45 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             const planCypherQueries = extractPayloadCypherQueries(payload);
             const functionalPath = extractFunctionalDataRequestPath(planCypherQueries);
             const hasGraphCypherQueries = stripFunctionalDataRequestsFromCypher(planCypherQueries).length > 0;
-            const referencesData = await fetchReferenceArticles(parsed.summary || '');
+            let summaryText = parsed.summary || '';
 
             setFollowUpBlocks((prev) => prev.map((item) => (
                 item.id === blockId
                     ? {
                         ...item,
                         type: 'answer',
-                        summary: parsed.summary,
+                        summary: summaryText,
                         followUpQuestions: parsed.followUpQuestions,
                         title: item.title || item.question,
                         route,
-                        referencesData,
+                        referencesData: [],
                         graphData: null,
                         coordData: null,
                         noGraph: route === 'follow_up' ? true : !hasGraphCypherQueries,
                         graphLoading: route !== 'follow_up' && hasGraphCypherQueries,
                         functionalDataRequestPath: functionalPath,
+                        literatureLoading: route === 'new_query',
                         confirming: false,
                         error: '',
+                    }
+                    : item
+            )));
+
+            if (route === 'new_query' && summaryText && chatSessionId) {
+                const literatureMarkdown = await fetchLiteratureMarkdown(chatSessionId);
+                const mergedSummary = appendLiteratureBlock(summaryText, literatureMarkdown);
+                summaryText = mergedSummary || summaryText;
+            }
+
+            const referencesData = await fetchReferenceArticles(summaryText);
+
+            setFollowUpBlocks((prev) => prev.map((item) => (
+                item.id === blockId
+                    ? {
+                        ...item,
+                        summary: summaryText,
+                        referencesData,
+                        literatureLoading: false,
                     }
                     : item
             )));
@@ -1830,7 +1944,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             appendConversationMessages(chatSessionId, [
                 {
                     role: 'assistant',
-                    content: parsed.summary || '',
+                    content: summaryText,
                     route,
                     cypherQueries: planCypherQueries,
                     followUpQuestions: parsed.followUpQuestions || [],
@@ -1852,7 +1966,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     : item
             )));
         }
-    }, [followUpBlocks, chatSessionId, parseChatResponseContent, extractPayloadCypherQueries, queryGraphFromCypher, question, currentQuestion, conversationRound, fetchReferenceArticles]);
+    }, [followUpBlocks, chatSessionId, parseChatResponseContent, extractPayloadCypherQueries, queryGraphFromCypher, question, currentQuestion, conversationRound, fetchReferenceArticles, fetchLiteratureMarkdown, appendLiteratureBlock]);
 
     const handleSendFollowUp = React.useCallback(async (value) => {
         const cleaned = stripHtml(value || '').trim();
@@ -1883,7 +1997,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             const planCypherQueries = extractPayloadCypherQueries(payload);
             const functionalPath = extractFunctionalDataRequestPath(planCypherQueries);
             const hasGraphCypherQueries = stripFunctionalDataRequestsFromCypher(planCypherQueries).length > 0;
-            const referencesData = await fetchReferenceArticles(parsed.summary || '');
+            let summaryText = parsed.summary || '';
             setChatRouteState(String(payload?.route || ''));
             setChatHistoryCompressed(Boolean(payload?.history_compressed));
             setConversationRound(Number(payload?.round || conversationRound));
@@ -1912,9 +2026,9 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         ? {
                             ...item,
                             type: 'answer',
-                            summary: parsed.summary,
+                            summary: summaryText,
                             followUpQuestions: parsed.followUpQuestions,
-                            referencesData,
+                            referencesData: [],
                             route,
                             graphData: null,
                             coordData: null,
@@ -1922,7 +2036,27 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                             graphLoading: route !== 'follow_up' && hasGraphCypherQueries,
                             functionalDataRequestPath: functionalPath,
                             title: cleaned,
+                            literatureLoading: route === 'new_query',
                             error: '',
+                        }
+                        : item
+                )));
+
+                if (route === 'new_query' && summaryText && chatSessionId) {
+                    const literatureMarkdown = await fetchLiteratureMarkdown(chatSessionId);
+                    const mergedSummary = appendLiteratureBlock(summaryText, literatureMarkdown);
+                    summaryText = mergedSummary || summaryText;
+                }
+
+                const referencesData = await fetchReferenceArticles(summaryText);
+
+                setFollowUpBlocks((prev) => prev.map((item) => (
+                    item.id === blockId
+                        ? {
+                            ...item,
+                            summary: summaryText,
+                            referencesData,
+                            literatureLoading: false,
                         }
                         : item
                 )));
@@ -1946,7 +2080,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 appendConversationMessages(chatSessionId, [
                     {
                         role: 'assistant',
-                        content: parsed.summary || '',
+                        content: summaryText,
                         route,
                         cypherQueries: planCypherQueries,
                         followUpQuestions: parsed.followUpQuestions || [],
@@ -1970,7 +2104,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         } finally {
             setFollowUpSubmitting(false);
         }
-    }, [chatSessionId, parseChatResponseContent, conversationRound, question, currentQuestion, parsePlanMarkdownForUI, extractPayloadCypherQueries, queryGraphFromCypher, fetchReferenceArticles]);
+    }, [chatSessionId, parseChatResponseContent, conversationRound, question, currentQuestion, parsePlanMarkdownForUI, extractPayloadCypherQueries, queryGraphFromCypher, fetchReferenceArticles, fetchLiteratureMarkdown, appendLiteratureBlock]);
 
     useEffect(() => {
         followUpSendHandlerRef.current = handleSendFollowUp;
@@ -2028,7 +2162,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             sessionStorage.removeItem(CHAT_START_CACHE_KEY);
             sessionStorage.removeItem(CHAT_PENDING_PLAN_CACHE_KEY);
 
-            const summaryForHistory = String(confirmPayload?.answer_markdown || '').trim();
+            const summaryForHistory = String(streamAnswerRef.current || confirmPayload?.answer_markdown || '').trim();
             if (summaryForHistory) {
                 const confirmParsed = parseChatResponseContent(confirmPayload);
                 appendConversationMessages(chatSessionId, [{
@@ -2418,7 +2552,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     setChatRouteState(String(payload?.route || 'new_query'));
                     await applyMainChatResponse(payload, question);
                     if (isStale()) return;
-                    const summaryForHistory = String(payload?.answer_markdown || '').trim();
+                    const summaryForHistory = String(streamAnswerRef.current || payload?.answer_markdown || '').trim();
                     if (summaryForHistory) {
                         const startParsed = parseChatResponseContent(payload);
                         appendConversationMessages(sessionId, [{
@@ -2583,6 +2717,12 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             ? (sampleSummaryData?.summary || '')
             : (activeSummary || summaryPlaceholder)
     );
+
+    const showLiteratureSummarizing =
+        !demoMode
+        && !planDemoMode
+        && literatureLoading
+        && terminalPhase === 'result';
 
     const overviewSummary = stripCypherQueriesSection(displaySummary);
 
@@ -3288,9 +3428,6 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         return "\n\n\n==LOG===========================\nQuestion:\n" + question + "\n\nRaw AI Agent Result:\n" + JSON.stringify(agentRawResult, null, 2);
     }
 
-    // Track if references are loading
-    const [referencesLoading, setReferencesLoading] = useState(false);
-
     // Fetch articles data in PRODUCTION mode based on aiAnswer
     useEffect(() => {
         if (demoMode || planDemoMode || debug) {
@@ -3299,7 +3436,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         }
 
         if (!!aiAnswer) {
-            const pmids = extractPmidsFromCitationText(aiAnswer, 50);
+            const pmids = extractPmidsFromCitationText(getReferenceParsingBody(aiAnswer), 50);
             if (pmids.length > 0) {
                 setReferencesLoading(true);
                 dispatch(queryArticles({
@@ -3326,9 +3463,13 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     setReferencesLoading(false);
                     console.error('[Production Mode] Article fetch error:', err);
                 });
+            } else {
+                setArticlesData([]);
             }
+        } else {
+            setArticlesData([]);
         }
-    }, [aiAnswer, demoMode, planDemoMode, debug, dispatch]);
+    }, [aiAnswer, demoMode, planDemoMode, debug, dispatch, getReferenceParsingBody]);
 
     // Fetch articles data in DEBUG mode based on streamComplete
     useEffect(() => {
@@ -3340,7 +3481,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         const textToExtractFrom = streamAnswer || streamedSummary;
 
         if (!!textToExtractFrom) {
-            const pmids = extractPmidsFromCitationText(textToExtractFrom, 50);
+            const pmids = extractPmidsFromCitationText(getReferenceParsingBody(textToExtractFrom), 50);
             if (pmids.length > 0) {
                 setReferencesLoading(true);
                 dispatch(queryArticles({
@@ -3367,9 +3508,13 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     setReferencesLoading(false);
                     console.error('[Debug Mode] Article fetch error:', err);
                 });
+            } else {
+                setArticlesData([]);
             }
+        } else {
+            setArticlesData([]);
         }
-    }, [streamComplete, demoMode, planDemoMode, debug, streamAnswer, streamedSummary, dispatch]);
+    }, [streamComplete, demoMode, planDemoMode, debug, streamAnswer, streamedSummary, dispatch, getReferenceParsingBody]);
 
     // Create skeleton placeholder items for references while loading
     const referencesSkeletonItems = Array.from({ length: 3 }, (_, index) => ({
@@ -3696,7 +3841,19 @@ Please review this plan and provide edits if needed.`,
                                     <CircularProgress size={14} />
                                 </Box>
                             )
-                            : markdownSummaryContent),
+                            : (
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+                                    {markdownSummaryContent}
+                                    {showLiteratureSummarizing ? (
+                                        <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
+                                            <Typography component="span" sx={{ fontSize: 16, color: '#475569' }}>
+                                                Summarizing literature...
+                                            </Typography>
+                                            <CircularProgress size={14} />
+                                        </Box>
+                                    ) : null}
+                                </Box>
+                            )),
                 },
                 debug && !streamComplete ? {
                     heading: "Thinking Process",

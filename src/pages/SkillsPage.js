@@ -23,7 +23,7 @@ function SkillCard({ icon, title, description, actionLabel, onAction, accent = '
         p: 3,
         borderRadius: '14px',
         border: '1px solid #E2E8F0',
-        minHeight: 278,
+        minHeight: 360,
         display: 'flex',
         flexDirection: 'column',
       }}
@@ -88,8 +88,8 @@ export default function SkillsPage() {
     <Box sx={{ flex: 1, bgcolor: '#FFFFFF', display: 'flex', minHeight: 0 }}>
       <AgentSidebar activeNav="skills" />
 
-      <Box sx={{ flex: 1, px: { xs: 2, md: 6 }, py: { xs: 3, md: 6 } }}>
-        <Box sx={{ maxWidth: 1040, mx: 'auto' }}>
+      <Box sx={{ flex: 1, px: { xs: 2.5, md: 6, lg: 8 }, py: { xs: 3, md: 6 } }}>
+        <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
           <Typography sx={{ fontFamily: 'Inter', fontWeight: 800, fontSize: { xs: 32, md: 40 }, color: '#111827' }}>
             Skills
           </Typography>
@@ -99,10 +99,10 @@ export default function SkillsPage() {
 
           <Box
             sx={{
-              mt: 4,
+              mt: 8,
               display: 'grid',
-              gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
-              gap: 3,
+              gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' },
+              gap: { xs: 3, md: 4 },
             }}
           >
             {showSsgsea ? (

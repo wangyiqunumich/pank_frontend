@@ -71,11 +71,11 @@ root.render(
   <AuthProvider {...cognitoAuthConfig}>
     <Provider store={store}>
       <Container disableGutters maxWidth={false} sx={{
-        padding: 0, margin: 0, minHeight: '100%',
+        padding: 0, margin: 0, minHeight: '100vh',
         display: 'flex', flexDirection: 'column'
       }}>
         <BrowserRouter>
-          <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <NavBar />
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
               <Routes>

@@ -38,6 +38,7 @@ import {
 
 import AgentSidebar from '../components/AgentSidebar';
 import BoxSvg from '../image/Box.svg';
+import { buildFunctionalPlotPrompt } from '../utils/functionalPromptBuilder';
 import functionalDataApi from '../utils/functionalDataApi';
 import functionalDataContent from './functionalDataContent.json';
 
@@ -70,16 +71,21 @@ function StepBadge({ n }) {
   );
 }
 
-function AgentBtn() {
+const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
+
+function AgentBtn({ disabled = false, onClick }) {
   return (
     <Button
       size="small"
       aria-label="Agent"
+      disabled={disabled}
+      onClick={onClick}
       sx={{
         minWidth: 0,
-        color: '#0F766E', px: 0.75, py: 0.25,
-        border: '1px solid #CCFBF1', borderRadius: '6px', bgcolor: '#F0FDFA',
-        '&:hover': { bgcolor: '#CCFBF1' },
+        color: disabled ? '#94A3B8' : '#0F766E', px: 0.75, py: 0.25,
+        border: '1px solid', borderColor: disabled ? '#E2E8F0' : '#CCFBF1',
+        borderRadius: '6px', bgcolor: disabled ? '#F8FAFC' : '#F0FDFA',
+        '&:hover': { bgcolor: disabled ? '#F8FAFC' : '#CCFBF1' },
       }}
     >
       <AutoGraphIcon sx={{ fontSize: 14 }} />
@@ -87,7 +93,7 @@ function AgentBtn() {
   );
 }
 
-function StepCard({ step, title, titleInfo, subtitle, subtitleInfo, showAgent, extra, children }) {
+function StepCard({ step, title, titleInfo, subtitle, subtitleInfo, showAgent, agentDisabled = false, onAgentClick, extra, children }) {
   return (
     <Paper elevation={0} sx={{ p: 2, borderRadius: '10px', border: '1px solid #E2E8F0', width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
       {/* Line 1: badge + title + AgentBtn | extra + chat icon */}
@@ -105,8 +111,8 @@ function StepCard({ step, title, titleInfo, subtitle, subtitleInfo, showAgent, e
           {extra}
           {showAgent && (
             <>
-              <AgentBtn />
-              <ChatBubbleOutlineIcon sx={{ fontSize: 15, color: '#94A3B8', cursor: 'pointer' }} />
+              <AgentBtn disabled={agentDisabled} onClick={onAgentClick} />
+              <ChatBubbleOutlineIcon sx={{ fontSize: 15, color: '#94A3B8' }} />
             </>
           )}
         </Box>
@@ -248,6 +254,7 @@ export default function FunctionalDataPage() {
   const [isLoadingDonors, setIsLoadingDonors] = useState(false);
   const [isLoadingTraceChart, setIsLoadingTraceChart] = useState(false);
   const [isLoadingTraitChart, setIsLoadingTraitChart] = useState(false);
+  const [isBuildingStep2Prompt, setIsBuildingStep2Prompt] = useState(false);
   const [errors, setErrors] = useState({});
 
   const step1Options = useMemo(() => {
@@ -529,6 +536,27 @@ export default function FunctionalDataPage() {
   const totalDonors = summaryData?.summary?.available_donors || 114;
   const percentageSelected = totalDonors > 0 ? Math.round((donorCount / totalDonors) * 100) : 0;
 
+  const handleStep2AgentSearch = async () => {
+    try {
+      setIsBuildingStep2Prompt(true);
+      const filters = {
+        ...getFilters(),
+        trace_type: responseType,
+      };
+      const currentData = await functionalDataApi.getCohortTraces(responseType, getFilters());
+      const prompt = buildFunctionalPlotPrompt({
+        filters,
+        currentData,
+      });
+      const encodedQuery = encodeURIComponent(utf8ToBase64(prompt));
+      navigate(`/result-new2?question=${encodedQuery}&terminal=true`);
+    } catch (err) {
+      console.error('Failed to build Step 2 prompt:', err);
+    } finally {
+      setIsBuildingStep2Prompt(false);
+    }
+  };
+
   return (
     <Box sx={{ flex: 1, bgcolor: '#FFFFFF', display: 'flex', minHeight: 0 }}>
       <AgentSidebar activeNav="skills" />
@@ -705,6 +733,8 @@ export default function FunctionalDataPage() {
                       subtitle={steps.step2.subtitle}
                       subtitleInfo={steps.step2.subtitleInfo}
                       showAgent
+                      agentDisabled={isBuildingStep2Prompt}
+                      onAgentClick={handleStep2AgentSearch}
                     >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5, flexWrap: 'wrap' }}>
                       <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#64748B' }}>{captions.responseType}</Typography>
@@ -716,9 +746,9 @@ export default function FunctionalDataPage() {
                           <MenuItem key={o} value={o} sx={{ fontFamily: 'Inter', fontSize: 13 }}>{formatResponseTypeLabel(o)}</MenuItem>
                         ))}
                       </Select>
-                      <IconButton size="small" sx={{ border: '1px solid #E2E8F0', borderRadius: '6px', p: 0.4 }}>
+                      <Box sx={{ border: '1px solid #E2E8F0', borderRadius: '6px', p: 0.4, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
                         <ShowChartIcon sx={{ fontSize: 15, color: '#475569' }} />
-                      </IconButton>
+                      </Box>
                     </Box>
                     <ChartPlaceholder 
                       aspectRatio={2}
@@ -745,7 +775,7 @@ export default function FunctionalDataPage() {
                   </Box>
 
                   <Box sx={{ minWidth: 0 }}>
-                    <StepCard step={3} title={steps.step3.title} titleInfo={steps.step3.titleInfo} showAgent>
+                    <StepCard step={3} title={steps.step3.title} titleInfo={steps.step3.titleInfo} showAgent agentDisabled>
                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 0.5, mb: 1.5 }}>
                       <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#64748B' }}>{captions.trait}</Typography>
                       <Select autoWidth size="small" value={trait} onChange={(e) => setTrait(e.target.value)} sx={{ ...SEL_SX, minWidth: 220 }}>

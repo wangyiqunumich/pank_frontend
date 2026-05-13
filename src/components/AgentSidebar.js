@@ -42,7 +42,7 @@ function SidebarButton({ active, icon, label, onClick, open }) {
       onClick={onClick}
       sx={{
         minWidth: 0,
-        justifyContent: 'flex-start',
+        justifyContent: open ? 'flex-start' : 'center',
         borderRadius: open ? '20px' : '50%',
         bgcolor: open && active ? '#D9EAEB' : 'transparent',
         color: active ? '#3A838B' : '#7D7D7D',
@@ -51,10 +51,11 @@ function SidebarButton({ active, icon, label, onClick, open }) {
         fontWeight: 600,
         textTransform: 'none',
         height: 40,
-        px: 1.25,
-        width: '100%',
+        px: open ? 1.25 : 0,
+        width: open ? '100%' : 40,
         '&:hover': { bgcolor: open && active ? '#D9EAEB' : 'transparent' },
         '&:hover .sidebar-icon-bubble': { bgcolor: open ? 'transparent' : (active ? '#D9EAEB' : 'transparent') },
+        transition: 'width 220ms ease, padding 220ms ease, border-radius 220ms ease, justify-content 220ms ease',
       }}
     >
       <Box
@@ -94,17 +95,18 @@ function SidebarButton({ active, icon, label, onClick, open }) {
 
   return (
     <Tooltip title={label} placement="right" arrow>
-      <Box sx={{ display: 'flex', justifyContent: 'center' }}>{button}</Box>
+      <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>{button}</Box>
     </Tooltip>
   );
 }
 
-export default function AgentSidebar({ activeNav = 'new-chat' }) {
+export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight = false }) {
   const navigate = useNavigate();
   const location = useLocation();
   const auth = useAuth();
   const [recentChats, setRecentChats] = useState([]);
   const [userMenuAnchorEl, setUserMenuAnchorEl] = useState(null);
+  const [releaseViewportMinHeight, setReleaseViewportMinHeight] = useState(false);
   const [open, setOpen] = useState(() => {
     if (typeof window === 'undefined') return true;
     const stored = window.localStorage.getItem('pank-sidebar-open');
@@ -119,7 +121,37 @@ export default function AgentSidebar({ activeNav = 'new-chat' }) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     window.localStorage.setItem('pank-sidebar-open', String(open));
+    window.dispatchEvent(new CustomEvent('pank-sidebar-toggle', { detail: { open } }));
   }, [open]);
+
+  useEffect(() => {
+    if (forceFullHeight) {
+      setReleaseViewportMinHeight(false);
+      return undefined;
+    }
+
+    if (typeof window === 'undefined') return undefined;
+
+    const updateFooterIntersection = () => {
+      const footerEl = document.querySelector('.pkb-footer');
+      if (!footerEl) {
+        setReleaseViewportMinHeight(false);
+        return;
+      }
+      const footerTop = footerEl.getBoundingClientRect().top;
+      const viewportHeight = window.innerHeight || 0;
+      setReleaseViewportMinHeight(footerTop < viewportHeight);
+    };
+
+    updateFooterIntersection();
+    window.addEventListener('scroll', updateFooterIntersection, { passive: true });
+    window.addEventListener('resize', updateFooterIntersection);
+
+    return () => {
+      window.removeEventListener('scroll', updateFooterIntersection);
+      window.removeEventListener('resize', updateFooterIntersection);
+    };
+  }, [forceFullHeight]);
 
   const isUserMenuOpen = Boolean(userMenuAnchorEl);
   const userProfile = auth?.user?.profile || {};
@@ -161,6 +193,11 @@ export default function AgentSidebar({ activeNav = 'new-chat' }) {
   return (
     <Box
       sx={{
+        position: 'sticky',
+        zIndex: 1100,
+        alignSelf: 'flex-start',
+        top: 0,
+        minHeight: forceFullHeight ? '100vh' : (releaseViewportMinHeight ? 'auto' : '100vh'),
         width: open ? SIDEBAR_EXPANDED_WIDTH : SIDEBAR_COLLAPSED_WIDTH,
         minWidth: open ? SIDEBAR_EXPANDED_WIDTH : SIDEBAR_COLLAPSED_WIDTH,
         bgcolor: '#F8FBFC',
@@ -274,7 +311,7 @@ export default function AgentSidebar({ activeNav = 'new-chat' }) {
         )}
       </Box>
 
-      <Box>
+      <Box sx={{ mt: 'auto' }}>
         <Button
           onClick={handleOpenUserMenu}
           sx={{
