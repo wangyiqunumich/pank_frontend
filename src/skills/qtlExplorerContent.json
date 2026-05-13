@@ -144,9 +144,6 @@
           "snp": "rs123456",
           "gene": "INS(ENSG00000254647)"
         }
-      },
-      {
-        "text": "What QTL evidence connects this variant to beta-cell function?"
       }
     ]
   },
