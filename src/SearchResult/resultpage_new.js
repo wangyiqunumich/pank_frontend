@@ -173,7 +173,7 @@ const buildDebugStreamLoadingProgress = (milestones, options = {}) => {
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const CHAT_START_CACHE_KEY = 'pank_chat_start_cache_v1';
 const CHAT_PENDING_PLAN_CACHE_KEY = 'pank_chat_pending_plan_v1';
-const PMID_CITATION_PATTERN = /(\[\s*(?:pmid|pubmedid)\s*:\s*(\d{8})\s*\]|\(\s*(?:pmid|pubmedid)\s*:\s*(\d{8})\s*\))/gi;
+const PMID_CITATION_PATTERN = /(\[\s*(?:pmid|pubmedid)\s*:\s*(\d{7,8})\s*\]|\(\s*(?:pmid|pubmedid)\s*:\s*(\d{7,8})\s*\)|\[\s*(\d{7,8})\s*\]\(\s*https?:\/\/(?:www\.)?pubmed(?:\.ncbi\.nlm\.nih\.gov|\.gov)\/\d{7,8}\/?[^)]*\))/gi;
 const GRAPH_QUERY_INFLIGHT = new Map();
 const FUNCTIONAL_DATA_BASE_URL = process.env.REACT_APP_FUNCTIONAL_DATA_API_URL || 'https://functional.pankgraph.org';
 
@@ -253,7 +253,7 @@ const extractPmidsFromCitationText = (text, limit = 50) => {
     let match;
 
     while ((match = regex.exec(source)) !== null) {
-        const pmid = String(match[2] || match[3] || '').trim();
+        const pmid = String(match[2] || match[3] || match[4] || '').trim();
         if (!pmid || pmids.includes(pmid)) continue;
         pmids.push(pmid);
         if (pmids.length >= limit) break;
@@ -656,7 +656,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
     const stripCypherQueriesSection = React.useCallback((markdownText) => {
         const normalized = String(markdownText || '').replace(/\r\n/g, '\n');
-        return normalized.replace(/\n?##\s*Cypher\s+Queries[\s\S]*$/i, '').replace(/\s+$/g, '');
+        return normalized.replace(/\n?##\s*References[\s\S]*$/i, '').replace(/\s+$/g, '');
     }, []);
 
     const parseSummaryFromRawOutput = (rawOutput) => {
@@ -865,17 +865,24 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                                         components={{
                                             p: ({ children }) => <Typography component="p" sx={{ fontSize: 16, fontWeight: 400, color: '#475569' }}>{renderChildrenWithPmids(children, `followup-p-${block?.id || index}`, false, followUpAnchorByPmid)}</Typography>,
                                             li: ({ children }) => <Typography component="li" sx={{ fontSize: 16, fontWeight: 400, color: '#475569' }}>{renderChildrenWithPmids(children, `followup-li-${block?.id || index}`, false, followUpAnchorByPmid)}</Typography>,
-                                            a: ({ href, children }) => (
-                                                <Link
-                                                    href={href}
-                                                    target={href?.startsWith('#') ? undefined : '_blank'}
-                                                    rel={href?.startsWith('#') ? undefined : 'noreferrer'}
-                                                    sx={{ color: '#0069c2', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
-                                                    onClick={(event) => scrollToReferenceAnchor(href, event)}
-                                                >
-                                                    {renderChildrenWithPmids(children, `followup-a-${block?.id || index}`, true, followUpAnchorByPmid)}
-                                                </Link>
-                                            ),
+                                            a: ({ href, children }) => {
+                                                const pmid = extractPubmedIdFromHref(href);
+                                                if (pmid) {
+                                                    return renderPmidPill(pmid, `followup-a-${block?.id || index}`, followUpAnchorByPmid);
+                                                }
+
+                                                return (
+                                                    <Link
+                                                        href={href}
+                                                        target={href?.startsWith('#') ? undefined : '_blank'}
+                                                        rel={href?.startsWith('#') ? undefined : 'noreferrer'}
+                                                        sx={{ color: '#0069c2', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+                                                        onClick={(event) => scrollToReferenceAnchor(href, event)}
+                                                    >
+                                                        {renderChildrenWithPmids(children, `followup-a-${block?.id || index}`, true, followUpAnchorByPmid)}
+                                                    </Link>
+                                                );
+                                            },
                                             strong: ({ children }) => <strong>{renderChildrenWithPmids(children, `followup-strong-${block?.id || index}`, false, followUpAnchorByPmid)}</strong>,
                                             em: ({ children }) => <em>{renderChildrenWithPmids(children, `followup-em-${block?.id || index}`, false, followUpAnchorByPmid)}</em>,
                                             table: ({ children }) => {
@@ -1021,6 +1028,12 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             .filter((query) => typeof query === 'string' && query.trim())
             .filter((query) => !isGetPrefixedQuery(query));
 
+        const hasRenderableGraph = (combinedQueryResult) => {
+            const nodes = Array.isArray(combinedQueryResult?.nodes) ? combinedQueryResult.nodes : [];
+            const edges = Array.isArray(combinedQueryResult?.edges) ? combinedQueryResult.edges : [];
+            return nodes.length > 0 || edges.length > 0;
+        };
+
         if (!graphCypherQueries?.length) {
             return {
                 graphData: null,
@@ -1044,7 +1057,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     agent: true,
                 }));
 
-                if (response?.payload?.combined_query_result) {
+                if (hasRenderableGraph(response?.payload?.combined_query_result)) {
                     return {
                         graphData: response.payload.combined_query_result,
                         coordData: response?.payload?.xy_json || null,
@@ -1113,6 +1126,8 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 setCoordData(graphResult.coordData || null);
                 setNoGraph(false);
             } else {
+                setGraphData(null);
+                setCoordData(null);
                 setNoGraph(true);
             }
         })();
@@ -2589,6 +2604,54 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         }
     };
 
+    const extractPubmedIdFromHref = (href) => {
+        const hrefText = String(href || '').trim();
+        const match = hrefText.match(/^https?:\/\/(?:www\.)?pubmed(?:\.ncbi\.nlm\.nih\.gov|\.gov)\/(\d{7,8})\/?/i);
+        return match?.[1] || '';
+    };
+
+    const renderPmidPill = (pmid, keyPrefix, referenceAnchorByPmid = {}) => {
+        const anchorId = referenceAnchorByPmid?.[pmid] || `reference-item-${pmid}`;
+        const href = `#${anchorId}`;
+        return (
+            <Link
+                key={`${keyPrefix}-pmid-${pmid}`}
+                href={href}
+                sx={{
+                    textDecoration: 'none',
+                    display: 'inline-flex',
+                    verticalAlign: 'middle',
+                    mx: 0.25,
+                    '&:hover .pmid-pill': {
+                        backgroundColor: '#DFF2F0',
+                        borderColor: '#7FB8B1',
+                    },
+                }}
+                onClick={(event) => scrollToReferenceAnchor(href, event)}
+            >
+                <Box
+                    className="pmid-pill"
+                    component="span"
+                    sx={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        px: 1,
+                        py: '2px',
+                        borderRadius: '999px',
+                        border: '1px solid #9BCFC8',
+                        color: '#006766',
+                        backgroundColor: '#EAF7F5',
+                        fontSize: 12,
+                        fontWeight: 700,
+                        lineHeight: 1.6,
+                    }}
+                >
+                    {`PMID ${pmid}`}
+                </Box>
+            </Link>
+        );
+    };
+
     const renderInlineWithPmids = (value, keyPrefix, referenceAnchorByPmid = {}) => {
         if (typeof value !== 'string' || !value) {
             return value;
@@ -2602,7 +2665,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         while ((match = regex.exec(value)) !== null) {
             const start = match.index;
             const end = start + match[0].length;
-            const pmid = String(match[2] || match[3] || '').trim();
+            const pmid = String(match[2] || match[3] || match[4] || '').trim();
 
             if (start > cursor) {
                 nodes.push(
@@ -2613,45 +2676,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             }
 
             if (pmid) {
-                const anchorId = referenceAnchorByPmid?.[pmid] || `reference-item-${pmid}`;
-                const href = `#${anchorId}`;
-                nodes.push(
-                    <Link
-                        key={`${keyPrefix}-pmid-${pmid}-${start}`}
-                        href={href}
-                        sx={{
-                            textDecoration: 'none',
-                            display: 'inline-flex',
-                            verticalAlign: 'middle',
-                            mx: 0.25,
-                            '&:hover .pmid-pill': {
-                                backgroundColor: '#DFF2F0',
-                                borderColor: '#7FB8B1',
-                            },
-                        }}
-                        onClick={(event) => scrollToReferenceAnchor(href, event)}
-                    >
-                        <Box
-                            className="pmid-pill"
-                            component="span"
-                            sx={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                px: 1,
-                                py: '2px',
-                                borderRadius: '999px',
-                                border: '1px solid #9BCFC8',
-                                color: '#006766',
-                                backgroundColor: '#EAF7F5',
-                                fontSize: 12,
-                                fontWeight: 700,
-                                lineHeight: 1.6,
-                            }}
-                        >
-                            {`PMID ${pmid}`}
-                        </Box>
-                    </Link>
-                );
+                nodes.push(renderPmidPill(pmid, `${keyPrefix}-${start}`, referenceAnchorByPmid));
             }
             cursor = end;
         }
@@ -3151,17 +3176,24 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 components={{
                     p: ({ children }) => <Typography component="p" sx={{ fontSize: 16, fontWeight: 400, color: '#475569' }}>{renderChildrenWithPmids(children, 'p', false, mainReferenceAnchorByPmid)}</Typography>,
                     li: ({ children }) => <Typography component="li" sx={{ fontSize: 16, fontWeight: 400, color: '#475569' }}>{renderChildrenWithPmids(children, 'li', false, mainReferenceAnchorByPmid)}</Typography>,
-                    a: ({ href, children }) => (
-                        <Link
-                            href={href}
-                            target={href?.startsWith('#') ? undefined : '_blank'}
-                            rel={href?.startsWith('#') ? undefined : 'noreferrer'}
-                            sx={{ color: '#0069c2', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
-                            onClick={(event) => scrollToReferenceAnchor(href, event)}
-                        >
-                            {renderChildrenWithPmids(children, 'a', true, mainReferenceAnchorByPmid)}
-                        </Link>
-                    ),
+                    a: ({ href, children }) => {
+                        const pmid = extractPubmedIdFromHref(href);
+                        if (pmid) {
+                            return renderPmidPill(pmid, 'main-a', mainReferenceAnchorByPmid);
+                        }
+
+                        return (
+                            <Link
+                                href={href}
+                                target={href?.startsWith('#') ? undefined : '_blank'}
+                                rel={href?.startsWith('#') ? undefined : 'noreferrer'}
+                                sx={{ color: '#0069c2', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+                                onClick={(event) => scrollToReferenceAnchor(href, event)}
+                            >
+                                {renderChildrenWithPmids(children, 'a', true, mainReferenceAnchorByPmid)}
+                            </Link>
+                        );
+                    },
                     strong: ({ children }) => <strong>{renderChildrenWithPmids(children, 'strong', false, mainReferenceAnchorByPmid)}</strong>,
                     em: ({ children }) => <em>{renderChildrenWithPmids(children, 'em', false, mainReferenceAnchorByPmid)}</em>,
                     h1: ({ children }) => <Typography component="h1" sx={{ fontSize: 26 }}>{renderChildrenWithPmids(children, 'h1', false, mainReferenceAnchorByPmid)}</Typography>,
@@ -3197,7 +3229,15 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                             : { text: subPart, type: "text" }
                     )
                     : [part.match(/^\[[^\]]+\]\([^)]+\)$/)  // if [text](url)
-                        ? { text: part.split("]")[0].substr(1), type: "link", url: part.split("(")[1].slice(0, -1) }
+                        ? (() => {
+                            const textPart = part.split("]")[0].substr(1);
+                            const urlPart = part.split("(")[1].slice(0, -1);
+                            const pubmedMatch = String(urlPart).match(/^https?:\/\/(?:www\.)?pubmed(?:\.ncbi\.nlm\.nih\.gov|\.gov)\/(\d{7,8})\/?/i);
+                            if (pubmedMatch?.[1]) {
+                                return { text: pubmedMatch[1], type: "pubmedid" };
+                            }
+                            return { text: textPart, type: "link", url: urlPart };
+                        })()
                         : { text: part, type: "text" }]
                 )
     )

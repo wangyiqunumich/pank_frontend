@@ -505,9 +505,8 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                             );
 
                             const dataSource = coreRelationship?.["~properties"]?.data_source || '';
-                            const credibleSetId = coreRelationship?.["~properties"]?.credible_set_id || '';
+                            const credible_set = coreRelationship?.["~properties"]?.credible_set || coreRelationship?.["~properties"]?.credible_set_id || '';
                             if (resources_tabs?.empirical_evidence?.lambda_function) {
-                                const credible_set = coreRelationship?.["~properties"]?.credible_set || coreRelationship?.["~properties"]?.credible_set_id || '';
                                 if (!credible_set) {
                                     console.log('[WARNING] credible_set is missing.');
                                 } else {
@@ -560,7 +559,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                                 )?.["~properties"]?.name || targetSymbol,
                                 tissueKey,
                                 dataSource,
-                                credibleSetId,
+                                credibleSetId: credible_set,
                             };
                             if (newVariables) { setVariables(newVariables); }
                             const processedCurrentQuestion =
