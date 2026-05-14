@@ -58,7 +58,7 @@ const DisableInfocardDisappear = false;
 const LegendItem = ({ label, color, sx }) => (
   <span
     style={{
-      padding: "4px 8px",
+      padding: "2px 6px",
       borderRadius: "6px",
       backgroundColor: color || "white",
       fontSize: "12px",
@@ -716,7 +716,7 @@ const InfocardMenu = ({ hoveredData, review }) => {
 }
 
 // Main KnowledgeGraph component
-export default function KnowledgeGraph({ selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, review = false, containerHeight = "600px", defaultLegendVisible = true }) {
+export default function KnowledgeGraph({ selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, review = false, containerHeight = "600px", defaultLegendVisible = false }) {
   const cyRef = useRef(null);
   const containerRef = useRef(null);
   const infocardRef = useRef(null);
@@ -1238,8 +1238,8 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
       </div>
       <Box sx={{
         position: "absolute",
-        top: "10px",
-        right: "10px",
+        top: "8px",
+        right: "8px",
         padding: "7px",
         display: "flex",
         flexDirection: "column",
@@ -1304,8 +1304,8 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
       </Box>
       <Box sx={{
         position: "absolute",
-        bottom: "35px",
-        right: "10px",
+        bottom: "8px",
+        right: "8px",
         height: "40px",
         width: "60px",
         display: "flex",
@@ -1357,12 +1357,12 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
         <div
           style={{
             position: "absolute",
-            bottom: "36px",
-            left: "20px",
+            bottom: "8px",
+            left: "8px",
             display: "flex",
             flexDirection: "column",
             background: "#fff",
-            padding: "20px",
+            padding: "12px",
             borderRadius: "8px",
             boxShadow: "0px 4px 15px -3px rgba(100,100,100,0.25)",
             zIndex: 10,
@@ -1394,8 +1394,8 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
             </IconButton>
           </div>
           <Collapse in={legendVisible} timeout="auto">
-            <div style={{ width: "430px", paddingTop: "10px", fontSize: "16px", fontFamily: "Open Sans", fontWeight: 400 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingBottom: "4px", fontSize: "12px" }}>
+            <div style={{ width: "430px", paddingTop: "6px", fontSize: "14px", fontFamily: "Open Sans", fontWeight: 400 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingBottom: "2px", fontSize: "12px" }}>
                 <LegendItem label="　　　　" sx={{ backgroundColor: "#E9E9E9", color: "black", border: "1.5px solid #E9E9E9", height: "8px" }} />
                 Core Nodes
                 <LegendItem label="　　　　" sx={{ backgroundColor: "white", color: "black", border: "1.5px solid #E9E9E9", height: "8px", marginLeft: "16px" }} />
@@ -1407,7 +1407,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
                   alignItems: "center",
                   gap: "8px",
                   flexWrap: "wrap",
-                  paddingTop: "8px",
+                  paddingTop: "4px",
                 }}
               >
                 {legendSchema.map(({ label, color }) => (
