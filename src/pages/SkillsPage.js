@@ -137,7 +137,7 @@ export default function SkillsPage() {
 
             <SkillCard
               icon={<InsightsOutlinedIcon sx={{ fontSize: 30 }} />}
-              title="Functional Data Skil"
+              title="Functional Data Skill"
               description="Generates interactive visualizations for donor-level functional response, cohort filtering, and trait association exploration."
               actionLabel="Launch"
               onAction={() => navigate('/functional-data')}
