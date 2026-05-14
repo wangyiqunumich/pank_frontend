@@ -675,11 +675,10 @@ export function AgentResultLayout({
         <div
             style={{
                 display: "flex",
-                minHeight: "100vh",
                 width: "100%",
             }}
         >
-            <AgentSidebar activeNav="new-chat" forceFullHeight />
+            <AgentSidebar activeNav="new-chat" />
             <div
                 style={{
                     position: "relative",

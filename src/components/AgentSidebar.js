@@ -100,13 +100,12 @@ function SidebarButton({ active, icon, label, onClick, open }) {
   );
 }
 
-export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight = false }) {
+export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: _forceFullHeight = false }) {
   const navigate = useNavigate();
   const location = useLocation();
   const auth = useAuth();
   const [recentChats, setRecentChats] = useState([]);
   const [userMenuAnchorEl, setUserMenuAnchorEl] = useState(null);
-  const [releaseViewportMinHeight, setReleaseViewportMinHeight] = useState(false);
   const [open, setOpen] = useState(() => {
     if (typeof window === 'undefined') return true;
     const stored = window.localStorage.getItem('pank-sidebar-open');
@@ -123,35 +122,6 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight =
     window.localStorage.setItem('pank-sidebar-open', String(open));
     window.dispatchEvent(new CustomEvent('pank-sidebar-toggle', { detail: { open } }));
   }, [open]);
-
-  useEffect(() => {
-    if (forceFullHeight) {
-      setReleaseViewportMinHeight(false);
-      return undefined;
-    }
-
-    if (typeof window === 'undefined') return undefined;
-
-    const updateFooterIntersection = () => {
-      const footerEl = document.querySelector('.pkb-footer');
-      if (!footerEl) {
-        setReleaseViewportMinHeight(false);
-        return;
-      }
-      const footerTop = footerEl.getBoundingClientRect().top;
-      const viewportHeight = window.innerHeight || 0;
-      setReleaseViewportMinHeight(footerTop < viewportHeight);
-    };
-
-    updateFooterIntersection();
-    window.addEventListener('scroll', updateFooterIntersection, { passive: true });
-    window.addEventListener('resize', updateFooterIntersection);
-
-    return () => {
-      window.removeEventListener('scroll', updateFooterIntersection);
-      window.removeEventListener('resize', updateFooterIntersection);
-    };
-  }, [forceFullHeight]);
 
   const isUserMenuOpen = Boolean(userMenuAnchorEl);
   const userProfile = auth?.user?.profile || {};
@@ -193,125 +163,132 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight =
   return (
     <Box
       sx={{
-        position: 'sticky',
+        position: 'relative',
         zIndex: 1100,
-        alignSelf: 'flex-start',
-        top: 0,
-        minHeight: forceFullHeight ? '100vh' : (releaseViewportMinHeight ? 'auto' : '100vh'),
+        alignSelf: 'stretch',
         width: open ? SIDEBAR_EXPANDED_WIDTH : SIDEBAR_COLLAPSED_WIDTH,
         minWidth: open ? SIDEBAR_EXPANDED_WIDTH : SIDEBAR_COLLAPSED_WIDTH,
         bgcolor: '#F8FBFC',
         borderRight: '1px solid #E2E8F0',
         px: open ? 2 : 1,
-        pt: open ? 4.5 : 4,
-        pb: 3,
         display: { xs: 'none', lg: 'flex' },
         flexDirection: 'column',
         boxSizing: 'border-box',
         transition: 'width 220ms ease, min-width 220ms ease, padding 220ms ease',
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: open ? 'space-between' : 'center', mb: 2 }}>
-        {open ? (
-          <Typography sx={{ fontFamily: 'Archivo, DM Sans, Inter, sans-serif', fontWeight: 600, fontSize: 22, color: '#3A838B' }}>
-            PanKgraph
-          </Typography>
-        ) : null}
-        <Tooltip title={open ? 'Collapse sidebar' : 'Expand sidebar'} placement="right" arrow>
-          <IconButton
-            onClick={() => setOpen((v) => !v)}
-            size="small"
-            sx={{
-              width: 40,
-              height: 40,
-              borderRadius: '50%',
-              color: '#7D7D7D',
-              bgcolor: 'transparent',
-              border: 'none',
-              '&:hover': { bgcolor: '#D9EAEB' },
-            }}
-          >
-            <SidebarLeftIcon
-              style={{
-                width: 18,
-                height: 14,
+      <Box sx={{ position: 'sticky', top: 0, pt: open ? 4.5 : 4, pb: 1, bgcolor: '#F8FBFC', zIndex: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: open ? 'space-between' : 'center', mb: 2 }}>
+          {open ? (
+            <Typography
+              onClick={() => navigate('/')}
+              sx={{
+                fontFamily: 'Archivo, DM Sans, Inter, sans-serif',
+                fontWeight: 600,
+                fontSize: 22,
+                color: '#3A838B',
+                cursor: 'pointer',
               }}
-            />
-          </IconButton>
-        </Tooltip>
+            >
+              PanKgraph
+            </Typography>
+          ) : null}
+          <Tooltip title={open ? 'Collapse sidebar' : 'Expand sidebar'} placement="right" arrow>
+            <IconButton
+              onClick={() => setOpen((v) => !v)}
+              size="small"
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: '50%',
+                color: '#7D7D7D',
+                bgcolor: 'transparent',
+                border: 'none',
+                '&:hover': { bgcolor: '#D9EAEB' },
+              }}
+            >
+              <SidebarLeftIcon
+                style={{
+                  width: 18,
+                  height: 14,
+                }}
+              />
+            </IconButton>
+          </Tooltip>
+        </Box>
+
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+          <SidebarButton
+            active={activeNav === 'new-chat'}
+            open={open}
+            icon={<AddIcon />}
+            label="New Chat"
+            onClick={() => navigate('/')}
+          />
+          <SidebarButton
+            active={activeNav === 'skills'}
+            open={open}
+            icon={<AssignmentIcon />}
+            label="Skills"
+            onClick={() => navigate('/skills')}
+          />
+          <SidebarButton
+            active={activeNav === 'recent'}
+            open={open}
+            icon={<AccessTimeIcon />}
+            label="Recent"
+            onClick={() => {}}
+          />
+
+          {open && (
+            <Box
+              sx={{
+                mt: 0.5,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 0.5,
+                maxHeight: '42vh',
+                overflowY: 'auto',
+                pr: 0.5,
+              }}
+            >
+              {recentChats.length > 0 ? recentChats.map((chat) => {
+                const encodedQuestion = encodeURIComponent(utf8ToBase64(chat.firstQuestion || ''));
+                const target = `/result-new2?question=${encodedQuestion}&terminal=true&session_id=${encodeURIComponent(chat.sessionId)}`;
+                return (
+                  <Button
+                    key={chat.sessionId}
+                    onClick={() => navigate(target)}
+                    sx={{
+                      justifyContent: 'flex-start',
+                      borderRadius: '10px',
+                      color: '#164563',
+                      fontFamily: 'DM Sans, Inter, sans-serif',
+                      fontSize: 12,
+                      fontWeight: 500,
+                      textTransform: 'none',
+                      minHeight: 32,
+                      px: 1,
+                      py: 0.5,
+                      '&:hover': { bgcolor: '#E7F1FF' },
+                    }}
+                  >
+                    <Box sx={{ textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>
+                      {chat.firstQuestion}
+                    </Box>
+                  </Button>
+                );
+              }) : (
+                <Typography sx={{ fontFamily: 'DM Sans, Inter, sans-serif', fontSize: 12, color: '#94A3B8', px: 1 }}>
+                  No recent conversations yet.
+                </Typography>
+              )}
+            </Box>
+          )}
+        </Box>
       </Box>
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75, flex: 1, minHeight: 0 }}>
-        <SidebarButton
-          active={activeNav === 'new-chat'}
-          open={open}
-          icon={<AddIcon />}
-          label="New Chat"
-          onClick={() => navigate('/')}
-        />
-        <SidebarButton
-          active={activeNav === 'skills'}
-          open={open}
-          icon={<AssignmentIcon />}
-          label="Skills"
-          onClick={() => navigate('/skills')}
-        />
-        <SidebarButton
-          active={activeNav === 'recent'}
-          open={open}
-          icon={<AccessTimeIcon />}
-          label="Recent"
-          onClick={() => {}}
-        />
-
-        {open && (
-          <Box
-            sx={{
-              mt: 0.5,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 0.5,
-              maxHeight: '42vh',
-              overflowY: 'auto',
-              pr: 0.5,
-            }}
-          >
-            {recentChats.length > 0 ? recentChats.map((chat) => {
-              const encodedQuestion = encodeURIComponent(utf8ToBase64(chat.firstQuestion || ''));
-              const target = `/result-new2?question=${encodedQuestion}&terminal=true&session_id=${encodeURIComponent(chat.sessionId)}`;
-              return (
-                <Button
-                  key={chat.sessionId}
-                  onClick={() => navigate(target)}
-                  sx={{
-                    justifyContent: 'flex-start',
-                    borderRadius: '10px',
-                    color: '#164563',
-                    fontFamily: 'DM Sans, Inter, sans-serif',
-                    fontSize: 12,
-                    fontWeight: 500,
-                    textTransform: 'none',
-                    minHeight: 32,
-                    px: 1,
-                    py: 0.5,
-                    '&:hover': { bgcolor: '#E7F1FF' },
-                  }}
-                >
-                  <Box sx={{ textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>
-                    {chat.firstQuestion}
-                  </Box>
-                </Button>
-              );
-            }) : (
-              <Typography sx={{ fontFamily: 'DM Sans, Inter, sans-serif', fontSize: 12, color: '#94A3B8', px: 1 }}>
-                No recent conversations yet.
-              </Typography>
-            )}
-          </Box>
-        )}
-      </Box>
-
-      <Box sx={{ mt: 'auto' }}>
+      <Box sx={{ position: 'sticky', bottom: 0, pb: 3, pt: 1, mt: 'auto', bgcolor: '#F8FBFC', zIndex: 1 }}>
         <Button
           onClick={handleOpenUserMenu}
           sx={{
