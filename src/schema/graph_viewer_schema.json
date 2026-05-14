@@ -156,8 +156,7 @@
             "info_panel": [
                 [
                     "Title",
-                    "T1D",
-                    "string"
+                    "name"
                 ],
                 [
                     "Disease Identity",
@@ -210,8 +209,7 @@
                     [
                         [
                             "Peak ID",
-                            "id",
-                            "string"
+                            "id"
                         ],
                         [
                             "Chromosome",
@@ -230,8 +228,7 @@
                         ],
                         [
                             "Type",
-                            "type",
-                            "string"
+                            "type"
                         ]
                     ]
                 ],
@@ -245,8 +242,7 @@
                     [
                         [
                             "Data Source",
-                            "data_source",
-                            "string"
+                            "data_source"
                         ]
                     ]
                 ]
@@ -705,8 +701,7 @@
                     [
                         [
                             "Peak ID",
-                            "id",
-                            "string"
+                            "id"
                         ],
                         [
                             "Chromosome",
@@ -725,8 +720,7 @@
                         ],
                         [
                             "Type",
-                            "type",
-                            "string"
+                            "type"
                         ]
                     ]
                 ],
@@ -740,8 +734,7 @@
                     [
                         [
                             "Data Source",
-                            "data_source",
-                            "string"
+                            "data_source"
                         ]
                     ]
                 ]
@@ -761,8 +754,7 @@
                     [
                         [
                             "Peak ID",
-                            "id",
-                            "string"
+                            "id"
                         ],
                         [
                             "Chromosome",
@@ -781,8 +773,7 @@
                         ],
                         [
                             "Type",
-                            "type",
-                            "string"
+                            "type"
                         ]
                     ]
                 ],
@@ -796,8 +787,7 @@
                     [
                         [
                             "Data Source",
-                            "data_source",
-                            "string"
+                            "data_source"
                         ]
                     ]
                 ]
@@ -817,18 +807,15 @@
                     [
                         [
                             "Name",
-                            "name",
-                            "string"
+                            "name"
                         ],
                         [
                             "Category",
-                            "category",
-                            "string"
+                            "category"
                         ],
                         [
                             "Source",
-                            "source",
-                            "string"
+                            "source"
                         ],
                         [
                             "Source URL",
@@ -858,8 +845,7 @@
                     [
                         [
                             "Modality",
-                            "id",
-                            "string"
+                            "id"
                         ]
                     ]
                 ]
@@ -879,43 +865,35 @@
                     [
                         [
                             "Donor ID",
-                            "id",
-                            "string"
+                            "id"
                         ],
                         [
                             "RRID",
-                            "rrid",
-                            "string"
+                            "rrid"
                         ],
                         [
                             "PanKbase ID",
-                            "pankbase_id",
-                            "string"
+                            "pankbase_id"
                         ],
                         [
                             "PancDB ID",
-                            "pancdb_id",
-                            "string"
+                            "pancdb_id"
                         ],
                         [
                             "Center Donor ID",
-                            "center_donor_id",
-                            "string"
+                            "center_donor_id"
                         ],
                         [
                             "Derived Diabetes Status",
-                            "derived_diabetes_status",
-                            "string"
+                            "derived_diabetes_status"
                         ],
                         [
                             "Diabetes Type",
-                            "diabetes_type",
-                            "string"
+                            "diabetes_type"
                         ],
                         [
                             "T1D Stage",
-                            "t1d_stage",
-                            "string"
+                            "t1d_stage"
                         ],
                         [
                             "Age",
@@ -924,18 +902,15 @@
                         ],
                         [
                             "Gender",
-                            "gender",
-                            "string"
+                            "gender"
                         ],
                         [
                             "Sex at Birth",
-                            "sex_at_birth",
-                            "string"
+                            "sex_at_birth"
                         ],
                         [
                             "Race",
-                            "Race",
-                            "string"
+                            "Race"
                         ],
                         [
                             "BMI",
@@ -959,8 +934,7 @@
                     [
                         [
                             "Data Source",
-                            "data_source",
-                            "string"
+                            "data_source"
                         ]
                     ]
                 ]
@@ -980,43 +954,35 @@
                     [
                         [
                             "Donor ID",
-                            "id",
-                            "string"
+                            "id"
                         ],
                         [
                             "RRID",
-                            "rrid",
-                            "string"
+                            "rrid"
                         ],
                         [
                             "PanKbase ID",
-                            "pankbase_id",
-                            "string"
+                            "pankbase_id"
                         ],
                         [
                             "PancDB ID",
-                            "pancdb_id",
-                            "string"
+                            "pancdb_id"
                         ],
                         [
                             "Center Donor ID",
-                            "center_donor_id",
-                            "string"
+                            "center_donor_id"
                         ],
                         [
                             "Derived Diabetes Status",
-                            "derived_diabetes_status",
-                            "string"
+                            "derived_diabetes_status"
                         ],
                         [
                             "Diabetes Type",
-                            "diabetes_type",
-                            "string"
+                            "diabetes_type"
                         ],
                         [
                             "T1D Stage",
-                            "t1d_stage",
-                            "string"
+                            "t1d_stage"
                         ],
                         [
                             "Age",
@@ -1025,18 +991,15 @@
                         ],
                         [
                             "Gender",
-                            "gender",
-                            "string"
+                            "gender"
                         ],
                         [
                             "Sex at Birth",
-                            "sex_at_birth",
-                            "string"
+                            "sex_at_birth"
                         ],
                         [
                             "Race",
-                            "Race",
-                            "string"
+                            "Race"
                         ],
                         [
                             "BMI",
@@ -1060,8 +1023,7 @@
                     [
                         [
                             "Data Source",
-                            "data_source",
-                            "string"
+                            "data_source"
                         ]
                     ]
                 ]
@@ -1081,23 +1043,19 @@
                     [
                         [
                             "Data Modality",
-                            "Data Modality",
-                            "string"
+                            "Data Modality"
                         ],
                         [
                             "Anatomical Structure",
-                            "anatomical_structure",
-                            "string"
+                            "anatomical_structure"
                         ],
                         [
                             "Note",
-                            "note",
-                            "string"
+                            "note"
                         ],
                         [
                             "Contact",
-                            "contact",
-                            "string"
+                            "contact"
                         ]
                     ]
                 ],
@@ -1106,8 +1064,7 @@
                     [
                         [
                             "Data Source",
-                            "data_source",
-                            "string"
+                            "data_source"
                         ]
                     ]
                 ]
@@ -1127,13 +1084,11 @@
                     [
                         [
                             "Ontology ID",
-                            "id",
-                            "string"
+                            "id"
                         ],
                         [
                             "Name",
-                            "name",
-                            "string"
+                            "name"
                         ],
                         [
                             "Link",
@@ -1152,8 +1107,7 @@
                     [
                         [
                             "Data Version",
-                            "data_version",
-                            "string"
+                            "data_version"
                         ]
                     ]
                 ]
@@ -1173,13 +1127,11 @@
                     [
                         [
                             "Ontology ID",
-                            "id",
-                            "string"
+                            "id"
                         ],
                         [
                             "Name",
-                            "name",
-                            "string"
+                            "name"
                         ],
                         [
                             "Link",
@@ -1198,8 +1150,7 @@
                     [
                         [
                             "Data Version",
-                            "data_version",
-                            "string"
+                            "data_version"
                         ]
                     ]
                 ]
@@ -1219,13 +1170,11 @@
                     [
                         [
                             "Ontology ID",
-                            "id",
-                            "string"
+                            "id"
                         ],
                         [
                             "Name",
-                            "name",
-                            "string"
+                            "name"
                         ],
                         [
                             "Link",
@@ -1244,13 +1193,11 @@
                     [
                         [
                             "Data Version",
-                            "data_version",
-                            "string"
+                            "data_version"
                         ],
                         [
                             "Data Source",
-                            "data_source",
-                            "string"
+                            "data_source"
                         ]
                     ]
                 ]
@@ -2278,13 +2225,11 @@
                     [
                         [
                             "From",
-                            "source",
-                            "string"
+                            "source"
                         ],
                         [
                             "To",
-                            "target",
-                            "string"
+                            "target"
                         ]
                     ]
                 ],
@@ -2293,18 +2238,15 @@
                     [
                         [
                             "Gene Symbol",
-                            "gene_symbol",
-                            "string"
+                            "gene_symbol"
                         ],
                         [
                             "Condition",
-                            "condition",
-                            "string"
+                            "condition"
                         ],
                         [
                             "Cell Type",
-                            "cell_type",
-                            "string"
+                            "cell_type"
                         ],
                         [
                             "Median logCPM",
@@ -2323,18 +2265,15 @@
                         ],
                         [
                             "Expression Call",
-                            "expression_call",
-                            "string"
+                            "expression_call"
                         ],
                         [
                             "Confidence",
-                            "confidence_label",
-                            "string"
+                            "confidence_label"
                         ],
                         [
                             "Detection Rule",
-                            "detection_rule",
-                            "string"
+                            "detection_rule"
                         ]
                     ]
                 ],
@@ -2343,13 +2282,11 @@
                     [
                         [
                             "Data Version",
-                            "data_version",
-                            "string"
+                            "data_version"
                         ],
                         [
                             "Data Source",
-                            "data_source",
-                            "string"
+                            "data_source"
                         ]
                     ]
                 ]
@@ -2370,13 +2307,11 @@
                     [
                         [
                             "From",
-                            "source",
-                            "string"
+                            "source"
                         ],
                         [
                             "To",
-                            "target",
-                            "string"
+                            "target"
                         ]
                     ]
                 ],
@@ -2385,28 +2320,23 @@
                     [
                         [
                             "Gene Symbol",
-                            "gene_symbol",
-                            "string"
+                            "gene_symbol"
                         ],
                         [
                             "Cell Type",
-                            "cell_type_label",
-                            "string"
+                            "cell_type_label"
                         ],
                         [
                             "Condition",
-                            "condition",
-                            "string"
+                            "condition"
                         ],
                         [
                             "Comparison",
-                            "comparison",
-                            "string"
+                            "comparison"
                         ],
                         [
                             "Effect Direction",
-                            "effect_direction",
-                            "string"
+                            "effect_direction"
                         ],
                         [
                             "Rank",
@@ -2435,13 +2365,11 @@
                         ],
                         [
                             "Expression Call",
-                            "expression_call",
-                            "string"
+                            "expression_call"
                         ],
                         [
                             "Support Rule",
-                            "expression_support_rule",
-                            "string"
+                            "expression_support_rule"
                         ]
                     ]
                 ],
@@ -2450,13 +2378,11 @@
                     [
                         [
                             "Data Version",
-                            "data_version",
-                            "string"
+                            "data_version"
                         ],
                         [
                             "Data Source",
-                            "data_source",
-                            "string"
+                            "data_source"
                         ]
                     ]
                 ]
@@ -2477,13 +2403,11 @@
                     [
                         [
                             "From",
-                            "source",
-                            "string"
+                            "source"
                         ],
                         [
                             "To",
-                            "target",
-                            "string"
+                            "target"
                         ]
                     ]
                 ],
@@ -2492,23 +2416,19 @@
                     [
                         [
                             "Cell Type",
-                            "cell_type_label",
-                            "string"
+                            "cell_type_label"
                         ],
                         [
                             "Collection",
-                            "pathway_collection",
-                            "string"
+                            "pathway_collection"
                         ],
                         [
                             "Pathway Term",
-                            "pathway_term",
-                            "string"
+                            "pathway_term"
                         ],
                         [
                             "Pathway Name",
-                            "pathway_name",
-                            "string"
+                            "pathway_name"
                         ],
                         [
                             "P value",
@@ -2537,8 +2457,7 @@
                         ],
                         [
                             "Leading Edge",
-                            "leadingEdge",
-                            "string"
+                            "leadingEdge"
                         ]
                     ]
                 ],
@@ -2547,18 +2466,15 @@
                     [
                         [
                             "Source File",
-                            "source_file",
-                            "string"
+                            "source_file"
                         ],
                         [
                             "Data Version",
-                            "data_version",
-                            "string"
+                            "data_version"
                         ],
                         [
                             "Data Source",
-                            "data_source",
-                            "string"
+                            "data_source"
                         ]
                     ]
                 ]
@@ -2579,13 +2495,11 @@
                     [
                         [
                             "From",
-                            "source",
-                            "string"
+                            "source"
                         ],
                         [
                             "To",
-                            "target",
-                            "string"
+                            "target"
                         ]
                     ]
                 ],
@@ -2594,23 +2508,19 @@
                     [
                         [
                             "Cell Type",
-                            "cell_type_label",
-                            "string"
+                            "cell_type_label"
                         ],
                         [
                             "Collection",
-                            "pathway_collection",
-                            "string"
+                            "pathway_collection"
                         ],
                         [
                             "Pathway Term",
-                            "pathway_term",
-                            "string"
+                            "pathway_term"
                         ],
                         [
                             "Pathway Name",
-                            "pathway_name",
-                            "string"
+                            "pathway_name"
                         ],
                         [
                             "P value",
@@ -2639,8 +2549,7 @@
                         ],
                         [
                             "Leading Edge",
-                            "leadingEdge",
-                            "string"
+                            "leadingEdge"
                         ]
                     ]
                 ],
@@ -2649,18 +2558,15 @@
                     [
                         [
                             "Source File",
-                            "source_file",
-                            "string"
+                            "source_file"
                         ],
                         [
                             "Data Version",
-                            "data_version",
-                            "string"
+                            "data_version"
                         ],
                         [
                             "Data Source",
-                            "data_source",
-                            "string"
+                            "data_source"
                         ]
                     ]
                 ]
@@ -2681,13 +2587,11 @@
                     [
                         [
                             "From",
-                            "source",
-                            "string"
+                            "source"
                         ],
                         [
                             "To",
-                            "target",
-                            "string"
+                            "target"
                         ]
                     ]
                 ],
@@ -2696,28 +2600,23 @@
                     [
                         [
                             "Cell Type Name",
-                            "cell_type_name",
-                            "string"
+                            "cell_type_name"
                         ],
                         [
                             "Cell Type Source Column",
-                            "cell_type_source_column",
-                            "string"
+                            "cell_type_source_column"
                         ],
                         [
                             "Gene Symbol",
-                            "gene_symbol",
-                            "string"
+                            "gene_symbol"
                         ],
                         [
                             "Gene Name",
-                            "gene_name",
-                            "string"
+                            "gene_name"
                         ],
                         [
                             "Gene Source Column",
-                            "gene_source_column",
-                            "string"
+                            "gene_source_column"
                         ],
                         [
                             "Source Row",
@@ -2736,13 +2635,11 @@
                     [
                         [
                             "Data Version",
-                            "data_version",
-                            "string"
+                            "data_version"
                         ],
                         [
                             "Data Source",
-                            "data_source",
-                            "string"
+                            "data_source"
                         ]
                     ]
                 ]
@@ -2763,13 +2660,11 @@
                     [
                         [
                             "From",
-                            "source",
-                            "string"
+                            "source"
                         ],
                         [
                             "To",
-                            "target",
-                            "string"
+                            "target"
                         ]
                     ]
                 ],
@@ -2778,28 +2673,23 @@
                     [
                         [
                             "Cell Type Name",
-                            "cell_type_name",
-                            "string"
+                            "cell_type_name"
                         ],
                         [
                             "Cell Type Source Column",
-                            "cell_type_source_column",
-                            "string"
+                            "cell_type_source_column"
                         ],
                         [
                             "Gene Symbol",
-                            "gene_symbol",
-                            "string"
+                            "gene_symbol"
                         ],
                         [
                             "Gene Name",
-                            "gene_name",
-                            "string"
+                            "gene_name"
                         ],
                         [
                             "Gene Source Column",
-                            "gene_source_column",
-                            "string"
+                            "gene_source_column"
                         ],
                         [
                             "Source Row",
@@ -2818,13 +2708,11 @@
                     [
                         [
                             "Data Version",
-                            "data_version",
-                            "string"
+                            "data_version"
                         ],
                         [
                             "Data Source",
-                            "data_source",
-                            "string"
+                            "data_source"
                         ]
                     ]
                 ]
@@ -2845,13 +2733,11 @@
                     [
                         [
                             "From",
-                            "source",
-                            "string"
+                            "source"
                         ],
                         [
                             "To",
-                            "target",
-                            "string"
+                            "target"
                         ]
                     ]
                 ],
@@ -2860,13 +2746,11 @@
                     [
                         [
                             "Data Version",
-                            "data_version",
-                            "string"
+                            "data_version"
                         ],
                         [
                             "Data Source",
-                            "data_source",
-                            "string"
+                            "data_source"
                         ]
                     ]
                 ]
@@ -2887,13 +2771,11 @@
                     [
                         [
                             "From",
-                            "source",
-                            "string"
+                            "source"
                         ],
                         [
                             "To",
-                            "target",
-                            "string"
+                            "target"
                         ]
                     ]
                 ],
@@ -2902,13 +2784,11 @@
                     [
                         [
                             "Data Version",
-                            "data_version",
-                            "string"
+                            "data_version"
                         ],
                         [
                             "Data Source",
-                            "data_source",
-                            "string"
+                            "data_source"
                         ]
                     ]
                 ]
@@ -2929,13 +2809,11 @@
                     [
                         [
                             "From",
-                            "source",
-                            "string"
+                            "source"
                         ],
                         [
                             "To",
-                            "target",
-                            "string"
+                            "target"
                         ]
                     ]
                 ],
@@ -2944,18 +2822,15 @@
                     [
                         [
                             "Data Modality",
-                            "data_modality",
-                            "string"
+                            "data_modality"
                         ],
                         [
                             "Data Modality",
-                            "Data Modality",
-                            "string"
+                            "Data Modality"
                         ],
                         [
                             "Anatomical Structure",
-                            "anatomical_structure",
-                            "string"
+                            "anatomical_structure"
                         ]
                     ]
                 ]
@@ -2976,13 +2851,11 @@
                     [
                         [
                             "From",
-                            "source",
-                            "string"
+                            "source"
                         ],
                         [
                             "To",
-                            "target",
-                            "string"
+                            "target"
                         ]
                     ]
                 ]
@@ -3003,13 +2876,11 @@
                     [
                         [
                             "From",
-                            "source",
-                            "string"
+                            "source"
                         ],
                         [
                             "To",
-                            "target",
-                            "string"
+                            "target"
                         ]
                     ]
                 ]
@@ -3030,13 +2901,11 @@
                     [
                         [
                             "From",
-                            "source",
-                            "string"
+                            "source"
                         ],
                         [
                             "To",
-                            "target",
-                            "string"
+                            "target"
                         ]
                     ]
                 ]
@@ -3057,13 +2926,11 @@
                     [
                         [
                             "From",
-                            "source",
-                            "string"
+                            "source"
                         ],
                         [
                             "To",
-                            "target",
-                            "string"
+                            "target"
                         ]
                     ]
                 ]
@@ -3084,13 +2951,11 @@
                     [
                         [
                             "From",
-                            "source",
-                            "string"
+                            "source"
                         ],
                         [
                             "To",
-                            "target",
-                            "string"
+                            "target"
                         ]
                     ]
                 ]
@@ -3111,13 +2976,11 @@
                     [
                         [
                             "From",
-                            "source",
-                            "string"
+                            "source"
                         ],
                         [
                             "To",
-                            "target",
-                            "string"
+                            "target"
                         ]
                     ]
                 ]
@@ -3138,13 +3001,11 @@
                     [
                         [
                             "From",
-                            "source",
-                            "string"
+                            "source"
                         ],
                         [
                             "To",
-                            "target",
-                            "string"
+                            "target"
                         ]
                     ]
                 ]
@@ -3165,13 +3026,11 @@
                     [
                         [
                             "From",
-                            "source",
-                            "string"
+                            "source"
                         ],
                         [
                             "To",
-                            "target",
-                            "string"
+                            "target"
                         ]
                     ]
                 ]
@@ -3230,13 +3089,11 @@
                     [
                         [
                             "From",
-                            "source",
-                            "string"
+                            "source"
                         ],
                         [
                             "To",
-                            "target",
-                            "string"
+                            "target"
                         ]
                     ]
                 ],
@@ -3245,13 +3102,11 @@
                     [
                         [
                             "Data Version",
-                            "data_version",
-                            "string"
+                            "data_version"
                         ],
                         [
                             "Data Source",
-                            "data_source",
-                            "string"
+                            "data_source"
                         ]
                     ]
                 ]
@@ -3272,13 +3127,11 @@
                     [
                         [
                             "From",
-                            "source",
-                            "string"
+                            "source"
                         ],
                         [
                             "To",
-                            "target",
-                            "string"
+                            "target"
                         ]
                     ]
                 ],
@@ -3287,13 +3140,11 @@
                     [
                         [
                             "Data Version",
-                            "data_version",
-                            "string"
+                            "data_version"
                         ],
                         [
                             "Data Source",
-                            "data_source",
-                            "string"
+                            "data_source"
                         ]
                     ]
                 ]
@@ -3368,13 +3219,11 @@
                     [
                         [
                             "From",
-                            "source",
-                            "string"
+                            "source"
                         ],
                         [
                             "To",
-                            "target",
-                            "string"
+                            "target"
                         ]
                     ]
                 ],
@@ -3383,28 +3232,23 @@
                     [
                         [
                             "Cell Type Name",
-                            "cell_type_name",
-                            "string"
+                            "cell_type_name"
                         ],
                         [
                             "Cell Type Source Column",
-                            "cell_type_source_column",
-                            "string"
+                            "cell_type_source_column"
                         ],
                         [
                             "Gene Symbol",
-                            "gene_symbol",
-                            "string"
+                            "gene_symbol"
                         ],
                         [
                             "Gene Name",
-                            "gene_name",
-                            "string"
+                            "gene_name"
                         ],
                         [
                             "Gene Source Column",
-                            "gene_source_column",
-                            "string"
+                            "gene_source_column"
                         ],
                         [
                             "Source Row",
@@ -3423,13 +3267,11 @@
                     [
                         [
                             "Data Version",
-                            "data_version",
-                            "string"
+                            "data_version"
                         ],
                         [
                             "Data Source",
-                            "data_source",
-                            "string"
+                            "data_source"
                         ]
                     ]
                 ]
@@ -3450,13 +3292,11 @@
                     [
                         [
                             "From",
-                            "source",
-                            "string"
+                            "source"
                         ],
                         [
                             "To",
-                            "target",
-                            "string"
+                            "target"
                         ]
                     ]
                 ],
@@ -3465,13 +3305,11 @@
                     [
                         [
                             "Data Version",
-                            "data_version",
-                            "string"
+                            "data_version"
                         ],
                         [
                             "Data Source",
-                            "data_source",
-                            "string"
+                            "data_source"
                         ]
                     ]
                 ]
