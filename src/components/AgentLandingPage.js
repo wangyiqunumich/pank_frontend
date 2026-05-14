@@ -247,8 +247,8 @@ function AgentLandingPage() {
                     <Box component="img" src={landingPageLogo} alt="background" sx={{ width: { xs: '95%', md: 992 }, maxWidth: '96%', objectFit: 'contain', transform: 'translateY(-60px)' }} />
                 </Box>
 
-                <Box sx={{ maxWidth: 700, width: '100%', mx: 'auto', pt: { xs: 1, sm: 2, md: 3 }, pb: { xs: 3, sm: 4, md: 6 }, position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: { xs: 2.5, sm: 3, md: 3.25 } }}>
-                    <Box sx={{ width: '100%', maxWidth: 700, textAlign: 'center' }}>
+                <Box sx={{ maxWidth: 820, width: '100%', mx: 'auto', pt: { xs: 1, sm: 2, md: 3 }, pb: { xs: 3, sm: 4, md: 6 }, position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: { xs: 2.5, sm: 3, md: 3.25 }, transform: 'translateY(-40px)' }}>
+                    <Box sx={{ width: '100%', maxWidth: 820, textAlign: 'center' }}>
                         <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: { xs: 1, md: 1.5 }, flexWrap: 'nowrap', justifyContent: 'center', maxWidth: '100%' }}>
                             <Typography sx={{ fontFamily: 'Inter', fontWeight: 800, fontSize: { xs: 26, sm: 32, md: 38 }, lineHeight: { xs: '30px', sm: '36px', md: '40px' }, letterSpacing: { xs: '-0.02em', md: '-0.035em' }, whiteSpace: { xs: 'normal', sm: 'nowrap' }, textAlign: 'center', flexShrink: 1 }}>
                                 <Box component="span" sx={{ color: '#181C1D', fontSize: { xs: 26, sm: 32, md: 38 }, fontFamily: 'Inter', fontWeight: 800, lineHeight: { xs: '30px', sm: '36px', md: '40px' }, letterSpacing: { xs: '-0.02em', md: '-0.035em' }, whiteSpace: { xs: 'normal', sm: 'nowrap' } }}>
@@ -261,13 +261,13 @@ function AgentLandingPage() {
                             <BetaBadge sx={{ transform: 'translateY(2px)' }} />
                         </Box>
                         <Typography sx={{ mt: { xs: 1.25, md: 2 }, fontFamily: 'Inter', fontWeight: 400, fontSize: { xs: 13, sm: 14, md: 14 }, lineHeight: 1.55, color: '#4C6261', maxWidth: { xs: 620, md: 640 }, mx: 'auto' }}>
-                            Explore our comprehensive database of T1D–related data, knowledge, and insights.
-                            <Box component="br" sx={{ display: 'block' }} />
-                            Simply type your question-our PanKgraph agent finds the answers.
+                            Explore our comprehensive database of T1D–related data, <Box component="br" sx={{ display: 'block' }} />
+                            knowledge, and insights. Simply type your question-our <Box component="br" sx={{ display: 'block' }} />
+                            PanKgraph agent finds the answers.
                         </Typography>
                     </Box>
 
-                    <Box sx={{ width: '100%', maxWidth: 700, position: 'relative', pt: { xs: 0.5, md: 1 } }}>
+                    <Box sx={{ width: '100%', maxWidth: 820, position: 'relative', pt: { xs: 0.5, md: 1 } }}>
                         <Box
                             sx={{
                                 position: 'absolute',
@@ -281,8 +281,8 @@ function AgentLandingPage() {
                         />
                         <Box
                             sx={{
-                                height: { xs: 50, sm: 52 },
-                                borderRadius: '32px',
+                                height: '80px',
+                                borderRadius: '40px',
                                 bgcolor: '#FFFFFF',
                                 border: '1px solid rgba(189,201,200,0.3)',
                                 boxShadow: '0 6px 8px -6px rgba(0,103,102,0.05), 0 14px 20px -5px rgba(0,103,102,0.05)',
@@ -371,8 +371,8 @@ function AgentLandingPage() {
                         </Box>
                     </Box>
 
-                    <Box sx={{ width: '100%', maxWidth: 700, position: 'relative' }}>
-                        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: '10px' }}>
+                    <Box sx={{ width: '100%', maxWidth: 820, position: 'relative' }}>
+                        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: '30px' }}>
                             {quickCards.map((card) => (
                                 <Button
                                     key={card.key}
@@ -380,19 +380,19 @@ function AgentLandingPage() {
                                         setActiveExampleGroup((prev) => (prev === card.key ? undefined : card.key));
                                     }}
                                     sx={{
-                                        borderRadius: '12px',
-                                        minHeight: { xs: 74, sm: 74, md: 74 },
-                                        px: '14px',
-                                        py: '10px',
+                                        borderRadius: '32px',
+                                        minHeight: 120,
+                                        px: '24px',
+                                        py: '24px',
                                         textTransform: 'none',
-                                        justifyContent: 'flex-start',
+                                        justifyContent: 'space-between',
                                         alignItems: 'flex-start',
                                         flexDirection: 'column',
                                         gap: '6px',
-                                        bgcolor: '#FFFFFF',
-                                        border: '1px solid #E7EBEF',
+                                        bgcolor: '#F0F4F4CC',
+                                        border: '1px solid #BDC9C80D',
                                         color: '#181C1D',
-                                        boxShadow: activeExampleGroup === card.key ? '0 4px 10px rgba(0,103,102,0.12)' : '0 1px 0 rgba(0,103,102,0.02)',
+                                        boxShadow: '0 1px 0 rgba(0,103,102,0.02)',
                                         transition: 'transform .15s, border-color .15s, box-shadow .15s',
                                         '&:hover': {
                                             bgcolor: '#FFFFFF',
@@ -416,7 +416,7 @@ function AgentLandingPage() {
                                     left: 0,
                                     right: 0,
                                     zIndex: 30,
-                                    borderRadius: '12px',
+                                    borderRadius: '32px',
                                     border: '1px solid #E7EBEF',
                                     boxShadow: '0 10px 20px rgba(0,103,102,0.08)',
                                     p: 2,
