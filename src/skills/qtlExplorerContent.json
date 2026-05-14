@@ -35,6 +35,16 @@
       },
       "searchTitle": "Search by Gene",
       "searchHint": "Enter a gene to retrieve potentially related QTL lead SNPs.",
+      "defaults": {
+        "geneOptions": [
+          "INS(ENSG00000254647)",
+          "CFTR(ENSG00000001626)",
+          "CENPO(ENSG00000138092)",
+          "G6PC2(ENSG00000131482)",
+          "ADCY3(ENSG00000138031)"
+        ],
+        "snpOptions": []
+      },
       "primaryLabel": "Gene",
       "primaryPlaceholder": "Enter gene symbol or Ensembl ID (e.g., INS or ENSG00000254647)",
       "primaryExamples": "Examples: INS, G6PC2, ENSG00000254647",
@@ -52,6 +62,16 @@
       },
       "searchTitle": "Search by SNP",
       "searchHint": "Enter an SNP to retrieve genes potentially associated by QTL evidence.",
+      "defaults": {
+        "geneOptions": [],
+        "snpOptions": [
+          "rs2402203",
+          "rs113869178",
+          "rs12154969",
+          "rs1016432",
+          "rs10203386"
+        ]
+      },
       "primaryLabel": "SNP",
       "primaryPlaceholder": "Enter rsID or genomic coordinate (e.g., rs123456 or chr1:1234567)",
       "primaryExamples": "Examples: rs123456, chr1:1234567, 1:1234567",
@@ -70,6 +90,22 @@
       },
       "searchTitle": "Search by SNP + Gene",
       "searchHint": "Enter the SNP and gene to check whether this pair has QTL evidence.",
+      "defaults": {
+        "geneOptions": [
+          "INS(ENSG00000254647)",
+          "G6PC2(ENSG00000131482)",
+          "CFTR(ENSG00000001626)",
+          "ADCY3(ENSG00000138031)",
+          "CENPO(ENSG00000138092)"
+        ],
+        "snpOptions": [
+          "rs2402203",
+          "rs10203386",
+          "rs113869178",
+          "rs12154969",
+          "rs1016432"
+        ]
+      },
       "primaryLabel": "SNP",
       "primaryPlaceholder": "Enter rsID or genomic coordinate (e.g., rs123456 or chr1:1234567)",
       "primaryExamples": "Examples: rs123456, chr1:1234567, 1:1234567",
@@ -148,20 +184,6 @@
     ]
   },
   "defaults": {
-    "mode": "pair",
-    "geneOptions": [
-      "INS(ENSG00000254647)",
-      "CFTR(ENSG00000001626)",
-      "CENPO(ENSG00000138092)",
-      "G6PC2(ENSG00000131482)",
-      "ADCY3(ENSG00000138031)"
-    ],
-    "snpOptions": [
-      "rs2402203",
-      "rs113869178",
-      "rs12154969",
-      "rs1016432",
-      "rs10203386"
-    ]
+    "mode": "pair"
   }
 }

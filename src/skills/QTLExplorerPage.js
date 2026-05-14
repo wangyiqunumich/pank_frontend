@@ -300,6 +300,15 @@ export default function QTLExplorerPage() {
     [mode]
   );
 
+  const getModeDefaultOptions = (modeConfig, fieldType) => {
+    const modeDefaults = modeConfig?.defaults || {};
+    const sharedDefaults = qtlContent.defaults || {};
+    if (fieldType === 'gene') {
+      return modeDefaults.geneOptions || sharedDefaults.geneOptions || [];
+    }
+    return modeDefaults.snpOptions || sharedDefaults.snpOptions || [];
+  };
+
   const renderModeIcon = (icon) => (
     <Box
       sx={{
@@ -612,13 +621,16 @@ export default function QTLExplorerPage() {
 
                   <Box sx={{ display: 'grid', gridTemplateColumns: selectedMode.secondaryLabel ? { xs: '1fr', md: '1fr 1fr' } : '1fr', gap: 1.5 }}>
                     <Box>
+                      {(() => {
+                        const primaryType = selectedMode.primaryLabel === 'Gene' ? 'gene' : 'snp';
+                        return (
                       <QtlTermAutocomplete
-                        type={selectedMode.primaryLabel === 'Gene' ? 'gene' : 'snp'}
+                        type={primaryType}
                         label={selectedMode.primaryLabel}
                         placeholder={selectedMode.primaryPlaceholder}
                         value={selectedMode.primaryLabel === 'Gene' ? geneInput : snpInput}
                         onChange={selectedMode.primaryLabel === 'Gene' ? setGeneInput : setSnpInput}
-                        defaultOptions={selectedMode.primaryLabel === 'Gene' ? qtlContent.defaults.geneOptions : qtlContent.defaults.snpOptions}
+                        defaultOptions={getModeDefaultOptions(selectedMode, primaryType)}
                         onValidated={(ok, normalized) => {
                           if (selectedMode.primaryLabel === 'Gene') {
                             setGeneValid(ok);
@@ -629,6 +641,8 @@ export default function QTLExplorerPage() {
                           }
                         }}
                       />
+                        );
+                      })()}
                       <Typography sx={{ color: '#8F8F8F', mt: 0.75, fontSize: 10 }}>
                         {selectedMode.primaryExamples}
                       </Typography>
@@ -636,13 +650,16 @@ export default function QTLExplorerPage() {
 
                     {selectedMode.secondaryLabel ? (
                       <Box>
+                        {(() => {
+                          const secondaryType = selectedMode.secondaryLabel === 'Gene' ? 'gene' : 'snp';
+                          return (
                         <QtlTermAutocomplete
-                          type={selectedMode.secondaryLabel === 'Gene' ? 'gene' : 'snp'}
+                          type={secondaryType}
                           label={selectedMode.secondaryLabel}
                           placeholder={selectedMode.secondaryPlaceholder}
                           value={selectedMode.secondaryLabel === 'Gene' ? geneInput : snpInput}
                           onChange={selectedMode.secondaryLabel === 'Gene' ? setGeneInput : setSnpInput}
-                          defaultOptions={selectedMode.secondaryLabel === 'Gene' ? qtlContent.defaults.geneOptions : qtlContent.defaults.snpOptions}
+                          defaultOptions={getModeDefaultOptions(selectedMode, secondaryType)}
                           onValidated={(ok, normalized) => {
                             if (selectedMode.secondaryLabel === 'Gene') {
                               setGeneValid(ok);
@@ -653,6 +670,8 @@ export default function QTLExplorerPage() {
                             }
                           }}
                         />
+                          );
+                        })()}
                         <Typography sx={{ color: '#8F8F8F', mt: 0.75, fontSize: 10 }}>
                           {selectedMode.secondaryExamples}
                         </Typography>
