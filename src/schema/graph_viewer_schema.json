@@ -149,36 +149,6 @@
                 ]
             ]
         },
-        "cell_type": {
-            "node_color": "#FFDE7D",
-            "text_color": "#000000",
-            "node_label": "Anatomical Structure",
-            "info_panel": [
-                [
-                    "Title",
-                    "id"
-                ],
-                [
-                    "Cell Type Identity",
-                    [
-                        [
-                            "Link",
-                            "url",
-                            "link"
-                        ]
-                    ]
-                ],
-                [
-                    "Footer",
-                    [
-                        [
-                            "Data Source",
-                            "data_source"
-                        ]
-                    ]
-                ]
-            ]
-        },
         "disease": {
             "node_color": "#FFDE7D",
             "text_color": "#000000",
