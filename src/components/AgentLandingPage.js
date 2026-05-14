@@ -244,10 +244,10 @@ function AgentLandingPage() {
                         // filter: 'blur(2px)',
                     }}
                 >
-                    <Box component="img" src={landingPageLogo} alt="background" sx={{ width: { xs: '95%', md: 992 }, maxWidth: '96%', objectFit: 'contain', transform: 'translateY(-60px)' }} />
+                    <Box component="img" src={landingPageLogo} alt="background" sx={{ width: { xs: '95%', md: 992 }, maxWidth: '96%', objectFit: 'contain', transform: 'translateY(-40px)' }} />
                 </Box>
 
-                <Box sx={{ maxWidth: 820, width: '100%', mx: 'auto', pt: { xs: 1, sm: 2, md: 3 }, pb: { xs: 3, sm: 4, md: 6 }, position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: { xs: 2.5, sm: 3, md: 3.25 }, transform: 'translateY(-40px)' }}>
+                <Box sx={{ maxWidth: 820, width: '100%', mx: 'auto', pt: { xs: 1, sm: 2, md: 3 }, pb: { xs: 3, sm: 4, md: 6 }, position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: { xs: 2.5, sm: 3, md: 3.25 }, transform: 'translateY(-20px)' }}>
                     <Box sx={{ width: '100%', maxWidth: 820, textAlign: 'center' }}>
                         <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: { xs: 1, md: 1.5 }, flexWrap: 'nowrap', justifyContent: 'center', maxWidth: '100%' }}>
                             <Typography sx={{ fontFamily: 'Inter', fontWeight: 800, fontSize: { xs: 26, sm: 32, md: 38 }, lineHeight: { xs: '30px', sm: '36px', md: '40px' }, letterSpacing: { xs: '-0.02em', md: '-0.035em' }, whiteSpace: { xs: 'normal', sm: 'nowrap' }, textAlign: 'center', flexShrink: 1 }}>

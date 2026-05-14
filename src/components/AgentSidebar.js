@@ -9,7 +9,6 @@ import {
   useNavigate,
 } from 'react-router-dom';
 
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import AddIcon from '@mui/icons-material/Add';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
@@ -34,6 +33,8 @@ import { readRecentChats } from '../utils/chatSessionStorage';
 const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
 const SIDEBAR_EXPANDED_WIDTH = 264;
 const SIDEBAR_COLLAPSED_WIDTH = 80;
+const SIDEBAR_HOVER_BG = '#E3F0F1';
+const SIDEBAR_ACTIVE_BG = '#D9EAEB';
 
 function SidebarButton({ active, icon, label, onClick, open }) {
   const button = (
@@ -44,7 +45,7 @@ function SidebarButton({ active, icon, label, onClick, open }) {
         minWidth: 0,
         justifyContent: open ? 'flex-start' : 'center',
         borderRadius: open ? '20px' : '50%',
-        bgcolor: open && active ? '#D9EAEB' : 'transparent',
+        bgcolor: open && active ? SIDEBAR_ACTIVE_BG : 'transparent',
         color: active ? '#3A838B' : '#7D7D7D',
         fontFamily: 'DM Sans, Inter, sans-serif',
         fontSize: 14,
@@ -53,8 +54,8 @@ function SidebarButton({ active, icon, label, onClick, open }) {
         height: 40,
         px: open ? 1.25 : 0,
         width: open ? '100%' : 40,
-        '&:hover': { bgcolor: open && active ? '#D9EAEB' : 'transparent' },
-        '&:hover .sidebar-icon-bubble': { bgcolor: open ? 'transparent' : (active ? '#D9EAEB' : 'transparent') },
+        '&:hover': { bgcolor: open ? SIDEBAR_HOVER_BG : (active ? SIDEBAR_ACTIVE_BG : 'transparent') },
+        '&:hover .sidebar-icon-bubble': { bgcolor: open ? 'transparent' : (active ? SIDEBAR_ACTIVE_BG : SIDEBAR_HOVER_BG) },
         transition: 'width 220ms ease, padding 220ms ease, border-radius 220ms ease, justify-content 220ms ease',
       }}
     >
@@ -69,7 +70,7 @@ function SidebarButton({ active, icon, label, onClick, open }) {
           justifyContent: 'center',
           color: 'inherit',
           flexShrink: 0,
-          bgcolor: open ? 'transparent' : (active ? '#D9EAEB' : 'transparent'),
+          bgcolor: open ? 'transparent' : (active ? SIDEBAR_ACTIVE_BG : 'transparent'),
           transition: 'background-color 150ms ease',
         }}
       >
@@ -204,7 +205,7 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
                 color: '#7D7D7D',
                 bgcolor: 'transparent',
                 border: 'none',
-                '&:hover': { bgcolor: '#D9EAEB' },
+                '&:hover': { bgcolor: SIDEBAR_HOVER_BG },
               }}
             >
               <SidebarLeftIcon
@@ -232,13 +233,24 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
             label="Skills"
             onClick={() => navigate('/skills')}
           />
-          <SidebarButton
-            active={activeNav === 'recent'}
-            open={open}
-            icon={<AccessTimeIcon />}
-            label="Recent"
-            onClick={() => {}}
-          />
+          {open && (
+            <Typography
+              sx={{
+                mt: 0.5,
+                px: 1,
+                color: '#8B949E',
+                fontFamily: 'DM Sans, Inter, sans-serif',
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                textAlign: 'left',
+                lineHeight: '18px',
+              }}
+            >
+              Recent
+            </Typography>
+          )}
 
           {open && (
             <Box
@@ -270,7 +282,7 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
                       minHeight: 32,
                       px: 1,
                       py: 0.5,
-                      '&:hover': { bgcolor: '#E7F1FF' },
+                      '&:hover': { bgcolor: SIDEBAR_HOVER_BG },
                     }}
                   >
                     <Box sx={{ textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>
@@ -303,8 +315,8 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
             height: 40,
             px: 1.25,
             width: '100%',
-            '&:hover': { bgcolor: open ? '#F3F8FF' : 'transparent' },
-            '&:hover .sidebar-account-bubble': { bgcolor: '#F3F8FF' },
+            '&:hover': { bgcolor: open ? SIDEBAR_HOVER_BG : 'transparent' },
+            '&:hover .sidebar-account-bubble': { bgcolor: SIDEBAR_HOVER_BG },
           }}
         >
           <Box
@@ -317,7 +329,7 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
               alignItems: 'center',
               justifyContent: 'center',
               flexShrink: 0,
-              bgcolor: open ? 'transparent' : '#F3F8FF',
+              bgcolor: open ? 'transparent' : SIDEBAR_HOVER_BG,
               transition: 'background-color 150ms ease',
             }}
           >
