@@ -20,7 +20,7 @@
     "example_buttons": [
         {
             "text_before_title": "Example",
-            "title": "QTL (OLD)",
+            "title": "QTL(template based)",
             "entries": [
                 {
                     "question": "Which SNP serves as the lead QTL for CFTR?",
@@ -42,10 +42,10 @@
         },
         {
             "text_before_title": "Example",
-            "title": "DEG (OLD)",
+            "title": "DEG/ Expression",
             "entries": [
                 {
-                    "question": "How does INS expression change in T1D versus non-diabetic samples?",
+                    "question": "There is still some BUG with this function, try it later",
                     "link": "/result-new?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type&relationship=express_in"
                 },
                 {
@@ -59,7 +59,7 @@
             "title": "Key Genes in T1D",
             "entries": [
                 {
-                    "question": "Is PLEKHM1 differentially expressed in any cell type in T1D?",
+                    "question": "Is PLEKHM1 a T1D effector gene or key marker gene in pancreatic cell types?",
                     "link": ""
                 },
                 {
