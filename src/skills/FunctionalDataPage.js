@@ -653,11 +653,10 @@ export default function FunctionalDataPage() {
                         </Box>
                       </Box>
 
-                      <Box sx={{ display: 'flex', alignItems: 'stretch', justifyContent: 'space-between', gap: 0.5, flexWrap: 'nowrap', flex: 1, minWidth: 0 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'stretch', justifyContent: 'space-between', gap: 0.5, flexWrap: 'wrap', flex: 1, minWidth: 0 }}>
                         {[
                           { label: 'Disease', value: disease || 'All' },
                           { label: 'Genetic sex', value: sex || 'All' },
-                          { label: 'Center', value: center || 'All' },
                           { label: 'Age range', value: `${ageRange[0]} - ${ageRange[1]}` },
                           { label: 'BMI range', value: `${bmiRange[0]} - ${bmiRange[1]}` },
                         ].map((item) => (
