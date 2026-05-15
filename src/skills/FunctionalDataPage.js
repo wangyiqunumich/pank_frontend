@@ -38,8 +38,8 @@ import {
 
 import AgentSidebar from '../components/AgentSidebar';
 import BoxSvg from '../image/Box.svg';
-import { buildFunctionalPlotPrompt } from '../utils/functionalPromptBuilder';
 import functionalDataApi from '../utils/functionalDataApi';
+import { buildFunctionalPlotPrompt } from '../utils/functionalPromptBuilder';
 import functionalDataContent from './functionalDataContent.json';
 
 const SEL_SX = {
@@ -549,7 +549,7 @@ export default function FunctionalDataPage() {
         currentData,
       });
       const encodedQuery = encodeURIComponent(utf8ToBase64(prompt));
-      navigate(`/result-new2?question=${encodedQuery}&terminal=true`);
+      navigate(`/result-new2?question=${encodedQuery}&terminal=true&prompt_source=functional_data_auto`);
     } catch (err) {
       console.error('Failed to build Step 2 prompt:', err);
     } finally {

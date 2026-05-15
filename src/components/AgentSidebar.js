@@ -119,6 +119,17 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
   }, [location.pathname, location.search]);
 
   useEffect(() => {
+    const refreshRecentChats = () => {
+      setRecentChats(readRecentChats());
+    };
+
+    window.addEventListener('pank-recent-chats-updated', refreshRecentChats);
+    return () => {
+      window.removeEventListener('pank-recent-chats-updated', refreshRecentChats);
+    };
+  }, []);
+
+  useEffect(() => {
     if (typeof window === 'undefined') return;
     window.localStorage.setItem('pank-sidebar-open', String(open));
     window.dispatchEvent(new CustomEvent('pank-sidebar-toggle', { detail: { open } }));

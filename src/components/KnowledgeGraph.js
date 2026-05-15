@@ -142,7 +142,8 @@ const HirnEvidences = ({ evidence }) => {
     };
     const scoreColor = score >= 0.9 ? colorMap.green : score >= 0.7 ? colorMap.orange : colorMap.red;
     return <Box sx={{
-      width: "calc(100% - 32px)",
+      width: "100%",
+      boxSizing: "border-box",
       display: "flex",
       flexDirection: "column",
       padding: "16px",
@@ -214,7 +215,8 @@ const HirnEvidences = ({ evidence }) => {
   }
 
   return <Box sx={{
-    width: "calc(100% - 32px)",
+    width: "100%",
+    boxSizing: "border-box",
     display: "flex",
     flexDirection: "column",
     padding: "16px",
@@ -295,7 +297,8 @@ const LongList = ({ title, list }) => {
     // top right: pmid
     // bottom: content
     return <Box sx={{
-      width: "calc(100% - 32px)",
+      width: "100%",
+      boxSizing: "border-box",
       display: "flex",
       flexDirection: "column",
       padding: "16px",
@@ -335,7 +338,8 @@ const LongList = ({ title, list }) => {
   }
 
   return <Box sx={{
-    width: "calc(100% - 32px)",
+    width: "100%",
+    boxSizing: "border-box",
     display: "flex",
     flexDirection: "column",
     padding: "16px",
@@ -468,7 +472,8 @@ const FreqList = ({ title, string, config }) => {
   }
 
   return <Box sx={{
-    width: "calc(100% - 32px)",
+    width: "100%",
+    boxSizing: "border-box",
     display: "flex",
     flexDirection: "column",
     padding: "16px",
@@ -570,7 +575,8 @@ const InfocardMenu = ({ hoveredData, review }) => {
                         <FreqList key={title} title={title} string={hoveredData[content] || ""} config={setting.split(",").map(item => hoveredData[item])} />
                         : (
                           <Box key={title} sx={{
-                            width: "calc(100% - 32px)",
+                            width: "100%",
+                            boxSizing: "border-box",
                             display: "flex",
                             flexDirection: "column",
                             padding: "16px",

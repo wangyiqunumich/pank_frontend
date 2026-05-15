@@ -547,6 +547,7 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
     }, [visualTab, visualTabs.length]);
 
     const originalQuestion = data?.originalQuestion || "";
+    const hideOriginalQueryBox = Boolean(data?.hideOriginalQueryBox);
     const parsedTitle = data?.parsedTitle || "";
     const agentPlanText = data?.agentPlan || '';
     const isFeedbackEmpty = !feedbackText.trim();
@@ -589,45 +590,47 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                         mb: 2.5,
                     }}
                 >
-                    <Box
-                        sx={{
-                            height: '50px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            px: 2,
-                            backgroundColor: '#FFFFFF',
-                            gap: 2,
-                        }}
-                    >
-                        <Stack direction="row" alignItems="center" spacing={1} sx={{ minWidth: 0, flex: 1 }}>
-                            <ChatBubbleOutlineIcon sx={{ color: '#94A3B8', fontSize: 20 }} />
+                    {!hideOriginalQueryBox ? (
+                        <Box
+                            sx={{
+                                height: '50px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                px: 2,
+                                backgroundColor: '#FFFFFF',
+                                gap: 2,
+                            }}
+                        >
+                            <Stack direction="row" alignItems="center" spacing={1} sx={{ minWidth: 0, flex: 1 }}>
+                                <ChatBubbleOutlineIcon sx={{ color: '#94A3B8', fontSize: 20 }} />
+                                <Typography
+                                    sx={{
+                                        color: '#94A3B8',
+                                        fontSize: 16,
+                                        fontWeight: 600,
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                    }}
+                                >
+                                    {originalQuestion}
+                                </Typography>
+                            </Stack>
                             <Typography
                                 sx={{
                                     color: '#94A3B8',
-                                    fontSize: 16,
-                                    fontWeight: 600,
+                                    fontSize: 12,
+                                    fontWeight: 700,
+                                    letterSpacing: '0.08em',
+                                    textTransform: 'uppercase',
                                     whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
                                 }}
                             >
-                                {originalQuestion}
+                                Original Query
                             </Typography>
-                        </Stack>
-                        <Typography
-                            sx={{
-                                color: '#94A3B8',
-                                fontSize: 12,
-                                fontWeight: 700,
-                                letterSpacing: '0.08em',
-                                textTransform: 'uppercase',
-                                whiteSpace: 'nowrap',
-                            }}
-                        >
-                            Original Query
-                        </Typography>
-                    </Box>
+                        </Box>
+                    ) : null}
 
                     <Box
                         sx={{

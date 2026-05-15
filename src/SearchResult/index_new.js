@@ -322,6 +322,11 @@ const LoadingSkeleton = () => (
 function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}) {
     const dispatch = useDispatch();
     const location = useLocation();
+    const relationshipParam = useMemo(() => {
+        const params = new URLSearchParams(location.search);
+        return String(params.get('relationship') || '').toUpperCase();
+    }, [location.search]);
+    const hideGenomeBrowserTab = relationshipParam === 'GWAS';
     const demoMode = React.useMemo(
         () => new URLSearchParams(location.search).get('demo') === 'true',
         [location.search]
@@ -1135,11 +1140,11 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             title: "Visual Material",
             tabs: [
                 { label: "Knowledge Graph", content: knowledgeGraphContent },
-                {
+                ...(!hideGenomeBrowserTab ? [{
                     label: "Genome Browser",
                     content: genomeBrowserContent,
                     fullBleed: true,
-                },
+                }] : []),
             ],
         },
         evidences: evidenceTabs.length ? { title: "Evidences", tabs: evidenceTabs } : undefined,
