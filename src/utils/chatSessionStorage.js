@@ -41,6 +41,7 @@ export const upsertRecentChat = ({ sessionId, firstQuestion }) => {
   ].slice(0, 20);
 
   window.sessionStorage.setItem(RECENT_CHAT_KEY, JSON.stringify(next));
+  window.dispatchEvent(new CustomEvent('pank-recent-chats-updated', { detail: { recentChats: next } }));
 };
 
 export const appendConversationMessages = (sessionId, messages) => {

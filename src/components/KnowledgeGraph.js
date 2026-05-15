@@ -142,7 +142,8 @@ const HirnEvidences = ({ evidence }) => {
     };
     const scoreColor = score >= 0.9 ? colorMap.green : score >= 0.7 ? colorMap.orange : colorMap.red;
     return <Box sx={{
-      width: "calc(100% - 32px)",
+      width: "100%",
+      boxSizing: "border-box",
       display: "flex",
       flexDirection: "column",
       padding: "16px",
@@ -214,7 +215,8 @@ const HirnEvidences = ({ evidence }) => {
   }
 
   return <Box sx={{
-    width: "calc(100% - 32px)",
+    width: "100%",
+    boxSizing: "border-box",
     display: "flex",
     flexDirection: "column",
     padding: "16px",
@@ -295,7 +297,8 @@ const LongList = ({ title, list }) => {
     // top right: pmid
     // bottom: content
     return <Box sx={{
-      width: "calc(100% - 32px)",
+      width: "100%",
+      boxSizing: "border-box",
       display: "flex",
       flexDirection: "column",
       padding: "16px",
@@ -335,7 +338,8 @@ const LongList = ({ title, list }) => {
   }
 
   return <Box sx={{
-    width: "calc(100% - 32px)",
+    width: "100%",
+    boxSizing: "border-box",
     display: "flex",
     flexDirection: "column",
     padding: "16px",
@@ -468,7 +472,8 @@ const FreqList = ({ title, string, config }) => {
   }
 
   return <Box sx={{
-    width: "calc(100% - 32px)",
+    width: "100%",
+    boxSizing: "border-box",
     display: "flex",
     flexDirection: "column",
     padding: "16px",
@@ -570,7 +575,8 @@ const InfocardMenu = ({ hoveredData, review }) => {
                         <FreqList key={title} title={title} string={hoveredData[content] || ""} config={setting.split(",").map(item => hoveredData[item])} />
                         : (
                           <Box key={title} sx={{
-                            width: "calc(100% - 32px)",
+                            width: "100%",
+                            boxSizing: "border-box",
                             display: "flex",
                             flexDirection: "column",
                             padding: "16px",
@@ -1394,7 +1400,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
             </IconButton>
           </div>
           <Collapse in={legendVisible} timeout="auto">
-            <div style={{ width: "430px", paddingTop: "6px", fontSize: "14px", fontFamily: "Open Sans", fontWeight: 400 }}>
+            <div style={{ width: "350px", paddingTop: "6px", fontSize: "14px", fontFamily: "Open Sans", fontWeight: 400 }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingBottom: "2px", fontSize: "12px" }}>
                 <LegendItem label="　　　　" sx={{ backgroundColor: "#E9E9E9", color: "black", border: "1.5px solid #E9E9E9", height: "8px" }} />
                 Core Nodes

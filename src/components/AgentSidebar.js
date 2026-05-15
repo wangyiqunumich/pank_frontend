@@ -35,6 +35,7 @@ const SIDEBAR_EXPANDED_WIDTH = 264;
 const SIDEBAR_COLLAPSED_WIDTH = 80;
 const SIDEBAR_HOVER_BG = '#E3F0F1';
 const SIDEBAR_ACTIVE_BG = '#D9EAEB';
+const SHOW_SIDEBAR_SIGN_IN = false;
 
 function SidebarButton({ active, icon, label, onClick, open }) {
   const button = (
@@ -117,6 +118,17 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
   useEffect(() => {
     setRecentChats(readRecentChats());
   }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    const refreshRecentChats = () => {
+      setRecentChats(readRecentChats());
+    };
+
+    window.addEventListener('pank-recent-chats-updated', refreshRecentChats);
+    return () => {
+      window.removeEventListener('pank-recent-chats-updated', refreshRecentChats);
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -300,113 +312,117 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
         </Box>
       </Box>
 
-      <Box sx={{ position: 'sticky', bottom: 0, pb: 3, pt: 1, mt: 'auto', bgcolor: '#F8FBFC', zIndex: 1 }}>
-        <Button
-          onClick={handleOpenUserMenu}
-          sx={{
-            minWidth: 0,
-            justifyContent: 'flex-start',
-            borderRadius: open ? '20px' : '50%',
-            color: '#64748B',
-            fontFamily: 'DM Sans, Inter, sans-serif',
-            fontSize: 14,
-            fontWeight: 500,
-            textTransform: 'none',
-            height: 40,
-            px: 1.25,
-            width: '100%',
-            '&:hover': { bgcolor: open ? SIDEBAR_HOVER_BG : 'transparent' },
-            '&:hover .sidebar-account-bubble': { bgcolor: SIDEBAR_HOVER_BG },
-          }}
-        >
-          <Box
-            className="sidebar-account-bubble"
-            sx={{
-              width: 40,
-              height: 40,
-              borderRadius: '50%',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-              bgcolor: open ? 'transparent' : SIDEBAR_HOVER_BG,
-              transition: 'background-color 150ms ease',
-            }}
-          >
-            {accountIcon}
+      {SHOW_SIDEBAR_SIGN_IN ? (
+        <>
+          <Box sx={{ position: 'sticky', bottom: 0, pb: 3, pt: 1, mt: 'auto', bgcolor: '#F8FBFC', zIndex: 1 }}>
+            <Button
+              onClick={handleOpenUserMenu}
+              sx={{
+                minWidth: 0,
+                justifyContent: 'flex-start',
+                borderRadius: open ? '20px' : '50%',
+                color: '#64748B',
+                fontFamily: 'DM Sans, Inter, sans-serif',
+                fontSize: 14,
+                fontWeight: 500,
+                textTransform: 'none',
+                height: 40,
+                px: 1.25,
+                width: '100%',
+                '&:hover': { bgcolor: open ? SIDEBAR_HOVER_BG : 'transparent' },
+                '&:hover .sidebar-account-bubble': { bgcolor: SIDEBAR_HOVER_BG },
+              }}
+            >
+              <Box
+                className="sidebar-account-bubble"
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  bgcolor: open ? 'transparent' : SIDEBAR_HOVER_BG,
+                  transition: 'background-color 150ms ease',
+                }}
+              >
+                {accountIcon}
+              </Box>
+              <Box
+                component="span"
+                sx={{
+                  ml: open ? 1.1 : 0,
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
+                  maxWidth: open ? 160 : 0,
+                  opacity: open ? 1 : 0,
+                  transition: 'max-width 200ms ease, opacity 150ms ease',
+                }}
+              >
+                {isAuthenticated ? userDisplayName : 'Sign in'}
+              </Box>
+            </Button>
           </Box>
-          <Box
-            component="span"
-            sx={{
-              ml: open ? 1.1 : 0,
-              overflow: 'hidden',
-              whiteSpace: 'nowrap',
-              maxWidth: open ? 160 : 0,
-              opacity: open ? 1 : 0,
-              transition: 'max-width 200ms ease, opacity 150ms ease',
-            }}
-          >
-            {isAuthenticated ? userDisplayName : 'Sign in'}
-          </Box>
-        </Button>
-      </Box>
 
-      <Menu
-        anchorEl={userMenuAnchorEl}
-        open={isUserMenuOpen}
-        onClose={handleCloseUserMenu}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-        PaperProps={{
-          sx: {
-            minWidth: 220,
-            borderRadius: '12px',
-            boxShadow: '0px 4px 6px -2px rgba(16,24,40,0.03), 0px 12px 16px -4px rgba(16,24,40,0.08)',
-            '& .MuiMenuItem-root': {
-              fontFamily: 'Inter',
-              fontSize: 14,
-              color: '#374151',
-            },
-          },
-        }}
-      >
-        {isAuthenticated ? (
-          <MenuItem onClick={handleCloseUserMenu} sx={{ cursor: 'default', '&:hover': { bgcolor: '#FFFFFF' } }}>
-            <ListItemText
-              primary={userDisplayName || 'Signed in'}
-              primaryTypographyProps={{ fontFamily: 'Inter', fontWeight: 600, fontSize: 14, color: '#1F2937' }}
-            />
-          </MenuItem>
-        ) : (
-          <MenuItem onClick={handleCloseUserMenu} sx={{ cursor: 'default', '&:hover': { bgcolor: '#FFFFFF' } }}>
-            <ListItemText
-              primary="PanKgraph Account"
-              secondary="us-east-1_yUEKWJIVn"
-              primaryTypographyProps={{ fontFamily: 'Inter', fontWeight: 600, fontSize: 14, color: '#1F2937' }}
-              secondaryTypographyProps={{ fontFamily: 'Inter', fontSize: 12, color: '#6B7280' }}
-            />
-          </MenuItem>
-        )}
-        {!isAuthenticated ? (
-          <MenuItem onClick={handleCognitoLogin}>
-            <ListItemIcon sx={{ minWidth: 30, color: '#5A6161' }}>
-              <PersonOutlineOutlinedIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText
-              primary="Sign in with Cognito"
-              secondary={auth?.isLoading ? 'Loading auth...' : undefined}
-              secondaryTypographyProps={{ fontFamily: 'Inter', fontSize: 11 }}
-            />
-          </MenuItem>
-        ) : (
-          <MenuItem onClick={handleCognitoLogout}>
-            <ListItemIcon sx={{ minWidth: 30, color: '#5A6161' }}>
-              <LogoutOutlinedIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText primary="Log out" />
-          </MenuItem>
-        )}
-      </Menu>
+          <Menu
+            anchorEl={userMenuAnchorEl}
+            open={isUserMenuOpen}
+            onClose={handleCloseUserMenu}
+            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+            PaperProps={{
+              sx: {
+                minWidth: 220,
+                borderRadius: '12px',
+                boxShadow: '0px 4px 6px -2px rgba(16,24,40,0.03), 0px 12px 16px -4px rgba(16,24,40,0.08)',
+                '& .MuiMenuItem-root': {
+                  fontFamily: 'Inter',
+                  fontSize: 14,
+                  color: '#374151',
+                },
+              },
+            }}
+          >
+            {isAuthenticated ? (
+              <MenuItem onClick={handleCloseUserMenu} sx={{ cursor: 'default', '&:hover': { bgcolor: '#FFFFFF' } }}>
+                <ListItemText
+                  primary={userDisplayName || 'Signed in'}
+                  primaryTypographyProps={{ fontFamily: 'Inter', fontWeight: 600, fontSize: 14, color: '#1F2937' }}
+                />
+              </MenuItem>
+            ) : (
+              <MenuItem onClick={handleCloseUserMenu} sx={{ cursor: 'default', '&:hover': { bgcolor: '#FFFFFF' } }}>
+                <ListItemText
+                  primary="PanKgraph Account"
+                  secondary="us-east-1_yUEKWJIVn"
+                  primaryTypographyProps={{ fontFamily: 'Inter', fontWeight: 600, fontSize: 14, color: '#1F2937' }}
+                  secondaryTypographyProps={{ fontFamily: 'Inter', fontSize: 12, color: '#6B7280' }}
+                />
+              </MenuItem>
+            )}
+            {!isAuthenticated ? (
+              <MenuItem onClick={handleCognitoLogin}>
+                <ListItemIcon sx={{ minWidth: 30, color: '#5A6161' }}>
+                  <PersonOutlineOutlinedIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Sign in with Cognito"
+                  secondary={auth?.isLoading ? 'Loading auth...' : undefined}
+                  secondaryTypographyProps={{ fontFamily: 'Inter', fontSize: 11 }}
+                />
+              </MenuItem>
+            ) : (
+              <MenuItem onClick={handleCognitoLogout}>
+                <ListItemIcon sx={{ minWidth: 30, color: '#5A6161' }}>
+                  <LogoutOutlinedIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText primary="Log out" />
+              </MenuItem>
+            )}
+          </Menu>
+        </>
+      ) : null}
     </Box>
   );
 }

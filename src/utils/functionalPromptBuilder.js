@@ -75,10 +75,10 @@ ${title}
 ${FUNCTIONAL_CORE_RULES}
 
 API:
-GET /api/charts/cohort-traces?${queryString}
+GET https://functional.pankgraph.org/api/charts/cohort-traces?${queryString}
 
 // Actual API call placeholder for coder:
-// const response = await fetch("/api/charts/cohort-traces?${queryString}");
+// const response = await fetch("https://functional.pankgraph.org/api/charts/cohort-traces?${queryString}");
 // const currentData = await response.json();
 
 Current data summary:

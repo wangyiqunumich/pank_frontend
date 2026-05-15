@@ -73,19 +73,24 @@
     "examples": [
       {
         "text": "Is rs123456 associated with T1D?",
-        "matchQid": 4
+        "matchQid": 4,
+        "fill": {
+          "snp": "rs2402203"
+        }
       },
       {
         "text": "What traits is rs7891011 associated with?",
-        "matchQid": 4
+        "matchQid": 4,
+        "fill": {
+          "snp": "rs12154969"
+        }
       },
       {
         "text": "Show me associations for chr6:32654321",
-        "matchQid": 4
-      },
-      {
-        "text": "What genes are near this SNP?",
-        "matchQid": 4
+        "matchQid": 4,
+        "fill": {
+          "snp": "chr6:32654321"
+        }
       }
     ]
   },

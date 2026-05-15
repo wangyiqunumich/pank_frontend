@@ -183,9 +183,8 @@ const normalizeFunctionalDataRequestPath = (rawValue) => {
     const source = String(rawValue || '').trim().replace(/^['"`]|['"`]$/g, '');
     if (!source) return '';
 
-    // Accept already-normalized API paths (e.g. "/api/charts/cohort-traces?..." )
+    // Accept only cohort-traces API paths (e.g. "/api/charts/cohort-traces?..." )
     if (source.startsWith('/api/')) {
-        if (source.startsWith('/api/charts/trait-summary')) return source;
         if (source.startsWith('/api/charts/cohort-traces')) return source;
         return '';
     }
@@ -210,18 +209,12 @@ const normalizeFunctionalDataRequestPath = (rawValue) => {
         target = `/${target}`;
     }
 
-    if (target.startsWith('/api/charts/trait-summary')) return target;
     if (target.startsWith('/api/charts/cohort-traces')) return target;
     return '';
 };
 
 const extractFunctionalDataRequestPath = (cypherQueries) => {
     if (!Array.isArray(cypherQueries)) return '';
-
-    for (const query of cypherQueries) {
-        const path = normalizeFunctionalDataRequestPath(query);
-        if (path && path.startsWith('/api/charts/trait-summary')) return path;
-    }
 
     for (const query of cypherQueries) {
         const path = normalizeFunctionalDataRequestPath(query);
@@ -449,20 +442,14 @@ const FunctionalDataChartPanel = ({ requestPath = '' }) => {
 
     const imageUrl = React.useMemo(() => {
         if (!normalizedRequestPath) return '';
-        if (normalizedRequestPath.startsWith('/api/charts/cohort-traces')) {
-            const mappedPath = normalizedRequestPath.includes('/api/charts/cohort-traces.png')
-                ? normalizedRequestPath
-                : normalizedRequestPath.replace('/api/charts/cohort-traces', '/api/charts/cohort-traces.png');
-            const [pathPart, queryPart = ''] = mappedPath.split('?');
-            const queryParams = new URLSearchParams(queryPart);
-            queryParams.set('result_page', 'Yes');
-            const nextQuery = queryParams.toString();
-            return `${FUNCTIONAL_DATA_BASE_URL}${pathPart}${nextQuery ? `?${nextQuery}` : ''}`;
-        }
-        if (normalizedRequestPath.includes('/api/charts/trait-summary.png')) {
-            return `${FUNCTIONAL_DATA_BASE_URL}${normalizedRequestPath}`;
-        }
-        return `${FUNCTIONAL_DATA_BASE_URL}${normalizedRequestPath.replace('/api/charts/trait-summary', '/api/charts/trait-summary.png')}`;
+        const mappedPath = normalizedRequestPath.includes('/api/charts/cohort-traces.png')
+            ? normalizedRequestPath
+            : normalizedRequestPath.replace('/api/charts/cohort-traces', '/api/charts/cohort-traces.png');
+        const [pathPart, queryPart = ''] = mappedPath.split('?');
+        const queryParams = new URLSearchParams(queryPart);
+        queryParams.set('result_page', 'Yes');
+        const nextQuery = queryParams.toString();
+        return `${FUNCTIONAL_DATA_BASE_URL}${pathPart}${nextQuery ? `?${nextQuery}` : ''}`;
     }, [normalizedRequestPath]);
 
     React.useEffect(() => {
@@ -553,6 +540,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const chatSessionIdFromUrl = React.useMemo(() => searchParams.get('session_id') || '', [searchParams]);
     const pendingPlanSessionIdFromUrl = React.useMemo(() => searchParams.get('pending_plan_session_id') || '', [searchParams]);
     const chatRouteFromUrl = React.useMemo(() => searchParams.get('route') || '', [searchParams]);
+    const functionalAutoPromptRef = React.useRef(searchParams.get('prompt_source') === 'functional_data_auto');
 
     const { viewSchema } = useSelector((state) => state.viewSchema);
     const { typeToImage } = useSelector((state) => state.typeToImage);
@@ -618,7 +606,28 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const [isPlanRevisionInProgress, setIsPlanRevisionInProgress] = useState(false);
     const [chatRouteState, setChatRouteState] = useState('');
     const [forceResultView, setForceResultView] = useState(false);
+    const chatSessionIdRef = useRef(chatSessionIdFromUrl || '');
+    const chatStartPendingPlanSessionIdRef = useRef('');
+    const planSummaryRef = useRef('');
+    const aiAnswerRef = useRef('');
     const isChatApiMode = terminalMode && !debug && !demoMode && !planDemoMode;
+    const isAgentResultRoute = location.pathname === '/result-new2' || location.pathname === '/agent-result';
+
+    useEffect(() => {
+        chatSessionIdRef.current = chatSessionId || '';
+    }, [chatSessionId]);
+
+    useEffect(() => {
+        chatStartPendingPlanSessionIdRef.current = chatStartPendingPlanSessionId || '';
+    }, [chatStartPendingPlanSessionId]);
+
+    useEffect(() => {
+        planSummaryRef.current = planSummary || '';
+    }, [planSummary]);
+
+    useEffect(() => {
+        aiAnswerRef.current = aiAnswer || '';
+    }, [aiAnswer]);
 
     const resolveAgentErrorType = React.useCallback((err, fallbackType = 'critical_error') => {
         const status = err?.response?.status;
@@ -903,15 +912,21 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         ) : (
             <NoGraphData />
         );
-        const followUpVisualTabs = [
-            { label: 'Knowledge Graph', content: followUpKnowledgeGraphContent },
-            ...(block?.functionalDataRequestPath
-                ? [{
-                    label: 'Functional Data',
-                    content: <FunctionalDataChartPanel requestPath={block.functionalDataRequestPath} />,
-                }]
-                : []),
-        ];
+        const followUpFunctionalTab = block?.functionalDataRequestPath
+            ? {
+                label: 'Functional Data',
+                content: <FunctionalDataChartPanel requestPath={block.functionalDataRequestPath} />,
+            }
+            : null;
+        const followUpVisualTabs = (isAgentResultRoute && followUpFunctionalTab)
+            ? [
+                followUpFunctionalTab,
+                { label: 'Knowledge Graph', content: followUpKnowledgeGraphContent },
+            ]
+            : [
+                { label: 'Knowledge Graph', content: followUpKnowledgeGraphContent },
+                ...(followUpFunctionalTab ? [followUpFunctionalTab] : []),
+            ];
 
         return {
             questionId: `Q${index + 2}`,
@@ -1688,7 +1703,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 setPlanSessionId(startData.session_id);
                 const { interpretedQuestion, planMarkdown } = parsePlanMarkdownForUI(startData?.plan_markdown || '');
                 setPlanSummary(planMarkdown);
-                setPlanParsedTitle(interpretedQuestion || currentQuestion || question || inputText);
+                setPlanParsedTitle(interpretedQuestion || '');
                 setAiAnswer(planMarkdown);
                 await runPlanLoadingMilestones();
                 const planCypherQueries = extractPlanCypherQueries(startData?.plan_json);
@@ -1721,7 +1736,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 }
                 const { interpretedQuestion, planMarkdown } = parsePlanMarkdownForUI(reviseData?.plan_markdown || '');
                 setPlanSummary(planMarkdown);
-                setPlanParsedTitle(interpretedQuestion || planParsedTitle || currentQuestion || question || inputText);
+                setPlanParsedTitle(interpretedQuestion || planParsedTitle || '');
                 setAiAnswer(planMarkdown);
                 await runPlanLoadingMilestones();
                 const planCypherQueries = extractPlanCypherQueries(reviseData?.plan_json);
@@ -1805,6 +1820,17 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         const resolvedQuestion = fallbackQuestion || currentQuestion || question;
         const route = String(payload?.route || 'new_query');
         const responseSessionId = String(payload?.session_id || chatSessionId || '').trim();
+        const planCypherQueries = extractPayloadCypherQueries(payload);
+
+        // Trigger graph/functional loading immediately after confirm returns,
+        // so Functional Data API does not wait for literature append.
+        const graphPromise = planCypherQueries.length
+            ? fetchGraphFromCypher(planCypherQueries)
+            : Promise.resolve().then(() => {
+                setGraphData(null);
+                setNoGraph(true);
+                setFunctionalDataRequestPath('');
+            });
 
         setCurrentQuestion(resolvedQuestion);
         setChatRouteState(route);
@@ -1813,7 +1839,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         setStreamedSummary(parsed.summary || '');
         streamAnswerRef.current = parsed.summary || '';
         streamSummaryRef.current = parsed.summary || '';
-        setPlanParsedTitle(preferredTitle || planParsedTitle || resolvedQuestion);
+        setPlanParsedTitle(preferredTitle || planParsedTitle || '');
         setNextQuestions(parsed.followUpQuestions || []);
         setChatHistoryCompressed(Boolean(payload?.history_compressed));
         setConversationRound(Number(payload?.round || 1));
@@ -1834,14 +1860,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             }
         }
 
-        const planCypherQueries = extractPayloadCypherQueries(payload);
-        if (planCypherQueries.length) {
-            await fetchGraphFromCypher(planCypherQueries);
-        } else {
-            setGraphData(null);
-            setNoGraph(true);
-            setFunctionalDataRequestPath('');
-        }
+        await graphPromise;
     }, [parseChatResponseContent, currentQuestion, question, chatSessionId, extractPayloadCypherQueries, fetchGraphFromCypher, fetchLiteratureMarkdown, appendLiteratureBlock]);
 
     const handleConfirmPendingPlan = React.useCallback(async (blockId) => {
@@ -1942,6 +1961,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             }
 
             appendConversationMessages(chatSessionId, [
+                { role: 'user', content: String(block.question || '').trim() },
                 {
                     role: 'assistant',
                     content: summaryText,
@@ -1950,7 +1970,10 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     followUpQuestions: parsed.followUpQuestions || [],
                 },
             ]);
-            upsertRecentChat({ sessionId: chatSessionId, firstQuestion: question || currentQuestion || block.question });
+            const followUpInterpretedTitle = String(block?.title || '').trim();
+            if (followUpInterpretedTitle) {
+                upsertRecentChat({ sessionId: chatSessionId, firstQuestion: followUpInterpretedTitle });
+            }
             setChatHistoryCompressed(Boolean(payload?.history_compressed));
             setConversationRound(Number(payload?.round || conversationRound));
         } catch (err) {
@@ -1980,7 +2003,6 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         setFollowUpBlocks((prev) => [...prev, { id: blockId, question: cleaned, type: 'loading', error: '' }]);
 
         try {
-            appendConversationMessages(chatSessionId, [{ role: 'user', content: cleaned }]);
             const response = await flaskBackendAxiosInstanceNew.post(
                 'https://jieliulab3.dcmb.med.umich.edu/pankgraph-agent/chat/message',
                 {
@@ -2078,6 +2100,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 }
 
                 appendConversationMessages(chatSessionId, [
+                    { role: 'user', content: cleaned },
                     {
                         role: 'assistant',
                         content: summaryText,
@@ -2090,7 +2113,10 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 throw new Error(`Unsupported chat/message route: ${String(payload?.route || 'unknown')}`);
             }
 
-            upsertRecentChat({ sessionId: chatSessionId, firstQuestion: question || currentQuestion || cleaned });
+            const followUpInterpretedTitle = String(payload?.interpreted_question || payload?.interpretedTitle || '').trim();
+            if (followUpInterpretedTitle) {
+                upsertRecentChat({ sessionId: chatSessionId, firstQuestion: followUpInterpretedTitle });
+            }
         } catch (err) {
             setFollowUpBlocks((prev) => prev.map((item) => (
                 item.id === blockId
@@ -2155,7 +2181,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             );
 
             const confirmPayload = confirmResponse?.data || {};
-            await applyMainChatResponse(confirmPayload, confirmQuestionText, planParsedTitle || confirmQuestionText);
+            await applyMainChatResponse(confirmPayload, confirmQuestionText, planParsedTitle || '');
             setChatRouteState('new_query');
             setChatStartPendingPlanSessionId('');
             setChatStartRevisionPrompt('');
@@ -2165,13 +2191,21 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             const summaryForHistory = String(streamAnswerRef.current || confirmPayload?.answer_markdown || '').trim();
             if (summaryForHistory) {
                 const confirmParsed = parseChatResponseContent(confirmPayload);
-                appendConversationMessages(chatSessionId, [{
-                    role: 'assistant',
-                    content: summaryForHistory,
-                    route: String(confirmPayload?.route || 'new_query'),
-                    cypherQueries: extractPayloadCypherQueries(confirmPayload),
-                    followUpQuestions: confirmParsed.followUpQuestions || [],
-                }]);
+                const confirmInterpretedTitle = String(planParsedTitle || '').trim();
+                if (confirmInterpretedTitle) {
+                    upsertRecentChat({ sessionId: chatSessionId, firstQuestion: confirmInterpretedTitle });
+                }
+                replaceConversationHistory(chatSessionId, [
+                    { role: 'user', content: confirmQuestionText },
+                    {
+                        role: 'assistant',
+                        content: summaryForHistory,
+                        route: String(confirmPayload?.route || 'new_query'),
+                        cypherQueries: extractPayloadCypherQueries(confirmPayload),
+                        followUpQuestions: confirmParsed.followUpQuestions || [],
+                        interpretedTitle: planParsedTitle || '',
+                    },
+                ]);
             }
         } catch (err) {
             console.error('[Chat Flow] First-turn plan confirm failed:', err);
@@ -2212,7 +2246,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
             const { interpretedQuestion, planMarkdown } = parsePlanMarkdownForUI(revised?.plan_markdown || '');
             setPlanSummary(planMarkdown || revised?.plan_markdown || '');
-            setPlanParsedTitle(interpretedQuestion || planParsedTitle || chatStartQuestion || question);
+            setPlanParsedTitle(interpretedQuestion || planParsedTitle || '');
             setChatStartRevisionPrompt(cleaned);
 
             const planCypherQueries = extractPlanCypherQueries(revised?.plan_json || {});
@@ -2247,6 +2281,9 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         const bootstrapConversation = async () => {
             const runId = ++chatBootstrapRunIdRef.current;
             const isStale = () => runId !== chatBootstrapRunIdRef.current;
+            const shouldPreserveGraphDuringPendingBootstrap = Boolean(
+                chatSessionIdFromUrl && (pendingPlanSessionIdFromUrl || chatRouteFromUrl === 'new_query_pending')
+            );
 
             setForceResultView(false);
             setChatRouteState('');
@@ -2256,8 +2293,10 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             setAiAnswer('');
             setFollowUpBlocks([]);
             setAgentErrorType(null);
-            setGraphData(null);
-            setNoGraph(false);
+            if (!shouldPreserveGraphDuringPendingBootstrap) {
+                setGraphData(null);
+                setNoGraph(false);
+            }
             setQuestionLoadingStartedAt(Date.now());
 
             try {
@@ -2280,7 +2319,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     setChatStartQuestion(question);
                     setCurrentQuestion(question);
                     setPlanSummary(planMarkdown || cachedPayload?.plan_markdown || '');
-                    setPlanParsedTitle(interpretedQuestion || question);
+                    setPlanParsedTitle(interpretedQuestion || '');
                     setTerminalPhase('confirm');
                     setTerminalLoading(false);
                     setStreamComplete(true);
@@ -2321,7 +2360,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         setChatStartQuestion(question);
                         setCurrentQuestion(question);
                         setPlanSummary(planMarkdown || cachedPayload?.plan_markdown || '');
-                        setPlanParsedTitle(interpretedQuestion || question);
+                        setPlanParsedTitle(interpretedQuestion || '');
                         setTerminalPhase('confirm');
                         setTerminalLoading(false);
                         setStreamComplete(true);
@@ -2336,6 +2375,23 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         }
 
                         if (isStale()) return;
+                        return;
+                    }
+
+                    // Pending-plan cache is intentionally not persisted anymore.
+                    // If we already have matching pending-plan state in memory,
+                    // keep rendering confirm view instead of showing a false planning error.
+                    if (
+                        chatSessionIdRef.current
+                        && chatSessionIdRef.current === chatSessionIdFromUrl
+                        && chatStartPendingPlanSessionIdRef.current
+                        && chatStartPendingPlanSessionIdRef.current === pendingPlanSessionIdFromUrl
+                        && String(planSummaryRef.current || aiAnswerRef.current || '').trim()
+                    ) {
+                        setChatRouteState('new_query_pending');
+                        setTerminalPhase('confirm');
+                        setTerminalLoading(false);
+                        setStreamComplete(true);
                         return;
                     }
 
@@ -2382,12 +2438,13 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
                     const primaryExchange = exchanges[0] || null;
                     const primarySummary = String(primaryExchange?.assistant?.content || '').trim();
+                    const primaryInterpretedTitle = String(primaryExchange?.assistant?.interpretedTitle || '').trim();
                     const latestExchange = exchanges[exchanges.length - 1] || primaryExchange;
 
                     setChatSessionId(chatSessionIdFromUrl);
                     setCurrentQuestion(firstQuestion);
                     setAiAnswer(primarySummary);
-                    setPlanParsedTitle(firstQuestion);
+                    setPlanParsedTitle(primaryInterpretedTitle);
                     setTerminalPhase('result');
                     setTerminalLoading(false);
                     setStreamComplete(true);
@@ -2483,7 +2540,9 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         setFollowUpBlocks([]);
                     }
 
-                    upsertRecentChat({ sessionId: chatSessionIdFromUrl, firstQuestion });
+                    if (primaryInterpretedTitle) {
+                        upsertRecentChat({ sessionId: chatSessionIdFromUrl, firstQuestion: primaryInterpretedTitle });
+                    }
                     return;
                 }
 
@@ -2506,18 +2565,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     throw new Error('Missing session_id from /chat/start');
                 }
 
-                sessionStorage.setItem(CHAT_START_CACHE_KEY, JSON.stringify({
-                    question,
-                    sessionId,
-                    payload,
-                    savedAt: Date.now(),
-                }));
-
                 setChatSessionId(sessionId);
-                upsertRecentChat({ sessionId, firstQuestion: question });
-                replaceConversationHistory(sessionId, [
-                    { role: 'user', content: question },
-                ]);
 
                 if (payload?.route === 'new_query_pending') {
                     setChatRouteState('new_query_pending');
@@ -2526,7 +2574,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     setChatStartRevisionPrompt('');
                     setChatStartQuestion(question);
                     setPlanSummary(planMarkdown || payload?.plan_markdown || '');
-                    setPlanParsedTitle(interpretedQuestion || question);
+                    setPlanParsedTitle(interpretedQuestion || '');
                     // Show planner page immediately; graph area shows its own spinner while fetching.
                     setTerminalPhase('confirm');
                     setTerminalLoading(false);
@@ -2540,13 +2588,6 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         setFunctionalDataRequestPath('');
                     }
                     if (isStale()) return;
-                    sessionStorage.setItem(CHAT_PENDING_PLAN_CACHE_KEY, JSON.stringify({
-                        question,
-                        sessionId,
-                        pendingPlanSessionId: payload?.pending_plan_session_id || '',
-                        payload,
-                        savedAt: Date.now(),
-                    }));
                     navigate(`/result-new2?question=${encodeURIComponent(utf8ToBase64(question))}&terminal=true&session_id=${encodeURIComponent(sessionId)}&pending_plan_session_id=${encodeURIComponent(payload?.pending_plan_session_id || '')}&route=new_query_pending`, { replace: true });
                 } else if (payload?.route === 'follow_up' || payload?.route === 'new_query') {
                     setChatRouteState(String(payload?.route || 'new_query'));
@@ -2555,13 +2596,21 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     const summaryForHistory = String(streamAnswerRef.current || payload?.answer_markdown || '').trim();
                     if (summaryForHistory) {
                         const startParsed = parseChatResponseContent(payload);
-                        appendConversationMessages(sessionId, [{
-                            role: 'assistant',
-                            content: summaryForHistory,
-                            route: String(payload?.route || 'new_query'),
-                            cypherQueries: extractPayloadCypherQueries(payload),
-                            followUpQuestions: startParsed.followUpQuestions || [],
-                        }]);
+                        const startInterpretedTitle = String(payload?.interpreted_question || payload?.interpretedTitle || planParsedTitle || '').trim();
+                        if (startInterpretedTitle) {
+                            upsertRecentChat({ sessionId, firstQuestion: startInterpretedTitle });
+                        }
+                        replaceConversationHistory(sessionId, [
+                            { role: 'user', content: question },
+                            {
+                                role: 'assistant',
+                                content: summaryForHistory,
+                                route: String(payload?.route || 'new_query'),
+                                cypherQueries: extractPayloadCypherQueries(payload),
+                                followUpQuestions: startParsed.followUpQuestions || [],
+                                interpretedTitle: planParsedTitle || '',
+                            },
+                        ]);
                     }
                     navigate(`/result-new2?question=${encodeURIComponent(utf8ToBase64(question))}&terminal=true&session_id=${encodeURIComponent(sessionId)}`, { replace: true });
                 } else {
@@ -3706,15 +3755,26 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     );
 
     // Reusable visual material tabs definition
-    const buildVisualMaterialTabs = (graphContent, functionalRequestPath = '') => [
-        { label: "Knowledge Graph", content: graphContent },
-        ...(functionalRequestPath
-            ? [{
+    const buildVisualMaterialTabs = (graphContent, functionalRequestPath = '') => {
+        const functionalTab = functionalRequestPath
+            ? {
                 label: 'Functional Data',
                 content: <FunctionalDataChartPanel requestPath={functionalRequestPath} />,
-            }]
-            : []),
-    ];
+            }
+            : null;
+
+        if (isAgentResultRoute && functionalTab) {
+            return [
+                functionalTab,
+                { label: 'Knowledge Graph', content: graphContent },
+            ];
+        }
+
+        return [
+            { label: 'Knowledge Graph', content: graphContent },
+            ...(functionalTab ? [functionalTab] : []),
+        ];
+    };
 
     const buildDemoPageData = (index) => ({
         questionId: `Q${index}`,
@@ -3796,7 +3856,8 @@ Please review this plan and provide edits if needed.`,
         questionId: 'PLAN',
         title: 'Confirm Query & Execution Steps',
         originalQuestion: currentQuestion || question,
-        parsedTitle: planParsedTitle || currentQuestion || question,
+        hideOriginalQueryBox: functionalAutoPromptRef.current,
+        parsedTitle: planParsedTitle || '',
         agentPlan: planSummary || streamAnswer || streamedSummary || 'No plan generated yet.',
         onSendFeedback: async (text) => {
             if (isChatApiMode && chatStartPendingPlanSessionId) {
@@ -3825,7 +3886,7 @@ Please review this plan and provide edits if needed.`,
     const pageData = {
         styleVariant: 'pank1',
         questionId: "Q1",
-        title: planParsedTitle || currentQuestion || question || "Question",
+        title: planParsedTitle || '',
         aiOverview: {
             sections: [
                 {
