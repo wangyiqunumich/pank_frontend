@@ -6,7 +6,6 @@ import React, {
 
 import { useDispatch } from 'react-redux';
 import {
-  useLocation,
   useNavigate,
 } from 'react-router-dom';
 
@@ -153,7 +152,6 @@ function GwasSnpAutocomplete({ value, onChange, defaultOptions, onValidated }) {
 }
 
 export default function GWASExplorerPage() {
-  const location = useLocation();
   const navigate = useNavigate();
   const [snpInput, setSnpInput] = useState('');
   const [snpValid, setSnpValid] = useState(false);
@@ -161,10 +159,17 @@ export default function GWASExplorerPage() {
   const hasSnp = Boolean(normalizeSnp(snpInput));
   const canContinue = hasSnp;
 
-  const navigateToMatchWithNewUi = (qid) => {
-    if (!qid && qid !== 0) return;
-    const returnTo = encodeURIComponent(`${location.pathname}${location.search}`);
-    navigate(`/match?qid=${qid}&returnTo=${returnTo}`);
+  const applyExampleFill = (fill) => {
+    const snpValue = normalizeSnp(fill?.snp);
+    if (!snpValue) return;
+    setSnpInput(snpValue);
+    setSnpValid(true);
+  };
+
+  const handleExampleQuestion = (exampleConfig) => {
+    const fill = exampleConfig?.fill;
+    if (!fill) return;
+    applyExampleFill(fill);
   };
 
   const handleContinue = () => {
@@ -435,21 +440,25 @@ export default function GWASExplorerPage() {
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.1 }}>
                   {gwasContent.rightPanel.examples.map((item) => {
                     const exampleText = typeof item === 'string' ? item : item.text;
-                    const matchQid = typeof item === 'string' ? undefined : item.matchQid;
+                    const hasFill = typeof item === 'object' && Boolean(item?.fill?.snp);
 
                     return (
                       <Box
                         key={exampleText}
-                        onClick={() => navigateToMatchWithNewUi(matchQid)}
+                        onClick={() => {
+                          if (typeof item === 'object') {
+                            handleExampleQuestion(item);
+                          }
+                        }}
                         sx={{
                           display: 'flex',
                           alignItems: 'flex-start',
                           gap: 1,
-                          cursor: matchQid ? 'pointer' : 'default',
+                          cursor: hasFill ? 'pointer' : 'default',
                           borderRadius: '8px',
                           px: 0.4,
                           py: 0.2,
-                          '&:hover': matchQid ? { bgcolor: '#F2F8FC' } : undefined,
+                          '&:hover': hasFill ? { bgcolor: '#F2F8FC' } : undefined,
                         }}
                       >
                           <ContactSupportOutlinedIcon sx={{ color: '#1A9DC0', fontSize: 17, mt: 0.2 }} />

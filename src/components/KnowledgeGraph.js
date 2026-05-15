@@ -1400,7 +1400,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
             </IconButton>
           </div>
           <Collapse in={legendVisible} timeout="auto">
-            <div style={{ width: "430px", paddingTop: "6px", fontSize: "14px", fontFamily: "Open Sans", fontWeight: 400 }}>
+            <div style={{ width: "350px", paddingTop: "6px", fontSize: "14px", fontFamily: "Open Sans", fontWeight: 400 }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingBottom: "2px", fontSize: "12px" }}>
                 <LegendItem label="　　　　" sx={{ backgroundColor: "#E9E9E9", color: "black", border: "1.5px solid #E9E9E9", height: "8px" }} />
                 Core Nodes

@@ -1820,6 +1820,17 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         const resolvedQuestion = fallbackQuestion || currentQuestion || question;
         const route = String(payload?.route || 'new_query');
         const responseSessionId = String(payload?.session_id || chatSessionId || '').trim();
+        const planCypherQueries = extractPayloadCypherQueries(payload);
+
+        // Trigger graph/functional loading immediately after confirm returns,
+        // so Functional Data API does not wait for literature append.
+        const graphPromise = planCypherQueries.length
+            ? fetchGraphFromCypher(planCypherQueries)
+            : Promise.resolve().then(() => {
+                setGraphData(null);
+                setNoGraph(true);
+                setFunctionalDataRequestPath('');
+            });
 
         setCurrentQuestion(resolvedQuestion);
         setChatRouteState(route);
@@ -1849,14 +1860,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             }
         }
 
-        const planCypherQueries = extractPayloadCypherQueries(payload);
-        if (planCypherQueries.length) {
-            await fetchGraphFromCypher(planCypherQueries);
-        } else {
-            setGraphData(null);
-            setNoGraph(true);
-            setFunctionalDataRequestPath('');
-        }
+        await graphPromise;
     }, [parseChatResponseContent, currentQuestion, question, chatSessionId, extractPayloadCypherQueries, fetchGraphFromCypher, fetchLiteratureMarkdown, appendLiteratureBlock]);
 
     const handleConfirmPendingPlan = React.useCallback(async (blockId) => {
