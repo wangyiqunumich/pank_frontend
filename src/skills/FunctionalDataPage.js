@@ -259,16 +259,12 @@ export default function FunctionalDataPage() {
 
   const step1Options = useMemo(() => {
     const options = summaryData?.options || {};
-    const diseaseCandidates = options.disease || [];
-    const t1d = diseaseCandidates.find((v) => v.toUpperCase() === 'T1D');
-    const nonDiabetic = diseaseCandidates.find((v) => {
-      const normalized = v.toUpperCase();
-      return normalized === 'NON-DIABETIC' || normalized === 'NON DIABETIC' || normalized.includes('HEALTH');
-    });
-    const constrainedDisease = [t1d, nonDiabetic].filter(Boolean);
+    const diseaseOptions = ['All', ...(options.disease || [])].filter(
+      (value, index, array) => array.indexOf(value) === index
+    );
 
     return {
-      disease: constrainedDisease.length ? constrainedDisease : ['T1D', 'Non-Diabetic'],
+      disease: diseaseOptions.length ? diseaseOptions : ['All'],
       sex: ['All', ...(options.sex || [])],
       center: ['HPAP', 'Will add more later'],
     };
@@ -340,7 +336,7 @@ export default function FunctionalDataPage() {
   useEffect(() => {
     if (!summaryData || hasInitializedFilters) return;
 
-    setDisease(step1Options.disease.includes('T1D') ? 'T1D' : step1Options.disease[0]);
+    setDisease(step1Options.disease.includes('All') ? 'All' : step1Options.disease[0]);
     setSex('All');
     setCenter(step1Options.center[0]);
     setAgeRange([step1Ranges.age.min, step1Ranges.age.max]);
@@ -536,6 +532,16 @@ export default function FunctionalDataPage() {
   const totalDonors = summaryData?.summary?.available_donors || 114;
   const percentageSelected = totalDonors > 0 ? Math.round((donorCount / totalDonors) * 100) : 0;
 
+  const handleResetFilters = () => {
+    setDisease(step1Options.disease.includes('All') ? 'All' : step1Options.disease[0]);
+    setSex('All');
+    setCenter(step1Options.center[0]);
+    setAgeRange([step1Ranges.age.min, step1Ranges.age.max]);
+    setBmiRange([step1Ranges.bmi.min, step1Ranges.bmi.max]);
+    setDebouncedAgeRange([step1Ranges.age.min, step1Ranges.age.max]);
+    setDebouncedBmiRange([step1Ranges.bmi.min, step1Ranges.bmi.max]);
+  };
+
   const handleStep2AgentSearch = async () => {
     try {
       setIsBuildingStep2Prompt(true);
@@ -580,7 +586,7 @@ export default function FunctionalDataPage() {
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '9fr 3fr' }, gap: 2.5, alignItems: 'start' }}>
               <Box>
                 {/* Page header */}
-                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '7fr 2fr' }, gap: 2, mb: 2 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2 }}>
                   <Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', mb: 1 }}>
                       <Box sx={{ width: 24, height: 24, borderRadius: '15px', bgcolor: '#6669B0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -612,19 +618,88 @@ export default function FunctionalDataPage() {
                     ))}
                   </Box>
 
-                  <Box sx={{ borderRadius: '14px', p: 0, alignSelf: 'start' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mb: 1.5 }}>
-                      <Box sx={{ width: 32, height: 32, borderRadius: '4px', bgcolor: '#E9F6F7', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <PeopleAltOutlinedIcon sx={{ fontSize: 16, color: '#3A838B' }} />
+                  <Box
+                    sx={{
+                      borderRadius: '12px',
+                      border: '1px solid #87C8A5',
+                      bgcolor: '#EEF9F3',
+                      px: 1.5,
+                      py: 1.25,
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box
+                          sx={{
+                            width: 34,
+                            height: 34,
+                            borderRadius: '50%',
+                            bgcolor: '#0F766E',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexShrink: 0,
+                          }}
+                        >
+                          <PeopleAltOutlinedIcon sx={{ fontSize: 18, color: '#FFFFFF' }} />
+                        </Box>
+                        <Box>
+                          <Typography sx={{ color: '#0F172A', fontWeight: '700 !important', fontSize: 14 }}>
+                            {donorCount} Donors Selected
+                          </Typography>
+                          <Typography sx={{ color: '#6B7280', fontSize: 10 }}>
+                            Showing filtered HIPP functional data from {donorCount} / {totalDonors} total donors
+                          </Typography>
+                        </Box>
                       </Box>
-                      <Box>
-                        <Typography sx={{ color: '#000000', fontWeight: '600 !important', fontSize: 14 }}>
-                          {donorCount} donors selected
-                        </Typography>
-                        <Typography sx={{ color: '#000000', fontWeight: '500 !important', fontSize: 12 }}>
-                          ({percentageSelected}% of {totalDonors} total donors)
-                        </Typography>
+
+                      <Box sx={{ display: 'flex', alignItems: 'stretch', justifyContent: 'space-between', gap: 0.5, flexWrap: 'nowrap', flex: 1, minWidth: 0 }}>
+                        {[
+                          { label: 'Disease', value: disease || 'All' },
+                          { label: 'Genetic sex', value: sex || 'All' },
+                          { label: 'Center', value: center || 'All' },
+                          { label: 'Age range', value: `${ageRange[0]} - ${ageRange[1]}` },
+                          { label: 'BMI range', value: `${bmiRange[0]} - ${bmiRange[1]}` },
+                        ].map((item) => (
+                          <Box
+                            key={item.label}
+                            sx={{
+                              minWidth: 0,
+                              py: 0.2,
+                            }}
+                          >
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                              <PeopleAltOutlinedIcon sx={{ fontSize: 13, color: '#0F766E' }} />
+                              <Typography sx={{ fontFamily: 'Inter', fontSize: 11, color: '#0F766E', fontWeight: 600 }}>
+                                {item.label}
+                              </Typography>
+                            </Box>
+                            <Typography sx={{ mt: 0.25, fontFamily: 'Inter', fontSize: 12, color: '#1F2937', fontWeight: 500 }}>
+                              {item.value}
+                            </Typography>
+                          </Box>
+                        ))}
                       </Box>
+
+                      <Button
+                        size="small"
+                        startIcon={<RefreshIcon sx={{ fontSize: 15 }} />}
+                        onClick={handleResetFilters}
+                        sx={{
+                          textTransform: 'none',
+                          fontFamily: 'Inter',
+                          fontSize: 13,
+                          color: '#0F766E',
+                          border: '1px solid #97CBB0',
+                          bgcolor: '#FFFFFF',
+                          borderRadius: '8px',
+                          px: 1.5,
+                          height: 34,
+                          '&:hover': { bgcolor: '#F0FAF4' },
+                        }}
+                      >
+                        {captions.resetFilters}
+                      </Button>
                     </Box>
                   </Box>
                 </Box>
@@ -657,7 +732,7 @@ export default function FunctionalDataPage() {
                       </Box>
                     ))}
                   </Box>
-                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr auto' }, gap: 2, alignItems: 'end' }}>
+                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2, alignItems: 'end' }}>
                     <Box>
                       <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#64748B', mb: 1.25 }}>Age range (years)</Typography>
                       <Box sx={{ px: 1 }}>
@@ -694,22 +769,6 @@ export default function FunctionalDataPage() {
                         </Box>
                       </Box>
                     </Box>
-                    <Button
-                      size="small"
-                      startIcon={<RefreshIcon sx={{ fontSize: 15 }} />}
-                      onClick={() => {
-                        setDisease(step1Options.disease.includes('T1D') ? 'T1D' : step1Options.disease[0]);
-                        setSex('All');
-                        setCenter(step1Options.center[0]);
-                        setAgeRange([step1Ranges.age.min, step1Ranges.age.max]);
-                        setBmiRange([step1Ranges.bmi.min, step1Ranges.bmi.max]);
-                        setDebouncedAgeRange([step1Ranges.age.min, step1Ranges.age.max]);
-                        setDebouncedBmiRange([step1Ranges.bmi.min, step1Ranges.bmi.max]);
-                      }}
-                      sx={{ textTransform: 'none', fontFamily: 'Inter', fontSize: 13, color: '#475569', border: '1px solid #E2E8F0', borderRadius: '8px', px: 1.5, mb: 3 }}
-                    >
-                      {captions.resetFilters}
-                    </Button>
                   </Box>
                 </StepCard>
 
