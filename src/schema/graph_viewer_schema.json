@@ -3326,28 +3326,12 @@
             "color": "#FFB371"
         },
         {
-            "label": "Ontology / Pathway",
+            "label": "Ontology",
             "color": "#FFDE7D"
-        },
-        {
-            "label": "OCR Peak / Regulatory Element",
-            "color": "#61ECBC"
         },
         {
             "label": "Anatomical Structure",
             "color": "#8DD7A5"
-        },
-        {
-            "label": "Donor / Provenance",
-            "color": "#CDB4DB"
-        },
-        {
-            "label": "Sample",
-            "color": "#F7C6C7"
-        },
-        {
-            "label": "Data Modality",
-            "color": "#BFD7FF"
         },
         {
             "label": "Literature",
