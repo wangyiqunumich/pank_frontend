@@ -504,7 +504,7 @@ const FunctionalDataChartPanel = ({ requestPath = '' }) => {
                     objectFit: 'contain',
                     display: errored ? 'none' : 'block',
                     opacity: loaded ? 1 : 0.01,
-                    backgroundColor: '#FFFFFF',
+                    backgroundColor: '#f8f9fa',
                 }}
             />
         </Box>
