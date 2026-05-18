@@ -4,15 +4,15 @@
         "title": "Examples",
         "entries": [
             {
+                "question": "For ADCY3, does the T1D-associated GWAS signal rs13393590 colocalize with ADCY3 molecular QTL evidence?",
+                "link": ""
+            }.
+            {
                 "question": "Is PLEKHM1 a T1D effector gene or key marker gene in pancreatic cell types?",
                 "link": ""
             },
             {
-                "question": "CTLA4 is annotated with which biological processes/functions?",
-                "link": ""
-            },
-            {
-                "question": "Describe PTPN22’s involvement in T1D, covering its associated QTL signals, expression patterns, and reported effector genes evidence.",
+                "question": "What pathways and interaction partners connect HLA-DRA to antigen presentation in T1D?",
                 "link": ""
             }
         ]
@@ -20,7 +20,7 @@
     "example_buttons": [
         {
             "text_before_title": "Example",
-            "title": "QTL(template based)",
+            "title": "QTL",
             "entries": [
                 {
                     "question": "Which SNP serves as the lead QTL for CFTR? (Last ADA's template question)",
@@ -35,22 +35,26 @@
                     "link": "/match?qid=2"
                 },
                 {
-                    "question": "Does [SNP] serves as a QTL for [GENE]?",
-                    "link": "/match?qid=3"
+                    "question": "For ADCY3, does the T1D-associated GWAS signal rs13393590 colocalize with ADCY3 molecular QTL evidence?",
+                    "link": ""
                 }
             ]
         },
         {
             "text_before_title": "Example",
-            "title": "DEG/ Expression",
+            "title": "Expression",
             "entries": [
                 {
-                    "question": "There is still some BUG with this function, try it later",
-                    "link": "/result-new?sourceTerm=gene@ENSG00000254647&targetTerm=cell_type&relationship=express_in"
+                    "question": "Is CFTR specifically enriched in ductal cells?",
+                    "link": ""
                 },
                 {
-                    "question": "How does [GENE] expression change in T1D versus non-diabetic samples?",
-                    "link": "/match?qid=0"
+                    "question": "Is INS beta-cell restricted in the PanKgraph expression data?",
+                    "link": ""
+                },
+                {
+                    "question": "Is HLA-DRA mainly detected in immune cells, or does it also appear in pancreatic epithelial/endocrine compartments?",
+                    "link": ""
                 }
             ]
         },
@@ -63,11 +67,11 @@
                     "link": ""
                 },
                 {
-                    "question": "CTLA4 is annotated with which biological processes/functions?",
+                    "question": "Does ADCY3 connect to signaling pathways that may be relevant to endocrine or immune regulation?",
                     "link": ""
                 },
                 {
-                    "question": "More questions will be added after the November data update.",
+                    "question": "For HLA-DRA, does PanKgraph support an immune antigen-presentation use case more strongly than a beta-cell intrinsic use case?",
                     "link": ""
                 }
             ]
@@ -77,11 +81,15 @@
             "title": "T1D Research",
             "entries": [
                 {
-                    "question": "Describe PTPN22’s involvement in T1D, covering its associated QTL signals, expression patterns, and reported effector genes evidence.",
+                    "question": "What pathways and interaction partners connect HLA-DRA to antigen presentation in T1D?",
                     "link": ""
                 },
                 {
-                    "question": "More questions will be added after the November data update.",
+                    "question": "Does the T1D GWAS signal near PLEKHM1 colocalize with a QTL signal for PLEKHM1?",
+                    "link": ""
+                },
+                {
+                    "question": "For CFTR, does the T1D GWAS signal colocalize with a pancreas splicing QTL?",
                     "link": ""
                 }
             ]
