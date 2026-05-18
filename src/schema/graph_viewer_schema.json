@@ -1361,10 +1361,6 @@
                         [
                             "Tissue ID",
                             "tissue_id"
-                        ],
-                        [
-                            "QTL Type",
-                            "qtl_type"
                         ]
                     ]
                 ],
