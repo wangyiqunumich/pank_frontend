@@ -171,6 +171,6 @@
     ]
   },
   "defaults": {
-    "mode": "pair"
+    "mode": "gene"
   }
 }

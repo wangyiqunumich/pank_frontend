@@ -604,6 +604,8 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const [chatStartQuestion, setChatStartQuestion] = useState('');
     const [chatStartPlanConfirming, setChatStartPlanConfirming] = useState(false);
     const [isPlanRevisionInProgress, setIsPlanRevisionInProgress] = useState(false);
+    const [isPlanGraphQueryLoading, setIsPlanGraphQueryLoading] = useState(false);
+    const [planHasGraphQuery, setPlanHasGraphQuery] = useState(false);
     const [chatRouteState, setChatRouteState] = useState('');
     const [forceResultView, setForceResultView] = useState(false);
     const chatSessionIdRef = useRef(chatSessionIdFromUrl || '');
@@ -2251,8 +2253,16 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
             const planCypherQueries = extractPlanCypherQueries(revised?.plan_json || {});
             if (planCypherQueries.length) {
-                await fetchGraphFromCypher(planCypherQueries);
+                setPlanHasGraphQuery(true);
+                setIsPlanGraphQueryLoading(true);
+                try {
+                    await fetchGraphFromCypher(planCypherQueries);
+                } finally {
+                    setIsPlanGraphQueryLoading(false);
+                }
             } else {
+                setPlanHasGraphQuery(false);
+                setIsPlanGraphQueryLoading(false);
                 setGraphData(null);
                 setNoGraph(true);
                 setFunctionalDataRequestPath('');
@@ -2326,8 +2336,16 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
                     const planCypherQueries = extractPlanCypherQueries(cachedPayload?.plan_json || {});
                     if (planCypherQueries.length) {
-                        await fetchGraphFromCypher(planCypherQueries);
+                        setPlanHasGraphQuery(true);
+                        setIsPlanGraphQueryLoading(true);
+                        try {
+                            await fetchGraphFromCypher(planCypherQueries);
+                        } finally {
+                            setIsPlanGraphQueryLoading(false);
+                        }
                     } else {
+                        setPlanHasGraphQuery(false);
+                        setIsPlanGraphQueryLoading(false);
                         setGraphData(null);
                         setNoGraph(true);
                         setFunctionalDataRequestPath('');
@@ -2367,8 +2385,16 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
                         const planCypherQueries = extractPlanCypherQueries(cachedPayload?.plan_json || {});
                         if (planCypherQueries.length) {
-                            await fetchGraphFromCypher(planCypherQueries);
+                            setPlanHasGraphQuery(true);
+                            setIsPlanGraphQueryLoading(true);
+                            try {
+                                await fetchGraphFromCypher(planCypherQueries);
+                            } finally {
+                                setIsPlanGraphQueryLoading(false);
+                            }
                         } else {
+                            setPlanHasGraphQuery(false);
+                            setIsPlanGraphQueryLoading(false);
                             setGraphData(null);
                             setNoGraph(true);
                             setFunctionalDataRequestPath('');
@@ -2579,10 +2605,19 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     setTerminalPhase('confirm');
                     setTerminalLoading(false);
                     setStreamComplete(true);
+
                     const planCypherQueries = extractPlanCypherQueries(payload?.plan_json || {});
                     if (planCypherQueries.length) {
-                        await fetchGraphFromCypher(planCypherQueries);
+                        setPlanHasGraphQuery(true);
+                        setIsPlanGraphQueryLoading(true);
+                        try {
+                            await fetchGraphFromCypher(planCypherQueries);
+                        } finally {
+                            setIsPlanGraphQueryLoading(false);
+                        }
                     } else {
+                        setPlanHasGraphQuery(false);
+                        setIsPlanGraphQueryLoading(false);
                         setGraphData(null);
                         setNoGraph(true);
                         setFunctionalDataRequestPath('');
@@ -2642,6 +2677,13 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         navigate,
         resolveAgentErrorType,
     ]);
+
+    const handleCancelAndGoHome = React.useCallback(() => {
+        // Prevent in-flight planning/bootstrap completion from re-navigating after user cancels.
+        chatBootstrapRunIdRef.current += 1;
+        if (thunkref.current) thunkref.current.abort();
+        navigate('/');
+    }, [navigate]);
 
     useEffect(() => {
         if (!terminalMode || demoMode || planDemoMode || isChatApiMode || !question || terminalInitializedQuestionRef.current === question) {
@@ -3876,6 +3918,8 @@ Please review this plan and provide edits if needed.`,
             if (terminalConfirming) return;
             await runConfirmCycle();
         },
+        disableRevise: planHasGraphQuery && isPlanGraphQueryLoading,
+        disableProceed: planHasGraphQuery && isPlanGraphQueryLoading,
         graphData,
         visualMaterial: {
             title: 'Visual Material',
@@ -4027,7 +4071,7 @@ Please review this plan and provide edits if needed.`,
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px' }}>
                 <SearchResultLoading
                     streamProgress={buildDebugStreamLoadingProgress(streamMilestones, { minimumProgress: presetFirstStepProgress })}
-                    handleClose={() => navigate('/')}
+                    handleClose={handleCancelAndGoHome}
                 />
             </Box>
         );
@@ -4038,10 +4082,7 @@ Please review this plan and provide edits if needed.`,
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px' }}>
                 <SearchResultLoading
                     streamProgress={buildDebugStreamLoadingProgress(streamMilestones)}
-                    handleClose={() => {
-                        if (thunkref.current) thunkref.current.abort();
-                        navigate('/');
-                    }}
+                    handleClose={handleCancelAndGoHome}
                 />
             </Box>
         );

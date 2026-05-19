@@ -551,13 +551,16 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
     const parsedTitle = data?.parsedTitle || "";
     const agentPlanText = data?.agentPlan || '';
     const isFeedbackEmpty = !feedbackText.trim();
+    const isReviseDisabled = Boolean(data?.disableRevise);
+    const isProceedDisabled = Boolean(data?.disableProceed);
 
     const handleSendFeedback = React.useCallback(() => {
+        if (isReviseDisabled) return;
         const trimmed = feedbackText.trim();
         if (!trimmed) return;
         data?.onSendFeedback?.(trimmed);
         setFeedbackText('');
-    }, [feedbackText, data]);
+    }, [feedbackText, data, isReviseDisabled]);
 
     const handleProceed = React.useCallback(() => {
         data?.onProceed?.();
@@ -818,6 +821,7 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                     <TextField
                                         value={feedbackText}
                                         onChange={(event) => setFeedbackText(event.target.value)}
+                                        disabled={isReviseDisabled}
                                         onKeyDown={(event) => {
                                             if (event.key === 'Enter' && !event.shiftKey) {
                                                 event.preventDefault();
@@ -841,7 +845,7 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                     <IconButton
                                         type="submit"
                                         aria-label="send"
-                                        disabled={isFeedbackEmpty}
+                                        disabled={isFeedbackEmpty || isReviseDisabled}
                                         sx={{
                                             borderRadius: '999px',
                                             color: isFeedbackEmpty ? '#94A3B8' : '#3A838B',
@@ -959,6 +963,7 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                     variant="contained"
                     startIcon={<CheckIcon sx={{ fontSize: 20 }} />}
                     onClick={handleProceed}
+                    disabled={isProceedDisabled}
                     sx={{
                         width: '100%',
                         textTransform: 'none',
