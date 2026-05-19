@@ -263,12 +263,15 @@ function QtlTermAutocomplete({
       renderInput={(params) => (
         <TextField
           {...params}
+          ref={params.InputProps.ref}
           label={label}
           placeholder={placeholder}
           InputLabelProps={{
             shrink: true,
             sx: {
-              fontFamily: 'Inter'
+              fontFamily: 'Inter',
+              fontSize: 12,
+              transform: 'translate(14px, -5px) scale(0.75)'
             },
           }}
           InputProps={{
