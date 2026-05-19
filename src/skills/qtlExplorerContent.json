@@ -64,7 +64,7 @@
         "geneOptions": [],
         "snpOptions": [
           "rs2402203",
-          "rs12154969"
+          "rs28366213"
         ]
       },
       "primaryLabel": "SNP",
@@ -160,12 +160,12 @@
         }
       },
       {
-        "text": "Does rs2402203 serve as a QTL for CFTR?",
+        "text": "Does rs28366213 serve as a QTL for HLA-DRA?",
         "matchQid": 3,
         "modeId": "pair",
         "fill": {
-          "snp": "rs2402203",
-          "gene": "CFTR"
+          "snp": "rs28366213",
+          "gene": "HLA-DRA"
         }
       }
     ]
