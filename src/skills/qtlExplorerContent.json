@@ -29,9 +29,9 @@
       "title": "Search by Gene",
       "description": "Find SNPs that may regulate a selected gene through QTL evidence.",
       "exampleLabel": "Example question",
-      "exampleQuestion": "Which SNP serves as the lead QTL for INS?",
+      "exampleQuestion": "Which SNP serves as the lead QTL for CFTR?",
       "exampleFill": {
-        "gene": "INS(ENSG00000254647)"
+        "gene": "CFTR"
       },
       "searchTitle": "Search by Gene",
       "searchHint": "Enter a gene to retrieve potentially related QTL lead SNPs.",
@@ -44,8 +44,8 @@
         "snpOptions": []
       },
       "primaryLabel": "Gene",
-      "primaryPlaceholder": "Enter gene symbol or Ensembl ID (e.g., INS or ENSG00000254647)",
-      "primaryExamples": "Examples: INS, G6PC2, ENSG00000254647",
+      "primaryPlaceholder": "Enter gene symbol or Ensembl ID (e.g., CFTR)",
+      "primaryExamples": "Examples: CFTR, G6PC2, ENSG00000254647",
       "questionTemplate": "Which SNP serves as the lead QTL for [GENE]?"
     },
     {
@@ -68,8 +68,8 @@
         ]
       },
       "primaryLabel": "SNP",
-      "primaryPlaceholder": "Enter rsID or genomic coordinate (e.g., rs123456 or chr1:1234567)",
-      "primaryExamples": "Examples: rs123456, chr1:1234567, 1:1234567",
+      "primaryPlaceholder": "Enter rsID (e.g., rs2402203)",
+      "primaryExamples": "Examples: rs2402203",
       "questionTemplate": "Which gene is regulated by [SNP] as a QTL?"
     },
     {
@@ -78,10 +78,10 @@
       "title": "Search by SNP + Gene",
       "description": "Check whether a specific SNP-gene pair is supported by QTL evidence.",
       "exampleLabel": "Example question",
-      "exampleQuestion": "Does rs123456 serve as a QTL for INS?",
+      "exampleQuestion": "Does rs2402203 serve as a QTL for CFTR?",
       "exampleFill": {
-        "snp": "rs123456",
-        "gene": "INS(ENSG00000254647)"
+        "snp": "rs2402203",
+        "gene": "CFTR(ENSG00000001626)"
       },
       "searchTitle": "Search by SNP + Gene",
       "searchHint": "Enter the SNP and gene to check whether this pair has QTL evidence.",
@@ -94,11 +94,11 @@
         ]
       },
       "primaryLabel": "SNP",
-      "primaryPlaceholder": "Enter rsID or genomic coordinate (e.g., rs123456 or chr1:1234567)",
-      "primaryExamples": "Examples: rs123456, chr1:1234567, 1:1234567",
+      "primaryPlaceholder": "Enter rsID (e.g., rs2402203)",
+      "primaryExamples": "Examples: rs2402203",
       "secondaryLabel": "Gene",
-      "secondaryPlaceholder": "Enter gene symbol or Ensembl ID (e.g., INS or ENSG00000254647)",
-      "secondaryExamples": "Examples: INS, G6PC2, ENSG00000254647",
+      "secondaryPlaceholder": "Enter gene symbol or Ensembl ID (e.g., CFTR)",
+      "secondaryExamples": "Examples: CFTR, G6PC2",
       "questionTemplate": "Does [SNP] serve as a QTL for [GENE]?"
     }
   ],
@@ -122,7 +122,7 @@
     ],
     "continueButton": "Continue to QTL results",
     "securityNote": "All queries are processed securely. No data will be stored.",
-    "bottomSearchPlaceholder": "Ask about QTLs, genes, SNPs, or regulatory evidence... (e.g., \"Does rs123456 serve as a QTL for INS?\")",
+    "bottomSearchPlaceholder": "Ask about QTLs, genes, SNPs, or regulatory evidence... (e.g., \"Does rs2402203 serve as a QTL for CFTR?\")",
     "bottomSearchHint": "Your message will be sent with the current QTL search configuration.",
     "poweredBy": "Powered by PanKgraph Agent"
   },
@@ -144,28 +144,28 @@
     "examplesTitle": "Example questions",
     "examples": [
       {
-        "text": "Which SNP serves as the lead QTL for INS?",
+        "text": "Which SNP serves as the lead QTL for CFTR?",
         "matchQid": 1,
         "modeId": "gene",
         "fill": {
-          "gene": "INS(ENSG00000254647)"
+          "gene": "CFTR"
         }
       },
       {
-        "text": "Which gene is regulated by rs123456 as a QTL?",
+        "text": "Which gene is regulated by rs2402203 as a QTL?",
         "matchQid": 2,
         "modeId": "snp",
         "fill": {
-          "snp": "rs123456"
+          "snp": "rs2402203"
         }
       },
       {
-        "text": "Does rs123456 serve as a QTL for INS?",
+        "text": "Does rs2402203 serve as a QTL for CFTR?",
         "matchQid": 3,
         "modeId": "pair",
         "fill": {
-          "snp": "rs123456",
-          "gene": "INS(ENSG00000254647)"
+          "snp": "rs2402203",
+          "gene": "CFTR"
         }
       }
     ]
