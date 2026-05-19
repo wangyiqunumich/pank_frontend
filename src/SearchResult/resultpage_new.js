@@ -604,6 +604,8 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const [chatStartQuestion, setChatStartQuestion] = useState('');
     const [chatStartPlanConfirming, setChatStartPlanConfirming] = useState(false);
     const [isPlanRevisionInProgress, setIsPlanRevisionInProgress] = useState(false);
+    const [isPlanGraphQueryLoading, setIsPlanGraphQueryLoading] = useState(false);
+    const [planHasGraphQuery, setPlanHasGraphQuery] = useState(false);
     const [chatRouteState, setChatRouteState] = useState('');
     const [forceResultView, setForceResultView] = useState(false);
     const chatSessionIdRef = useRef(chatSessionIdFromUrl || '');
@@ -2251,8 +2253,16 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
             const planCypherQueries = extractPlanCypherQueries(revised?.plan_json || {});
             if (planCypherQueries.length) {
-                await fetchGraphFromCypher(planCypherQueries);
+                setPlanHasGraphQuery(true);
+                setIsPlanGraphQueryLoading(true);
+                try {
+                    await fetchGraphFromCypher(planCypherQueries);
+                } finally {
+                    setIsPlanGraphQueryLoading(false);
+                }
             } else {
+                setPlanHasGraphQuery(false);
+                setIsPlanGraphQueryLoading(false);
                 setGraphData(null);
                 setNoGraph(true);
                 setFunctionalDataRequestPath('');
@@ -2326,8 +2336,16 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
                     const planCypherQueries = extractPlanCypherQueries(cachedPayload?.plan_json || {});
                     if (planCypherQueries.length) {
-                        await fetchGraphFromCypher(planCypherQueries);
+                        setPlanHasGraphQuery(true);
+                        setIsPlanGraphQueryLoading(true);
+                        try {
+                            await fetchGraphFromCypher(planCypherQueries);
+                        } finally {
+                            setIsPlanGraphQueryLoading(false);
+                        }
                     } else {
+                        setPlanHasGraphQuery(false);
+                        setIsPlanGraphQueryLoading(false);
                         setGraphData(null);
                         setNoGraph(true);
                         setFunctionalDataRequestPath('');
@@ -2367,8 +2385,16 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
                         const planCypherQueries = extractPlanCypherQueries(cachedPayload?.plan_json || {});
                         if (planCypherQueries.length) {
-                            await fetchGraphFromCypher(planCypherQueries);
+                            setPlanHasGraphQuery(true);
+                            setIsPlanGraphQueryLoading(true);
+                            try {
+                                await fetchGraphFromCypher(planCypherQueries);
+                            } finally {
+                                setIsPlanGraphQueryLoading(false);
+                            }
                         } else {
+                            setPlanHasGraphQuery(false);
+                            setIsPlanGraphQueryLoading(false);
                             setGraphData(null);
                             setNoGraph(true);
                             setFunctionalDataRequestPath('');
@@ -2582,8 +2608,16 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
                     const planCypherQueries = extractPlanCypherQueries(payload?.plan_json || {});
                     if (planCypherQueries.length) {
-                        await fetchGraphFromCypher(planCypherQueries);
+                        setPlanHasGraphQuery(true);
+                        setIsPlanGraphQueryLoading(true);
+                        try {
+                            await fetchGraphFromCypher(planCypherQueries);
+                        } finally {
+                            setIsPlanGraphQueryLoading(false);
+                        }
                     } else {
+                        setPlanHasGraphQuery(false);
+                        setIsPlanGraphQueryLoading(false);
                         setGraphData(null);
                         setNoGraph(true);
                         setFunctionalDataRequestPath('');
@@ -3884,6 +3918,8 @@ Please review this plan and provide edits if needed.`,
             if (terminalConfirming) return;
             await runConfirmCycle();
         },
+        disableRevise: planHasGraphQuery && isPlanGraphQueryLoading,
+        disableProceed: planHasGraphQuery && isPlanGraphQueryLoading,
         graphData,
         visualMaterial: {
             title: 'Visual Material',
