@@ -2579,6 +2579,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     setTerminalPhase('confirm');
                     setTerminalLoading(false);
                     setStreamComplete(true);
+
                     const planCypherQueries = extractPlanCypherQueries(payload?.plan_json || {});
                     if (planCypherQueries.length) {
                         await fetchGraphFromCypher(planCypherQueries);
@@ -2642,6 +2643,13 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         navigate,
         resolveAgentErrorType,
     ]);
+
+    const handleCancelAndGoHome = React.useCallback(() => {
+        // Prevent in-flight planning/bootstrap completion from re-navigating after user cancels.
+        chatBootstrapRunIdRef.current += 1;
+        if (thunkref.current) thunkref.current.abort();
+        navigate('/');
+    }, [navigate]);
 
     useEffect(() => {
         if (!terminalMode || demoMode || planDemoMode || isChatApiMode || !question || terminalInitializedQuestionRef.current === question) {
@@ -4027,7 +4035,7 @@ Please review this plan and provide edits if needed.`,
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px' }}>
                 <SearchResultLoading
                     streamProgress={buildDebugStreamLoadingProgress(streamMilestones, { minimumProgress: presetFirstStepProgress })}
-                    handleClose={() => navigate('/')}
+                    handleClose={handleCancelAndGoHome}
                 />
             </Box>
         );
@@ -4038,10 +4046,7 @@ Please review this plan and provide edits if needed.`,
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px' }}>
                 <SearchResultLoading
                     streamProgress={buildDebugStreamLoadingProgress(streamMilestones)}
-                    handleClose={() => {
-                        if (thunkref.current) thunkref.current.abort();
-                        navigate('/');
-                    }}
+                    handleClose={handleCancelAndGoHome}
                 />
             </Box>
         );
