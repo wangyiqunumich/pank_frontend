@@ -177,12 +177,17 @@ function QtlTermAutocomplete({
       if (String(newInputValue || '') !== inputValueRef.current) return;
       const id = response?.results?.[0]?.snp;
       if (id) {
+        // Match found: keep input validated, but do not show dropdown options.
+        setSelfOptions([]);
         markValidated(true, String(id));
       } else {
+        // No match: show a disabled "not found" row like gene autocomplete.
+        setSelfOptions([{ label: 'SNP not found', disabled: true, notFound: true }]);
         markValidated(false, '');
       }
     } catch (error) {
       if (String(newInputValue || '') === inputValueRef.current) {
+        setSelfOptions([{ label: 'SNP not found', disabled: true, notFound: true }]);
         markValidated(false, '');
       }
     } finally {
@@ -193,7 +198,10 @@ function QtlTermAutocomplete({
   };
 
   const options = useMemo(() => {
-    const merged = [...(validatedValue ? [validatedValue] : []), ...selfOptions];
+    const baseOptions = type === 'gene'
+      ? [...(validatedValue ? [validatedValue] : []), ...selfOptions]
+      : [...selfOptions];
+    const merged = baseOptions;
     const uniqueOptions = [...new Set(merged.map((option) => option?.label || option))];
     if (uniqueOptions.length > 0) return uniqueOptions;
     return type !== 'gene' ? [] : [{ label: `No ${type} found`, disabled: true, notFound: true }];
