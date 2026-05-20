@@ -94,7 +94,7 @@ export default function SkillsPage() {
             Skills
           </Typography>
           <Typography sx={{ mt: 1, fontFamily: 'Inter', fontSize: 19, color: '#475569' }}>
-            Specialized tools for focused analysis on PanKbase data.
+            Specialized tools for focused analysis on PanKgraph.
           </Typography>
 
           <Box

@@ -22,8 +22,8 @@
     "title": "Configure your GWAS question",
     "stepTitle": "Pick a specific SNP",
     "snpLabel": "SNP ID",
-    "snpPlaceholder": "Enter rsID (e.g., rs123456) or chr:pos (e.g., chr1:1234567)",
-    "snpExamples": "Examples: rs123456, chr1:1234567, 1:1234567"
+    "snpPlaceholder": "Enter rsID (e.g., rs1016432)",
+    "snpExamples": "Examples:  rs1016432"
   },
   "singleQuestion": {
     "matchQid": 4,
@@ -72,35 +72,21 @@
     "examplesTitle": "Example questions",
     "examples": [
       {
-        "text": "Is rs123456 associated with T1D?",
+        "text": "Does rs1016432 have GWAS association with T1D?",
         "matchQid": 4,
         "fill": {
-          "snp": "rs2402203"
-        }
-      },
-      {
-        "text": "What traits is rs7891011 associated with?",
-        "matchQid": 4,
-        "fill": {
-          "snp": "rs12154969"
-        }
-      },
-      {
-        "text": "Show me associations for chr6:32654321",
-        "matchQid": 4,
-        "fill": {
-          "snp": "chr6:32654321"
+          "snp": "rs1016432"
         }
       }
     ]
   },
   "defaults": {
-    "snpOptions": [
-      "rs1016432",
-      "rs10203386",
-      "rs2402203",
-      "rs113869178",
-      "rs12154969"
-    ]
+  "snpOptions": [
+    "rs9891059",
+    "rs570794153",
+    "rs35320372",
+    "rs855330",
+    "rs6043405"
+  ]
   }
 }
