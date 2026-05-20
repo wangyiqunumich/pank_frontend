@@ -396,11 +396,11 @@ const NoGraphData = () => (
     }}>
 
         <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '16px', color: '#43AABA', marginBottom: '-12px', whiteSpace: 'nowrap' }}>
-            No Knowledge Graph is currently available for this answer.
+            No Knowledge Graph is available yet.
         </Typography>
 
         <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 400, fontSize: '14px', color: '#6C6C6C' }}>
-            The Knowledge Graph may still be loading, especially for large results. Please wait up to 30 seconds and try again. If you have any questions or continue to see this message, you can contact the PanKbase team for support.
+            Large graphs may take up to 30 seconds to load. Please try again shortly. If you have any questions, you can contact the PanKgraph team.
         </Typography>
 
         <Button
