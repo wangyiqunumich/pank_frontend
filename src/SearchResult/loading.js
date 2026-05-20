@@ -334,6 +334,7 @@ export default function SearchResultLoading({ open, handleClose, streamProgress,
     const effectiveEntryStates = fakeTimerMode ? fakeEntryStates : displayedEntryStates;
     const effectiveProgress = fakeTimerMode ? fakeProgress : displayedProgress;
     const effectiveShortTitle = fakeTimerMode ? fakeShortTitle : displayedShortTitle;
+    const statusLabel = String(effectiveShortTitle || '').replace(/_/g, ' ');
 
     useEffect(() => {
         entryStatesRef.current = entryStates;
@@ -429,7 +430,7 @@ export default function SearchResultLoading({ open, handleClose, streamProgress,
                 color: '#7F7D7D',
                 fontSize: '14px',
             }}>
-                Agent Status:&nbsp;<span style={{ color: '#078AA3', fontWeight: 600, textDecoration: 'none' }}>{effectiveShortTitle}</span>
+                Agent Status:&nbsp;<span style={{ color: '#078AA3', fontWeight: 600, textDecoration: 'none' }}>{statusLabel}</span>
             </Box>
         </Box>
         <Box sx={{
