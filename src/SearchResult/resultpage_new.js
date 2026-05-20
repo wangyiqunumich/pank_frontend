@@ -88,24 +88,24 @@ const tabLabels = {
 
 const DEBUG_STREAM_LOADING_ENTRIES = [
     {
-        short_title: 'planning',
-        title: 'Planning',
-        steps: ['Generating execution plan...'],
+        short_title: 'understanding_question',
+        title: 'Understanding Question',
+        steps: ['Parsing intent, entities, and biological context...'],
     },
     {
-        short_title: 'hirn',
-        title: 'HIRN Literature Search',
-        steps: ['Searching HIRN literature evidence...'],
+        short_title: 'selecting_evidence_sources',
+        title: 'Selecting Evidence Sources',
+        steps: ['Choosing relevant PanKgraph data and tools...'],
     },
     {
-        short_title: 'cypher_generation',
-        title: 'Cypher Generation',
-        steps: ['Building Cypher queries from plan...'],
+        short_title: 'retrieving_graph_evidence',
+        title: 'Retrieving Graph Evidence',
+        steps: ['Querying structured KG evidence...'],
     },
     {
-        short_title: 'cypher_execution',
-        title: 'Cypher Execution',
-        steps: ['Executing Cypher against database...'],
+        short_title: 'checking_literature_evidence',
+        title: 'Checking Literature Evidence',
+        steps: ['Searching supporting publications...'],
     },
 ];
 
@@ -167,6 +167,9 @@ const buildDebugStreamLoadingProgress = (milestones, options = {}) => {
         entryStates,
         shortTitle,
         progress: Math.max(baseProgress, minimumProgress),
+        useFakeTimer: Boolean(options?.useFakeTimer),
+        responseReady: Boolean(options?.responseReady),
+        timerKey: Number(options?.timerKey || 0),
     };
 };
 
@@ -617,6 +620,8 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const planSummaryRef = useRef('');
     const aiAnswerRef = useRef('');
     const planInactivityTimerRef = useRef(null);
+    const planLoadingUiDoneRef = useRef(false);
+    const planLoadingUiResolverRef = useRef(null);
     const isChatApiMode = terminalMode && !debug && !demoMode && !planDemoMode;
     const isAgentResultRoute = location.pathname === '/result-new2' || location.pathname === '/agent-result';
 
@@ -1263,11 +1268,47 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         }
     };
 
+    const resetPlanLoadingUiWait = React.useCallback(() => {
+        planLoadingUiDoneRef.current = false;
+        planLoadingUiResolverRef.current = null;
+    }, []);
+
+    const waitForPlanLoadingUiDone = React.useCallback(() => {
+        if (planLoadingUiDoneRef.current) {
+            return Promise.resolve();
+        }
+
+        return new Promise((resolve) => {
+            const timeoutId = setTimeout(() => {
+                if (!planLoadingUiDoneRef.current) {
+                    planLoadingUiDoneRef.current = true;
+                }
+                planLoadingUiResolverRef.current = null;
+                resolve();
+            }, 30000);
+
+            planLoadingUiResolverRef.current = () => {
+                clearTimeout(timeoutId);
+                resolve();
+            };
+        });
+    }, []);
+
+    const handlePlanLoadingUiComplete = React.useCallback(() => {
+        if (planLoadingUiDoneRef.current) {
+            return;
+        }
+
+        planLoadingUiDoneRef.current = true;
+        if (planLoadingUiResolverRef.current) {
+            planLoadingUiResolverRef.current();
+            planLoadingUiResolverRef.current = null;
+        }
+    }, []);
+
     const runPlanLoadingMilestones = React.useCallback(async () => {
         setStreamMilestones((prev) => ({ ...prev, planningDone: true }));
-        await sleep(1200);
         setStreamMilestones((prev) => ({ ...prev, hirnDone: true }));
-        await sleep(1200);
         setStreamMilestones((prev) => ({ ...prev, cypherGenerated: true }));
     }, []);
 
@@ -1691,6 +1732,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
     const runPlanningCycle = React.useCallback(async (inputText) => {
         if (!inputText) return;
+        resetPlanLoadingUiWait();
         setPlanRevisionWarningOpen(false);
         setTerminalLoading(true);
         setIsPlanRevisionInProgress(Boolean(planSessionId));
@@ -1731,6 +1773,8 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     setFunctionalDataRequestPath('');
                     setStreamMilestones((prev) => ({ ...prev, cypherExecuted: true }));
                 }
+
+                await waitForPlanLoadingUiDone();
             } else {
                 const reviseResponse = await flaskBackendAxiosInstanceNew.post('https://agent.pankgraph.org/plan/revise', {
                     session_id: planSessionId,
@@ -1764,6 +1808,8 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     setFunctionalDataRequestPath('');
                     setStreamMilestones((prev) => ({ ...prev, cypherExecuted: true }));
                 }
+
+                await waitForPlanLoadingUiDone();
             }
             setTerminalPhase('confirm');
             setStreamComplete(true);
@@ -1773,8 +1819,9 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         } finally {
             setTerminalLoading(false);
             setIsPlanRevisionInProgress(false);
+            planLoadingUiResolverRef.current = null;
         }
-    }, [planSessionId, currentQuestion, question, planParsedTitle, extractPlanCypherQueries, fetchGraphFromCypher, runPlanLoadingMilestones, resolveAgentErrorType]);
+    }, [planSessionId, currentQuestion, question, planParsedTitle, extractPlanCypherQueries, fetchGraphFromCypher, runPlanLoadingMilestones, resolveAgentErrorType, resetPlanLoadingUiWait, waitForPlanLoadingUiDone]);
 
     const runConfirmCycle = React.useCallback(async () => {
         if (!planSessionId) {
@@ -4170,7 +4217,13 @@ Please review this plan and provide edits if needed.`,
         return (
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px' }}>
                 <SearchResultLoading
-                    streamProgress={buildDebugStreamLoadingProgress(streamMilestones, { minimumProgress: presetFirstStepProgress })}
+                    streamProgress={buildDebugStreamLoadingProgress(streamMilestones, {
+                        minimumProgress: presetFirstStepProgress,
+                        useFakeTimer: true,
+                        responseReady: streamMilestones.planningDone,
+                        timerKey: questionLoadingStartedAt,
+                    })}
+                    onFakeTimerComplete={handlePlanLoadingUiComplete}
                     handleClose={handleCancelAndGoHome}
                 />
             </Box>

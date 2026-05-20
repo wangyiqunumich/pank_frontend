@@ -101,7 +101,6 @@ function AgentLandingPage() {
         const groups = Array.isArray(ExampleQueries?.example_buttons) ? ExampleQueries.example_buttons : [];
         const fallbackGroups = [
             {
-                text_before_title: 'Analysis',
                 title: 'eQTL analysis',
                 entries: [
                     {
@@ -111,7 +110,6 @@ function AgentLandingPage() {
                 ],
             },
             {
-                text_before_title: 'Genetics',
                 title: 'Gene expression',
                 entries: [
                     {
@@ -121,7 +119,6 @@ function AgentLandingPage() {
                 ],
             },
             {
-                text_before_title: 'Variant',
                 title: 'SNP lookup',
                 entries: [
                     {
@@ -131,7 +128,6 @@ function AgentLandingPage() {
                 ],
             },
             {
-                text_before_title: 'Epigenomics',
                 title: 'Chromatin states',
                 entries: [
                     {
@@ -147,7 +143,6 @@ function AgentLandingPage() {
         return sourceGroups.map((group, index) => ({
             key: group.title,
             title: group.title,
-            textBeforeTitle: group.text_before_title || '',
             entries: Array.isArray(group.entries) ? group.entries : [],
             icon: [
                 <AutoGraphOutlinedIcon key="analysis" sx={{ color: '#006766', fontSize: 18 }} />,
@@ -206,14 +201,9 @@ function AgentLandingPage() {
     }, [activeExampleGroup]);
 
     const renderButtonLabel = (card) => (
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 0.25, width: '100%' }}>
-            <Typography sx={{ color: '#6D7979', fontSize: 9, fontFamily: 'Inter', fontWeight: 700, textTransform: 'uppercase', lineHeight: '16px', letterSpacing: '1px', wordWrap: 'break-word' }}>
-                {card.textBeforeTitle}
-            </Typography>
-            <Typography sx={{ color: '#181C1D', fontSize: 12.5, fontFamily: 'Inter', fontWeight: 600, lineHeight: '18px', wordWrap: 'break-word' }}>
-                {card.title}
-            </Typography>
-        </Box>
+        <Typography sx={{ color: '#181C1D', fontSize: 13, fontFamily: 'Inter', fontWeight: 600, lineHeight: '18px', textAlign: 'left' }}>
+            {card.title}
+        </Typography>
     );
 
     return (
@@ -381,14 +371,14 @@ function AgentLandingPage() {
                                     }}
                                     sx={{
                                         borderRadius: '32px',
-                                        minHeight: 120,
-                                        px: '24px',
-                                        py: '24px',
+                                        minHeight: 40,
+                                        px: '20px',
+                                        py: '20px',
                                         textTransform: 'none',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'flex-start',
-                                        flexDirection: 'column',
-                                        gap: '6px',
+                                        justifyContent: 'flex-start',
+                                        alignItems: 'center',
+                                        flexDirection: 'row',
+                                        gap: '10px',
                                         bgcolor: '#F0F4F4CC',
                                         border: '1px solid #BDC9C80D',
                                         color: '#181C1D',
