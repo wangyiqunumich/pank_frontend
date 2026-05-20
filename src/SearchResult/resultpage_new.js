@@ -173,6 +173,7 @@ const buildDebugStreamLoadingProgress = (milestones, options = {}) => {
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const CHAT_START_CACHE_KEY = 'pank_chat_start_cache_v1';
 const CHAT_PENDING_PLAN_CACHE_KEY = 'pank_chat_pending_plan_v1';
+const PLAN_INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000;
 const PMID_CITATION_PATTERN = /(\[\s*(?:pmid|pubmedid)\s*:\s*(\d{7,8})\s*\]|\(\s*(?:pmid|pubmedid)\s*:\s*(\d{7,8})\s*\)|\[\s*(\d{7,8})\s*\]\(\s*https?:\/\/(?:www\.)?pubmed(?:\.ncbi\.nlm\.nih\.gov|\.gov)\/\d{7,8}\/?[^)]*\))/gi;
 const GRAPH_QUERY_INFLIGHT = new Map();
 const FUNCTIONAL_DATA_BASE_URL = process.env.REACT_APP_FUNCTIONAL_DATA_API_URL || 'https://functional.pankgraph.org';
@@ -395,11 +396,11 @@ const NoGraphData = () => (
     }}>
 
         <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '16px', color: '#43AABA', marginBottom: '-12px', whiteSpace: 'nowrap' }}>
-            No Knowledge Graph available for this answer.
+            No Knowledge Graph is currently available for this answer.
         </Typography>
 
         <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 400, fontSize: '14px', color: '#6C6C6C' }}>
-            Please contact PanKbase team for support.
+            The Knowledge Graph may still be loading, especially for large results. Please wait up to 30 seconds and try again. If you have any questions or continue to see this message, you can contact the PanKbase team for support.
         </Typography>
 
         <Button
@@ -606,12 +607,16 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const [isPlanRevisionInProgress, setIsPlanRevisionInProgress] = useState(false);
     const [isPlanGraphQueryLoading, setIsPlanGraphQueryLoading] = useState(false);
     const [planHasGraphQuery, setPlanHasGraphQuery] = useState(false);
+    const [planInactivityTimedOut, setPlanInactivityTimedOut] = useState(false);
     const [chatRouteState, setChatRouteState] = useState('');
     const [forceResultView, setForceResultView] = useState(false);
     const chatSessionIdRef = useRef(chatSessionIdFromUrl || '');
     const chatStartPendingPlanSessionIdRef = useRef('');
+    const followUpRequestRunIdRef = useRef(0);
+    const followUpUnmountedRef = useRef(false);
     const planSummaryRef = useRef('');
     const aiAnswerRef = useRef('');
+    const planInactivityTimerRef = useRef(null);
     const isChatApiMode = terminalMode && !debug && !demoMode && !planDemoMode;
     const isAgentResultRoute = location.pathname === '/result-new2' || location.pathname === '/agent-result';
 
@@ -630,6 +635,14 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     useEffect(() => {
         aiAnswerRef.current = aiAnswer || '';
     }, [aiAnswer]);
+
+    useEffect(() => {
+        followUpUnmountedRef.current = false;
+        return () => {
+            followUpUnmountedRef.current = true;
+            followUpRequestRunIdRef.current += 1;
+        };
+    }, []);
 
     const resolveAgentErrorType = React.useCallback((err, fallbackType = 'critical_error') => {
         const status = err?.response?.status;
@@ -1999,6 +2012,11 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             return;
         }
 
+        const requestRunId = ++followUpRequestRunIdRef.current;
+        const isStaleFollowUp = () => (
+            followUpUnmountedRef.current || requestRunId !== followUpRequestRunIdRef.current
+        );
+
         const blockId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
         setFollowUpSubmitting(true);
         setFollowUpDraft('');
@@ -2017,6 +2035,8 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             );
 
             const payload = response?.data || {};
+            if (isStaleFollowUp()) return;
+
             const parsed = parseChatResponseContent(payload);
             const planCypherQueries = extractPayloadCypherQueries(payload);
             const functionalPath = extractFunctionalDataRequestPath(planCypherQueries);
@@ -2068,11 +2088,13 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
                 if (route === 'new_query' && summaryText && chatSessionId) {
                     const literatureMarkdown = await fetchLiteratureMarkdown(chatSessionId);
+                    if (isStaleFollowUp()) return;
                     const mergedSummary = appendLiteratureBlock(summaryText, literatureMarkdown);
                     summaryText = mergedSummary || summaryText;
                 }
 
                 const referencesData = await fetchReferenceArticles(summaryText);
+                if (isStaleFollowUp()) return;
 
                 setFollowUpBlocks((prev) => prev.map((item) => (
                     item.id === blockId
@@ -2087,6 +2109,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
                 if (route !== 'follow_up' && hasGraphCypherQueries) {
                     const graphResult = await queryGraphFromCypher(planCypherQueries);
+                    if (isStaleFollowUp()) return;
                     setFollowUpBlocks((prev) => prev.map((item) => (
                         item.id === blockId
                             ? {
@@ -2115,11 +2138,15 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 throw new Error(`Unsupported chat/message route: ${String(payload?.route || 'unknown')}`);
             }
 
+            if (isStaleFollowUp()) return;
+
+            const isCompletedRoute = payload?.route === 'follow_up' || payload?.route === 'new_query';
             const followUpInterpretedTitle = String(payload?.interpreted_question || payload?.interpretedTitle || '').trim();
-            if (followUpInterpretedTitle) {
+            if (isCompletedRoute && followUpInterpretedTitle) {
                 upsertRecentChat({ sessionId: chatSessionId, firstQuestion: followUpInterpretedTitle });
             }
         } catch (err) {
+            if (isStaleFollowUp()) return;
             setFollowUpBlocks((prev) => prev.map((item) => (
                 item.id === blockId
                     ? {
@@ -2130,7 +2157,9 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     : item
             )));
         } finally {
-            setFollowUpSubmitting(false);
+            if (!isStaleFollowUp()) {
+                setFollowUpSubmitting(false);
+            }
         }
     }, [chatSessionId, parseChatResponseContent, conversationRound, question, currentQuestion, parsePlanMarkdownForUI, extractPayloadCypherQueries, queryGraphFromCypher, fetchReferenceArticles, fetchLiteratureMarkdown, appendLiteratureBlock]);
 
@@ -2680,10 +2709,21 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
     const handleCancelAndGoHome = React.useCallback(() => {
         // Prevent in-flight planning/bootstrap completion from re-navigating after user cancels.
+        if (planInactivityTimerRef.current) {
+            clearTimeout(planInactivityTimerRef.current);
+            planInactivityTimerRef.current = null;
+        }
         chatBootstrapRunIdRef.current += 1;
         if (thunkref.current) thunkref.current.abort();
         navigate('/');
     }, [navigate]);
+
+    const clearPlanInactivityTimer = React.useCallback(() => {
+        if (planInactivityTimerRef.current) {
+            clearTimeout(planInactivityTimerRef.current);
+            planInactivityTimerRef.current = null;
+        }
+    }, []);
 
     useEffect(() => {
         if (!terminalMode || demoMode || planDemoMode || isChatApiMode || !question || terminalInitializedQuestionRef.current === question) {
@@ -3650,6 +3690,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     minHeight: 200,
                     maxHeight: 260,
                     height: 260,
+                    minWidth: 200,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -3902,6 +3943,7 @@ Please review this plan and provide edits if needed.`,
         parsedTitle: planParsedTitle || '',
         agentPlan: planSummary || streamAnswer || streamedSummary || 'No plan generated yet.',
         onSendFeedback: async (text) => {
+            clearPlanInactivityTimer();
             if (isChatApiMode && chatStartPendingPlanSessionId) {
                 await runChatStartPlanReviseCycle(text || '');
                 return;
@@ -3909,6 +3951,7 @@ Please review this plan and provide edits if needed.`,
             await runPlanningCycle(text);
         },
         onProceed: async () => {
+            clearPlanInactivityTimer();
             setPlanRevisionWarningOpen(false);
             if (isChatApiMode && chatStartPendingPlanSessionId) {
                 if (chatStartPlanConfirming) return;
@@ -4015,6 +4058,52 @@ Please review this plan and provide edits if needed.`,
             || (isChatApiMode && chatRouteState === 'new_query_pending')
             || (isChatApiMode && Boolean(chatStartPendingPlanSessionId))
         ));
+
+    const isPlannerReadyForInactivityTimeout = shouldShowPlannerPage
+        && !terminalLoading
+        && !isPlanRevisionInProgress
+        && !chatStartPlanConfirming
+        && !(planHasGraphQuery && isPlanGraphQueryLoading);
+
+    useEffect(() => {
+        clearPlanInactivityTimer();
+
+        if (!isPlannerReadyForInactivityTimeout || planInactivityTimedOut) {
+            return;
+        }
+
+        console.log('[plan-timeout] setTimeout started', {
+            timeoutMs: PLAN_INACTIVITY_TIMEOUT_MS,
+            shouldShowPlannerPage,
+            terminalLoading,
+            isPlanRevisionInProgress,
+            chatStartPlanConfirming,
+            planHasGraphQuery,
+            isPlanGraphQueryLoading,
+        });
+
+        planInactivityTimerRef.current = setTimeout(() => {
+            console.log('[plan-timeout] timeout reached');
+            setPlanInactivityTimedOut(true);
+        }, PLAN_INACTIVITY_TIMEOUT_MS);
+
+        return () => {
+            clearPlanInactivityTimer();
+        };
+    }, [isPlannerReadyForInactivityTimeout, planInactivityTimedOut, clearPlanInactivityTimer]);
+
+    useEffect(() => {
+        if (!shouldShowPlannerPage && planInactivityTimedOut) {
+            setPlanInactivityTimedOut(false);
+        }
+    }, [shouldShowPlannerPage, planInactivityTimedOut]);
+
+    useEffect(() => {
+        return () => {
+            clearPlanInactivityTimer();
+        };
+    }, [clearPlanInactivityTimer]);
+
     const hideFloatingSearchBar = terminalMode
         && !hasPendingFollowUpWork
         && (terminalPhase === 'loading' || terminalPhase === 'confirm');
@@ -4056,6 +4145,17 @@ Please review this plan and provide edits if needed.`,
                 errorTitle={agentErrorPayload.title}
                 errorMessage={agentErrorPayload.content}
                 errorImageSrc={agentErrorPayload.imageSrc}
+                homePath="/"
+                log={debugMessage(question, agentRawResult)}
+            />
+        );
+    }
+
+    if (planInactivityTimedOut) {
+        return (
+            <ErrorComponent
+                errorTitle="Timeout Error"
+                errorMessage="Your session has expired. Please ask you question again."
                 homePath="/"
                 log={debugMessage(question, agentRawResult)}
             />

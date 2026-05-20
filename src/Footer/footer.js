@@ -47,7 +47,7 @@ export const pkbMenu = {
 
 function PkbFooter() {
     return (
-        <div className="pkb-footer" style={{ minHeight: 'fit-content', height: 'auto', position: 'relative', zIndex: 1300 }}>
+        <div className="pkb-footer" style={{ minHeight: 'fit-content', height: 'auto', position: 'relative' }}>
             <div className="menu">
                 <div className="main-menu-items">
                     {pkbMenu.highlightItems.map((item) => (
