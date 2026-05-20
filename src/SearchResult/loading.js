@@ -73,6 +73,9 @@ function LoadingEntry({ step, entry }) {
 
     const prevText = prevStepIndex != null ? steps[prevStepIndex] : null;
     const stepText = isFinished ? steps[steps.length - 1] : steps[currentIndex] ?? '';
+    const visibleText = isFinished
+        ? (steps[steps.length - 1] || currText || '')
+        : (currText || stepText || steps[0] || '');
 
     const titleColor = isIdle || isFinished ? '#9E9E9E' : '#263824';
     const textColor = isIdle || isFinished ? '#B0B0B0' : '#656565';
@@ -137,7 +140,7 @@ function LoadingEntry({ step, entry }) {
                                     color: textColor
                                 }}
                             >
-                                {currText}
+                                {visibleText}
                             </Typography>
                         </Box>
                     </Box>
@@ -147,11 +150,14 @@ function LoadingEntry({ step, entry }) {
     );
 }
 
-export default function SearchResultLoading({ open, handleClose, streamProgress }) {
+export default function SearchResultLoading({ open, handleClose, streamProgress, onFakeTimerComplete }) {
     const resolvedEntries = streamProgress?.entries || texts.entries;
     const resolvedTitle = streamProgress?.title || texts.title;
     const resolvedTip = streamProgress?.tip || texts.tip;
     const resolvedCancel = streamProgress?.cancel || texts.cancel;
+    const fakeTimerMode = Boolean(streamProgress?.useFakeTimer);
+    const responseReady = Boolean(streamProgress?.responseReady);
+    const fakeTimerKey = Number(streamProgress?.timerKey || 0);
     const isControlled = Boolean(streamProgress);
 
     const [entryStates, setEntryStates] = useState(
@@ -168,6 +174,166 @@ export default function SearchResultLoading({ open, handleClose, streamProgress 
     const displayedEntryStates = isControlled ? (streamProgress?.entryStates || []) : entryStates;
     const displayedProgress = isControlled ? (streamProgress?.progress || 0) : progress;
     const displayedShortTitle = isControlled ? (streamProgress?.shortTitle || resolvedEntries[0]?.short_title || '') : shortTitle;
+
+    const [fakeEntryStates, setFakeEntryStates] = useState(
+        resolvedEntries.map((entry, index) => ({
+            step: index === 0 ? 0 : -1,
+            isFinished: false,
+        }))
+    );
+    const [fakeProgress, setFakeProgress] = useState(0);
+    const [fakeShortTitle, setFakeShortTitle] = useState(resolvedEntries[0]?.short_title || '');
+    const fakeEntryStatesRef = useRef(fakeEntryStates);
+    const fakeTimerRef = useRef(null);
+    const fakeTickRef = useRef(null);
+    const fakeDoneNotifiedRef = useRef(false);
+
+    useEffect(() => {
+        fakeEntryStatesRef.current = fakeEntryStates;
+    }, [fakeEntryStates]);
+
+    const getFakeDelayMs = React.useCallback(() => {
+        const baseSeconds = responseReady ? 2 : 7;
+        const jitterSeconds = responseReady ? 1 : 2;
+        const offset = (Math.random() * 2 - 1) * jitterSeconds;
+        const nextSeconds = Math.max(0.2, baseSeconds + offset);
+        return Math.round(nextSeconds * 1000);
+    }, [responseReady]);
+
+    const getTotalStepCount = React.useCallback(
+        () => resolvedEntries.map(({ steps }) => steps.length).reduce((a, b) => a + b, 0),
+        [resolvedEntries]
+    );
+
+    const getCompletedStepCount = React.useCallback((states) => {
+        return resolvedEntries.reduce((acc, entry, index) => {
+            const stepCount = Math.max(1, Number(entry?.steps?.length || 0));
+            const rawStep = Number(states?.[index]?.step ?? -1);
+            const completedInEntry = Math.min(stepCount, Math.max(0, rawStep));
+            return acc + completedInEntry;
+        }, 0);
+    }, [resolvedEntries]);
+
+    const notifyFakeDone = React.useCallback(() => {
+        if (!responseReady || fakeDoneNotifiedRef.current) {
+            return;
+        }
+        fakeDoneNotifiedRef.current = true;
+        if (typeof onFakeTimerComplete === 'function') {
+            onFakeTimerComplete();
+        }
+    }, [responseReady, onFakeTimerComplete]);
+
+    useEffect(() => {
+        if (!fakeTimerMode) {
+            return;
+        }
+
+        if (fakeTimerRef.current) {
+            clearTimeout(fakeTimerRef.current);
+            fakeTimerRef.current = null;
+        }
+
+        const initialStates = resolvedEntries.map((entry, index) => ({
+            step: index === 0 ? 0 : -1,
+            isFinished: false,
+        }));
+        fakeEntryStatesRef.current = initialStates;
+
+        setFakeEntryStates(initialStates);
+        setFakeProgress(0);
+        setFakeShortTitle(resolvedEntries[0]?.short_title || '');
+        fakeDoneNotifiedRef.current = false;
+    }, [fakeTimerMode, fakeTimerKey, resolvedEntries]);
+
+    useEffect(() => {
+        if (!fakeTimerMode) {
+            return;
+        }
+
+        const tick = () => {
+            const stepToProceed = fakeEntryStatesRef.current.findIndex((es) => !es.isFinished);
+            if (stepToProceed === -1) {
+                notifyFakeDone();
+                return;
+            }
+
+            let nextStatesSnapshot = null;
+            setFakeEntryStates((prevStates) => {
+                const nextStates = [...prevStates];
+                const current = { ...nextStates[stepToProceed] };
+                current.step += 1;
+                current.isFinished = current.step >= resolvedEntries[stepToProceed].steps.length;
+                nextStates[stepToProceed] = current;
+
+                if (current.isFinished && stepToProceed + 1 < nextStates.length) {
+                    nextStates[stepToProceed + 1] = {
+                        step: 0,
+                        isFinished: false,
+                    };
+                    setFakeShortTitle(resolvedEntries[stepToProceed + 1].short_title);
+                }
+
+                nextStatesSnapshot = nextStates;
+                return nextStates;
+            });
+
+            if (nextStatesSnapshot) {
+                fakeEntryStatesRef.current = nextStatesSnapshot;
+                const totalSteps = getTotalStepCount();
+                const completedSteps = getCompletedStepCount(nextStatesSnapshot);
+                setFakeProgress((completedSteps / Math.max(1, totalSteps)) * 100);
+            }
+
+            const nextDelayMs = getFakeDelayMs();
+            fakeTimerRef.current = setTimeout(() => {
+                if (fakeTickRef.current) {
+                    fakeTickRef.current();
+                }
+            }, nextDelayMs);
+        };
+
+        fakeTickRef.current = tick;
+        fakeTimerRef.current = setTimeout(() => {
+            if (fakeTickRef.current) {
+                fakeTickRef.current();
+            }
+        }, getFakeDelayMs());
+
+        return () => {
+            if (fakeTimerRef.current) {
+                clearTimeout(fakeTimerRef.current);
+            }
+            fakeTickRef.current = null;
+        };
+    }, [fakeTimerMode, resolvedEntries, getFakeDelayMs, getTotalStepCount, getCompletedStepCount, notifyFakeDone]);
+
+    useEffect(() => {
+        if (!fakeTimerMode) {
+            return;
+        }
+
+        const unfinished = fakeEntryStatesRef.current.some((es) => !es.isFinished);
+
+        if (!unfinished) {
+            notifyFakeDone();
+            return;
+        }
+
+        if (fakeTimerRef.current) {
+            clearTimeout(fakeTimerRef.current);
+        }
+        const acceleratedDelayMs = getFakeDelayMs();
+        fakeTimerRef.current = setTimeout(() => {
+            if (fakeTickRef.current) {
+                fakeTickRef.current();
+            }
+        }, acceleratedDelayMs);
+    }, [fakeTimerMode, responseReady, getFakeDelayMs, notifyFakeDone]);
+
+    const effectiveEntryStates = fakeTimerMode ? fakeEntryStates : displayedEntryStates;
+    const effectiveProgress = fakeTimerMode ? fakeProgress : displayedProgress;
+    const effectiveShortTitle = fakeTimerMode ? fakeShortTitle : displayedShortTitle;
 
     useEffect(() => {
         entryStatesRef.current = entryStates;
@@ -263,7 +429,7 @@ export default function SearchResultLoading({ open, handleClose, streamProgress 
                 color: '#7F7D7D',
                 fontSize: '14px',
             }}>
-                Agent Status:&nbsp;<span style={{ color: '#078AA3', fontWeight: 600 }}>{displayedShortTitle}</span>
+                Agent Status:&nbsp;<span style={{ color: '#078AA3', fontWeight: 600, textDecoration: 'none' }}>{effectiveShortTitle}</span>
             </Box>
         </Box>
         <Box sx={{
@@ -279,7 +445,7 @@ export default function SearchResultLoading({ open, handleClose, streamProgress 
                 <LoadingEntry
                     key={entryIndex}
                     entry={entry}
-                    step={displayedEntryStates?.[entryIndex]?.step ?? -1}
+                    step={effectiveEntryStates?.[entryIndex]?.step ?? -1}
                     totalSteps={entry.steps.length} />
             ))}
         </Box>
@@ -289,7 +455,7 @@ export default function SearchResultLoading({ open, handleClose, streamProgress 
             ".MuiLinearProgress-bar": {
                 backgroundColor: '#078AA3'
             }
-        }} value={displayedProgress} />
+        }} value={effectiveProgress} />
         <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
             <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 400, fontSize: '14px', color: '#9E9E9E' }}>
                 {resolvedTip}
