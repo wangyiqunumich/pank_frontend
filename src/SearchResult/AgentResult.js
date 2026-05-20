@@ -630,7 +630,7 @@ export function AgentResultLayout({
                 }}
             >
             {/* Results display */}
-            <div ref={resultsContainerRef} style={{ paddingBottom: 40 }}>
+            <div ref={resultsContainerRef}>
                 {results.map((result, index) => {
                     const resultViewProps = getResultViewProps(result, index) || {};
                     const anchorPrefix = resultViewProps.contentAnchorPrefix || getAnchorPrefix(index);
@@ -662,7 +662,6 @@ export function AgentResultLayout({
                                 <Container maxWidth={false} disableGutters sx={{
                                     display: 'flex',
                                     marginTop: index > 0 ? '12px' : (isResultNewRoute ? '24px' : '0px'),
-                                    marginBottom: '24px',
                                     paddingBottom: '24px',
                                 }}>
                                     <ResultView {...mergedProps} />
