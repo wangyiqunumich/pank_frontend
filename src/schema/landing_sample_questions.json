@@ -19,8 +19,7 @@
     },
     "example_buttons": [
         {
-            "text_before_title": "Example",
-            "title": "QTL",
+            "title": "Explore QTL",
             "entries": [
                 {
                     "question": "Which SNP serves as the lead QTL for CFTR? (Last HIRN's template question)",
@@ -42,7 +41,7 @@
         },
         {
             "text_before_title": "Example",
-            "title": "Expression",
+            "title": "Gene expression",
             "entries": [
                 {
                     "question": "Is CFTR specifically enriched in ductal cells?",
