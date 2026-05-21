@@ -184,7 +184,10 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
         bgcolor: '#F8FBFC',
         borderRight: '1px solid #E2E8F0',
         px: open ? 2 : 1,
-        display: { xs: 'none', lg: 'flex' },
+        display: 'none',
+        '@media (min-width:1000px)': {
+          display: 'flex',
+        },
         flexDirection: 'column',
         boxSizing: 'border-box',
         transition: 'width 220ms ease, min-width 220ms ease, padding 220ms ease',
