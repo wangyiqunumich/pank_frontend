@@ -1,7 +1,9 @@
 import './scoped.css';
 
 import React, {
+    useCallback,
   useEffect,
+    useMemo,
   useRef,
   useState,
 } from 'react';
@@ -36,6 +38,7 @@ import {
   Container,
   Grid,
   Link,
+    Paper,
   Skeleton,
   styled,
   Tooltip,
@@ -4185,6 +4188,60 @@ Please review this plan and provide edits if needed.`,
         onContentMeta({ ...serializableMeta, followUpHandler: isChatApiMode ? handleSendFollowUp : null });
     }, [anchorPrefix, onContentMeta, resolvedPageData, isQuestionComplete, isPlanningPhase, hideFloatingSearchBar, isChatApiMode, handleSendFollowUp]);
 
+    const questionJumpItems = useMemo(() => {
+        const topQuestionLabel = stripHtml(
+            currentQuestion
+            || chatStartQuestion
+            || question
+            || resolvedPageData?.parsedTitle
+            || resolvedPageData?.title
+            || 'Question 1'
+        );
+
+        const items = [
+            {
+                anchorId: `${anchorPrefix}-question-1`,
+                label: topQuestionLabel || 'Question 1',
+            },
+        ];
+
+        if (!isChatApiMode) {
+            return items;
+        }
+
+        followUpBlocks.forEach((block, index) => {
+            if (!block || block.type === 'loading') return;
+            const label = stripHtml(block.title || block.question || `Follow-up ${index + 1}`);
+            items.push({
+                anchorId: `${anchorPrefix}-question-${index + 2}`,
+                label: label || `Follow-up ${index + 1}`,
+            });
+        });
+
+        return items;
+    }, [anchorPrefix, currentQuestion, chatStartQuestion, question, resolvedPageData, isChatApiMode, followUpBlocks]);
+
+    const [activeQuestionJumpAnchor, setActiveQuestionJumpAnchor] = useState('');
+
+    useEffect(() => {
+        if (questionJumpItems.length <= 1) {
+            setActiveQuestionJumpAnchor('');
+            return;
+        }
+        setActiveQuestionJumpAnchor((prev) => {
+            const fallback = questionJumpItems[0]?.anchorId || '';
+            if (!prev) return fallback;
+            return questionJumpItems.some((item) => item.anchorId === prev) ? prev : fallback;
+        });
+    }, [questionJumpItems]);
+
+    const handleQuestionJump = useCallback((anchorId) => {
+        const target = document.getElementById(anchorId);
+        if (!target) return;
+        setActiveQuestionJumpAnchor(anchorId);
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, []);
+
     if (agentErrorType) {
         const agentErrorPayload = getAgentErrorPayload(agentErrorType);
         return (
@@ -4307,13 +4364,15 @@ Please review this plan and provide edits if needed.`,
             ) : null}
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', px: { xs: 2, md: 3 }, py: 3 }}>
                 <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 3 }}>
-                    {planDemoMode ? (
-                        <PlanConfirmationPage data={resolvedPageData} contentAnchorPrefix={anchorPrefix} />
-                    ) : shouldShowPlannerPage ? (
-                        <PlanConfirmationPage data={resolvedPageData} contentAnchorPrefix={anchorPrefix} />
-                    ) : (
-                        <QuestionAnswerPage data={resolvedPageData} contentAnchorPrefix={anchorPrefix} />
-                    )}
+                    <Box id={`${anchorPrefix}-question-1`}>
+                        {planDemoMode ? (
+                            <PlanConfirmationPage data={resolvedPageData} contentAnchorPrefix={anchorPrefix} />
+                        ) : shouldShowPlannerPage ? (
+                            <PlanConfirmationPage data={resolvedPageData} contentAnchorPrefix={anchorPrefix} />
+                        ) : (
+                            <QuestionAnswerPage data={resolvedPageData} contentAnchorPrefix={anchorPrefix} />
+                        )}
+                    </Box>
 
                     {isChatApiMode ? followUpBlocks.map((block, index) => {
                         if (block.type === 'loading') {
@@ -4375,7 +4434,11 @@ Please review this plan and provide edits if needed.`,
                             };
 
                             return (
-                                <Box key={block.id} ref={index === followUpBlocks.length - 1 ? followUpPendingAnchorRef : undefined}>
+                                <Box
+                                    key={block.id}
+                                    id={`${anchorPrefix}-question-${index + 2}`}
+                                    ref={index === followUpBlocks.length - 1 ? followUpPendingAnchorRef : undefined}
+                                >
                                     <PlanConfirmationPage data={followUpPlanData} contentAnchorPrefix={`${anchorPrefix}-followup-plan-${index + 1}`} />
                                     {block.error ? (
                                         <Typography sx={{ color: '#B91C1C', fontSize: 13, mt: 1 }}>{block.error}</Typography>
@@ -4386,16 +4449,17 @@ Please review this plan and provide edits if needed.`,
 
                         if (block.type === 'answer') {
                             return (
-                                <QuestionAnswerPage
-                                    key={block.id}
-                                    data={buildFollowUpAnswerData(block, index)}
-                                    contentAnchorPrefix={`${anchorPrefix}-followup-${index + 1}`}
-                                />
+                                <Box key={block.id} id={`${anchorPrefix}-question-${index + 2}`}>
+                                    <QuestionAnswerPage
+                                        data={buildFollowUpAnswerData(block, index)}
+                                        contentAnchorPrefix={`${anchorPrefix}-followup-${index + 1}`}
+                                    />
+                                </Box>
                             );
                         }
 
                         return (
-                            <Box key={block.id} sx={{ border: '1px solid #FECACA', borderRadius: 2, p: 2, bgcolor: '#FEF2F2' }}>
+                            <Box key={block.id} id={`${anchorPrefix}-question-${index + 2}`} sx={{ border: '1px solid #FECACA', borderRadius: 2, p: 2, bgcolor: '#FEF2F2' }}>
                                 <Typography sx={{ color: '#B91C1C', fontSize: 14 }}>
                                     {block.error || 'Follow-up request failed.'}
                                 </Typography>
@@ -4410,6 +4474,63 @@ Please review this plan and provide edits if needed.`,
                     ) : null}
                 </Box>
             </Box>
+
+            {questionJumpItems.length > 1 ? (
+                <Box
+                    sx={{
+                        position: 'fixed',
+                        right: 16,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        zIndex: 1200,
+                        display: { xs: 'none', xl: 'block' },
+                        maxWidth: 250,
+                    }}
+                >
+                    <Paper
+                        elevation={6}
+                        sx={{
+                            borderRadius: 2,
+                            p: 1,
+                            border: '1px solid #E2E8F0',
+                            bgcolor: '#FFFFFF',
+                        }}
+                    >
+                        <Typography sx={{ px: 1, py: 0.5, color: '#0F172A', fontSize: 11.5, fontWeight: 700 }}>
+                            Question Jump
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.5 }}>
+                            {questionJumpItems.map((item, idx) => {
+                                const isActive = item.anchorId === activeQuestionJumpAnchor;
+                                return (
+                                    <Button
+                                        key={item.anchorId}
+                                        variant={isActive ? 'contained' : 'text'}
+                                        onClick={() => handleQuestionJump(item.anchorId)}
+                                        sx={{
+                                            justifyContent: 'flex-start',
+                                            textTransform: 'none',
+                                            minHeight: 34,
+                                            px: 1,
+                                            py: 0.5,
+                                            borderRadius: 1,
+                                            fontSize: 12,
+                                            fontWeight: 600,
+                                            color: isActive ? '#FFFFFF' : '#334155',
+                                            bgcolor: isActive ? '#0F766E' : 'transparent',
+                                            '&:hover': {
+                                                bgcolor: isActive ? '#0D665F' : '#F1F5F9',
+                                            },
+                                        }}
+                                    >
+                                        {`Q${idx + 1}. ${item.label}`}
+                                    </Button>
+                                );
+                            })}
+                        </Box>
+                    </Paper>
+                </Box>
+            ) : null}
         </>
     );
 }

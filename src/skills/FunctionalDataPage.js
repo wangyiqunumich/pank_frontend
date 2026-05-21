@@ -452,6 +452,7 @@ export default function FunctionalDataPage() {
   const tableRows = useMemo(() => {
     if (!donorData || !donorData.donors) return [];
     return donorData.donors.slice(0, 5).map((donor) => ({
+      id: donor.id || 'N/A',
       donorId: donor.donor_id || 'N/A',
       centerId: donor.hpap_id || 'N/A',
       disease: donor.disease || disease,
@@ -459,13 +460,13 @@ export default function FunctionalDataPage() {
       sex: donor.sex || 'N/A',
       bmi: donor.bmi ? parseFloat(donor.bmi).toFixed(1) : 'N/A',
       center: donor.center || 'N/A',
-      trait: formatDonorSiTrait(donor),
     }));
   }, [donorData, disease]);
 
   const fullTableRows = useMemo(() => {
     if (!donorData || !donorData.donors) return [];
     return donorData.donors.map((donor) => ({
+      id: donor.id || 'N/A',
       donorId: donor.donor_id || 'N/A',
       centerId: donor.hpap_id || 'N/A',
       disease: donor.disease || disease,
@@ -473,12 +474,40 @@ export default function FunctionalDataPage() {
       sex: donor.sex || 'N/A',
       bmi: donor.bmi ? parseFloat(donor.bmi).toFixed(1) : 'N/A',
       center: donor.center || 'N/A',
-      trait: formatDonorSiTrait(donor),
     }));
   }, [donorData, disease]);
 
-  const tableHeaders = ['RRID', 'Center ID', 'Disease', 'Age', 'Genetic sex', 'BMI (kg/m²)', 'Center', 'INS-IEQ G 16.7 SI'];
-  const tableGridTemplate = '1.5fr 1.1fr 1fr 0.7fr 0.8fr 1fr 0.9fr 1.4fr';
+  const tableHeaders = ['ID', 'RRID', 'Center ID', 'Disease', 'Age', 'Genetic sex', 'BMI (kg/m²)', 'Center'];
+  const tableGridTemplate = '1.4fr 1.4fr 1.1fr 1fr 0.7fr 0.8fr 1fr 0.9fr';
+  const getDonorDetailsUrl = (id) => `https://data.pankbase.org/human-donors/${encodeURIComponent(String(id || '').trim())}/`;
+
+  const renderDonorIdCell = (idValue) => {
+    const idText = String(idValue || '').trim();
+    if (!idText || idText === 'N/A') {
+      return <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>N/A</Typography>;
+    }
+
+    return (
+      <Typography
+        component="a"
+        href={getDonorDetailsUrl(idText)}
+        target="_blank"
+        rel="noreferrer"
+        sx={{
+          fontFamily: 'Inter',
+          fontSize: 12,
+          color: '#007A8D',
+          fontWeight: 600,
+          textDecoration: 'none',
+          '&:hover': {
+            textDecoration: 'none',
+          },
+        }}
+      >
+        {idText}
+      </Typography>
+    );
+  };
 
   const downloadDonorsCsv = () => {
     const sourceDonors = donorData?.donors || [];
@@ -892,6 +921,7 @@ export default function FunctionalDataPage() {
                           key={row.donorId}
                           sx={{ display: 'grid', gridTemplateColumns: tableGridTemplate, px: 1.5, py: 0.9, borderBottom: '1px solid #F1F5F9', '&:hover': { bgcolor: '#FAFAFA' } }}
                         >
+                          {renderDonorIdCell(row.id)}
                           <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155', fontWeight: 500 }}>{row.donorId}</Typography>
                           <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.centerId}</Typography>
                           <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.disease}</Typography>
@@ -899,7 +929,6 @@ export default function FunctionalDataPage() {
                           <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.sex}</Typography>
                           <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.bmi}</Typography>
                           <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.center}</Typography>
-                          <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.trait}</Typography>
                         </Box>
                       ))
                     ) : (
@@ -1102,6 +1131,7 @@ export default function FunctionalDataPage() {
                     '&:hover': { bgcolor: '#FAFAFA' },
                   }}
                 >
+                  {renderDonorIdCell(row.id)}
                   <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155', fontWeight: 500 }}>{row.donorId}</Typography>
                   <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.centerId}</Typography>
                   <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.disease}</Typography>
@@ -1109,7 +1139,6 @@ export default function FunctionalDataPage() {
                   <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.sex}</Typography>
                   <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.bmi}</Typography>
                   <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.center}</Typography>
-                  <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155' }}>{row.trait}</Typography>
                 </Box>
               ))
             ) : (
