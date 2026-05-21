@@ -49,7 +49,19 @@ function SkillLogo({ SvgIcon, size = 30, color = '#0F766E' }) {
   );
 }
 
-function SkillCard({ icon, title, description, actionLabel, onAction, accent = '#0F766E', disabled = false }) {
+function SkillCard({
+  icon,
+  title,
+  description,
+  actionLabel,
+  onAction,
+  accent = '#0F766E',
+  iconBg = 'rgba(15,118,110,0.08)',
+  iconShadow = 'none',
+  cardBg = '#FFFFFF',
+  actionHoverBg = 'rgba(15,118,110,0.06)',
+  disabled = false,
+}) {
   return (
     <Paper
       elevation={0}
@@ -57,6 +69,7 @@ function SkillCard({ icon, title, description, actionLabel, onAction, accent = '
         p: 3,
         borderRadius: '14px',
         border: '1px solid #E2E8F0',
+        bgcolor: cardBg,
         minHeight: 360,
         display: 'flex',
         flexDirection: 'column',
@@ -67,7 +80,8 @@ function SkillCard({ icon, title, description, actionLabel, onAction, accent = '
           width: 64,
           height: 64,
           borderRadius: '14px',
-          bgcolor: 'rgba(15,118,110,0.08)',
+          bgcolor: iconBg,
+          boxShadow: iconShadow,
           color: accent,
           display: 'flex',
           alignItems: 'center',
@@ -99,7 +113,7 @@ function SkillCard({ icon, title, description, actionLabel, onAction, accent = '
             cursor: disabled ? 'not-allowed' : 'pointer',
             '&:hover': {
               borderColor: disabled ? '#CBD5E1' : accent,
-              bgcolor: disabled ? 'transparent' : 'rgba(15,118,110,0.06)',
+              bgcolor: disabled ? 'transparent' : actionHoverBg,
             },
             '&.Mui-disabled': {
               borderColor: '#CBD5E1',
@@ -152,30 +166,42 @@ export default function SkillsPage() {
             ) : null}
 
             <SkillCard
-              icon={<SkillLogo SvgIcon={QtlSkillLogo} size={50} color="#0E7490" />}
+              icon={<SkillLogo SvgIcon={QtlSkillLogo} size={50} color="#0868d1" />}
               title="QTL Explorer"
               description="Configure gene and SNP-based QTL lookup with guided query setup and proceed to structured PanKgraph QTL results."
               actionLabel="Launch"
               onAction={() => navigate('/qtl-explorer')}
-              accent="#0E7490"
+              accent="#0868d1"
+              iconBg="#EAF3FB"
+              iconShadow="0 8px 18px rgba(47, 111, 182, 0.28)"
+              cardBg="#F5F9FC"
+              actionHoverBg="#EAF3FB"
             />
 
             <SkillCard
-              icon={<SkillLogo SvgIcon={GwasSkillLogo} size={50} color="#0E7490" />}
+              icon={<SkillLogo SvgIcon={GwasSkillLogo} size={50} color="#096e1b" />}
               title="GWAS Explorer"
               description="Explore SNP-level GWAS evidence for T1D-focused cohorts and jump to result context in PanKgraph."
               actionLabel="Launch"
               onAction={() => navigate('/gwas-explorer')}
-              accent="#0E7490"
+              accent="#096e1b"
+              iconBg="#ECF8EE"
+              iconShadow="0 8px 18px rgba(31, 124, 49, 0.28)"
+              cardBg="#F5FBF6"
+              actionHoverBg="#ECF8EE"
             />
 
             <SkillCard
-              icon={<SkillLogo SvgIcon={FunctionalDataSkillLogo} size={50} color="#0E7490" />}
+              icon={<SkillLogo SvgIcon={FunctionalDataSkillLogo} size={50} color="#4e0f9e" />}
               title="Functional Data Skill"
               description="Generates interactive visualizations for donor-level functional response, cohort filtering, and trait association exploration."
               actionLabel="Launch"
               onAction={() => navigate('/functional-data')}
-              accent="#0E7490"
+              accent="#4e0f9e"
+              iconBg="#F3ECFA"
+              iconShadow="0 8px 18px rgba(105, 46, 156, 0.28)"
+              cardBg="#FAF7FC"
+              actionHoverBg="#F3ECFA"
             />
           </Box>
 
