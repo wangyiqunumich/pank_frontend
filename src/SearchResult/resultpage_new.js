@@ -1,9 +1,9 @@
 import './scoped.css';
 
 import React, {
-    useCallback,
+  useCallback,
   useEffect,
-    useMemo,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -38,7 +38,7 @@ import {
   Container,
   Grid,
   Link,
-    Paper,
+  Paper,
   Skeleton,
   styled,
   Tooltip,
@@ -54,6 +54,10 @@ import QuestionAnswerPage, {
   ResultComponentSkeleton,
 } from '../components/ResultComponent';
 import { AlertMessage } from '../components/SupportingMaterial';
+import {
+  PLANNER_AGENT_BASE_URL,
+  STREAM_AGENT_BASE_URL,
+} from '../constants/apiEndpoints';
 import agentErrorImage from '../image/agent_error.png';
 import VisuImage from '../image/output.png';
 import { queryArticles } from '../redux/articlesSlice';
@@ -850,7 +854,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         setLiteratureLoading(true);
         try {
             const response = await flaskBackendAxiosInstanceNew.post(
-                'https://jieliulab3.dcmb.med.umich.edu/pankgraph-agent/chat/literature',
+                `${PLANNER_AGENT_BASE_URL}/chat/literature`,
                 { session_id: sid },
                 { headers: { 'Content-Type': 'application/json' } }
             );
@@ -865,7 +869,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
     const revisePlanSession = React.useCallback(async (sessionId, prompt) => {
         const response = await flaskBackendAxiosInstanceNew.post(
-            'https://jieliulab3.dcmb.med.umich.edu/pankgraph-agent/plan/revise',
+            `${PLANNER_AGENT_BASE_URL}/plan/revise`,
             {
                 session_id: sessionId,
                 prompt,
@@ -1433,8 +1437,8 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         // Call real streaming API
         const callStreamingAPI = async () => {
             try {
-                console.log('[Stream API] Calling:', 'https://agent.pankgraph.org/query/stream', 'with question:', question);
-                const response = await fetch('https://agent.pankgraph.org/query/stream', {
+                console.log('[Stream API] Calling:', `${STREAM_AGENT_BASE_URL}/query/stream`, 'with question:', question);
+                const response = await fetch(`${STREAM_AGENT_BASE_URL}/query/stream`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1749,7 +1753,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         streamAnswerRef.current = '';
         try {
             if (!planSessionId) {
-                const startResponse = await flaskBackendAxiosInstanceNew.post('https://agent.pankgraph.org/plan/start', {
+                const startResponse = await flaskBackendAxiosInstanceNew.post(`${STREAM_AGENT_BASE_URL}/plan/start`, {
                     question: inputText,
                     rigor: true,
                     use_literature: true,
@@ -1779,7 +1783,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
                 await waitForPlanLoadingUiDone();
             } else {
-                const reviseResponse = await flaskBackendAxiosInstanceNew.post('https://agent.pankgraph.org/plan/revise', {
+                const reviseResponse = await flaskBackendAxiosInstanceNew.post(`${STREAM_AGENT_BASE_URL}/plan/revise`, {
                     session_id: planSessionId,
                     prompt: inputText,
                 }, {
@@ -1841,7 +1845,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         setTerminalPhase('result');
         setStreamComplete(false);
         try {
-            const confirmResponse = await flaskBackendAxiosInstanceNew.post('https://agent.pankgraph.org/plan/confirm', {
+            const confirmResponse = await flaskBackendAxiosInstanceNew.post(`${STREAM_AGENT_BASE_URL}/plan/confirm`, {
                 session_id: planSessionId,
             }, {
                 headers: { 'Content-Type': 'application/json' },
@@ -1949,7 +1953,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
         try {
             const response = await flaskBackendAxiosInstanceNew.post(
-                'https://jieliulab3.dcmb.med.umich.edu/pankgraph-agent/chat/plan/confirm',
+                `${PLANNER_AGENT_BASE_URL}/chat/plan/confirm`,
                 {
                     chat_session_id: chatSessionId,
                     plan_session_id: block.planSessionId,
@@ -2074,7 +2078,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
         try {
             const response = await flaskBackendAxiosInstanceNew.post(
-                'https://jieliulab3.dcmb.med.umich.edu/pankgraph-agent/chat/message',
+                `${PLANNER_AGENT_BASE_URL}/chat/message`,
                 {
                     session_id: chatSessionId,
                     question: cleaned,
@@ -2250,7 +2254,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
         try {
             const confirmResponse = await flaskBackendAxiosInstanceNew.post(
-                'https://jieliulab3.dcmb.med.umich.edu/pankgraph-agent/chat/plan/confirm',
+                `${PLANNER_AGENT_BASE_URL}/chat/plan/confirm`,
                 {
                     chat_session_id: chatSessionId,
                     plan_session_id: confirmPlanSessionId,
@@ -2511,7 +2515,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     let history = cachedHistory;
                     if (!history.length) {
                         const historyResponse = await flaskBackendAxiosInstanceNew.get(
-                            'https://jieliulab3.dcmb.med.umich.edu/pankgraph-agent/chat/history',
+                            `${PLANNER_AGENT_BASE_URL}/chat/history`,
                             {
                                 params: { session_id: chatSessionIdFromUrl },
                             }
@@ -2652,7 +2656,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 }
 
                 const startResponse = await flaskBackendAxiosInstanceNew.post(
-                    'https://jieliulab3.dcmb.med.umich.edu/pankgraph-agent/chat/start',
+                    `${PLANNER_AGENT_BASE_URL}/chat/start`,
                     {
                         question,
                         rigor: true,
