@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="QTL Manhattan plot logo">
   <path d="M30 28v72h72" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
   <path d="M32 51h68" fill="none" stroke="#94A3B8" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 7"/>
-  <text x="98" y="28" fill="currentColor" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" text-anchor="end" letter-spacing=".6">QTL</text>
+  <text x="120" y="38" fill="currentColor" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" text-anchor="end" letter-spacing=".3">QTL</text>
   <g stroke-linecap="round" stroke-width="5">
     <path d="M39 94V82" stroke="#2563EB"/>
     <path d="M47 94V73" stroke="#2563EB"/>
