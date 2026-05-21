@@ -1,39 +1,31 @@
-<svg width="100%" height="100%" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;">
-    <g transform="matrix(1.16518,-0.0958325,0.095683,1.16336,-7.81239,8.01712)">
-        <path d="M12,22C24,18 38,23 60,17" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:3px;"/>
-    </g>
-    <g transform="matrix(1.16518,-0.0958325,0.095683,1.16336,-1.86023,5.50541)">
-        <path d="M18,21L18,17" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:3.5px;"/>
-    </g>
-    <g transform="matrix(1.16518,-0.0958325,0.095683,1.16336,-3.95591,6.3679)">
-        <path d="M27,20L27,14" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:3.5px;"/>
-    </g>
-    <g transform="matrix(1.16518,-0.0958325,0.095683,1.16336,-21.2332,8.34474)">
-        <path d="M27,20L27,14" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:3.5px;"/>
-    </g>
-    <g transform="matrix(1.16518,-0.0958325,0.095683,1.16336,14.8693,4.24621)">
-        <path d="M27,20L27,14" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:3.5px;"/>
-    </g>
-    <g transform="matrix(1.16518,-0.0958325,0.095683,1.16336,-6.05159,5.58118)">
-        <path d="M37,21L37,10" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:4.5px;"/>
-    </g>
-    <g transform="matrix(1.16518,-0.0958325,0.095683,1.16336,-9.74756,8.18872)">
-        <path d="M56,18L56,14" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:3.5px;"/>
-    </g>
-    <g transform="matrix(1.16518,-0.0958325,0.095683,1.16336,-6.24296,3.25445)">
-        <circle cx="37" cy="10" r="3.5"/>
-    </g>
-    <g transform="matrix(1.06708,-0.175335,0.136362,0.829893,-6.69858,16.4218)">
-        <path d="M11,36C21,28 28,31 36,44C44,57 52,59 61,49" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:5px;"/>
-    </g>
-    <g transform="matrix(1.06708,-0.175335,0.136362,0.829893,-6.69858,16.4218)">
-        <path d="M11,54C21,62 28,59 36,46C44,33 52,31 61,40" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:5px;"/>
-    </g>
-    <g transform="matrix(1.06708,-0.175335,0.136362,0.829893,-6.69858,16.4218)">
-        <path d="M17,35L21,56" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:3.5px;"/>
-    </g>
-    <g transform="matrix(1.0561,-0.198937,0.0858554,0.721324,-4.69589,20.7268)">
-        <path d="M26,34L31,57" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:3.5px;"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="QTL Manhattan plot logo">
+  <path d="M30 28v72h72" fill="none" stroke="#1E293B" stroke-width="5" stroke-linecap="round"/>
+  <path d="M32 51h68" fill="none" stroke="#94A3B8" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 7"/>
+
+  <text x="98" y="28" fill="#1E293B" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" text-anchor="end" letter-spacing=".6">QTL</text>
+
+  <g stroke-linecap="round" stroke-width="5">
+    <path d="M39 94V82" stroke="#2563EB"/>
+    <path d="M47 94V73" stroke="#2563EB"/>
+    <path d="M55 94V86" stroke="#2563EB"/>
+    <path d="M63 94V64" stroke="#14B8A6"/>
+    <path d="M71 94V77" stroke="#14B8A6"/>
+    <path d="M79 94V84" stroke="#14B8A6"/>
+    <path d="M87 94V39" stroke="#EF4444"/>
+    <path d="M95 94V69" stroke="#F59E0B"/>
+  </g>
+
+  <g>
+    <circle cx="39" cy="82" r="3.5" fill="#2563EB"/>
+    <circle cx="47" cy="73" r="3.5" fill="#2563EB"/>
+    <circle cx="55" cy="86" r="3.5" fill="#2563EB"/>
+    <circle cx="63" cy="64" r="3.5" fill="#14B8A6"/>
+    <circle cx="71" cy="77" r="3.5" fill="#14B8A6"/>
+    <circle cx="79" cy="84" r="3.5" fill="#14B8A6"/>
+    <circle cx="87" cy="39" r="5" fill="#EF4444"/>
+    <circle cx="95" cy="69" r="3.5" fill="#F59E0B"/>
+  </g>
+</svg>
     </g>
     <g transform="matrix(1.05964,-0.190856,0.10361,0.761598,-4.49229,21.0224)">
         <path d="M45,34L50,56" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:3.5px;"/>
