@@ -152,7 +152,7 @@ export default function SkillsPage() {
             ) : null}
 
             <SkillCard
-              icon={<SkillLogo SvgIcon={QtlSkillLogo} size={30} color="#0E7490" />}
+              icon={<SkillLogo SvgIcon={QtlSkillLogo} size={50} color="#0E7490" />}
               title="QTL Explorer"
               description="Configure gene and SNP-based QTL lookup with guided query setup and proceed to structured PanKgraph QTL results."
               actionLabel="Launch"
@@ -161,7 +161,7 @@ export default function SkillsPage() {
             />
 
             <SkillCard
-              icon={<SkillLogo SvgIcon={GwasSkillLogo} size={60} color="#0E7490" />}
+              icon={<SkillLogo SvgIcon={GwasSkillLogo} size={50} color="#0E7490" />}
               title="GWAS Explorer"
               description="Explore SNP-level GWAS evidence for T1D-focused cohorts and jump to result context in PanKgraph."
               actionLabel="Launch"
