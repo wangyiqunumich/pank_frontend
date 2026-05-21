@@ -157,7 +157,7 @@ export default function SkillsPage() {
               description="Configure gene and SNP-based QTL lookup with guided query setup and proceed to structured PanKgraph QTL results."
               actionLabel="Launch"
               onAction={() => navigate('/qtl-explorer')}
-              accent="#0B7DAA"
+              accent="#0E7490"
             />
 
             <SkillCard
@@ -175,7 +175,7 @@ export default function SkillsPage() {
               description="Generates interactive visualizations for donor-level functional response, cohort filtering, and trait association exploration."
               actionLabel="Launch"
               onAction={() => navigate('/functional-data')}
-              accent="#2563EB"
+              accent="#0E7490"
             />
           </Box>
 
