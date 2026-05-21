@@ -152,7 +152,7 @@ export default function SkillsPage() {
             ) : null}
 
             <SkillCard
-              icon={<SkillLogo SvgIcon={QtlSkillLogo} size={60} color="#0B7DAA" />}
+              icon={<SkillLogo SvgIcon={QtlSkillLogo} size={30} color="#0E7490" />}
               title="QTL Explorer"
               description="Configure gene and SNP-based QTL lookup with guided query setup and proceed to structured PanKgraph QTL results."
               actionLabel="Launch"
@@ -170,7 +170,7 @@ export default function SkillsPage() {
             />
 
             <SkillCard
-              icon={<SkillLogo SvgIcon={FunctionalDataSkillLogo} size={60} color="#2563EB" />}
+              icon={<SkillLogo SvgIcon={FunctionalDataSkillLogo} size={50} color="#0E7490" />}
               title="Functional Data Skill"
               description="Generates interactive visualizations for donor-level functional response, cohort filtering, and trait association exploration."
               actionLabel="Launch"
