@@ -1,0 +1,12 @@
+<svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Gene search icon</title>
+  <desc id="desc">Double-strand DNA with a highlighted gene region.</desc>
+  <path d="M10 28C21 28 25 48 36 48C47 48 51 28 62 28" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+  <path d="M10 48C21 48 25 28 36 28C47 28 51 48 62 48" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+  <path d="M16 31V45" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M24 35V41" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M32 31V45" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M40 31V45" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M48 35V41" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M56 31V45" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,15 @@
+<svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">GWAS Explorer icon</title>
+  <desc id="desc">Manhattan-style GWAS association peaks with a highlighted variant.</desc>
+  <path d="M14 54H59" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+  <path d="M18 49V43" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+  <path d="M24 49V36" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+  <path d="M30 49V40" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+  <path d="M36 49V24" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+  <path d="M42 49V32" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+  <path d="M48 49V38" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+  <path d="M54 49V44" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="36" cy="18" r="6" fill="currentColor"/>
+  <path d="M29 18H18" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+  <path d="M54 18H43" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+</svg>

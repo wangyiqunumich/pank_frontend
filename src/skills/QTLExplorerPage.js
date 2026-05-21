@@ -11,14 +11,11 @@ import { useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import BackupTableIcon from '@mui/icons-material/BackupTable';
-import BiotechOutlinedIcon from '@mui/icons-material/BiotechOutlined';
 import CheckIcon from '@mui/icons-material/Check';
 import ContactSupportOutlinedIcon
   from '@mui/icons-material/ContactSupportOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined';
-import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined';
-import ScatterPlotOutlinedIcon from '@mui/icons-material/ScatterPlotOutlined';
 import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
 import {
   Autocomplete,
@@ -31,6 +28,11 @@ import {
 
 import AgentSidebar from '../components/AgentSidebar';
 import BoxSvg from '../image/Box.svg';
+import {
+  ReactComponent as PairModeLogo,
+} from '../image/new_logos/gene+snp.svg';
+import { ReactComponent as GeneModeLogo } from '../image/new_logos/gene.svg';
+import { ReactComponent as SnpModeLogo } from '../image/new_logos/snp.svg';
 import VectorSvg from '../image/Vector.svg';
 import { queryQueryResult } from '../redux/queryResultSlice';
 import qtlContent from './qtlExplorerContent.json';
@@ -320,7 +322,7 @@ export default function QTLExplorerPage() {
     return modeDefaults.snpOptions || sharedDefaults.snpOptions || [];
   };
 
-  const renderModeIcon = (icon) => (
+  const renderModeIcon = (SvgIcon) => (
     <Box
       sx={{
         width: 24,
@@ -332,14 +334,36 @@ export default function QTLExplorerPage() {
         justifyContent: 'center',
       }}
     >
-      {icon}
+      <Box
+        sx={{
+          width: 24,
+          height: 24,
+          color: '#3A838B',
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          '& svg': {
+            width: '100%',
+            height: '100%',
+            display: 'block',
+          },
+          '& svg *': {
+            stroke: 'currentColor !important',
+          },
+          '& svg circle': {
+            fill: 'currentColor !important',
+          },
+        }}
+      >
+        <SvgIcon />
+      </Box>
     </Box>
   );
 
   const modeIcon = {
-    gene: renderModeIcon(<BiotechOutlinedIcon sx={{ color: '#3A838B', fontSize: 16 }} />),
-    snp: renderModeIcon(<ScatterPlotOutlinedIcon sx={{ color: '#3A838B', fontSize: 16 }} />),
-    pair: renderModeIcon(<LinkOutlinedIcon sx={{ color: '#3A838B', fontSize: 16 }} />),
+    gene: renderModeIcon(GeneModeLogo),
+    snp: renderModeIcon(SnpModeLogo),
+    pair: renderModeIcon(PairModeLogo),
   };
 
   const hasParsedGene = Boolean(parseGeneOption(geneInput));

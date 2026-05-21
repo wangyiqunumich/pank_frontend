@@ -3,9 +3,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import ExtensionOutlinedIcon from '@mui/icons-material/ExtensionOutlined';
-import InsightsOutlinedIcon from '@mui/icons-material/InsightsOutlined';
-import PolylineOutlinedIcon from '@mui/icons-material/PolylineOutlined';
-import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined';
 import {
   Box,
   Button,
@@ -14,6 +11,43 @@ import {
 } from '@mui/material';
 
 import AgentSidebar from '../components/AgentSidebar';
+import {
+  ReactComponent as FunctionalDataSkillLogo,
+} from '../image/new_logos/functional-data-icon.svg';
+import {
+  ReactComponent as GwasSkillLogo,
+} from '../image/new_logos/gwas-explorer-icon.svg';
+import {
+  ReactComponent as QtlSkillLogo,
+} from '../image/new_logos/qtl-explorer-icon.svg';
+
+function SkillLogo({ SvgIcon, size = 30, color = '#0F766E' }) {
+  return (
+    <Box
+      sx={{
+        width: size,
+        height: size,
+        color,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        '& svg': {
+          width: '100%',
+          height: '100%',
+          display: 'block',
+        },
+        '& svg *': {
+          stroke: 'currentColor !important',
+        },
+        '& svg circle': {
+          fill: 'currentColor !important',
+        },
+      }}
+    >
+      <SvgIcon />
+    </Box>
+  );
+}
 
 function SkillCard({ icon, title, description, actionLabel, onAction, accent = '#0F766E', disabled = false }) {
   return (
@@ -118,7 +152,7 @@ export default function SkillsPage() {
             ) : null}
 
             <SkillCard
-              icon={<PolylineOutlinedIcon sx={{ fontSize: 30 }} />}
+              icon={<SkillLogo SvgIcon={QtlSkillLogo} size={60} color="#0B7DAA" />}
               title="QTL Explorer"
               description="Configure gene and SNP-based QTL lookup with guided query setup and proceed to structured PanKgraph QTL results."
               actionLabel="Launch"
@@ -127,7 +161,7 @@ export default function SkillsPage() {
             />
 
             <SkillCard
-              icon={<PublicOutlinedIcon sx={{ fontSize: 30 }} />}
+              icon={<SkillLogo SvgIcon={GwasSkillLogo} size={60} color="#0E7490" />}
               title="GWAS Explorer"
               description="Explore SNP-level GWAS evidence for T1D-focused cohorts and jump to result context in PanKgraph."
               actionLabel="Launch"
@@ -136,7 +170,7 @@ export default function SkillsPage() {
             />
 
             <SkillCard
-              icon={<InsightsOutlinedIcon sx={{ fontSize: 30 }} />}
+              icon={<SkillLogo SvgIcon={FunctionalDataSkillLogo} size={60} color="#2563EB" />}
               title="Functional Data Skill"
               description="Generates interactive visualizations for donor-level functional response, cohort filtering, and trait association exploration."
               actionLabel="Launch"
