@@ -141,7 +141,7 @@ export default function SkillsPage() {
           >
             {showSsgsea ? (
               <SkillCard
-                icon={<ExtensionOutlinedIcon sx={{ fontSize: 30 }} />}
+                icon={<ExtensionOutlinedIcon sx={{ fontSize: 40 }} />}
                 title="SsGSEA"
                 description="Runs single-sample gene set enrichment analysis (ssGSEA) to score pathway activity at the sample or cell level."
                 actionLabel="Launch"
