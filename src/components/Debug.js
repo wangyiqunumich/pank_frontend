@@ -15,6 +15,7 @@ import {
   Typography,
 } from '@mui/material';
 
+import { PLANNER_AGENT_BASE_URL } from '../constants/apiEndpoints';
 import Image from '../image/Pasted Graphic 1.png';
 import { queryQueryResultPage } from '../redux/queryResultPage';
 import sampleLinks from '../schema/sample_links.json';
@@ -112,7 +113,7 @@ export default function DebugPage() {
     const checkPlannerHealth = React.useCallback(async () => {
         setHealthChecking(true);
         try {
-            const response = await fetch('https://jieliulab3.dcmb.med.umich.edu/pankgraph-agent/health');
+            const response = await fetch(`${PLANNER_AGENT_BASE_URL}/health`);
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}`);
             }
