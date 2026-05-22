@@ -27,10 +27,10 @@
   "rightPanel": {
     "aboutTitle": "About Functional Data",
     "aboutInfo": "Background context for what functional data represents and how to interpret this page.",
-    "aboutBody": "HIPP functional data capture physiological responses, such as insulin or glucagon secretion, measured across stimuli or time. This skill visualizes HIPP-generated functional readouts together with PanKgraph-linked donor context.",
+    "aboutBody": "HIPP functional data capture physiological responses, such as insulin or glucagon secretion, measured across stimuli or time. This tool visualizes HIPP-generated functional readouts together with PanKgraph-linked donor context.",
     "importantTitle": "Important",
-    "importantBody": "This skill supports interactive filtering and visualization of HIPP-generated functional data. Formal statistical conclusions should be based on the corresponding HIPP analyses and publication.",
-    "whyUseTitle": "Why use this skill?",
+    "importantBody": "This tool supports interactive filtering and visualization of HIPP-generated functional data. Formal statistical conclusions should be based on the corresponding HIPP analyses and publication.",
+    "whyUseTitle": "Why use this tool?",
     "whyUseItems": [
       "Access HIPP-generated functional readouts",
       "Filter donors and biological contexts interactively",
