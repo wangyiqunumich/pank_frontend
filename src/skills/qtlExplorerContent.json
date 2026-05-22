@@ -134,7 +134,7 @@
       "This tool is designed for exploratory lookup and knowledge discovery.",
       "It checks whether QTL evidence exists in PanKgraph; it does not perform new QTL mapping or causal inference."
     ],
-    "whyTitle": "Why use this skill?",
+    "whyTitle": "Why use this tool?",
     "whyItems": [
       "Search regulatory evidence from either gene or variant direction",
       "Check specific SNP-gene QTL relationships",
