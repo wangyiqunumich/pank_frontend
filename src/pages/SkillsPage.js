@@ -167,7 +167,7 @@ export default function SkillsPage() {
 
             <SkillCard
               icon={<SkillLogo SvgIcon={QtlSkillLogo} size={50} color="#0868d1" />}
-              title="QTL Explorer"
+              title="QTL Explorer Tool"
               description="Configure gene and SNP-based QTL lookup with guided query setup and proceed to structured PanKgraph QTL results."
               actionLabel="Launch"
               onAction={() => navigate('/qtl-explorer')}
@@ -180,7 +180,7 @@ export default function SkillsPage() {
 
             <SkillCard
               icon={<SkillLogo SvgIcon={GwasSkillLogo} size={50} color="#096e1b" />}
-              title="GWAS Explorer"
+              title="GWAS Explorer Tool"
               description="Explore SNP-level GWAS evidence for T1D-focused cohorts and jump to result context in PanKgraph."
               actionLabel="Launch"
               onAction={() => navigate('/gwas-explorer')}
@@ -193,7 +193,7 @@ export default function SkillsPage() {
 
             <SkillCard
               icon={<SkillLogo SvgIcon={FunctionalDataSkillLogo} size={50} color="#4e0f9e" />}
-              title="Functional Data Skill"
+              title="Functional Data Tool"
               description="Generates interactive visualizations for donor-level functional response, cohort filtering, and trait association exploration."
               actionLabel="Launch"
               onAction={() => navigate('/functional-data')}
@@ -208,7 +208,7 @@ export default function SkillsPage() {
           <Box sx={{ mt: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
             <Box sx={{ width: 120, height: 1, bgcolor: '#CBD5E1' }} />
             <Typography sx={{ fontFamily: 'Inter', fontSize: 20, color: '#64748B' }}>
-              More skills coming soon
+              More tools coming soon
             </Typography>
             <Box sx={{ width: 120, height: 1, bgcolor: '#CBD5E1' }} />
           </Box>
