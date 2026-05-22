@@ -174,7 +174,7 @@ export default function SkillsPage() {
               accent="#0868d1"
               iconBg="#EAF3FB"
               iconShadow="0 8px 18px rgba(47, 111, 182, 0.28)"
-              cardBg="#F8F7FD"
+              cardBg="#F6F9FD"
               actionHoverBg="#EAF3FB"
             />
 
