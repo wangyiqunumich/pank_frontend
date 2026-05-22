@@ -38,7 +38,6 @@ import {
   Container,
   Grid,
   Link,
-  Paper,
   Skeleton,
   styled,
   Tooltip,
@@ -78,6 +77,11 @@ import {
   demoGraphData,
 } from './demo_graph_data';
 import SearchResultLoading from './loading';
+import {
+        buildDebugStreamLoadingProgress,
+        computeFirstStepMinimumProgress,
+        getInitialStreamMilestones,
+} from './streamLoadingProgress';
 import sampleSummaryData from './sample.json';
 
 // const tabs = [
@@ -91,93 +95,6 @@ const tabLabels = {
     empirical_evidence: 'Empirical Evidence',
     pankbase_links: 'PanKbase Links',
     external_links: 'External Links'
-};
-
-const DEBUG_STREAM_LOADING_ENTRIES = [
-    {
-        short_title: 'understanding_question',
-        title: 'Understanding Question',
-        steps: ['Parsing intent, entities, and biological context...'],
-    },
-    {
-        short_title: 'selecting_evidence_sources',
-        title: 'Selecting Evidence Sources',
-        steps: ['Choosing relevant PanKgraph data and tools...'],
-    },
-    {
-        short_title: 'retrieving_graph_evidence',
-        title: 'Retrieving Graph Evidence',
-        steps: ['Querying structured KG evidence...'],
-    },
-    {
-        short_title: 'checking_literature_evidence',
-        title: 'Checking Literature Evidence',
-        steps: ['Searching supporting publications...'],
-    },
-];
-
-const getInitialStreamMilestones = () => ({
-    planningDone: false,
-    hirnDone: false,
-    cypherGenerated: false,
-    cypherExecuted: false,
-});
-
-const buildDebugStreamLoadingProgress = (milestones, options = {}) => {
-    const entryStates = DEBUG_STREAM_LOADING_ENTRIES.map(() => ({ step: -1, isFinished: false }));
-
-    if (!milestones.planningDone) {
-        entryStates[0] = { step: 0, isFinished: false };
-    } else {
-        entryStates[0] = { step: 1, isFinished: true };
-        if (!milestones.hirnDone) {
-            entryStates[1] = { step: 0, isFinished: false };
-        } else {
-            entryStates[1] = { step: 1, isFinished: true };
-            if (!milestones.cypherGenerated) {
-                entryStates[2] = { step: 0, isFinished: false };
-            } else {
-                entryStates[2] = { step: 1, isFinished: true };
-                if (!milestones.cypherExecuted) {
-                    entryStates[3] = { step: 0, isFinished: false };
-                } else {
-                    entryStates[3] = { step: 1, isFinished: true };
-                }
-            }
-        }
-    }
-
-    const completedCount = [
-        milestones.planningDone,
-        milestones.hirnDone,
-        milestones.cypherGenerated,
-        milestones.cypherExecuted,
-    ].filter(Boolean).length;
-
-    let shortTitle = DEBUG_STREAM_LOADING_ENTRIES[0].short_title;
-    if (milestones.planningDone && !milestones.hirnDone) {
-        shortTitle = DEBUG_STREAM_LOADING_ENTRIES[1].short_title;
-    } else if (milestones.hirnDone && !milestones.cypherGenerated) {
-        shortTitle = DEBUG_STREAM_LOADING_ENTRIES[2].short_title;
-    } else if (milestones.cypherGenerated && !milestones.cypherExecuted) {
-        shortTitle = DEBUG_STREAM_LOADING_ENTRIES[3].short_title;
-    }
-
-    const baseProgress = (completedCount / DEBUG_STREAM_LOADING_ENTRIES.length) * 100;
-    const minimumProgress = Number(options?.minimumProgress || 0);
-
-    return {
-        title: 'Answering your question...',
-        tip: 'Streaming progress is based on backend events.',
-        cancel: 'Cancel and ask a new question',
-        entries: DEBUG_STREAM_LOADING_ENTRIES,
-        entryStates,
-        shortTitle,
-        progress: Math.max(baseProgress, minimumProgress),
-        useFakeTimer: Boolean(options?.useFakeTimer),
-        responseReady: Boolean(options?.responseReady),
-        timerKey: Number(options?.timerKey || 0),
-    };
 };
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -2840,8 +2757,10 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         }
 
         const elapsedMs = Math.max(0, questionLoadingNow - questionLoadingStartedAt);
-        const ratio = Math.min(elapsedMs / 5000, 1);
-        return ratio * (100 / 6);
+        return computeFirstStepMinimumProgress(elapsedMs, {
+            durationMs: 5200,
+            firstStepWeight: 100 / 6,
+        });
     }, [terminalMode, terminalLoading, terminalPhase, questionLoadingStartedAt, questionLoadingNow, streamMilestones.planningDone]);
 
     const isPlanningPhase = terminalPhase === 'confirm' || hasPendingFollowUpWork;
@@ -4226,6 +4145,8 @@ Please review this plan and provide edits if needed.`,
     }, [anchorPrefix, currentQuestion, chatStartQuestion, question, resolvedPageData, isChatApiMode, followUpBlocks]);
 
     const [activeQuestionJumpAnchor, setActiveQuestionJumpAnchor] = useState('');
+    const [questionJumpMenuOpen, setQuestionJumpMenuOpen] = useState(false);
+    const questionJumpMenuTimersRef = useRef({ open: null, close: null });
 
     useEffect(() => {
         if (questionJumpItems.length <= 1) {
@@ -4245,6 +4166,46 @@ Please review this plan and provide edits if needed.`,
         setActiveQuestionJumpAnchor(anchorId);
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, []);
+
+    const openQuestionJumpMenuWithDelay = useCallback(() => {
+        if (questionJumpMenuTimersRef.current.close) {
+            clearTimeout(questionJumpMenuTimersRef.current.close);
+            questionJumpMenuTimersRef.current.close = null;
+        }
+        if (questionJumpMenuOpen) return;
+        if (!questionJumpMenuTimersRef.current.open) {
+            questionJumpMenuTimersRef.current.open = setTimeout(() => {
+                setQuestionJumpMenuOpen(true);
+                questionJumpMenuTimersRef.current.open = null;
+            }, 140);
+        }
+    }, [questionJumpMenuOpen]);
+
+    const closeQuestionJumpMenuWithDelay = useCallback(() => {
+        if (questionJumpMenuTimersRef.current.open) {
+            clearTimeout(questionJumpMenuTimersRef.current.open);
+            questionJumpMenuTimersRef.current.open = null;
+        }
+        if (!questionJumpMenuOpen) return;
+        if (!questionJumpMenuTimersRef.current.close) {
+            questionJumpMenuTimersRef.current.close = setTimeout(() => {
+                setQuestionJumpMenuOpen(false);
+                questionJumpMenuTimersRef.current.close = null;
+            }, 260);
+        }
+    }, [questionJumpMenuOpen]);
+
+    useEffect(() => {
+        return () => {
+            if (questionJumpMenuTimersRef.current.open) clearTimeout(questionJumpMenuTimersRef.current.open);
+            if (questionJumpMenuTimersRef.current.close) clearTimeout(questionJumpMenuTimersRef.current.close);
+        };
+    }, []);
+
+    const activeQuestionJumpIndex = useMemo(() => {
+        const index = questionJumpItems.findIndex((item) => item.anchorId === activeQuestionJumpAnchor);
+        return index >= 0 ? index : 0;
+    }, [questionJumpItems, activeQuestionJumpAnchor]);
 
     if (agentErrorType) {
         const agentErrorPayload = getAgentErrorPayload(agentErrorType);
@@ -4480,59 +4441,96 @@ Please review this plan and provide edits if needed.`,
             </Box>
 
             {questionJumpItems.length > 1 ? (
-                <Box
-                    sx={{
-                        position: 'fixed',
-                        right: 16,
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        zIndex: 1200,
-                        display: { xs: 'none', xl: 'block' },
-                        maxWidth: 250,
-                    }}
-                >
-                    <Paper
-                        elevation={6}
-                        sx={{
-                            borderRadius: 2,
-                            p: 1,
-                            border: '1px solid #E2E8F0',
-                            bgcolor: '#FFFFFF',
+                <Box sx={{ display: { xs: 'none', xl: 'block' } }}>
+                    <div
+                        onMouseEnter={openQuestionJumpMenuWithDelay}
+                        onMouseLeave={closeQuestionJumpMenuWithDelay}
+                        style={{
+                            position: 'fixed',
+                            top: 290,
+                            right: 24,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            zIndex: 1200,
+                            padding: '18px 12px',
+                            margin: '-18px -12px',
                         }}
                     >
-                        <Typography sx={{ px: 1, py: 0.5, color: '#0F172A', fontSize: 11.5, fontWeight: 700 }}>
-                            Question Jump
-                        </Typography>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.5 }}>
+                        {questionJumpItems.map((item, idx) => {
+                            const isActive = activeQuestionJumpIndex === idx;
+                            const gap = idx === questionJumpItems.length - 1 ? 0 : 14;
+
+                            return (
+                                <div
+                                    key={item.anchorId}
+                                    style={{
+                                        width: 16,
+                                        height: 3,
+                                        borderRadius: 1.5,
+                                        backgroundColor: isActive ? '#0F766E' : '#D9D9D9',
+                                        marginBottom: gap,
+                                        transition: 'background-color 0.2s ease',
+                                    }}
+                                />
+                            );
+                        })}
+                    </div>
+
+                    <div
+                        onMouseEnter={openQuestionJumpMenuWithDelay}
+                        onMouseLeave={closeQuestionJumpMenuWithDelay}
+                        style={{
+                            position: 'fixed',
+                            top: 240,
+                            right: 56,
+                            backgroundColor: '#fff',
+                            border: '1px solid #ddd',
+                            borderRadius: 12,
+                            padding: '16px',
+                            boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
+                            zIndex: 1200,
+                            minWidth: 220,
+                            maxWidth: 265,
+                            transform: questionJumpMenuOpen ? 'translateX(0)' : 'translateX(110%)',
+                            opacity: questionJumpMenuOpen ? 1 : 0,
+                            pointerEvents: questionJumpMenuOpen ? 'auto' : 'none',
+                            transition: 'transform 0.25s ease, opacity 0.2s ease',
+                        }}
+                    >
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                             {questionJumpItems.map((item, idx) => {
-                                const isActive = item.anchorId === activeQuestionJumpAnchor;
+                                const isActive = activeQuestionJumpIndex === idx;
                                 return (
-                                    <Button
+                                    <button
                                         key={item.anchorId}
-                                        variant={isActive ? 'contained' : 'text'}
                                         onClick={() => handleQuestionJump(item.anchorId)}
-                                        sx={{
-                                            justifyContent: 'flex-start',
-                                            textTransform: 'none',
-                                            minHeight: 34,
-                                            px: 1,
-                                            py: 0.5,
-                                            borderRadius: 1,
-                                            fontSize: 12,
+                                        style={{
+                                            width: '100%',
+                                            borderRadius: 8,
+                                            border: '1px solid transparent',
+                                            backgroundColor: isActive ? 'rgba(20, 184, 166, 0.2)' : 'transparent',
+                                            cursor: 'pointer',
                                             fontWeight: 600,
-                                            color: isActive ? '#FFFFFF' : '#334155',
-                                            bgcolor: isActive ? '#0F766E' : 'transparent',
-                                            '&:hover': {
-                                                bgcolor: isActive ? '#0D665F' : '#F1F5F9',
-                                            },
+                                            color: isActive ? '#3A838B' : '#818181',
+                                            fontSize: 14,
+                                            fontFamily: 'Open Sans, sans-serif',
+                                            textAlign: 'left',
+                                            padding: '6px 10px',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            transition: 'background-color 0.2s ease, color 0.2s ease',
                                         }}
+                                        title={`Q${idx + 1} ${item.label}`}
                                     >
-                                        {`Q${idx + 1}. ${item.label}`}
-                                    </Button>
+                                        <span style={{ fontSize: 14, fontWeight: 700, marginRight: 6 }}>{`Q${idx + 1}`}</span>
+                                        <span style={{ fontSize: 14, fontWeight: isActive ? 700 : 600 }}>{item.label}</span>
+                                    </button>
                                 );
                             })}
-                        </Box>
-                    </Paper>
+                        </div>
+                    </div>
                 </Box>
             ) : null}
         </>

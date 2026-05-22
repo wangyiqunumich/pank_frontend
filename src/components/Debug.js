@@ -22,6 +22,11 @@ import sampleLinks from '../schema/sample_links.json';
 import { GenomeBrowserEmbed } from '../SearchResult/AgentResult';
 import SearchResultLoading from '../SearchResult/loading';
 import {
+    buildDebugStreamLoadingProgress,
+    computeFirstStepMinimumProgress,
+    getInitialStreamMilestones,
+} from '../SearchResult/streamLoadingProgress';
+import {
   clearConversationContentKeepIds,
   clearConversationStorage,
   exportConversationStorageSnapshot,
@@ -100,7 +105,7 @@ export default function DebugPage() {
     const [coordData, setCoordData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const [igvVisible, setIgvVisible] = useState(true);
+    const [igvVisible, setIgvVisible] = useState(false);
     const [plannerHealth, setPlannerHealth] = useState({
         status: 'checking',
         label: 'Checking PlannerAgent API...',
@@ -108,7 +113,48 @@ export default function DebugPage() {
     });
     const [healthChecking, setHealthChecking] = useState(false);
     const [historyActionMessage, setHistoryActionMessage] = useState('');
+    const [demoLoadingStartedAt, setDemoLoadingStartedAt] = useState(Date.now());
+    const [demoLoadingNow, setDemoLoadingNow] = useState(Date.now());
     const dispatch = useDispatch();
+
+    const debugLoadingMilestones = React.useMemo(() => getInitialStreamMilestones(), []);
+
+    useEffect(() => {
+        if (!loadingOpen) {
+            return;
+        }
+        setDemoLoadingNow(Date.now());
+        const timerId = setInterval(() => {
+            setDemoLoadingNow(Date.now());
+        }, 120);
+
+        return () => clearInterval(timerId);
+    }, [loadingOpen]);
+
+    const debugLoadingProgress = React.useMemo(() => {
+        const elapsedMs = Math.max(0, demoLoadingNow - demoLoadingStartedAt);
+        const minimumProgress = computeFirstStepMinimumProgress(elapsedMs, {
+            durationMs: 5200,
+            firstStepWeight: 100 / 6,
+        });
+        return buildDebugStreamLoadingProgress(debugLoadingMilestones, {
+            minimumProgress,
+            useFakeTimer: true,
+            responseReady: false,
+            timerKey: demoLoadingStartedAt,
+        });
+    }, [debugLoadingMilestones, demoLoadingNow, demoLoadingStartedAt]);
+
+    const closeLoadingDemo = React.useCallback(() => {
+        setLoadingOpen(false);
+    }, []);
+
+    const reopenLoadingDemo = React.useCallback(() => {
+        const now = Date.now();
+        setDemoLoadingStartedAt(now);
+        setDemoLoadingNow(now);
+        setLoadingOpen(true);
+    }, []);
 
     const checkPlannerHealth = React.useCallback(async () => {
         setHealthChecking(true);
@@ -396,6 +442,14 @@ export default function DebugPage() {
                     >
                         Export Cached History
                     </Button>
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={reopenLoadingDemo}
+                        sx={{ textTransform: 'none' }}
+                    >
+                        Replay Loading Demo
+                    </Button>
                     {plannerHealth.detail ? (
                         <Typography sx={{ fontSize: 12, color: '#64748B' }}>
                             {plannerHealth.detail}
@@ -426,47 +480,54 @@ export default function DebugPage() {
                     />}
                 </Box>
             </div>
-            <SearchResultLoading open={loadingOpen} onClose={() => setLoadingOpen(false)} />
-            <div style={{ padding: '20px', width: '100%' }}>
-                <h2>IGV.js Genome Browser - Full Width Demo</h2>
-                <Box sx={{ width: '100%', height: '800px', border: '1px solid #ccc', backgroundColor: '#fafafa' }}>
-                    <GenomeBrowserEmbed
-                        locus="chr6:53,510,000-53,530,000"
-                        isVisible={igvVisible}
-                        height={800}
-                        compact
-                        tracks={[
-                            // {
-                            //     name: "Phase 3 WGS variants",
-                            //     type: "variant",
-                            //     format: "vcf",
-                            //     url: "https://s3.amazonaws.com/1000genomes/release/20130502/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.vcf.gz",
-                            //     indexURL: "https://s3.amazonaws.com/1000genomes/release/20130502/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.vcf.gz.tbi",
-                            // },
-                            // {
-                            //     type: "alignment",
-                            //     format: "bam",
-                            //     name: "HG00096",
-                            //     url: "https://s3.amazonaws.com/1000genomes/phase3/data/HG00096/exome_alignment/HG00096.mapped.ILLUMINA.bwa.GBR.exome.20120522.bam",
-                            //     indexURL: "https://s3.amazonaws.com/1000genomes/phase3/data/HG00096/exome_alignment/HG00096.mapped.ILLUMINA.bwa.GBR.exome.20120522.bam.bai",
-                            //     height: 400,
-                            // },
-                            {
-                                name: "credibleSet1",
-                                type: "qtl",
-                                format: "qtl",
-                                url: "https://pank-s3-to-share.s3.us-east-1.amazonaws.com/genome-browser/ENSG00000001084__GCLC__ENSG00000001084.6_53373974_53375246__credibleSet1.qtl.tsv",
-                                chrColumn: 1,
-                                posColumn: 2,
-                                snpColumn: 3,
-                                pValueColumn: 4,
-                                phenotypeColumn: 5,
-                                height: 164
-                            }
-                        ]}
-                    />
-                </Box>
-            </div>
+            {loadingOpen ? (
+                <SearchResultLoading
+                    streamProgress={debugLoadingProgress}
+                    handleClose={closeLoadingDemo}
+                />
+            ) : null}
+            {igvVisible ? (
+                <div style={{ padding: '20px', width: '100%' }}>
+                    <h2>IGV.js Genome Browser - Full Width Demo</h2>
+                    <Box sx={{ width: '100%', height: '800px', border: '1px solid #ccc', backgroundColor: '#fafafa' }}>
+                        <GenomeBrowserEmbed
+                            locus="chr6:53,510,000-53,530,000"
+                            isVisible={igvVisible}
+                            height={800}
+                            compact
+                            tracks={[
+                                // {
+                                //     name: "Phase 3 WGS variants",
+                                //     type: "variant",
+                                //     format: "vcf",
+                                //     url: "https://s3.amazonaws.com/1000genomes/release/20130502/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.vcf.gz",
+                                //     indexURL: "https://s3.amazonaws.com/1000genomes/release/20130502/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.vcf.gz.tbi",
+                                // },
+                                // {
+                                //     type: "alignment",
+                                //     format: "bam",
+                                //     name: "HG00096",
+                                //     url: "https://s3.amazonaws.com/1000genomes/phase3/data/HG00096/exome_alignment/HG00096.mapped.ILLUMINA.bwa.GBR.exome.20120522.bam",
+                                //     indexURL: "https://s3.amazonaws.com/1000genomes/phase3/data/HG00096/exome_alignment/HG00096.mapped.ILLUMINA.bwa.GBR.exome.20120522.bam.bai",
+                                //     height: 400,
+                                // },
+                                {
+                                    name: "credibleSet1",
+                                    type: "qtl",
+                                    format: "qtl",
+                                    url: "https://pank-s3-to-share.s3.us-east-1.amazonaws.com/genome-browser/ENSG00000001084__GCLC__ENSG00000001084.6_53373974_53375246__credibleSet1.qtl.tsv",
+                                    chrColumn: 1,
+                                    posColumn: 2,
+                                    snpColumn: 3,
+                                    pValueColumn: 4,
+                                    phenotypeColumn: 5,
+                                    height: 164
+                                }
+                            ]}
+                        />
+                    </Box>
+                </div>
+            ) : null}
             <div style={{ padding: '20px', width: '1440px' }}>
                 <h1>Links for Debug Quick Redirect</h1>
                 {

@@ -76,15 +76,5 @@ ${FUNCTIONAL_CORE_RULES}
 
 API:
 GET https://functional.pankgraph.org/api/charts/cohort-traces?${queryString}
-
-// Actual API call placeholder for coder:
-// const response = await fetch("https://functional.pankgraph.org/api/charts/cohort-traces?${queryString}");
-// const currentData = await response.json();
-
-Current data summary:
-${JSON.stringify(summary, null, 2)}
-
-Current data:
-${JSON.stringify(currentData, null, 2)}
 `.trim();
 }
