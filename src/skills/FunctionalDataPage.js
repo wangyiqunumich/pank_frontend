@@ -622,7 +622,7 @@ export default function FunctionalDataPage() {
                         <Box component="img" src={BoxSvg} alt="Box" sx={{ width: 16, height: 16 }} />
                       </Box>
                       <Typography sx={{ fontFamily: 'Inter', fontWeight: '500 !important', fontSize: 20, color: '#0F172A' }}>
-                        HIPP Functional Data Skill
+                        HIPP Functional Data Tool
                       </Typography>
                       <Box sx={{ px: 1, py: 0.15, borderRadius: '999px', bgcolor: '#F1F5F9', color: '#64748B', fontFamily: 'Inter', fontSize: 10, fontWeight: 400, height: 22, display: 'inline-flex', alignItems: 'center' }}>
                         v1.0

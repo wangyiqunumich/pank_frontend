@@ -139,7 +139,7 @@ export default function SkillsPage() {
       <Box sx={{ flex: 1, px: { xs: 2.5, md: 6, lg: 8 }, py: { xs: 3, md: 6 } }}>
         <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
           <Typography sx={{ fontFamily: 'Inter', fontWeight: 800, fontSize: { xs: 32, md: 40 }, color: '#111827' }}>
-            Skills
+            Tools
           </Typography>
           <Typography sx={{ mt: 1, fontFamily: 'Inter', fontSize: 19, color: '#475569' }}>
             Specialized tools for focused analysis on PanKgraph.

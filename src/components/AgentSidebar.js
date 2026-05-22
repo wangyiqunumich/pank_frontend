@@ -245,7 +245,7 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
             active={activeNav === 'skills'}
             open={open}
             icon={<AssignmentIcon />}
-            label="Skills"
+            label="Tools"
             onClick={() => navigate('/skills')}
           />
           {open && (
