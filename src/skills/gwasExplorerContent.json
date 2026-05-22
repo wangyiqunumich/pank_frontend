@@ -62,7 +62,7 @@
       "This tool is for exploratory lookup and knowledge discovery.",
       "It does not perform statistical analysis or fine-mapping."
     ],
-    "whyTitle": "Why use this skill?",
+    "whyTitle": "Why use this tool?",
     "whyItems": [
       "Instantly check SNPs in PanKgraph GWAS datasets",
       "Explore trait associations and study context",
