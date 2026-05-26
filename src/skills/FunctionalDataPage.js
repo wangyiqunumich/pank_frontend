@@ -10,7 +10,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import BiotechIcon from '@mui/icons-material/Biotech';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
@@ -75,21 +75,39 @@ const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
 
 function AgentBtn({ disabled = false, onClick }) {
   return (
-    <Button
-      size="small"
-      aria-label="Agent"
-      disabled={disabled}
-      onClick={onClick}
-      sx={{
-        minWidth: 0,
-        color: disabled ? '#94A3B8' : '#0F766E', px: 0.75, py: 0.25,
-        border: '1px solid', borderColor: disabled ? '#E2E8F0' : '#CCFBF1',
-        borderRadius: '6px', bgcolor: disabled ? '#F8FAFC' : '#F0FDFA',
-        '&:hover': { bgcolor: disabled ? '#F8FAFC' : '#CCFBF1' },
-      }}
+    <Tooltip
+      title="Send the current plot and selected cohort filters to the AI agent for interpretation."
+      arrow
     >
-      <AutoGraphIcon sx={{ fontSize: 14 }} />
-    </Button>
+      <span>
+        <Button
+          size="small"
+          disabled={disabled}
+          onClick={onClick}
+          startIcon={!disabled ? <AutoAwesomeIcon sx={{ fontSize: 14 }} /> : undefined}
+          sx={{
+            textTransform: 'none',
+            fontFamily: 'Inter',
+            fontSize: 12,
+            fontWeight: 600,
+            minHeight: 30,
+            minWidth: disabled ? 30 : 0,
+            px: disabled ? 0.75 : 1.2,
+            borderRadius: '10px',
+            border: '1px solid',
+            color: disabled ? '#94A3B8' : '#0F766E',
+            bgcolor: disabled ? '#F8FAFC' : '#E6F7F3',
+            borderColor: disabled ? '#E2E8F0' : '#B7E4DA',
+            '&:hover': {
+              bgcolor: disabled ? '#F8FAFC' : '#D1F0E8',
+              borderColor: disabled ? '#E2E8F0' : '#7CCDBE',
+            },
+          }}
+        >
+          {disabled ? <AutoAwesomeIcon sx={{ fontSize: 14 }} /> : 'Interpret plot with AI'}
+        </Button>
+      </span>
+    </Tooltip>
   );
 }
 
@@ -110,10 +128,7 @@ function StepCard({ step, title, titleInfo, subtitle, subtitleInfo, showAgent, a
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
           {extra}
           {showAgent && (
-            <>
-              <AgentBtn disabled={agentDisabled} onClick={onAgentClick} />
-              <ChatBubbleOutlineIcon sx={{ fontSize: 15, color: '#94A3B8' }} />
-            </>
+            <AgentBtn disabled={agentDisabled} onClick={onAgentClick} />
           )}
         </Box>
       </Box>
