@@ -904,7 +904,7 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                             sx={{
                                                 border: isFullBleed ? 'none' : '1px solid #E6EAF2',
                                                 borderRadius: isFullBleed ? 0 : 3,
-                                                height: isSingleColumn ? visualPanelHeight : '100%',
+                                                height: isSingleColumn ? visualPanelHeight : 'calc(100% - 35.1px)',
                                                 width: '100%',
                                                 bgcolor: isFullBleed ? 'transparent' : '#F9FAFB',
                                                 display: isActive ? 'flex' : 'none',
@@ -939,7 +939,7 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                     sx={{
                                         border: '1px solid #E6EAF2',
                                         borderRadius: 3,
-                                        height: isSingleColumn ? visualPanelHeight : '100%',
+                                        height: isSingleColumn ? visualPanelHeight : 'calc(100% - 35.1px)',
                                         width: '100%',
                                         bgcolor: '#F9FAFB',
                                         display: 'flex',

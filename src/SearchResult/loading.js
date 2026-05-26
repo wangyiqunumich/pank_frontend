@@ -160,6 +160,7 @@ export default function SearchResultLoading({ open, handleClose, streamProgress,
     const resolvedTip = streamProgress?.tip || texts.tip;
     const resolvedCancel = streamProgress?.cancel || texts.cancel;
     const fakeTimerMode = Boolean(streamProgress?.useFakeTimer);
+    const keepLastStepInProgress = Boolean(streamProgress?.keepLastStepInProgress);
     const responseReady = Boolean(streamProgress?.responseReady);
     const fakeTimerKey = Number(streamProgress?.timerKey || 0);
     const isControlled = Boolean(streamProgress);
@@ -326,7 +327,13 @@ export default function SearchResultLoading({ open, handleClose, streamProgress,
             const nextStatesSnapshot = [...prevStates];
             const current = { ...nextStatesSnapshot[activeIndex] };
             current.step += 1;
-            current.isFinished = current.step >= resolvedEntries[activeIndex].steps.length;
+            const isLastEntry = activeIndex === (resolvedEntries.length - 1);
+            if (keepLastStepInProgress && isLastEntry) {
+                current.step = Math.min(current.step, resolvedEntries[activeIndex].steps.length - 1);
+                current.isFinished = false;
+            } else {
+                current.isFinished = current.step >= resolvedEntries[activeIndex].steps.length;
+            }
             nextStatesSnapshot[activeIndex] = current;
 
             if (current.isFinished && activeIndex + 1 < nextStatesSnapshot.length) {
@@ -345,9 +352,19 @@ export default function SearchResultLoading({ open, handleClose, streamProgress,
             setFakeProgress(exactProgress);
             fakeLastRenderedProgressRef.current = exactProgress;
 
+            if (keepLastStepInProgress && isLastEntry) {
+                setFakeProgress(STREAM_PRE_COMPLETE_CAP_PERCENT);
+                fakeLastRenderedProgressRef.current = STREAM_PRE_COMPLETE_CAP_PERCENT;
+                stopFakeSchedulers();
+                if (responseReadyRef.current) {
+                    notifyFakeDone();
+                }
+                return;
+            }
+
             beginNextFakeStep(nextStatesSnapshot);
         }, delayMs);
-    }, [getCompletedEntryCount, getFakeDelayMs, notifyFakeDone, resolvedEntries, startStepAnimation, stopFakeSchedulers]);
+    }, [getCompletedEntryCount, getFakeDelayMs, keepLastStepInProgress, notifyFakeDone, resolvedEntries, startStepAnimation, stopFakeSchedulers]);
 
     useEffect(() => {
         if (!fakeTimerMode) {
@@ -380,13 +397,28 @@ export default function SearchResultLoading({ open, handleClose, streamProgress,
             return;
         }
 
+        if (keepLastStepInProgress) {
+            const lastIndex = Math.max(0, resolvedEntries.length - 1);
+            const completedBeforeLast = fakeEntryStatesRef.current
+                .slice(0, lastIndex)
+                .every((state) => state?.isFinished);
+            const lastState = fakeEntryStatesRef.current[lastIndex];
+            const lastStepActive = Boolean(lastState && !lastState.isFinished && lastState.step >= 0);
+
+            if (completedBeforeLast && lastStepActive) {
+                notifyFakeDone();
+                stopFakeSchedulers();
+            }
+            return;
+        }
+
         const allFinished = fakeEntryStatesRef.current.every((state) => state?.isFinished);
         if (!allFinished || fakeFinalizeTriggeredRef.current) {
             return;
         }
 
         beginNextFakeStep(fakeEntryStatesRef.current, 650);
-    }, [fakeTimerMode, responseReady, beginNextFakeStep]);
+    }, [fakeTimerMode, responseReady, beginNextFakeStep, keepLastStepInProgress, notifyFakeDone, resolvedEntries, stopFakeSchedulers]);
 
     const effectiveEntryStates = fakeTimerMode ? fakeEntryStates : displayedEntryStates;
     const effectiveProgress = fakeTimerMode ? fakeProgress : displayedProgress;
