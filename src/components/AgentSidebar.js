@@ -10,7 +10,7 @@ import {
 } from 'react-router-dom';
 
 import AddIcon from '@mui/icons-material/Add';
-import AssignmentIcon from '@mui/icons-material/Assignment';
+import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import PersonOutlineOutlinedIcon
   from '@mui/icons-material/PersonOutlineOutlined';
@@ -244,7 +244,7 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
           <SidebarButton
             active={activeNav === 'skills'}
             open={open}
-            icon={<AssignmentIcon />}
+            icon={<AssignmentOutlinedIcon />}
             label="Tools"
             onClick={() => navigate('/skills')}
           />

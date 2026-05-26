@@ -37,6 +37,7 @@ export const getInitialStreamMilestones = () => ({
 
 export const buildDebugStreamLoadingProgress = (milestones, options = {}) => {
     const entryStates = DEBUG_STREAM_LOADING_ENTRIES.map(() => ({ step: -1, isFinished: false }));
+    const keepFourthStepInProgress = true;
 
     if (!milestones.planningDone) {
         entryStates[0] = { step: 0, isFinished: false };
@@ -50,7 +51,7 @@ export const buildDebugStreamLoadingProgress = (milestones, options = {}) => {
                 entryStates[2] = { step: 0, isFinished: false };
             } else {
                 entryStates[2] = { step: 1, isFinished: true };
-                if (!milestones.cypherExecuted) {
+                if (keepFourthStepInProgress || !milestones.cypherExecuted) {
                     entryStates[3] = { step: 0, isFinished: false };
                 } else {
                     entryStates[3] = { step: 1, isFinished: true };
@@ -63,7 +64,6 @@ export const buildDebugStreamLoadingProgress = (milestones, options = {}) => {
         milestones.planningDone,
         milestones.hirnDone,
         milestones.cypherGenerated,
-        milestones.cypherExecuted,
     ].filter(Boolean).length;
 
     let shortTitle = DEBUG_STREAM_LOADING_ENTRIES[0].short_title;
@@ -71,7 +71,7 @@ export const buildDebugStreamLoadingProgress = (milestones, options = {}) => {
         shortTitle = DEBUG_STREAM_LOADING_ENTRIES[1].short_title;
     } else if (milestones.hirnDone && !milestones.cypherGenerated) {
         shortTitle = DEBUG_STREAM_LOADING_ENTRIES[2].short_title;
-    } else if (milestones.cypherGenerated && !milestones.cypherExecuted) {
+    } else if (milestones.cypherGenerated) {
         shortTitle = DEBUG_STREAM_LOADING_ENTRIES[3].short_title;
     }
 
@@ -87,6 +87,7 @@ export const buildDebugStreamLoadingProgress = (milestones, options = {}) => {
         shortTitle,
         progress: Math.min(STREAM_PRE_COMPLETE_CAP_PERCENT, Math.max(baseProgress, minimumProgress)),
         useFakeTimer: Boolean(options?.useFakeTimer),
+        keepLastStepInProgress: true,
         responseReady: Boolean(options?.responseReady),
         timerKey: Number(options?.timerKey || 0),
     };

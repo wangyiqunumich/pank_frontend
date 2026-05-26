@@ -77,6 +77,7 @@ import {
   demoGraphData,
 } from './demo_graph_data';
 import SearchResultLoading from './loading';
+import { MOCK_PLAN_NEW_QUERY_PENDING } from './mockPlanPayload';
 import sampleSummaryData from './sample.json';
 import {
   buildDebugStreamLoadingProgress,
@@ -110,6 +111,18 @@ const isGetPrefixedQuery = (rawValue) => /^\s*GET\b/i.test(String(rawValue || ''
 const normalizeFunctionalDataRequestPath = (rawValue) => {
     const source = String(rawValue || '').trim().replace(/^['"`]|['"`]$/g, '');
     if (!source) return '';
+
+    // Accept absolute URL form directly from plan_json.functional_data_api.url.
+    if (/^https?:\/\//i.test(source)) {
+        try {
+            const parsed = new URL(source);
+            const target = `${parsed.pathname}${parsed.search || ''}`;
+            if (target.startsWith('/api/charts/cohort-traces')) return target;
+            return '';
+        } catch (err) {
+            return '';
+        }
+    }
 
     // Accept only cohort-traces API paths (e.g. "/api/charts/cohort-traces?..." )
     if (source.startsWith('/api/')) {
@@ -146,10 +159,85 @@ const extractFunctionalDataRequestPath = (cypherQueries) => {
 
     for (const query of cypherQueries) {
         const path = normalizeFunctionalDataRequestPath(query);
-        if (path) return path;
+        if (path) {
+            const mappedPath = path.includes('/api/charts/cohort-traces.png')
+                ? path
+                : path.replace('/api/charts/cohort-traces', '/api/charts/cohort-traces.png');
+            const [pathPart, queryPart = ''] = mappedPath.split('?');
+            const queryParams = new URLSearchParams(queryPart);
+            queryParams.set('result_page', 'Yes');
+            const nextQuery = queryParams.toString();
+            return `${pathPart}${nextQuery ? `?${nextQuery}` : ''}`;
+        }
     }
 
     return '';
+};
+
+const extractFunctionalDataRequestPathFromPlanJson = (planJson) => {
+    const steps = Array.isArray(planJson?.steps) ? planJson.steps : [];
+    for (const step of steps) {
+        const functionalApi = step?.functional_data_api || {};
+        const directUrlPath = normalizeFunctionalDataRequestPath(functionalApi?.url || '');
+        if (directUrlPath) {
+            const mappedPath = directUrlPath.includes('/api/charts/cohort-traces.png')
+                ? directUrlPath
+                : directUrlPath.replace('/api/charts/cohort-traces', '/api/charts/cohort-traces.png');
+            const [pathPart, queryPart = ''] = mappedPath.split('?');
+            const queryParams = new URLSearchParams(queryPart);
+            queryParams.set('result_page', 'Yes');
+            const nextQuery = queryParams.toString();
+            return `${pathPart}${nextQuery ? `?${nextQuery}` : ''}`;
+        }
+
+        const endpoint = String(functionalApi?.endpoint || '').trim();
+        const normalizedEndpoint = normalizeFunctionalDataRequestPath(endpoint)
+            || normalizeFunctionalDataRequestPath(endpoint ? `/${endpoint.replace(/^\/+/, '')}` : '');
+        if (normalizedEndpoint) {
+            const [endpointPath, endpointQuery = ''] = normalizedEndpoint.split('?');
+            const endpointParams = new URLSearchParams(endpointQuery);
+            const params = functionalApi?.params && typeof functionalApi.params === 'object'
+                ? new URLSearchParams(
+                    Object.entries(functionalApi.params)
+                        .filter(([, value]) => value !== null && value !== undefined && value !== '')
+                        .map(([key, value]) => [key, String(value)])
+                )
+                : null;
+            if (params) {
+                params.forEach((value, key) => {
+                    if (!endpointParams.has(key)) {
+                        endpointParams.set(key, value);
+                    }
+                });
+            }
+            const basePath = endpointPath.includes('/api/charts/cohort-traces.png')
+                ? endpointPath
+                : endpointPath.replace('/api/charts/cohort-traces', '/api/charts/cohort-traces.png');
+            endpointParams.set('result_page', 'Yes');
+            const nextQuery = endpointParams.toString();
+            return `${basePath}${nextQuery ? `?${nextQuery}` : ''}`;
+        }
+    }
+    return '';
+};
+
+const buildFunctionalChartImageUrl = (requestPath) => {
+    const normalizedRequestPath = normalizeFunctionalDataRequestPath(String(requestPath || '').trim());
+    if (!normalizedRequestPath) return '';
+
+    const mappedPath = normalizedRequestPath.includes('/api/charts/cohort-traces.png')
+        ? normalizedRequestPath
+        : normalizedRequestPath.replace('/api/charts/cohort-traces', '/api/charts/cohort-traces.png');
+    const [pathPart, queryPart = ''] = mappedPath.split('?');
+    const queryParams = new URLSearchParams(queryPart);
+    queryParams.set('result_page', 'Yes');
+    const nextQuery = queryParams.toString();
+    return `${FUNCTIONAL_DATA_BASE_URL}${pathPart}${nextQuery ? `?${nextQuery}` : ''}`;
+};
+
+const resolvePlanJson = (payload) => {
+    const planJson = payload?.plan_json;
+    return planJson && typeof planJson === 'object' ? planJson : {};
 };
 
 const stripFunctionalDataRequestsFromCypher = (cypherQueries) => {
@@ -358,7 +446,7 @@ const NoGraphData = () => (
     </Box>
 );
 
-const FunctionalDataChartPanel = ({ requestPath = '' }) => {
+const FunctionalDataChartPanel = ({ requestPath = '', compact = false }) => {
     const [loaded, setLoaded] = useState(false);
     const [errored, setErrored] = useState(false);
     const imageRef = useRef(null);
@@ -368,17 +456,7 @@ const FunctionalDataChartPanel = ({ requestPath = '' }) => {
         return normalizeFunctionalDataRequestPath(normalized);
     }, [requestPath]);
 
-    const imageUrl = React.useMemo(() => {
-        if (!normalizedRequestPath) return '';
-        const mappedPath = normalizedRequestPath.includes('/api/charts/cohort-traces.png')
-            ? normalizedRequestPath
-            : normalizedRequestPath.replace('/api/charts/cohort-traces', '/api/charts/cohort-traces.png');
-        const [pathPart, queryPart = ''] = mappedPath.split('?');
-        const queryParams = new URLSearchParams(queryPart);
-        queryParams.set('result_page', 'Yes');
-        const nextQuery = queryParams.toString();
-        return `${FUNCTIONAL_DATA_BASE_URL}${pathPart}${nextQuery ? `?${nextQuery}` : ''}`;
-    }, [normalizedRequestPath]);
+    const imageUrl = React.useMemo(() => buildFunctionalChartImageUrl(normalizedRequestPath), [normalizedRequestPath]);
 
     React.useEffect(() => {
         setLoaded(false);
@@ -429,6 +507,7 @@ const FunctionalDataChartPanel = ({ requestPath = '' }) => {
                 sx={{
                     width: '100%',
                     height: '100%',
+                    maxHeight: compact ? '88%' : '100%',
                     objectFit: 'contain',
                     display: errored ? 'none' : 'block',
                     opacity: loaded ? 1 : 0.01,
@@ -468,6 +547,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const chatSessionIdFromUrl = React.useMemo(() => searchParams.get('session_id') || '', [searchParams]);
     const pendingPlanSessionIdFromUrl = React.useMemo(() => searchParams.get('pending_plan_session_id') || '', [searchParams]);
     const chatRouteFromUrl = React.useMemo(() => searchParams.get('route') || '', [searchParams]);
+    const mockPlanMode = React.useMemo(() => searchParams.get('mock_plan') === 'true', [searchParams]);
     const functionalAutoPromptRef = React.useRef(searchParams.get('prompt_source') === 'functional_data_auto');
 
     const { viewSchema } = useSelector((state) => state.viewSchema);
@@ -543,6 +623,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const followUpUnmountedRef = useRef(false);
     const planSummaryRef = useRef('');
     const aiAnswerRef = useRef('');
+    const planFunctionalImagePreloadRef = useRef('');
     const planInactivityTimerRef = useRef(null);
     const planLoadingUiDoneRef = useRef(false);
     const planLoadingUiResolverRef = useRef(null);
@@ -564,6 +645,22 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     useEffect(() => {
         aiAnswerRef.current = aiAnswer || '';
     }, [aiAnswer]);
+
+    useEffect(() => {
+        const shouldPreloadFunctionalImage = terminalMode && terminalPhase === 'confirm';
+        if (!shouldPreloadFunctionalImage || !functionalDataRequestPath) {
+            return;
+        }
+
+        const imageUrl = buildFunctionalChartImageUrl(functionalDataRequestPath);
+        if (!imageUrl || planFunctionalImagePreloadRef.current === imageUrl) {
+            return;
+        }
+
+        planFunctionalImagePreloadRef.current = imageUrl;
+        const preloader = new Image();
+        preloader.src = imageUrl;
+    }, [terminalMode, terminalPhase, functionalDataRequestPath]);
 
     useEffect(() => {
         followUpUnmountedRef.current = false;
@@ -862,15 +959,19 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 content: <FunctionalDataChartPanel requestPath={block.functionalDataRequestPath} />,
             }
             : null;
-        const followUpVisualTabs = (isAgentResultRoute && followUpFunctionalTab)
-            ? [
-                followUpFunctionalTab,
-                { label: 'Knowledge Graph', content: followUpKnowledgeGraphContent },
-            ]
-            : [
-                { label: 'Knowledge Graph', content: followUpKnowledgeGraphContent },
-                ...(followUpFunctionalTab ? [followUpFunctionalTab] : []),
-            ];
+        const shouldShowFollowUpKnowledgeGraphTab = Boolean(block?.graphData || block?.graphLoading || !block?.noGraph);
+        const followUpVisualTabs = (() => {
+            const knowledgeGraphTab = { label: 'Knowledge Graph', content: followUpKnowledgeGraphContent };
+            if (!followUpFunctionalTab) {
+                return [knowledgeGraphTab];
+            }
+            if (!shouldShowFollowUpKnowledgeGraphTab) {
+                return [followUpFunctionalTab];
+            }
+            return isAgentResultRoute
+                ? [followUpFunctionalTab, knowledgeGraphTab]
+                : [knowledgeGraphTab, followUpFunctionalTab];
+        })();
 
         return {
             questionId: `Q${index + 2}`,
@@ -1055,7 +1156,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             ...(Array.isArray(payload?.cypherQueries) ? payload.cypherQueries : []),
         ];
 
-        const planCypherQueries = extractPlanCypherQueries(payload?.plan_json || {});
+        const planCypherQueries = extractPlanCypherQueries(resolvePlanJson(payload));
         const merged = [...answerCypherQueries, ...topLevelCypherQueries, ...planCypherQueries]
             .filter((query) => typeof query === 'string');
 
@@ -1309,11 +1410,13 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             return;
         }
         const decodedQuestion = base64ToUtf8(searchParams?.get('question'));
-        setQuestion(decodedQuestion);
+        const fallbackMockQuestion = MOCK_PLAN_NEW_QUERY_PENDING?.plan_json?.interpreted_question || '';
+        const resolvedQuestion = decodedQuestion || (mockPlanMode ? fallbackMockQuestion : '');
+        setQuestion(resolvedQuestion);
         const debug = searchParams.get('debug') === 'true';
         setDebug(debug);
-        console.log('Received question:', decodedQuestion);
-        if (!decodedQuestion) {
+        console.log('Received question:', resolvedQuestion);
+        if (!resolvedQuestion) {
             console.log('[ERROR] No question found in URL parameters.');
             setAgentErrorType('critical_error');
             return;
@@ -1323,18 +1426,18 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         setNextQuestions([]);
 
         if (terminalMode) {
-            setCurrentQuestion(decodedQuestion);
+            setCurrentQuestion(resolvedQuestion);
             setAiLoading(false);
             return;
         }
 
         if (debug) {
-            setCurrentQuestion(decodedQuestion);
+            setCurrentQuestion(resolvedQuestion);
             setAiLoading(false);
             // In debug mode, don't disable graph - it will be populated from final_response event
             return;
         }
-    }, [demoMode, planDemoMode, terminalMode, searchParams]);
+    }, [demoMode, planDemoMode, terminalMode, searchParams, mockPlanMode]);
 
     useEffect(() => {
         if (!debug || terminalMode || demoMode || planDemoMode) {
@@ -1687,14 +1790,20 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 setPlanParsedTitle(interpretedQuestion || '');
                 setAiAnswer(planMarkdown);
                 await runPlanLoadingMilestones();
-                const planCypherQueries = extractPlanCypherQueries(startData?.plan_json);
+                const resolvedPlanJson = resolvePlanJson(startData);
+                const planCypherQueries = extractPlanCypherQueries(resolvedPlanJson);
+                const planFunctionalPath = extractFunctionalDataRequestPathFromPlanJson(resolvedPlanJson);
                 if (planCypherQueries.length) {
                     await fetchGraphFromCypher(planCypherQueries);
+                    if (planFunctionalPath && !extractFunctionalDataRequestPath(planCypherQueries)) {
+                        setFunctionalDataRequestPath(planFunctionalPath);
+                    }
                     setStreamMilestones((prev) => ({ ...prev, cypherExecuted: true }));
                 } else {
                     setGraphData(null);
-                    setNoGraph(true);
-                    setFunctionalDataRequestPath('');
+                    setCoordData(null);
+                    setNoGraph(!planFunctionalPath);
+                    setFunctionalDataRequestPath(planFunctionalPath || '');
                     setStreamMilestones((prev) => ({ ...prev, cypherExecuted: true }));
                 }
 
@@ -1722,14 +1831,20 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 setPlanParsedTitle(interpretedQuestion || planParsedTitle || '');
                 setAiAnswer(planMarkdown);
                 await runPlanLoadingMilestones();
-                const planCypherQueries = extractPlanCypherQueries(reviseData?.plan_json);
+                const resolvedPlanJson = resolvePlanJson(reviseData);
+                const planCypherQueries = extractPlanCypherQueries(resolvedPlanJson);
+                const planFunctionalPath = extractFunctionalDataRequestPathFromPlanJson(resolvedPlanJson);
                 if (planCypherQueries.length) {
                     await fetchGraphFromCypher(planCypherQueries);
+                    if (planFunctionalPath && !extractFunctionalDataRequestPath(planCypherQueries)) {
+                        setFunctionalDataRequestPath(planFunctionalPath);
+                    }
                     setStreamMilestones((prev) => ({ ...prev, cypherExecuted: true }));
                 } else {
                     setGraphData(null);
-                    setNoGraph(true);
-                    setFunctionalDataRequestPath('');
+                    setCoordData(null);
+                    setNoGraph(!planFunctionalPath);
+                    setFunctionalDataRequestPath(planFunctionalPath || '');
                     setStreamMilestones((prev) => ({ ...prev, cypherExecuted: true }));
                 }
 
@@ -1849,6 +1964,101 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         await graphPromise;
     }, [parseChatResponseContent, currentQuestion, question, chatSessionId, extractPayloadCypherQueries, fetchGraphFromCypher, fetchLiteratureMarkdown, appendLiteratureBlock]);
 
+    const confirmChatPlanStream = React.useCallback(async ({ chatSessionId: targetChatSessionId, planSessionId, revisionPrompt = null, onHeartbeat }) => {
+        const response = await fetch(`${PLANNER_AGENT_BASE_URL}/chat/plan/confirm/stream`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_session_id: targetChatSessionId,
+                plan_session_id: planSessionId,
+                revision_prompt: revisionPrompt,
+            }),
+        });
+
+        if (!response.ok) {
+            let detail = `confirm failed: ${response.status}`;
+            try {
+                const errorPayload = await response.json();
+                detail = errorPayload?.detail || detail;
+            } catch (err) {
+                // noop
+            }
+            const streamError = new Error(detail);
+            streamError.status = response.status;
+            throw streamError;
+        }
+
+        if (!response.body) {
+            throw new Error('confirm stream failed: empty response body');
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let resultPayload = null;
+
+        const consumeLine = (line) => {
+            const trimmed = String(line || '').trim();
+            if (!trimmed) return;
+
+            let eventPayload = null;
+            try {
+                eventPayload = JSON.parse(trimmed);
+            } catch (err) {
+                return;
+            }
+
+            const eventType = String(eventPayload?.event || '').toLowerCase();
+            if (eventType === 'heartbeat') {
+                if (typeof onHeartbeat === 'function') {
+                    onHeartbeat(eventPayload);
+                }
+                return;
+            }
+
+            if (eventType === 'error') {
+                const detail = eventPayload?.detail || eventPayload?.data?.detail || 'Plan confirm stream failed.';
+                const streamError = new Error(String(detail));
+                if (eventPayload?.status) {
+                    streamError.status = Number(eventPayload.status);
+                }
+                throw streamError;
+            }
+
+            if (eventType === 'result') {
+                resultPayload = eventPayload?.data || null;
+            }
+        };
+
+        for (;;) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+
+            let newlineIndex = buffer.indexOf('\n');
+            while (newlineIndex >= 0) {
+                const line = buffer.slice(0, newlineIndex);
+                buffer = buffer.slice(newlineIndex + 1);
+                consumeLine(line);
+                newlineIndex = buffer.indexOf('\n');
+            }
+        }
+
+        const finalChunk = decoder.decode();
+        if (finalChunk) {
+            buffer += finalChunk;
+        }
+        if (buffer.trim()) {
+            consumeLine(buffer);
+        }
+
+        if (!resultPayload) {
+            throw new Error('confirm stream ended without result event');
+        }
+
+        return resultPayload;
+    }, []);
+
     const handleConfirmPendingPlan = React.useCallback(async (blockId) => {
         const block = followUpBlocks.find((item) => item.id === blockId);
         if (!block || !chatSessionId || !block.planSessionId) {
@@ -1869,19 +2079,14 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         )));
 
         try {
-            const response = await flaskBackendAxiosInstanceNew.post(
-                `${PLANNER_AGENT_BASE_URL}/chat/plan/confirm`,
-                {
-                    chat_session_id: chatSessionId,
-                    plan_session_id: block.planSessionId,
-                    revision_prompt: block.revisionPrompt || null,
+            const payload = await confirmChatPlanStream({
+                chatSessionId,
+                planSessionId: block.planSessionId,
+                revisionPrompt: block.revisionPrompt || null,
+                onHeartbeat: () => {
+                    // Stream heartbeat frames keep intermediate proxies from timing out.
                 },
-                {
-                    headers: { 'Content-Type': 'application/json' },
-                }
-            );
-
-            const payload = response?.data || {};
+            });
             const parsed = parseChatResponseContent(payload);
             const route = String(payload?.route || 'new_query');
             const planCypherQueries = extractPayloadCypherQueries(payload);
@@ -1970,12 +2175,12 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         type: 'plan',
                         confirming: false,
                         graphLoading: false,
-                        error: err?.response?.data?.detail || err?.message || 'Failed to confirm plan.',
+                        error: err?.message || err?.response?.data?.detail || 'Failed to confirm plan.',
                     }
                     : item
             )));
         }
-    }, [followUpBlocks, chatSessionId, parseChatResponseContent, extractPayloadCypherQueries, queryGraphFromCypher, question, currentQuestion, conversationRound, fetchReferenceArticles, fetchLiteratureMarkdown, appendLiteratureBlock]);
+    }, [followUpBlocks, chatSessionId, parseChatResponseContent, extractPayloadCypherQueries, queryGraphFromCypher, question, currentQuestion, conversationRound, fetchReferenceArticles, fetchLiteratureMarkdown, appendLiteratureBlock, confirmChatPlanStream]);
 
     const handleSendFollowUp = React.useCallback(async (value) => {
         const cleaned = stripHtml(value || '').trim();
@@ -2170,19 +2375,15 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         navigate(`/result-new2?question=${encodeURIComponent(utf8ToBase64(confirmQuestionText))}&terminal=true&session_id=${encodeURIComponent(chatSessionId)}`, { replace: true });
 
         try {
-            const confirmResponse = await flaskBackendAxiosInstanceNew.post(
-                `${PLANNER_AGENT_BASE_URL}/chat/plan/confirm`,
-                {
-                    chat_session_id: chatSessionId,
-                    plan_session_id: confirmPlanSessionId,
-                    revision_prompt: chatStartRevisionPrompt || null,
+            const confirmPayload = await confirmChatPlanStream({
+                chatSessionId,
+                planSessionId: confirmPlanSessionId,
+                revisionPrompt: chatStartRevisionPrompt || null,
+                onHeartbeat: () => {
+                    // Keep loading UI active while server sends heartbeat frames.
+                    setTerminalSummaryLoading(true);
                 },
-                {
-                    headers: { 'Content-Type': 'application/json' },
-                }
-            );
-
-            const confirmPayload = confirmResponse?.data || {};
+            });
             await applyMainChatResponse(confirmPayload, confirmQuestionText, planParsedTitle || '');
             setChatRouteState('new_query');
             setChatStartPendingPlanSessionId('');
@@ -2211,19 +2412,31 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             }
         } catch (err) {
             console.error('[Chat Flow] First-turn plan confirm failed:', err);
-            // Restore planner state so the user can retry confirm/revise.
-            setForceResultView(false);
-            setTerminalPhase('confirm');
-            setChatRouteState('new_query_pending');
-            setChatStartPendingPlanSessionId(confirmPlanSessionId);
-            navigate(`/result-new2?question=${encodeURIComponent(utf8ToBase64(confirmQuestionText))}&terminal=true&session_id=${encodeURIComponent(chatSessionId)}&pending_plan_session_id=${encodeURIComponent(confirmPlanSessionId)}&route=new_query_pending`, { replace: true });
+            const status = err?.status || err?.response?.status;
+            const isNotFound = status === 404;
+
+            if (isNotFound) {
+                // Keep result route so ErrorComponent can be shown instead of restoring planner view.
+                setForceResultView(true);
+                setTerminalPhase('result');
+                setChatRouteState('new_query');
+                setChatStartPendingPlanSessionId('');
+                navigate(`/result-new2?question=${encodeURIComponent(utf8ToBase64(confirmQuestionText))}&terminal=true&session_id=${encodeURIComponent(chatSessionId)}`, { replace: true });
+            } else {
+                // Restore planner state so the user can retry confirm/revise.
+                setForceResultView(false);
+                setTerminalPhase('confirm');
+                setChatRouteState('new_query_pending');
+                setChatStartPendingPlanSessionId(confirmPlanSessionId);
+                navigate(`/result-new2?question=${encodeURIComponent(utf8ToBase64(confirmQuestionText))}&terminal=true&session_id=${encodeURIComponent(chatSessionId)}&pending_plan_session_id=${encodeURIComponent(confirmPlanSessionId)}&route=new_query_pending`, { replace: true });
+            }
             setAgentErrorType(resolveAgentErrorType(err, 'planning_failed'));
         } finally {
             setChatStartPlanConfirming(false);
             setTerminalSummaryLoading(false);
             setTerminalLoading(false);
         }
-    }, [chatSessionId, chatStartPendingPlanSessionId, chatStartRevisionPrompt, applyMainChatResponse, chatStartQuestion, question, resolveAgentErrorType, planParsedTitle, navigate]);
+    }, [chatSessionId, chatStartPendingPlanSessionId, chatStartRevisionPrompt, applyMainChatResponse, chatStartQuestion, question, resolveAgentErrorType, planParsedTitle, navigate, confirmChatPlanStream]);
 
     const runChatStartPlanReviseCycle = React.useCallback(async (prompt) => {
         const cleaned = String(prompt || '').trim();
@@ -2251,12 +2464,17 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             setPlanParsedTitle(interpretedQuestion || planParsedTitle || '');
             setChatStartRevisionPrompt(cleaned);
 
-            const planCypherQueries = extractPlanCypherQueries(revised?.plan_json || {});
+            const resolvedPlanJson = resolvePlanJson(revised);
+            const planCypherQueries = extractPlanCypherQueries(resolvedPlanJson);
+            const planFunctionalPath = extractFunctionalDataRequestPathFromPlanJson(resolvedPlanJson);
             if (planCypherQueries.length) {
                 setPlanHasGraphQuery(true);
                 setIsPlanGraphQueryLoading(true);
                 try {
                     await fetchGraphFromCypher(planCypherQueries);
+                    if (planFunctionalPath && !extractFunctionalDataRequestPath(planCypherQueries)) {
+                        setFunctionalDataRequestPath(planFunctionalPath);
+                    }
                 } finally {
                     setIsPlanGraphQueryLoading(false);
                 }
@@ -2264,8 +2482,9 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 setPlanHasGraphQuery(false);
                 setIsPlanGraphQueryLoading(false);
                 setGraphData(null);
-                setNoGraph(true);
-                setFunctionalDataRequestPath('');
+                setCoordData(null);
+                setNoGraph(!planFunctionalPath);
+                setFunctionalDataRequestPath(planFunctionalPath || '');
             }
         } catch (err) {
             const failureMessage = err?.response?.data?.detail || err?.message || 'Plan revision failed. Previous plan is kept.';
@@ -2310,6 +2529,54 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             setQuestionLoadingStartedAt(Date.now());
 
             try {
+                if (mockPlanMode) {
+                    const mockPayload = MOCK_PLAN_NEW_QUERY_PENDING;
+                    const { interpretedQuestion, planMarkdown } = parsePlanMarkdownForUI(mockPayload?.plan_markdown || '');
+                    const resolvedPlanJson = resolvePlanJson(mockPayload);
+                    const planCypherQueries = extractPlanCypherQueries(resolvedPlanJson);
+                    const planFunctionalPath = extractFunctionalDataRequestPathFromPlanJson(resolvedPlanJson);
+
+                    setChatSessionId(mockPayload?.session_id || '');
+                    setChatRouteState('new_query_pending');
+                    setChatStartPendingPlanSessionId(mockPayload?.pending_plan_session_id || '');
+                    setChatStartRevisionPrompt('');
+                    setChatStartQuestion(question);
+                    setCurrentQuestion(question);
+                    setPlanSummary(planMarkdown || mockPayload?.plan_markdown || '');
+                    setPlanParsedTitle(interpretedQuestion || '');
+                    setTerminalPhase('confirm');
+                    setTerminalLoading(false);
+                    setStreamComplete(true);
+                    setAgentErrorType(null);
+
+                    if (planCypherQueries.length) {
+                        setPlanHasGraphQuery(true);
+                        setIsPlanGraphQueryLoading(true);
+                        try {
+                            await fetchGraphFromCypher(planCypherQueries);
+                            if (planFunctionalPath && !extractFunctionalDataRequestPath(planCypherQueries)) {
+                                setFunctionalDataRequestPath(planFunctionalPath);
+                            }
+                        } finally {
+                            setIsPlanGraphQueryLoading(false);
+                        }
+                    } else {
+                        setPlanHasGraphQuery(false);
+                        setIsPlanGraphQueryLoading(false);
+                        setGraphData(null);
+                        setCoordData(null);
+                        setNoGraph(!planFunctionalPath);
+                        setFunctionalDataRequestPath(planFunctionalPath || '');
+                    }
+
+                    const desiredPendingUrl = `/result-new2?question=${encodeURIComponent(utf8ToBase64(question))}&terminal=true&session_id=${encodeURIComponent(mockPayload?.session_id || '')}&pending_plan_session_id=${encodeURIComponent(mockPayload?.pending_plan_session_id || '')}&route=new_query_pending&mock_plan=true`;
+                    const currentUrl = `${location.pathname}${location.search}`;
+                    if (currentUrl !== desiredPendingUrl) {
+                        navigate(desiredPendingUrl, { replace: true });
+                    }
+                    return;
+                }
+
                 const cachedPendingPlan = safeParseJson(sessionStorage.getItem(CHAT_PENDING_PLAN_CACHE_KEY), null);
 
                 if (
@@ -2334,12 +2601,17 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     setTerminalLoading(false);
                     setStreamComplete(true);
 
-                    const planCypherQueries = extractPlanCypherQueries(cachedPayload?.plan_json || {});
+                    const resolvedPlanJson = resolvePlanJson(cachedPayload);
+                    const planCypherQueries = extractPlanCypherQueries(resolvedPlanJson);
+                    const planFunctionalPath = extractFunctionalDataRequestPathFromPlanJson(resolvedPlanJson);
                     if (planCypherQueries.length) {
                         setPlanHasGraphQuery(true);
                         setIsPlanGraphQueryLoading(true);
                         try {
                             await fetchGraphFromCypher(planCypherQueries);
+                            if (planFunctionalPath && !extractFunctionalDataRequestPath(planCypherQueries)) {
+                                setFunctionalDataRequestPath(planFunctionalPath);
+                            }
                         } finally {
                             setIsPlanGraphQueryLoading(false);
                         }
@@ -2347,8 +2619,9 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         setPlanHasGraphQuery(false);
                         setIsPlanGraphQueryLoading(false);
                         setGraphData(null);
-                        setNoGraph(true);
-                        setFunctionalDataRequestPath('');
+                        setCoordData(null);
+                        setNoGraph(!planFunctionalPath);
+                        setFunctionalDataRequestPath(planFunctionalPath || '');
                     }
 
                     if (isStale()) return;
@@ -2383,12 +2656,17 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         setTerminalLoading(false);
                         setStreamComplete(true);
 
-                        const planCypherQueries = extractPlanCypherQueries(cachedPayload?.plan_json || {});
+                        const resolvedPlanJson = resolvePlanJson(cachedPayload);
+                        const planCypherQueries = extractPlanCypherQueries(resolvedPlanJson);
+                        const planFunctionalPath = extractFunctionalDataRequestPathFromPlanJson(resolvedPlanJson);
                         if (planCypherQueries.length) {
                             setPlanHasGraphQuery(true);
                             setIsPlanGraphQueryLoading(true);
                             try {
                                 await fetchGraphFromCypher(planCypherQueries);
+                                if (planFunctionalPath && !extractFunctionalDataRequestPath(planCypherQueries)) {
+                                    setFunctionalDataRequestPath(planFunctionalPath);
+                                }
                             } finally {
                                 setIsPlanGraphQueryLoading(false);
                             }
@@ -2396,8 +2674,9 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                             setPlanHasGraphQuery(false);
                             setIsPlanGraphQueryLoading(false);
                             setGraphData(null);
-                            setNoGraph(true);
-                            setFunctionalDataRequestPath('');
+                            setCoordData(null);
+                            setNoGraph(!planFunctionalPath);
+                            setFunctionalDataRequestPath(planFunctionalPath || '');
                         }
 
                         if (isStale()) return;
@@ -2606,12 +2885,17 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     setTerminalLoading(false);
                     setStreamComplete(true);
 
-                    const planCypherQueries = extractPlanCypherQueries(payload?.plan_json || {});
+                    const resolvedPlanJson = resolvePlanJson(payload);
+                    const planCypherQueries = extractPlanCypherQueries(resolvedPlanJson);
+                    const planFunctionalPath = extractFunctionalDataRequestPathFromPlanJson(resolvedPlanJson);
                     if (planCypherQueries.length) {
                         setPlanHasGraphQuery(true);
                         setIsPlanGraphQueryLoading(true);
                         try {
                             await fetchGraphFromCypher(planCypherQueries);
+                            if (planFunctionalPath && !extractFunctionalDataRequestPath(planCypherQueries)) {
+                                setFunctionalDataRequestPath(planFunctionalPath);
+                            }
                         } finally {
                             setIsPlanGraphQueryLoading(false);
                         }
@@ -2619,8 +2903,9 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         setPlanHasGraphQuery(false);
                         setIsPlanGraphQueryLoading(false);
                         setGraphData(null);
-                        setNoGraph(true);
-                        setFunctionalDataRequestPath('');
+                        setCoordData(null);
+                        setNoGraph(!planFunctionalPath);
+                        setFunctionalDataRequestPath(planFunctionalPath || '');
                     }
                     if (isStale()) return;
                     navigate(`/result-new2?question=${encodeURIComponent(utf8ToBase64(question))}&terminal=true&session_id=${encodeURIComponent(sessionId)}&pending_plan_session_id=${encodeURIComponent(payload?.pending_plan_session_id || '')}&route=new_query_pending`, { replace: true });
@@ -2662,6 +2947,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         bootstrapConversation();
     }, [
         isChatApiMode,
+        mockPlanMode,
         question,
         chatSessionIdFromUrl,
         pendingPlanSessionIdFromUrl,
@@ -3811,26 +4097,33 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     );
 
     // Reusable visual material tabs definition
-    const buildVisualMaterialTabs = (graphContent, functionalRequestPath = '') => {
+    const buildVisualMaterialTabs = (graphContent, functionalRequestPath = '', options = {}) => {
+        const showKnowledgeGraphTab = options?.showKnowledgeGraphTab !== false;
         const functionalTab = functionalRequestPath
             ? {
                 label: 'Functional Data',
-                content: <FunctionalDataChartPanel requestPath={functionalRequestPath} />,
+                content: <FunctionalDataChartPanel requestPath={functionalRequestPath} compact={Boolean(options?.compactFunctional)} />,
             }
             : null;
 
-        if (isAgentResultRoute && functionalTab) {
-            return [
-                functionalTab,
-                { label: 'Knowledge Graph', content: graphContent },
-            ];
+        const knowledgeGraphTab = { label: 'Knowledge Graph', content: graphContent };
+
+        if (!functionalTab) {
+            return [knowledgeGraphTab];
         }
 
-        return [
-            { label: 'Knowledge Graph', content: graphContent },
-            ...(functionalTab ? [functionalTab] : []),
-        ];
+        if (!showKnowledgeGraphTab) {
+            return [functionalTab];
+        }
+
+        if (isAgentResultRoute) {
+            return [functionalTab, knowledgeGraphTab];
+        }
+
+        return [knowledgeGraphTab, functionalTab];
     };
+
+    const shouldShowKnowledgeGraphTab = Boolean(graphData) || Boolean(planHasGraphQuery) || Boolean(isPlanGraphQueryLoading);
 
     const buildDemoPageData = (index) => ({
         questionId: `Q${index}`,
@@ -3917,6 +4210,7 @@ Please review this plan and provide edits if needed.`,
         agentPlan: planSummary || streamAnswer || streamedSummary || 'No plan generated yet.',
         onSendFeedback: async (text) => {
             clearPlanInactivityTimer();
+            if (mockPlanMode) return;
             if (isChatApiMode && chatStartPendingPlanSessionId) {
                 await runChatStartPlanReviseCycle(text || '');
                 return;
@@ -3926,6 +4220,7 @@ Please review this plan and provide edits if needed.`,
         onProceed: async () => {
             clearPlanInactivityTimer();
             setPlanRevisionWarningOpen(false);
+            if (mockPlanMode) return;
             if (isChatApiMode && chatStartPendingPlanSessionId) {
                 if (chatStartPlanConfirming) return;
                 await runChatStartConfirmCycle();
@@ -3934,12 +4229,16 @@ Please review this plan and provide edits if needed.`,
             if (terminalConfirming) return;
             await runConfirmCycle();
         },
-        disableRevise: planHasGraphQuery && isPlanGraphQueryLoading,
-        disableProceed: planHasGraphQuery && isPlanGraphQueryLoading,
+        disableRevise: mockPlanMode || (planHasGraphQuery && isPlanGraphQueryLoading),
+        disableProceed: mockPlanMode || (planHasGraphQuery && isPlanGraphQueryLoading),
         graphData,
         visualMaterial: {
             title: 'Visual Material',
-            tabs: [{ label: 'Knowledge Graph', content: planKnowledgeGraphContent }],
+            noGraph: noGraph && !functionalDataRequestPath,
+            tabs: buildVisualMaterialTabs(planKnowledgeGraphContent, functionalDataRequestPath, {
+                compactFunctional: true,
+                showKnowledgeGraphTab: shouldShowKnowledgeGraphTab,
+            }),
         },
     });
 
@@ -4007,7 +4306,9 @@ Please review this plan and provide edits if needed.`,
         visualMaterial: {
             title: "Visual Material",
             noGraph: noGraph && !functionalDataRequestPath,
-            tabs: buildVisualMaterialTabs(knowledgeGraphContent, functionalDataRequestPath),
+            tabs: buildVisualMaterialTabs(knowledgeGraphContent, functionalDataRequestPath, {
+                showKnowledgeGraphTab: shouldShowKnowledgeGraphTab,
+            }),
         },
         evidences: evidenceTabs.length ? { title: "Evidences", tabs: evidenceTabs } : undefined,
         followUp: {
@@ -4381,7 +4682,7 @@ Please review this plan and provide edits if needed.`,
                                                 : item
                                         )));
 
-                                        const planCypherQueries = extractPlanCypherQueries(revised?.plan_json || {});
+                                        const planCypherQueries = extractPlanCypherQueries(resolvePlanJson(revised));
                                         if (planCypherQueries.length) {
                                             await fetchGraphFromCypher(planCypherQueries);
                                         } else {
