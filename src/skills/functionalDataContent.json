@@ -29,7 +29,7 @@
     "aboutInfo": "Background context for the source, status, and interpretation of functional data.",
     "aboutBody": "The functional data shown here were generated through HPAP using a Vanderbilt-developed islet phenotyping pipeline shared with IIDP under the HIPP initiative. These data capture human islet physiological responses, such as insulin or glucagon secretion, across stimuli or time-course conditions, and are displayed with PanKgraph-linked donor context. This dataset has not yet been published. The underlying pipeline has been used since 2013 and is documented in prior publications, including PMID: 38049589, 35642629, 34870058, 33844836, 34428183, 32352931, 30507613, 29669939, and 29514095."
     "importantTitle": "Important",
-    "importantBody": "This tool supports interactive filtering and visualization of HIPP-generated functional data. Formal statistical conclusions should be based on the corresponding HIPP analyses and publication.",
+    "importantBody": "This tool supports interactive filtering and visualization of islet functional data. Formal statistical conclusions should be based on the corresponding analyses published in https://www.nature.com/articles/s41467-026-70689-5",
     "whyUseTitle": "Why use this tool?",
     "whyUseItems": [
       "Access HIPP-generated functional readouts",
