@@ -22,9 +22,9 @@ import sampleLinks from '../schema/sample_links.json';
 import { GenomeBrowserEmbed } from '../SearchResult/AgentResult';
 import SearchResultLoading from '../SearchResult/loading';
 import {
-    buildDebugStreamLoadingProgress,
-    computeFirstStepMinimumProgress,
-    getInitialStreamMilestones,
+  buildDebugStreamLoadingProgress,
+  computeFirstStepMinimumProgress,
+  getInitialStreamMilestones,
 } from '../SearchResult/streamLoadingProgress';
 import {
   clearConversationContentKeepIds,

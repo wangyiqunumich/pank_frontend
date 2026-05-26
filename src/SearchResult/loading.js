@@ -15,8 +15,8 @@ import {
 } from '@mui/material';
 
 import loadingImage from '../image/loading.svg';
-import { easeOutCubic } from './streamLoadingProgress';
 import texts from './loading_text.json';
+import { easeOutCubic } from './streamLoadingProgress';
 
 const STREAM_STEP_WEIGHT_PERCENT = (3 / 13) * 100;
 const STREAM_PRE_COMPLETE_CAP_PERCENT = STREAM_STEP_WEIGHT_PERCENT * 4;

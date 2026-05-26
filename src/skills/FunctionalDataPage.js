@@ -7,10 +7,9 @@ import React, {
 import { useNavigate } from 'react-router-dom';
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import AutoGraphIcon from '@mui/icons-material/AutoGraph';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import BiotechIcon from '@mui/icons-material/Biotech';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
@@ -73,23 +72,94 @@ function StepBadge({ n }) {
 
 const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
 
+const renderTextWithPmidLinks = (text) => {
+  const source = String(text || '');
+  const regex = /\d{8}/g;
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+  let key = 0;
+
+  while ((match = regex.exec(source)) !== null) {
+    const start = match.index;
+    const end = start + match[0].length;
+    const prevChar = start > 0 ? source[start - 1] : '';
+    const nextChar = end < source.length ? source[end] : '';
+    const isStandaloneEightDigit = !/\d/.test(prevChar) && !/\d/.test(nextChar);
+
+    if (!isStandaloneEightDigit) {
+      continue;
+    }
+
+    if (start > lastIndex) {
+      parts.push(source.slice(lastIndex, start));
+    }
+
+    const pmid = match[0];
+    parts.push(
+      <Box
+        key={`pmid-${pmid}-${key}`}
+        component="a"
+        href={`https://pubmed.ncbi.nlm.nih.gov/${pmid}/`}
+        target="_blank"
+        rel="noopener noreferrer"
+        sx={{
+          color: '#0F766E',
+          fontWeight: 600,
+          textDecoration: 'none',
+          '&:hover': { textDecoration: 'none' },
+        }}
+      >
+        {pmid}
+      </Box>
+    );
+
+    key += 1;
+    lastIndex = end;
+  }
+
+  if (lastIndex < source.length) {
+    parts.push(source.slice(lastIndex));
+  }
+
+  return parts;
+};
+
 function AgentBtn({ disabled = false, onClick }) {
   return (
-    <Button
-      size="small"
-      aria-label="Agent"
-      disabled={disabled}
-      onClick={onClick}
-      sx={{
-        minWidth: 0,
-        color: disabled ? '#94A3B8' : '#0F766E', px: 0.75, py: 0.25,
-        border: '1px solid', borderColor: disabled ? '#E2E8F0' : '#CCFBF1',
-        borderRadius: '6px', bgcolor: disabled ? '#F8FAFC' : '#F0FDFA',
-        '&:hover': { bgcolor: disabled ? '#F8FAFC' : '#CCFBF1' },
-      }}
+    <Tooltip
+      title="Send the current plot and selected cohort filters to the AI agent for interpretation."
+      arrow
     >
-      <AutoGraphIcon sx={{ fontSize: 14 }} />
-    </Button>
+      <span>
+        <Button
+          size="small"
+          disabled={disabled}
+          onClick={onClick}
+          startIcon={!disabled ? <AutoAwesomeIcon sx={{ fontSize: 14 }} /> : undefined}
+          sx={{
+            textTransform: 'none',
+            fontFamily: 'Inter',
+            fontSize: 12,
+            fontWeight: 600,
+            minHeight: 30,
+            minWidth: disabled ? 30 : 0,
+            px: disabled ? 0.75 : 1.2,
+            borderRadius: '10px',
+            border: '1px solid',
+            color: disabled ? '#94A3B8' : '#0F766E',
+            bgcolor: disabled ? '#F8FAFC' : '#E6F7F3',
+            borderColor: disabled ? '#E2E8F0' : '#B7E4DA',
+            '&:hover': {
+              bgcolor: disabled ? '#F8FAFC' : '#D1F0E8',
+              borderColor: disabled ? '#E2E8F0' : '#7CCDBE',
+            },
+          }}
+        >
+          {disabled ? <AutoAwesomeIcon sx={{ fontSize: 14 }} /> : 'Interpret plot with AI'}
+        </Button>
+      </span>
+    </Tooltip>
   );
 }
 
@@ -110,10 +180,7 @@ function StepCard({ step, title, titleInfo, subtitle, subtitleInfo, showAgent, a
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
           {extra}
           {showAgent && (
-            <>
-              <AgentBtn disabled={agentDisabled} onClick={onAgentClick} />
-              <ChatBubbleOutlineIcon sx={{ fontSize: 15, color: '#94A3B8' }} />
-            </>
+            <AgentBtn disabled={agentDisabled} onClick={onAgentClick} />
           )}
         </Box>
       </Box>
@@ -968,7 +1035,7 @@ export default function FunctionalDataPage() {
                       {rightPanel.aboutTitle}
                     </Typography>
                   </Box>
-                  <Typography sx={{ color: 'black', fontSize: 12, lineHeight: 1.4 }}>{rightPanel.aboutBody}</Typography>
+                  <Typography sx={{ color: 'black', fontSize: 12, lineHeight: 1.4 }}>{renderTextWithPmidLinks(rightPanel.aboutBody)}</Typography>
                 </Box>
 
                 <Box sx={{ borderTop: '1px solid #E5EBF3', p: 2 }}>
@@ -976,7 +1043,7 @@ export default function FunctionalDataPage() {
                     {rightPanel.importantTitle}
                   </Typography>
                   <Typography sx={{ color: 'black', fontSize: 12, lineHeight: 1.4 }}>
-                    {rightPanel.importantBody}
+                    {renderTextWithPmidLinks(rightPanel.importantBody)}
                   </Typography>
                 </Box>
 
@@ -988,7 +1055,7 @@ export default function FunctionalDataPage() {
                     {rightPanel.whyUseItems.map((item) => (
                       <Box key={item} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
                         <CheckIcon sx={{ color: '#1A9DC0', fontSize: 18, mt: 0.2 }} />
-                        <Typography sx={{ color: '#007A8D', fontSize: 12, lineHeight: 1.4 }}>{item}</Typography>
+                        <Typography sx={{ color: '#007A8D', fontSize: 12, lineHeight: 1.4 }}>{renderTextWithPmidLinks(item)}</Typography>
                       </Box>
                     ))}
                   </Box>
@@ -1005,7 +1072,7 @@ export default function FunctionalDataPage() {
                       return (
                         <Box key={text} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, borderRadius: '8px', px: 0.4, py: 0.2 }}>
                           <Icon sx={{ color: '#1A9DC0', fontSize: 17, mt: 0.2 }} />
-                          <Typography sx={{ color: '#007A8D', fontSize: 12, lineHeight: 1.4 }}>{text}</Typography>
+                          <Typography sx={{ color: '#007A8D', fontSize: 12, lineHeight: 1.4 }}>{renderTextWithPmidLinks(text)}</Typography>
                         </Box>
                       );
                     })}

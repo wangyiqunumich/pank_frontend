@@ -77,12 +77,12 @@ import {
   demoGraphData,
 } from './demo_graph_data';
 import SearchResultLoading from './loading';
-import {
-        buildDebugStreamLoadingProgress,
-        computeFirstStepMinimumProgress,
-        getInitialStreamMilestones,
-} from './streamLoadingProgress';
 import sampleSummaryData from './sample.json';
+import {
+  buildDebugStreamLoadingProgress,
+  computeFirstStepMinimumProgress,
+  getInitialStreamMilestones,
+} from './streamLoadingProgress';
 
 // const tabs = [
 //     { value: 'references', label: 'References' },
@@ -4384,6 +4384,11 @@ Please review this plan and provide edits if needed.`,
                                         const planCypherQueries = extractPlanCypherQueries(revised?.plan_json || {});
                                         if (planCypherQueries.length) {
                                             await fetchGraphFromCypher(planCypherQueries);
+                                        } else {
+                                            setGraphData(null);
+                                            setCoordData(null);
+                                            setNoGraph(true);
+                                            setFunctionalDataRequestPath('');
                                         }
                                     } catch (err) {
                                         setFollowUpBlocks((prev) => prev.map((item) => (
