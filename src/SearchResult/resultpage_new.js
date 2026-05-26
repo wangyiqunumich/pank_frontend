@@ -77,12 +77,12 @@ import {
   demoGraphData,
 } from './demo_graph_data';
 import SearchResultLoading from './loading';
-import {
-        buildDebugStreamLoadingProgress,
-        computeFirstStepMinimumProgress,
-        getInitialStreamMilestones,
-} from './streamLoadingProgress';
 import sampleSummaryData from './sample.json';
+import {
+  buildDebugStreamLoadingProgress,
+  computeFirstStepMinimumProgress,
+  getInitialStreamMilestones,
+} from './streamLoadingProgress';
 
 // const tabs = [
 //     { value: 'references', label: 'References' },
