@@ -27,10 +27,12 @@ import {
   getInitialStreamMilestones,
 } from '../SearchResult/streamLoadingProgress';
 import {
-  clearConversationContentKeepIds,
   clearConversationStorage,
   exportConversationStorageSnapshot,
   readRecentChats,
+    readConversationHistory,
+    replaceConversationHistory,
+    upsertRecentChat,
 } from '../utils/chatSessionStorage';
 import MultiLineInputList from './DebugComponent';
 import KnowledgeGraph from './KnowledgeGraph';
@@ -41,6 +43,8 @@ import {
 } from './style.js';
 
 export default function DebugPage() {
+    const CHAT_START_CACHE_KEY = 'pank_chat_start_cache_v1';
+    const CHAT_PENDING_PLAN_CACHE_KEY = 'pank_chat_pending_plan_v1';
     const [graphJson, setGraphJson] = useState("");
     const [loadingOpen, setLoadingOpen] = useState(true);
     // const cyRef = useRef(null);
@@ -113,6 +117,7 @@ export default function DebugPage() {
     });
     const [healthChecking, setHealthChecking] = useState(false);
     const [historyActionMessage, setHistoryActionMessage] = useState('');
+    const importHistoryInputRef = useRef(null);
     const [demoLoadingStartedAt, setDemoLoadingStartedAt] = useState(Date.now());
     const [demoLoadingNow, setDemoLoadingNow] = useState(Date.now());
     const dispatch = useDispatch();
@@ -187,16 +192,6 @@ export default function DebugPage() {
         setHistoryActionMessage(`Cleared ${result.removedHistoryKeys} history records and removed ${beforeRecent} recent items.`);
     }, []);
 
-    const clearHistoryKeepRecentTen = React.useCallback(() => {
-        const result = clearConversationStorage({ keepRecent: 10 });
-        setHistoryActionMessage(`Cleared ${result.removedHistoryKeys} history records and kept ${result.keptRecent} recent items.`);
-    }, []);
-
-    const clearHistoryContentKeepIds = React.useCallback(() => {
-        const result = clearConversationContentKeepIds();
-        setHistoryActionMessage(`Cleared ${result.removedHistoryKeys} history records while preserving ${result.keptRecent} cached session IDs.`);
-    }, []);
-
     const exportCachedHistory = React.useCallback(() => {
         const snapshot = exportConversationStorageSnapshot();
         const fileName = `pank_cached_history_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
@@ -214,6 +209,81 @@ export default function DebugPage() {
 
         setHistoryActionMessage(`Exported cache snapshot to ${fileName}.`);
     }, []);
+
+    const dedupeHistoryMessages = React.useCallback((messages) => {
+        const seen = new Set();
+        const deduped = [];
+
+        messages.forEach((message) => {
+            if (!message || typeof message !== 'object') return;
+            const role = String(message.role || '').trim();
+            const content = String(message.content || message.answer || message.summary || '').trim();
+            const route = String(message.route || '').trim();
+            const signature = `${role}||${content}||${route}`;
+            if (!role || !content || seen.has(signature)) return;
+            seen.add(signature);
+            deduped.push(message);
+        });
+
+        return deduped;
+    }, []);
+
+    const triggerImportCachedHistory = React.useCallback(() => {
+        importHistoryInputRef.current?.click();
+    }, []);
+
+    const importCachedHistory = React.useCallback((event) => {
+        const file = event?.target?.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            try {
+                const payload = JSON.parse(String(reader.result || '{}'));
+                const histories = (payload?.histories && typeof payload.histories === 'object') ? payload.histories : {};
+                const importedRecent = Array.isArray(payload?.recentChats) ? payload.recentChats : [];
+
+                let importedSessionCount = 0;
+                let importedMessageCount = 0;
+
+                Object.entries(histories).forEach(([sessionId, history]) => {
+                    const sid = String(sessionId || '').trim();
+                    if (!sid || !Array.isArray(history)) return;
+
+                    const existing = readConversationHistory(sid);
+                    const merged = dedupeHistoryMessages([...(Array.isArray(existing) ? existing : []), ...history]);
+                    replaceConversationHistory(sid, merged);
+                    importedSessionCount += 1;
+                    importedMessageCount += merged.length;
+                });
+
+                importedRecent.forEach((item) => {
+                    const sessionId = String(item?.sessionId || '').trim();
+                    const firstQuestion = String(item?.firstQuestion || '').trim();
+                    if (!sessionId || !firstQuestion) return;
+                    upsertRecentChat({ sessionId, firstQuestion });
+                });
+
+                if (payload?.chatStartCache !== undefined) {
+                    window.sessionStorage.setItem(CHAT_START_CACHE_KEY, JSON.stringify(payload.chatStartCache));
+                }
+                if (payload?.pendingPlanCache !== undefined) {
+                    window.sessionStorage.setItem(CHAT_PENDING_PLAN_CACHE_KEY, JSON.stringify(payload.pendingPlanCache));
+                }
+
+                setHistoryActionMessage(`Imported ${importedSessionCount} sessions and merged ${importedMessageCount} messages (deduped).`);
+            } catch (err) {
+                setHistoryActionMessage(`Import failed: ${err?.message || 'Invalid JSON file.'}`);
+            } finally {
+                event.target.value = '';
+            }
+        };
+        reader.onerror = () => {
+            setHistoryActionMessage('Import failed: unable to read file.');
+            event.target.value = '';
+        };
+        reader.readAsText(file);
+    }, [dedupeHistoryMessages]);
 
     useEffect(() => {
         checkPlannerHealth();
@@ -421,27 +491,26 @@ export default function DebugPage() {
                     <Button
                         variant="outlined"
                         size="small"
-                        onClick={clearHistoryContentKeepIds}
-                        sx={{ textTransform: 'none' }}
-                    >
-                        Clear History Content (Keep IDs)
-                    </Button>
-                    <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={clearHistoryKeepRecentTen}
-                        sx={{ textTransform: 'none' }}
-                    >
-                        Clear History, Keep Recent 10
-                    </Button>
-                    <Button
-                        variant="outlined"
-                        size="small"
                         onClick={exportCachedHistory}
                         sx={{ textTransform: 'none' }}
                     >
                         Export Cached History
                     </Button>
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={triggerImportCachedHistory}
+                        sx={{ textTransform: 'none' }}
+                    >
+                        Import Cached History
+                    </Button>
+                    <input
+                        ref={importHistoryInputRef}
+                        type="file"
+                        accept="application/json,.json"
+                        style={{ display: 'none' }}
+                        onChange={importCachedHistory}
+                    />
                     <Button
                         variant="outlined"
                         size="small"

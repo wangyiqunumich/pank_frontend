@@ -1201,7 +1201,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
 
             <Box ref={pageRootRef} sx={{ px: { xs: 2, md: 4 }, pt: { xs: 2.5, md: 3.5 }, pb: { xs: 0.5, md: 1 }, maxWidth: 1344, width: "100%", mx: "auto" }}>
                 {/* Header */}
-                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: isPank1Style ? '24px' : '62px', columnGap: '17px' }}>
+                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: '62px', columnGap: '17px' }}>
                     <Chip
                         label={data.questionId || "Q1"}
                         sx={{
@@ -1364,7 +1364,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                     </Box>
                                 ) : null}
 
-                                <Stack spacing={3}>
+                                <Stack spacing={0}>
                                     {evidenceTabs.length ? (
                                         evidenceTabs.map((tab, tabIdx) => (
                                             <Box
