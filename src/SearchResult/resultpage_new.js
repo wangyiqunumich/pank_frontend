@@ -102,9 +102,12 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const CHAT_START_CACHE_KEY = 'pank_chat_start_cache_v1';
 const CHAT_PENDING_PLAN_CACHE_KEY = 'pank_chat_pending_plan_v1';
 const PLAN_INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000;
-const PMID_CITATION_PATTERN = /(\[\s*(?:pmid|pubmedid)\s*:\s*(\d{7,8})\s*\]|\(\s*(?:pmid|pubmedid)\s*:\s*(\d{7,8})\s*\)|\[\s*(\d{7,8})\s*\]\(\s*https?:\/\/(?:www\.)?pubmed(?:\.ncbi\.nlm\.nih\.gov|\.gov)\/\d{7,8}\/?[^)]*\))/gi;
+const PMID_CITATION_PATTERN = /(\[\s*(?:pmid|pubmedid)\s*:\s*(\d{7,8})\s*\]|\(\s*(?:pmid|pubmedid)\s*:?\s*(\d{7,8})\s*\)|\[\s*(\d{7,8})\s*\]\(\s*https?:\/\/(?:www\.)?pubmed(?:\.ncbi\.nlm\.nih\.gov|\.gov)\/(\d{7,8})\/?[^)]*\))/gi;
 const GRAPH_QUERY_INFLIGHT = new Map();
 const FUNCTIONAL_DATA_BASE_URL = process.env.REACT_APP_FUNCTIONAL_DATA_API_URL || 'https://functional.pankgraph.org';
+const PMID_HOVER_EVENT = 'pank:pmid-hover';
+const PMID_HOVER_CLEAR_EVENT = 'pank:pmid-hover-clear';
+const PMID_CLICK_EVENT = 'pank:pmid-click';
 
 const isGetPrefixedQuery = (rawValue) => /^\s*GET\b/i.test(String(rawValue || ''));
 
@@ -262,7 +265,7 @@ const extractPmidsFromCitationText = (text, limit = 50) => {
     let match;
 
     while ((match = regex.exec(source)) !== null) {
-        const pmid = String(match[2] || match[3] || match[4] || '').trim();
+        const pmid = String(match[2] || match[3] || match[4] || match[5] || '').trim();
         if (!pmid || pmids.includes(pmid)) continue;
         pmids.push(pmid);
         if (pmids.length >= limit) break;
@@ -507,7 +510,7 @@ const FunctionalDataChartPanel = ({ requestPath = '', compact = false }) => {
                 sx={{
                     width: '100%',
                     height: '100%',
-                    maxHeight: compact ? '88%' : '100%',
+                    maxHeight: '100%',
                     objectFit: 'contain',
                     display: errored ? 'none' : 'block',
                     opacity: loaded ? 1 : 0.01,
@@ -620,6 +623,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const chatSessionIdRef = useRef(chatSessionIdFromUrl || '');
     const chatStartPendingPlanSessionIdRef = useRef('');
     const followUpRequestRunIdRef = useRef(0);
+    const followUpBlockSeqRef = useRef(0);
     const followUpUnmountedRef = useRef(false);
     const planSummaryRef = useRef('');
     const aiAnswerRef = useRef('');
@@ -668,6 +672,11 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             followUpUnmountedRef.current = true;
             followUpRequestRunIdRef.current += 1;
         };
+    }, []);
+
+    const createFollowUpBlockId = React.useCallback((prefix = 'followup') => {
+        followUpBlockSeqRef.current += 1;
+        return `${prefix}-${Date.now()}-${followUpBlockSeqRef.current}`;
     }, []);
 
     const resolveAgentErrorType = React.useCallback((err, fallbackType = 'critical_error') => {
@@ -974,6 +983,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         })();
 
         return {
+            styleVariant: 'pank1',
             questionId: `Q${index + 2}`,
             title,
             aiOverview: {
@@ -989,7 +999,65 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                                         <CircularProgress size={14} />
                                     </Box>
                                 ) : (
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+                                    <Box sx={{
+                                        fontSize: 16,
+                                        fontWeight: 400,
+                                        color: '#475569',
+                                        lineHeight: 1.7,
+                                        '& p': { margin: '0 0 0.85em 0' },
+                                        '& ul, & ol': { margin: '0.2em 0 0.85em 1.4em', padding: 0 },
+                                        '& li': { marginBottom: '0.25em' },
+                                        '& h1, & h2, & h3, & h4': {
+                                            margin: '0.9em 0 0.45em 0',
+                                            color: '#0F172A',
+                                            fontWeight: 700,
+                                            lineHeight: 1.3,
+                                        },
+                                        '& :not(pre) > code': {
+                                            fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+                                            backgroundColor: '#F1F5F9',
+                                            borderRadius: '4px',
+                                            padding: '0 4px',
+                                            fontSize: '0.92em',
+                                        },
+                                        '& pre': {
+                                            backgroundColor: '#F8FAFC',
+                                            border: '1px solid #E2E8F0',
+                                            borderRadius: '8px',
+                                            padding: '12px',
+                                            overflowX: 'hidden',
+                                            margin: '0.8em 0',
+                                            whiteSpace: 'pre-wrap',
+                                            wordBreak: 'break-word',
+                                            overflowWrap: 'anywhere',
+                                        },
+                                        '& pre code': {
+                                            backgroundColor: 'transparent',
+                                            padding: 0,
+                                            borderRadius: 0,
+                                            whiteSpace: 'inherit',
+                                            wordBreak: 'inherit',
+                                            overflowWrap: 'inherit',
+                                            fontSize: 'inherit',
+                                        },
+                                        '& table': {
+                                            width: '100%',
+                                            borderCollapse: 'collapse',
+                                            margin: '0.8em 0',
+                                            borderTop: '1px solid #CBD5E1',
+                                        },
+                                        '& thead tr': {
+                                            borderBottom: '1px solid #CBD5E1',
+                                        },
+                                        '& tbody tr': {
+                                            borderBottom: '1px solid #CBD5E1',
+                                        },
+                                        '& th, & td': {
+                                            textAlign: 'left',
+                                            padding: '8px 10px',
+                                            verticalAlign: 'top',
+                                        },
+                                    }}>
                                         <ReactMarkdown
                                             remarkPlugins={[remarkGfm]}
                                             rehypePlugins={[rehypeRaw]}
@@ -1016,6 +1084,12 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                                                 },
                                                 strong: ({ children }) => <strong>{renderChildrenWithPmids(children, `followup-strong-${block?.id || index}`, false, followUpAnchorByPmid)}</strong>,
                                                 em: ({ children }) => <em>{renderChildrenWithPmids(children, `followup-em-${block?.id || index}`, false, followUpAnchorByPmid)}</em>,
+                                                h1: ({ children }) => <Typography component="h1" sx={{ fontSize: 26 }}>{renderChildrenWithPmids(children, `followup-h1-${block?.id || index}`, false, followUpAnchorByPmid)}</Typography>,
+                                                h2: ({ children }) => <Typography component="h2" sx={{ fontSize: 22 }}>{renderChildrenWithPmids(children, `followup-h2-${block?.id || index}`, false, followUpAnchorByPmid)}</Typography>,
+                                                h3: ({ children }) => <Typography component="h3" sx={{ fontSize: 18 }}>{renderChildrenWithPmids(children, `followup-h3-${block?.id || index}`, false, followUpAnchorByPmid)}</Typography>,
+                                                h4: ({ children }) => <Typography component="h4" sx={{ fontSize: 16 }}>{renderChildrenWithPmids(children, `followup-h4-${block?.id || index}`, false, followUpAnchorByPmid)}</Typography>,
+                                                th: ({ children }) => <th>{renderChildrenWithPmids(children, `followup-th-${block?.id || index}`, false, followUpAnchorByPmid)}</th>,
+                                                td: ({ children }) => <td>{renderChildrenWithPmids(children, `followup-td-${block?.id || index}`, false, followUpAnchorByPmid)}</td>,
                                                 table: ({ children }) => {
                                                     const { header, bodyRows } = extractTableMatrix(children);
                                                     const shouldNumberTable = !(header.length > 0 && bodyRows.length === 1);
@@ -2193,7 +2267,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             followUpUnmountedRef.current || requestRunId !== followUpRequestRunIdRef.current
         );
 
-        const blockId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        const blockId = createFollowUpBlockId('followup');
         setFollowUpSubmitting(true);
         setFollowUpDraft('');
         setFollowUpBlocks((prev) => [...prev, { id: blockId, question: cleaned, type: 'loading', error: '' }]);
@@ -2218,7 +2292,6 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             const functionalPath = extractFunctionalDataRequestPath(planCypherQueries);
             const hasGraphCypherQueries = stripFunctionalDataRequestsFromCypher(planCypherQueries).length > 0;
             let summaryText = parsed.summary || '';
-            setChatRouteState(String(payload?.route || ''));
             setChatHistoryCompressed(Boolean(payload?.history_compressed));
             setConversationRound(Number(payload?.round || conversationRound));
 
@@ -2337,7 +2410,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 setFollowUpSubmitting(false);
             }
         }
-    }, [chatSessionId, parseChatResponseContent, conversationRound, question, currentQuestion, parsePlanMarkdownForUI, extractPayloadCypherQueries, queryGraphFromCypher, fetchReferenceArticles, fetchLiteratureMarkdown, appendLiteratureBlock]);
+    }, [chatSessionId, parseChatResponseContent, conversationRound, question, currentQuestion, parsePlanMarkdownForUI, extractPayloadCypherQueries, queryGraphFromCypher, fetchReferenceArticles, fetchLiteratureMarkdown, appendLiteratureBlock, createFollowUpBlockId]);
 
     useEffect(() => {
         followUpSendHandlerRef.current = handleSendFollowUp;
@@ -2707,35 +2780,57 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 }
 
                 if (chatSessionIdFromUrl) {
-                    const cachedHistory = readConversationHistory(chatSessionIdFromUrl);
-                    let history = cachedHistory;
-                    if (!history.length) {
-                        const historyResponse = await flaskBackendAxiosInstanceNew.get(
-                            `${PLANNER_AGENT_BASE_URL}/chat/history`,
-                            {
-                                params: { session_id: chatSessionIdFromUrl },
-                            }
-                        );
-                        if (isStale()) return;
-                        history = Array.isArray(historyResponse?.data?.history) ? historyResponse.data.history : [];
-                        replaceConversationHistory(chatSessionIdFromUrl, history);
-                    }
+                    const history = readConversationHistory(chatSessionIdFromUrl);
 
-                    const firstUserTurn = history.find((item) => item?.role === 'user');
-                    const firstQuestion = firstUserTurn?.content || question;
+                    const firstUserTurn = history.find((item) => {
+                        const role = String(item?.role || '').trim().toLowerCase();
+                        return role === 'user' || role === 'human';
+                    });
+                    const firstQuestion = String(firstUserTurn?.content || firstUserTurn?.question || firstUserTurn?.query || '').trim() || question;
                     const exchanges = [];
                     let pendingUserQuestion = '';
 
+                    const normalizeRole = (rawRole) => {
+                        const role = String(rawRole || '').trim().toLowerCase();
+                        if (role === 'user' || role === 'human') return 'user';
+                        if (role === 'assistant' || role === 'ai' || role === 'model') return 'assistant';
+                        return '';
+                    };
+
+                    const readUserQuestion = (item) => String(item?.content || item?.question || item?.query || '').trim();
+                    const readAssistantAnswer = (item) => String(item?.content || item?.answer || item?.summary || '').trim();
+
                     history.forEach((item) => {
-                        if (item?.role === 'user') {
-                            pendingUserQuestion = String(item?.content || '').trim();
+                        const role = normalizeRole(item?.role);
+                        const userQuestion = readUserQuestion(item);
+                        const assistantAnswer = readAssistantAnswer(item);
+
+                        // Some cache payloads may carry a full pair in one object.
+                        if (userQuestion && assistantAnswer && !role) {
+                            exchanges.push({
+                                question: userQuestion,
+                                assistant: {
+                                    ...item,
+                                    role: 'assistant',
+                                    content: assistantAnswer,
+                                },
+                            });
+                            pendingUserQuestion = '';
                             return;
                         }
 
-                        if (item?.role === 'assistant' && pendingUserQuestion) {
+                        if (role === 'user') {
+                            pendingUserQuestion = userQuestion;
+                            return;
+                        }
+
+                        if (role === 'assistant' && pendingUserQuestion && assistantAnswer) {
                             exchanges.push({
                                 question: pendingUserQuestion,
-                                assistant: item,
+                                assistant: {
+                                    ...item,
+                                    content: assistantAnswer,
+                                },
                             });
                             pendingUserQuestion = '';
                         }
@@ -2763,13 +2858,6 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         const primaryCypher = Array.isArray(primaryExchange?.assistant?.cypherQueries)
                             ? primaryExchange.assistant.cypherQueries
                             : [];
-                        if (primaryCypher.length) {
-                            await fetchGraphFromCypher(primaryCypher);
-                        } else {
-                            setGraphData(null);
-                            setNoGraph(true);
-                            setFunctionalDataRequestPath('');
-                        }
 
                         const rebuiltFollowUps = exchanges.slice(1).map((exchange, idx) => {
                             const assistant = exchange.assistant || {};
@@ -2783,7 +2871,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                                 ? assistant.followUpQuestions
                                 : (parsed.followUpQuestions || []);
                             return {
-                                id: `restored-${idx + 1}`,
+                                id: `restored-${chatSessionIdFromUrl || 'session'}-${idx + 1}`,
                                 question: exchange.question,
                                 title: exchange.question,
                                 type: 'answer',
@@ -2802,16 +2890,27 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                             };
                         });
 
+                        // Render all restored follow-up questions immediately, then hydrate references/graphs in background.
                         setFollowUpBlocks(rebuiltFollowUps);
 
-                        const referencesPromises = rebuiltFollowUps.map((block) => fetchReferenceArticles(block.summary || ''));
-                        const referencesByBlock = await Promise.all(referencesPromises);
-                        if (isStale()) return;
+                        const primaryGraphPromise = (async () => {
+                            if (primaryCypher.length) {
+                                await fetchGraphFromCypher(primaryCypher);
+                            } else {
+                                setGraphData(null);
+                                setNoGraph(true);
+                                setFunctionalDataRequestPath('');
+                            }
+                        })();
 
-                        setFollowUpBlocks((prev) => prev.map((block, idx) => ({
-                            ...block,
-                            referencesData: referencesByBlock[idx] || [],
-                        })));
+                        const referencesPromises = rebuiltFollowUps.map((block) => fetchReferenceArticles(block.summary || ''));
+                        const referencesPromise = Promise.all(referencesPromises).then((referencesByBlock) => {
+                            if (isStale()) return;
+                            setFollowUpBlocks((prev) => prev.map((block, idx) => ({
+                                ...block,
+                                referencesData: referencesByBlock[idx] || [],
+                            })));
+                        });
 
                         const graphPromises = rebuiltFollowUps.map(async (block) => {
                             const graphCypherQueries = stripFunctionalDataRequestsFromCypher(block.cypherQueries);
@@ -2824,19 +2923,22 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                             }
                             return queryGraphFromCypher(graphCypherQueries);
                         });
-                        const graphsByBlock = await Promise.all(graphPromises);
-                        if (isStale()) return;
+                        const followUpGraphsPromise = Promise.all(graphPromises).then((graphsByBlock) => {
+                            if (isStale()) return;
+                            setFollowUpBlocks((prev) => prev.map((block, idx) => {
+                                const graphResult = graphsByBlock[idx] || {};
+                                return {
+                                    ...block,
+                                    graphData: graphResult.graphData || null,
+                                    coordData: graphResult.coordData || null,
+                                    noGraph: block.route === 'follow_up' ? true : Boolean(graphResult.noGraph),
+                                    graphLoading: false,
+                                };
+                            }));
+                        });
 
-                        setFollowUpBlocks((prev) => prev.map((block, idx) => {
-                            const graphResult = graphsByBlock[idx] || {};
-                            return {
-                                ...block,
-                                graphData: graphResult.graphData || null,
-                                coordData: graphResult.coordData || null,
-                                noGraph: block.route === 'follow_up' ? true : Boolean(graphResult.noGraph),
-                                graphLoading: false,
-                            };
-                        }));
+                        await Promise.all([primaryGraphPromise, referencesPromise, followUpGraphsPromise]);
+                        if (isStale()) return;
                     } else {
                         setGraphData(null);
                         setNoGraph(true);
@@ -3116,21 +3218,55 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
     const overviewSummary = stripCypherQueriesSection(displaySummary);
 
-    const scrollToReferenceAnchor = (href, event) => {
+    const dispatchPmidReferenceEvent = (eventName, payload) => {
+        if (typeof window === 'undefined') return;
+        try {
+            window.dispatchEvent(new CustomEvent(eventName, { detail: payload }));
+        } catch (err) {
+            // Ignore browsers/environments that don't support CustomEvent construction.
+        }
+    };
+
+    const flashReferenceElement = (target) => {
+        if (!target) return;
+        const previousTransition = target.style.transition;
+        const previousBoxShadow = target.style.boxShadow;
+        const previousBorderColor = target.style.borderColor;
+        const previousBackground = target.style.backgroundColor;
+
+        target.style.transition = 'box-shadow 0.18s ease, border-color 0.18s ease, background-color 0.18s ease';
+        target.style.boxShadow = '0 0 0 2px rgba(94, 169, 134, 0.38)';
+        target.style.borderColor = '#5EA986';
+        target.style.backgroundColor = '#E1F2E9';
+
+        window.setTimeout(() => {
+            target.style.transition = previousTransition;
+            target.style.boxShadow = previousBoxShadow;
+            target.style.borderColor = previousBorderColor;
+            target.style.backgroundColor = previousBackground;
+        }, 950);
+    };
+
+    const scrollToReferenceAnchor = (href, event, options = {}) => {
         if (!href || !href.startsWith('#')) {
             return;
         }
-        event.preventDefault();
+        if (event?.preventDefault) {
+            event.preventDefault();
+        }
         const anchorId = href.slice(1);
         let target = document.getElementById(anchorId);
         if (!target) {
-            const pmidMatch = anchorId.match(/(\d{8})/);
+            const pmidMatch = anchorId.match(/(\d{7,8})/);
             if (pmidMatch?.[1]) {
                 target = document.querySelector(`[data-pmid="${pmidMatch[1]}"]`);
             }
         }
         if (target) {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            target.scrollIntoView({ behavior: 'smooth', block: options.block || 'center' });
+            if (options.flash) {
+                flashReferenceElement(target);
+            }
         }
     };
 
@@ -3143,6 +3279,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const renderPmidPill = (pmid, keyPrefix, referenceAnchorByPmid = {}) => {
         const anchorId = referenceAnchorByPmid?.[pmid] || `reference-item-${pmid}`;
         const href = `#${anchorId}`;
+        const pmidText = String(pmid || '').trim();
         return (
             <Link
                 key={`${keyPrefix}-pmid-${pmid}`}
@@ -3153,11 +3290,20 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     verticalAlign: 'middle',
                     mx: 0.25,
                     '&:hover .pmid-pill': {
-                        backgroundColor: '#DFF2F0',
-                        borderColor: '#7FB8B1',
+                        backgroundColor: '#DCEFE6',
+                        borderColor: '#78B296',
                     },
                 }}
-                onClick={(event) => scrollToReferenceAnchor(href, event)}
+                onMouseEnter={() => {
+                    dispatchPmidReferenceEvent(PMID_HOVER_EVENT, { pmid: pmidText, anchorId });
+                }}
+                onMouseLeave={() => {
+                    dispatchPmidReferenceEvent(PMID_HOVER_CLEAR_EVENT, { pmid: pmidText, anchorId });
+                }}
+                onClick={(event) => {
+                    dispatchPmidReferenceEvent(PMID_CLICK_EVENT, { pmid: pmidText, anchorId });
+                    scrollToReferenceAnchor(href, event, { block: 'center', flash: true });
+                }}
             >
                 <Box
                     className="pmid-pill"
@@ -3168,12 +3314,13 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         px: 1,
                         py: '2px',
                         borderRadius: '999px',
-                        border: '1px solid #9BCFC8',
-                        color: '#006766',
-                        backgroundColor: '#EAF7F5',
+                        border: '1px solid #8EC2A7',
+                        color: '#1F6B4B',
+                        backgroundColor: '#ECF7F1',
                         fontSize: 12,
                         fontWeight: 700,
                         lineHeight: 1.6,
+                        whiteSpace: 'nowrap',
                     }}
                 >
                     {`PMID ${pmid}`}
@@ -3195,7 +3342,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         while ((match = regex.exec(value)) !== null) {
             const start = match.index;
             const end = start + match[0].length;
-            const pmid = String(match[2] || match[3] || match[4] || '').trim();
+            const pmid = String(match[2] || match[3] || match[4] || match[5] || '').trim();
 
             if (start > cursor) {
                 nodes.push(
@@ -3730,6 +3877,8 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     h2: ({ children }) => <Typography component="h2" sx={{ fontSize: 22 }}>{renderChildrenWithPmids(children, 'h2', false, mainReferenceAnchorByPmid)}</Typography>,
                     h3: ({ children }) => <Typography component="h3" sx={{ fontSize: 18 }}>{renderChildrenWithPmids(children, 'h3', false, mainReferenceAnchorByPmid)}</Typography>,
                     h4: ({ children }) => <Typography component="h4" sx={{ fontSize: 16 }}>{renderChildrenWithPmids(children, 'h4', false, mainReferenceAnchorByPmid)}</Typography>,
+                    th: ({ children }) => <th>{renderChildrenWithPmids(children, 'th', false, mainReferenceAnchorByPmid)}</th>,
+                    td: ({ children }) => <td>{renderChildrenWithPmids(children, 'td', false, mainReferenceAnchorByPmid)}</td>,
                     table: ({ children }) => {
                         const { header, bodyRows } = extractTableMatrix(children);
                         const shouldNumberTable = !(header.length > 0 && bodyRows.length === 1);
@@ -4393,6 +4542,7 @@ Please review this plan and provide edits if needed.`,
 
     useEffect(() => {
         if (!onContentMeta) return;
+        const feedbackSessionId = chatSessionId || planSessionId || chatSessionIdFromUrl || pendingPlanSessionIdFromUrl || '';
         const aiHeadings = (resolvedPageData?.aiOverview?.sections ?? [])
             .map((section, index) => (section?.heading ? ({ label: section.heading, index }) : null))
             .filter(Boolean);
@@ -4405,12 +4555,26 @@ Please review this plan and provide edits if needed.`,
             isQuestionComplete,
             isPlanning: isPlanningPhase,
             hideFloatingSearchBar,
+            feedbackSessionId,
         };
         const serialized = JSON.stringify(serializableMeta);
         if (serialized === lastMetaRef.current) return;
         lastMetaRef.current = serialized;
         onContentMeta({ ...serializableMeta, followUpHandler: isChatApiMode ? handleSendFollowUp : null });
-    }, [anchorPrefix, onContentMeta, resolvedPageData, isQuestionComplete, isPlanningPhase, hideFloatingSearchBar, isChatApiMode, handleSendFollowUp]);
+    }, [
+        anchorPrefix,
+        onContentMeta,
+        resolvedPageData,
+        isQuestionComplete,
+        isPlanningPhase,
+        hideFloatingSearchBar,
+        isChatApiMode,
+        handleSendFollowUp,
+        chatSessionId,
+        planSessionId,
+        chatSessionIdFromUrl,
+        pendingPlanSessionIdFromUrl,
+    ]);
 
     const questionJumpItems = useMemo(() => {
         const topQuestionLabel = stripHtml(
@@ -4590,7 +4754,7 @@ Please review this plan and provide edits if needed.`,
                 }}
             />
             <Backdrop
-                sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 2 })}
+                sx={(theme) => ({ color: '#fff', zIndex: Math.max(theme.zIndex.modal + 10, 2200) })}
                 open={followUpSubmitting}
             >
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
@@ -4601,7 +4765,7 @@ Please review this plan and provide edits if needed.`,
                 </Box>
             </Backdrop>
             <Backdrop
-                sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 2 })}
+                sx={(theme) => ({ color: '#fff', zIndex: Math.max(theme.zIndex.modal + 10, 2200) })}
                 open={isPlanRevisionInProgress || isFollowUpPlanRevisionInProgress}
             >
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
