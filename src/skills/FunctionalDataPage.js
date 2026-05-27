@@ -329,11 +329,15 @@ export default function FunctionalDataPage() {
     const diseaseOptions = ['All', ...(options.disease || [])].filter(
       (value, index, array) => array.indexOf(value) === index
     );
+    const centerOptions = ['All', ...(Array.isArray(options.center) ? options.center : [])]
+      .map((value) => String(value || '').trim())
+      .filter((value, index, array) => value && array.indexOf(value) === index)
+      .filter((value, index, array) => value.toLowerCase() !== 'all' || index === 0);
 
     return {
       disease: diseaseOptions.length ? diseaseOptions : ['All'],
       sex: ['All', ...(options.sex || [])],
-      center: ['HPAP', 'Will add more later'],
+      center: centerOptions.length ? centerOptions : ['All'],
     };
   }, [summaryData]);
 
@@ -817,7 +821,6 @@ export default function FunctionalDataPage() {
                             <MenuItem
                               key={o}
                               value={o}
-                              disabled={label === 'Center' && o === 'Will add more later'}
                               sx={{ fontFamily: 'Inter', fontSize: 13 }}
                             >
                               {o}
