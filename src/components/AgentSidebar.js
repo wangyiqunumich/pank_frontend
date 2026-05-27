@@ -1,5 +1,6 @@
 import React, {
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 
@@ -137,6 +138,15 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
   }, [open]);
 
   const isUserMenuOpen = Boolean(userMenuAnchorEl);
+  const currentSessionId = useMemo(() => {
+    const params = new URLSearchParams(location.search || '');
+    return String(params.get('session_id') || '').trim();
+  }, [location.search]);
+  const hasActiveRecentChat = useMemo(
+    () => Boolean(currentSessionId && recentChats.some((chat) => String(chat?.sessionId || '') === currentSessionId)),
+    [currentSessionId, recentChats]
+  );
+  const isNewChatActive = activeNav === 'new-chat' && !hasActiveRecentChat;
   const userProfile = auth?.user?.profile || {};
   const userDisplayName = userProfile?.email || userProfile?.name || userProfile?.preferred_username || 'Account';
   const isAuthenticated = Boolean(auth?.isAuthenticated);
@@ -235,7 +245,7 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
           <SidebarButton
-            active={activeNav === 'new-chat'}
+            active={isNewChatActive}
             open={open}
             icon={<AddIcon />}
             label="New Chat"
@@ -282,6 +292,7 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
               {recentChats.length > 0 ? recentChats.map((chat) => {
                 const encodedQuestion = encodeURIComponent(utf8ToBase64(chat.firstQuestion || ''));
                 const target = `/result-new2?question=${encodedQuestion}&terminal=true&session_id=${encodeURIComponent(chat.sessionId)}`;
+                const isActiveRecent = String(chat?.sessionId || '') === currentSessionId;
                 return (
                   <Button
                     key={chat.sessionId}
@@ -289,15 +300,16 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
                     sx={{
                       justifyContent: 'flex-start',
                       borderRadius: '10px',
-                      color: '#164563',
+                      color: isActiveRecent ? '#3A838B' : '#164563',
                       fontFamily: 'DM Sans, Inter, sans-serif',
                       fontSize: 12,
-                      fontWeight: 500,
+                      fontWeight: isActiveRecent ? 700 : 500,
                       textTransform: 'none',
                       minHeight: 32,
                       px: 1,
                       py: 0.5,
-                      '&:hover': { bgcolor: SIDEBAR_HOVER_BG },
+                      bgcolor: isActiveRecent ? SIDEBAR_ACTIVE_BG : 'transparent',
+                      '&:hover': { bgcolor: isActiveRecent ? SIDEBAR_ACTIVE_BG : SIDEBAR_HOVER_BG },
                     }}
                   >
                     <Box sx={{ textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>

@@ -8,12 +8,18 @@ import React, {
 import igv from 'https://cdn.jsdelivr.net/npm/igv@3.0.2/dist/igv.esm.min.js';
 import { useLocation } from 'react-router-dom';
 
+import ChatBubbleOutlineRoundedIcon
+  from '@mui/icons-material/ChatBubbleOutlineRounded';
 import {
   Container,
   useMediaQuery,
 } from '@mui/material';
 
 import AgentSidebar from '../components/AgentSidebar';
+import { AlertMessage } from '../components/SupportingMaterial';
+import { PLANNER_AGENT_BASE_URL } from '../constants/apiEndpoints';
+import starFilledIcon from '../image/star-filled.svg';
+import starIcon from '../image/star.svg';
 import SearchResult from './result';
 
 // Genome Browser Component - mounts only when tab is first selected
@@ -411,13 +417,25 @@ export function AgentResultLayout({
     const [hoveredResultIndex, setHoveredResultIndex] = useState(null);
     const [menuOpen, setMenuOpen] = useState(false);
     const [contentMetaByIndex, setContentMetaByIndex] = useState({});
+    const [feedbackOpen, setFeedbackOpen] = useState(false);
+    const [feedbackRating, setFeedbackRating] = useState(0);
+    const [feedbackText, setFeedbackText] = useState('');
+    const [feedbackEmail, setFeedbackEmail] = useState('');
+    const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+    const [feedbackError, setFeedbackError] = useState('');
+    const [feedbackSuccessOpen, setFeedbackSuccessOpen] = useState(false);
     const menuTimersRef = useRef({ open: null, close: null });
     const resultsContainerRef = useRef(null);
     const scrollRafRef = useRef(null);
     const scrollLockRef = useRef({ active: false, until: 0, index: null });
     const activeMeta = contentMetaByIndex[activeResultIndex];
+    const feedbackSessionId = useMemo(() => {
+        const urlSessionId = new URLSearchParams(location.search).get('session_id') || '';
+        return activeMeta?.feedbackSessionId || urlSessionId || '';
+    }, [activeMeta?.feedbackSessionId, location.search]);
     const activeQuestionComplete = activeMeta?.isQuestionComplete ?? false;
     const hideFloatingSearchBarByPhase = Boolean(activeMeta?.hideFloatingSearchBar);
+    const hasFloatingInputBar = Boolean(showFloatingSearchBar && !hideFloatingSearchBarByPhase);
     const canSearch = allowSearch
         && (effectiveAllowMulti || showFloatingSearchBar)
         && !Boolean(activeMeta?.isPlanning)
@@ -554,6 +572,66 @@ export function AgentResultLayout({
             const resultElement = resultsContainerRef.current?.children[results.length];
             resultElement?.scrollIntoView({ behavior: "smooth", block: "start" });
         }, 100);
+    };
+
+    const openFeedbackModal = () => {
+        setFeedbackError('');
+        setFeedbackOpen(true);
+    };
+
+    const closeFeedbackModal = () => {
+        if (feedbackSubmitting) return;
+        setFeedbackOpen(false);
+        setFeedbackError('');
+    };
+
+    const handleSubmitFeedback = async () => {
+        if (feedbackRating < 1 || feedbackRating > 5) {
+            setFeedbackError('Please select a star rating.');
+            return;
+        }
+
+        setFeedbackSubmitting(true);
+        setFeedbackError('');
+
+        try {
+            const payload = {
+                session_id: feedbackSessionId || 'unknown-session',
+                rating: feedbackRating,
+                feedback: String(feedbackText || ''),
+            };
+            const trimmedEmail = String(feedbackEmail || '').trim();
+            if (trimmedEmail) {
+                payload.email = trimmedEmail;
+            }
+
+            const response = await fetch(`${PLANNER_AGENT_BASE_URL}/feedback`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                let message = 'Failed to submit feedback.';
+                try {
+                    const body = await response.json();
+                    message = body?.detail || body?.message || body?.error || message;
+                } catch (e) {
+                    // keep fallback message
+                }
+                throw new Error(message);
+            }
+
+            setFeedbackOpen(false);
+            setFeedbackRating(0);
+            setFeedbackText('');
+            setFeedbackEmail('');
+            setFeedbackSuccessOpen(true);
+        } catch (error) {
+            setFeedbackError(String(error?.message || 'Failed to submit feedback.'));
+        } finally {
+            setFeedbackSubmitting(false);
+        }
     };
 
     const handleKeyPress = (e) => {
@@ -892,6 +970,7 @@ export function AgentResultLayout({
                         padding: "16px",
                         zIndex: 900,
                         marginTop: 8,
+                        overflow: 'visible',
                     }}
                 >
                     <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", gap: 12 }}>
@@ -944,6 +1023,251 @@ export function AgentResultLayout({
                         >
                             Search
                         </button>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={openFeedbackModal}
+                        style={{
+                            position: 'absolute',
+                            right: 24,
+                            top: -60,
+                            zIndex: 1200,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            padding: '12px 24px',
+                            borderRadius: 10,
+                            border: 'none',
+                            backgroundColor: 'rgb(58, 131, 139)',
+                            color: '#FFFFFF',
+                            fontFamily: 'Open Sans, sans-serif',
+                            fontWeight: 600,
+                            fontSize: 16,
+                            cursor: 'pointer',
+                            boxShadow: '0 8px 20px rgba(77, 129, 138, 0.28)',
+                        }}
+                    >
+                        <ChatBubbleOutlineRoundedIcon sx={{ color: '#FFFFFF', fontSize: 20 }} />
+                        Give Feedback
+                    </button>
+                </div>
+            ) : null}
+
+            {!hasFloatingInputBar ? (
+                <button
+                    type="button"
+                    onClick={openFeedbackModal}
+                    style={{
+                        position: 'fixed',
+                        right: 24,
+                        bottom: 24,
+                        zIndex: 1200,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        padding: '12px 24px',
+                        borderRadius: 10,
+                        border: 'none',
+                        backgroundColor: 'rgb(58, 131, 139)',
+                        color: '#FFFFFF',
+                        fontFamily: 'Open Sans, sans-serif',
+                        fontWeight: 600,
+                        fontSize: 16,
+                        cursor: 'pointer',
+                        boxShadow: '0 8px 20px rgba(77, 129, 138, 0.28)',
+                    }}
+                >
+                    <ChatBubbleOutlineRoundedIcon sx={{ color: '#FFFFFF', fontSize: 20 }} />
+                    Give Feedback
+                </button>
+            ) : null}
+
+            <AlertMessage
+                type="success"
+                content="Feedback recorded. Thank you!"
+                open={feedbackSuccessOpen}
+                onClose={() => setFeedbackSuccessOpen(false)}
+            />
+
+            {feedbackOpen ? (
+                <div
+                    style={{
+                        position: 'fixed',
+                        inset: 0,
+                        zIndex: 1300,
+                        backgroundColor: 'rgba(15, 23, 42, 0.35)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: 16,
+                    }}
+                    onClick={closeFeedbackModal}
+                >
+                    <div
+                        style={{
+                            width: '100%',
+                            maxWidth: 560,
+                            backgroundColor: '#FFFFFF',
+                            borderRadius: 14,
+                            padding: 20,
+                            fontFamily: 'Open Sans, sans-serif',
+                            boxShadow: '0px 8px 10px -6px rgba(0, 0, 0, 0.10), 0px 20px 25px -5px rgba(0, 0, 0, 0.10)',
+                            position: 'relative',
+                        }}
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <button
+                            type="button"
+                            onClick={closeFeedbackModal}
+                            aria-label="Close feedback dialog"
+                            style={{
+                                position: 'absolute',
+                                top: 12,
+                                right: 12,
+                                width: 32,
+                                height: 32,
+                                border: 'none',
+                                borderRadius: 8,
+                                background: 'transparent',
+                                color: '#111827',
+                                fontSize: 20,
+                                lineHeight: '20px',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            ×
+                        </button>
+
+                        <div style={{ fontWeight: 700, fontSize: 20, color: '#000000', lineHeight: 1.35 }}>
+                            Share your feedback
+                        </div>
+                        <div style={{ marginTop: 6, fontWeight: 400, fontSize: 15, color: '#6A7282' }}>
+                            Your feedback helps us improve GLKB.
+                        </div>
+
+                        <div style={{ height: 30 }} />
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            {[1, 2, 3, 4, 5].map((starValue) => {
+                                const filled = feedbackRating >= starValue;
+                                return (
+                                    <button
+                                        key={starValue}
+                                        type="button"
+                                        onClick={() => setFeedbackRating(starValue)}
+                                        style={{
+                                            width: 34,
+                                            height: 34,
+                                            padding: 0,
+                                            border: 'none',
+                                            background: 'transparent',
+                                            cursor: 'pointer',
+                                        }}
+                                        aria-label={`Rate ${starValue} star${starValue > 1 ? 's' : ''}`}
+                                    >
+                                        <img
+                                            src={filled ? starFilledIcon : starIcon}
+                                            alt={filled ? 'filled star' : 'star'}
+                                            style={{ width: 28, height: 28, display: 'block' }}
+                                        />
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        <div style={{ height: 16 }} />
+                        <textarea
+                            value={feedbackText}
+                            onChange={(event) => setFeedbackText(event.target.value)}
+                            placeholder="What did you think of this response? (optional)"
+                            rows={4}
+                            style={{
+                                width: '100%',
+                                border: '1px solid #D5DBE3',
+                                borderRadius: 10,
+                                padding: '10px 12px',
+                                fontFamily: 'Open Sans, sans-serif',
+                                fontSize: 14,
+                                color: '#111827',
+                                outline: 'none',
+                                resize: 'vertical',
+                                boxSizing: 'border-box',
+                            }}
+                        />
+
+                        <div style={{ height: 16 }} />
+
+                        <div style={{ fontWeight: 400, fontSize: 13, color: '#6A7282', marginBottom: 8 }}>
+                            Email (optional)
+                        </div>
+                        <input
+                            type="email"
+                            placeholder="you@example.com"
+                            value={feedbackEmail}
+                            onChange={(event) => setFeedbackEmail(event.target.value)}
+                            style={{
+                                width: '100%',
+                                height: 42,
+                                border: '1px solid #D5DBE3',
+                                borderRadius: 10,
+                                padding: '0 12px',
+                                fontFamily: 'Open Sans, sans-serif',
+                                fontSize: 14,
+                                color: '#111827',
+                                outline: 'none',
+                                boxSizing: 'border-box',
+                            }}
+                        />
+
+                        {feedbackError ? (
+                            <div style={{ marginTop: 10, fontSize: 13, color: '#B42318' }}>
+                                {feedbackError}
+                            </div>
+                        ) : null}
+
+                        <div style={{ marginTop: 16, display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+                            <button
+                                type="button"
+                                onClick={closeFeedbackModal}
+                                disabled={feedbackSubmitting}
+                                style={{
+                                    border: 'none',
+                                    background: '#FFFFFF',
+                                    color: '#000000',
+                                    fontFamily: 'Open Sans, sans-serif',
+                                    fontWeight: 600,
+                                    fontSize: 16,
+                                    padding: '12px 18px',
+                                    borderRadius: 10,
+                                    cursor: feedbackSubmitting ? 'not-allowed' : 'pointer',
+                                }}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleSubmitFeedback}
+                                disabled={feedbackSubmitting}
+                                style={{
+                                    padding: '12px 24px',
+                                    borderRadius: 10,
+                                    border: 'none',
+                                    backgroundColor: 'rgb(58, 131, 139)',
+                                    color: '#FFFFFF',
+                                    fontFamily: 'Open Sans, sans-serif',
+                                    fontWeight: 600,
+                                    fontSize: 16,
+                                    cursor: feedbackSubmitting ? 'not-allowed' : 'pointer',
+                                    opacity: feedbackSubmitting ? 0.7 : 1,
+                                }}
+                            >
+                                {feedbackSubmitting ? 'Submitting...' : 'Submit Feedback'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             ) : null}

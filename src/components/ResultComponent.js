@@ -37,6 +37,10 @@ import {
 
 import { ReactComponent as MynauiSendIcon } from '../image/mynaui_send.svg';
 
+const PMID_HOVER_EVENT = 'pank:pmid-hover';
+const PMID_HOVER_CLEAR_EVENT = 'pank:pmid-hover-clear';
+const PMID_CLICK_EVENT = 'pank:pmid-click';
+
 /**
  * All information is passed in as a single object: `data`.
  *
@@ -400,11 +404,17 @@ function MarkdownBody({ text, graphData, onPmidClick }) {
     );
 }
 
-function EvidenceItem({ item, onSelect, isActive, variant = 'default' }) {
+function EvidenceItem({ item, onSelect, isActive, isHovered = false, variant = 'default' }) {
     const isPank1 = variant === 'pank1';
     const isLink = Boolean(item?.href && !item?.isSkeleton);
     const clickable = Boolean((isLink || item?.onClick || onSelect) && !item?.isSkeleton);
     const Component = isLink ? "a" : clickable ? "button" : "div";
+    const highlightBackground = isActive
+        ? '#E1F2E9'
+        : (isHovered ? '#EEF8F2' : '#fff');
+    const highlightBorder = isActive
+        ? '1px solid #5EA986'
+        : (isHovered ? '1px solid #9FCDB4' : '1px solid #E7EBEF');
     const handleClick = (event) => {
         if (item?.isSkeleton) return;
         item?.onClick?.(item, event);
@@ -423,8 +433,8 @@ function EvidenceItem({ item, onSelect, isActive, variant = 'default' }) {
             id={item?.anchorId}
             data-pmid={item?.pmid || undefined}
             sx={{
-                background: isActive ? "#ECFEFF" : "#fff",
-                border: isActive ? "1px solid #67E8F9" : "1px solid #E7EBEF",
+                background: highlightBackground,
+                border: highlightBorder,
                 borderRadius: isPank1 ? "10px" : "16px",
                 p: isPank1 ? 1.25 : 2,
                 textAlign: "left",
@@ -434,8 +444,8 @@ function EvidenceItem({ item, onSelect, isActive, variant = 'default' }) {
                 transition: clickable ? "all 0.2s ease" : "none",
                 "&:hover": clickable
                     ? {
-                        background: "#F8FAFC",
-                        borderColor: "#CFE3EA",
+                        background: isActive ? highlightBackground : '#F2FAF5',
+                        borderColor: isActive ? '#5EA986' : '#B7DCC8',
                     }
                     : undefined,
             }}
@@ -991,7 +1001,9 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
     const [visualTab, setVisualTab] = React.useState(0);
     const [evidenceTab, setEvidenceTab] = React.useState(0);
     const [activeReference, setActiveReference] = React.useState(null);
+    const [hoveredReference, setHoveredReference] = React.useState(null);
     const aiOverviewRef = React.useRef(null);
+    const pageRootRef = React.useRef(null);
     const [aiOverviewHeight, setAiOverviewHeight] = React.useState(0);
     const isSingleColumn = useMediaQuery("(max-width:1199.95px)");
     const visualTabs = data?.visualMaterial?.tabs ?? [];
@@ -1033,6 +1045,53 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
             setEvidenceTab(referencesTabIndex);
         }
     }, [referencesTabIndex]);
+
+    const isPmidEventForCurrentPage = React.useCallback((detail) => {
+        if (!detail || !pageRootRef.current) return false;
+        const anchorId = String(detail.anchorId || '');
+        if (!anchorId) return false;
+        const target = document.getElementById(anchorId);
+        return Boolean(target && pageRootRef.current.contains(target));
+    }, []);
+
+    React.useEffect(() => {
+        const handleHover = (event) => {
+            const detail = event?.detail || {};
+            if (!isPmidEventForCurrentPage(detail)) return;
+            setHoveredReference(String(detail.pmid || '').trim() || null);
+        };
+
+        const handleHoverClear = (event) => {
+            const detail = event?.detail || {};
+            if (!isPmidEventForCurrentPage(detail)) return;
+            setHoveredReference((current) => {
+                const next = String(detail.pmid || '').trim();
+                return !current || !next || current === next ? null : current;
+            });
+        };
+
+        const handleClick = (event) => {
+            const detail = event?.detail || {};
+            if (!isPmidEventForCurrentPage(detail)) return;
+            const pmid = String(detail.pmid || '').trim();
+            if (!pmid) return;
+            setHoveredReference(null);
+            setActiveReference(pmid);
+            if (referencesTabIndex >= 0) {
+                setEvidenceTab(referencesTabIndex);
+            }
+        };
+
+        window.addEventListener(PMID_HOVER_EVENT, handleHover);
+        window.addEventListener(PMID_HOVER_CLEAR_EVENT, handleHoverClear);
+        window.addEventListener(PMID_CLICK_EVENT, handleClick);
+
+        return () => {
+            window.removeEventListener(PMID_HOVER_EVENT, handleHover);
+            window.removeEventListener(PMID_HOVER_CLEAR_EVENT, handleHoverClear);
+            window.removeEventListener(PMID_CLICK_EVENT, handleClick);
+        };
+    }, [isPmidEventForCurrentPage, referencesTabIndex]);
 
     const referenceTimeoutRef = React.useRef(null);
     React.useEffect(() => {
@@ -1140,7 +1199,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
         <ThemeProvider theme={theme}>
             <CssBaseline />
 
-            <Box sx={{ px: { xs: 2, md: 4 }, pt: { xs: 2.5, md: 3.5 }, pb: { xs: 0.5, md: 1 }, maxWidth: 1344, width: "100%", mx: "auto" }}>
+            <Box ref={pageRootRef} sx={{ px: { xs: 2, md: 4 }, pt: { xs: 2.5, md: 3.5 }, pb: { xs: 0.5, md: 1 }, maxWidth: 1344, width: "100%", mx: "auto" }}>
                 {/* Header */}
                 <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: isPank1Style ? '24px' : '62px', columnGap: '17px' }}>
                     <Chip
@@ -1316,15 +1375,20 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                                     tab.content
                                                 ) : tab.items && tab.items.length ? (
                                                     <Stack spacing={1.25}>
-                                                        {tab.items.map((it) => (
+                                                        {tab.items.map((it) => {
+                                                            const matchesActive = Boolean(activeReference) && (String(it?.pmid || '') === String(activeReference) || it.anchorId === `reference-item-${activeReference}`);
+                                                            const matchesHover = Boolean(hoveredReference) && (String(it?.pmid || '') === String(hoveredReference) || it.anchorId === `reference-item-${hoveredReference}`);
+                                                            return (
                                                             <EvidenceItem
                                                                 key={`${it.id}-${it.title}`}
                                                                 item={it}
                                                                 onSelect={data?.evidences?.onSelect}
-                                                                isActive={Boolean(activeReference) && (String(it?.pmid || '') === String(activeReference) || it.anchorId === `reference-item-${activeReference}`)}
+                                                                isActive={matchesActive}
+                                                                isHovered={!matchesActive && matchesHover}
                                                                 variant={isPank1Style ? 'pank1' : 'default'}
                                                             />
-                                                        ))}
+                                                            );
+                                                        })}
                                                     </Stack>
                                                 ) : (
                                                     <Typography sx={{ fontSize: 13, color: "#94A3B8", fontWeight: 700, py: 2 }}>
