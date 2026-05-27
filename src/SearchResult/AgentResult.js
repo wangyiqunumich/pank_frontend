@@ -1146,7 +1146,7 @@ export function AgentResultLayout({
                             Share your feedback
                         </div>
                         <div style={{ marginTop: 6, fontWeight: 400, fontSize: 15, color: '#6A7282' }}>
-                            Your feedback helps us improve GLKB.
+                            Your feedback helps us improve PanKgraph.
                         </div>
 
                         <div style={{ height: 30 }} />

@@ -82,7 +82,16 @@ function NavBar() {
                 {/*  <a className="menu-item menu-item-main" href={process.env.REACT_APP_DATA_LIB_LINK}>Data Library</a>*/}
                 {/*</div>*/}
                 <div className="menu-item-wrapper">
-                  <a className="menu-item menu-item-main" href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}>Integrated Cell Browser</a>
+                  <a
+                    className="menu-item menu-item-main"
+                    href={
+                      process.env.REACT_APP_API_GATEWAY_STAGE_NAME === 'development'
+                        ? 'https://dev.pankbase.org/single-cell.html'
+                        : 'https://pankbase.org/single-cell.html'
+                    }
+                  >
+                    Integrated Cell Browser
+                  </a>
                 </div>
               </div>
               <div className="menu-item-wrapper">
@@ -97,7 +106,16 @@ function NavBar() {
               <div className="menu-item-wrapper">
                 <a className="menu-item" href="/old-landing">Resources</a>
                 <div className="submenu">
-                  <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}>Integrated Cell Browser</a>
+                  <a
+                    className="submenu-item"
+                    href={
+                      process.env.REACT_APP_API_GATEWAY_STAGE_NAME === 'development'
+                        ? 'https://dev.pankbase.org/single-cell.html'
+                        : 'https://pankbase.org/single-cell.html'
+                    }
+                  >
+                    Integrated Cell Browser
+                  </a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/diff-exp.html'}>Differential Gene Expression Browser</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/pca-explorer.html'}>PCA Explorer</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/analytical-library.html'}>Analytical Library</a>

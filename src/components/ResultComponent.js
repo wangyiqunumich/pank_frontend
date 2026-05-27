@@ -560,6 +560,8 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
     const hideOriginalQueryBox = Boolean(data?.hideOriginalQueryBox);
     const parsedTitle = data?.parsedTitle || "";
     const agentPlanText = data?.agentPlan || '';
+    const normalizedPlanText = String(agentPlanText || '').toLowerCase().replace(/\s+/g, '');
+    const hideReviseComponent = normalizedPlanText.includes('queryplan(chain)');
     const isFeedbackEmpty = !feedbackText.trim();
     const isReviseDisabled = Boolean(data?.disableRevise);
     const isProceedDisabled = Boolean(data?.disableProceed);
@@ -794,85 +796,87 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                 </Box>
                             </SectionCard>
 
-                            <Box
-                                sx={{
-                                    width: '100%',
-                                    border: '1px solid #E2E8F0',
-                                    borderRadius: '16px',
-                                    backgroundColor: '#F3F7F9',
-                                    py: 2,
-                                    px: 3,
-                                }}
-                            >
-                                <Typography sx={{ fontSize: 14, fontWeight: 700, color: '#4A7F8D', mb: 0.4 }}>
-                                    Refine The Plan
-                                </Typography>
-                                <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#64748B', mb: 1.25 }}>
-                                    Tell me how you'd like to adjust the plan. I'll update it instantly.
-                                </Typography>
+                            {!hideReviseComponent ? (
                                 <Box
-                                    component="form"
-                                    onSubmit={(event) => {
-                                        event.preventDefault();
-                                        handleSendFeedback();
-                                    }}
                                     sx={{
                                         width: '100%',
-                                        border: '1px solid #DCE5EE',
-                                        borderRadius: '14px',
-                                        p: 1,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: 1,
-                                        backgroundColor: '#FFFFFF',
-                                        boxShadow: '0px 2px 8px -3px #64646F30',
+                                        border: '1px solid #E2E8F0',
+                                        borderRadius: '16px',
+                                        backgroundColor: '#F3F7F9',
+                                        py: 2,
+                                        px: 3,
                                     }}
                                 >
-                                    <TextField
-                                        value={feedbackText}
-                                        onChange={(event) => setFeedbackText(event.target.value)}
-                                        disabled={isReviseDisabled}
-                                        onKeyDown={(event) => {
-                                            if (event.key === 'Enter' && !event.shiftKey) {
-                                                event.preventDefault();
-                                                handleSendFeedback();
-                                            }
-                                        }}
-                                        placeholder="Tell me if I missed anything..."
-                                        variant="standard"
-                                        fullWidth
-                                        InputProps={{
-                                            disableUnderline: true,
+                                    <Typography sx={{ fontSize: 14, fontWeight: 700, color: '#4A7F8D', mb: 0.4 }}>
+                                        Refine The Plan
+                                    </Typography>
+                                    <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#64748B', mb: 1.25 }}>
+                                        Tell me how you'd like to adjust the plan. I'll update it instantly.
+                                    </Typography>
+                                    <Box
+                                        component="form"
+                                        onSubmit={(event) => {
+                                            event.preventDefault();
+                                            handleSendFeedback();
                                         }}
                                         sx={{
-                                            '& .MuiInputBase-input': {
-                                                fontSize: 14,
-                                                color: '#334155',
-                                                paddingLeft: '8px',
-                                            },
-                                        }}
-                                    />
-                                    <IconButton
-                                        type="submit"
-                                        aria-label="send"
-                                        disabled={isFeedbackEmpty || isReviseDisabled}
-                                        sx={{
-                                            borderRadius: '999px',
-                                            color: isFeedbackEmpty ? '#94A3B8' : '#3A838B',
-                                            width: 34,
-                                            height: 34,
-                                            '&:hover': {
-                                                backgroundColor: '#F0F7FA',
-                                            },
-                                            '&.Mui-disabled': {
-                                                color: '#94A3B8',
-                                            },
+                                            width: '100%',
+                                            border: '1px solid #DCE5EE',
+                                            borderRadius: '14px',
+                                            p: 1,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 1,
+                                            backgroundColor: '#FFFFFF',
+                                            boxShadow: '0px 2px 8px -3px #64646F30',
                                         }}
                                     >
-                                        <MynauiSendIcon style={{ width: 20, height: 20 }} />
-                                    </IconButton>
+                                        <TextField
+                                            value={feedbackText}
+                                            onChange={(event) => setFeedbackText(event.target.value)}
+                                            disabled={isReviseDisabled}
+                                            onKeyDown={(event) => {
+                                                if (event.key === 'Enter' && !event.shiftKey) {
+                                                    event.preventDefault();
+                                                    handleSendFeedback();
+                                                }
+                                            }}
+                                            placeholder="Tell me if I missed anything..."
+                                            variant="standard"
+                                            fullWidth
+                                            InputProps={{
+                                                disableUnderline: true,
+                                            }}
+                                            sx={{
+                                                '& .MuiInputBase-input': {
+                                                    fontSize: 14,
+                                                    color: '#334155',
+                                                    paddingLeft: '8px',
+                                                },
+                                            }}
+                                        />
+                                        <IconButton
+                                            type="submit"
+                                            aria-label="send"
+                                            disabled={isFeedbackEmpty || isReviseDisabled}
+                                            sx={{
+                                                borderRadius: '999px',
+                                                color: isFeedbackEmpty ? '#94A3B8' : '#3A838B',
+                                                width: 34,
+                                                height: 34,
+                                                '&:hover': {
+                                                    backgroundColor: '#F0F7FA',
+                                                },
+                                                '&.Mui-disabled': {
+                                                    color: '#94A3B8',
+                                                },
+                                            }}
+                                        >
+                                            <MynauiSendIcon style={{ width: 20, height: 20 }} />
+                                        </IconButton>
+                                    </Box>
                                 </Box>
-                            </Box>
+                            ) : null}
                         </Stack>
                     </Grid>
 
@@ -1201,7 +1205,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
 
             <Box ref={pageRootRef} sx={{ px: { xs: 2, md: 4 }, pt: { xs: 2.5, md: 3.5 }, pb: { xs: 0.5, md: 1 }, maxWidth: 1344, width: "100%", mx: "auto" }}>
                 {/* Header */}
-                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: isPank1Style ? '24px' : '62px', columnGap: '17px' }}>
+                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: '62px', columnGap: '17px' }}>
                     <Chip
                         label={data.questionId || "Q1"}
                         sx={{
@@ -1364,7 +1368,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                     </Box>
                                 ) : null}
 
-                                <Stack spacing={3}>
+                                <Stack spacing={0}>
                                     {evidenceTabs.length ? (
                                         evidenceTabs.map((tab, tabIdx) => (
                                             <Box
