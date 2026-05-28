@@ -897,7 +897,24 @@
                         [
                             "Derived Diabetes Status",
                             "derived_diabetes_status"
-                        ]
+                        ],
+                        [
+                            "Diabetes duration",
+                            "diabetes_duration"
+                        ],
+                        [
+                            "AAB state",
+                            "aab_state"
+                        ],
+                        [
+                            "HbA1c level (%)",
+                            "hba1c_percentage",
+                            "label_percentage(#F0960B)"
+                        ],
+                        [
+                            "C-peptide (ng/ml)",
+                            "c_peptide_ng_ml"
+                        ],
                     ],
                     "Other Metadata",
                     [
@@ -922,11 +939,6 @@
                             "BMI",
                             "bmi",
                             "float(2)"
-                        ],
-                        [
-                            "HbA1c Percentage",
-                            "hba1c_percentage",
-                            "label_percentage(#F0960B)"
                         ],
                         [
                             "Data Source URL",
