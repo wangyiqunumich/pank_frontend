@@ -861,9 +861,9 @@
                     "id"
                 ],
                 [
-                    "Identity",
+                    "Identifiers",
                     [
-                        [
+                       [
                             "Donor ID",
                             "id"
                         ],
@@ -882,11 +882,10 @@
                         [
                             "Center Donor ID",
                             "center_donor_id"
-                        ],
-                        [
-                            "Derived Diabetes Status",
-                            "derived_diabetes_status"
-                        ],
+                        ]
+                    ],
+                    "Disease State",
+                    [
                         [
                             "Diabetes Type",
                             "diabetes_type"
@@ -895,6 +894,13 @@
                             "T1D Stage",
                             "t1d_stage"
                         ],
+                        [
+                            "Derived Diabetes Status",
+                            "derived_diabetes_status"
+                        ]
+                    ],
+                    "Other Metadata",
+                    [
                         [
                             "Age",
                             "age",
