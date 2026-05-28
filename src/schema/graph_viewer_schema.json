@@ -861,31 +861,6 @@
                     "id"
                 ],
                 [
-                    "Donor Identifiers",
-                    [
-                        [
-                            "Donor ID",
-                            "id"
-                        ],
-                        [
-                            "RRID",
-                            "rrid"
-                        ],
-                        [
-                            "PanKbase ID",
-                            "pankbase_id"
-                        ],
-                        [
-                            "PANC-DB ID",
-                            "pancdb_id"
-                        ],
-                        [
-                            "Center Donor ID",
-                            "center_donor_id"
-                        ]
-                    ]
-                ],
-                [
                     "Disease State",
                     [
                         [
@@ -959,17 +934,12 @@
                             "gender"
                         ],
                         [
-                            "Sex at Birth",
+                            "Genetic sex",
                             "sex_at_birth"
                         ],
                         [
                             "Race",
                             "Race"
-                        ],
-                        [
-                            "Predicted Genetic Ancestry",
-                            "predicted_genetic_ancestry",
-                            "description"
                         ],
                         [
                             "Cause of Death",
@@ -982,11 +952,31 @@
                         [
                             "Creation Date",
                             "creation_date"
+                        ]
+                    ]
+                ],
+                [
+                    "Donor Identifiers",
+                    [
+                        [
+                            "Donor ID",
+                            "id"
                         ],
                         [
-                            "Data Source URL",
-                            "data_source_url",
-                            "link"
+                            "RRID",
+                            "rrid"
+                        ],
+                        [
+                            "PanKbase ID",
+                            "pankbase_id"
+                        ],
+                        [
+                            "PANC-DB ID",
+                            "pancdb_id"
+                        ],
+                        [
+                            "Center Donor ID",
+                            "center_donor_id"
                         ]
                     ]
                 ],
@@ -996,6 +986,11 @@
                         [
                             "Data Source",
                             "data_source"
+                        ],
+                        [
+                            "URL",
+                            "data_source_url",
+                            "link"
                         ]
                     ]
                 ]
