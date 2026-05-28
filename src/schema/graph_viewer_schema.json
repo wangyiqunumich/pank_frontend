@@ -882,10 +882,7 @@
                         [
                             "Center Donor ID",
                             "center_donor_id"
-                        ]
-                    ],
-                    "Disease State",
-                    [
+                        ],
                         [
                             "Diabetes Type",
                             "diabetes_type"
@@ -915,6 +912,12 @@
                             "C-peptide (ng/ml)",
                             "c_peptide_ng_ml"
                         ]
+                    ],
+                    "Disease State",
+                        [
+                            
+                        ]
+                    [
                     ],
                     "Other Metadata",
                     [
