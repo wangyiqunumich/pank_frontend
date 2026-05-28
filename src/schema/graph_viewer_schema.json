@@ -861,6 +861,11 @@
                     "id"
                 ],
                 [
+                    "T1D Stage",
+                    "t1d_stage",
+                    "description"
+                ],
+                [
                     "Disease State",
                     [
                         [
@@ -870,11 +875,6 @@
                         [
                             "Diabetes Type",
                             "diabetes_type"
-                        ],
-                        [
-                            "T1D Stage",
-                            "t1d_stage",
-                            "description"
                         ],
                         [
                             "Diabetes Duration",
