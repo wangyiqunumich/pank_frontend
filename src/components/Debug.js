@@ -29,10 +29,10 @@ import {
 import {
   clearConversationStorage,
   exportConversationStorageSnapshot,
+  readConversationHistory,
   readRecentChats,
-    readConversationHistory,
-    replaceConversationHistory,
-    upsertRecentChat,
+  replaceConversationHistory,
+  upsertRecentChat,
 } from '../utils/chatSessionStorage';
 import MultiLineInputList from './DebugComponent';
 import KnowledgeGraph from './KnowledgeGraph';
