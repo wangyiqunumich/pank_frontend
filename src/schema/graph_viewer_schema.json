@@ -942,15 +942,6 @@
                             "int"
                         ],
                         [
-                            "HLA Status",
-                            "hla_status"
-                        ],
-                        [
-                            "HLA Typing",
-                            "hla_typing",
-                            "description"
-                        ],
-                        [
                             "Other Therapy",
                             "other_therapy"
                         ]
