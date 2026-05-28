@@ -873,7 +873,8 @@
                         ],
                         [
                             "T1D Stage",
-                            "t1d_stage"
+                            "t1d_stage",
+                            "description"
                         ],
                         [
                             "Diabetes Duration",
