@@ -253,7 +253,7 @@ function AgentLandingPage() {
                         <Typography sx={{ mt: { xs: 1.25, md: 2 }, fontFamily: 'Inter', fontWeight: 400, fontSize: { xs: 13, sm: 14, md: 14 }, lineHeight: 1.55, color: '#4C6261', maxWidth: { xs: 620, md: 640 }, mx: 'auto' }}>
                             Explore our comprehensive database of T1D–related data, <Box component="br" sx={{ display: 'block' }} />
                             knowledge, and insights. Simply type your question-our <Box component="br" sx={{ display: 'block' }} />
-                            PanKgraph agent will help you to explroe the knowledge graph.
+                            PanKgraph agent will help you to explore the knowledge graph.
                         </Typography>
                     </Box>
 
