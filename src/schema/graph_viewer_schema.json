@@ -861,9 +861,9 @@
                     "id"
                 ],
                 [
-                    "Identifiers",
+                    "Donor Identifiers",
                     [
-                       [
+                        [
                             "Donor ID",
                             "id"
                         ],
@@ -876,16 +876,22 @@
                             "pankbase_id"
                         ],
                         [
-                            "PancDB ID",
+                            "PANC-DB ID",
                             "pancdb_id"
                         ],
                         [
                             "Center Donor ID",
                             "center_donor_id"
                         ]
-                    ],
+                    ]
+                ],
+                [
                     "Disease State",
                     [
+                        [
+                            "Derived Diabetes Status",
+                            "derived_diabetes_status"
+                        ],
                         [
                             "Diabetes Type",
                             "diabetes_type"
@@ -895,16 +901,67 @@
                             "t1d_stage"
                         ],
                         [
-                            "Derived Diabetes Status",
-                            "derived_diabetes_status"
+                            "Diabetes Duration",
+                            "diabetes_duration"
+                        ],
+                        [
+                            "Family History of Diabetes",
+                            "family_history_of_diabetes"
+                        ],
+                        [
+                            "Autoantibody State",
+                            "aab_state"
+                        ],
+                        [
+                            "Other Disease Records",
+                            "other_disease_records",
+                            "description"
                         ]
-                    ],
+                    ]
+                ],
+                [
+                    "Clinical Measurements",
+                    [
+                        [
+                            "HbA1c (%)",
+                            "hba1c_percentage",
+                            "label_percentage(#F0960B)"
+                        ],
+                        [
+                            "C-peptide (ng/mL)",
+                            "c_peptide_ng_ml"
+                        ],
+                        [
+                            "BMI",
+                            "bmi",
+                            "float(2)"
+                        ],
+                        [
+                            "Hospital Stay (hours)",
+                            "hospital_stay_hours",
+                            "int"
+                        ],
+                        [
+                            "HLA Status",
+                            "hla_status"
+                        ],
+                        [
+                            "HLA Typing",
+                            "hla_typing",
+                            "description"
+                        ],
+                        [
+                            "Other Therapy",
+                            "other_therapy"
+                        ]
+                    ]
+                ],
+                [
                     "Other Metadata",
                     [
                         [
                             "Age",
-                            "age",
-                            "float(1)"
+                            "age"
                         ],
                         [
                             "Gender",
@@ -919,14 +976,21 @@
                             "Race"
                         ],
                         [
-                            "BMI",
-                            "bmi",
-                            "float(2)"
+                            "Predicted Genetic Ancestry",
+                            "predicted_genetic_ancestry",
+                            "description"
                         ],
                         [
-                            "HbA1c Percentage",
-                            "hba1c_percentage",
-                            "label_percentage(#F0960B)"
+                            "Cause of Death",
+                            "cause_of_death"
+                        ],
+                        [
+                            "Donation Type",
+                            "donation_type"
+                        ],
+                        [
+                            "Creation Date",
+                            "creation_date"
                         ],
                         [
                             "Data Source URL",
