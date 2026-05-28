@@ -862,7 +862,103 @@
                     "id"
                 ],
                 [
-                    "Identity",
+                    "T1D STATUS: T1D stage",
+                    "t1d_stage",
+                    "description"
+                ],
+                [
+                    "DIABETES STATUS",
+                    [
+                        [
+                            "Derived Diabetes Status",
+                            "derived_diabetes_status"
+                        ],
+                        [
+                            "Diabetes Type",
+                            "diabetes_type"
+                        ],
+                        [
+                            "Diabetes Duration",
+                            "diabetes_duration"
+                        ],
+                        [
+                            "Family History of Diabetes",
+                            "family_history_of_diabetes"
+                        ],
+                        [
+                            "Autoantibody Status",
+                            "aab_state"
+                        ],
+                        [
+                            "Other Disease Records",
+                            "other_disease_records",
+                            "description"
+                        ]
+                    ]
+                ],
+                [
+                    "Clinical Measurements",
+                    [
+                        [
+                            "HbA1c (%)",
+                            "hba1c_percentage",
+                            "label_percentage(#F0960B)"
+                        ],
+                        [
+                            "C-peptide (ng/mL)",
+                            "c_peptide_ng_ml"
+                        ],
+                        [
+                            "BMI",
+                            "bmi",
+                            "float(2)"
+                        ],
+                        [
+                            "Hospital Stay (hours)",
+                            "hospital_stay_hours",
+                            "int"
+                        ],
+                        [
+                            "Other Therapy",
+                            "other_therapy"
+                        ]
+                    ]
+                ],
+                [
+                    "DEMOGRAPHICS AND DONOR METADATA",
+                    [
+                        [
+                            "Age",
+                            "age"
+                        ],
+                        [
+                            "Gender",
+                            "gender"
+                        ],
+                        [
+                            "Genetic sex",
+                            "sex_at_birth"
+                        ],
+                        [
+                            "Self-reported race",
+                            "Race"
+                        ],
+                        [
+                            "Cause of Death",
+                            "cause_of_death"
+                        ],
+                        [
+                            "Donation Type",
+                            "donation_type"
+                        ],
+                        [
+                            "Creation Date",
+                            "creation_date"
+                        ]
+                    ]
+                ],
+                [
+                    "Donor Identifiers",
                     [
                         [
                             "Donor ID",
@@ -877,56 +973,12 @@
                             "pankbase_id"
                         ],
                         [
-                            "PancDB ID",
+                            "PANC-DB ID",
                             "pancdb_id"
                         ],
                         [
                             "Center Donor ID",
                             "center_donor_id"
-                        ],
-                        [
-                            "Derived Diabetes Status",
-                            "derived_diabetes_status"
-                        ],
-                        [
-                            "Diabetes Type",
-                            "diabetes_type"
-                        ],
-                        [
-                            "T1D Stage",
-                            "t1d_stage"
-                        ],
-                        [
-                            "Age",
-                            "age",
-                            "float(1)"
-                        ],
-                        [
-                            "Gender",
-                            "gender"
-                        ],
-                        [
-                            "Sex at Birth",
-                            "sex_at_birth"
-                        ],
-                        [
-                            "Race",
-                            "Race"
-                        ],
-                        [
-                            "BMI",
-                            "bmi",
-                            "float(2)"
-                        ],
-                        [
-                            "HbA1c Percentage",
-                            "hba1c_percentage",
-                            "label_percentage(#F0960B)"
-                        ],
-                        [
-                            "Data Source URL",
-                            "data_source_url",
-                            "link"
                         ]
                     ]
                 ],
@@ -936,6 +988,11 @@
                         [
                             "Data Source",
                             "data_source"
+                        ],
+                        [
+                            "URL",
+                            "data_source_url",
+                            "link"
                         ]
                     ]
                 ]
