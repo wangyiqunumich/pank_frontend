@@ -2404,7 +2404,7 @@
                         [
                             "Adjusted P value",
                             "padj",
-                            "float(3)"
+                            "float(6)"
                         ],
                         [
                             "Median logCPM",
