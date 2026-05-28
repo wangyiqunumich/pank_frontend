@@ -55,6 +55,40 @@ import {
 
 const DisableInfocardDisappear = false;
 
+const SUPERSCRIPT_MAP = {
+  '0': '⁰',
+  '1': '¹',
+  '2': '²',
+  '3': '³',
+  '4': '⁴',
+  '5': '⁵',
+  '6': '⁶',
+  '7': '⁷',
+  '8': '⁸',
+  '9': '⁹',
+  '-': '⁻',
+  '+': '⁺',
+};
+
+const toSuperscript = (value) => String(value || '')
+  .split('')
+  .map((char) => SUPERSCRIPT_MAP[char] || char)
+  .join('');
+
+const formatScientificNotation = (rawValue, significanceNumber = 3) => {
+  const num = Number(rawValue);
+  if (!Number.isFinite(num)) return null;
+  if (num === 0) return '0';
+
+  const digits = Number.isFinite(Number(significanceNumber))
+    ? Math.max(1, parseInt(significanceNumber, 10))
+    : 3;
+  const [mantissa, exponent = '0'] = num.toExponential(digits - 1).split('e');
+  const normalizedExponent = exponent.startsWith('+') ? exponent.slice(1) : exponent;
+
+  return `${mantissa} × 10${toSuperscript(normalizedExponent)}`;
+};
+
 const LegendItem = ({ label, color, sx }) => (
   <span
     style={{
@@ -86,6 +120,13 @@ const InfocardData = ({ value, config, dataKey }) => {
         ) :
           type === "float" ? (
             <>{value !== undefined ? parseFloat(value).toFixed(setting || 1) : "No Data"}</>
+            ) :
+              type === "scientific" ? (
+                <>{
+                  value !== undefined
+                    ? (formatScientificNotation(value, setting) || value)
+                    : "No Data"
+                }</>
           ) : ["link", "link_static"].includes(type) ? (
             <Link href={(type === "link" ? value : dataKey) || undefined} target="_blank" rel="noopener noreferrer" sx={{
               textDecoration: "none",

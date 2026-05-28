@@ -7,6 +7,7 @@
             "label_percentage(#color)",
             "int",
             "float(number_of_decimals)",
+            "scientific(significance_number)",
             "string",
             "description"
         ],
@@ -1432,7 +1433,7 @@
                         [
                             "Nominal P value",
                             "nominal_p",
-                            "float(3)"
+                            "scientific(4)"
                         ],
                         [
                             "LBF",
@@ -1497,7 +1498,7 @@
                         [
                             "Nominal P value",
                             "nominal_p",
-                            "float(3)"
+                            "scientific(4)"
                         ],
                         [
                             "LBF",
@@ -1580,7 +1581,7 @@
                         [
                             "P value",
                             "p_value",
-                            "float(3)"
+                            "scientific(4)"
                         ],
                         [
                             "LBF",
@@ -1976,12 +1977,12 @@
                         [
                             "P value",
                             "P_value",
-                            "float(3)"
+                            "scientific(4)"
                         ],
                         [
                             "Adjusted P value",
                             "Adjusted_P_value",
-                            "float(3)"
+                            "scientific(4)"
                         ],
                         [
                             "Log2 Fold Change",
@@ -2140,12 +2141,12 @@
                         [
                             "P value",
                             "P_value",
-                            "float(3)"
+                            "scientific(4)"
                         ],
                         [
                             "Adjusted P value",
                             "Adjusted_P_value",
-                            "float(3)"
+                            "scientific(4)"
                         ],
                         [
                             "Log2 Fold Change",
@@ -2404,7 +2405,7 @@
                         [
                             "Adjusted P value",
                             "padj",
-                            "float(6)"
+                            "scientific(4)"
                         ],
                         [
                             "Median logCPM",
@@ -2486,12 +2487,12 @@
                         [
                             "P value",
                             "pval",
-                            "float(3)"
+                            "scientific(4)"
                         ],
                         [
                             "Adjusted P value",
                             "padj",
-                            "float(3)"
+                            "scientific(4)"
                         ],
                         [
                             "ES",
@@ -2578,12 +2579,12 @@
                         [
                             "P value",
                             "pval",
-                            "float(3)"
+                            "scientific(4)"
                         ],
                         [
                             "Adjusted P value",
                             "padj",
-                            "float(3)"
+                            "scientific(4)"
                         ],
                         [
                             "ES",
