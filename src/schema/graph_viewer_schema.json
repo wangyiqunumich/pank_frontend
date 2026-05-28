@@ -861,12 +861,12 @@
                     "id"
                 ],
                 [
-                    "T1D Stage",
+                    "T1D STATUS: T1D stage",
                     "t1d_stage",
                     "description"
                 ],
                 [
-                    "Disease State",
+                    "DIABETES STATUS",
                     [
                         [
                             "Derived Diabetes Status",
@@ -885,7 +885,7 @@
                             "family_history_of_diabetes"
                         ],
                         [
-                            "Autoantibody State",
+                            "Autoantibody Status",
                             "aab_state"
                         ],
                         [
@@ -924,7 +924,7 @@
                     ]
                 ],
                 [
-                    "Other Metadata",
+                    "DEMOGRAPHICS AND DONOR METADATA",
                     [
                         [
                             "Age",
