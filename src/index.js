@@ -36,7 +36,6 @@ import { store } from './redux/store';
 import ResultPage from './SearchResult';
 import { AgentResultLayout } from './SearchResult/AgentResult';
 import ResultPageNew from './SearchResult/index_new';
-import ResultPage2 from './SearchResult/resultpage';
 import ResultPageNew2 from './SearchResult/resultpage_new';
 import FunctionalDataPage from './skills/FunctionalDataPage';
 import GWASExplorerPage from './skills/GWASExplorerPage';
@@ -89,12 +88,11 @@ root.render(
                 <Route path="/result" element={<ResultPage />} />
                 <Route
                   path="/result-new"
-                  element={<AgentResultLayout ResultView={ResultPageNew} allowMulti={false} allowSearch={false} />}
+                  element={<AgentResultLayout ResultView={ResultPageNew} allowSearch={false} />}
                 />
-                <Route path="/resultpage" element={<ResultPage2 />} />
                 <Route
                   path="/result-new2"
-                  element={<AgentResultLayout ResultView={ResultPageNew2} allowMulti={false} allowSearch={true} showFloatingSearchBar={true} />}
+                  element={<AgentResultLayout ResultView={ResultPageNew2} allowSearch={true} showFloatingSearchBar={true} />}
                 />
                 <Route path="/usecases" element={<UsecasesPage />} />
                 <Route path="/docs/*" element={<DocPage />} />
@@ -105,7 +103,6 @@ root.render(
                 <Route path="/gwas-explorer" element={<GWASExplorerPage />} />
                 <Route path="/functional-data" element={<FunctionalDataPage />} />
                 <Route path="/agent-landing" element={<Navigate to="/" replace />} />
-                <Route path="/result2" element={<ResultPage2 />} />
                 <Route path="/old-landing" element={<LandingPage />} />
                 <Route path="/callback" element={<AgentLandingPage />} />
                 <Route path="/" element={<AgentLandingPage />} />
@@ -114,7 +111,6 @@ root.render(
                   element={isDevelopmentStage ? <DebugPage /> : <Navigate to="/old-landing" replace />}
                 />
                 <Route path="/igv" element={<IgvPage />} />
-                <Route path="/agent-result" element={<AgentResultLayout ResultView={ResultPageNew2} allowMulti={false} allowSearch={true} showFloatingSearchBar={true} />} />
                 <Route path="*" element={<AgentLandingPage />} />
               </Routes>
             </div>

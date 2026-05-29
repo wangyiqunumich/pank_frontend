@@ -2,10 +2,10 @@ import './Ontology.css';
 import './github-markdown-light.css';
 
 import React, {
-    useCallback,
-    useEffect,
-    useRef,
-    useState,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
 } from 'react';
 
 import lunr from 'lunr';
@@ -27,12 +27,12 @@ import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import SearchIcon from '@mui/icons-material/Search';
 import {
-    Autocomplete,
-    Box,
-    Button,
-    Container,
-    TextField,
-    Typography,
+  Autocomplete,
+  Box,
+  Button,
+  Container,
+  TextField,
+  Typography,
 } from '@mui/material';
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';

@@ -161,7 +161,7 @@ function AgentLandingPage() {
         const normalized = (searchQuery || '').trim();
         if (!normalized) return;
         const encodedQuery = encodeURIComponent(utf8ToBase64(normalized));
-        navigate(`/result-new2?question=${encodedQuery}&terminal=true`);
+        navigate(`/result-new2?question=${encodedQuery}`);
     };
 
     const handleExampleClick = (example) => {

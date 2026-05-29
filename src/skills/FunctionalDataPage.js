@@ -655,7 +655,7 @@ export default function FunctionalDataPage() {
         currentData,
       });
       const encodedQuery = encodeURIComponent(utf8ToBase64(prompt));
-      navigate(`/result-new2?question=${encodedQuery}&terminal=true&prompt_source=functional_data_auto`);
+      navigate(`/result-new2?question=${encodedQuery}&prompt_source=functional_data_auto`);
     } catch (err) {
       console.error('Failed to build Step 2 prompt:', err);
     } finally {

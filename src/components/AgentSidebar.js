@@ -291,7 +291,7 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
             >
               {recentChats.length > 0 ? recentChats.map((chat) => {
                 const encodedQuestion = encodeURIComponent(utf8ToBase64(chat.firstQuestion || ''));
-                const target = `/result-new2?question=${encodedQuestion}&terminal=true&session_id=${encodeURIComponent(chat.sessionId)}`;
+                const target = `/result-new2?question=${encodedQuestion}&session_id=${encodeURIComponent(chat.sessionId)}`;
                 const isActiveRecent = String(chat?.sessionId || '') === currentSessionId;
                 return (
                   <Button
