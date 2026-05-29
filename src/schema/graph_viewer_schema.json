@@ -1724,7 +1724,7 @@
             "info_panel": [
                 [
                     "Title",
-                    "Genetically regulates",
+                    "Genetically interacts",
                     "string"
                 ],
                 [
@@ -1778,7 +1778,7 @@
         },
         "physical_interaction": {
             "text_color": "#000000",
-            "edge_label": "physically binds",
+            "edge_label": "physically interacts",
             "inverted": "FALSE",
             "info_panel": [
                 [
