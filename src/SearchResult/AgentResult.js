@@ -16,11 +16,15 @@ import {
 } from '@mui/material';
 
 import AgentSidebar from '../components/AgentSidebar';
+import FeedbackPromptDialog from '../components/FeedbackPromptDialog';
 import { AlertMessage } from '../components/SupportingMaterial';
 import { PLANNER_AGENT_BASE_URL } from '../constants/apiEndpoints';
 import starFilledIcon from '../image/star-filled.svg';
 import starIcon from '../image/star.svg';
 import SearchResult from './result';
+
+const FEEDBACK_AUTO_PROMPT_DISABLED_KEY = 'pank_feedback_auto_prompt_disabled_v1';
+const FEEDBACK_AUTO_PROMPT_DELAY_MS = 30 * 1000;
 
 // Genome Browser Component - mounts only when tab is first selected
 export function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVisible = false, tracks = null, height = 600, compact = false }) {
@@ -424,7 +428,14 @@ export function AgentResultLayout({
     const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
     const [feedbackError, setFeedbackError] = useState('');
     const [feedbackSuccessOpen, setFeedbackSuccessOpen] = useState(false);
+    const [feedbackPromptOpen, setFeedbackPromptOpen] = useState(false);
+    const [feedbackAutoPromptDisabled, setFeedbackAutoPromptDisabled] = useState(() => {
+        if (typeof window === 'undefined') return false;
+        return window.localStorage.getItem(FEEDBACK_AUTO_PROMPT_DISABLED_KEY) === '1';
+    });
     const menuTimersRef = useRef({ open: null, close: null });
+    const feedbackPromptTimerRef = useRef(null);
+    const previousQuestionCompleteRef = useRef(false);
     const resultsContainerRef = useRef(null);
     const scrollRafRef = useRef(null);
     const scrollLockRef = useRef({ active: false, until: 0, index: null });
@@ -441,6 +452,7 @@ export function AgentResultLayout({
         && !Boolean(activeMeta?.isPlanning)
         && (effectiveAllowMulti || activeQuestionComplete);
     const isSingleColumn = useMediaQuery("(max-width:1199.95px)");
+    const navigatorMenuVisible = isSingleColumn || menuOpen;
 
     const getAnchorPrefix = (index) => `result-${index + 1}`;
     const handleContentMeta = (index) => (meta) => {
@@ -585,6 +597,20 @@ export function AgentResultLayout({
         setFeedbackError('');
     };
 
+    const clearFeedbackPromptTimer = () => {
+        if (!feedbackPromptTimerRef.current) return;
+        clearTimeout(feedbackPromptTimerRef.current);
+        feedbackPromptTimerRef.current = null;
+    };
+
+    const disableAutoFeedbackPrompt = () => {
+        setFeedbackAutoPromptDisabled(true);
+        if (typeof window !== 'undefined') {
+            window.localStorage.setItem(FEEDBACK_AUTO_PROMPT_DISABLED_KEY, '1');
+        }
+        clearFeedbackPromptTimer();
+    };
+
     const handleSubmitFeedback = async () => {
         if (feedbackRating < 1 || feedbackRating > 5) {
             setFeedbackError('Please select a star rating.');
@@ -685,8 +711,42 @@ export function AgentResultLayout({
         return () => {
             if (menuTimersRef.current.open) clearTimeout(menuTimersRef.current.open);
             if (menuTimersRef.current.close) clearTimeout(menuTimersRef.current.close);
+            clearFeedbackPromptTimer();
         };
     }, []);
+
+    useEffect(() => {
+        const becameComplete = activeQuestionComplete && !previousQuestionCompleteRef.current;
+        previousQuestionCompleteRef.current = activeQuestionComplete;
+
+        if (feedbackAutoPromptDisabled) {
+            clearFeedbackPromptTimer();
+            return;
+        }
+
+        if (!activeQuestionComplete) {
+            clearFeedbackPromptTimer();
+            return;
+        }
+
+        if (!becameComplete) {
+            return;
+        }
+
+        clearFeedbackPromptTimer();
+        feedbackPromptTimerRef.current = setTimeout(() => {
+            if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
+                return;
+            }
+            if (!feedbackOpen) {
+                setFeedbackPromptOpen(true);
+            }
+        }, FEEDBACK_AUTO_PROMPT_DELAY_MS);
+
+        return () => {
+            clearFeedbackPromptTimer();
+        };
+    }, [activeQuestionComplete, feedbackAutoPromptDisabled, feedbackOpen]);
 
     return (
         <div
@@ -753,16 +813,16 @@ export function AgentResultLayout({
             {results.length > 1 && (
                 <>
                     <div
-                        onMouseEnter={openMenuWithDelay}
-                        onMouseLeave={closeMenuWithDelay}
+                        onMouseEnter={isSingleColumn ? undefined : openMenuWithDelay}
+                        onMouseLeave={isSingleColumn ? undefined : closeMenuWithDelay}
                         style={{
                             position: "fixed",
-                            top: 290,
-                            right: 24,
+                            top: isSingleColumn ? 240 : 290,
+                            right: isSingleColumn ? 12 : 24,
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "center",
-                            zIndex: 100,
+                            zIndex: 1200,
                             padding: "18px 12px",
                             margin: "-18px -12px",
                         }}
@@ -788,23 +848,23 @@ export function AgentResultLayout({
                     </div>
 
                     <div
-                        onMouseEnter={openMenuWithDelay}
-                        onMouseLeave={closeMenuWithDelay}
+                        onMouseEnter={isSingleColumn ? undefined : openMenuWithDelay}
+                        onMouseLeave={isSingleColumn ? undefined : closeMenuWithDelay}
                         style={{
                             position: "fixed",
-                            top: 240,
-                            right: 56,
+                            top: isSingleColumn ? 180 : 240,
+                            right: isSingleColumn ? 44 : 56,
                             backgroundColor: "#fff",
                             border: "1px solid #ddd",
                             borderRadius: 12,
                             padding: "16px",
                             boxShadow: "0 2px 12px rgba(0,0,0,0.1)",
-                            zIndex: 100,
+                            zIndex: 1200,
                             minWidth: 220,
-                            maxWidth: 265,
-                            transform: menuOpen ? "translateX(0)" : "translateX(110%)",
-                            opacity: menuOpen ? 1 : 0,
-                            pointerEvents: menuOpen ? "auto" : "none",
+                            maxWidth: isSingleColumn ? "min(78vw, 265px)" : 265,
+                            transform: navigatorMenuVisible ? "translateX(0)" : "translateX(110%)",
+                            opacity: navigatorMenuVisible ? 1 : 0,
+                            pointerEvents: navigatorMenuVisible ? "auto" : "none",
                             transition: "transform 0.25s ease, opacity 0.2s ease",
                         }}
                     >
@@ -1090,32 +1150,40 @@ export function AgentResultLayout({
                 onClose={() => setFeedbackSuccessOpen(false)}
             />
 
+            <FeedbackPromptDialog
+                open={feedbackPromptOpen}
+                onShareFeedback={() => {
+                    disableAutoFeedbackPrompt();
+                    setFeedbackPromptOpen(false);
+                    openFeedbackModal();
+                }}
+                onMaybeLater={() => {
+                    disableAutoFeedbackPrompt();
+                    setFeedbackPromptOpen(false);
+                }}
+            />
+
             {feedbackOpen ? (
                 <div
                     style={{
                         position: 'fixed',
-                        inset: 0,
                         zIndex: 1300,
-                        backgroundColor: 'rgba(15, 23, 42, 0.35)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: 16,
+                        right: 24,
+                        bottom: 85,
+                        width: 480,
+                        maxWidth: 'calc(100vw - 24px)',
                     }}
-                    onClick={closeFeedbackModal}
                 >
                     <div
                         style={{
                             width: '100%',
-                            maxWidth: 560,
                             backgroundColor: '#FFFFFF',
                             borderRadius: 14,
-                            padding: 20,
+                            padding: '24px',
                             fontFamily: 'Open Sans, sans-serif',
-                            boxShadow: '0px 8px 10px -6px rgba(0, 0, 0, 0.10), 0px 20px 25px -5px rgba(0, 0, 0, 0.10)',
+                            boxShadow: '0px 25px 50px -12px rgba(0, 0, 0, 0.25)',
                             position: 'relative',
                         }}
-                        onClick={(event) => event.stopPropagation()}
                     >
                         <button
                             type="button"
@@ -1142,14 +1210,32 @@ export function AgentResultLayout({
                             ×
                         </button>
 
+                        <div
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                padding: 16,
+                                borderRadius: 14,
+                                backgroundColor: '#008C8C20',
+                                marginBottom: 12,
+                            }}
+                        >
+                            <ChatBubbleOutlineRoundedIcon sx={{ color: '#008C8C', fontSize: 48 }} />
+                        </div>
+
                         <div style={{ fontWeight: 700, fontSize: 20, color: '#000000', lineHeight: 1.35 }}>
                             Share your feedback
                         </div>
                         <div style={{ marginTop: 6, fontWeight: 400, fontSize: 15, color: '#6A7282' }}>
-                            Your feedback helps us improve PanKgraph.
+                            Your feedback helps us improve PanKgraph. We'd love to know what you think about your experience.
                         </div>
 
                         <div style={{ height: 30 }} />
+
+                        <div style={{ fontWeight: 400, fontSize: 13, color: '#6A7282', marginBottom: 8 }}>
+                            How would you rate your experience?
+                        </div>
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             {[1, 2, 3, 4, 5].map((starValue) => {
@@ -1180,10 +1266,13 @@ export function AgentResultLayout({
                         </div>
 
                         <div style={{ height: 16 }} />
+                        <div style={{ fontWeight: 400, fontSize: 13, color: '#6A7282', marginBottom: 8 }}>
+                            What did you think of this response? (optional)
+                        </div>
                         <textarea
                             value={feedbackText}
                             onChange={(event) => setFeedbackText(event.target.value)}
-                            placeholder="What did you think of this response? (optional)"
+                            placeholder="Share your thoughts..."
                             rows={4}
                             style={{
                                 width: '100%',

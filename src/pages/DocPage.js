@@ -679,6 +679,7 @@ function DocPage() {
     const [pageString, setpageString] = useState({}); // pages in string of html
     const [pageHTML, setpageHTML] = useState({}); // pages in jsx
     const [pageMarkdown, setPageMarkdown] = useState({}); // raw markdown content per page
+    const [styledOntologyMarkdown, setStyledOntologyMarkdown] = useState('');
     const [cache, setCache] = useState({}); // cache for search results
     const [isLoading, setIsLoading] = useState(true);
     const [highlightKey, setHighlightKey] = useState('');
@@ -686,6 +687,7 @@ function DocPage() {
     const contentRef = useRef(null);
     const [inputValue, setInputValue] = useState("");
     const [getResultResult, setGetResultResult] = useState([]);
+    const isStyledOntology = new URLSearchParams(location.search).get('styled') === 'true';
 
     const renderMD = useCallback((contn) => {
         function getID(children) {
@@ -776,6 +778,12 @@ function DocPage() {
             });
         const pages = Object.assign({}, ...pg);
         setPages(pages);
+
+        const styledOntologyModule = await import('../schema/doc/ontology_styled.md');
+        const styledOntologyResponse = await fetch(styledOntologyModule.default);
+        const styledOntologyText = await styledOntologyResponse.text();
+        setStyledOntologyMarkdown(styledOntologyText);
+
         setIsLoading(false);
     }, [renderMD, isLoading]);
 
@@ -970,7 +978,7 @@ function DocPage() {
         {children}
     </pre>
 
-    const isGlobalTreePage = page === 'ontology';
+    const isGlobalTreePage = page === 'ontology' && isStyledOntology;
 
     return (
         <div className="App">
@@ -1065,7 +1073,9 @@ function DocPage() {
                         {isLoading
                             ? loading()
                             : (page === 'ontology'
-                                ? <GlobalTreeTopDownGraph markdownText={pageMarkdown[page]} />
+                                ? (isStyledOntology
+                                    ? <GlobalTreeTopDownGraph markdownText={styledOntologyMarkdown || pageMarkdown[page]} />
+                                    : pageHTML[page])
                                 : pageHTML[page])}
                     </div>
                 </Box>

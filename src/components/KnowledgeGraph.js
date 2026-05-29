@@ -563,6 +563,37 @@ const parseJSON = (str) => {
   }
 };
 
+const getSafeEdgeMidpoint = (ele) => {
+  try {
+    if (!ele || typeof ele.midpoint !== 'function') return null;
+    const midpoint = ele.midpoint();
+    if (!midpoint) return null;
+    if (!Number.isFinite(midpoint.x) || !Number.isFinite(midpoint.y)) return null;
+    return midpoint;
+  } catch (error) {
+    return null;
+  }
+};
+
+const getSafeElementPosition = (ele) => {
+  try {
+    if (!ele || ele.nonempty === false) return null;
+    if (typeof ele.removed === 'function' && ele.removed()) return null;
+
+    if (typeof ele.isNode === 'function' && ele.isNode()) {
+      if (typeof ele.position !== 'function') return null;
+      const pos = ele.position();
+      if (!pos) return null;
+      if (!Number.isFinite(pos.x) || !Number.isFinite(pos.y)) return null;
+      return pos;
+    }
+
+    return getSafeEdgeMidpoint(ele);
+  } catch (error) {
+    return null;
+  }
+};
+
 const InfocardMenu = ({ hoveredData, review }) => {
   const isEdge = hoveredData?.source && hoveredData?.target;
   const schema =
@@ -915,10 +946,14 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
     if (!ele || !cyRef.current || !infocardEnabled) {
       return;
     }
-    const { x: modelX, y: modelY } =
-      ele.isNode() ? ele.position() : ele.midpoint();
-    const nodeWidth = ele.isNode() ? ele.outerWidth() * cyRef.current.zoom() : 20;
-    const nodeHeight = ele.isNode() ? ele.outerHeight() * cyRef.current.zoom() : 20;
+    const modelPos = getSafeElementPosition(ele);
+    if (!modelPos) {
+      setInfocardVisible(false);
+      return;
+    }
+    const { x: modelX, y: modelY } = modelPos;
+    const nodeWidth = (typeof ele.isNode === 'function' && ele.isNode()) ? ele.outerWidth() * cyRef.current.zoom() : 20;
+    const nodeHeight = (typeof ele.isNode === 'function' && ele.isNode()) ? ele.outerHeight() * cyRef.current.zoom() : 20;
     const x = modelX * cyRef.current.zoom() + cyRef.current.pan().x;
     const y = modelY * cyRef.current.zoom() + cyRef.current.pan().y;
 
@@ -1196,9 +1231,21 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
 
     const handleEdge = (handler) => ((evt) => {
       // compare mouse position with edge midpoint
-      const ele = cyRef.current.$(evt.target);
-      const midpoint = ele.midpoint();
-      const mouseRendered = cyRef.current.renderer().projectIntoViewport(evt.originalEvent.clientX, evt.originalEvent.clientY);
+      const cy = cyRef.current;
+      if (!cy) return;
+
+      const ele = evt?.target;
+      if (!ele || ele.nonempty === false || (typeof ele.removed === 'function' && ele.removed())) return;
+
+      const midpoint = getSafeEdgeMidpoint(ele);
+      if (!midpoint) return;
+
+      const originalEvent = evt?.originalEvent;
+      if (!originalEvent) return;
+
+      const mouseRendered = cy.renderer()?.projectIntoViewport?.(originalEvent.clientX, originalEvent.clientY);
+      if (!mouseRendered || mouseRendered.length < 2) return;
+
       const dist = Math.sqrt(
         Math.pow(midpoint.x - mouseRendered[0], 2) +
         Math.pow(midpoint.y - mouseRendered[1], 2)
