@@ -43,6 +43,7 @@ import {
   Tooltip,
   tooltipClasses,
   Typography,
+  useMediaQuery,
 } from '@mui/material';
 
 import { flaskBackendAxiosInstanceNew } from '../axios/axios';
@@ -67,6 +68,7 @@ import agentErrorSchema from '../schema/agent_error.json';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import {
   appendConversationMessages,
+  getConversationStorage,
   readConversationHistory,
   replaceConversationHistory,
   upsertRecentChat,
@@ -2461,8 +2463,9 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             setChatRouteState('new_query');
             setChatStartPendingPlanSessionId('');
             setChatStartRevisionPrompt('');
-            sessionStorage.removeItem(CHAT_START_CACHE_KEY);
-            sessionStorage.removeItem(CHAT_PENDING_PLAN_CACHE_KEY);
+            const conversationStorage = getConversationStorage();
+            conversationStorage?.removeItem(CHAT_START_CACHE_KEY);
+            conversationStorage?.removeItem(CHAT_PENDING_PLAN_CACHE_KEY);
 
             const summaryForHistory = String(streamAnswerRef.current || confirmPayload?.answer_markdown || '').trim();
             if (summaryForHistory) {
@@ -2650,7 +2653,8 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     return;
                 }
 
-                const cachedPendingPlan = safeParseJson(sessionStorage.getItem(CHAT_PENDING_PLAN_CACHE_KEY), null);
+                const conversationStorage = getConversationStorage();
+                const cachedPendingPlan = safeParseJson(conversationStorage?.getItem(CHAT_PENDING_PLAN_CACHE_KEY), null);
 
                 if (
                     cachedPendingPlan
@@ -4590,6 +4594,17 @@ Please review this plan and provide edits if needed.`,
             {
                 anchorId: `${anchorPrefix}-question-1`,
                 label: topQuestionLabel || 'Question 1',
+                sectionAnchorPrefix: anchorPrefix,
+                isPlanQuestion: Boolean(planDemoMode || shouldShowPlannerPage),
+                aiHeadings: (resolvedPageData?.aiOverview?.sections ?? [])
+                    .map((section, sectionIndex) => ({
+                        index: sectionIndex,
+                        label: stripHtml(section?.heading || '').trim(),
+                    }))
+                    .filter((item) => item.label),
+                hasVisual: Boolean(resolvedPageData?.visualMaterial),
+                hasEvidences: Boolean(resolvedPageData?.evidences),
+                hasFollowUp: Boolean(resolvedPageData?.followUp),
             },
         ];
 
@@ -4600,18 +4615,34 @@ Please review this plan and provide edits if needed.`,
         followUpBlocks.forEach((block, index) => {
             if (!block || block.type === 'loading') return;
             const label = stripHtml(block.title || block.question || `Follow-up ${index + 1}`);
+            const isPlanQuestion = block.type === 'plan';
+            const showGraphSection = String(block?.route || '') !== 'follow_up';
+            const pmids = extractPmidsFromCitationText(getReferenceParsingBody(block?.summary), 30);
+            const hasEvidences = Array.isArray(block?.referencesData)
+                ? block.referencesData.length > 0
+                : pmids.length > 0;
             items.push({
                 anchorId: `${anchorPrefix}-question-${index + 2}`,
                 label: label || `Follow-up ${index + 1}`,
+                sectionAnchorPrefix: isPlanQuestion
+                    ? `${anchorPrefix}-followup-plan-${index + 1}`
+                    : `${anchorPrefix}-followup-${index + 1}`,
+                isPlanQuestion,
+                aiHeadings: [],
+                hasVisual: isPlanQuestion ? Boolean(block?.planMarkdown) : showGraphSection,
+                hasEvidences: isPlanQuestion ? false : hasEvidences,
+                hasFollowUp: isPlanQuestion ? false : true,
             });
         });
 
         return items;
-    }, [anchorPrefix, currentQuestion, chatStartQuestion, question, resolvedPageData, isChatApiMode, followUpBlocks]);
+    }, [anchorPrefix, currentQuestion, chatStartQuestion, question, resolvedPageData, isChatApiMode, followUpBlocks, planDemoMode, shouldShowPlannerPage, getReferenceParsingBody]);
 
     const [activeQuestionJumpAnchor, setActiveQuestionJumpAnchor] = useState('');
     const [questionJumpMenuOpen, setQuestionJumpMenuOpen] = useState(false);
     const questionJumpMenuTimersRef = useRef({ open: null, close: null });
+    const isSingleColumn = useMediaQuery('(max-width:1199.95px)');
+    const questionJumpMenuVisible = questionJumpMenuOpen;
 
     useEffect(() => {
         if (questionJumpItems.length <= 1) {
@@ -4625,10 +4656,10 @@ Please review this plan and provide edits if needed.`,
         });
     }, [questionJumpItems]);
 
-    const handleQuestionJump = useCallback((anchorId) => {
-        const target = document.getElementById(anchorId);
+    const handleQuestionJump = useCallback((anchorId, parentAnchorId = anchorId) => {
+        const target = document.getElementById(anchorId) || document.getElementById(parentAnchorId);
         if (!target) return;
-        setActiveQuestionJumpAnchor(anchorId);
+        setActiveQuestionJumpAnchor(parentAnchorId);
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, []);
 
@@ -4911,14 +4942,14 @@ Please review this plan and provide edits if needed.`,
             </Box>
 
             {questionJumpItems.length > 1 ? (
-                <Box sx={{ display: { xs: 'none', xl: 'block' } }}>
+                <Box>
                     <div
                         onMouseEnter={openQuestionJumpMenuWithDelay}
                         onMouseLeave={closeQuestionJumpMenuWithDelay}
                         style={{
                             position: 'fixed',
-                            top: 290,
-                            right: 24,
+                            top: isSingleColumn ? 240 : 290,
+                            right: isSingleColumn ? 12 : 24,
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
@@ -4952,8 +4983,8 @@ Please review this plan and provide edits if needed.`,
                         onMouseLeave={closeQuestionJumpMenuWithDelay}
                         style={{
                             position: 'fixed',
-                            top: 240,
-                            right: 56,
+                            top: isSingleColumn ? 180 : 240,
+                            right: isSingleColumn ? 44 : 56,
                             backgroundColor: '#fff',
                             border: '1px solid #ddd',
                             borderRadius: 12,
@@ -4961,10 +4992,10 @@ Please review this plan and provide edits if needed.`,
                             boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
                             zIndex: 1200,
                             minWidth: 220,
-                            maxWidth: 265,
-                            transform: questionJumpMenuOpen ? 'translateX(0)' : 'translateX(110%)',
-                            opacity: questionJumpMenuOpen ? 1 : 0,
-                            pointerEvents: questionJumpMenuOpen ? 'auto' : 'none',
+                            maxWidth: isSingleColumn ? 'min(78vw, 265px)' : 265,
+                            transform: questionJumpMenuVisible ? 'translateX(0)' : 'translateX(110%)',
+                            opacity: questionJumpMenuVisible ? 1 : 0,
+                            pointerEvents: questionJumpMenuVisible ? 'auto' : 'none',
                             transition: 'transform 0.25s ease, opacity 0.2s ease',
                         }}
                     >
@@ -4972,31 +5003,162 @@ Please review this plan and provide edits if needed.`,
                             {questionJumpItems.map((item, idx) => {
                                 const isActive = activeQuestionJumpIndex === idx;
                                 return (
-                                    <button
-                                        key={item.anchorId}
-                                        onClick={() => handleQuestionJump(item.anchorId)}
-                                        style={{
-                                            width: '100%',
-                                            borderRadius: 8,
-                                            border: '1px solid transparent',
-                                            backgroundColor: isActive ? 'rgba(20, 184, 166, 0.2)' : 'transparent',
-                                            cursor: 'pointer',
-                                            fontWeight: 600,
-                                            color: isActive ? '#3A838B' : '#818181',
-                                            fontSize: 14,
-                                            fontFamily: 'Open Sans, sans-serif',
-                                            textAlign: 'left',
-                                            padding: '6px 10px',
-                                            whiteSpace: 'nowrap',
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            transition: 'background-color 0.2s ease, color 0.2s ease',
-                                        }}
-                                        title={`Q${idx + 1} ${item.label}`}
-                                    >
-                                        <span style={{ fontSize: 14, fontWeight: 700, marginRight: 6 }}>{`Q${idx + 1}`}</span>
-                                        <span style={{ fontSize: 14, fontWeight: isActive ? 700 : 600 }}>{item.label}</span>
-                                    </button>
+                                    <div key={item.anchorId}>
+                                        <button
+                                            onClick={() => handleQuestionJump(item.anchorId)}
+                                            style={{
+                                                width: '100%',
+                                                borderRadius: 8,
+                                                border: '1px solid transparent',
+                                                backgroundColor: isActive ? 'rgba(20, 184, 166, 0.2)' : 'transparent',
+                                                cursor: 'pointer',
+                                                fontWeight: 600,
+                                                color: isActive ? '#3A838B' : '#818181',
+                                                fontSize: 14,
+                                                fontFamily: 'Open Sans, sans-serif',
+                                                textAlign: 'left',
+                                                padding: '6px 10px',
+                                                whiteSpace: 'nowrap',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                transition: 'background-color 0.2s ease, color 0.2s ease',
+                                            }}
+                                            title={`Q${idx + 1} ${item.label}`}
+                                        >
+                                            <span style={{ fontSize: 14, fontWeight: 700, marginRight: 6 }}>{`Q${idx + 1}`}</span>
+                                            <span style={{ fontSize: 14, fontWeight: isActive ? 700 : 600 }}>{item.label}</span>
+                                        </button>
+
+                                        {isSingleColumn && isActive ? (
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 2, paddingLeft: 18, marginBottom: 6 }}>
+                                                {item.isPlanQuestion ? (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleQuestionJump(`${item.sectionAnchorPrefix}-agent-plan`, item.anchorId)}
+                                                        style={{
+                                                            width: '100%',
+                                                            borderRadius: 6,
+                                                            border: '1px solid transparent',
+                                                            background: 'transparent',
+                                                            color: '#64748B',
+                                                            fontSize: 12,
+                                                            fontWeight: 600,
+                                                            textAlign: 'left',
+                                                            padding: '4px 6px',
+                                                            cursor: 'pointer',
+                                                        }}
+                                                    >
+                                                        Agent Plan
+                                                    </button>
+                                                ) : (
+                                                    <>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleQuestionJump(`${item.sectionAnchorPrefix}-ai-overview`, item.anchorId)}
+                                                            style={{
+                                                                width: '100%',
+                                                                borderRadius: 6,
+                                                                border: '1px solid transparent',
+                                                                background: 'transparent',
+                                                                color: '#64748B',
+                                                                fontSize: 12,
+                                                                fontWeight: 600,
+                                                                textAlign: 'left',
+                                                                padding: '4px 6px',
+                                                                cursor: 'pointer',
+                                                            }}
+                                                        >
+                                                            AI Overview
+                                                        </button>
+                                                        {(item.aiHeadings || []).map((heading) => (
+                                                            <button
+                                                                key={`${item.sectionAnchorPrefix}-heading-${heading.index}`}
+                                                                type="button"
+                                                                onClick={() => handleQuestionJump(`${item.sectionAnchorPrefix}-ai-overview-${heading.index + 1}`, item.anchorId)}
+                                                                style={{
+                                                                    width: '100%',
+                                                                    borderRadius: 6,
+                                                                    border: '1px solid transparent',
+                                                                    background: 'transparent',
+                                                                    color: '#94A3B8',
+                                                                    fontSize: 11.5,
+                                                                    fontWeight: 600,
+                                                                    textAlign: 'left',
+                                                                    padding: '2px 6px',
+                                                                    cursor: 'pointer',
+                                                                }}
+                                                            >
+                                                                {heading.label}
+                                                            </button>
+                                                        ))}
+                                                    </>
+                                                )}
+
+                                                {item.hasVisual ? (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleQuestionJump(`${item.sectionAnchorPrefix}-visual-material`, item.anchorId)}
+                                                        style={{
+                                                            width: '100%',
+                                                            borderRadius: 6,
+                                                            border: '1px solid transparent',
+                                                            background: 'transparent',
+                                                            color: '#64748B',
+                                                            fontSize: 12,
+                                                            fontWeight: 600,
+                                                            textAlign: 'left',
+                                                            padding: '4px 6px',
+                                                            cursor: 'pointer',
+                                                        }}
+                                                    >
+                                                        Visual Material
+                                                    </button>
+                                                ) : null}
+
+                                                {item.hasEvidences ? (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleQuestionJump(`${item.sectionAnchorPrefix}-evidences`, item.anchorId)}
+                                                        style={{
+                                                            width: '100%',
+                                                            borderRadius: 6,
+                                                            border: '1px solid transparent',
+                                                            background: 'transparent',
+                                                            color: '#64748B',
+                                                            fontSize: 12,
+                                                            fontWeight: 600,
+                                                            textAlign: 'left',
+                                                            padding: '4px 6px',
+                                                            cursor: 'pointer',
+                                                        }}
+                                                    >
+                                                        Evidences
+                                                    </button>
+                                                ) : null}
+
+                                                {item.hasFollowUp ? (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleQuestionJump(`${item.sectionAnchorPrefix}-follow-up`, item.anchorId)}
+                                                        style={{
+                                                            width: '100%',
+                                                            borderRadius: 6,
+                                                            border: '1px solid transparent',
+                                                            background: 'transparent',
+                                                            color: '#64748B',
+                                                            fontSize: 12,
+                                                            fontWeight: 600,
+                                                            textAlign: 'left',
+                                                            padding: '4px 6px',
+                                                            cursor: 'pointer',
+                                                        }}
+                                                    >
+                                                        Follow Up
+                                                    </button>
+                                                ) : null}
+                                            </div>
+                                        ) : null}
+                                    </div>
                                 );
                             })}
                         </div>

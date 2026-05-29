@@ -29,12 +29,14 @@ import {
 import {
   clearConversationStorage,
   exportConversationStorageSnapshot,
+  getConversationStorage,
   readConversationHistory,
   readRecentChats,
   replaceConversationHistory,
   upsertRecentChat,
 } from '../utils/chatSessionStorage';
 import MultiLineInputList from './DebugComponent';
+import FeedbackPromptDialog from './FeedbackPromptDialog';
 import KnowledgeGraph from './KnowledgeGraph';
 import {
   edgeIsInverted,
@@ -117,6 +119,7 @@ export default function DebugPage() {
     });
     const [healthChecking, setHealthChecking] = useState(false);
     const [historyActionMessage, setHistoryActionMessage] = useState('');
+    const [feedbackPromptOpen, setFeedbackPromptOpen] = useState(false);
     const importHistoryInputRef = useRef(null);
     const [demoLoadingStartedAt, setDemoLoadingStartedAt] = useState(Date.now());
     const [demoLoadingNow, setDemoLoadingNow] = useState(Date.now());
@@ -264,11 +267,12 @@ export default function DebugPage() {
                     upsertRecentChat({ sessionId, firstQuestion });
                 });
 
+                const conversationStorage = getConversationStorage();
                 if (payload?.chatStartCache !== undefined) {
-                    window.sessionStorage.setItem(CHAT_START_CACHE_KEY, JSON.stringify(payload.chatStartCache));
+                    conversationStorage?.setItem(CHAT_START_CACHE_KEY, JSON.stringify(payload.chatStartCache));
                 }
                 if (payload?.pendingPlanCache !== undefined) {
-                    window.sessionStorage.setItem(CHAT_PENDING_PLAN_CACHE_KEY, JSON.stringify(payload.pendingPlanCache));
+                    conversationStorage?.setItem(CHAT_PENDING_PLAN_CACHE_KEY, JSON.stringify(payload.pendingPlanCache));
                 }
 
                 setHistoryActionMessage(`Imported ${importedSessionCount} sessions and merged ${importedMessageCount} messages (deduped).`);
@@ -479,6 +483,18 @@ export default function DebugPage() {
                     >
                         {healthChecking ? 'Checking...' : 'Refresh'}
                     </Button>
+                </Box>
+                {plannerHealth.detail ? (
+                    <Typography sx={{ mt: 0.75, fontSize: 12, color: '#64748B' }}>
+                        {plannerHealth.detail}
+                    </Typography>
+                ) : null}
+                {historyActionMessage ? (
+                    <Typography sx={{ mt: 0.5, fontSize: 12, color: '#64748B' }}>
+                        {historyActionMessage}
+                    </Typography>
+                ) : null}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', mt: 1 }}>
                     <Button
                         variant="outlined"
                         size="small"
@@ -519,16 +535,25 @@ export default function DebugPage() {
                     >
                         Replay Loading Demo
                     </Button>
-                    {plannerHealth.detail ? (
-                        <Typography sx={{ fontSize: 12, color: '#64748B' }}>
-                            {plannerHealth.detail}
-                        </Typography>
-                    ) : null}
-                    {historyActionMessage ? (
-                        <Typography sx={{ fontSize: 12, color: '#64748B' }}>
-                            {historyActionMessage}
-                        </Typography>
-                    ) : null}
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() => setFeedbackPromptOpen(true)}
+                        sx={{ textTransform: 'none' }}
+                    >
+                        Open Feedback Prompt Test
+                    </Button>
+                    <Button
+                        component="a"
+                        href="/docs/ontology?styled=true"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        variant="outlined"
+                        size="small"
+                        sx={{ textTransform: 'none' }}
+                    >
+                        Open Styled Ontology Doc
+                    </Button>
                 </Box>
             </Box>
             <div style={{ padding: '20px', width: '1000px', border: '1px solid #ccc', marginBottom: '20px', margin: '10px' }}>
@@ -555,6 +580,17 @@ export default function DebugPage() {
                     handleClose={closeLoadingDemo}
                 />
             ) : null}
+            <FeedbackPromptDialog
+                open={feedbackPromptOpen}
+                onShareFeedback={() => {
+                    setHistoryActionMessage('Feedback prompt test: Share Feedback clicked.');
+                    setFeedbackPromptOpen(false);
+                }}
+                onMaybeLater={() => {
+                    setHistoryActionMessage('Feedback prompt test: Maybe Later clicked.');
+                    setFeedbackPromptOpen(false);
+                }}
+            />
             {igvVisible ? (
                 <div style={{ padding: '20px', width: '100%' }}>
                     <h2>IGV.js Genome Browser - Full Width Demo</h2>
