@@ -95,7 +95,7 @@ function NavBar() {
                 </div>
               </div>
               <div className="menu-item-wrapper">
-                <a className="menu-item" href="/old-landing">Data</a>
+                <a className="menu-item">Data</a>
                 <div className="submenu">
                   {/*<a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/data-browser.html'}>Data Browser</a>*/}
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/donor-metadata.html'}>Donor Summary</a>
@@ -104,7 +104,7 @@ function NavBar() {
                 </div>
               </div>
               <div className="menu-item-wrapper">
-                <a className="menu-item" href="/old-landing">Resources</a>
+                <a className="menu-item">Resources</a>
                 <div className="submenu">
                   <a
                     className="submenu-item"
@@ -125,7 +125,7 @@ function NavBar() {
                 </div>
               </div>
               <div className="menu-item-wrapper">
-                <a className="menu-item" href="/old-landing">About</a>
+                <a className="menu-item">About</a>
                 <div className="submenu">
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/projects.html'}>PanKbase Program</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/people.html'}>People</a>
@@ -135,7 +135,7 @@ function NavBar() {
                 </div>
               </div>
               <div className="menu-item-wrapper">
-                <a className="menu-item" href="/old-landing">Help</a>
+                <a className="menu-item">Help</a>
                 <div className="submenu">
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/contact.html'}>Contact | Feedback</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/tutorials.html'}>Tutorials</a>
