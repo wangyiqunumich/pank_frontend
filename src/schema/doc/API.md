@@ -23,7 +23,7 @@ Use the following commands in your command line tool (e.g., Terminal for macOS o
 
 ```bash
 curl -X POST \
-  'https://nzi5e9mb0f.execute-api.us-east-1.amazonaws.com/production/pankgraph-neo4j' \
+  'https://nzi5e9mb0f.execute-api.us-east-1.amazonaws.com/development/pank2-neo4j-api-development' \
   -H 'Content-Type: application/json' \
   -d '{"query": "YOUR_QUERY"}'
 ```
@@ -31,7 +31,7 @@ curl -X POST \
 To save the output to a file, append ` > result.txt` to the command.
 ```bash
 curl -X POST \
-  'https://nzi5e9mb0f.execute-api.us-east-1.amazonaws.com/production/pankgraph-neo4j' \
+  'https://nzi5e9mb0f.execute-api.us-east-1.amazonaws.com/development/pank2-neo4j-api-development' \
   -H 'Content-Type: application/json' \
   -d '{"query": "YOUR_QUERY"}' > result.txt
 ```
@@ -45,14 +45,14 @@ Because PanKgraph is continuously updated, users are encouraged to explore the c
 
 ```bash
 curl -X POST \
-  'https://nzi5e9mb0f.execute-api.us-east-1.amazonaws.com/production/pankgraph-neo4j' \
+  'https://nzi5e9mb0f.execute-api.us-east-1.amazonaws.com/development/pank2-neo4j-api-development' \
   -H 'Content-Type: application/json' \
   -d '{"query": "MATCH (n) RETURN labels(n) AS NodeType, COUNT(n) AS Count ORDER BY Count DESC"}'
 ```
 To inspect all supported relationship (edge) types and their frequencies:
 ```bash
 curl -X POST \
-  'https://nzi5e9mb0f.execute-api.us-east-1.amazonaws.com/production/pankgraph-neo4j' \
+  'https://nzi5e9mb0f.execute-api.us-east-1.amazonaws.com/development/pank2-neo4j-api-development' \
   -H 'Content-Type: application/json' \
   -d '{"query": "MATCH ()-[r]->() RETURN type(r) AS RelationshipType, COUNT(r) AS Count ORDER BY Count DESC"}'
 ```
