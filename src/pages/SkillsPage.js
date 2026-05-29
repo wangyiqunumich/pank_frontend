@@ -193,8 +193,8 @@ export default function SkillsPage() {
 
             <SkillCard
               icon={<SkillLogo SvgIcon={FunctionalDataSkillLogo} size={50} color="#4e0f9e" />}
-              title="Functional Data Tool"
-              description="Generates interactive visualizations for donor-level functional response, cohort filtering, and trait association exploration."
+              title="Pancreatic Islet Functional Data Tool"
+              description="Generates interactive visualizations for donor-level islet hormone secretory response, cohort filtering, and trait association exploration."
               actionLabel="Launch"
               onAction={() => navigate('/functional-data')}
               accent="#4e0f9e"
