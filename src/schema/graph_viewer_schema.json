@@ -1,5 +1,4 @@
 {
-    
     "$comment": {
         "valid_datatypes": [
             "link",
@@ -8,7 +7,9 @@
             "label_percentage(#color)",
             "int",
             "float(number_of_decimals)",
-            "string"
+            "scientific(significance_number)",
+            "string",
+            "description"
         ],
         "description": "All others are directly displayed",
         "display logic": "In the graph viewer, we first check the name of the node. If the node's name length is more than 15 char, then we display the node id for the users. If the name length is less than 15 char, then directly display the name."
@@ -94,7 +95,7 @@
         "variants": {
             "node_color": "#FFB371",
             "text_color": "#000000",
-            "node_label": "SNP",
+            "node_label": "Sequence Variant",
             "info_panel": [
                 [
                     "Title",
@@ -149,36 +150,6 @@
                 ]
             ]
         },
-        "cell_type": {
-            "node_color": "#FFDE7D",
-            "text_color": "#000000",
-            "node_label": "Cell Type",
-            "info_panel": [
-                [
-                    "Title",
-                    "id"
-                ],
-                [
-                    "Cell Type Identity",
-                    [
-                        [
-                            "Link",
-                            "url",
-                            "link"
-                        ]
-                    ]
-                ],
-                [
-                    "Footer",
-                    [
-                        [
-                            "Data Source",
-                            "data_source"
-                        ]
-                    ]
-                ]
-            ]
-        },
         "disease": {
             "node_color": "#FFDE7D",
             "text_color": "#000000",
@@ -186,8 +157,7 @@
             "info_panel": [
                 [
                     "Title",
-                    "T1D",
-                    "string"
+                    "name"
                 ],
                 [
                     "Disease Identity",
@@ -229,24 +199,51 @@
         "OCR": {
             "node_color": "#61ECBC",
             "text_color": "#000000",
-            "node_label": "OCR Cluster",
+            "node_label": "OCR Peak",
             "info_panel": [
                 [
                     "Title",
-                    "name"
+                    "id"
+                ],
+                [
+                    "Identity",
+                    [
+                        [
+                            "Peak ID",
+                            "id"
+                        ],
+                        [
+                            "Chromosome",
+                            "chr",
+                            "label_chr(#0FB47D)"
+                        ],
+                        [
+                            "Start",
+                            "start_loc",
+                            "int"
+                        ],
+                        [
+                            "End",
+                            "end_loc",
+                            "int"
+                        ],
+                        [
+                            "Type",
+                            "type"
+                        ]
+                    ]
                 ],
                 [
                     "Description",
-                    "Open chromatin region cluster containing gene activity scores rather than actual peaks",
-                    "string"
+                    "description",
+                    "description"
                 ],
                 [
                     "Footer",
                     [
                         [
                             "Data Source",
-                            "https://data.pankbase.org/analysis-sets/PKBDS0470WCHR/",
-                            "link_static"
+                            "data_source"
                         ]
                     ]
                 ]
@@ -298,11 +295,86 @@
         },
         "gene": {
             "node_color": "#A4D0F6",
-            "text_color": "#000000"
+            "text_color": "#000000",
+            "node_label": "Gene",
+            "info_panel": [
+                [
+                    "Title",
+                    "name"
+                ],
+                [
+                    "Gene Identity",
+                    [
+                        [
+                            "ENSG ID",
+                            "id"
+                        ],
+                        [
+                            "Ensembl",
+                            "link",
+                            "link"
+                        ]
+                    ]
+                ],
+                [
+                    "Description",
+                    "description"
+                ],
+                [
+                    "Chromosomal Location",
+                    [
+                        [
+                            "Chromosome",
+                            "chr",
+                            "label_chr(#0FB47D)"
+                        ],
+                        [
+                            "Start",
+                            "start_loc",
+                            "int"
+                        ],
+                        [
+                            "End",
+                            "end_loc",
+                            "int"
+                        ],
+                        [
+                            "Strand",
+                            "strand",
+                            "int"
+                        ]
+                    ]
+                ],
+                [
+                    "Sequence Features",
+                    [
+                        [
+                            "GC Content",
+                            "GC_percentage",
+                            "label_percentage(#F0960B)"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Version",
+                            "data_version"
+                        ],
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
         },
         "enhancer": {
             "node_color": "#A4D0F6",
-            "text_color": "#000000"
+            "text_color": "#000000",
+            "info_panel": [],
+            "node_label": "Regulatory Element"
         },
         "sequence_SNP": {
             "node_color": "#FFB371",
@@ -310,15 +382,884 @@
         },
         "region": {
             "node_color": "#61ECBC",
-            "text_color": "#000000"
+            "text_color": "#000000",
+            "info_panel": [],
+            "node_label": "Regulatory Element"
         },
         "phenotype_or_disease": {
             "node_color": "#FFDE7D",
-            "text_color": "#000000"
+            "text_color": "#000000",
+            "info_panel": [],
+            "node_label": "Disease"
         },
         "loop": {
             "node_color": "#A4D0F6",
-            "text_color": "#000000"
+            "text_color": "#000000",
+            "info_panel": [],
+            "node_label": "Genomic Region"
+        },
+        "sequence_variant": {
+            "node_color": "#FFB371",
+            "text_color": "#000000",
+            "node_label": "Sequence Variant",
+            "info_panel": [
+                [
+                    "Title",
+                    "id"
+                ],
+                [
+                    "Chromosomal Location",
+                    [
+                        [
+                            "Chromosome",
+                            "chr",
+                            "label_chr(#0FB47D)"
+                        ],
+                        [
+                            "Start",
+                            "start_loc",
+                            "int"
+                        ],
+                        [
+                            "End",
+                            "end_loc",
+                            "int"
+                        ]
+                    ]
+                ],
+                [
+                    "Variant Alleles",
+                    [
+                        [
+                            "Reference Allele",
+                            "ref"
+                        ],
+                        [
+                            "Alternative Allele",
+                            "alt"
+                        ]
+                    ]
+                ],
+                [
+                    "Frequency",
+                    "freq",
+                    "freq_list(ref,alt)"
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "snv": {
+            "node_color": "#FFB371",
+            "text_color": "#000000",
+            "node_label": "Sequence Variant",
+            "info_panel": [
+                [
+                    "Title",
+                    "id"
+                ],
+                [
+                    "Chromosomal Location",
+                    [
+                        [
+                            "Chromosome",
+                            "chr",
+                            "label_chr(#0FB47D)"
+                        ],
+                        [
+                            "Start",
+                            "start_loc",
+                            "int"
+                        ],
+                        [
+                            "End",
+                            "end_loc",
+                            "int"
+                        ]
+                    ]
+                ],
+                [
+                    "Variant Alleles",
+                    [
+                        [
+                            "Reference Allele",
+                            "ref"
+                        ],
+                        [
+                            "Alternative Allele",
+                            "alt"
+                        ]
+                    ]
+                ],
+                [
+                    "Frequency",
+                    "freq",
+                    "freq_list(ref,alt)"
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "deletion": {
+            "node_color": "#FFB371",
+            "text_color": "#000000",
+            "node_label": "Sequence Variant",
+            "info_panel": [
+                [
+                    "Title",
+                    "id"
+                ],
+                [
+                    "Chromosomal Location",
+                    [
+                        [
+                            "Chromosome",
+                            "chr",
+                            "label_chr(#0FB47D)"
+                        ],
+                        [
+                            "Start",
+                            "start_loc",
+                            "int"
+                        ],
+                        [
+                            "End",
+                            "end_loc",
+                            "int"
+                        ]
+                    ]
+                ],
+                [
+                    "Variant Alleles",
+                    [
+                        [
+                            "Reference Allele",
+                            "ref"
+                        ],
+                        [
+                            "Alternative Allele",
+                            "alt"
+                        ]
+                    ]
+                ],
+                [
+                    "Frequency",
+                    "freq",
+                    "freq_list(ref,alt)"
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "insertion": {
+            "node_color": "#FFB371",
+            "text_color": "#000000",
+            "node_label": "Sequence Variant",
+            "info_panel": [
+                [
+                    "Title",
+                    "id"
+                ],
+                [
+                    "Chromosomal Location",
+                    [
+                        [
+                            "Chromosome",
+                            "chr",
+                            "label_chr(#0FB47D)"
+                        ],
+                        [
+                            "Start",
+                            "start_loc",
+                            "int"
+                        ],
+                        [
+                            "End",
+                            "end_loc",
+                            "int"
+                        ]
+                    ]
+                ],
+                [
+                    "Variant Alleles",
+                    [
+                        [
+                            "Reference Allele",
+                            "ref"
+                        ],
+                        [
+                            "Alternative Allele",
+                            "alt"
+                        ]
+                    ]
+                ],
+                [
+                    "Frequency",
+                    "freq",
+                    "freq_list(ref,alt)"
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "indel": {
+            "node_color": "#FFB371",
+            "text_color": "#000000",
+            "node_label": "Sequence Variant",
+            "info_panel": [
+                [
+                    "Title",
+                    "id"
+                ],
+                [
+                    "Chromosomal Location",
+                    [
+                        [
+                            "Chromosome",
+                            "chr",
+                            "label_chr(#0FB47D)"
+                        ],
+                        [
+                            "Start",
+                            "start_loc",
+                            "int"
+                        ],
+                        [
+                            "End",
+                            "end_loc",
+                            "int"
+                        ]
+                    ]
+                ],
+                [
+                    "Variant Alleles",
+                    [
+                        [
+                            "Reference Allele",
+                            "ref"
+                        ],
+                        [
+                            "Alternative Allele",
+                            "alt"
+                        ]
+                    ]
+                ],
+                [
+                    "Frequency",
+                    "freq",
+                    "freq_list(ref,alt)"
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "OCR_peak": {
+            "node_color": "#61ECBC",
+            "text_color": "#000000",
+            "node_label": "OCR Peak",
+            "info_panel": [
+                [
+                    "Title",
+                    "id"
+                ],
+                [
+                    "Identity",
+                    [
+                        [
+                            "Peak ID",
+                            "id"
+                        ],
+                        [
+                            "Chromosome",
+                            "chr",
+                            "label_chr(#0FB47D)"
+                        ],
+                        [
+                            "Start",
+                            "start_loc",
+                            "int"
+                        ],
+                        [
+                            "End",
+                            "end_loc",
+                            "int"
+                        ],
+                        [
+                            "Type",
+                            "type"
+                        ]
+                    ]
+                ],
+                [
+                    "Description",
+                    "description",
+                    "description"
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "regulatory_elements": {
+            "node_color": "#61ECBC",
+            "text_color": "#000000",
+            "node_label": "OCR Peak",
+            "info_panel": [
+                [
+                    "Title",
+                    "id"
+                ],
+                [
+                    "Identity",
+                    [
+                        [
+                            "Peak ID",
+                            "id"
+                        ],
+                        [
+                            "Chromosome",
+                            "chr",
+                            "label_chr(#0FB47D)"
+                        ],
+                        [
+                            "Start",
+                            "start_loc",
+                            "int"
+                        ],
+                        [
+                            "End",
+                            "end_loc",
+                            "int"
+                        ],
+                        [
+                            "Type",
+                            "type"
+                        ]
+                    ]
+                ],
+                [
+                    "Description",
+                    "description",
+                    "description"
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "anatomical_structure": {
+            "node_color": "#8DD7A5",
+            "text_color": "#000000",
+            "node_label": "Anatomical Structure",
+            "info_panel": [
+                [
+                    "Title",
+                    "name"
+                ],
+                [
+                    "Identity",
+                    [
+                        [
+                            "Name",
+                            "name"
+                        ],
+                        [
+                            "Category",
+                            "category"
+                        ],
+                        [
+                            "Source",
+                            "source"
+                        ],
+                        [
+                            "Source URL",
+                            "source_url",
+                            "link"
+                        ]
+                    ]
+                ],
+                [
+                    "Description",
+                    "description",
+                    "description"
+                ]
+            ]
+        },
+        "data_modality": {
+            "node_color": "#BFD7FF",
+            "text_color": "#000000",
+            "node_label": "Data Modality",
+            "info_panel": [
+                [
+                    "Title",
+                    "id"
+                ],
+                [
+                    "Identity",
+                    [
+                        [
+                            "Modality",
+                            "id"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "donor": {
+            "node_color": "#CDB4DB",
+            "text_color": "#000000",
+            "node_label": "Donor",
+            "info_panel": [
+                [
+                    "Title",
+                    "id"
+                ],
+                [
+                    "T1D STATUS: T1D stage",
+                    "t1d_stage",
+                    "description"
+                ],
+                [
+                    "DIABETES STATUS",
+                    [
+                        [
+                            "Derived Diabetes Status",
+                            "derived_diabetes_status"
+                        ],
+                        [
+                            "Diabetes Type",
+                            "diabetes_type"
+                        ],
+                        [
+                            "Diabetes Duration",
+                            "diabetes_duration"
+                        ],
+                        [
+                            "Family History of Diabetes",
+                            "family_history_of_diabetes"
+                        ],
+                        [
+                            "Autoantibody Status",
+                            "aab_state"
+                        ],
+                        [
+                            "Other Disease Records",
+                            "other_disease_records",
+                            "description"
+                        ]
+                    ]
+                ],
+                [
+                    "Clinical Measurements",
+                    [
+                        [
+                            "HbA1c (%)",
+                            "hba1c_percentage",
+                            "label_percentage(#F0960B)"
+                        ],
+                        [
+                            "C-peptide (ng/mL)",
+                            "c_peptide_ng_ml"
+                        ],
+                        [
+                            "BMI",
+                            "bmi",
+                            "float(2)"
+                        ],
+                        [
+                            "Hospital Stay (hours)",
+                            "hospital_stay_hours",
+                            "int"
+                        ],
+                        [
+                            "Other Therapy",
+                            "other_therapy"
+                        ]
+                    ]
+                ],
+                [
+                    "DEMOGRAPHICS AND DONOR METADATA",
+                    [
+                        [
+                            "Age",
+                            "age"
+                        ],
+                        [
+                            "Gender",
+                            "gender"
+                        ],
+                        [
+                            "Genetic sex",
+                            "sex_at_birth"
+                        ],
+                        [
+                            "Self-reported race",
+                            "Race"
+                        ],
+                        [
+                            "Cause of Death",
+                            "cause_of_death"
+                        ],
+                        [
+                            "Donation Type",
+                            "donation_type"
+                        ],
+                        [
+                            "Creation Date",
+                            "creation_date"
+                        ]
+                    ]
+                ],
+                [
+                    "Donor Identifiers",
+                    [
+                        [
+                            "Donor ID",
+                            "id"
+                        ],
+                        [
+                            "RRID",
+                            "rrid"
+                        ],
+                        [
+                            "PanKbase ID",
+                            "pankbase_id"
+                        ],
+                        [
+                            "PANC-DB ID",
+                            "pancdb_id"
+                        ],
+                        [
+                            "Center Donor ID",
+                            "center_donor_id"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "data_source"
+                        ],
+                        [
+                            "URL",
+                            "data_source_url",
+                            "link"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "provenance": {
+            "node_color": "#CDB4DB",
+            "text_color": "#000000",
+            "node_label": "Donor",
+            "info_panel": [
+                [
+                    "Title",
+                    "id"
+                ],
+                [
+                    "Identity",
+                    [
+                        [
+                            "Donor ID",
+                            "id"
+                        ],
+                        [
+                            "RRID",
+                            "rrid"
+                        ],
+                        [
+                            "PanKbase ID",
+                            "pankbase_id"
+                        ],
+                        [
+                            "PancDB ID",
+                            "pancdb_id"
+                        ],
+                        [
+                            "Center Donor ID",
+                            "center_donor_id"
+                        ],
+                        [
+                            "Derived Diabetes Status",
+                            "derived_diabetes_status"
+                        ],
+                        [
+                            "Diabetes Type",
+                            "diabetes_type"
+                        ],
+                        [
+                            "T1D Stage",
+                            "t1d_stage"
+                        ],
+                        [
+                            "Age",
+                            "age",
+                            "float(1)"
+                        ],
+                        [
+                            "Gender",
+                            "gender"
+                        ],
+                        [
+                            "Sex at Birth",
+                            "sex_at_birth"
+                        ],
+                        [
+                            "Race",
+                            "Race"
+                        ],
+                        [
+                            "BMI",
+                            "bmi",
+                            "float(2)"
+                        ],
+                        [
+                            "HbA1c Percentage",
+                            "hba1c_percentage",
+                            "label_percentage(#F0960B)"
+                        ],
+                        [
+                            "Data Source URL",
+                            "data_source_url",
+                            "link"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "Sample node": {
+            "node_color": "#F7C6C7",
+            "text_color": "#000000",
+            "node_label": "Sample",
+            "info_panel": [
+                [
+                    "Title",
+                    "note"
+                ],
+                [
+                    "Identity",
+                    [
+                        [
+                            "Data Modality",
+                            "Data Modality"
+                        ],
+                        [
+                            "Anatomical Structure",
+                            "anatomical_structure"
+                        ],
+                        [
+                            "Note",
+                            "note"
+                        ],
+                        [
+                            "Contact",
+                            "contact"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "kegg": {
+            "node_color": "#FFDE7D",
+            "text_color": "#000000",
+            "node_label": "KEGG Pathway",
+            "info_panel": [
+                [
+                    "Title",
+                    "name"
+                ],
+                [
+                    "Identity",
+                    [
+                        [
+                            "Ontology ID",
+                            "id"
+                        ],
+                        [
+                            "Name",
+                            "name"
+                        ],
+                        [
+                            "Link",
+                            "link",
+                            "link"
+                        ]
+                    ]
+                ],
+                [
+                    "Description",
+                    "description",
+                    "description"
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Version",
+                            "data_version"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "reactome": {
+            "node_color": "#FFDE7D",
+            "text_color": "#000000",
+            "node_label": "Reactome Pathway",
+            "info_panel": [
+                [
+                    "Title",
+                    "name"
+                ],
+                [
+                    "Identity",
+                    [
+                        [
+                            "Ontology ID",
+                            "id"
+                        ],
+                        [
+                            "Name",
+                            "name"
+                        ],
+                        [
+                            "Link",
+                            "link",
+                            "link"
+                        ]
+                    ]
+                ],
+                [
+                    "Description",
+                    "description",
+                    "description"
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Version",
+                            "data_version"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "ontology": {
+            "node_color": "#FFDE7D",
+            "text_color": "#000000",
+            "node_label": "Ontology",
+            "info_panel": [
+                [
+                    "Title",
+                    "name"
+                ],
+                [
+                    "Identity",
+                    [
+                        [
+                            "Ontology ID",
+                            "id"
+                        ],
+                        [
+                            "Name",
+                            "name"
+                        ],
+                        [
+                            "Link",
+                            "link",
+                            "link"
+                        ]
+                    ]
+                ],
+                [
+                    "Description",
+                    "description",
+                    "description"
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Version",
+                            "data_version"
+                        ],
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
         }
     },
     "edges": {
@@ -478,10 +1419,6 @@
                         [
                             "Tissue ID",
                             "tissue_id"
-                        ],
-                        [
-                            "QTL Type",
-                            "qtl_type"
                         ]
                     ]
                 ],
@@ -496,7 +1433,7 @@
                         [
                             "Nominal P value",
                             "nominal_p",
-                            "float(3)"
+                            "scientific(4)"
                         ],
                         [
                             "LBF",
@@ -561,7 +1498,7 @@
                         [
                             "Nominal P value",
                             "nominal_p",
-                            "float(3)"
+                            "scientific(4)"
                         ],
                         [
                             "LBF",
@@ -644,7 +1581,7 @@
                         [
                             "P value",
                             "p_value",
-                            "float(3)"
+                            "scientific(4)"
                         ],
                         [
                             "LBF",
@@ -721,27 +1658,27 @@
                     [
                         [
                             "PP.H0 (neither causal)",
-                            "`PP.H0.abf`",
+                            "PP.H0.abf",
                             "float(4)"
                         ],
                         [
                             "PP.H1 (GWAS causal)",
-                            "`PP.H1.abf`",
+                            "PP.H1.abf",
                             "float(4)"
                         ],
                         [
                             "PP.H2 (QTL causal)",
-                            "`PP.H2.abf`",
+                            "PP.H2.abf",
                             "float(4)"
                         ],
                         [
                             "PP.H3 (two variants)",
-                            "`PP.H3.abf`",
+                            "PP.H3.abf",
                             "float(4)"
                         ],
                         [
                             "PP.H4 (shared variant)",
-                            "`PP.H4.abf`",
+                            "PP.H4.abf",
                             "float(4)"
                         ]
                     ]
@@ -1040,12 +1977,12 @@
                         [
                             "P value",
                             "P_value",
-                            "float(3)"
+                            "scientific(4)"
                         ],
                         [
                             "Adjusted P value",
                             "Adjusted_P_value",
-                            "float(3)"
+                            "scientific(4)"
                         ],
                         [
                             "Log2 Fold Change",
@@ -1080,6 +2017,1357 @@
             "text_color": "#000000",
             "edge_label": "QTL for",
             "inverted": "FALSE"
+        },
+        "OCR_peak_in": {
+            "text_color": "#000000",
+            "edge_label": "OCR peak in",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "OCR Peak In",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "https://data.pankbase.org/workflows/PKBWF1943AUOL/",
+                            "link_static"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "gene_activity_score_in": {
+            "text_color": "#000000",
+            "edge_label": "gene activity score in",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Gene Activity Score In",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "OCR Activity",
+                    [
+                        [
+                            "T1D activity median",
+                            "type_1_diabetes__OCR_GeneActivityScore_median",
+                            "float(3)"
+                        ],
+                        [
+                            "Non-T1D activity median",
+                            "non_diabetic__OCR_GeneActivityScore_median",
+                            "float(3)"
+                        ],
+                        [
+                            "All activity median",
+                            "OCR_GeneActivityScore_median",
+                            "float(3)"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "https://data.pankbase.org/workflows/PKBWF1943AUOL/",
+                            "link_static"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "T1D_DEG_in": {
+            "text_color": "#000000",
+            "edge_label": "T1D DEG in",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Differentially Expressed in T1D",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Differential Expression",
+                    [
+                        [
+                            "Up or Down Regulation",
+                            "UpOrDownRegulation"
+                        ],
+                        [
+                            "P value",
+                            "P_value",
+                            "scientific(4)"
+                        ],
+                        [
+                            "Adjusted P value",
+                            "Adjusted_P_value",
+                            "scientific(4)"
+                        ],
+                        [
+                            "Log2 Fold Change",
+                            "Log2FoldChange",
+                            "float(3)"
+                        ],
+                        [
+                            "SE of Log2FC",
+                            "SE_of_Log2FoldChange",
+                            "float(3)"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "https://pankgraph.org/scRNAseq_data_source",
+                            "link_static"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "function_annotation;GO": {
+            "text_color": "#000000",
+            "edge_label": "has GO function",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "GO Function Annotation",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Version",
+                            "data_version"
+                        ],
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "effector_gene_of;CMDKP_effector_gene_of": {
+            "text_color": "#000000",
+            "edge_label": "effector gene of",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Has Effector Gene",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Effector Gene List",
+                    [
+                        [
+                            "Effector Gene List",
+                            "effector_gene_list_url",
+                            "link"
+                        ],
+                        [
+                            "Study Source",
+                            "data_source"
+                        ]
+                    ]
+                ],
+                [
+                    "Evidences",
+                    "evidence",
+                    "long_list"
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "data_source_url",
+                            "link"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "gene_detected_in": {
+            "text_color": "#000000",
+            "edge_label": "detected in",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Gene Detected In",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Expression Detection",
+                    [
+                        [
+                            "Gene Symbol",
+                            "gene_symbol"
+                        ],
+                        [
+                            "Condition",
+                            "condition"
+                        ],
+                        [
+                            "Cell Type",
+                            "cell_type"
+                        ],
+                        [
+                            "Median logCPM",
+                            "median_donor_logCPM",
+                            "float(3)"
+                        ],
+                        [
+                            "Median CPM",
+                            "median_donor_CPM",
+                            "float(3)"
+                        ],
+                        [
+                            "Median Percent Cells Expressing",
+                            "median_pct_cells_expressing",
+                            "label_percentage(#F0960B)"
+                        ],
+                        [
+                            "Expression Call",
+                            "expression_call"
+                        ],
+                        [
+                            "Confidence",
+                            "confidence_label"
+                        ],
+                        [
+                            "Detection Rule",
+                            "detection_rule"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Version",
+                            "data_version"
+                        ],
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "gene_enriched_in": {
+            "text_color": "#000000",
+            "edge_label": "enriched in",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Gene Enriched In",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Enrichment",
+                    [
+                        [
+                            "Gene Symbol",
+                            "gene_symbol"
+                        ],
+                        [
+                            "Cell Type",
+                            "cell_type_label"
+                        ],
+                        [
+                            "Condition",
+                            "condition"
+                        ],
+                        [
+                            "Comparison",
+                            "comparison"
+                        ],
+                        [
+                            "Effect Direction",
+                            "effect_direction"
+                        ],
+                        [
+                            "Rank",
+                            "rank_in_cell_type",
+                            "int"
+                        ],
+                        [
+                            "Log2 Fold Change",
+                            "log2FoldChange",
+                            "float(3)"
+                        ],
+                        [
+                            "Adjusted P value",
+                            "padj",
+                            "scientific(4)"
+                        ],
+                        [
+                            "Median logCPM",
+                            "median_donor_logCPM",
+                            "float(3)"
+                        ],
+                        [
+                            "Median Percent Cells Expressing",
+                            "median_pct_cells_expressing",
+                            "label_percentage(#F0960B)"
+                        ],
+                        [
+                            "Expression Call",
+                            "expression_call"
+                        ],
+                        [
+                            "Support Rule",
+                            "expression_support_rule"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Version",
+                            "data_version"
+                        ],
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "fGSEA_enriched_in": {
+            "text_color": "#000000",
+            "edge_label": "fGSEA enriched in",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "fGSEA Enriched In",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "fGSEA Statistics",
+                    [
+                        [
+                            "Cell Type",
+                            "cell_type_label"
+                        ],
+                        [
+                            "Collection",
+                            "pathway_collection"
+                        ],
+                        [
+                            "Pathway Term",
+                            "pathway_term"
+                        ],
+                        [
+                            "Pathway Name",
+                            "pathway_name"
+                        ],
+                        [
+                            "P value",
+                            "pval",
+                            "scientific(4)"
+                        ],
+                        [
+                            "Adjusted P value",
+                            "padj",
+                            "scientific(4)"
+                        ],
+                        [
+                            "ES",
+                            "ES",
+                            "float(3)"
+                        ],
+                        [
+                            "NES",
+                            "NES",
+                            "float(3)"
+                        ],
+                        [
+                            "Size",
+                            "size",
+                            "int"
+                        ],
+                        [
+                            "Leading Edge",
+                            "leadingEdge"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Source File",
+                            "source_file"
+                        ],
+                        [
+                            "Data Version",
+                            "data_version"
+                        ],
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "fGSEA_gene_enriched_in": {
+            "text_color": "#000000",
+            "edge_label": "fGSEA gene enriched in",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "fGSEA Enriched In",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "fGSEA Statistics",
+                    [
+                        [
+                            "Cell Type",
+                            "cell_type_label"
+                        ],
+                        [
+                            "Collection",
+                            "pathway_collection"
+                        ],
+                        [
+                            "Pathway Term",
+                            "pathway_term"
+                        ],
+                        [
+                            "Pathway Name",
+                            "pathway_name"
+                        ],
+                        [
+                            "P value",
+                            "pval",
+                            "scientific(4)"
+                        ],
+                        [
+                            "Adjusted P value",
+                            "padj",
+                            "scientific(4)"
+                        ],
+                        [
+                            "ES",
+                            "ES",
+                            "float(3)"
+                        ],
+                        [
+                            "NES",
+                            "NES",
+                            "float(3)"
+                        ],
+                        [
+                            "Size",
+                            "size",
+                            "int"
+                        ],
+                        [
+                            "Leading Edge",
+                            "leadingEdge"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Source File",
+                            "source_file"
+                        ],
+                        [
+                            "Data Version",
+                            "data_version"
+                        ],
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "marker_gene_of;Hubmap_marker_gene_of": {
+            "text_color": "#000000",
+            "edge_label": "marker gene of",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "HuBMAP Marker Gene Of",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Marker Evidence",
+                    [
+                        [
+                            "Cell Type Name",
+                            "cell_type_name"
+                        ],
+                        [
+                            "Cell Type Source Column",
+                            "cell_type_source_column"
+                        ],
+                        [
+                            "Gene Symbol",
+                            "gene_symbol"
+                        ],
+                        [
+                            "Gene Name",
+                            "gene_name"
+                        ],
+                        [
+                            "Gene Source Column",
+                            "gene_source_column"
+                        ],
+                        [
+                            "Source Row",
+                            "source_row",
+                            "int"
+                        ],
+                        [
+                            "Dataset Source",
+                            "dataset_source",
+                            "link"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Version",
+                            "data_version"
+                        ],
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "marker_gene_of": {
+            "text_color": "#000000",
+            "edge_label": "marker gene of",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "HuBMAP Marker Gene Of",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Marker Evidence",
+                    [
+                        [
+                            "Cell Type Name",
+                            "cell_type_name"
+                        ],
+                        [
+                            "Cell Type Source Column",
+                            "cell_type_source_column"
+                        ],
+                        [
+                            "Gene Symbol",
+                            "gene_symbol"
+                        ],
+                        [
+                            "Gene Name",
+                            "gene_name"
+                        ],
+                        [
+                            "Gene Source Column",
+                            "gene_source_column"
+                        ],
+                        [
+                            "Source Row",
+                            "source_row",
+                            "int"
+                        ],
+                        [
+                            "Dataset Source",
+                            "dataset_source",
+                            "link"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Version",
+                            "data_version"
+                        ],
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "pathway_annotation;KEGG": {
+            "text_color": "#000000",
+            "edge_label": "KEGG pathway annotation",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "KEGG Pathway Annotation",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Version",
+                            "data_version"
+                        ],
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "pathway_annotation;reactome": {
+            "text_color": "#000000",
+            "edge_label": "Reactome pathway annotation",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Reactome Pathway Annotation",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Version",
+                            "data_version"
+                        ],
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "has_sample": {
+            "text_color": "#000000",
+            "edge_label": "has sample",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Has Sample",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Sample Context",
+                    [
+                        [
+                            "Data Modality",
+                            "data_modality"
+                        ],
+                        [
+                            "Data Modality",
+                            "Data Modality"
+                        ],
+                        [
+                            "Anatomical Structure",
+                            "anatomical_structure"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "has_donor": {
+            "text_color": "#000000",
+            "edge_label": "has donor",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Has Donor",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "ADJACENT_TO": {
+            "text_color": "#000000",
+            "edge_label": "adjacent to",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Adjacent To",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "HAS_CELL_TYPE": {
+            "text_color": "#000000",
+            "edge_label": "has cell type",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Has Cell Type",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "HAS_STATE": {
+            "text_color": "#000000",
+            "edge_label": "has state",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Has State",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "LYMPH_FLOWS_TO": {
+            "text_color": "#000000",
+            "edge_label": "lymph flows to",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Lymph Flows To",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "PART_OF": {
+            "text_color": "#000000",
+            "edge_label": "part of",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Part Of",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "REPRESENTS_COMPOSITE_LABEL": {
+            "text_color": "#000000",
+            "edge_label": "represents composite label",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Represents Composite Label",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "SUBCLASS_OF": {
+            "text_color": "#000000",
+            "edge_label": "subclass of",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Subclass Of",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "GO": {
+            "text_color": "#000000",
+            "edge_label": "has GO function",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "GO Function Annotation",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Version",
+                            "data_version"
+                        ],
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "KEGG": {
+            "text_color": "#000000",
+            "edge_label": "KEGG pathway annotation",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "KEGG Pathway Annotation",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Version",
+                            "data_version"
+                        ],
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "reactome": {
+            "text_color": "#000000",
+            "edge_label": "Reactome pathway annotation",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Reactome Pathway Annotation",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Version",
+                            "data_version"
+                        ],
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "CMDKP_effector_gene_of": {
+            "text_color": "#000000",
+            "edge_label": "effector gene of",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Has Effector Gene",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Effector Gene List",
+                    [
+                        [
+                            "Effector Gene List",
+                            "effector_gene_list_url",
+                            "link"
+                        ],
+                        [
+                            "Study Source",
+                            "data_source"
+                        ]
+                    ]
+                ],
+                [
+                    "Evidences",
+                    "evidence",
+                    "long_list"
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Source",
+                            "data_source_url",
+                            "link"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "Hubmap_marker_gene_of": {
+            "text_color": "#000000",
+            "edge_label": "marker gene of",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "HuBMAP Marker Gene Of",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Marker Evidence",
+                    [
+                        [
+                            "Cell Type Name",
+                            "cell_type_name"
+                        ],
+                        [
+                            "Cell Type Source Column",
+                            "cell_type_source_column"
+                        ],
+                        [
+                            "Gene Symbol",
+                            "gene_symbol"
+                        ],
+                        [
+                            "Gene Name",
+                            "gene_name"
+                        ],
+                        [
+                            "Gene Source Column",
+                            "gene_source_column"
+                        ],
+                        [
+                            "Source Row",
+                            "source_row",
+                            "int"
+                        ],
+                        [
+                            "Dataset Source",
+                            "dataset_source",
+                            "link"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Version",
+                            "data_version"
+                        ],
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "pathway_annotation": {
+            "text_color": "#000000",
+            "edge_label": "pathway annotation",
+            "inverted": "FALSE",
+            "info_panel": [
+                [
+                    "Title",
+                    "Pathway Annotation",
+                    "string"
+                ],
+                [
+                    "Relationship identity",
+                    [
+                        [
+                            "From",
+                            "source"
+                        ],
+                        [
+                            "To",
+                            "target"
+                        ]
+                    ]
+                ],
+                [
+                    "Footer",
+                    [
+                        [
+                            "Data Version",
+                            "data_version"
+                        ],
+                        [
+                            "Data Source",
+                            "data_source"
+                        ]
+                    ]
+                ]
+            ]
         }
     },
     "legend": [
@@ -1088,7 +3376,7 @@
             "color": "#A4D0F6"
         },
         {
-            "label": "SNP",
+            "label": "Sequence Variant",
             "color": "#FFB371"
         },
         {
@@ -1096,8 +3384,8 @@
             "color": "#FFDE7D"
         },
         {
-            "label": "OCR Cluster",
-            "color": "#61ECBC"
+            "label": "Anatomical Structure",
+            "color": "#8DD7A5"
         },
         {
             "label": "Literature",

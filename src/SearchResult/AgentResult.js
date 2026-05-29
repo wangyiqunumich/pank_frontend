@@ -1,19 +1,30 @@
 import React, {
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from 'react';
 
 import igv from 'https://cdn.jsdelivr.net/npm/igv@3.0.2/dist/igv.esm.min.js';
 import { useLocation } from 'react-router-dom';
 
+import ChatBubbleOutlineRoundedIcon
+  from '@mui/icons-material/ChatBubbleOutlineRounded';
 import {
-    Container,
-    useMediaQuery,
+  Container,
+  useMediaQuery,
 } from '@mui/material';
 
+import AgentSidebar from '../components/AgentSidebar';
+import FeedbackPromptDialog from '../components/FeedbackPromptDialog';
+import { AlertMessage } from '../components/SupportingMaterial';
+import { PLANNER_AGENT_BASE_URL } from '../constants/apiEndpoints';
+import starFilledIcon from '../image/star-filled.svg';
+import starIcon from '../image/star.svg';
 import SearchResult from './result';
+
+const FEEDBACK_AUTO_PROMPT_DISABLED_KEY = 'pank_feedback_auto_prompt_disabled_v1';
+const FEEDBACK_AUTO_PROMPT_DELAY_MS = 30 * 1000;
 
 // Genome Browser Component - mounts only when tab is first selected
 export function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVisible = false, tracks = null, height = 600, compact = false }) {
@@ -256,30 +267,44 @@ export function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVis
         };
     }, [fullScreenOpen]);
 
+    const rootHeight = compact ? (height || "100%") : height;
+    const minHeight = compact ? 0 : 676;
+
     // Don't render container until tab is visible
     if (!isVisible && !hasInitialized) {
-        return <div style={{ width: "100%", height, minHeight: 676 }} />;
+        return <div style={{ width: "100%", height: rootHeight, minHeight }} />;
     }
 
     return (
-        <div style={{ width: "100%" }}>
+        <div
+            style={{
+                width: "100%",
+                height: rootHeight,
+                minHeight,
+                maxHeight: compact ? "100%" : undefined,
+                display: "flex",
+                flexDirection: "column",
+                overflow: "hidden",
+            }}
+        >
             {isLoading && (
-                <div style={{ marginBottom: 12, color: "#0066cc", fontSize: 12 }}>
+                <div style={{ position: "absolute", top: 12, left: 12, zIndex: 2, color: "#0066cc", fontSize: 12, background: "rgba(255,255,255,0.9)", padding: "4px 8px", borderRadius: 4 }}>
                     Loading genome browser...
                 </div>
             )}
             {error && (
-                <div style={{ marginBottom: 12, color: "#b00020", fontSize: 12, padding: "8px 12px", background: "#ffebee", borderRadius: 4 }}>
+                <div style={{ position: "absolute", top: 12, left: 12, right: 12, zIndex: 2, color: "#b00020", fontSize: 12, padding: "8px 12px", background: "#ffebee", borderRadius: 4 }}>
                     ⚠️ {error}
                 </div>
             )}
-            <div style={{ position: "relative" }}>
+            <div style={{ position: "relative", flex: 1, minHeight: 0, maxHeight: "100%", overflow: "hidden" }}>
                 <div
                     ref={containerRef}
                     style={{
                         width: "100%",
-                        height: height,
-                        minHeight: 676,
+                        height: "100%",
+                        minHeight,
+                        maxHeight: "100%",
                         border: "1px solid #ddd",
                         borderRadius: 8,
                         overflow: "hidden",
@@ -374,16 +399,12 @@ export function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVis
 export function AgentResultLayout({
     ResultView = SearchResult,
     getResultViewProps = (result, index) => ({ demoIndex: index + 1, result }),
-    allowMulti = false,
     allowSearch = false,
     showFloatingSearchBar = false,
 }) {
     const location = useLocation();
-    const demoMode = useMemo(
-        () => new URLSearchParams(location.search).get('demo') === 'true',
-        [location.search]
-    );
-    const effectiveAllowMulti = allowMulti || demoMode;
+    const isResultNewRoute = location.pathname === '/result-new';
+    const effectiveAllowMulti = false;
     const [results, setResults] = useState([
         {
             id: 1,
@@ -395,12 +416,38 @@ export function AgentResultLayout({
     const [hoveredResultIndex, setHoveredResultIndex] = useState(null);
     const [menuOpen, setMenuOpen] = useState(false);
     const [contentMetaByIndex, setContentMetaByIndex] = useState({});
+    const [feedbackOpen, setFeedbackOpen] = useState(false);
+    const [feedbackRating, setFeedbackRating] = useState(0);
+    const [feedbackText, setFeedbackText] = useState('');
+    const [feedbackEmail, setFeedbackEmail] = useState('');
+    const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+    const [feedbackError, setFeedbackError] = useState('');
+    const [feedbackSuccessOpen, setFeedbackSuccessOpen] = useState(false);
+    const [feedbackPromptOpen, setFeedbackPromptOpen] = useState(false);
+    const [feedbackAutoPromptDisabled, setFeedbackAutoPromptDisabled] = useState(() => {
+        if (typeof window === 'undefined') return false;
+        return window.localStorage.getItem(FEEDBACK_AUTO_PROMPT_DISABLED_KEY) === '1';
+    });
     const menuTimersRef = useRef({ open: null, close: null });
+    const feedbackPromptTimerRef = useRef(null);
+    const previousQuestionCompleteRef = useRef(false);
     const resultsContainerRef = useRef(null);
     const scrollRafRef = useRef(null);
     const scrollLockRef = useRef({ active: false, until: 0, index: null });
-    const canSearch = effectiveAllowMulti && allowSearch;
+    const activeMeta = contentMetaByIndex[activeResultIndex];
+    const feedbackSessionId = useMemo(() => {
+        const urlSessionId = new URLSearchParams(location.search).get('session_id') || '';
+        return activeMeta?.feedbackSessionId || urlSessionId || '';
+    }, [activeMeta?.feedbackSessionId, location.search]);
+    const activeQuestionComplete = activeMeta?.isQuestionComplete ?? false;
+    const hideFloatingSearchBarByPhase = Boolean(activeMeta?.hideFloatingSearchBar);
+    const hasFloatingInputBar = Boolean(showFloatingSearchBar && !hideFloatingSearchBarByPhase);
+    const canSearch = allowSearch
+        && (effectiveAllowMulti || showFloatingSearchBar)
+        && !Boolean(activeMeta?.isPlanning)
+        && (effectiveAllowMulti || activeQuestionComplete);
     const isSingleColumn = useMediaQuery("(max-width:1199.95px)");
+    const navigatorMenuVisible = isSingleColumn || menuOpen;
 
     const getAnchorPrefix = (index) => `result-${index + 1}`;
     const handleContentMeta = (index) => (meta) => {
@@ -420,29 +467,6 @@ export function AgentResultLayout({
         setActiveResultIndex(index);
         target.scrollIntoView({ behavior: "smooth", block: "start" });
     };
-
-    useEffect(() => {
-        if (demoMode && results.length < 2) {
-            setResults([
-                {
-                    id: 1,
-                    query: "How Does The SNP Rs2402203 Influence The Expression Of CFTR In Pancreas Tissue?",
-                },
-                {
-                    id: 2,
-                    query: "What is the functional impact of CFTR QTLs in pancreas tissue?",
-                },
-                {
-                    id: 3,
-                    query: "Which variants modulate CFTR expression in ductal cells?",
-                },
-                {
-                    id: 4,
-                    query: "How does CFTR relate to T1D immune regulation?",
-                },
-            ]);
-        }
-    }, [demoMode, results.length]);
 
     useEffect(() => {
         if (!effectiveAllowMulti || results.length < 2) {
@@ -508,20 +532,103 @@ export function AgentResultLayout({
 
     const handleSearch = () => {
         if (!canSearch) return;
-        if (searchQuery.trim()) {
-            const newResult = {
-                id: results.length + 1,
-                query: searchQuery,
-            };
-            setResults([...results, newResult]);
-            setSearchQuery("");
-            setActiveResultIndex(results.length);
+        const trimmed = searchQuery.trim();
+        if (!trimmed) return;
 
-            // Scroll to new result
-            setTimeout(() => {
-                const resultElement = resultsContainerRef.current?.children[results.length];
-                resultElement?.scrollIntoView({ behavior: "smooth", block: "start" });
-            }, 100);
+        // In chat mode the active result exposes a followUpHandler — delegate to it
+        // so /chat/message is called on the existing session instead of mounting a new component.
+        const followUpHandler = activeMeta?.followUpHandler;
+        if (followUpHandler) {
+            followUpHandler(trimmed);
+            setSearchQuery("");
+            return;
+        }
+
+        // Non-chat: mount a new result component as before
+        const newResult = {
+            id: results.length + 1,
+            query: trimmed,
+        };
+        setResults([...results, newResult]);
+        setSearchQuery("");
+        setActiveResultIndex(results.length);
+        setTimeout(() => {
+            const resultElement = resultsContainerRef.current?.children[results.length];
+            resultElement?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 100);
+    };
+
+    const openFeedbackModal = () => {
+        setFeedbackError('');
+        setFeedbackOpen(true);
+    };
+
+    const closeFeedbackModal = () => {
+        if (feedbackSubmitting) return;
+        setFeedbackOpen(false);
+        setFeedbackError('');
+    };
+
+    const clearFeedbackPromptTimer = () => {
+        if (!feedbackPromptTimerRef.current) return;
+        clearTimeout(feedbackPromptTimerRef.current);
+        feedbackPromptTimerRef.current = null;
+    };
+
+    const disableAutoFeedbackPrompt = () => {
+        setFeedbackAutoPromptDisabled(true);
+        if (typeof window !== 'undefined') {
+            window.localStorage.setItem(FEEDBACK_AUTO_PROMPT_DISABLED_KEY, '1');
+        }
+        clearFeedbackPromptTimer();
+    };
+
+    const handleSubmitFeedback = async () => {
+        if (feedbackRating < 1 || feedbackRating > 5) {
+            setFeedbackError('Please select a star rating.');
+            return;
+        }
+
+        setFeedbackSubmitting(true);
+        setFeedbackError('');
+
+        try {
+            const payload = {
+                session_id: feedbackSessionId || 'unknown-session',
+                rating: feedbackRating,
+                feedback: String(feedbackText || ''),
+            };
+            const trimmedEmail = String(feedbackEmail || '').trim();
+            if (trimmedEmail) {
+                payload.email = trimmedEmail;
+            }
+
+            const response = await fetch(`${PLANNER_AGENT_BASE_URL}/feedback`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                let message = 'Failed to submit feedback.';
+                try {
+                    const body = await response.json();
+                    message = body?.detail || body?.message || body?.error || message;
+                } catch (e) {
+                    // keep fallback message
+                }
+                throw new Error(message);
+            }
+
+            setFeedbackOpen(false);
+            setFeedbackRating(0);
+            setFeedbackText('');
+            setFeedbackEmail('');
+            setFeedbackSuccessOpen(true);
+        } catch (error) {
+            setFeedbackError(String(error?.message || 'Failed to submit feedback.'));
+        } finally {
+            setFeedbackSubmitting(false);
         }
     };
 
@@ -576,21 +683,64 @@ export function AgentResultLayout({
         return () => {
             if (menuTimersRef.current.open) clearTimeout(menuTimersRef.current.open);
             if (menuTimersRef.current.close) clearTimeout(menuTimersRef.current.close);
+            clearFeedbackPromptTimer();
         };
     }, []);
+
+    useEffect(() => {
+        const becameComplete = activeQuestionComplete && !previousQuestionCompleteRef.current;
+        previousQuestionCompleteRef.current = activeQuestionComplete;
+
+        if (feedbackAutoPromptDisabled) {
+            clearFeedbackPromptTimer();
+            return;
+        }
+
+        if (!activeQuestionComplete) {
+            clearFeedbackPromptTimer();
+            return;
+        }
+
+        if (!becameComplete) {
+            return;
+        }
+
+        clearFeedbackPromptTimer();
+        feedbackPromptTimerRef.current = setTimeout(() => {
+            if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
+                return;
+            }
+            if (!feedbackOpen) {
+                setFeedbackPromptOpen(true);
+            }
+        }, FEEDBACK_AUTO_PROMPT_DELAY_MS);
+
+        return () => {
+            clearFeedbackPromptTimer();
+        };
+    }, [activeQuestionComplete, feedbackAutoPromptDisabled, feedbackOpen]);
 
     return (
         <div
             style={{
-                position: "relative",
-                backgroundColor: effectiveAllowMulti && results.length > 1 ? "#f5f5f5" : "transparent",
-                marginTop: effectiveAllowMulti && results.length > 1 ? -8 : 0,
-                paddingTop: effectiveAllowMulti && results.length > 1 ? 8 : 0,
-                paddingBottom: 0,
+                display: "flex",
+                width: "100%",
             }}
         >
+            <AgentSidebar activeNav="new-chat" />
+            <div
+                style={{
+                    position: "relative",
+                    flex: 1,
+                    minWidth: 0,
+                    backgroundColor: effectiveAllowMulti && results.length > 1 ? "#f5f5f5" : "transparent",
+                    marginTop: effectiveAllowMulti && results.length > 1 ? -8 : 0,
+                    paddingTop: effectiveAllowMulti && results.length > 1 ? 8 : 0,
+                    paddingBottom: 0,
+                }}
+            >
             {/* Results display */}
-            <div ref={resultsContainerRef} style={{ paddingBottom: 40 }}>
+            <div ref={resultsContainerRef}>
                 {results.map((result, index) => {
                     const resultViewProps = getResultViewProps(result, index) || {};
                     const anchorPrefix = resultViewProps.contentAnchorPrefix || getAnchorPrefix(index);
@@ -621,8 +771,7 @@ export function AgentResultLayout({
                             >
                                 <Container maxWidth={false} disableGutters sx={{
                                     display: 'flex',
-                                    marginTop: index > 0 ? '12px' : '0px',
-                                    marginBottom: '24px',
+                                    marginTop: index > 0 ? '12px' : (isResultNewRoute ? '24px' : '0px'),
                                     paddingBottom: '24px',
                                 }}>
                                     <ResultView {...mergedProps} />
@@ -636,16 +785,16 @@ export function AgentResultLayout({
             {results.length > 1 && (
                 <>
                     <div
-                        onMouseEnter={openMenuWithDelay}
-                        onMouseLeave={closeMenuWithDelay}
+                        onMouseEnter={isSingleColumn ? undefined : openMenuWithDelay}
+                        onMouseLeave={isSingleColumn ? undefined : closeMenuWithDelay}
                         style={{
                             position: "fixed",
-                            top: 290,
-                            right: 24,
+                            top: isSingleColumn ? 240 : 290,
+                            right: isSingleColumn ? 12 : 24,
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "center",
-                            zIndex: 100,
+                            zIndex: 1200,
                             padding: "18px 12px",
                             margin: "-18px -12px",
                         }}
@@ -671,23 +820,23 @@ export function AgentResultLayout({
                     </div>
 
                     <div
-                        onMouseEnter={openMenuWithDelay}
-                        onMouseLeave={closeMenuWithDelay}
+                        onMouseEnter={isSingleColumn ? undefined : openMenuWithDelay}
+                        onMouseLeave={isSingleColumn ? undefined : closeMenuWithDelay}
                         style={{
                             position: "fixed",
-                            top: 240,
-                            right: 56,
+                            top: isSingleColumn ? 180 : 240,
+                            right: isSingleColumn ? 44 : 56,
                             backgroundColor: "#fff",
                             border: "1px solid #ddd",
                             borderRadius: 12,
                             padding: "16px",
                             boxShadow: "0 2px 12px rgba(0,0,0,0.1)",
-                            zIndex: 100,
+                            zIndex: 1200,
                             minWidth: 220,
-                            maxWidth: 265,
-                            transform: menuOpen ? "translateX(0)" : "translateX(110%)",
-                            opacity: menuOpen ? 1 : 0,
-                            pointerEvents: menuOpen ? "auto" : "none",
+                            maxWidth: isSingleColumn ? "min(78vw, 265px)" : 265,
+                            transform: navigatorMenuVisible ? "translateX(0)" : "translateX(110%)",
+                            opacity: navigatorMenuVisible ? 1 : 0,
+                            pointerEvents: navigatorMenuVisible ? "auto" : "none",
                             transition: "transform 0.25s ease, opacity 0.2s ease",
                         }}
                     >
@@ -842,18 +991,18 @@ export function AgentResultLayout({
             )}
 
             {/* Floating search bar at bottom */}
-            {showFloatingSearchBar ? (
+            {showFloatingSearchBar && !hideFloatingSearchBarByPhase ? (
                 <div
                     style={{
-                        position: "fixed",
+                        position: "sticky",
                         bottom: 0,
-                        left: 0,
-                        right: 0,
                         backgroundColor: "#fff",
                         borderTop: "1px solid #e0e0e0",
                         boxShadow: "0 -2px 12px rgba(0,0,0,0.08)",
                         padding: "16px",
-                        zIndex: 99,
+                        zIndex: 900,
+                        marginTop: 8,
+                        overflow: 'visible',
                     }}
                 >
                     <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", gap: 12 }}>
@@ -907,8 +1056,283 @@ export function AgentResultLayout({
                             Search
                         </button>
                     </div>
+
+                    <button
+                        type="button"
+                        onClick={openFeedbackModal}
+                        style={{
+                            position: 'absolute',
+                            right: 24,
+                            top: -60,
+                            zIndex: 1200,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            padding: '12px 24px',
+                            borderRadius: 10,
+                            border: 'none',
+                            backgroundColor: 'rgb(58, 131, 139)',
+                            color: '#FFFFFF',
+                            fontFamily: 'Open Sans, sans-serif',
+                            fontWeight: 600,
+                            fontSize: 16,
+                            cursor: 'pointer',
+                            boxShadow: '0 8px 20px rgba(77, 129, 138, 0.28)',
+                        }}
+                    >
+                        <ChatBubbleOutlineRoundedIcon sx={{ color: '#FFFFFF', fontSize: 20 }} />
+                        Give Feedback
+                    </button>
                 </div>
             ) : null}
+
+            {!hasFloatingInputBar ? (
+                <button
+                    type="button"
+                    onClick={openFeedbackModal}
+                    style={{
+                        position: 'fixed',
+                        right: 24,
+                        bottom: 24,
+                        zIndex: 1200,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        padding: '12px 24px',
+                        borderRadius: 10,
+                        border: 'none',
+                        backgroundColor: 'rgb(58, 131, 139)',
+                        color: '#FFFFFF',
+                        fontFamily: 'Open Sans, sans-serif',
+                        fontWeight: 600,
+                        fontSize: 16,
+                        cursor: 'pointer',
+                        boxShadow: '0 8px 20px rgba(77, 129, 138, 0.28)',
+                    }}
+                >
+                    <ChatBubbleOutlineRoundedIcon sx={{ color: '#FFFFFF', fontSize: 20 }} />
+                    Give Feedback
+                </button>
+            ) : null}
+
+            <AlertMessage
+                type="success"
+                content="Feedback recorded. Thank you!"
+                open={feedbackSuccessOpen}
+                onClose={() => setFeedbackSuccessOpen(false)}
+            />
+
+            <FeedbackPromptDialog
+                open={feedbackPromptOpen}
+                onShareFeedback={() => {
+                    disableAutoFeedbackPrompt();
+                    setFeedbackPromptOpen(false);
+                    openFeedbackModal();
+                }}
+                onMaybeLater={() => {
+                    disableAutoFeedbackPrompt();
+                    setFeedbackPromptOpen(false);
+                }}
+            />
+
+            {feedbackOpen ? (
+                <div
+                    style={{
+                        position: 'fixed',
+                        zIndex: 1300,
+                        right: 24,
+                        bottom: 85,
+                        width: 480,
+                        maxWidth: 'calc(100vw - 24px)',
+                    }}
+                >
+                    <div
+                        style={{
+                            width: '100%',
+                            backgroundColor: '#FFFFFF',
+                            borderRadius: 14,
+                            padding: '24px',
+                            fontFamily: 'Open Sans, sans-serif',
+                            boxShadow: '0px 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                            position: 'relative',
+                        }}
+                    >
+                        <button
+                            type="button"
+                            onClick={closeFeedbackModal}
+                            aria-label="Close feedback dialog"
+                            style={{
+                                position: 'absolute',
+                                top: 12,
+                                right: 12,
+                                width: 32,
+                                height: 32,
+                                border: 'none',
+                                borderRadius: 8,
+                                background: 'transparent',
+                                color: '#111827',
+                                fontSize: 20,
+                                lineHeight: '20px',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            ×
+                        </button>
+
+                        <div
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                padding: 16,
+                                borderRadius: 14,
+                                backgroundColor: '#008C8C20',
+                                marginBottom: 12,
+                            }}
+                        >
+                            <ChatBubbleOutlineRoundedIcon sx={{ color: '#008C8C', fontSize: 48 }} />
+                        </div>
+
+                        <div style={{ fontWeight: 700, fontSize: 20, color: '#000000', lineHeight: 1.35 }}>
+                            Share your feedback
+                        </div>
+                        <div style={{ marginTop: 6, fontWeight: 400, fontSize: 15, color: '#6A7282' }}>
+                            Your feedback helps us improve PanKgraph. We'd love to know what you think about your experience.
+                        </div>
+
+                        <div style={{ height: 30 }} />
+
+                        <div style={{ fontWeight: 400, fontSize: 13, color: '#6A7282', marginBottom: 8 }}>
+                            How would you rate your experience?
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            {[1, 2, 3, 4, 5].map((starValue) => {
+                                const filled = feedbackRating >= starValue;
+                                return (
+                                    <button
+                                        key={starValue}
+                                        type="button"
+                                        onClick={() => setFeedbackRating(starValue)}
+                                        style={{
+                                            width: 34,
+                                            height: 34,
+                                            padding: 0,
+                                            border: 'none',
+                                            background: 'transparent',
+                                            cursor: 'pointer',
+                                        }}
+                                        aria-label={`Rate ${starValue} star${starValue > 1 ? 's' : ''}`}
+                                    >
+                                        <img
+                                            src={filled ? starFilledIcon : starIcon}
+                                            alt={filled ? 'filled star' : 'star'}
+                                            style={{ width: 28, height: 28, display: 'block' }}
+                                        />
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        <div style={{ height: 16 }} />
+                        <div style={{ fontWeight: 400, fontSize: 13, color: '#6A7282', marginBottom: 8 }}>
+                            What did you think of this response? (optional)
+                        </div>
+                        <textarea
+                            value={feedbackText}
+                            onChange={(event) => setFeedbackText(event.target.value)}
+                            placeholder="Share your thoughts..."
+                            rows={4}
+                            style={{
+                                width: '100%',
+                                border: '1px solid #D5DBE3',
+                                borderRadius: 10,
+                                padding: '10px 12px',
+                                fontFamily: 'Open Sans, sans-serif',
+                                fontSize: 14,
+                                color: '#111827',
+                                outline: 'none',
+                                resize: 'vertical',
+                                boxSizing: 'border-box',
+                            }}
+                        />
+
+                        <div style={{ height: 16 }} />
+
+                        <div style={{ fontWeight: 400, fontSize: 13, color: '#6A7282', marginBottom: 8 }}>
+                            Email (optional)
+                        </div>
+                        <input
+                            type="email"
+                            placeholder="you@example.com"
+                            value={feedbackEmail}
+                            onChange={(event) => setFeedbackEmail(event.target.value)}
+                            style={{
+                                width: '100%',
+                                height: 42,
+                                border: '1px solid #D5DBE3',
+                                borderRadius: 10,
+                                padding: '0 12px',
+                                fontFamily: 'Open Sans, sans-serif',
+                                fontSize: 14,
+                                color: '#111827',
+                                outline: 'none',
+                                boxSizing: 'border-box',
+                            }}
+                        />
+
+                        {feedbackError ? (
+                            <div style={{ marginTop: 10, fontSize: 13, color: '#B42318' }}>
+                                {feedbackError}
+                            </div>
+                        ) : null}
+
+                        <div style={{ marginTop: 16, display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+                            <button
+                                type="button"
+                                onClick={closeFeedbackModal}
+                                disabled={feedbackSubmitting}
+                                style={{
+                                    border: 'none',
+                                    background: '#FFFFFF',
+                                    color: '#000000',
+                                    fontFamily: 'Open Sans, sans-serif',
+                                    fontWeight: 600,
+                                    fontSize: 16,
+                                    padding: '12px 18px',
+                                    borderRadius: 10,
+                                    cursor: feedbackSubmitting ? 'not-allowed' : 'pointer',
+                                }}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleSubmitFeedback}
+                                disabled={feedbackSubmitting}
+                                style={{
+                                    padding: '12px 24px',
+                                    borderRadius: 10,
+                                    border: 'none',
+                                    backgroundColor: 'rgb(58, 131, 139)',
+                                    color: '#FFFFFF',
+                                    fontFamily: 'Open Sans, sans-serif',
+                                    fontWeight: 600,
+                                    fontSize: 16,
+                                    cursor: feedbackSubmitting ? 'not-allowed' : 'pointer',
+                                    opacity: feedbackSubmitting ? 0.7 : 1,
+                                }}
+                            >
+                                {feedbackSubmitting ? 'Submitting...' : 'Submit Feedback'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            ) : null}
+            </div>
         </div>
     );
 }

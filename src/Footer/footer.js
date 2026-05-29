@@ -47,7 +47,7 @@ export const pkbMenu = {
 
 function PkbFooter() {
     return (
-        <div className="pkb-footer" style={{ minHeight: 'fit-content', height: 'auto' }}>
+        <div className="pkb-footer" style={{ minHeight: 'fit-content', height: 'auto', position: 'relative' }}>
             <div className="menu">
                 <div className="main-menu-items">
                     {pkbMenu.highlightItems.map((item) => (
@@ -85,7 +85,7 @@ function PkbFooter() {
                     marginBottom: '20px'
                 }}>
                     <div className="logo">
-                        <a href="/">
+                        <a href="/old-landing">
                             <img
                                 style={{ height: "37px", width: '200px' }}
                                 src="https://hugeampkpncms.org/sites/default/files/users/user32/pankbase/PanKbase_logo-black.svg"

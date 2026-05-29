@@ -55,10 +55,44 @@ import {
 
 const DisableInfocardDisappear = false;
 
+const SUPERSCRIPT_MAP = {
+  '0': '⁰',
+  '1': '¹',
+  '2': '²',
+  '3': '³',
+  '4': '⁴',
+  '5': '⁵',
+  '6': '⁶',
+  '7': '⁷',
+  '8': '⁸',
+  '9': '⁹',
+  '-': '⁻',
+  '+': '⁺',
+};
+
+const toSuperscript = (value) => String(value || '')
+  .split('')
+  .map((char) => SUPERSCRIPT_MAP[char] || char)
+  .join('');
+
+const formatScientificNotation = (rawValue, significanceNumber = 3) => {
+  const num = Number(rawValue);
+  if (!Number.isFinite(num)) return null;
+  if (num === 0) return '0';
+
+  const digits = Number.isFinite(Number(significanceNumber))
+    ? Math.max(1, parseInt(significanceNumber, 10))
+    : 3;
+  const [mantissa, exponent = '0'] = num.toExponential(digits - 1).split('e');
+  const normalizedExponent = exponent.startsWith('+') ? exponent.slice(1) : exponent;
+
+  return `${mantissa} × 10${toSuperscript(normalizedExponent)}`;
+};
+
 const LegendItem = ({ label, color, sx }) => (
   <span
     style={{
-      padding: "4px 8px",
+      padding: "2px 6px",
       borderRadius: "6px",
       backgroundColor: color || "white",
       fontSize: "12px",
@@ -86,6 +120,13 @@ const InfocardData = ({ value, config, dataKey }) => {
         ) :
           type === "float" ? (
             <>{value !== undefined ? parseFloat(value).toFixed(setting || 1) : "No Data"}</>
+            ) :
+              type === "scientific" ? (
+                <>{
+                  value !== undefined
+                    ? (formatScientificNotation(value, setting) || value)
+                    : "No Data"
+                }</>
           ) : ["link", "link_static"].includes(type) ? (
             <Link href={(type === "link" ? value : dataKey) || undefined} target="_blank" rel="noopener noreferrer" sx={{
               textDecoration: "none",
@@ -142,7 +183,8 @@ const HirnEvidences = ({ evidence }) => {
     };
     const scoreColor = score >= 0.9 ? colorMap.green : score >= 0.7 ? colorMap.orange : colorMap.red;
     return <Box sx={{
-      width: "calc(100% - 32px)",
+      width: "100%",
+      boxSizing: "border-box",
       display: "flex",
       flexDirection: "column",
       padding: "16px",
@@ -214,7 +256,8 @@ const HirnEvidences = ({ evidence }) => {
   }
 
   return <Box sx={{
-    width: "calc(100% - 32px)",
+    width: "100%",
+    boxSizing: "border-box",
     display: "flex",
     flexDirection: "column",
     padding: "16px",
@@ -295,7 +338,8 @@ const LongList = ({ title, list }) => {
     // top right: pmid
     // bottom: content
     return <Box sx={{
-      width: "calc(100% - 32px)",
+      width: "100%",
+      boxSizing: "border-box",
       display: "flex",
       flexDirection: "column",
       padding: "16px",
@@ -335,7 +379,8 @@ const LongList = ({ title, list }) => {
   }
 
   return <Box sx={{
-    width: "calc(100% - 32px)",
+    width: "100%",
+    boxSizing: "border-box",
     display: "flex",
     flexDirection: "column",
     padding: "16px",
@@ -468,7 +513,8 @@ const FreqList = ({ title, string, config }) => {
   }
 
   return <Box sx={{
-    width: "calc(100% - 32px)",
+    width: "100%",
+    boxSizing: "border-box",
     display: "flex",
     flexDirection: "column",
     padding: "16px",
@@ -517,6 +563,37 @@ const parseJSON = (str) => {
   }
 };
 
+const getSafeEdgeMidpoint = (ele) => {
+  try {
+    if (!ele || typeof ele.midpoint !== 'function') return null;
+    const midpoint = ele.midpoint();
+    if (!midpoint) return null;
+    if (!Number.isFinite(midpoint.x) || !Number.isFinite(midpoint.y)) return null;
+    return midpoint;
+  } catch (error) {
+    return null;
+  }
+};
+
+const getSafeElementPosition = (ele) => {
+  try {
+    if (!ele || ele.nonempty === false) return null;
+    if (typeof ele.removed === 'function' && ele.removed()) return null;
+
+    if (typeof ele.isNode === 'function' && ele.isNode()) {
+      if (typeof ele.position !== 'function') return null;
+      const pos = ele.position();
+      if (!pos) return null;
+      if (!Number.isFinite(pos.x) || !Number.isFinite(pos.y)) return null;
+      return pos;
+    }
+
+    return getSafeEdgeMidpoint(ele);
+  } catch (error) {
+    return null;
+  }
+};
+
 const InfocardMenu = ({ hoveredData, review }) => {
   const isEdge = hoveredData?.source && hoveredData?.target;
   const schema =
@@ -525,10 +602,6 @@ const InfocardMenu = ({ hoveredData, review }) => {
   const titleColumn = schema?.find(([label, _]) => label === "Title");
   const footerInfo = schema?.find(([label, _]) => label === "Footer")?.[1];
 
-  if (!hoveredData)
-  {
-    console.log(JSON.stringify(hoveredData));
-  }
   // GO 节点：按 name 长度决定标题展示 GO id 还是 GO term（name 即 ~properties.name，id 即 ~id）
   const rawId = hoveredData?.id;
   const goTerm = hoveredData?.name;
@@ -574,7 +647,8 @@ const InfocardMenu = ({ hoveredData, review }) => {
                         <FreqList key={title} title={title} string={hoveredData[content] || ""} config={setting.split(",").map(item => hoveredData[item])} />
                         : (
                           <Box key={title} sx={{
-                            width: "calc(100% - 32px)",
+                            width: "100%",
+                            boxSizing: "border-box",
                             display: "flex",
                             flexDirection: "column",
                             padding: "16px",
@@ -720,9 +794,7 @@ const InfocardMenu = ({ hoveredData, review }) => {
 }
 
 // Main KnowledgeGraph component
-export default function KnowledgeGraph({ selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, review = false, containerHeight = "600px", defaultLegendVisible = true }) {
-  console.log('KnowledgeGraph props graphData, coordData:', { graphData, coordData });
-
+export default function KnowledgeGraph({ selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, review = false, containerHeight = "600px", defaultLegendVisible = false }) {
   const cyRef = useRef(null);
   const containerRef = useRef(null);
   const infocardRef = useRef(null);
@@ -874,10 +946,14 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
     if (!ele || !cyRef.current || !infocardEnabled) {
       return;
     }
-    const { x: modelX, y: modelY } =
-      ele.isNode() ? ele.position() : ele.midpoint();
-    const nodeWidth = ele.isNode() ? ele.outerWidth() * cyRef.current.zoom() : 20;
-    const nodeHeight = ele.isNode() ? ele.outerHeight() * cyRef.current.zoom() : 20;
+    const modelPos = getSafeElementPosition(ele);
+    if (!modelPos) {
+      setInfocardVisible(false);
+      return;
+    }
+    const { x: modelX, y: modelY } = modelPos;
+    const nodeWidth = (typeof ele.isNode === 'function' && ele.isNode()) ? ele.outerWidth() * cyRef.current.zoom() : 20;
+    const nodeHeight = (typeof ele.isNode === 'function' && ele.isNode()) ? ele.outerHeight() * cyRef.current.zoom() : 20;
     const x = modelX * cyRef.current.zoom() + cyRef.current.pan().x;
     const y = modelY * cyRef.current.zoom() + cyRef.current.pan().y;
 
@@ -947,6 +1023,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
 
   // listen to url change for fullscreen parameter
   useEffect(() => {
+    const previousHtmlOverflow = document.documentElement.style.overflow;
     const params = new URLSearchParams(location.search);
     const isFullscreen = params.get("fullscreen") === "true";
     if (isFullscreen !== expanded) setExpanded(isFullscreen);
@@ -960,7 +1037,10 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
         handleRecenter();
       }
     }, 200);
-    return () => clearTimeout(timeoutId);
+    return () => {
+      clearTimeout(timeoutId);
+      document.documentElement.style.overflow = previousHtmlOverflow || "auto";
+    };
   }, [location, expanded]);
 
   const appearTimeoutRef = useRef(null);
@@ -1151,9 +1231,21 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
 
     const handleEdge = (handler) => ((evt) => {
       // compare mouse position with edge midpoint
-      const ele = cyRef.current.$(evt.target);
-      const midpoint = ele.midpoint();
-      const mouseRendered = cyRef.current.renderer().projectIntoViewport(evt.originalEvent.clientX, evt.originalEvent.clientY);
+      const cy = cyRef.current;
+      if (!cy) return;
+
+      const ele = evt?.target;
+      if (!ele || ele.nonempty === false || (typeof ele.removed === 'function' && ele.removed())) return;
+
+      const midpoint = getSafeEdgeMidpoint(ele);
+      if (!midpoint) return;
+
+      const originalEvent = evt?.originalEvent;
+      if (!originalEvent) return;
+
+      const mouseRendered = cy.renderer()?.projectIntoViewport?.(originalEvent.clientX, originalEvent.clientY);
+      if (!mouseRendered || mouseRendered.length < 2) return;
+
       const dist = Math.sqrt(
         Math.pow(midpoint.x - mouseRendered[0], 2) +
         Math.pow(midpoint.y - mouseRendered[1], 2)
@@ -1240,8 +1332,8 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
       </div>
       <Box sx={{
         position: "absolute",
-        top: "10px",
-        right: "10px",
+        top: "8px",
+        right: "8px",
         padding: "7px",
         display: "flex",
         flexDirection: "column",
@@ -1306,8 +1398,8 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
       </Box>
       <Box sx={{
         position: "absolute",
-        bottom: "35px",
-        right: "10px",
+        bottom: "8px",
+        right: "8px",
         height: "40px",
         width: "60px",
         display: "flex",
@@ -1359,12 +1451,12 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
         <div
           style={{
             position: "absolute",
-            bottom: "36px",
-            left: "20px",
+            bottom: "8px",
+            left: "8px",
             display: "flex",
             flexDirection: "column",
             background: "#fff",
-            padding: "20px",
+            padding: "12px",
             borderRadius: "8px",
             boxShadow: "0px 4px 15px -3px rgba(100,100,100,0.25)",
             zIndex: 10,
@@ -1396,8 +1488,8 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
             </IconButton>
           </div>
           <Collapse in={legendVisible} timeout="auto">
-            <div style={{ width: "430px", paddingTop: "10px", fontSize: "16px", fontFamily: "Open Sans", fontWeight: 400 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingBottom: "4px", fontSize: "12px" }}>
+            <div style={{ width: "350px", paddingTop: "6px", fontSize: "14px", fontFamily: "Open Sans", fontWeight: 400 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingBottom: "2px", fontSize: "12px" }}>
                 <LegendItem label="　　　　" sx={{ backgroundColor: "#E9E9E9", color: "black", border: "1.5px solid #E9E9E9", height: "8px" }} />
                 Core Nodes
                 <LegendItem label="　　　　" sx={{ backgroundColor: "white", color: "black", border: "1.5px solid #E9E9E9", height: "8px", marginLeft: "16px" }} />
@@ -1409,7 +1501,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
                   alignItems: "center",
                   gap: "8px",
                   flexWrap: "wrap",
-                  paddingTop: "8px",
+                  paddingTop: "4px",
                 }}
               >
                 {legendSchema.map(({ label, color }) => (

@@ -25,7 +25,7 @@ function NavBar() {
   };
 
   return (
-    <>
+    <div style={{ position: 'relative', zIndex: 1300 }}>
       <div className="pkb-nav">
         <div className="logo">
           <a href={process.env.REACT_APP_PANKBASE_LINK}>
@@ -68,11 +68,13 @@ function NavBar() {
                 <div className="menu-item-wrapper">
                   <a className="menu-item menu-item-main" style={{ color: 'white', backgroundColor: '#219197' }} href={process.env.REACT_APP_PANKGRAPH_LINK}>PanKgraph</a>
                   <div className="submenu">
-                    <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK}>Search</a>
-                    <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/docs/API'}>API</a>
+                    <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK}>Chat</a>
+                    <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/skills'}>Tools</a>
+                    <div style={{ height: '1px', backgroundColor: '#FFFFFF', opacity: 0.9, margin: '4px 0px', width: '100%' }} />
+                    <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/docs/API'}>API Doc</a>
                     <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/docs/ontology'}>Ontology</a>
                     <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/docs/usecase'}>Use cases</a>
-                    <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/docs/tutorial'}>Tutorial</a>
+                    <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/docs/tutorial'}>Tutorials</a>
                     <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/docs/statistics'}>Statistics</a>
                   </div>
                 </div>
@@ -80,11 +82,20 @@ function NavBar() {
                 {/*  <a className="menu-item menu-item-main" href={process.env.REACT_APP_DATA_LIB_LINK}>Data Library</a>*/}
                 {/*</div>*/}
                 <div className="menu-item-wrapper">
-                  <a className="menu-item menu-item-main" href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}>Integrated Cell Browser</a>
+                  <a
+                    className="menu-item menu-item-main"
+                    href={
+                      process.env.REACT_APP_API_GATEWAY_STAGE_NAME === 'development'
+                        ? 'https://dev.pankbase.org/single-cell.html'
+                        : 'https://pankbase.org/single-cell.html'
+                    }
+                  >
+                    Integrated Cell Browser
+                  </a>
                 </div>
               </div>
               <div className="menu-item-wrapper">
-                <a className="menu-item" href="/">Data</a>
+                <a className="menu-item" href="/old-landing">Data</a>
                 <div className="submenu">
                   {/*<a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/data-browser.html'}>Data Browser</a>*/}
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/donor-metadata.html'}>Donor Summary</a>
@@ -93,9 +104,18 @@ function NavBar() {
                 </div>
               </div>
               <div className="menu-item-wrapper">
-                <a className="menu-item" href="/">Resources</a>
+                <a className="menu-item" href="/old-landing">Resources</a>
                 <div className="submenu">
-                  <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/single-cell.html'}>Integrated Cell Browser</a>
+                  <a
+                    className="submenu-item"
+                    href={
+                      process.env.REACT_APP_API_GATEWAY_STAGE_NAME === 'development'
+                        ? 'https://dev.pankbase.org/single-cell.html'
+                        : 'https://pankbase.org/single-cell.html'
+                    }
+                  >
+                    Integrated Cell Browser
+                  </a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/diff-exp.html'}>Differential Gene Expression Browser</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/pca-explorer.html'}>PCA Explorer</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/analytical-library.html'}>Analytical Library</a>
@@ -105,7 +125,7 @@ function NavBar() {
                 </div>
               </div>
               <div className="menu-item-wrapper">
-                <a className="menu-item" href="/">About</a>
+                <a className="menu-item" href="/old-landing">About</a>
                 <div className="submenu">
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/projects.html'}>PanKbase Program</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/people.html'}>People</a>
@@ -115,7 +135,7 @@ function NavBar() {
                 </div>
               </div>
               <div className="menu-item-wrapper">
-                <a className="menu-item" href="/">Help</a>
+                <a className="menu-item" href="/old-landing">Help</a>
                 <div className="submenu">
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/contact.html'}>Contact | Feedback</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/tutorials.html'}>Tutorials</a>
@@ -134,7 +154,8 @@ function NavBar() {
         </div>
       </div>
       <Typography sx={{
-        position: 'relative',
+        position: 'absolute',
+        top: '100%',
         left: '20px',
         padding: '0px 15px',
         fontSize: '14px',
@@ -143,7 +164,7 @@ function NavBar() {
         color: 'white',
         width: 'fit-content',
       }}>beta</Typography>
-    </>
+    </div>
   );
 }
 

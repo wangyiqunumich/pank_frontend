@@ -1,44 +1,44 @@
 import './scoped.css';
 
 import React, {
-    useEffect,
-    useRef,
-    useState,
+  useEffect,
+  useRef,
+  useState,
 } from 'react';
 
 import DOMPurify from 'dompurify';
 import {
-    useDispatch,
-    useSelector,
+  useDispatch,
+  useSelector,
 } from 'react-redux';
 
 import {
-    ChevronRight as ChevronRightIcon,
-    InfoOutlined as InfoOutlineIcon,
+  ChevronRight as ChevronRightIcon,
+  InfoOutlined as InfoOutlineIcon,
 } from '@mui/icons-material';
 import {
-    Backdrop,
-    Box,
-    CircularProgress,
-    Collapse,
-    Container,
-    Grid,
-    Link,
-    List,
-    ListItem,
-    Skeleton,
-    styled,
-    Tab,
-    Tabs,
-    Tooltip,
-    tooltipClasses,
-    Typography,
+  Backdrop,
+  Box,
+  CircularProgress,
+  Collapse,
+  Container,
+  Grid,
+  Link,
+  List,
+  ListItem,
+  Skeleton,
+  styled,
+  Tab,
+  Tabs,
+  Tooltip,
+  tooltipClasses,
+  Typography,
 } from '@mui/material';
 
 import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 import {
-    ErrorComponent,
-    tabsQTL,
+  ErrorComponent,
+  tabsQTL,
 } from '../components/IntermediatePage';
 import KnowledgeGraph from '../components/KnowledgeGraph';
 import VisuImage from '../image/output.png';
@@ -51,9 +51,9 @@ import { queryImage } from '../redux/typeToImageSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import {
-    addHighlight,
-    replaceNextQuestion,
-    replaceVariables,
+  addHighlight,
+  replaceNextQuestion,
+  replaceVariables,
 } from '../utils/textProcessing';
 
 const defaultTabOptions = [
@@ -71,13 +71,13 @@ const defaultNextQuestion = {
 const validateQuestions = async (questions) => {
     const fetchQueryResults = async (question) => {
         const response = flaskBackendAxiosInstanceNew
-            .post('/pankgraph-neo4j',
-                { query: question.query }, {
+            .post('/pank2-neo4j-api-development',
+                { query: question.query, action: 'query' }, {
                 headers: {
                     "Content-Type": "application/json"
                 }
             })
-            .then((response) => response.data?.results && response.data?.results !== "No results")
+            .then((response) => response.data?.records && response.data?.records.length > 0)
         const valid = await response;
         return { valid, question };
     };
@@ -136,6 +136,7 @@ const LoadingSkeleton = () => (
         alignSelf: 'center',
         maxWidth: '1440px',
         minWidth: '1000px',
+        marginTop: '24px',
         marginLeft: '20px',
         marginRight: '20px',
         flexGrow: 1,
@@ -710,7 +711,7 @@ function SearchResult() {
 
     // Show loading skeleton if queryResultPage is not ready
     return !(queryResultPage?.combined_query_result) ? <LoadingSkeleton /> :
-        (<Container sx={{ width: '100%', overflowX: 'auto', maxWidth: '1440px', marginX: '20px', alignSelf: 'center', overflow: 'visible' }} maxWidth={false}>
+        (<Container sx={{ width: '100%', overflowX: 'auto', maxWidth: '1440px', marginTop: '24px', marginX: '20px', alignSelf: 'center', overflow: 'visible' }} maxWidth={false}>
             <Backdrop
                 sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
                 open={imagePopupOpen}

@@ -28,7 +28,7 @@
                   "result_error_message": "The link you're using may be outdated or incorrectly formatted. Please verify the URL or contact us using the button below for assistance.",
                   "question_for_result": "How does the {SNP @snp_id@} influence the expression of {@gene_symbol@} in @tissue@ tissue, as reported by @method@?",
                   "cypher_for_result_page_core": "MATCH (variant:sequence_variant), (gene:coding_elements) WHERE variant.id=\"@snp@\" AND gene.id=\"@gene@\" MATCH (variant)-[r:part_of_QTL_signal]-(gene) WITH collect(DISTINCT variant)+collect(DISTINCT gene) AS nodes, collect(DISTINCT r) AS edges RETURN nodes, edges; ",
-                  "cypher_for_result_page_nbr": "MATCH (variant:sequence_variant {id: \"@lead_snp@\"}), (g:gene {id: \"@gene@\"}) CALL { WITH g MATCH (g)-[r1:effector_gene_of]-(nbr1) RETURN collect(DISTINCT r1) AS eff_edges, collect(DISTINCT nbr1) AS eff_nbrs } CALL { WITH g MATCH (g)-[rReg:genetic_interaction]-(nbrR:gene) WITH rReg, nbrR ORDER BY id(rReg) LIMIT 2 RETURN collect(rReg) AS reg_edges, collect(nbrR) AS reg_nbrs } CALL { WITH g MATCH (g)-[rBind:physical_binding]-(nbrB:gene) WITH rBind, nbrB ORDER BY id(rBind) LIMIT 2 RETURN collect(rBind) AS bind_edges, collect(nbrB) AS bind_nbrs } CALL { WITH variant MATCH (variant)-[r0]-(nbr0) WITH r0, nbr0 LIMIT 1 RETURN collect(r0) AS var_edges, collect(nbr0) AS var_nbrs } WITH [g, variant] AS seed_nodes, eff_edges + reg_edges + bind_edges + var_edges AS all_edges, eff_nbrs + reg_nbrs + bind_nbrs + var_nbrs AS all_nbrs UNWIND (seed_nodes + all_nbrs) AS n WITH collect(DISTINCT n) AS nodes, all_edges UNWIND all_edges AS e RETURN nodes, collect(DISTINCT e) AS edges;",
+                  "cypher_for_result_page_nbr": "MATCH (variant:sequence_variant {id: \"@lead_snp@\"}), (g:coding_elements:gene {id: \"@gene@\"}) CALL { WITH g MATCH (g)-[r1:effector_gene_of]-(nbr1) RETURN collect(DISTINCT r1) AS eff_edges, collect(DISTINCT nbr1) AS eff_nbrs } CALL { WITH g MATCH (g)-[rReg:genetic_interaction]-(nbrR:coding_elements:gene) WITH rReg, nbrR ORDER BY id(rReg) LIMIT 2 RETURN collect(rReg) AS reg_edges, collect(nbrR) AS reg_nbrs } CALL { WITH g MATCH (g)-[rBind:physical_interaction]-(nbrB:coding_elements:gene) WITH rBind, nbrB ORDER BY id(rBind) LIMIT 2 RETURN collect(rBind) AS bind_edges, collect(nbrB) AS bind_nbrs } CALL { WITH variant MATCH (variant)-[r0]-(nbr0) WITH r0, nbr0 LIMIT 1 RETURN collect(r0) AS var_edges, collect(nbr0) AS var_nbrs } WITH [g, variant] AS seed_nodes, eff_edges + reg_edges + bind_edges + var_edges AS all_edges, eff_nbrs + reg_nbrs + bind_nbrs + var_nbrs AS all_nbrs UNWIND (seed_nodes + all_nbrs) AS n WITH collect(DISTINCT n) AS nodes, all_edges UNWIND all_edges AS e RETURN nodes, collect(DISTINCT e) AS edges;",
                   "ai_question_for_result": [
                         "From the given JSON information, summarize the key characteristics and functions of the gene @gene_id@, including its involvement in immune regulation and associated pathways",
                         "Based on the JSON data, describe the relationship between the SNP @snp_id@ and the QTL of @gene_id@ in the pancreas, including details such as the effect allele, slope, posterior inclusion probability (PIP), and nominal p-value",
@@ -43,7 +43,7 @@
                         {
                               "question": "Which {SNP} serve as the lead {QTL} for {@nbr_gene_symbol@}?",
                               "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@@nbr_gene_id@&targetSymbol=@nbr_gene_symbol@",
-                              "query": "MATCH (variant:sequence_variant)-[r:part_of_QTL_signal]->(gene:coding_elements {id:\"@nbr_gene_id@\"}) WITH CASE WHEN r.data_source=\"GTEx; SusieR\" THEN \"GTEx; SusieR\" WHEN r.data_source=\"INSPIRE; SusieR\" THEN \"INSPIRE; SusieR\" WHEN r.data_source=\"splicing; GTEx\" THEN \"splicing; GTEx\" WHEN r.data_source=\"exon; INSPIRE\" THEN \"exon; INSPIRE\" ELSE \"Other\" END AS data_source, r, variant WITH data_source, COLLECT({snp: id(variant), credible_set_id: r.credible_set, data_source: r.data_source, pip: r.pip, n_snp: r.n_snp, purity: r.purity, nominal_p: r.nominal_p, lbf: r.lbf, effect_allele: r.effect_allele}) AS credible_sets RETURN data_source, credible_sets ORDER BY data_source;"
+                              "query": "MATCH (variant:sequence_variant)-[r:part_of_QTL_signal]->(gene:coding_elements {id:\"@nbr_gene_id@\"}) WITH CASE WHEN r.data_source=\"GTEx; SusieR\" THEN \"GTEx; SusieR\" WHEN r.data_source=\"INSPIRE; SusieR\" THEN \"INSPIRE; SusieR\" WHEN r.data_source=\"splicing; GTEx\" THEN \"splicing; GTEx\" WHEN r.data_source=\"exon; INSPIRE\" THEN \"exon; INSPIRE\" ELSE \"Other\" END AS data_source, r, variant WITH data_source, COLLECT({snp: variant.id, credible_set_id: r.credible_set, data_source: r.data_source, pip: r.pip, n_snp: r.n_snp, purity: r.purity, nominal_p: r.nominal_p, lbf: r.lbf, effect_allele: r.effect_allele}) AS credible_sets RETURN data_source, credible_sets ORDER BY data_source;"
                         }
                   ],
                   "resources_tabs": {
@@ -70,7 +70,7 @@
                               ],
                               [
                                     "Integrated Cell Browser",
-                                    "https://pankbase.org:8000/single-cell.html?PKBdatasetId=islet_of_Langerhans_scRNA_v1"
+                                    "https://pankbase.org/single-cell.html?datasetId=islet_of_Langerhans_scRNA_v3-3"
                               ]
                         ],
                         "external_links": [
@@ -111,7 +111,7 @@
                   "question_for_result": "How does the {SNP @snp_id@} influence the expression of {@gene_symbol@} in @tissue@ tissue, as reported by @method@?",
                   "rdb_query_for_result_page": "SELECT * FROM QTL_DATA WHERE snp = '@snp@' AND credible_set = '@credible_set_id@'",
                   "cypher_for_result_page_core": "MATCH (variant:sequence_variant), (gene:coding_elements) WHERE variant.id=\"@lead_snp@\" AND gene.id=\"@gene@\" MATCH (variant)-[r:part_of_QTL_signal]-(gene) WITH collect(DISTINCT variant) + collect(DISTINCT gene) AS nodes, collect(DISTINCT r) AS edges RETURN nodes, edges;",
-                  "cypher_for_result_page_nbr": "MATCH (variant:sequence_variant {id: \"@lead_snp@\"}), (g:gene {id: \"@gene@\"}) CALL { WITH g MATCH (g)-[r1:effector_gene_of]-(nbr1) RETURN collect(DISTINCT r1) AS eff_edges, collect(DISTINCT nbr1) AS eff_nbrs } CALL { WITH g MATCH (g)-[rReg:genetic_interaction]-(nbrR:gene) WITH rReg, nbrR ORDER BY id(rReg) LIMIT 2 RETURN collect(rReg) AS reg_edges, collect(nbrR) AS reg_nbrs } CALL { WITH g MATCH (g)-[rBind:physical_binding]-(nbrB:gene) WITH rBind, nbrB ORDER BY id(rBind) LIMIT 2 RETURN collect(rBind) AS bind_edges, collect(nbrB) AS bind_nbrs } CALL { WITH variant MATCH (variant)-[r0]-(nbr0) WITH r0, nbr0 LIMIT 1 RETURN collect(r0) AS var_edges, collect(nbr0) AS var_nbrs } WITH [g, variant] AS seed_nodes, eff_edges + reg_edges + bind_edges + var_edges AS all_edges, eff_nbrs + reg_nbrs + bind_nbrs + var_nbrs AS all_nbrs UNWIND (seed_nodes + all_nbrs) AS n WITH collect(DISTINCT n) AS nodes, all_edges UNWIND all_edges AS e RETURN nodes, collect(DISTINCT e) AS edges;",
+                  "cypher_for_result_page_nbr": "MATCH (variant:sequence_variant {id: \"@lead_snp@\"}), (g:coding_elements:gene {id: \"@gene@\"}) CALL { WITH g MATCH (g)-[r1:effector_gene_of]-(nbr1) RETURN collect(DISTINCT r1) AS eff_edges, collect(DISTINCT nbr1) AS eff_nbrs } CALL { WITH g MATCH (g)-[rReg:genetic_interaction]-(nbrR:coding_elements:gene) WITH rReg, nbrR ORDER BY id(rReg) LIMIT 2 RETURN collect(rReg) AS reg_edges, collect(nbrR) AS reg_nbrs } CALL { WITH g MATCH (g)-[rBind:physical_interaction]-(nbrB:coding_elements:gene) WITH rBind, nbrB ORDER BY id(rBind) LIMIT 2 RETURN collect(rBind) AS bind_edges, collect(nbrB) AS bind_nbrs } CALL { WITH variant MATCH (variant)-[r0]-(nbr0) WITH r0, nbr0 LIMIT 1 RETURN collect(r0) AS var_edges, collect(nbr0) AS var_nbrs } WITH [g, variant] AS seed_nodes, eff_edges + reg_edges + bind_edges + var_edges AS all_edges, eff_nbrs + reg_nbrs + bind_nbrs + var_nbrs AS all_nbrs UNWIND (seed_nodes + all_nbrs) AS n WITH collect(DISTINCT n) AS nodes, all_edges UNWIND all_edges AS e RETURN nodes, collect(DISTINCT e) AS edges;",
                   "ai_question_for_result": [
                         "From the given JSON information, summarize the key characteristics and functions of the gene @gene_id@, including its involvement in immune regulation and associated pathways",
                         "Based on the JSON data, describe the relationship between the SNP @snp_id@ and the QTL of @gene_id@ in the pancreas, including details such as the effect allele, slope, posterior inclusion probability (PIP), and nominal p-value. If there is lead snp != @snp@, please also include the relationship between the lead snp and the gene.",
@@ -126,7 +126,7 @@
                         {
                               "question": "Which {SNP} serve as the lead {QTL} for {@nbr_gene_symbol@}?",
                               "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@@nbr_gene_id@&targetSymbol=@nbr_gene_symbol@",
-                              "query": "MATCH (variant:sequence_variant)-[r:part_of_QTL_signal]->(gene:coding_elements {id:\"@nbr_gene_id@\"}) WITH CASE WHEN r.data_source=\"GTEx; SusieR\" THEN \"GTEx; SusieR\" WHEN r.data_source=\"INSPIRE; SusieR\" THEN \"INSPIRE; SusieR\" WHEN r.data_source=\"splicing; GTEx\" THEN \"splicing; GTEx\" WHEN r.data_source=\"exon; INSPIRE\" THEN \"exon; INSPIRE\" ELSE \"Other\" END AS data_source, r, variant WITH data_source, COLLECT({snp: id(variant), credible_set_id: r.credible_set, data_source: r.data_source, pip: r.pip, n_snp: r.n_snp, purity: r.purity, nominal_p: r.nominal_p, lbf: r.lbf, effect_allele: r.effect_allele}) AS credible_sets RETURN data_source, credible_sets ORDER BY data_source;"
+                              "query": "MATCH (variant:sequence_variant)-[r:part_of_QTL_signal]->(gene:coding_elements {id:\"@nbr_gene_id@\"}) WITH CASE WHEN r.data_source=\"GTEx; SusieR\" THEN \"GTEx; SusieR\" WHEN r.data_source=\"INSPIRE; SusieR\" THEN \"INSPIRE; SusieR\" WHEN r.data_source=\"splicing; GTEx\" THEN \"splicing; GTEx\" WHEN r.data_source=\"exon; INSPIRE\" THEN \"exon; INSPIRE\" ELSE \"Other\" END AS data_source, r, variant WITH data_source, COLLECT({snp: variant.id, credible_set_id: r.credible_set, data_source: r.data_source, pip: r.pip, n_snp: r.n_snp, purity: r.purity, nominal_p: r.nominal_p, lbf: r.lbf, effect_allele: r.effect_allele}) AS credible_sets RETURN data_source, credible_sets ORDER BY data_source;"
                         }
                   ],
                   "resources_tabs": {
@@ -153,7 +153,7 @@
                               ],
                               [
                                     "Integrated Cell Browser",
-                                    "https://pankbase.org:8000/single-cell.html?PKBdatasetId=islet_of_Langerhans_scRNA_v1"
+                                    "https://pankbase.org/single-cell.html?datasetId=islet_of_Langerhans_scRNA_v3-3"
                               ]
                         ],
                         "external_links": [
@@ -194,7 +194,7 @@
                   "question_for_result": "How does the {SNP @snp_id@} influence the expression of {@gene_symbol@} in @tissue@ tissue, as reported by @method@?",
                   "rdb_query_for_result_page": "SELECT * FROM QTL_DATA WHERE snp = '@snp@' AND credible_set = '@credible_set_id@'",
                   "cypher_for_result_page_core": "MATCH (variant:sequence_variant), (gene:coding_elements) WHERE variant.id=\"@lead_snp@\" AND gene.id=\"@gene@\" MATCH (variant)-[r:part_of_QTL_signal]-(gene) WITH collect(DISTINCT variant) + collect(DISTINCT gene) AS nodes, collect(DISTINCT r) AS edges RETURN nodes, edges;",
-                  "cypher_for_result_page_nbr": "MATCH (variant:sequence_variant {id: \"@lead_snp@\"}), (g:gene {id: \"@gene@\"}) CALL { WITH g MATCH (g)-[r1:effector_gene_of]-(nbr1) RETURN collect(DISTINCT r1) AS eff_edges, collect(DISTINCT nbr1) AS eff_nbrs } CALL { WITH g MATCH (g)-[rReg:genetic_interaction]-(nbrR:gene) WITH rReg, nbrR ORDER BY id(rReg) LIMIT 2 RETURN collect(rReg) AS reg_edges, collect(nbrR) AS reg_nbrs } CALL { WITH g MATCH (g)-[rBind:physical_binding]-(nbrB:gene) WITH rBind, nbrB ORDER BY id(rBind) LIMIT 2 RETURN collect(rBind) AS bind_edges, collect(nbrB) AS bind_nbrs } CALL { WITH variant MATCH (variant)-[r0]-(nbr0) WITH r0, nbr0 LIMIT 1 RETURN collect(r0) AS var_edges, collect(nbr0) AS var_nbrs } WITH [g, variant] AS seed_nodes, eff_edges + reg_edges + bind_edges + var_edges AS all_edges, eff_nbrs + reg_nbrs + bind_nbrs + var_nbrs AS all_nbrs UNWIND (seed_nodes + all_nbrs) AS n WITH collect(DISTINCT n) AS nodes, all_edges UNWIND all_edges AS e RETURN nodes, collect(DISTINCT e) AS edges;",
+                  "cypher_for_result_page_nbr": "MATCH (variant:sequence_variant {id: \"@lead_snp@\"}), (g:coding_elements:gene {id: \"@gene@\"}) CALL { WITH g MATCH (g)-[r1:effector_gene_of]-(nbr1) RETURN collect(DISTINCT r1) AS eff_edges, collect(DISTINCT nbr1) AS eff_nbrs } CALL { WITH g MATCH (g)-[rReg:genetic_interaction]-(nbrR:coding_elements:gene) WITH rReg, nbrR ORDER BY id(rReg) LIMIT 2 RETURN collect(rReg) AS reg_edges, collect(nbrR) AS reg_nbrs } CALL { WITH g MATCH (g)-[rBind:physical_interaction]-(nbrB:coding_elements:gene) WITH rBind, nbrB ORDER BY id(rBind) LIMIT 2 RETURN collect(rBind) AS bind_edges, collect(nbrB) AS bind_nbrs } CALL { WITH variant MATCH (variant)-[r0]-(nbr0) WITH r0, nbr0 LIMIT 1 RETURN collect(r0) AS var_edges, collect(nbr0) AS var_nbrs } WITH [g, variant] AS seed_nodes, eff_edges + reg_edges + bind_edges + var_edges AS all_edges, eff_nbrs + reg_nbrs + bind_nbrs + var_nbrs AS all_nbrs UNWIND (seed_nodes + all_nbrs) AS n WITH collect(DISTINCT n) AS nodes, all_edges UNWIND all_edges AS e RETURN nodes, collect(DISTINCT e) AS edges;",
                   "ai_question_for_result": [
                         "From the given JSON information, summarize the key characteristics and functions of the gene @gene_id@, including its involvement in immune regulation and associated pathways",
                         "Based on the JSON data, describe the relationship between the SNP @snp_id@ and the QTL of @gene_id@ in the pancreas, including details such as the effect allele, slope, posterior inclusion probability (PIP), and nominal p-value. If there is lead snp != @snp@, please also include the relationship between the lead snp and the gene.",
@@ -209,7 +209,7 @@
                         {
                               "question": "Which {SNP} serve as the lead {QTL} for {@nbr_gene_symbol@}?",
                               "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@@nbr_gene_id@&targetSymbol=@nbr_gene_symbol@",
-                              "query": "MATCH (variant:sequence_variant)-[r:part_of_QTL_signal]->(gene:coding_elements {id:\"@nbr_gene_id@\"}) WITH CASE WHEN r.data_source=\"GTEx; SusieR\" THEN \"GTEx; SusieR\" WHEN r.data_source=\"INSPIRE; SusieR\" THEN \"INSPIRE; SusieR\" WHEN r.data_source=\"splicing; GTEx\" THEN \"splicing; GTEx\" WHEN r.data_source=\"exon; INSPIRE\" THEN \"exon; INSPIRE\" ELSE \"Other\" END AS data_source, r, variant WITH data_source, COLLECT({snp: id(variant), credible_set_id: r.credible_set, data_source: r.data_source, pip: r.pip, n_snp: r.n_snp, purity: r.purity, nominal_p: r.nominal_p, lbf: r.lbf, effect_allele: r.effect_allele}) AS credible_sets RETURN data_source, credible_sets ORDER BY data_source;"
+                              "query": "MATCH (variant:sequence_variant)-[r:part_of_QTL_signal]->(gene:coding_elements {id:\"@nbr_gene_id@\"}) WITH CASE WHEN r.data_source=\"GTEx; SusieR\" THEN \"GTEx; SusieR\" WHEN r.data_source=\"INSPIRE; SusieR\" THEN \"INSPIRE; SusieR\" WHEN r.data_source=\"splicing; GTEx\" THEN \"splicing; GTEx\" WHEN r.data_source=\"exon; INSPIRE\" THEN \"exon; INSPIRE\" ELSE \"Other\" END AS data_source, r, variant WITH data_source, COLLECT({snp: variant.id, credible_set_id: r.credible_set, data_source: r.data_source, pip: r.pip, n_snp: r.n_snp, purity: r.purity, nominal_p: r.nominal_p, lbf: r.lbf, effect_allele: r.effect_allele}) AS credible_sets RETURN data_source, credible_sets ORDER BY data_source;"
                         }
                   ],
                   "resources_tabs": {
@@ -236,7 +236,7 @@
                               ],
                               [
                                     "Integrated Cell Browser",
-                                    "https://pankbase.org:8000/single-cell.html?PKBdatasetId=islet_of_Langerhans_scRNA_v1"
+                                    "https://pankbase.org/single-cell.html?datasetId=islet_of_Langerhans_scRNA_v3-3"
                               ]
                         ],
                         "external_links": [
@@ -249,7 +249,130 @@
                   }
             }
       },
-      "gene - express_in - cell_type": {
+      "snp - GWAS - disease": {
+            "specific - relationship - general": {
+                  "question": [
+                        "Does {@snp@} have GWAS association with T1D?"
+                  ],
+                  "inter_error_title": "No GWAS data found",
+                  "inter_error_message": "No GWAS records were found for this SNP in our PanKbase dataset.",
+                  "result_error_title": "No GWAS data found",
+                  "result_error_message": "No GWAS records were found for this SNP in our PanKbase dataset.",
+                  "question_for_result": "Does {@snp@} have GWAS association with T1D?",
+                  "cypher_for_result_page_core": "MATCH (variant:sequence_variant {id: \"@snp@\"}) OPTIONAL MATCH (variant)-[r:part_of_GWAS_signal]->(disease:disease{id: \"MONDO_0005147\"}) WITH collect(DISTINCT variant)+collect(DISTINCT disease) AS nodes, collect(DISTINCT r) AS edges RETURN nodes, edges;",
+                  "cypher_for_result_page_nbr": "MATCH (variant:sequence_variant {id: \"@snp@\"}) CALL { WITH variant MATCH (variant)-[r0]-(nbr0) WITH r0, nbr0 LIMIT 1 RETURN collect(r0)   AS var_edges, collect(nbr0) AS var_nbrs } WITH [variant] AS seed_nodes, var_edges AS all_edges, var_nbrs  AS all_nbrs UNWIND (seed_nodes + all_nbrs) AS n WITH collect(DISTINCT n) AS nodes, all_edges UNWIND all_edges AS e RETURN nodes, collect(DISTINCT e) AS edges;",
+                  "ai_question_for_result": [
+                        "Based on the JSON data, summarize the GWAS association of @snp_id@ with T1D, including the p-value, lead_status:, signal locus name, pip, p_value, lbf, effect_allele, non_effect_allele, pip_rank, credible_set_size, lbf, pip and pip_rank within the credible set(signal).",
+                        "Based on the JSON data, write a concise ‘Variant overview’ paragraph for @snp_id_GWAS@ describing its prperties, GWAS-based association with T1D (MONDO_0005147), and literure mentioned link to T1D. Explicitly state that the association is supported by GWAS or literature: – the GWAS p-value and whether it reaches genome-wide significance, – the signal locus name, – the effect_allele and non_effect_allele, – and, if available, notable allele frequencies across cohorts or populations (highlighting especially high or low values, such as in ALSPAC). Do not invent any values; only summarize information explicitly present in the JSON."
+                  ],
+                  "ai_answer_sub_title": [
+                        "GWAS overview: ",
+                        "Variant overview: "
+                  ],
+                  "next_questions": [
+                        {
+                              "question": "Which {SNP} serve as the lead {QTL} for {@nbr_gene_symbol@}?",
+                              "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@@nbr_gene_id@&targetSymbol=@nbr_gene_symbol@",
+                              "query": "MATCH (variant:sequence_variant)-[r:part_of_QTL_signal]->(gene:coding_elements {id:\"@nbr_gene_id@\"}) WITH CASE WHEN r.data_source=\"GTEx; SusieR\" THEN \"GTEx; SusieR\" WHEN r.data_source=\"INSPIRE; SusieR\" THEN \"INSPIRE; SusieR\" WHEN r.data_source=\"splicing; GTEx\" THEN \"splicing; GTEx\" WHEN r.data_source=\"exon; INSPIRE\" THEN \"exon; INSPIRE\" ELSE \"Other\" END AS data_source, r, variant WITH data_source, COLLECT({snp: variant.id, credible_set_id: r.credible_set, data_source: r.data_source, pip: r.pip, n_snp: r.n_snp, purity: r.purity, nominal_p: r.nominal_p, lbf: r.lbf, effect_allele: r.effect_allele}) AS credible_sets RETURN data_source, credible_sets ORDER BY data_source;"
+                        }
+                  ],
+                  "resources_tabs": {
+                        "references": {},
+                        "empirical_evidence": {
+                              "title": "Regional Fine-Mapping Plot",
+                              "description": "This plot integrates multiple fine-mapping statistics (−log₁₀P, PIP, LBF) across a genomic region. The three-row scatter view condenses GWAS evidence.\nRow 1 shows −log₁₀ P for classical association strength.\nRow 2 reports the posterior inclusion probability (PIP) from Bayesian fine-mapping.\nRow 3 displays the log Bayes factor (LBF) for complementary Bayes support.\nPoint colour encodes LD R² relative to the lead SNP (red dashed line), allowing you to gauge how neighbouring variants track the core signal.\nTogether these layers highlight candidate causal variants and their statistical weight at a glance.",
+                              "legend": "View",
+                              "lambda_function": "type_to_image",
+                              "link_text": "Download the raw GWAS data ↗"
+                        },
+                        "pankbase_links": [
+                              [
+                                    "GWAS Data Source",
+                                    "https://pankgraph.org/qtldatasource"
+                              ],
+                              [
+                                    "GWAS Pipeline",
+                                    "https://pankgraph.org/pipeline"
+                              ],
+                              [
+                                    "GWAS Code",
+                                    "https://github.com/PanKbase/PanKgraph-finemap-coloc"
+                              ],
+                              [
+                                    "Integrated Cell Browser",
+                                    "https://pankbase.org/single-cell.html?datasetId=islet_of_Langerhans_scRNA_v3-3"
+                              ]
+                        ],
+                        "external_links": [
+                              [
+                                    "Link to dbSNP: ",
+                                    "View the SNP @snp@ in dbSNP",
+                                    "https://www.ncbi.nlm.nih.gov/snp/?term=@snp@"
+                              ]
+                        ]
+                  }
+            }
+      },
+      "gene - COLOC - disease": {
+            "specific - relationship - general": {
+                  "question": [
+                        "Is the QTL signal of {@gene_symbol@} colocalized with T1D GWAS signal?"
+                  ],
+                  "inter_error_title": "No GWAS data found",
+                  "inter_error_message": "No GWAS records were found for this SNP in our PanKbase dataset.",
+                  "result_error_title": "No GWAS data found",
+                  "result_error_message": "No GWAS records were found for this SNP in our PanKbase dataset.",
+                  "question_for_result": "Is the QTL signal of {@gene_symbol@} colocalized with T1D GWAS signal?",
+                  "cypher_for_result_page_core": "MATCH (g:coding_elements:gene {id: \"@gene@\"}) -[r:signal_COLOC_with]- (disease:disease {id: \"MONDO_0005147\"}) WHERE r.GWAS_lead_vars IS NOT NULL AND r.QTL_lead_vars IS NOT NULL AND r.QTL_locus_name IS NOT NULL UNWIND r.GWAS_lead_vars AS gwas_id UNWIND r.QTL_lead_vars AS qtl_id MATCH (gwasVar:sequence_variant {id: gwas_id}) -[rg:part_of_GWAS_signal]-> (disease) MATCH (qtlVar:sequence_variant {id: qtl_id}) -[rq:part_of_QTL_signal]-> (qGene:coding_elements:gene {name: r.QTL_locus_name}) RETURN collect(DISTINCT g) + collect(DISTINCT disease) + collect(DISTINCT gwasVar) + collect(DISTINCT qtlVar) + collect(DISTINCT qGene) AS nodes, collect(DISTINCT r) + collect(DISTINCT rg) + collect(DISTINCT rq) AS edges;",
+                  "cypher_for_result_page_nbr": "MATCH (g:coding_elements:gene {id:\"@gene@\"}) CALL { WITH g MATCH (g)-[r1:effector_gene_of]-(nbr1) RETURN collect(DISTINCT r1)  AS eff_edges, collect(DISTINCT nbr1) AS eff_nbrs } CALL { WITH g MATCH (g)-[rReg:genetic_interaction]-(nbrR:coding_elements:gene) WITH rReg, nbrR ORDER BY id(rReg) LIMIT 2 RETURN collect(rReg) AS reg_edges, collect(nbrR) AS reg_nbrs } CALL { WITH g MATCH (g)-[rBind:physical_interaction]-(nbrB:coding_elements:gene) WITH rBind, nbrB ORDER BY id(rBind) LIMIT 2 RETURN collect(rBind) AS bind_edges, collect(nbrB) AS bind_nbrs } WITH [g] AS g_list, eff_edges + reg_edges + bind_edges AS all_edges, eff_nbrs  + reg_nbrs + bind_nbrs  AS all_nbrs UNWIND (g_list + all_nbrs) AS n WITH collect(DISTINCT n) AS nodes, all_edges UNWIND all_edges AS e RETURN nodes, collect(DISTINCT e) AS edges;",
+                  "ai_question_for_result": [
+                        "Based on the JSON data, describe the relationship between the QTL of @gene_id@ and the GWAS of @snp_id_QTL@, including details such as the effect allele, slope, posterior inclusion probability (PIP), and nominal p-value.",
+                        "Based on the JSON data, summarize the GWAS association of @snp_id_GWAS@ with T1D, including the p-value, lead_status:, signal locus name, pip, p_value, lbf, effect_allele, non_effect_allele, pip_rank, credible_set_size, lbf, pip and pip_rank within the credible set(signal).",
+                        "Based on the JSON data, describe the relationship between the QTL of @snp_id_QTL@ for gene @gene_id@ and the GWAS of @snp_id_GWAS@ for gwas, including details such as the coloc_dataset,PP.H0 (neither trait has a causal variant in the tested region), PP.H1 (only trait 1 has a causal), PP.H2 (only trait 2 has a causal), PP.H3 (both traits causal but different causal variants), PP.H4 (both traits have causal variants and share the same causal variant). Interpretation example: a MAPT T1D GWAS signal colocalized with an islet exon-level eQTL signal of gene ARHGAP27 by sharing the same casual variant."
+                  ],
+                  "ai_answer_sub_title": [
+                        "QTL overview: ",
+                        "GWAS overview: ",
+                        "Colocalization overview: "
+                  ],
+                  "next_questions": [
+                        {
+                              "question": "Which {SNP} serve as the lead {QTL} for {@nbr_gene_symbol@}?",
+                              "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@@nbr_gene_id@&targetSymbol=@nbr_gene_symbol@",
+                              "query": "MATCH (variant:sequence_variant)-[r:part_of_QTL_signal]->(gene:coding_elements {id:\"@nbr_gene_id@\"}) WITH CASE WHEN r.data_source=\"GTEx; SusieR\" THEN \"GTEx; SusieR\" WHEN r.data_source=\"INSPIRE; SusieR\" THEN \"INSPIRE; SusieR\" WHEN r.data_source=\"splicing; GTEx\" THEN \"splicing; GTEx\" WHEN r.data_source=\"exon; INSPIRE\" THEN \"exon; INSPIRE\" ELSE \"Other\" END AS data_source, r, variant WITH data_source, COLLECT({snp: variant.id, credible_set_id: r.credible_set, data_source: r.data_source, pip: r.pip, n_snp: r.n_snp, purity: r.purity, nominal_p: r.nominal_p, lbf: r.lbf, effect_allele: r.effect_allele}) AS credible_sets RETURN data_source, credible_sets ORDER BY data_source;"
+                        }
+                  ],
+                  "resources_tabs": {
+                        "references": {},
+                        "pankbase_links": [
+                              [
+                                    "Colocalization Data Source",
+                                    "https://pankgraph.org/qtldatasource"
+                              ],
+                              [
+                                    "Colocalization Pipeline",
+                                    "https://pankgraph.org/pipeline"
+                              ],
+                              [
+                                    "Colocalization Code",
+                                    "https://github.com/PanKbase/PanKgraph-finemap-coloc"
+                              ],
+                              [
+                                    "Integrated Cell Browser",
+                                    "https://pankbase.org/single-cell.html?datasetId=islet_of_Langerhans_scRNA_v3-3"
+                              ]
+                        ],
+                        "external_links": [
+                              [
+                                    "Link to Ensembl: ",
+                                    "View the gene @gene_symbol@ in Ensembl",
+                                    "https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=@gene_id@"
+                              ]
+                        ]
+                  }
+            }
+      },
+     "gene - express_in - cell_type": {
             "specific - relationship - general": {
                   "question": [
                         "How does {@gene_symbol@} expression change in T1D versus non-diabetic samples?"
@@ -259,11 +382,11 @@
                   "result_error_title": "No DEG data found",
                   "result_error_message": "No DEG records were found for this gene in our PanKbase dataset.",
                   "question_for_result": "How does {@gene_symbol@} expression change in {@tissue_name@} in T1D vs non-diabetic samples?",
-                  "cypher_for_result_page_core": "MATCH (g:gene {id:\"@gene@\"}) OPTIONAL MATCH (g)-[r4:DEG_in]->(ct:cell_type) OPTIONAL MATCH (g)-[r1:expression_level_in]->(ct) OPTIONAL MATCH (o:OCR)-[r2:OCR_locate_in]->(g) OPTIONAL MATCH (o)-[r3:OCR_activity]->(ct) WITH collect(DISTINCT g)+collect(DISTINCT ct)+collect(DISTINCT o) AS nodes, collect(DISTINCT r4)+collect(DISTINCT r1)+collect(DISTINCT r2)+collect(DISTINCT r3) AS edges RETURN nodes, edges;",
-                  "cypher_for_result_page_nbr": "MATCH (g:gene {id:\"@gene@\"}) CALL { WITH g MATCH (g)-[r1:effector_gene_of]-(nbr1) RETURN collect(DISTINCT r1)  AS eff_edges, collect(DISTINCT nbr1) AS eff_nbrs } CALL { WITH g MATCH (g)-[rReg:genetic_interaction]-(nbrR:gene) WITH rReg, nbrR ORDER BY id(rReg) LIMIT 2 RETURN collect(rReg) AS reg_edges, collect(nbrR) AS reg_nbrs } CALL { WITH g MATCH (g)-[rBind:physical_interaction]-(nbrB:gene) WITH rBind, nbrB ORDER BY id(rBind) LIMIT 2 RETURN collect(rBind) AS bind_edges, collect(nbrB) AS bind_nbrs } WITH [g] AS g_list, eff_edges + reg_edges + bind_edges AS all_edges, eff_nbrs  + reg_nbrs + bind_nbrs  AS all_nbrs UNWIND (g_list + all_nbrs) AS n WITH collect(DISTINCT n) AS nodes, all_edges UNWIND all_edges AS e RETURN nodes, collect(DISTINCT e) AS edges;",
-                  "ai_question_for_result": [
-                        "Based on the JSON data, summarize (for the specified cell type, if available) the RNA differential expression and absolute expression of @gene_id@ in T1D vs non-diabetic samples: report adjusted p-value (treat as significant if <0.05; if <0.001 or rounded to 0, write “<0.001” and never “p=0”), and log₂ fold-change (state direction; note |log₂FC|>1 as strong but keep scRNA-seq/FDR language cautious), plus per-group absolute expression summaries (e.g., mean/median/% detected) without over-claiming. Then add an ATAC-seq gene-activity overview: explicitly label it as OCR/gene-activity (not RNA expression), note it was computed by Signac GeneActivity() (promoter ±2 kb + gene body) and aggregated by cell type, compare mean/median OCR activity between T1D and non-diabetic, and state whether the direction matches RNA; if not, flag as cross-modality discordance and avoid implying contradiction or causality.",
-                        "Evaluate evidence linking gene @gene_id@ to Type 1 Diabetes (T1D), highlighting any associated expression data."
+                  "cypher_for_result_page_core": "MATCH (g:coding_elements:gene {id:\"@gene@\"}) OPTIONAL MATCH (g)-[deg:T1D_DEG_in]->(degCt:anatomical_structure) OPTIONAL MATCH (g)-[det:gene_detected_in]->(detCt:anatomical_structure) OPTIONAL MATCH (g)-[enr:gene_enriched_in]->(enrCt:anatomical_structure) OPTIONAL MATCH (g)-[mark:marker_gene_of|Hubmap_marker_gene_of|`marker_gene_of;Hubmap_marker_gene_of`]->(markCt:anatomical_structure) OPTIONAL MATCH (g)-[gas:gene_activity_score_in]->(gasCt:anatomical_structure) WITH collect(DISTINCT g)+collect(DISTINCT degCt)+collect(DISTINCT detCt)+collect(DISTINCT enrCt)+collect(DISTINCT markCt)+collect(DISTINCT gasCt) AS rawNodes, collect(DISTINCT deg)+collect(DISTINCT det)+collect(DISTINCT enr)+collect(DISTINCT mark)+collect(DISTINCT gas) AS rawEdges RETURN [n IN rawNodes WHERE n IS NOT NULL] AS nodes, [e IN rawEdges WHERE e IS NOT NULL] AS edges;",
+                  "cypher_for_result_page_nbr": "MATCH (g:coding_elements:gene {id:\"@gene@\"}) CALL { WITH g MATCH (g)-[r1:effector_gene_of]-(nbr1) RETURN collect(DISTINCT r1) AS eff_edges, collect(DISTINCT nbr1) AS eff_nbrs } CALL { WITH g MATCH (g)-[rReg:genetic_interaction]-(nbrR:coding_elements:gene) WITH rReg, nbrR ORDER BY id(rReg) LIMIT 2 RETURN collect(rReg) AS reg_edges, collect(nbrR) AS reg_nbrs } CALL { WITH g MATCH (g)-[rBind:physical_interaction]-(nbrB:coding_elements:gene) WITH rBind, nbrB ORDER BY id(rBind) LIMIT 2 RETURN collect(rBind) AS bind_edges, collect(nbrB) AS bind_nbrs } WITH [g] AS g_list, eff_edges + reg_edges + bind_edges AS all_edges, eff_nbrs + reg_nbrs + bind_nbrs AS all_nbrs UNWIND (g_list + all_nbrs) AS n WITH collect(DISTINCT n) AS nodes, all_edges UNWIND all_edges AS e RETURN nodes, collect(DISTINCT e) AS edges;",
+                   "ai_question_for_result": [
+                        "Based on the JSON data, summarize RNA evidence for @gene_id@ by anatomical structure/cell type using current edge semantics: gene_detected_in means transcript detection support only and must not be over-stated as confirmed expression; gene_enriched_in means ND one-vs-rest enrichment with expression-support filtering; marker_gene_of / HuBMAP_marker_gene_of means HuBMAP ASCT+B marker-gene annotation. Include T1D_DEG_in separately with adjusted p-value and log2 fold-change when present.",
+                        "Evaluate evidence linking gene @gene_id@ to Type 1 Diabetes (T1D), keeping detection, enrichment, marker, differential expression, and gene-activity evidence separate."
                   ],
                   "ai_answer_sub_title": [
                         "Differential expression state overview: ",
@@ -317,129 +440,6 @@
                               [
                                     "DEG Code",
                                     "https://github.com/PanKbase/PanKbase-DEG-analysis"
-                              ]
-                        ],
-                        "external_links": [
-                              [
-                                    "Link to Ensembl: ",
-                                    "View the gene @gene_symbol@ in Ensembl",
-                                    "https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=@gene_id@"
-                              ]
-                        ]
-                  }
-            }
-      },
-      "snp - GWAS - disease": {
-            "specific - relationship - general": {
-                  "question": [
-                        "Does {@snp@} have GWAS association with T1D?"
-                  ],
-                  "inter_error_title": "No GWAS data found",
-                  "inter_error_message": "No GWAS records were found for this SNP in our PanKbase dataset.",
-                  "result_error_title": "No GWAS data found",
-                  "result_error_message": "No GWAS records were found for this SNP in our PanKbase dataset.",
-                  "question_for_result": "Does {@snp@} have GWAS association with T1D?",
-                  "cypher_for_result_page_core": "MATCH (variant:sequence_variant {id: \"@snp@\"}) OPTIONAL MATCH (variant)-[r:part_of_GWAS_signal]->(disease:disease{id: \"MONDO_0005147\"}) WITH collect(DISTINCT variant)+collect(DISTINCT disease) AS nodes, collect(DISTINCT r) AS edges RETURN nodes, edges;",
-                  "cypher_for_result_page_nbr": "MATCH (variant:sequence_variant {id: \"@snp@\"}) CALL { WITH variant MATCH (variant)-[r0]-(nbr0) WITH r0, nbr0 LIMIT 1 RETURN collect(r0)   AS var_edges, collect(nbr0) AS var_nbrs } WITH [variant] AS seed_nodes, var_edges AS all_edges, var_nbrs  AS all_nbrs UNWIND (seed_nodes + all_nbrs) AS n WITH collect(DISTINCT n) AS nodes, all_edges UNWIND all_edges AS e RETURN nodes, collect(DISTINCT e) AS edges;",
-                  "ai_question_for_result": [
-                        "Based on the JSON data, summarize the GWAS association of @snp_id@ with T1D, including the p-value, lead_status:, signal locus name, pip, p_value, lbf, effect_allele, non_effect_allele, pip_rank, credible_set_size, lbf, pip and pip_rank within the credible set(signal).",
-                        "Based on the JSON data, write a concise ‘Variant overview’ paragraph for @snp_id_GWAS@ describing its prperties, GWAS-based association with T1D (MONDO_0005147), and literure mentioned link to T1D. Explicitly state that the association is supported by GWAS or literature: – the GWAS p-value and whether it reaches genome-wide significance, – the signal locus name, – the effect_allele and non_effect_allele, – and, if available, notable allele frequencies across cohorts or populations (highlighting especially high or low values, such as in ALSPAC). Do not invent any values; only summarize information explicitly present in the JSON."
-                  ],
-                  "ai_answer_sub_title": [
-                        "GWAS overview: ",
-                        "Variant overview: "
-                  ],
-                  "next_questions": [
-                        {
-                              "question": "Which {SNP} serve as the lead {QTL} for {@nbr_gene_symbol@}?",
-                              "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@@nbr_gene_id@&targetSymbol=@nbr_gene_symbol@",
-                              "query": "MATCH (variant:sequence_variant)-[r:part_of_QTL_signal]->(gene:coding_elements {id:\"@nbr_gene_id@\"}) WITH CASE WHEN r.data_source=\"GTEx; SusieR\" THEN \"GTEx; SusieR\" WHEN r.data_source=\"INSPIRE; SusieR\" THEN \"INSPIRE; SusieR\" WHEN r.data_source=\"splicing; GTEx\" THEN \"splicing; GTEx\" WHEN r.data_source=\"exon; INSPIRE\" THEN \"exon; INSPIRE\" ELSE \"Other\" END AS data_source, r, variant WITH data_source, COLLECT({snp: id(variant), credible_set_id: r.credible_set, data_source: r.data_source, pip: r.pip, n_snp: r.n_snp, purity: r.purity, nominal_p: r.nominal_p, lbf: r.lbf, effect_allele: r.effect_allele}) AS credible_sets RETURN data_source, credible_sets ORDER BY data_source;"
-                        }
-                  ],
-                  "resources_tabs": {
-                        "references": {},
-                        "empirical_evidence": {
-                              "title": "Regional Fine-Mapping Plot",
-                              "description": "This plot integrates multiple fine-mapping statistics (−log₁₀P, PIP, LBF) across a genomic region. The three-row scatter view condenses GWAS evidence.\nRow 1 shows −log₁₀ P for classical association strength.\nRow 2 reports the posterior inclusion probability (PIP) from Bayesian fine-mapping.\nRow 3 displays the log Bayes factor (LBF) for complementary Bayes support.\nPoint colour encodes LD R² relative to the lead SNP (red dashed line), allowing you to gauge how neighbouring variants track the core signal.\nTogether these layers highlight candidate causal variants and their statistical weight at a glance.",
-                              "legend": "View",
-                              "lambda_function": "type_to_image",
-                              "link_text": "Download the raw GWAS data ↗"
-                        },
-                        "pankbase_links": [
-                              [
-                                    "GWAS Data Source",
-                                    "https://pankgraph.org/qtldatasource"
-                              ],
-                              [
-                                    "GWAS Pipeline",
-                                    "https://pankgraph.org/pipeline"
-                              ],
-                              [
-                                    "GWAS Code",
-                                    "https://github.com/PanKbase/PanKgraph-finemap-coloc"
-                              ],
-                              [
-                                    "Integrated Cell Browser",
-                                    "https://pankbase.org:8000/single-cell.html?PKBdatasetId=islet_of_Langerhans_scRNA_v1"
-                              ]
-                        ],
-                        "external_links": [
-                              [
-                                    "Link to dbSNP: ",
-                                    "View the SNP @snp@ in dbSNP",
-                                    "https://www.ncbi.nlm.nih.gov/snp/?term=@snp@"
-                              ]
-                        ]
-                  }
-            }
-      },
-      "gene - COLOC - disease": {
-            "specific - relationship - general": {
-                  "question": [
-                        "Is the QTL signal of {@gene_symbol@} colocalized with T1D GWAS signal?"
-                  ],
-                  "inter_error_title": "No GWAS data found",
-                  "inter_error_message": "No GWAS records were found for this SNP in our PanKbase dataset.",
-                  "result_error_title": "No GWAS data found",
-                  "result_error_message": "No GWAS records were found for this SNP in our PanKbase dataset.",
-                  "question_for_result": "Is the QTL signal of {@gene_symbol@} colocalized with T1D GWAS signal?",
-                  "cypher_for_result_page_core": "MATCH (g:gene {id: \"@gene@\"}) -[r:signal_COLOC_with]- (disease:disease {id: \"MONDO_0005147\"}) WHERE r.GWAS_lead_vars IS NOT NULL AND r.QTL_lead_vars IS NOT NULL AND r.QTL_locus_name IS NOT NULL UNWIND r.GWAS_lead_vars AS gwas_id UNWIND r.QTL_lead_vars AS qtl_id MATCH (gwasVar:sequence_variant {id: gwas_id}) -[rg:part_of_GWAS_signal]-> (disease) MATCH (qtlVar:sequence_variant {id: qtl_id}) -[rq:part_of_QTL_signal]-> (qGene:gene {name: r.QTL_locus_name}) RETURN collect(DISTINCT g) + collect(DISTINCT disease) + collect(DISTINCT gwasVar) + collect(DISTINCT qtlVar) + collect(DISTINCT qGene) AS nodes, collect(DISTINCT r) + collect(DISTINCT rg) + collect(DISTINCT rq) AS edges;",
-                  "cypher_for_result_page_nbr": "MATCH (g:gene {id:\"@gene@\"}) CALL { WITH g MATCH (g)-[r1:effector_gene_of]-(nbr1) RETURN collect(DISTINCT r1)  AS eff_edges, collect(DISTINCT nbr1) AS eff_nbrs } CALL { WITH g MATCH (g)-[rReg:genetic_interaction]-(nbrR:gene) WITH rReg, nbrR ORDER BY id(rReg) LIMIT 2 RETURN collect(rReg) AS reg_edges, collect(nbrR) AS reg_nbrs } CALL { WITH g MATCH (g)-[rBind:physical_interaction]-(nbrB:gene) WITH rBind, nbrB ORDER BY id(rBind) LIMIT 2 RETURN collect(rBind) AS bind_edges, collect(nbrB) AS bind_nbrs } WITH [g] AS g_list, eff_edges + reg_edges + bind_edges AS all_edges, eff_nbrs  + reg_nbrs + bind_nbrs  AS all_nbrs UNWIND (g_list + all_nbrs) AS n WITH collect(DISTINCT n) AS nodes, all_edges UNWIND all_edges AS e RETURN nodes, collect(DISTINCT e) AS edges;",
-                  "ai_question_for_result": [
-                        "Based on the JSON data, describe the relationship between the QTL of @gene_id@ and the GWAS of @snp_id_QTL@, including details such as the effect allele, slope, posterior inclusion probability (PIP), and nominal p-value.",
-                        "Based on the JSON data, summarize the GWAS association of @snp_id_GWAS@ with T1D, including the p-value, lead_status:, signal locus name, pip, p_value, lbf, effect_allele, non_effect_allele, pip_rank, credible_set_size, lbf, pip and pip_rank within the credible set(signal).",
-                        "Based on the JSON data, describe the relationship between the QTL of @snp_id_QTL@ for gene @gene_id@ and the GWAS of @snp_id_GWAS@ for gwas, including details such as the coloc_dataset,PP.H0 (neither trait has a causal variant in the tested region), PP.H1 (only trait 1 has a causal), PP.H2 (only trait 2 has a causal), PP.H3 (both traits causal but different causal variants), PP.H4 (both traits have causal variants and share the same causal variant). Interpretation example: a MAPT T1D GWAS signal colocalized with an islet exon-level eQTL signal of gene ARHGAP27 by sharing the same casual variant."
-                  ],
-                  "ai_answer_sub_title": [
-                        "QTL overview: ",
-                        "GWAS overview: ",
-                        "Colocalization overview: "
-                  ],
-                  "next_questions": [
-                        {
-                              "question": "Which {SNP} serve as the lead {QTL} for {@nbr_gene_symbol@}?",
-                              "link": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@@nbr_gene_id@&targetSymbol=@nbr_gene_symbol@",
-                              "query": "MATCH (variant:sequence_variant)-[r:part_of_QTL_signal]->(gene:coding_elements {id:\"@nbr_gene_id@\"}) WITH CASE WHEN r.data_source=\"GTEx; SusieR\" THEN \"GTEx; SusieR\" WHEN r.data_source=\"INSPIRE; SusieR\" THEN \"INSPIRE; SusieR\" WHEN r.data_source=\"splicing; GTEx\" THEN \"splicing; GTEx\" WHEN r.data_source=\"exon; INSPIRE\" THEN \"exon; INSPIRE\" ELSE \"Other\" END AS data_source, r, variant WITH data_source, COLLECT({snp: id(variant), credible_set_id: r.credible_set, data_source: r.data_source, pip: r.pip, n_snp: r.n_snp, purity: r.purity, nominal_p: r.nominal_p, lbf: r.lbf, effect_allele: r.effect_allele}) AS credible_sets RETURN data_source, credible_sets ORDER BY data_source;"
-                        }
-                  ],
-                  "resources_tabs": {
-                        "references": {},
-                        "pankbase_links": [
-                              [
-                                    "Colocalization Data Source",
-                                    "https://pankgraph.org/qtldatasource"
-                              ],
-                              [
-                                    "Colocalization Pipeline",
-                                    "https://pankgraph.org/pipeline"
-                              ],
-                              [
-                                    "Colocalization Code",
-                                    "https://github.com/PanKbase/PanKgraph-finemap-coloc"
-                              ],
-                              [
-                                    "Integrated Cell Browser",
-                                    "https://pankbase.org:8000/single-cell.html?PKBdatasetId=islet_of_Langerhans_scRNA_v1"
                               ]
                         ],
                         "external_links": [

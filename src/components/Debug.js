@@ -1,34 +1,52 @@
 import React, {
-    useEffect,
-    useRef,
-    useState,
+  useEffect,
+  useRef,
+  useState,
 } from 'react';
 
 import cytoscape from 'cytoscape';
 import { useDispatch } from 'react-redux';
 
 import {
-    Box,
-    Button,
-    Chip,
-    CircularProgress,
-    Typography,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Typography,
 } from '@mui/material';
 
+import { PLANNER_AGENT_BASE_URL } from '../constants/apiEndpoints';
 import Image from '../image/Pasted Graphic 1.png';
 import { queryQueryResultPage } from '../redux/queryResultPage';
 import sampleLinks from '../schema/sample_links.json';
 import { GenomeBrowserEmbed } from '../SearchResult/AgentResult';
 import SearchResultLoading from '../SearchResult/loading';
+import {
+  buildDebugStreamLoadingProgress,
+  computeFirstStepMinimumProgress,
+  getInitialStreamMilestones,
+} from '../SearchResult/streamLoadingProgress';
+import {
+  clearConversationStorage,
+  exportConversationStorageSnapshot,
+  getConversationStorage,
+  readConversationHistory,
+  readRecentChats,
+  replaceConversationHistory,
+  upsertRecentChat,
+} from '../utils/chatSessionStorage';
 import MultiLineInputList from './DebugComponent';
+import FeedbackPromptDialog from './FeedbackPromptDialog';
 import KnowledgeGraph from './KnowledgeGraph';
 import {
-    edgeIsInverted,
-    edgeLabels,
-    nodeStyle,
+  edgeIsInverted,
+  edgeLabels,
+  nodeStyle,
 } from './style.js';
 
 export default function DebugPage() {
+    const CHAT_START_CACHE_KEY = 'pank_chat_start_cache_v1';
+    const CHAT_PENDING_PLAN_CACHE_KEY = 'pank_chat_pending_plan_v1';
     const [graphJson, setGraphJson] = useState("");
     const [loadingOpen, setLoadingOpen] = useState(true);
     // const cyRef = useRef(null);
@@ -93,19 +111,63 @@ export default function DebugPage() {
     const [coordData, setCoordData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const [igvVisible, setIgvVisible] = useState(true);
+    const [igvVisible, setIgvVisible] = useState(false);
     const [plannerHealth, setPlannerHealth] = useState({
         status: 'checking',
         label: 'Checking PlannerAgent API...',
         detail: '',
     });
     const [healthChecking, setHealthChecking] = useState(false);
+    const [historyActionMessage, setHistoryActionMessage] = useState('');
+    const [feedbackPromptOpen, setFeedbackPromptOpen] = useState(false);
+    const importHistoryInputRef = useRef(null);
+    const [demoLoadingStartedAt, setDemoLoadingStartedAt] = useState(Date.now());
+    const [demoLoadingNow, setDemoLoadingNow] = useState(Date.now());
     const dispatch = useDispatch();
+
+    const debugLoadingMilestones = React.useMemo(() => getInitialStreamMilestones(), []);
+
+    useEffect(() => {
+        if (!loadingOpen) {
+            return;
+        }
+        setDemoLoadingNow(Date.now());
+        const timerId = setInterval(() => {
+            setDemoLoadingNow(Date.now());
+        }, 120);
+
+        return () => clearInterval(timerId);
+    }, [loadingOpen]);
+
+    const debugLoadingProgress = React.useMemo(() => {
+        const elapsedMs = Math.max(0, demoLoadingNow - demoLoadingStartedAt);
+        const minimumProgress = computeFirstStepMinimumProgress(elapsedMs, {
+            durationMs: 5200,
+            firstStepWeight: 100 / 6,
+        });
+        return buildDebugStreamLoadingProgress(debugLoadingMilestones, {
+            minimumProgress,
+            useFakeTimer: true,
+            responseReady: false,
+            timerKey: demoLoadingStartedAt,
+        });
+    }, [debugLoadingMilestones, demoLoadingNow, demoLoadingStartedAt]);
+
+    const closeLoadingDemo = React.useCallback(() => {
+        setLoadingOpen(false);
+    }, []);
+
+    const reopenLoadingDemo = React.useCallback(() => {
+        const now = Date.now();
+        setDemoLoadingStartedAt(now);
+        setDemoLoadingNow(now);
+        setLoadingOpen(true);
+    }, []);
 
     const checkPlannerHealth = React.useCallback(async () => {
         setHealthChecking(true);
         try {
-            const response = await fetch('https://agent.pankgraph.org/health');
+            const response = await fetch(`${PLANNER_AGENT_BASE_URL}/health`);
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}`);
             }
@@ -126,6 +188,106 @@ export default function DebugPage() {
             setHealthChecking(false);
         }
     }, []);
+
+    const clearAllConversationHistory = React.useCallback(() => {
+        const beforeRecent = readRecentChats().length;
+        const result = clearConversationStorage({ keepRecent: 0 });
+        setHistoryActionMessage(`Cleared ${result.removedHistoryKeys} history records and removed ${beforeRecent} recent items.`);
+    }, []);
+
+    const exportCachedHistory = React.useCallback(() => {
+        const snapshot = exportConversationStorageSnapshot();
+        const fileName = `pank_cached_history_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+        const payload = JSON.stringify(snapshot, null, 2);
+        const blob = new Blob([payload], { type: 'application/json' });
+        const downloadUrl = window.URL.createObjectURL(blob);
+
+        const anchor = document.createElement('a');
+        anchor.href = downloadUrl;
+        anchor.download = fileName;
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+        window.URL.revokeObjectURL(downloadUrl);
+
+        setHistoryActionMessage(`Exported cache snapshot to ${fileName}.`);
+    }, []);
+
+    const dedupeHistoryMessages = React.useCallback((messages) => {
+        const seen = new Set();
+        const deduped = [];
+
+        messages.forEach((message) => {
+            if (!message || typeof message !== 'object') return;
+            const role = String(message.role || '').trim();
+            const content = String(message.content || message.answer || message.summary || '').trim();
+            const route = String(message.route || '').trim();
+            const signature = `${role}||${content}||${route}`;
+            if (!role || !content || seen.has(signature)) return;
+            seen.add(signature);
+            deduped.push(message);
+        });
+
+        return deduped;
+    }, []);
+
+    const triggerImportCachedHistory = React.useCallback(() => {
+        importHistoryInputRef.current?.click();
+    }, []);
+
+    const importCachedHistory = React.useCallback((event) => {
+        const file = event?.target?.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            try {
+                const payload = JSON.parse(String(reader.result || '{}'));
+                const histories = (payload?.histories && typeof payload.histories === 'object') ? payload.histories : {};
+                const importedRecent = Array.isArray(payload?.recentChats) ? payload.recentChats : [];
+
+                let importedSessionCount = 0;
+                let importedMessageCount = 0;
+
+                Object.entries(histories).forEach(([sessionId, history]) => {
+                    const sid = String(sessionId || '').trim();
+                    if (!sid || !Array.isArray(history)) return;
+
+                    const existing = readConversationHistory(sid);
+                    const merged = dedupeHistoryMessages([...(Array.isArray(existing) ? existing : []), ...history]);
+                    replaceConversationHistory(sid, merged);
+                    importedSessionCount += 1;
+                    importedMessageCount += merged.length;
+                });
+
+                importedRecent.forEach((item) => {
+                    const sessionId = String(item?.sessionId || '').trim();
+                    const firstQuestion = String(item?.firstQuestion || '').trim();
+                    if (!sessionId || !firstQuestion) return;
+                    upsertRecentChat({ sessionId, firstQuestion });
+                });
+
+                const conversationStorage = getConversationStorage();
+                if (payload?.chatStartCache !== undefined) {
+                    conversationStorage?.setItem(CHAT_START_CACHE_KEY, JSON.stringify(payload.chatStartCache));
+                }
+                if (payload?.pendingPlanCache !== undefined) {
+                    conversationStorage?.setItem(CHAT_PENDING_PLAN_CACHE_KEY, JSON.stringify(payload.pendingPlanCache));
+                }
+
+                setHistoryActionMessage(`Imported ${importedSessionCount} sessions and merged ${importedMessageCount} messages (deduped).`);
+            } catch (err) {
+                setHistoryActionMessage(`Import failed: ${err?.message || 'Invalid JSON file.'}`);
+            } finally {
+                event.target.value = '';
+            }
+        };
+        reader.onerror = () => {
+            setHistoryActionMessage('Import failed: unable to read file.');
+            event.target.value = '';
+        };
+        reader.readAsText(file);
+    }, [dedupeHistoryMessages]);
 
     useEffect(() => {
         checkPlannerHealth();
@@ -321,11 +483,77 @@ export default function DebugPage() {
                     >
                         {healthChecking ? 'Checking...' : 'Refresh'}
                     </Button>
-                    {plannerHealth.detail ? (
-                        <Typography sx={{ fontSize: 12, color: '#64748B' }}>
-                            {plannerHealth.detail}
-                        </Typography>
-                    ) : null}
+                </Box>
+                {plannerHealth.detail ? (
+                    <Typography sx={{ mt: 0.75, fontSize: 12, color: '#64748B' }}>
+                        {plannerHealth.detail}
+                    </Typography>
+                ) : null}
+                {historyActionMessage ? (
+                    <Typography sx={{ mt: 0.5, fontSize: 12, color: '#64748B' }}>
+                        {historyActionMessage}
+                    </Typography>
+                ) : null}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', mt: 1 }}>
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        color="error"
+                        onClick={clearAllConversationHistory}
+                        sx={{ textTransform: 'none' }}
+                    >
+                        Clear Conversation History
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={exportCachedHistory}
+                        sx={{ textTransform: 'none' }}
+                    >
+                        Export Cached History
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={triggerImportCachedHistory}
+                        sx={{ textTransform: 'none' }}
+                    >
+                        Import Cached History
+                    </Button>
+                    <input
+                        ref={importHistoryInputRef}
+                        type="file"
+                        accept="application/json,.json"
+                        style={{ display: 'none' }}
+                        onChange={importCachedHistory}
+                    />
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={reopenLoadingDemo}
+                        sx={{ textTransform: 'none' }}
+                    >
+                        Replay Loading Demo
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() => setFeedbackPromptOpen(true)}
+                        sx={{ textTransform: 'none' }}
+                    >
+                        Open Feedback Prompt Test
+                    </Button>
+                    <Button
+                        component="a"
+                        href="/docs/ontology?styled=true"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        variant="outlined"
+                        size="small"
+                        sx={{ textTransform: 'none' }}
+                    >
+                        Open Styled Ontology Doc
+                    </Button>
                 </Box>
             </Box>
             <div style={{ padding: '20px', width: '1000px', border: '1px solid #ccc', marginBottom: '20px', margin: '10px' }}>
@@ -346,47 +574,65 @@ export default function DebugPage() {
                     />}
                 </Box>
             </div>
-            <SearchResultLoading open={loadingOpen} onClose={() => setLoadingOpen(false)} />
-            <div style={{ padding: '20px', width: '100%' }}>
-                <h2>IGV.js Genome Browser - Full Width Demo</h2>
-                <Box sx={{ width: '100%', height: '800px', border: '1px solid #ccc', backgroundColor: '#fafafa' }}>
-                    <GenomeBrowserEmbed
-                        locus="chr6:53,510,000-53,530,000"
-                        isVisible={igvVisible}
-                        height={800}
-                        compact
-                        tracks={[
-                            // {
-                            //     name: "Phase 3 WGS variants",
-                            //     type: "variant",
-                            //     format: "vcf",
-                            //     url: "https://s3.amazonaws.com/1000genomes/release/20130502/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.vcf.gz",
-                            //     indexURL: "https://s3.amazonaws.com/1000genomes/release/20130502/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.vcf.gz.tbi",
-                            // },
-                            // {
-                            //     type: "alignment",
-                            //     format: "bam",
-                            //     name: "HG00096",
-                            //     url: "https://s3.amazonaws.com/1000genomes/phase3/data/HG00096/exome_alignment/HG00096.mapped.ILLUMINA.bwa.GBR.exome.20120522.bam",
-                            //     indexURL: "https://s3.amazonaws.com/1000genomes/phase3/data/HG00096/exome_alignment/HG00096.mapped.ILLUMINA.bwa.GBR.exome.20120522.bam.bai",
-                            //     height: 400,
-                            // },
-                            {
-                                name: "credibleSet1",
-                                type: "qtl",
-                                format: "qtl",
-                                url: "https://pank-s3-to-share.s3.us-east-1.amazonaws.com/genome-browser/ENSG00000001084__GCLC__ENSG00000001084.6_53373974_53375246__credibleSet1.qtl.tsv",
-                                chrColumn: 1,
-                                posColumn: 2,
-                                snpColumn: 3,
-                                pValueColumn: 4,
-                                phenotypeColumn: 5,
-                                height: 164
-                            }
-                        ]}
-                    />
-                </Box>
-            </div>
+            {loadingOpen ? (
+                <SearchResultLoading
+                    streamProgress={debugLoadingProgress}
+                    handleClose={closeLoadingDemo}
+                />
+            ) : null}
+            <FeedbackPromptDialog
+                open={feedbackPromptOpen}
+                onShareFeedback={() => {
+                    setHistoryActionMessage('Feedback prompt test: Share Feedback clicked.');
+                    setFeedbackPromptOpen(false);
+                }}
+                onMaybeLater={() => {
+                    setHistoryActionMessage('Feedback prompt test: Maybe Later clicked.');
+                    setFeedbackPromptOpen(false);
+                }}
+            />
+            {igvVisible ? (
+                <div style={{ padding: '20px', width: '100%' }}>
+                    <h2>IGV.js Genome Browser - Full Width Demo</h2>
+                    <Box sx={{ width: '100%', height: '800px', border: '1px solid #ccc', backgroundColor: '#fafafa' }}>
+                        <GenomeBrowserEmbed
+                            locus="chr6:53,510,000-53,530,000"
+                            isVisible={igvVisible}
+                            height={800}
+                            compact
+                            tracks={[
+                                // {
+                                //     name: "Phase 3 WGS variants",
+                                //     type: "variant",
+                                //     format: "vcf",
+                                //     url: "https://s3.amazonaws.com/1000genomes/release/20130502/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.vcf.gz",
+                                //     indexURL: "https://s3.amazonaws.com/1000genomes/release/20130502/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.vcf.gz.tbi",
+                                // },
+                                // {
+                                //     type: "alignment",
+                                //     format: "bam",
+                                //     name: "HG00096",
+                                //     url: "https://s3.amazonaws.com/1000genomes/phase3/data/HG00096/exome_alignment/HG00096.mapped.ILLUMINA.bwa.GBR.exome.20120522.bam",
+                                //     indexURL: "https://s3.amazonaws.com/1000genomes/phase3/data/HG00096/exome_alignment/HG00096.mapped.ILLUMINA.bwa.GBR.exome.20120522.bam.bai",
+                                //     height: 400,
+                                // },
+                                {
+                                    name: "credibleSet1",
+                                    type: "qtl",
+                                    format: "qtl",
+                                    url: "https://pank-s3-to-share.s3.us-east-1.amazonaws.com/genome-browser/ENSG00000001084__GCLC__ENSG00000001084.6_53373974_53375246__credibleSet1.qtl.tsv",
+                                    chrColumn: 1,
+                                    posColumn: 2,
+                                    snpColumn: 3,
+                                    pValueColumn: 4,
+                                    phenotypeColumn: 5,
+                                    height: 164
+                                }
+                            ]}
+                        />
+                    </Box>
+                </div>
+            ) : null}
             <div style={{ padding: '20px', width: '1440px' }}>
                 <h1>Links for Debug Quick Redirect</h1>
                 {

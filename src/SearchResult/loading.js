@@ -16,6 +16,10 @@ import {
 
 import loadingImage from '../image/loading.svg';
 import texts from './loading_text.json';
+import { easeOutCubic } from './streamLoadingProgress';
+
+const STREAM_STEP_WEIGHT_PERCENT = (3 / 13) * 100;
+const STREAM_PRE_COMPLETE_CAP_PERCENT = STREAM_STEP_WEIGHT_PERCENT * 4;
 
 function LoadingEntry({ step, entry }) {
     const containerRef = useRef(null);
@@ -73,6 +77,9 @@ function LoadingEntry({ step, entry }) {
 
     const prevText = prevStepIndex != null ? steps[prevStepIndex] : null;
     const stepText = isFinished ? steps[steps.length - 1] : steps[currentIndex] ?? '';
+    const visibleText = isFinished
+        ? (steps[steps.length - 1] || currText || '')
+        : (currText || stepText || steps[0] || '');
 
     const titleColor = isIdle || isFinished ? '#9E9E9E' : '#263824';
     const textColor = isIdle || isFinished ? '#B0B0B0' : '#656565';
@@ -137,7 +144,7 @@ function LoadingEntry({ step, entry }) {
                                     color: textColor
                                 }}
                             >
-                                {currText}
+                                {visibleText}
                             </Typography>
                         </Box>
                     </Box>
@@ -147,11 +154,15 @@ function LoadingEntry({ step, entry }) {
     );
 }
 
-export default function SearchResultLoading({ open, handleClose, streamProgress }) {
+export default function SearchResultLoading({ open, handleClose, streamProgress, onFakeTimerComplete }) {
     const resolvedEntries = streamProgress?.entries || texts.entries;
     const resolvedTitle = streamProgress?.title || texts.title;
     const resolvedTip = streamProgress?.tip || texts.tip;
     const resolvedCancel = streamProgress?.cancel || texts.cancel;
+    const fakeTimerMode = Boolean(streamProgress?.useFakeTimer);
+    const keepLastStepInProgress = Boolean(streamProgress?.keepLastStepInProgress);
+    const responseReady = Boolean(streamProgress?.responseReady);
+    const fakeTimerKey = Number(streamProgress?.timerKey || 0);
     const isControlled = Boolean(streamProgress);
 
     const [entryStates, setEntryStates] = useState(
@@ -168,6 +179,251 @@ export default function SearchResultLoading({ open, handleClose, streamProgress 
     const displayedEntryStates = isControlled ? (streamProgress?.entryStates || []) : entryStates;
     const displayedProgress = isControlled ? (streamProgress?.progress || 0) : progress;
     const displayedShortTitle = isControlled ? (streamProgress?.shortTitle || resolvedEntries[0]?.short_title || '') : shortTitle;
+
+    const [fakeEntryStates, setFakeEntryStates] = useState(
+        resolvedEntries.map((entry, index) => ({
+            step: index === 0 ? 0 : -1,
+            isFinished: false,
+        }))
+    );
+    const [fakeProgress, setFakeProgress] = useState(0);
+    const [fakeShortTitle, setFakeShortTitle] = useState(resolvedEntries[0]?.short_title || '');
+    const fakeEntryStatesRef = useRef(fakeEntryStates);
+    const fakeLastRenderedProgressRef = useRef(0);
+    const fakeTimerRef = useRef(null);
+    const fakeAnimationRef = useRef(null);
+    const fakeStepAnimationRef = useRef({
+        startedAt: 0,
+        durationMs: 1,
+        baseProgress: 0,
+        targetProgress: 0,
+    });
+    const fakeDoneNotifiedRef = useRef(false);
+    const fakeFinalizeTriggeredRef = useRef(false);
+    const responseReadyRef = useRef(responseReady);
+    const onFakeTimerCompleteRef = useRef(onFakeTimerComplete);
+
+    useEffect(() => {
+        fakeEntryStatesRef.current = fakeEntryStates;
+    }, [fakeEntryStates]);
+
+    useEffect(() => {
+        responseReadyRef.current = responseReady;
+    }, [responseReady]);
+
+    useEffect(() => {
+        onFakeTimerCompleteRef.current = onFakeTimerComplete;
+    }, [onFakeTimerComplete]);
+
+    const getFakeDelayMs = React.useCallback((stepIndex = 0) => {
+        const currentStep = Math.max(0, Number(stepIndex) || 0);
+        // Keep legacy random range for the first two steps.
+        const useLegacySlowRange = currentStep <= 1;
+        const isReady = Boolean(responseReadyRef.current);
+        const baseSeconds = useLegacySlowRange ? 7 : (isReady ? 2 : 7);
+        const jitterSeconds = useLegacySlowRange ? 2 : (isReady ? 1 : 2);
+        const offset = (Math.random() * 2 - 1) * jitterSeconds;
+        const nextSeconds = Math.max(0.2, baseSeconds + offset);
+        return Math.round(nextSeconds * 1000);
+    }, []);
+
+    const getCompletedEntryCount = React.useCallback((states) => {
+        return states.reduce((acc, state) => (state?.isFinished ? acc + 1 : acc), 0);
+    }, []);
+
+    const notifyFakeDone = React.useCallback(() => {
+        if (!responseReadyRef.current || fakeDoneNotifiedRef.current) {
+            return;
+        }
+        fakeDoneNotifiedRef.current = true;
+        if (typeof onFakeTimerCompleteRef.current === 'function') {
+            onFakeTimerCompleteRef.current();
+        }
+    }, []);
+
+    const stopFakeSchedulers = React.useCallback(() => {
+        if (fakeTimerRef.current) {
+            clearTimeout(fakeTimerRef.current);
+            fakeTimerRef.current = null;
+        }
+        if (fakeAnimationRef.current) {
+            clearInterval(fakeAnimationRef.current);
+            fakeAnimationRef.current = null;
+        }
+    }, []);
+
+    const startStepAnimation = React.useCallback((baseProgress, targetProgress, durationMs) => {
+        const safeDurationMs = Math.max(1, Number(durationMs) || 1);
+        const safeBase = Math.max(0, Math.min(100, Number(baseProgress) || 0));
+        const safeTarget = Math.max(safeBase, Math.min(100, Number(targetProgress) || safeBase));
+
+        fakeStepAnimationRef.current = {
+            startedAt: Date.now(),
+            durationMs: safeDurationMs,
+            baseProgress: safeBase,
+            targetProgress: safeTarget,
+        };
+
+        fakeLastRenderedProgressRef.current = safeBase;
+        setFakeProgress(safeBase);
+
+        if (fakeAnimationRef.current) {
+            clearInterval(fakeAnimationRef.current);
+        }
+
+        fakeAnimationRef.current = setInterval(() => {
+            const animation = fakeStepAnimationRef.current;
+            const elapsedMs = Math.max(0, Date.now() - animation.startedAt);
+            const ratio = Math.min(1, elapsedMs / animation.durationMs);
+            const easedRatio = easeOutCubic(ratio);
+            // Keep a decelerating feel, but blend in linear motion so progress never visually stalls.
+            const blendedRatio = Math.min(1, (easedRatio * 0.72) + (ratio * 0.28));
+            const rawProgress = animation.baseProgress + ((animation.targetProgress - animation.baseProgress) * blendedRatio);
+            const minVisibleDelta = 0.06;
+            const floorProgress = Math.min(animation.targetProgress, fakeLastRenderedProgressRef.current + minVisibleDelta);
+            const nextProgress = Math.max(rawProgress, floorProgress);
+            fakeLastRenderedProgressRef.current = nextProgress;
+            setFakeProgress(nextProgress);
+        }, 90);
+    }, []);
+
+    const beginNextFakeStep = React.useCallback((fromStates, overrideDelayMs) => {
+        const stepToProceed = fromStates.findIndex((es) => !es.isFinished);
+        if (stepToProceed === -1) {
+            if (!responseReadyRef.current) {
+                stopFakeSchedulers();
+                setFakeProgress(STREAM_PRE_COMPLETE_CAP_PERCENT);
+                fakeLastRenderedProgressRef.current = STREAM_PRE_COMPLETE_CAP_PERCENT;
+                return;
+            }
+
+            if (!fakeFinalizeTriggeredRef.current) {
+                fakeFinalizeTriggeredRef.current = true;
+                startStepAnimation(STREAM_PRE_COMPLETE_CAP_PERCENT, 100, 650);
+                fakeTimerRef.current = setTimeout(() => {
+                    setFakeProgress(100);
+                    notifyFakeDone();
+                    stopFakeSchedulers();
+                }, 680);
+            }
+            return;
+        }
+
+        const completedEntries = getCompletedEntryCount(fromStates);
+        const baseProgress = Math.min(STREAM_PRE_COMPLETE_CAP_PERCENT, completedEntries * STREAM_STEP_WEIGHT_PERCENT);
+        const targetProgress = Math.min(STREAM_PRE_COMPLETE_CAP_PERCENT, (completedEntries + 1) * STREAM_STEP_WEIGHT_PERCENT);
+        const delayMs = Math.max(200, Number(overrideDelayMs) || getFakeDelayMs(stepToProceed));
+
+        startStepAnimation(baseProgress, targetProgress, delayMs);
+
+        fakeTimerRef.current = setTimeout(() => {
+            const prevStates = fakeEntryStatesRef.current;
+            const activeIndex = prevStates.findIndex((es) => !es.isFinished);
+            if (activeIndex === -1) {
+                beginNextFakeStep(prevStates, 650);
+                return;
+            }
+
+            const nextStatesSnapshot = [...prevStates];
+            const current = { ...nextStatesSnapshot[activeIndex] };
+            current.step += 1;
+            const isLastEntry = activeIndex === (resolvedEntries.length - 1);
+            if (keepLastStepInProgress && isLastEntry) {
+                current.step = Math.min(current.step, resolvedEntries[activeIndex].steps.length - 1);
+                current.isFinished = false;
+            } else {
+                current.isFinished = current.step >= resolvedEntries[activeIndex].steps.length;
+            }
+            nextStatesSnapshot[activeIndex] = current;
+
+            if (current.isFinished && activeIndex + 1 < nextStatesSnapshot.length) {
+                nextStatesSnapshot[activeIndex + 1] = {
+                    step: 0,
+                    isFinished: false,
+                };
+                setFakeShortTitle(resolvedEntries[activeIndex + 1].short_title);
+            }
+
+            fakeEntryStatesRef.current = nextStatesSnapshot;
+            setFakeEntryStates(nextStatesSnapshot);
+
+            const completedAfterStep = getCompletedEntryCount(nextStatesSnapshot);
+            const exactProgress = Math.min(STREAM_PRE_COMPLETE_CAP_PERCENT, completedAfterStep * STREAM_STEP_WEIGHT_PERCENT);
+            setFakeProgress(exactProgress);
+            fakeLastRenderedProgressRef.current = exactProgress;
+
+            if (keepLastStepInProgress && isLastEntry) {
+                setFakeProgress(STREAM_PRE_COMPLETE_CAP_PERCENT);
+                fakeLastRenderedProgressRef.current = STREAM_PRE_COMPLETE_CAP_PERCENT;
+                stopFakeSchedulers();
+                if (responseReadyRef.current) {
+                    notifyFakeDone();
+                }
+                return;
+            }
+
+            beginNextFakeStep(nextStatesSnapshot);
+        }, delayMs);
+    }, [getCompletedEntryCount, getFakeDelayMs, keepLastStepInProgress, notifyFakeDone, resolvedEntries, startStepAnimation, stopFakeSchedulers]);
+
+    useEffect(() => {
+        if (!fakeTimerMode) {
+            stopFakeSchedulers();
+            return;
+        }
+
+        stopFakeSchedulers();
+
+        const initialStates = resolvedEntries.map((entry, index) => ({
+            step: index === 0 ? 0 : -1,
+            isFinished: false,
+        }));
+        fakeEntryStatesRef.current = initialStates;
+
+        setFakeEntryStates(initialStates);
+        setFakeProgress(0);
+        setFakeShortTitle(resolvedEntries[0]?.short_title || '');
+        fakeDoneNotifiedRef.current = false;
+        fakeFinalizeTriggeredRef.current = false;
+        beginNextFakeStep(initialStates);
+
+        return () => {
+            stopFakeSchedulers();
+        };
+    }, [fakeTimerMode, fakeTimerKey, resolvedEntries, beginNextFakeStep, stopFakeSchedulers]);
+
+    useEffect(() => {
+        if (!fakeTimerMode || !responseReady) {
+            return;
+        }
+
+        if (keepLastStepInProgress) {
+            const lastIndex = Math.max(0, resolvedEntries.length - 1);
+            const completedBeforeLast = fakeEntryStatesRef.current
+                .slice(0, lastIndex)
+                .every((state) => state?.isFinished);
+            const lastState = fakeEntryStatesRef.current[lastIndex];
+            const lastStepActive = Boolean(lastState && !lastState.isFinished && lastState.step >= 0);
+
+            if (completedBeforeLast && lastStepActive) {
+                notifyFakeDone();
+                stopFakeSchedulers();
+            }
+            return;
+        }
+
+        const allFinished = fakeEntryStatesRef.current.every((state) => state?.isFinished);
+        if (!allFinished || fakeFinalizeTriggeredRef.current) {
+            return;
+        }
+
+        beginNextFakeStep(fakeEntryStatesRef.current, 650);
+    }, [fakeTimerMode, responseReady, beginNextFakeStep, keepLastStepInProgress, notifyFakeDone, resolvedEntries, stopFakeSchedulers]);
+
+    const effectiveEntryStates = fakeTimerMode ? fakeEntryStates : displayedEntryStates;
+    const effectiveProgress = fakeTimerMode ? fakeProgress : displayedProgress;
+    const effectiveShortTitle = fakeTimerMode ? fakeShortTitle : displayedShortTitle;
+    const statusLabel = String(effectiveShortTitle || '').replace(/_/g, ' ');
 
     useEffect(() => {
         entryStatesRef.current = entryStates;
@@ -263,7 +519,7 @@ export default function SearchResultLoading({ open, handleClose, streamProgress 
                 color: '#7F7D7D',
                 fontSize: '14px',
             }}>
-                Agent Status:&nbsp;<span style={{ color: '#078AA3', fontWeight: 600 }}>{displayedShortTitle}</span>
+                Agent Status:&nbsp;<span style={{ color: '#078AA3', fontWeight: 600, textDecoration: 'none' }}>{statusLabel}</span>
             </Box>
         </Box>
         <Box sx={{
@@ -279,7 +535,7 @@ export default function SearchResultLoading({ open, handleClose, streamProgress 
                 <LoadingEntry
                     key={entryIndex}
                     entry={entry}
-                    step={displayedEntryStates?.[entryIndex]?.step ?? -1}
+                    step={effectiveEntryStates?.[entryIndex]?.step ?? -1}
                     totalSteps={entry.steps.length} />
             ))}
         </Box>
@@ -289,7 +545,7 @@ export default function SearchResultLoading({ open, handleClose, streamProgress 
             ".MuiLinearProgress-bar": {
                 backgroundColor: '#078AA3'
             }
-        }} value={displayedProgress} />
+        }} value={effectiveProgress} />
         <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
             <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 400, fontSize: '14px', color: '#9E9E9E' }}>
                 {resolvedTip}

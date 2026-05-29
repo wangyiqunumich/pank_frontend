@@ -11,6 +11,7 @@ import {
   ChatBubbleOutline as ChatBubbleOutlineIcon,
   Check as CheckIcon,
   Send as SendIcon,
+  Settings as SettingsIcon,
 } from '@mui/icons-material';
 import {
   Box,
@@ -33,6 +34,12 @@ import {
   Typography,
   useMediaQuery,
 } from '@mui/material';
+
+import { ReactComponent as MynauiSendIcon } from '../image/mynaui_send.svg';
+
+const PMID_HOVER_EVENT = 'pank:pmid-hover';
+const PMID_HOVER_CLEAR_EVENT = 'pank:pmid-hover-clear';
+const PMID_CLICK_EVENT = 'pank:pmid-click';
 
 /**
  * All information is passed in as a single object: `data`.
@@ -61,7 +68,7 @@ import {
 
 const theme = createTheme({
     typography: {
-        fontFamily: '"Open Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif',
+        fontFamily: 'Inter, "Open Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif',
     },
     palette: {
         background: {
@@ -75,7 +82,8 @@ const theme = createTheme({
     shape: { borderRadius: 14 },
 });
 
-function SectionCard({ title, children, sx, showTitleDivider = true }) {
+function SectionCard({ title, children, sx, showTitleDivider = true, variant = 'default' }) {
+    const isPank1 = variant === 'pank1';
     return (
         <Paper
             elevation={0}
@@ -88,8 +96,8 @@ function SectionCard({ title, children, sx, showTitleDivider = true }) {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.25, mb: 1.5 }}>
                     <Typography
                         sx={{
-                            fontSize: 14,
-                            letterSpacing: "0.08em",
+                            fontSize: isPank1 ? 12 : 14,
+                            letterSpacing: isPank1 ? "0.06em" : "0.08em",
                             fontWeight: 600,
                             color: "#94A3B8",
                             whiteSpace: "nowrap",
@@ -137,7 +145,8 @@ export function ResultComponentSkeleton() {
     );
 }
 
-function ContentTabs({ tabs, value, onChange }) {
+function ContentTabs({ tabs, value, onChange, variant = 'default' }) {
+    const isPank1 = variant === 'pank1';
     return (
         <Tabs
             value={value}
@@ -145,17 +154,17 @@ function ContentTabs({ tabs, value, onChange }) {
             variant="scrollable"
             scrollButtons={false}
             sx={{
-                minHeight: 34,
+                minHeight: 0,
                 "& .MuiTab-root": {
-                    minHeight: 34,
-                    pb: 2,
-                    pt: 0.5,
+                    minHeight: 0,
+                    pb: 1,
+                    pt: 0,
                     px: 0,
                     minWidth: "auto",
-                    marginRight: "48px",
+                    marginRight: "24px",
                     textTransform: "none",
                     fontWeight: "600 !important",
-                    fontSize: "14px !important",
+                    fontSize: isPank1 ? "12px !important" : "14px !important",
                     color: "#94A3B8 !important",
                     "&:last-child": {
                         marginRight: 0,
@@ -395,10 +404,17 @@ function MarkdownBody({ text, graphData, onPmidClick }) {
     );
 }
 
-function EvidenceItem({ item, onSelect, isActive }) {
+function EvidenceItem({ item, onSelect, isActive, isHovered = false, variant = 'default' }) {
+    const isPank1 = variant === 'pank1';
     const isLink = Boolean(item?.href && !item?.isSkeleton);
     const clickable = Boolean((isLink || item?.onClick || onSelect) && !item?.isSkeleton);
     const Component = isLink ? "a" : clickable ? "button" : "div";
+    const highlightBackground = isActive
+        ? '#E1F2E9'
+        : (isHovered ? '#EEF8F2' : '#fff');
+    const highlightBorder = isActive
+        ? '1px solid #5EA986'
+        : (isHovered ? '1px solid #9FCDB4' : '1px solid #E7EBEF');
     const handleClick = (event) => {
         if (item?.isSkeleton) return;
         item?.onClick?.(item, event);
@@ -415,11 +431,12 @@ function EvidenceItem({ item, onSelect, isActive }) {
             onClick={clickable ? handleClick : undefined}
             type={Component === "button" ? "button" : undefined}
             id={item?.anchorId}
+            data-pmid={item?.pmid || undefined}
             sx={{
-                background: isActive ? "#ECFEFF" : "#fff",
-                border: isActive ? "1px solid #67E8F9" : "1px solid #E7EBEF",
-                borderRadius: "16px",
-                p: 2,
+                background: highlightBackground,
+                border: highlightBorder,
+                borderRadius: isPank1 ? "10px" : "16px",
+                p: isPank1 ? 1.25 : 2,
                 textAlign: "left",
                 width: "100%",
                 cursor: clickable ? "pointer" : "default",
@@ -427,8 +444,8 @@ function EvidenceItem({ item, onSelect, isActive }) {
                 transition: clickable ? "all 0.2s ease" : "none",
                 "&:hover": clickable
                     ? {
-                        background: "#F8FAFC",
-                        borderColor: "#CFE3EA",
+                        background: isActive ? highlightBackground : '#F2FAF5',
+                        borderColor: isActive ? '#5EA986' : '#B7DCC8',
                     }
                     : undefined,
             }}
@@ -476,9 +493,9 @@ function EvidenceItem({ item, onSelect, isActive }) {
                         <>
                             <Typography
                                 sx={{
-                                    fontSize: 14,
+                                    fontSize: isPank1 ? 12 : 14,
                                     fontWeight: 700,
-                                    color: "#008C8C",
+                                    color: isPank1 ? "#1E293B" : "#008C8C",
                                     mb: 0.35,
                                     display: "-webkit-box",
                                     WebkitLineClamp: 2,
@@ -491,10 +508,10 @@ function EvidenceItem({ item, onSelect, isActive }) {
                             {item.subtitle ? (
                                 <Typography
                                     sx={{
-                                        fontSize: 9,
+                                        fontSize: isPank1 ? 9.5 : 9,
                                         fontWeight: 700,
                                         color: "#94A3B8",
-                                        letterSpacing: "0.02em",
+                                        letterSpacing: isPank1 ? "0.05em" : "0.02em",
                                     }}
                                 >
                                     {item.subtitle}
@@ -540,15 +557,22 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
     }, [visualTab, visualTabs.length]);
 
     const originalQuestion = data?.originalQuestion || "";
+    const hideOriginalQueryBox = Boolean(data?.hideOriginalQueryBox);
     const parsedTitle = data?.parsedTitle || "";
     const agentPlanText = data?.agentPlan || '';
+    const normalizedPlanText = String(agentPlanText || '').toLowerCase().replace(/\s+/g, '');
+    const hideReviseComponent = normalizedPlanText.includes('queryplan(chain)');
+    const isFeedbackEmpty = !feedbackText.trim();
+    const isReviseDisabled = Boolean(data?.disableRevise);
+    const isProceedDisabled = Boolean(data?.disableProceed);
 
     const handleSendFeedback = React.useCallback(() => {
+        if (isReviseDisabled) return;
         const trimmed = feedbackText.trim();
         if (!trimmed) return;
         data?.onSendFeedback?.(trimmed);
         setFeedbackText('');
-    }, [feedbackText, data]);
+    }, [feedbackText, data, isReviseDisabled]);
 
     const handleProceed = React.useCallback(() => {
         data?.onProceed?.();
@@ -581,49 +605,50 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                         mb: 2.5,
                     }}
                 >
-                    <Box
-                        sx={{
-                            height: '50px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            px: 2,
-                            backgroundColor: '#FFFFFF',
-                            gap: 2,
-                        }}
-                    >
-                        <Stack direction="row" alignItems="center" spacing={1} sx={{ minWidth: 0, flex: 1 }}>
-                            <ChatBubbleOutlineIcon sx={{ color: '#94A3B8', fontSize: 20 }} />
+                    {!hideOriginalQueryBox ? (
+                        <Box
+                            sx={{
+                                height: '50px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                px: 2,
+                                backgroundColor: '#FFFFFF',
+                                gap: 2,
+                            }}
+                        >
+                            <Stack direction="row" alignItems="center" spacing={1} sx={{ minWidth: 0, flex: 1 }}>
+                                <ChatBubbleOutlineIcon sx={{ color: '#94A3B8', fontSize: 20 }} />
+                                <Typography
+                                    sx={{
+                                        color: '#94A3B8',
+                                        fontSize: 16,
+                                        fontWeight: 600,
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                    }}
+                                >
+                                    {originalQuestion}
+                                </Typography>
+                            </Stack>
                             <Typography
                                 sx={{
                                     color: '#94A3B8',
-                                    fontSize: 16,
-                                    fontWeight: 600,
+                                    fontSize: 12,
+                                    fontWeight: 700,
+                                    letterSpacing: '0.08em',
+                                    textTransform: 'uppercase',
                                     whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
                                 }}
                             >
-                                {originalQuestion}
+                                Original Query
                             </Typography>
-                        </Stack>
-                        <Typography
-                            sx={{
-                                color: '#94A3B8',
-                                fontSize: 12,
-                                fontWeight: 700,
-                                letterSpacing: '0.08em',
-                                textTransform: 'uppercase',
-                                whiteSpace: 'nowrap',
-                            }}
-                        >
-                            Original Query
-                        </Typography>
-                    </Box>
+                        </Box>
+                    ) : null}
 
                     <Box
                         sx={{
-                            height: '130px',
                             backgroundColor: '#F2F7F9',
                             px: 2,
                             py: 2,
@@ -661,18 +686,20 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                     <Grid item xs={12} md={12} lg={7} id={buildAnchorId('agent-plan')} sx={{ display: 'flex', height: confirmationColumnsHeight }}>
                         <Stack spacing={2} sx={{ width: '100%', height: '100%', minWidth: 0 }}>
                             <SectionCard sx={{ width: '100%', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-                                <Typography
-                                    sx={{
-                                        fontSize: 14,
-                                        letterSpacing: '0.08em',
-                                        fontWeight: 600,
-                                        color: '#94A3B8',
-                                        whiteSpace: 'nowrap',
-                                        mb: 1.5,
-                                    }}
-                                >
-                                    Agent Plan
-                                </Typography>
+                                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1.5 }}>
+                                    <SettingsIcon sx={{ color: '#94A3B8', fontSize: 18 }} />
+                                    <Typography
+                                        sx={{
+                                            fontSize: 14,
+                                            letterSpacing: '0.08em',
+                                            fontWeight: 600,
+                                            color: '#94A3B8',
+                                            whiteSpace: 'nowrap',
+                                        }}
+                                    >
+                                        Proposed Execution
+                                    </Typography>
+                                </Stack>
                                 <Box sx={{ flex: 1, minHeight: 0, overflowY: isSingleColumn ? 'visible' : 'auto', pr: 0.5 }}>
                                     {agentPlanText ? (
                                         <Box
@@ -769,115 +796,108 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                 </Box>
                             </SectionCard>
 
-                            <Stack direction="row" spacing={1.25} alignItems="center" sx={{ width: '100%' }}>
+                            {!hideReviseComponent ? (
                                 <Box
-                                    component="form"
-                                    onSubmit={(event) => {
-                                        event.preventDefault();
-                                        handleSendFeedback();
-                                    }}
                                     sx={{
-                                        flex: 1,
-                                        border: '1px solid #ECF0F5',
-                                        borderRadius: '12px',
-                                        p: 1,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: 1,
-                                        backgroundColor: '#FFFFFF',
-                                        boxShadow: '0px 2px 8px -3px #64646F40'
+                                        width: '100%',
+                                        border: '1px solid #E2E8F0',
+                                        borderRadius: '16px',
+                                        backgroundColor: '#F3F7F9',
+                                        py: 2,
+                                        px: 3,
                                     }}
                                 >
-                                    <TextField
-                                        value={feedbackText}
-                                        onChange={(event) => setFeedbackText(event.target.value)}
-                                        onKeyDown={(event) => {
-                                            if (event.key === 'Enter' && !event.shiftKey) {
-                                                event.preventDefault();
-                                                handleSendFeedback();
-                                            }
-                                        }}
-                                        placeholder="Tell me if I missed anything..."
-                                        variant="standard"
-                                        fullWidth
-                                        InputProps={{
-                                            disableUnderline: true,
-                                            startAdornment: (
-                                                <InputAdornment position="start">
-                                                    <ChatBubbleOutlineIcon sx={{ color: '#94A3B8', fontSize: 20, marginLeft: '4px' }} />
-                                                </InputAdornment>
-                                            ),
+                                    <Typography sx={{ fontSize: 14, fontWeight: 700, color: '#4A7F8D', mb: 0.4 }}>
+                                        Refine The Plan
+                                    </Typography>
+                                    <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#64748B', mb: 1.25 }}>
+                                        Tell me how you'd like to adjust the plan. I'll update it instantly.
+                                    </Typography>
+                                    <Box
+                                        component="form"
+                                        onSubmit={(event) => {
+                                            event.preventDefault();
+                                            handleSendFeedback();
                                         }}
                                         sx={{
-                                            '& .MuiInputBase-input': {
-                                                fontSize: 14,
-                                                color: '#334155',
-                                            },
-                                        }}
-                                    />
-                                    <IconButton
-                                        type="submit"
-                                        aria-label="send"
-                                        sx={{
-                                            borderRadius: '999px',
-                                            color: '#3A838B',
-                                            width: 34,
-                                            height: 34,
-                                            '&:hover': {
-                                                backgroundColor: '#F0FAFB',
-                                            },
+                                            width: '100%',
+                                            border: '1px solid #DCE5EE',
+                                            borderRadius: '14px',
+                                            p: 1,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 1,
+                                            backgroundColor: '#FFFFFF',
+                                            boxShadow: '0px 2px 8px -3px #64646F30',
                                         }}
                                     >
-                                        <SendIcon sx={{ fontSize: 20 }} />
-                                    </IconButton>
+                                        <TextField
+                                            value={feedbackText}
+                                            onChange={(event) => setFeedbackText(event.target.value)}
+                                            disabled={isReviseDisabled}
+                                            onKeyDown={(event) => {
+                                                if (event.key === 'Enter' && !event.shiftKey) {
+                                                    event.preventDefault();
+                                                    handleSendFeedback();
+                                                }
+                                            }}
+                                            placeholder="Tell me if I missed anything..."
+                                            variant="standard"
+                                            fullWidth
+                                            InputProps={{
+                                                disableUnderline: true,
+                                            }}
+                                            sx={{
+                                                '& .MuiInputBase-input': {
+                                                    fontSize: 14,
+                                                    color: '#334155',
+                                                    paddingLeft: '8px',
+                                                },
+                                            }}
+                                        />
+                                        <IconButton
+                                            type="submit"
+                                            aria-label="send"
+                                            disabled={isFeedbackEmpty || isReviseDisabled}
+                                            sx={{
+                                                borderRadius: '999px',
+                                                color: isFeedbackEmpty ? '#94A3B8' : '#3A838B',
+                                                width: 34,
+                                                height: 34,
+                                                '&:hover': {
+                                                    backgroundColor: '#F0F7FA',
+                                                },
+                                                '&.Mui-disabled': {
+                                                    color: '#94A3B8',
+                                                },
+                                            }}
+                                        >
+                                            <MynauiSendIcon style={{ width: 20, height: 20 }} />
+                                        </IconButton>
+                                    </Box>
                                 </Box>
-
-                                <Button
-                                    type="button"
-                                    variant="contained"
-                                    startIcon={<CheckIcon sx={{ fontSize: 18 }} />}
-                                    onClick={handleProceed}
-                                    sx={{
-                                        whiteSpace: 'nowrap',
-                                        textTransform: 'none',
-                                        fontWeight: 700,
-                                        fontSize: 14,
-                                        color: '#FFFFFF',
-                                        backgroundColor: '#3A838B',
-                                        border: '1px solid #ECF0F5',
-                                        borderRadius: '12px',
-                                        boxShadow: '0px 2px 8px -3px #64646F40',
-                                        px: 2.25,
-                                        height: 52,
-                                        '&:hover': {
-                                            backgroundColor: '#2F6E75',
-                                            border: '1px solid #DCE5EE',
-                                            boxShadow: '0px 2px 8px -3px #64646F40',
-                                        },
-                                    }}
-                                >
-                                    Looks Good, Proceed
-                                </Button>
-                            </Stack>
+                            ) : null}
                         </Stack>
                     </Grid>
 
                     <Grid item xs={12} md={12} lg={5} id={buildAnchorId('visual-material')} sx={{ display: 'flex', height: confirmationColumnsHeight }}>
                         <SectionCard sx={{ height: '100%', width: '100%', flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-                            <Typography
-                                sx={{
-                                    fontSize: 14,
-                                    letterSpacing: '0.08em',
-                                    fontWeight: 600,
-                                    color: '#94A3B8',
-                                    whiteSpace: 'nowrap',
-                                    mb: 1.5,
-                                }}
-                            >
-                                {data?.visualMaterial?.title || 'Visual Material'}
-                            </Typography>
+                            {visualTabs.length <= 1 ? (
+                                <Typography
+                                    sx={{
+                                        fontSize: 14,
+                                        letterSpacing: '0.08em',
+                                        fontWeight: 600,
+                                        color: '#94A3B8',
+                                        whiteSpace: 'nowrap',
+                                        mb: 1.5,
+                                    }}
+                                >
+                                    {data?.visualMaterial?.title || 'Visual Material'}
+                                </Typography>
+                            ) : null}
                             {visualTabs.length > 1 ? (
-                                <Box sx={{ mb: 1 }}>
+                                <Box sx={{ mb: 1.2 }}>
                                     <ContentTabs
                                         tabs={visualTabs}
                                         value={visualTab}
@@ -898,9 +918,9 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                             sx={{
                                                 border: isFullBleed ? 'none' : '1px solid #E6EAF2',
                                                 borderRadius: isFullBleed ? 0 : 3,
-                                                height: isSingleColumn ? visualPanelHeight : '100%',
+                                                height: isSingleColumn ? visualPanelHeight : 'calc(100% - 35.1px)',
                                                 width: '100%',
-                                                bgcolor: isFullBleed ? 'transparent' : '#F7F9FD',
+                                                bgcolor: isFullBleed ? 'transparent' : '#F9FAFB',
                                                 display: isActive ? 'flex' : 'none',
                                                 alignItems: isFullBleed ? 'stretch' : 'center',
                                                 justifyContent: isFullBleed ? 'stretch' : 'center',
@@ -933,9 +953,9 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                     sx={{
                                         border: '1px solid #E6EAF2',
                                         borderRadius: 3,
-                                        height: isSingleColumn ? visualPanelHeight : '100%',
+                                        height: isSingleColumn ? visualPanelHeight : 'calc(100% - 35.1px)',
                                         width: '100%',
-                                        bgcolor: '#F7F9FD',
+                                        bgcolor: '#F9FAFB',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
@@ -950,6 +970,32 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                         </SectionCard>
                     </Grid>
                 </Grid>
+
+                <Divider sx={{ my: 2.5, borderColor: '#E2E8F0' }} />
+                <Button
+                    type="button"
+                    variant="contained"
+                    startIcon={<CheckIcon sx={{ fontSize: 20 }} />}
+                    onClick={handleProceed}
+                    disabled={isProceedDisabled}
+                    sx={{
+                        width: '100%',
+                        textTransform: 'none',
+                        fontWeight: 700,
+                        fontSize: 17,
+                        letterSpacing: '0.01em',
+                        color: '#FFFFFF',
+                        backgroundColor: '#4E98A0',
+                        borderRadius: '14px',
+                        boxShadow: '0px 8px 18px -10px #1F4D5338',
+                        py: 1.8,
+                        '&:hover': {
+                            backgroundColor: '#3F848B',
+                        },
+                    }}
+                >
+                    Run These Steps
+                </Button>
             </Box>
         </ThemeProvider>
     );
@@ -959,7 +1005,9 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
     const [visualTab, setVisualTab] = React.useState(0);
     const [evidenceTab, setEvidenceTab] = React.useState(0);
     const [activeReference, setActiveReference] = React.useState(null);
+    const [hoveredReference, setHoveredReference] = React.useState(null);
     const aiOverviewRef = React.useRef(null);
+    const pageRootRef = React.useRef(null);
     const [aiOverviewHeight, setAiOverviewHeight] = React.useState(0);
     const isSingleColumn = useMediaQuery("(max-width:1199.95px)");
     const visualTabs = data?.visualMaterial?.tabs ?? [];
@@ -1002,12 +1050,61 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
         }
     }, [referencesTabIndex]);
 
+    const isPmidEventForCurrentPage = React.useCallback((detail) => {
+        if (!detail || !pageRootRef.current) return false;
+        const anchorId = String(detail.anchorId || '');
+        if (!anchorId) return false;
+        const target = document.getElementById(anchorId);
+        return Boolean(target && pageRootRef.current.contains(target));
+    }, []);
+
+    React.useEffect(() => {
+        const handleHover = (event) => {
+            const detail = event?.detail || {};
+            if (!isPmidEventForCurrentPage(detail)) return;
+            setHoveredReference(String(detail.pmid || '').trim() || null);
+        };
+
+        const handleHoverClear = (event) => {
+            const detail = event?.detail || {};
+            if (!isPmidEventForCurrentPage(detail)) return;
+            setHoveredReference((current) => {
+                const next = String(detail.pmid || '').trim();
+                return !current || !next || current === next ? null : current;
+            });
+        };
+
+        const handleClick = (event) => {
+            const detail = event?.detail || {};
+            if (!isPmidEventForCurrentPage(detail)) return;
+            const pmid = String(detail.pmid || '').trim();
+            if (!pmid) return;
+            setHoveredReference(null);
+            setActiveReference(pmid);
+            if (referencesTabIndex >= 0) {
+                setEvidenceTab(referencesTabIndex);
+            }
+        };
+
+        window.addEventListener(PMID_HOVER_EVENT, handleHover);
+        window.addEventListener(PMID_HOVER_CLEAR_EVENT, handleHoverClear);
+        window.addEventListener(PMID_CLICK_EVENT, handleClick);
+
+        return () => {
+            window.removeEventListener(PMID_HOVER_EVENT, handleHover);
+            window.removeEventListener(PMID_HOVER_CLEAR_EVENT, handleHoverClear);
+            window.removeEventListener(PMID_CLICK_EVENT, handleClick);
+        };
+    }, [isPmidEventForCurrentPage, referencesTabIndex]);
+
     const referenceTimeoutRef = React.useRef(null);
     React.useEffect(() => {
         if (!activeReference) return undefined;
         if (referencesTabIndex < 0 || evidenceTab !== referencesTabIndex) return undefined;
 
-        const el = document.getElementById(`reference-item-${activeReference}`);
+        const el =
+            document.getElementById(`reference-item-${activeReference}`)
+            || document.querySelector(`[data-pmid="${activeReference}"]`);
         if (el) {
             el.scrollIntoView({ behavior: "smooth", block: "center" });
             if (referenceTimeoutRef.current) {
@@ -1030,6 +1127,14 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
     const showVisualSection = Boolean(data?.visualMaterial);
     const showEvidenceSection = Boolean(data?.evidences);
     const showFollowUpSection = Boolean(data?.followUp);
+    const hasRenderableVisualTabs = visualTabs.length > 0;
+    const preferFollowUpBeforeVisual = Boolean(
+        showFollowUpSection
+        && (
+            !showVisualSection
+            || (data?.visualMaterial?.noGraph && !hasRenderableVisualTabs)
+        )
+    );
     const anchorPrefix = React.useMemo(() => {
         if (contentAnchorPrefix) return contentAnchorPrefix;
         if (data?.questionId) {
@@ -1081,31 +1186,46 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
         if (typeof item === "string") return item;
         return item?.label || item?.question || item?.title || "";
     };
+    const isFollowUpDisabled = Boolean(data?.followUp?.disabled);
+    const isFollowUpLoading = Boolean(data?.followUp?.loading);
+    const followUpInputValue = data?.followUp?.inputValue ?? "";
+    const showFollowUpComposer = Boolean(data?.followUp?.showComposer);
+    const isPank1Style = data?.styleVariant === 'pank1';
+    const handleFollowUpSubmit = () => {
+        if (isFollowUpDisabled) return;
+        const submit = data?.followUp?.onSubmit;
+        if (typeof submit === "function") {
+            submit(followUpInputValue);
+        }
+    };
 
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
 
-            <Box sx={{ px: { xs: 2, md: 4 }, pt: { xs: 2.5, md: 3.5 }, pb: { xs: 0.5, md: 1 }, maxWidth: 1344, width: "100%", mx: "auto" }}>
+            <Box ref={pageRootRef} sx={{ px: { xs: 2, md: 4 }, pt: { xs: 2.5, md: 3.5 }, pb: { xs: 0.5, md: 1 }, maxWidth: 1344, width: "100%", mx: "auto" }}>
                 {/* Header */}
-                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: '62px', columnGap: '20px' }}>
+                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: '62px', columnGap: '17px' }}>
                     <Chip
                         label={data.questionId || "Q1"}
                         sx={{
                             bgcolor: "#0F766E",
                             color: "#fff",
-                            fontWeight: 800,
-                            borderRadius: 2,
+                            fontWeight: 700,
+                            borderRadius: 1.5,
+                            fontFamily: isPank1Style ? '"Open Sans", Inter, sans-serif' : 'inherit',
+                            fontSize: isPank1Style ? 12 : 14,
                             height: 30,
                         }}
                     />
                     <Typography
                         sx={{
-                            fontSize: 32, // required
+                            fontSize: isPank1Style ? 24 : 32,
                             fontWeight: 700,
                             letterSpacing: "-0.02em",
                             color: "#1E293B",
                             lineHeight: 1.15,
+                            fontFamily: isPank1Style ? '"Open Sans", Inter, sans-serif' : 'inherit',
                         }}
                     >
                         {data.title}
@@ -1116,7 +1236,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                 <Grid container columnSpacing={4.5} rowSpacing={2.5} alignItems="stretch">
                     {/* AI Overview */}
                     <Grid item xs={12} md={12} lg={7} order={{ xs: 1, md: 1, lg: 1 }} id={buildAnchorId("ai-overview")}>
-                        <SectionCard title="AI Overview">
+                        <SectionCard title="AI Overview" variant={isPank1Style ? 'pank1' : 'default'}>
                             <Box
                                 sx={{
                                     height: 520,
@@ -1147,14 +1267,15 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
 
                     {/* Visual Material */}
                     {showVisualSection ? (
-                        <Grid item xs={12} md={12} lg={5} order={{ xs: 2, md: 2, lg: 2 }} id={buildAnchorId("visual-material")}>
-                            <SectionCard title={isSingleColumn ? (data?.visualMaterial?.title || "Visual Material") : null} sx={{ height: "100%" }}>
+                        <Grid item xs={12} md={12} lg={5} order={{ xs: 2, md: 2, lg: preferFollowUpBeforeVisual ? 4 : 2 }} id={buildAnchorId("visual-material")}>
+                            <SectionCard title={visualTabs.length > 1 ? null : (data?.visualMaterial?.title || "Visual Material")} sx={{ height: "100%" }} variant={isPank1Style ? 'pank1' : 'default'}>
                                 {visualTabs.length > 1 ? (
-                                    <Box sx={{ mb: 2, transform: 'translateY(-3px)' }}>
+                                    <Box sx={{ mb: 1.2 }}>
                                         <ContentTabs
                                             tabs={visualTabs}
                                             value={visualTab}
                                             onChange={(_, v) => handleVisualTabChange(v)}
+                                            variant={isPank1Style ? 'pank1' : 'default'}
                                         />
                                     </Box>
                                 ) : null}
@@ -1175,7 +1296,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                                     width: "100%",
                                                     maxWidth: visualPanelMaxWidth,
                                                     mx: isSingleColumn ? "auto" : 0,
-                                                    bgcolor: isFullBleed ? "transparent" : "#F7F9FD",
+                                                    bgcolor: isFullBleed ? "transparent" : "#F9FAFB",
                                                     display: isActive ? "flex" : "none",
                                                     alignItems: isFullBleed ? "stretch" : "center",
                                                     justifyContent: isFullBleed ? "stretch" : "center",
@@ -1216,7 +1337,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                             width: "100%",
                                             maxWidth: visualPanelMaxWidth,
                                             mx: isSingleColumn ? "auto" : 0,
-                                            bgcolor: "#F7F9FD",
+                                            bgcolor: "#F9FAFB",
                                             display: "flex",
                                             alignItems: "center",
                                             justifyContent: "center",
@@ -1235,18 +1356,19 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                     {/* Evidences */}
                     {showEvidenceSection ? (
                         <Grid item xs={12} md={12} lg={7} order={{ xs: 3, md: 3, lg: 3 }} id={buildAnchorId("evidences")}>
-                            <SectionCard title={isSingleColumn ? (data?.evidences?.title || "Evidences") : null}>
+                            <SectionCard title={isSingleColumn ? (data?.evidences?.title || "Evidences") : null} variant={isPank1Style ? 'pank1' : 'default'}>
                                 {evidenceTabs.length > 0 ? (
-                                    <Box sx={{ mb: 2, transform: 'translateY(-3px)' }}>
+                                    <Box sx={{ mb: 1.2 }}>
                                         <ContentTabs
                                             tabs={evidenceTabs}
                                             value={evidenceTab}
                                             onChange={(_, v) => handleEvidenceTabChange(v)}
+                                            variant={isPank1Style ? 'pank1' : 'default'}
                                         />
                                     </Box>
                                 ) : null}
 
-                                <Stack spacing={3}>
+                                <Stack spacing={0}>
                                     {evidenceTabs.length ? (
                                         evidenceTabs.map((tab, tabIdx) => (
                                             <Box
@@ -1257,14 +1379,20 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                                     tab.content
                                                 ) : tab.items && tab.items.length ? (
                                                     <Stack spacing={1.25}>
-                                                        {tab.items.map((it) => (
+                                                        {tab.items.map((it) => {
+                                                            const matchesActive = Boolean(activeReference) && (String(it?.pmid || '') === String(activeReference) || it.anchorId === `reference-item-${activeReference}`);
+                                                            const matchesHover = Boolean(hoveredReference) && (String(it?.pmid || '') === String(hoveredReference) || it.anchorId === `reference-item-${hoveredReference}`);
+                                                            return (
                                                             <EvidenceItem
                                                                 key={`${it.id}-${it.title}`}
                                                                 item={it}
                                                                 onSelect={data?.evidences?.onSelect}
-                                                                isActive={Boolean(activeReference) && it.anchorId === `reference-item-${activeReference}`}
+                                                                isActive={matchesActive}
+                                                                isHovered={!matchesActive && matchesHover}
+                                                                variant={isPank1Style ? 'pank1' : 'default'}
                                                             />
-                                                        ))}
+                                                            );
+                                                        })}
                                                     </Stack>
                                                 ) : (
                                                     <Typography sx={{ fontSize: 13, color: "#94A3B8", fontWeight: 700, py: 2 }}>
@@ -1285,34 +1413,83 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
 
                     {/* Follow Up */}
                     {showFollowUpSection ? (
-                        <Grid item xs={12} md={12} lg={5} order={{ xs: 4, md: 4, lg: 4 }} id={buildAnchorId("follow-up")}>
-                            <SectionCard title={data?.followUp?.title ?? "Follow Up"} sx={{ height: "100%" }}>
+                        <Grid item xs={12} md={12} lg={5} order={{ xs: 4, md: 4, lg: preferFollowUpBeforeVisual ? 2 : 4 }} id={buildAnchorId("follow-up")}>
+                            <SectionCard title={data?.followUp?.title ?? "Follow Up"} sx={{ height: "100%" }} variant={isPank1Style ? 'pank1' : 'default'}>
                                 <Stack spacing={3}>
-                                    {data?.followUp?.loading ? (
-                                        Array.from({ length: 3 }).map((_, idx) => (
-                                            <Paper
-                                                key={`follow-up-skeleton-${idx}`}
-                                                elevation={0}
+                                    {showFollowUpComposer && typeof data?.followUp?.onSubmit === "function" ? (
+                                        <Box
+                                            component="form"
+                                            onSubmit={(event) => {
+                                                event.preventDefault();
+                                                handleFollowUpSubmit();
+                                            }}
+                                            sx={{
+                                                border: "1px solid #ECF0F5",
+                                                borderRadius: "12px",
+                                                p: 1,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: 1,
+                                                backgroundColor: "#FFFFFF",
+                                                boxShadow: "0px 2px 8px -3px #64646F40",
+                                            }}
+                                        >
+                                            <TextField
+                                                value={followUpInputValue}
+                                                onChange={(event) => data?.followUp?.onChange?.(event.target.value || "")}
+                                                disabled={isFollowUpDisabled}
+                                                onKeyDown={(event) => {
+                                                    if (event.key === "Enter" && !event.shiftKey) {
+                                                        event.preventDefault();
+                                                        handleFollowUpSubmit();
+                                                    }
+                                                }}
+                                                placeholder={data?.followUp?.inputPlaceholder || "Ask a follow-up question..."}
+                                                variant="standard"
+                                                fullWidth
+                                                InputProps={{
+                                                    disableUnderline: true,
+                                                    startAdornment: (
+                                                        <InputAdornment position="start">
+                                                            <ChatBubbleOutlineIcon sx={{ color: "#94A3B8", fontSize: 20, marginLeft: "4px" }} />
+                                                        </InputAdornment>
+                                                    ),
+                                                }}
                                                 sx={{
-                                                    bgcolor: "#F8FAFC",
-                                                    py: 2,
-                                                    px: 3,
-                                                    borderRadius: "16px",
+                                                    "& .MuiInputBase-input": {
+                                                        fontSize: 14,
+                                                        color: "#334155",
+                                                    },
+                                                }}
+                                            />
+                                            <IconButton
+                                                type="submit"
+                                                aria-label="send follow up"
+                                                disabled={isFollowUpDisabled || Boolean(data?.followUp?.submitting) || !String(followUpInputValue || "").trim()}
+                                                sx={{
+                                                    borderRadius: "999px",
+                                                    color: "#3A838B",
+                                                    width: 34,
+                                                    height: 34,
+                                                    "&:hover": {
+                                                        backgroundColor: "#F0FAFB",
+                                                    },
                                                 }}
                                             >
-                                                <Skeleton variant="text" width="92%" height={20} sx={{ mb: 0.5 }} />
-                                                <Skeleton variant="text" width="74%" height={18} />
-                                            </Paper>
-                                        ))
+                                                {data?.followUp?.submitting ? <Skeleton variant="circular" width={20} height={20} /> : <SendIcon sx={{ fontSize: 20 }} />}
+                                            </IconButton>
+                                        </Box>
                                     ) : null}
-
-                                    {!data?.followUp?.loading ? (
-                                        (data?.followUp?.items ?? []).map((item, idx) => {
+                                    {(data?.followUp?.items ?? []).map((item, idx) => {
                                             const label = getItemLabel(item);
                                             const isLink = Boolean(item?.href);
-                                            const clickable = Boolean(isLink || item?.onClick || data?.followUp?.onSelect);
+                                            const clickable = Boolean(!isFollowUpDisabled && (isLink || item?.onClick || data?.followUp?.onSelect));
                                             const Component = isLink ? "a" : clickable ? "button" : "div";
                                             const handleClick = (event) => {
+                                                if (isFollowUpDisabled) {
+                                                    event?.preventDefault?.();
+                                                    return;
+                                                }
                                                 item?.onClick?.(item, event);
                                                 data?.followUp?.onSelect?.(item, event);
                                             };
@@ -1328,33 +1505,34 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                                     onClick={clickable ? handleClick : undefined}
                                                     type={Component === "button" ? "button" : undefined}
                                                     sx={{
-                                                        bgcolor: "#F8FAFC",
-                                                        py: 2,
-                                                        px: 3,
-                                                        borderRadius: "16px",
-                                                        border: "none",
+                                                        bgcolor: (isFollowUpDisabled || isFollowUpLoading) ? "#EDF2F7" : "#FFFFFF",
+                                                        py: isPank1Style ? 1.25 : 2,
+                                                        px: isPank1Style ? 1.5 : 3,
+                                                        borderRadius: isPank1Style ? "10px" : "16px",
+                                                        border: isPank1Style ? "1px solid #E7EBEF" : "none",
                                                         outline: "none",
                                                         appearance: "none",
-                                                        cursor: clickable ? "pointer" : "default",
+                                                        cursor: clickable ? "pointer" : "not-allowed",
                                                         transition: clickable ? "all 0.2s ease" : "none",
                                                         textAlign: "left",
                                                         textDecoration: "none",
                                                         "&:hover": clickable
                                                             ? {
-                                                                bgcolor: "#EFF6FF",
+                                                                bgcolor: isPank1Style ? "#F0F4F4" : "#EFF6FF",
+                                                                borderColor: isPank1Style ? "#2EA7A7" : undefined,
                                                             }
                                                             : undefined,
+                                                        opacity: (isFollowUpDisabled || isFollowUpLoading) ? 0.7 : 1,
                                                     }}
                                                 >
-                                                    <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: "#475569" }}>{label}</Typography>
+                                                    <Typography sx={{ fontSize: isPank1Style ? 12 : 13.5, fontWeight: isPank1Style ? 600 : 700, color: "#1E293B" }}>{label}</Typography>
                                                 </Paper>
                                             );
-                                        })
-                                    ) : null}
+                                        })}
 
-                                    {!data?.followUp?.loading && !data?.followUp?.items?.length ? (
+                                    {!data?.followUp?.items?.length ? (
                                         <Typography sx={{ fontSize: 13, color: "#94A3B8", fontWeight: 700, py: 2 }}>
-                                            No follow-up questions.
+                                            {isFollowUpLoading ? 'Loading follow-up questions...' : 'No follow-up questions.'}
                                         </Typography>
                                     ) : null}
                                 </Stack>

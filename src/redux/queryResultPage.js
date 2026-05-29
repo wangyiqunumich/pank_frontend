@@ -16,9 +16,17 @@ export const queryQueryResultPage = createAsyncThunk('/pank2ResultPage',
             })
             .then((response) => response.data)
             .then((data) => {
-                const isCoreNode = (node) => data.core_nodes.includes(node['~id']);
+                if (!Array.isArray(data?.combined_query_result?.nodes)) {
+                    return data;
+                }
+
+                const coreNodes = Array.isArray(data?.core_nodes) ? data.core_nodes : [];
+                const combinedQueryResult = data.combined_query_result;
+                const nodes = data.combined_query_result.nodes;
+
+                const isCoreNode = (node) => coreNodes.includes(node?.['~id']);
                 const ocrList =
-                    data.combined_query_result.nodes?.filter(
+                    nodes?.filter(
                         (node) => node["~labels"].includes("OCR")
                     )?.sort((a, b) => isCoreNode(a) - isCoreNode(b));
                 // number the OCR nodes
@@ -27,8 +35,8 @@ export const queryQueryResultPage = createAsyncThunk('/pank2ResultPage',
                 return {
                     ...data,
                     combined_query_result: {
-                        ...data.combined_query_result,
-                        nodes: data.combined_query_result.nodes.map((node) => {
+                        ...combinedQueryResult,
+                        nodes: nodes.map((node) => {
                             if (node["~labels"].includes("OCR")) {
                                 return {
                                     ...node,

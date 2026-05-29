@@ -5,6 +5,7 @@ import React, {
 
 import {
   Link,
+  useLocation,
   useNavigate,
 } from 'react-router-dom';
 
@@ -25,9 +26,11 @@ function Question({}) {
     setQuestions(landingPageSchema); // Load questions into state
   }, []);
   const navigate = useNavigate();
+  const location = useLocation();
   const handleQuestionClick = (index) => {
     // Navigate to the next page and pass the question data
-    navigate(`/match?qid=${index}`);
+    const returnTo = encodeURIComponent(`${location.pathname}${location.search}`);
+    navigate(`/match?qid=${index}&returnTo=${returnTo}`);
   };
 
   const colorMap = ['#E7DD6F', '#B3DDAD', '#B3DDAD', '#B3DDAD', '#4ABBE3', '#296798'];
@@ -238,7 +241,7 @@ function Question({}) {
           fontSize: '14px',
         }}>Example</span>
         <Link
-          to="/result?sourceTerm=snp%40rs2402203&targetTerm=gene%40ENSG00000001626&relationship=QTL"
+          to="/result-new?sourceTerm=snp%40rs2402203&targetTerm=gene%40ENSG00000001626&relationship=QTL"
           style={{
             fontSize: '14px',
             textDecoration: 'underline',
