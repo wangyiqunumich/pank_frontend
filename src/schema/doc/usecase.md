@@ -1,63 +1,24 @@
-# **Use Case: Using PanKgraph to Support T1D Research**
+## Use Case: Asking T1D Questions in PanKgraph
 
-This page demonstrates how PanKgraph provides insights into T1D research by connecting genetic variants, genes, diseases, and supporting evidence.
+PanKgraph is built for researchers who want to ask practical questions about Type 1 Diabetes (T1D) and pancreas biology without first translating those questions into graph query syntax. A user can ask in ordinary language, and PanKagent helps find the relevant genes, variants, cell types, pathways, disease links, and supporting evidence in the knowledge graph.
 
----
+The graph brings together several kinds of data that are commonly needed in T1D research. It includes gene and variant information, fine-mapped QTL and GWAS signals, gene-disease colocalization evidence, gene expression and differential expression across pancreatic cell types, chromatin accessibility and gene activity from single-cell ATAC data, pathway and ontology annotations, protein or genetic interaction evidence, donor and sample metadata from HPAP, and links back to PanKbase or external resources.
 
-## **AI Answer Section**
-The **AI Answer Section** provides a detailed summary of the relationship between the SNP (*rs2402203*), the *CFTR* gene, and T1D. It highlights:
-- The biological role of *CFTR* and its association with immune regulation.
-- QTL-specific annotations, including effect size and statistical significance.
-- Specific mechanisms linking *CFTR* to T1D, such as its role in transcription factor binding and enhancer activity in pancreatic ductal cells.
+### Supported Question Types
 
-This section is key for understanding variant-to-gene connections in the context of T1D pathogenesis.
+Because these data are connected in one graph, PanKgraph can support questions that cross data modalities. For example, a researcher can ask whether a T1D GWAS signal also has molecular QTL support for a nearby gene, whether a candidate gene is active in a relevant pancreatic cell type, whether a gene is part of an immune or endocrine pathway, or whether the evidence points more toward a beta-cell, ductal, immune, or broader pancreatic mechanism.
 
----
+PanKagent is useful when the question is not a single table lookup. It can break a natural-language question into the graph searches needed to answer it, retrieve the supporting records, and return an answer with references and provenance. Example questions include:
 
-## **Graph Viewer**
-The **Graph Viewer** provides a visual representation of the relationships between entities such as:
-- The lead SNP (rs2402203) and its associated gene (CFTR) represent the QTL signal.
-- *CFTR*'s interactions with other genes, like *SCNN1A*.
-- The disease context (*Type 1 Diabetes*) and supporting literature (e.g., PMID:34012112).
+#### Example Questions
+- For ADCY3, does the T1D-associated GWAS signal rs13393590 colocalize with ADCY3 molecular QTL evidence?
+- Is PLEKHM1 a T1D effector gene or key marker gene in pancreatic cell types?
+- What pathways and interaction partners connect HLA-DRA to antigen presentation in T1D?
+- Is CFTR specifically enriched in ductal cells?
+- For CFTR, does the T1D GWAS signal colocalize with a pancreas splicing QTL?
 
-Researchers can use this visualization to quickly identify multi-level connections and focus on specific aspects of the network for further analysis.
+### Direct Tools for Focused Queries
+PanKgraph also includes direct tools for users who already know which data type they want to inspect. These tools are useful for fast, focused access to QTL, GWAS, or functional islet data without going through the full question-answer workflow. For example, the Pancreatic Islet Functional Data Tool supports interactive filtering of HIPP pancreatic islet function data and can use the agent to help explain selected feature plots.
 
-
----
-
-## **"You May Also Ask" Section**
-Expands exploration by linking other related data modalities. Example questions include:
-
-- **Fine-mapped eQTL relationships:**
-  - What is the impact of SNP *rs75511728* on the *PTPN22* gene, and how does it connect to pathways associated with T1D?
-
-- **Pathway connections:**
-  - Which pathways do genes regulated by *CFTR* belong to, and how are they associated with immune responses in T1D?
-
-- **Regulatory gene interactions:**
-  - How does *SCNN1A* regulate other genes within pancreatic pathways relevant to T1D?
-
-- **Ontology annotations:**
-  - What ontology terms are associated with *CFTR*, and how do they relate to immune function in T1D?
-
-- **Cross-modal exploration:**
-  - How do sequence variants annotated in immune-related ontologies map to pathways enriched in pancreatic tissues?
-
-These questions guide researchers toward multi-modal exploration and foster new hypotheses about variant-gene-disease relationships.
-
-
----
-
-By combining these sections, researchers can efficiently explore the biological impact of genetic variants in T1D and generate actionable insights without needing to rely on multiple disconnected tools.
-
-## **Future Data Modalities and Use Cases**
-
-Future expansions of PanKgraph will incorporate additional data modalities to enhance research capabilities:
-
-- **Transcriptomic Data**: Explore gene expression profiles across tissues to connect regulatory variants to functional changes in T1D.
-- **Epigenomic Data**: Identify chromatin accessibility and histone modification patterns to link regulatory elements to target genes in T1D-specific contexts.
-- **Proteomic Data**: Analyze protein interactions and abundance to map the downstream effects of genetic variants and pathways in T1D.
-- **Metabolomic Data**: Link metabolic pathways to genetic and transcriptomic changes to uncover the biochemical mechanisms underlying T1D.
-- **Clinical Data**: Integrate phenotype and patient data for translational insights and potential therapeutic interventions.
-
-These modalities will expand the graph's utility, fostering deeper insights into variant-to-disease mechanisms and multi-omic interactions in T1D research.
+### Future Direction
+In the future, PanKgraph can become more useful as additional data modalities, stronger provenance, and better agent planning are added. The goal should remain conservative: PanKagent should help researchers navigate complex connected data, but its answers should stay grounded in graph evidence, source records, and traceable links rather than unsupported model interpretation.
