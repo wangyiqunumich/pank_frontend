@@ -30,14 +30,10 @@ The portal is powered by **PanKagent**, an LLM-based human-language search syste
 
 ## System Components
 
-- **Knowledge Graph Database**: 
-  - Nodes and edges representing biological entities, datasets, evidence, provenance, and their relationships.
-- **Data Loaders**:
-  - Custom pipelines for ingesting, transforming, and updating heterogeneous datasets.
-- **Web Interface**:
-  - Question-driven portal for graph exploration, analytics, visualization, and evidence review.
 - **PanKagent**:
-  - LLM-powered agent for human-language search, graph query assistance, and evidence-grounded answer generation.
+  - An LLM-powered agent that supports human-language search, graph query assistance, and evidence-grounded answer generation.
+- **PanKgraph Tool**::
+  - Enables experienced users to quickly access key resources through direct, configurable queries without going through the full human-language question workflow, maximizing efficiency.
 - **Programmatic Access**:
   - APIs and SDKs for advanced queries and data analysis.
 
