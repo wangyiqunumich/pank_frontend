@@ -108,7 +108,7 @@ root.render(
                 <Route path="/" element={<AgentLandingPage />} />
                 <Route
                   path="/debug"
-                  element={isDevelopmentStage ? <DebugPage /> : <Navigate to="/old-landing" replace />}
+                  element={isDevelopmentStage ? <DebugPage /> : <Navigate to="/" replace />}
                 />
                 <Route path="/igv" element={<IgvPage />} />
                 <Route path="*" element={<AgentLandingPage />} />
