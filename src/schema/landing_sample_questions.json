@@ -22,15 +22,15 @@
             "title": "Explore QTL",
             "entries": [
                 {
-                    "question": "Which SNP serves as the lead QTL for CFTR? (Last HIRN's template question)",
+                    "question": "Which SNP serves as the lead QTL for CFTR?",
                     "link": "/result-new?sourceTerm=snp@rs2402203&targetTerm=gene@ENSG00000001626&relationship=QTL"
                 },
                 {
-                    "question": "Which SNP serves as the lead QTL for [GENE]? (Last HIRN's template question)",
+                    "question": "Which SNP serves as the lead QTL for [GENE]?",
                     "link": "/match?qid=1"
                 },
                 {
-                    "question": "Which GENE is regulated by [SNP] as a QTL? (Last HIRN's template question)",
+                    "question": "Which GENE is regulated by [SNP] as a QTL?",
                     "link": "/match?qid=2"
                 },
                 {
