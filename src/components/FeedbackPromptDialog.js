@@ -1,7 +1,12 @@
 import React from 'react';
 
-import ChatBubbleOutlineRoundedIcon from '@mui/icons-material/ChatBubbleOutlineRounded';
-import { Box, Button, Typography } from '@mui/material';
+import ChatBubbleOutlineRoundedIcon
+  from '@mui/icons-material/ChatBubbleOutlineRounded';
+import {
+  Box,
+  Button,
+  Typography,
+} from '@mui/material';
 
 export default function FeedbackPromptDialog({ open, onShareFeedback, onMaybeLater }) {
   if (!open) return null;

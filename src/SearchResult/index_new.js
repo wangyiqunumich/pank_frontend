@@ -327,10 +327,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         return String(params.get('relationship') || '').toUpperCase();
     }, [location.search]);
     const hideGenomeBrowserTab = relationshipParam === 'GWAS';
-    const demoMode = React.useMemo(
-        () => new URLSearchParams(location.search).get('demo') === 'true',
-        [location.search]
-    );
+    const demoMode = false;
 
     const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
     const { aiAnswer } = useSelector((state) => state.aiAnswer);
@@ -1154,7 +1151,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 .filter((item) => item?.question)
                 .map((item) => ({
                     label: stripHtml(item.question),
-                    href: item.link?.replace(/^\/result(\b|\?)/, '/agent-result$1'),
+                    href: item.link?.replace(/^\/result(\b|\?)/, '/result-new2$1'),
                     target: "_blank",
                 })),
         },

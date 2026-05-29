@@ -399,17 +399,12 @@ export function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVis
 export function AgentResultLayout({
     ResultView = SearchResult,
     getResultViewProps = (result, index) => ({ demoIndex: index + 1, result }),
-    allowMulti = false,
     allowSearch = false,
     showFloatingSearchBar = false,
 }) {
     const location = useLocation();
     const isResultNewRoute = location.pathname === '/result-new';
-    const demoMode = useMemo(
-        () => new URLSearchParams(location.search).get('demo') === 'true',
-        [location.search]
-    );
-    const effectiveAllowMulti = allowMulti || demoMode;
+    const effectiveAllowMulti = false;
     const [results, setResults] = useState([
         {
             id: 1,
@@ -472,29 +467,6 @@ export function AgentResultLayout({
         setActiveResultIndex(index);
         target.scrollIntoView({ behavior: "smooth", block: "start" });
     };
-
-    useEffect(() => {
-        if (demoMode && results.length < 2) {
-            setResults([
-                {
-                    id: 1,
-                    query: "How Does The SNP Rs2402203 Influence The Expression Of CFTR In Pancreas Tissue?",
-                },
-                {
-                    id: 2,
-                    query: "What is the functional impact of CFTR QTLs in pancreas tissue?",
-                },
-                {
-                    id: 3,
-                    query: "Which variants modulate CFTR expression in ductal cells?",
-                },
-                {
-                    id: 4,
-                    query: "How does CFTR relate to T1D immune regulation?",
-                },
-            ]);
-        }
-    }, [demoMode, results.length]);
 
     useEffect(() => {
         if (!effectiveAllowMulti || results.length < 2) {

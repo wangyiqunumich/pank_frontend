@@ -530,17 +530,14 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         () => new URLSearchParams(location.search),
         [location.search]
     );
-    const demoMode = React.useMemo(
-        () => searchParams.get('demo') === 'true',
-        [searchParams]
-    );
-    const terminalMode = React.useMemo(
-        () => searchParams.get('terminal') === 'true' || searchParams.get('debug') === 'true',
-        [searchParams]
-    );
+    const demoMode = false;
     const planDemoMode = React.useMemo(
         () => searchParams.get('plandemo') === 'true',
         [searchParams]
+    );
+    const terminalMode = React.useMemo(
+        () => !demoMode && !planDemoMode,
+        [demoMode, planDemoMode]
     );
     const planDemoQuestion = React.useMemo(() => {
         const encoded = searchParams.get('question');
@@ -551,7 +548,6 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     }, [searchParams]);
     const chatSessionIdFromUrl = React.useMemo(() => searchParams.get('session_id') || '', [searchParams]);
     const pendingPlanSessionIdFromUrl = React.useMemo(() => searchParams.get('pending_plan_session_id') || '', [searchParams]);
-    const chatRouteFromUrl = React.useMemo(() => searchParams.get('route') || '', [searchParams]);
     const mockPlanMode = React.useMemo(() => searchParams.get('mock_plan') === 'true', [searchParams]);
     const functionalAutoPromptRef = React.useRef(searchParams.get('prompt_source') === 'functional_data_auto');
 
@@ -633,8 +629,9 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const planInactivityTimerRef = useRef(null);
     const planLoadingUiDoneRef = useRef(false);
     const planLoadingUiResolverRef = useRef(null);
-    const isChatApiMode = terminalMode && !debug && !demoMode && !planDemoMode;
-    const isAgentResultRoute = location.pathname === '/result-new2' || location.pathname === '/agent-result';
+    // Keep result-new2 terminal flow on Chat API path only (Group B).
+    const isChatApiMode = terminalMode && !demoMode && !planDemoMode;
+    const isAgentResultRoute = location.pathname === '/result-new2';
 
     useEffect(() => {
         chatSessionIdRef.current = chatSessionId || '';
@@ -1146,7 +1143,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         return;
                     }
                     const encodedQuery = encodeURIComponent(utf8ToBase64(text));
-                    navigate(`/result-new2?question=${encodedQuery}&terminal=true`);
+                    navigate(`/result-new2?question=${encodedQuery}`);
                 },
             },
         };
@@ -2447,7 +2444,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         streamSummaryRef.current = '';
 
         // Drop pending-plan URL markers immediately so remounts cannot restore planner while confirm is in-flight.
-        navigate(`/result-new2?question=${encodeURIComponent(utf8ToBase64(confirmQuestionText))}&terminal=true&session_id=${encodeURIComponent(chatSessionId)}`, { replace: true });
+        navigate(`/result-new2?question=${encodeURIComponent(utf8ToBase64(confirmQuestionText))}&session_id=${encodeURIComponent(chatSessionId)}`, { replace: true });
 
         try {
             const confirmPayload = await confirmChatPlanStream({
@@ -2497,14 +2494,14 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 setTerminalPhase('result');
                 setChatRouteState('new_query');
                 setChatStartPendingPlanSessionId('');
-                navigate(`/result-new2?question=${encodeURIComponent(utf8ToBase64(confirmQuestionText))}&terminal=true&session_id=${encodeURIComponent(chatSessionId)}`, { replace: true });
+                navigate(`/result-new2?question=${encodeURIComponent(utf8ToBase64(confirmQuestionText))}&session_id=${encodeURIComponent(chatSessionId)}`, { replace: true });
             } else {
                 // Restore planner state so the user can retry confirm/revise.
                 setForceResultView(false);
                 setTerminalPhase('confirm');
                 setChatRouteState('new_query_pending');
                 setChatStartPendingPlanSessionId(confirmPlanSessionId);
-                navigate(`/result-new2?question=${encodeURIComponent(utf8ToBase64(confirmQuestionText))}&terminal=true&session_id=${encodeURIComponent(chatSessionId)}&pending_plan_session_id=${encodeURIComponent(confirmPlanSessionId)}&route=new_query_pending`, { replace: true });
+                navigate(`/result-new2?question=${encodeURIComponent(utf8ToBase64(confirmQuestionText))}&session_id=${encodeURIComponent(chatSessionId)}&pending_plan_session_id=${encodeURIComponent(confirmPlanSessionId)}`, { replace: true });
             }
             setAgentErrorType(resolveAgentErrorType(err, 'planning_failed'));
         } finally {
@@ -2587,7 +2584,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             const runId = ++chatBootstrapRunIdRef.current;
             const isStale = () => runId !== chatBootstrapRunIdRef.current;
             const shouldPreserveGraphDuringPendingBootstrap = Boolean(
-                chatSessionIdFromUrl && (pendingPlanSessionIdFromUrl || chatRouteFromUrl === 'new_query_pending')
+                chatSessionIdFromUrl && pendingPlanSessionIdFromUrl
             );
 
             setForceResultView(false);
@@ -2645,7 +2642,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         setFunctionalDataRequestPath(planFunctionalPath || '');
                     }
 
-                    const desiredPendingUrl = `/result-new2?question=${encodeURIComponent(utf8ToBase64(question))}&terminal=true&session_id=${encodeURIComponent(mockPayload?.session_id || '')}&pending_plan_session_id=${encodeURIComponent(mockPayload?.pending_plan_session_id || '')}&route=new_query_pending&mock_plan=true`;
+                    const desiredPendingUrl = `/result-new2?question=${encodeURIComponent(utf8ToBase64(question))}&session_id=${encodeURIComponent(mockPayload?.session_id || '')}&pending_plan_session_id=${encodeURIComponent(mockPayload?.pending_plan_session_id || '')}&mock_plan=true`;
                     const currentUrl = `${location.pathname}${location.search}`;
                     if (currentUrl !== desiredPendingUrl) {
                         navigate(desiredPendingUrl, { replace: true });
@@ -2703,7 +2700,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
                     if (isStale()) return;
 
-                    const desiredPendingUrl = `/result-new2?question=${encodeURIComponent(utf8ToBase64(question))}&terminal=true&session_id=${encodeURIComponent(cachedPendingPlan.sessionId)}&pending_plan_session_id=${encodeURIComponent(cachedPendingPlan.pendingPlanSessionId)}&route=new_query_pending`;
+                    const desiredPendingUrl = `/result-new2?question=${encodeURIComponent(utf8ToBase64(question))}&session_id=${encodeURIComponent(cachedPendingPlan.sessionId)}&pending_plan_session_id=${encodeURIComponent(cachedPendingPlan.pendingPlanSessionId)}`;
                     const currentUrl = `${location.pathname}${location.search}`;
                     if (currentUrl !== desiredPendingUrl) {
                         navigate(desiredPendingUrl, { replace: true });
@@ -2711,7 +2708,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     return;
                 }
 
-                if (chatSessionIdFromUrl && (pendingPlanSessionIdFromUrl || chatRouteFromUrl === 'new_query_pending')) {
+                if (chatSessionIdFromUrl && pendingPlanSessionIdFromUrl) {
                     if (
                         cachedPendingPlan
                         && cachedPendingPlan.sessionId === chatSessionIdFromUrl
@@ -3014,7 +3011,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         setFunctionalDataRequestPath(planFunctionalPath || '');
                     }
                     if (isStale()) return;
-                    navigate(`/result-new2?question=${encodeURIComponent(utf8ToBase64(question))}&terminal=true&session_id=${encodeURIComponent(sessionId)}&pending_plan_session_id=${encodeURIComponent(payload?.pending_plan_session_id || '')}&route=new_query_pending`, { replace: true });
+                    navigate(`/result-new2?question=${encodeURIComponent(utf8ToBase64(question))}&session_id=${encodeURIComponent(sessionId)}&pending_plan_session_id=${encodeURIComponent(payload?.pending_plan_session_id || '')}`, { replace: true });
                 } else if (payload?.route === 'follow_up' || payload?.route === 'new_query') {
                     setChatRouteState(String(payload?.route || 'new_query'));
                     await applyMainChatResponse(payload, question);
@@ -3038,7 +3035,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                             },
                         ]);
                     }
-                    navigate(`/result-new2?question=${encodeURIComponent(utf8ToBase64(question))}&terminal=true&session_id=${encodeURIComponent(sessionId)}`, { replace: true });
+                    navigate(`/result-new2?question=${encodeURIComponent(utf8ToBase64(question))}&session_id=${encodeURIComponent(sessionId)}`, { replace: true });
                 } else {
                     throw new Error(`Unsupported chat/start route: ${String(payload?.route || 'unknown')}`);
                 }
@@ -3057,7 +3054,6 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         question,
         chatSessionIdFromUrl,
         pendingPlanSessionIdFromUrl,
-        chatRouteFromUrl,
         applyMainChatResponse,
         parseChatResponseContent,
         fetchReferenceArticles,
@@ -3166,7 +3162,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             return;
         }
         const encodedQuery = encodeURIComponent(utf8ToBase64(cleanQuestion));
-        navigate(`/result-new2?question=${encodedQuery}&terminal=true`);
+        navigate(`/result-new2?question=${encodedQuery}`);
     }, [isQuestionComplete, isChatApiMode, handleSendFollowUp, navigate]);
 
     // Skeleton placeholder for summary loading
