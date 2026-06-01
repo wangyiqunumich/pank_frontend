@@ -2037,6 +2037,107 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         await graphPromise;
     }, [parseChatResponseContent, currentQuestion, question, chatSessionId, extractPayloadCypherQueries, fetchGraphFromCypher, fetchLiteratureMarkdown, appendLiteratureBlock]);
 
+    const callChatStreamEndpoint = React.useCallback(async ({ path, body, requestLabel }) => {
+        const response = await fetch(`${PLANNER_AGENT_BASE_URL}${path}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body || {}),
+        });
+
+        if (!response.ok) {
+            let detail = `${requestLabel || 'chat stream request'} failed: ${response.status}`;
+            try {
+                const errorPayload = await response.json();
+                detail = errorPayload?.detail || detail;
+            } catch (err) {
+                // noop
+            }
+            const streamError = new Error(detail);
+            streamError.status = response.status;
+            throw streamError;
+        }
+
+        if (!response.body) {
+            throw new Error(`${requestLabel || 'chat stream request'} failed: empty response body`);
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let resultPayload = null;
+
+        const consumeLine = (line) => {
+            const trimmed = String(line || '').trim();
+            if (!trimmed) return;
+
+            let eventPayload = null;
+            try {
+                eventPayload = JSON.parse(trimmed);
+            } catch (err) {
+                return;
+            }
+
+            const eventType = String(eventPayload?.event || '').toLowerCase();
+            if (eventType === 'heartbeat') {
+                // Keep UI unchanged; emit keep-alive diagnostics only in console.
+                console.debug(`[Chat Stream] ${requestLabel || path} heartbeat`, eventPayload);
+                return;
+            }
+
+            if (eventType === 'queued') {
+                // Queue ETA (if present) is intentionally logged only, not rendered in UI.
+                console.info(`[Chat Stream] ${requestLabel || path} queued`, eventPayload);
+                return;
+            }
+
+            if (eventType === 'processing') {
+                console.debug(`[Chat Stream] ${requestLabel || path} processing`, eventPayload);
+                return;
+            }
+
+            if (eventType === 'error') {
+                const detail = eventPayload?.detail || eventPayload?.data?.detail || `${requestLabel || 'chat stream request'} failed.`;
+                const streamError = new Error(String(detail));
+                if (eventPayload?.status) {
+                    streamError.status = Number(eventPayload.status);
+                }
+                throw streamError;
+            }
+
+            if (eventType === 'result') {
+                resultPayload = eventPayload?.data || null;
+            }
+        };
+
+        for (;;) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+
+            let newlineIndex = buffer.indexOf('\n');
+            while (newlineIndex >= 0) {
+                const line = buffer.slice(0, newlineIndex);
+                buffer = buffer.slice(newlineIndex + 1);
+                consumeLine(line);
+                newlineIndex = buffer.indexOf('\n');
+            }
+        }
+
+        const finalChunk = decoder.decode();
+        if (finalChunk) {
+            buffer += finalChunk;
+        }
+        if (buffer.trim()) {
+            consumeLine(buffer);
+        }
+
+        if (!resultPayload) {
+            throw new Error(`${requestLabel || 'chat stream request'} ended without result event`);
+        }
+
+        return resultPayload;
+    }, []);
+
     const confirmChatPlanStream = React.useCallback(async ({ chatSessionId: targetChatSessionId, planSessionId, revisionPrompt = null, onHeartbeat }) => {
         const response = await fetch(`${PLANNER_AGENT_BASE_URL}/chat/plan/confirm/stream`, {
             method: 'POST',
@@ -2272,18 +2373,14 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         setFollowUpBlocks((prev) => [...prev, { id: blockId, question: cleaned, type: 'loading', error: '' }]);
 
         try {
-            const response = await flaskBackendAxiosInstanceNew.post(
-                `${PLANNER_AGENT_BASE_URL}/chat/message`,
-                {
+            const payload = await callChatStreamEndpoint({
+                path: '/chat/message/stream',
+                body: {
                     session_id: chatSessionId,
                     question: cleaned,
                 },
-                {
-                    headers: { 'Content-Type': 'application/json' },
-                }
-            );
-
-            const payload = response?.data || {};
+                requestLabel: 'chat/message/stream',
+            });
             if (isStaleFollowUp()) return;
 
             const parsed = parseChatResponseContent(payload);
@@ -2409,7 +2506,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 setFollowUpSubmitting(false);
             }
         }
-    }, [chatSessionId, parseChatResponseContent, conversationRound, question, currentQuestion, parsePlanMarkdownForUI, extractPayloadCypherQueries, queryGraphFromCypher, fetchReferenceArticles, fetchLiteratureMarkdown, appendLiteratureBlock, createFollowUpBlockId]);
+    }, [chatSessionId, parseChatResponseContent, conversationRound, question, currentQuestion, parsePlanMarkdownForUI, extractPayloadCypherQueries, queryGraphFromCypher, fetchReferenceArticles, fetchLiteratureMarkdown, appendLiteratureBlock, createFollowUpBlockId, callChatStreamEndpoint]);
 
     useEffect(() => {
         followUpSendHandlerRef.current = handleSendFollowUp;
@@ -2954,20 +3051,16 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                     return;
                 }
 
-                const startResponse = await flaskBackendAxiosInstanceNew.post(
-                    `${PLANNER_AGENT_BASE_URL}/chat/start`,
-                    {
+                const payload = await callChatStreamEndpoint({
+                    path: '/chat/start/stream',
+                    body: {
                         question,
                         rigor: true,
                         use_literature: true,
                     },
-                    {
-                        headers: { 'Content-Type': 'application/json' },
-                    }
-                );
+                    requestLabel: 'chat/start/stream',
+                });
                 if (isStale()) return;
-
-                const payload = startResponse?.data || {};
                 const sessionId = payload?.session_id || '';
                 if (!sessionId) {
                     throw new Error('Missing session_id from /chat/start');
@@ -3064,6 +3157,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         fetchGraphFromCypher,
         navigate,
         resolveAgentErrorType,
+        callChatStreamEndpoint,
     ]);
 
     const handleCancelAndGoHome = React.useCallback(() => {
