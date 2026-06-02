@@ -1,6 +1,6 @@
-# Statistics
+### Statistics
 
-## Nodes Statistics
+#### Nodes Statistics
 
 | Entity Type | Number of Nodes | Link to Data Sources | Link to Pipeline |
 |---|---:|---|---|
@@ -16,7 +16,7 @@
 | data modality | 17 | [PanKbase Team](https://pankgraph.org) |  |
 | disease | 3 | [MONDO](https://mondo.monarchinitiative.org/) |  |
 
-## Edges Statistics
+#### Edges Statistics
 
 
 | Edge Type | Start Node | End Node | Number of Edges | Link to Data Sources | Link to Pipeline |

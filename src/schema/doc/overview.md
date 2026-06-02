@@ -1,10 +1,10 @@
-## What is PanKgraph?
+### What is PanKgraph?
 
 **PanKgraph** is a Type 1 diabetes (T1D)-focused knowledge graph that connects biological datasets, expert-curated knowledge, and literature-derived evidence within a unified, searchable framework. Powered by PanKgraph, **PanKgraph.org** provides a question-driven data portal for exploring pancreas and T1D research knowledge. It integrates multi-omic data, genetic associations, pathways, ontology terms, regulatory signals, and publication evidence, enabling researchers to move from biological questions to connected, evidence-backed answers.
 
 The portal is powered by **PanKagent**, an LLM-based human-language search system. Instead of requiring users to write Neo4j queries, PanKagent translates natural research questions into graph-aware searches, retrieves relevant entities and relationships, and returns evidence-backed answers with provenance from the knowledge graph. This makes PanKgraph both an exploratory research environment and a reliable AI layer for reproducible, collaborative discovery across the pancreas and T1D research community.
 
-## Key Points
+#### Key Points
 
 - **Question-driven data portal**:
   - Start with a research question and use PanKgraph to discover genes, variants, pathways, cell types, ontology terms, datasets, and literature evidence connected to that question.
@@ -13,7 +13,7 @@ The portal is powered by **PanKagent**, an LLM-based human-language search syste
 - **Reliable AI supported by evidence and provenance in the knowledge graph**:
   - Responses are grounded in graph relationships, source datasets, curated annotations, and literature evidence so users can trace where results came from and evaluate confidence.
 
-## Key Features
+#### Key Features
 
 - **Unified Knowledge Representation**: 
   - Genes, variants, pathways, ontology terms, epigenomic signals, literature evidence, and other biological entities are organized into a structured, queryable graph.
@@ -28,7 +28,7 @@ The portal is powered by **PanKagent**, an LLM-based human-language search syste
 - **Research Support**:
   - Enables hypothesis generation, target prioritization, evidence review, and biological insight discovery for T1D research.
 
-## System Components
+#### System Components
 
 - **PanKagent**:
   - An LLM-powered agent that supports human-language search, graph query assistance, and evidence-grounded answer generation.
@@ -37,7 +37,7 @@ The portal is powered by **PanKagent**, an LLM-based human-language search syste
 - **Programmatic Access**:
   - APIs and SDKs for advanced queries and data analysis.
 
-## Applications
+#### Applications
 
 - Prioritize candidate genes and variants in T1D.
 - Ask human-language questions across connected T1D knowledge and datasets.
@@ -46,14 +46,14 @@ The portal is powered by **PanKagent**, an LLM-based human-language search syste
 - Trace claims to supporting datasets, publications, and provenance in the graph.
 - Enable machine learning applications in biomedical research.
 
-## Future Directions
+#### Future Directions
 
 - Continued improvement of PanKagent for evidence-grounded question answering.
 - Expansion to broader autoimmune disease knowledge graphs.
 - Incorporation of causal inference modeling.
 - Community-driven data updates and validation.
 
-## Acknowledgements
+#### Acknowledgements
 
 PanKgraph is developed as part of the collaborative effort under the Human Islet Research Network (HIRN) and supported by the broader T1D research community.
 

@@ -1,10 +1,10 @@
-# PlannerAgent API — Frontend Integration Guide
+### PlannerAgent API — Frontend Integration Guide
 
 Complete reference for all HTTP endpoints exposed by `server.py`. Aimed at frontend developers integrating the biomedical knowledge-graph Q&A assistant.
 
 ---
 
-## Table of Contents
+#### Table of Contents
 
 1. [Quick Start](#1-quick-start)
    - [All endpoints at a glance](#11-all-endpoints-at-a-glance)
@@ -33,7 +33,7 @@ Complete reference for all HTTP endpoints exposed by `server.py`. Aimed at front
 
 ---
 
-## 1. Quick Start
+#### 1. Quick Start
 
 **Production Base URL:** `https://jieliulab3.dcmb.med.umich.edu/pankgraph-agent`
 
@@ -54,7 +54,7 @@ Both use the same underlying pipelines. Chat endpoints additionally maintain con
 
 **Durability:** all session state is mirrored to SQLite (`logs/sessions.sqlite`) on every mutation. Sessions survive server restarts — a user whose chat was mid-flight during a restart will find their `session_id` still valid and their history intact. See [§8](#8-session-lifecycle-ttls) for TTL and retention details.
 
-### 1.1 All endpoints at a glance
+##### 1.1 All endpoints at a glance
 
 | Method | Path | Purpose | Request body | Response highlights |
 |---|---|---|---|---|
@@ -81,12 +81,12 @@ Quick routing logic:
 
 ---
 
-## 2. Core Concepts
+#### 2. Core Concepts
 
-### 2.1 Rigor mode
+##### 2.1 Rigor mode
 The server defaults to **rigor mode** (`rigor=True`). In rigor mode the system uses evidence-only format/reasoning agents that refuse to speculate or hallucinate. Unless you have a specific reason, keep `rigor: true`.
 
-### 2.2 Literature search (GLKB + HIRN)
+##### 2.2 Literature search (GLKB + HIRN)
 Each plan round can optionally include a parallel literature search. **Two sources run in parallel:**
 - **GLKB** (`glkb.dcmb.med.umich.edu`) — a biomedical knowledge-graph–powered LLM agent that produces a 2–3-paragraph narrative synthesis with structured PubMed references. This is the primary source. Takes ~25–35 s.
 - **HIRN** — local abstract/full-text index. Supplements GLKB if GLKB returns fewer than 3 references. Takes ~1 s.
@@ -107,25 +107,25 @@ Each plan round can optionally include a parallel literature search. **Two sourc
 
 Controlled by `use_literature` (default `true`). Set to `false` for faster KG-only answers (thread still runs in background but its result is discarded at merge time).
 
-### 2.3 Chat session vs plan session
+##### 2.3 Chat session vs plan session
 - A **ChatSession** persists the full dialogue history and the most recently confirmed query state. Long-lived, 1h idle TTL.
 - A **PlanSession** represents a single plan awaiting user review. Short-lived, 30-min TTL. Internally reused by the chat flow when the router decides a new query needs explicit review.
 
-### 2.4 The smart router
+##### 2.4 The smart router
 When you call `POST /chat/message`, a Haiku classifier decides one of two routes:
 - **`follow_up`** — the question extends the previous turn. Reuses the session's stored retrieved data. Fast (~5–25 s). No plan review.
 - **`new_query`** — the question is genuinely new. Runs the full planner, creates a pending `PlanSession`, returns the plan for the user to review. You must then call `/chat/plan/confirm` to complete the round.
 
 See [§8](#8-smart-router-deep-dive) for details.
 
-### 2.5 History compression
+##### 2.5 History compression
 The full dialogue is sent to the format agent for `follow_up` rounds. If the history exceeds ~25 KB, older turns are summarised via Haiku before being passed. The API signals this via `history_compressed: true` in the response — show a visual indicator to the user.
 
 ---
 
-## 3. System Endpoints
+#### 3. System Endpoints
 
-### 3.1 `GET /` — API info
+##### 3.1 `GET /` — API info
 
 Returns a JSON descriptor of the service and available endpoints.
 
@@ -141,7 +141,7 @@ Returns a JSON descriptor of the service and available endpoints.
 }
 ```
 
-### 3.2 `GET /health` — health check
+##### 3.2 `GET /health` — health check
 
 For load-balancer probes and frontend readiness checks.
 
@@ -156,11 +156,11 @@ For load-balancer probes and frontend readiness checks.
 
 ---
 
-## 4. Chat Endpoints (Multi-Turn Dialogue)
+#### 4. Chat Endpoints (Multi-Turn Dialogue)
 
 This is the **primary** integration surface for a conversational frontend.
 
-### 4.1 `POST /chat/start` — start a chat session
+##### 4.1 `POST /chat/start` — start a chat session
 
 Runs the plan pipeline on the first question and, **by default, returns the plan for user review** (`route: "new_query_pending"`) without running the format/reasoning agent. The client must then call `POST /chat/plan/confirm` with the returned `pending_plan_session_id` to produce the final answer. This is the same two-stage flow as `/chat/message` when it classifies a question as a new query.
 
@@ -231,7 +231,7 @@ Pass `auto_confirm: true` to skip review and run everything in one shot (returns
 
 ---
 
-### 4.2 `POST /chat/message` — send a follow-up (smart-routed)
+##### 4.2 `POST /chat/message` — send a follow-up (smart-routed)
 
 The **workhorse** endpoint. Classifies the question and takes one of three response shapes depending on the route.
 
@@ -245,7 +245,7 @@ The **workhorse** endpoint. Classifies the question and takes one of three respo
 
 The response shape depends on `route`. The frontend must branch on the `route` field.
 
-#### Route A: `follow_up` — answered immediately
+##### Route A: `follow_up` — answered immediately
 
 The system reused the stored data from the prior round. Answer is ready.
 
@@ -266,7 +266,7 @@ The system reused the stored data from the prior round. Answer is ready.
 
 Render `answer_markdown` and append it to the chat. If `history_compressed` is `true`, display a subtle notice (e.g. "Older messages were summarised to fit context").
 
-#### Route B: `new_query_pending` — plan awaiting review
+##### Route B: `new_query_pending` — plan awaiting review
 
 The system planned a new query but **did not execute the format step**. The user must review the plan before confirming.
 
@@ -303,7 +303,7 @@ Store the returned `pending_plan_session_id` — it's required for `/chat/plan/c
 
 ---
 
-### 4.3 `POST /chat/plan/confirm` — confirm a pending plan
+##### 4.3 `POST /chat/plan/confirm` — confirm a pending plan
 
 Called after `POST /chat/message` returned `route: new_query_pending`. Optionally revises the plan, then runs the format/reasoning agent on the already-retrieved data and appends the Q+A to the chat history.
 
@@ -349,7 +349,7 @@ After this call:
 
 ---
 
-### 4.4 `POST /chat/revise` — revise the last confirmed plan
+##### 4.4 `POST /chat/revise` — revise the last confirmed plan
 
 Use when the user wants to adjust the **most recently confirmed** answer (e.g., "also add QTL SNPs", "drop the GO terms section"). Revises the plan and auto-confirms, **replacing** the last assistant turn in history (not a new round).
 
@@ -378,7 +378,7 @@ Use when the user wants to adjust the **most recently confirmed** answer (e.g., 
 
 ---
 
-### 4.5 `GET /chat/history` — fetch conversation history
+##### 4.5 `GET /chat/history` — fetch conversation history
 
 **Query string:**
 ```
@@ -408,7 +408,7 @@ GET /chat/history?session_id=4701b4ba16d4
 
 ---
 
-### 4.6 `DELETE /chat/end` — end a chat session
+##### 4.6 `DELETE /chat/end` — end a chat session
 
 **Query string:**
 ```
@@ -427,11 +427,11 @@ Call when the user closes the chat UI to free server memory immediately. Session
 
 ---
 
-## 5. Plan Endpoints (Standalone Manual Review)
+#### 5. Plan Endpoints (Standalone Manual Review)
 
 Use these only if you want an explicit plan-review UX **without** chat history. The chat endpoints already implement plan review internally for `new_query` rounds. Most frontends only need `/chat/*`.
 
-### 5.1 `POST /plan/start`
+##### 5.1 `POST /plan/start`
 
 **Request (`PlanStartRequest`):**
 ```json
@@ -453,7 +453,7 @@ Use these only if you want an explicit plan-review UX **without** chat history. 
 }
 ```
 
-### 5.2 `POST /plan/revise`
+##### 5.2 `POST /plan/revise`
 
 **Request (`PlanReviseRequest`):**
 ```json
@@ -467,7 +467,7 @@ Use these only if you want an explicit plan-review UX **without** chat history. 
 
 Can be called multiple times on the same session.
 
-### 5.3 `POST /plan/confirm`
+##### 5.3 `POST /plan/confirm`
 
 **Request (`PlanConfirmRequest`):**
 ```json
@@ -487,13 +487,13 @@ After confirmation the session is deleted.
 
 ---
 
-## 6. Functional Data Endpoint
+#### 6. Functional Data Endpoint
 
 A lightweight utility endpoint that resolves a **natural language question about islet functional assay data** to the exact REST call that would be made against `https://functional.pankgraph.org`. It returns only the call parameters — not the data itself — so the frontend can display or audit what the system asked the upstream API.
 
 This endpoint is stateless and session-free. It does not require a `session_id`.
 
-### 6.1 `POST /functional-data`
+##### 6.1 `POST /functional-data`
 
 **When to use:** when the user asks a question specifically about islet functional assay measurements (insulin/glucagon secretion traces, per-donor cohort data, trait summaries). This endpoint is distinct from the chat pipeline — it is a direct parameter-resolution tool, not a full Q&A round.
 
@@ -585,11 +585,11 @@ interface FunctionalDataParamsResponse {
 
 ---
 
-## 7. Data Models Reference
+#### 7. Data Models Reference
 
 Pydantic models defined in `server.py`. All JSON keys are `snake_case`.
 
-### `ChatResponse` (unified shape for all chat endpoints)
+##### `ChatResponse` (unified shape for all chat endpoints)
 
 | Field | Type | Notes |
 |---|---|---|
@@ -604,7 +604,7 @@ Pydantic models defined in `server.py`. All JSON keys are `snake_case`.
 | `history_compressed` | bool | `true` when older turns were summarised via Haiku. Show notice to user. |
 | `processing_time_ms` | float | Server-side processing time. |
 
-### `ChatSession` lifecycle
+##### `ChatSession` lifecycle
 
 ```
 created_at ─┬── last_active updated on every /chat/* call
@@ -620,7 +620,7 @@ created_at ─┬── last_active updated on every /chat/* call
             └── history: [{"role", "content"}, ...]  ← appended on follow_up, new_query confirm
 ```
 
-### `plan_json` shape
+##### `plan_json` shape
 
 ```json
 {
@@ -642,9 +642,9 @@ created_at ─┬── last_active updated on every /chat/* call
 
 ---
 
-## 8. Smart Router — Deep Dive
+#### 8. Smart Router — Deep Dive
 
-### How the classifier decides
+##### How the classifier decides
 
 On every `/chat/message` call a Claude Haiku classifier (0.5 s, cheap) reads the last 3 rounds + the new question and returns `follow_up` or `new_query`.
 
@@ -660,7 +660,7 @@ On every `/chat/message` call a Claude Haiku classifier (0.5 s, cheap) reads the
 
 On any classifier API failure, falls back to `new_query` (safe: user just sees a plan review).
 
-### Why three response routes, not two
+##### Why three response routes, not two
 
 The classifier returns 2 labels but the response has 3 possible `route` values:
 - `"follow_up"` — answered immediately, no plan review
@@ -669,14 +669,14 @@ The classifier returns 2 labels but the response has 3 possible `route` values:
 
 Treat `new_query_pending` as a **two-stage** `new_query`.
 
-### Edge cases
+##### Edge cases
 
 - **First-turn `follow_up` classification**: if `/chat/message` is called on a brand-new session with no stored data yet, the router automatically promotes to `new_query`. This shouldn't happen since `/chat/start` always populates stored state, but the server handles it defensively.
 - **`follow_up` when stored data is stale**: the router has no way to know if the user's question actually needs fresh data. If the follow-up answer says *"the retrieved data does not contain ..."*, encourage the user to ask again as a new question (which the classifier will then route as `new_query`).
 
 ---
 
-## 9. Session Lifecycle & TTLs
+#### 9. Session Lifecycle & TTLs
 
 | Session | TTL | Measured from | Cleanup trigger |
 |---|---|---|---|
@@ -690,7 +690,7 @@ Treat `new_query_pending` as a **two-stage** `new_query`.
 
 **History size cap:** the server auto-trims history at 150 KB total to keep future calls under token budgets. The first Q+A pair is always preserved; oldest pairs after that are dropped.
 
-### 8.1 Durability (SQLite persistence)
+##### 8.1 Durability (SQLite persistence)
 
 Every mutation to a `ChatSession` or `PlanSession` is synchronously mirrored to SQLite at `logs/sessions.sqlite` before the HTTP response returns. This has three consequences a frontend needs to know:
 
@@ -704,7 +704,7 @@ Nothing in this section changes the HTTP contract — it's an internal durabilit
 
 ---
 
-## 10. Parsing the Final Answer
+#### 10. Parsing the Final Answer
 
 The `answer` field contains the raw pipeline JSON (stringified). 99% of frontends should use `answer_markdown` directly. Parse `answer` only if you need structured sub-fields.
 
@@ -752,7 +752,7 @@ const suggestedQuestions = parsed.text.follow_up_questions;
 
 ---
 
-## 11. Error Handling
+#### 11. Error Handling
 
 All errors return JSON of the form:
 ```json
@@ -774,9 +774,9 @@ Unhandled server exceptions are caught by `global_exception_handler` and returne
 
 ---
 
-## 12. Full Flow Examples
+#### 12. Full Flow Examples
 
-### Example A — Default chat (plan review on first turn, then a follow-up)
+##### Example A — Default chat (plan review on first turn, then a follow-up)
 
 ```js
 // 1. Start session — returns the plan for review (auto_confirm defaults to false)
@@ -818,7 +818,7 @@ if (msg1.history_compressed) showBanner("Older messages were summarised to fit c
 await fetch(`https://jieliulab3.dcmb.med.umich.edu/pankgraph-agent/chat/end?session_id=${sessionId}`, { method: "DELETE" });
 ```
 
-### Example A' — One-shot start (opt-in auto-confirm, skips plan review on first turn)
+##### Example A' — One-shot start (opt-in auto-confirm, skips plan review on first turn)
 
 ```js
 const start = await fetch("https://jieliulab3.dcmb.med.umich.edu/pankgraph-agent/chat/start", {
@@ -831,7 +831,7 @@ const sessionId = start.session_id;
 renderAssistant(start.answer_markdown);
 ```
 
-### Example B — Chat with plan review on a new_query
+##### Example B — Chat with plan review on a new_query
 
 ```js
 const sessionId = /* from /chat/start */;
@@ -877,7 +877,7 @@ if (msg.route === "new_query_pending") {
 }
 ```
 
-### Example C — Standalone plan flow (no chat history)
+##### Example C — Standalone plan flow (no chat history)
 
 ```js
 // 1. Start plan
@@ -907,7 +907,7 @@ renderAnswer(answer.answer_markdown);
 // session is auto-deleted after confirm
 ```
 
-### Example E — Resolving functional data API parameters
+##### Example E — Resolving functional data API parameters
 
 Use this when you need to show the user exactly which API call will be made — for an audit panel, a "what data will I fetch?" preview, or a custom data-fetch layer.
 
@@ -949,7 +949,7 @@ const res = await fetch("https://jieliulab3.dcmb.med.umich.edu/pankgraph-agent/f
 
 ---
 
-### Example D — Dealing with a revision on the last confirmed answer
+##### Example D — Dealing with a revision on the last confirmed answer
 
 ```js
 // After a round has been confirmed, user says "actually focus on immune terms only"
@@ -968,9 +968,9 @@ replaceLastAssistant(revised.answer_markdown);
 
 ---
 
-## 13. Frontend UX Recommendations
+#### 13. Frontend UX Recommendations
 
-### 12.1 Three distinct UI states for `/chat/message`
+##### 12.1 Three distinct UI states for `/chat/message`
 
 Render differently based on `route`:
 
@@ -980,7 +980,7 @@ Render differently based on `route`:
 | `new_query_pending` | **Plan review card** — NOT a chat bubble. Has Confirm/Revise/Cancel buttons |
 | `new_query` | (seen only from `/chat/plan/confirm` / `/chat/revise`) Normal assistant chat bubble |
 
-### 12.2 Loading states
+##### 12.2 Loading states
 
 - `follow_up` — show typing indicator, expect ~5–25 s
 - `new_query_pending` — show "planning..." indicator, expect ~15–30 s (plan only; literature thread already running in background)
@@ -988,13 +988,13 @@ Render differently based on `route`:
 - `/chat/start` (default, `auto_confirm: false`) — show "planning your query..." indicator, expect ~15–30 s (plan only)
 - `/chat/start` (`auto_confirm: true`) — show "analyzing your question..." indicator, expect ~40–90 s (plan + format + literature wait)
 
-### 12.3 `history_compressed` notice
+##### 12.3 `history_compressed` notice
 
 When `history_compressed: true`:
 - Show a non-dismissive banner: *"Older messages in this conversation were summarised to stay within context limits. Recent replies may reference the summary."*
 - Optionally provide a link to `/chat/history` so the user can see the full uncompressed history (the server keeps the full history even after summarising it for the agent).
 
-### 12.4 Plan-review card layout
+##### 12.4 Plan-review card layout
 
 For `new_query_pending`, render something like:
 
@@ -1018,11 +1018,11 @@ For `new_query_pending`, render something like:
 └────────────────────────────────────────────────────┘
 ```
 
-### 12.5 Follow-up suggestions
+##### 12.5 Follow-up suggestions
 
 Parse `answer.text.follow_up_questions` and render as 3 clickable chips. Clicking one calls `/chat/message` with that as the question.
 
-### 12.6 Cypher/plan inspection drawer
+##### 12.6 Cypher/plan inspection drawer
 
 Let power users inspect:
 - `plan_json` — the structured plan
@@ -1031,19 +1031,19 @@ Let power users inspect:
 
 Keep this hidden by default behind a "Show details" toggle.
 
-### 12.7 Session management
+##### 12.7 Session management
 
 - Generate a fresh `session_id` via `/chat/start` on every new conversation
 - Persist `session_id` in `sessionStorage` (not `localStorage`) — chats are ephemeral
 - On `404`/`410`, clear the stored ID and start a new session gracefully
 
-### 12.8 Concurrency
+##### 12.8 Concurrency
 
 The server serialises all pipeline calls under a single internal request lock. Do **not** send parallel `/chat/message` calls for the same or different sessions — they'll queue server-side and may cause user-visible latency spikes. One request at a time per backend instance.
 
 ---
 
-## Quick Endpoint Summary
+#### Quick Endpoint Summary
 
 | Method | Path | Body | Primary use |
 |---|---|---|---|

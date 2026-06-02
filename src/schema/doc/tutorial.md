@@ -1,10 +1,10 @@
-# PanKgraph Tutorial
+### PanKgraph Tutorial
 
 Welcome to **PanKgraph**, a question-driven data portal for exploring Type 1 Diabetes (T1D) and pancreas biology with human-language search. PanKgraph uses the **PanKagent** LLM agent to interpret your question, retrieve relevant knowledge graph evidence, and present an answer with provenance from PanKbase and external resources.
 
 This tutorial walks through the latest workflow: ask a question, review the agent's query plan, confirm the analysis, and explore the final evidence-backed result. It also introduces the Tools landing page for experienced users who want faster access to configurable data queries.
 
-## Step 1: Ask a Human-Language Question
+#### Step 1: Ask a Human-Language Question
 
 Start on the PanKgraph landing page. Type a question about T1D or pancreas biology directly into the chat box, then press **Enter** or click **Search**.
 
@@ -18,13 +18,13 @@ You can also start from one of the example question buttons, such as **Explore Q
 
 ![PanKgraph landing page](https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/tut/landing%20page.png)
 
-## Step 2: Wait for the Agent to Build a Plan
+#### Step 2: Wait for the Agent to Build a Plan
 
 After you submit the question, PanKagent interprets the request and searches the knowledge graph for the entities, relationships, and source evidence needed to answer it.
 
 This first step usually takes about **10-20 seconds**. When it finishes, PanKgraph opens the **Confirm Query & Execution Steps** page.
 
-## Step 3: Review the Plan and Explore the Graph
+#### Step 3: Review the Plan and Explore the Graph
 
 On the plan confirmation page, you can review how PanKagent understood your question and what steps it proposes to run. The page shows:
 
@@ -39,13 +39,13 @@ If the plan needs adjustment, use the chat box in the **Refine The Plan** panel 
 
 ![Plan confirmation page](https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/tut/plan%20confirm%20page.png)
 
-## Step 4: Wait for the Final Analysis
+#### Step 4: Wait for the Final Analysis
 
 After you confirm the plan, PanKagent runs the selected graph queries and analyzes the raw results from different resources.
 
 This step may take about **30 seconds** while the model filters, organizes, and summarizes the evidence. PanKgraph then opens the final result page.
 
-## Step 5: Explore the Final Result
+#### Step 5: Explore the Final Result
 
 The result page presents the final answer to your question, the supporting tables, the interactive graph, and provenance links.
 
@@ -64,7 +64,7 @@ Use the references and links to trace the answer back to PanKbase and external s
 
 ![Result page](https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/tut/resut%20page.png)
 
-## Step 6: Use Tools for Direct Queries
+#### Step 6: Use Tools for Direct Queries
 
 PanKgraph also includes a **Tools** landing page for experienced users who want direct, configurable access to key resources without going through the full human-language question workflow.
 
@@ -78,7 +78,7 @@ Available tools include:
 
 ![Tool landing page](https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/tut/tool%20landing%20page.png)
 
-## Step 7: Explore Pancreatic Islet Function Data
+#### Step 7: Explore Pancreatic Islet Function Data
 
 The **Pancreatic Islet Functional Data Tool** gives quick access to HIPP pancreatic islet function data. You can filter donors and biological contexts, view functional feature plots, explore trait distributions, and review tool-level context about the data source.
 
@@ -86,7 +86,7 @@ This tool also includes an agent-assisted interpretation action. Click **Interpr
 
 ![Pancreatic Islet Function Data Tool](https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/tut/Pancreatic%20Islet%20Function%20Data%20Tool.png)
 
-## Tips for Best Results
+#### Tips for Best Results
 
 - Ask specific questions when possible, including gene symbols, variant IDs, evidence types, or biological contexts.
 - Use the plan confirmation page to check whether PanKagent understood your intent before running the final analysis.

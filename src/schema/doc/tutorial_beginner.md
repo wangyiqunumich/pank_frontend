@@ -49,7 +49,7 @@ After you’ve selected your **Source Term → Relationship → Target Term** an
 - **Scope & Tissues**: You’ll see quick details about which tissues (e.g., pancreas, islet) and QTL types (e.g., gene expression QTL, exon QTL, splicing QTL) are relevant.  
 - **Why This Matters**: This is especially helpful if you’re investigating whether a SNP affects gene expression (eQTL) or alternative splicing (splicing QTL).  
 
-### **2.3 Results Display Section**
+##### **2.3 Results Display Section**
 
 The page usually shows one or more collapsible panels (like tabs). Each panel represents a different category of QTL data:
 

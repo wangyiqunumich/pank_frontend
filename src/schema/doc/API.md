@@ -1,6 +1,6 @@
-# PanKgraph Query API
+### PanKgraph Query API
 
-## Table of Contents
+#### Table of Contents
 1. [Overview](#overview)
 2. [Usage](#usage)
 3. [Writing a Valid Query](#writing-a-valid-query)
@@ -9,16 +9,16 @@
 
 ---
 
-## Overview
+#### Overview
 The PanKgraph Query API provides a portal for users to submit queries and download query results. 
 
 It is built on a robust and secure AWS infrastructure, leveraging API Gateway, Lambda, and Neptune for secure and efficient operations.
 
 ---
 
-## Usage
+#### Usage
 
-### command line
+##### command line
 Use the following commands in your command line tool (e.g., Terminal for macOS or CMD for Windows) to submit queries. Replace `YOUR_QUERY` with your openCypher query.
 
 ```bash
@@ -38,9 +38,9 @@ curl -X POST \
 
 ---
 
-## Writing a Valid Query
+#### Writing a Valid Query
 
-### Cypher For PanKgraph schema
+##### Cypher For PanKgraph schema
 Because PanKgraph is continuously updated, users are encouraged to explore the current node and relationship schema directly from the graph using Cypher. To list all node types and their counts in the latest database schema, run:
 
 ```bash
@@ -57,10 +57,10 @@ curl -X POST \
   -d '{"query": "MATCH ()-[r]->() RETURN type(r) AS RelationshipType, COUNT(r) AS Count ORDER BY Count DESC"}'
 ```
 
-### Cypher Query Grammar
+##### Cypher Query Grammar
 The PanKgraph Query API accepts queries in the Cypher query language, a declarative graph query language designed for expressive and efficient querying in property graphs.
 
-#### Syntax Overview
+##### Syntax Overview
 A valid Cypher query includes:
 - Keywords: including `MATCH`, `RETURN`, `WHERE`, `AS`, `ORDER BY`, `LIMIT`, etc.
 - Representation of nodes (`(movie:Movie)`), edges (`[:ACTED_IN]`), and properties (`movie.year`).
@@ -78,7 +78,7 @@ Resources:
 - To learn basic openCypher query syntax, refer to [this guide](https://neo4j.com/docs/cypher-manual/current/queries/basic/?utm_source=GSearch&utm_medium=PaidSearch&utm_campaign=Evergreen&utm_content=AMS-Search-SEMCE-DSA-None-SEM-SEM-NonABM&utm_term=&utm_adgroup=DSA&gad_source=1&gclid=CjwKCAiArva5BhBiEiwA-oTnXXVaj70Ck95TVwLXHnxpcTNpX0Vl_4xFUjGR7sQFMkm8mC3dFyfmWRoCNh0QAvD_BwE#find-nodes).
 - To learn openCypher grammar, please refer to [this page](https://opencypher.org/resources/).
 
-## Attention
+#### Attention
 
 Due to how quotation marks are interpreted in `JSON` strings,
 when submitting queries via the command line,
@@ -96,7 +96,7 @@ should be written into
 MATCH (n:gene {name: \"CFTR\"}) RETURN n
 ```
 
-## Example queries
+#### Example queries
 
 Below are some example queries to help you get started.
 
@@ -139,7 +139,7 @@ To get the list of supported pathway names and corresponding ontology IDs, refer
 
 
 
-### Graph Metadata
+##### Graph Metadata
 To view nodes (entities) types, edges (relationships) types, and properties (attributes) in PanKgraph,
 you can refer to [PanKgraph documentation (not finished)]().
 
@@ -164,9 +164,9 @@ MATCH ()-[r:effector_gene]-() RETURN properties(r) LIMIT 1
 
 ---
 
-## Interpreting query results
+#### Interpreting query results
 
-### Output
+##### Output
 
 The PanKgraph API returns results as a JSON string.
 
@@ -204,7 +204,7 @@ Example output:
 Query results can be processed using programming libraries,
 e.g., [`json` package](https://docs.python.org/3/library/json.html) of Python.
 
-### Error messages
+##### Error messages
 If the query fails, the response starts with `"Error"`.
 - Error 400: Query failed. Check your Cypher query syntax.
 - Error 404: Access denied. Contact the PanKgraph team (`fan.feng@vumc.org`) for support.
