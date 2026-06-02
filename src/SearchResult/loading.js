@@ -541,9 +541,17 @@ export default function SearchResultLoading({ open, handleClose, streamProgress,
         </Box>
         <LinearProgress variant="determinate" sx={{
             width: '100%',
+            height: '8px',
+            borderRadius: '999px',
+            overflow: 'hidden',
+            position: 'relative',
             backgroundColor: '#F2FAFB',
+            WebkitMaskImage: '-webkit-radial-gradient(white, black)',
             ".MuiLinearProgress-bar": {
-                backgroundColor: '#078AA3'
+                backgroundColor: '#078AA3',
+                borderRadius: 'inherit',
+                transformOrigin: 'left center',
+                willChange: 'transform',
             }
         }} value={effectiveProgress} />
         <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
