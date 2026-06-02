@@ -1,4 +1,4 @@
-# Ontology Tree
+### Ontology Tree
 
 The ontology tree displays all the ontology terms included in PanKgraph, organized hierarchically for easy navigation and analysis. It encompasses anatomical structures, cell types, tissue sources, and immune cell populations, structured to facilitate exploration and analysis of functional relationships within the dataset.
 
