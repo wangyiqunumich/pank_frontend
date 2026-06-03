@@ -409,12 +409,12 @@ function EvidenceItem({ item, onSelect, isActive, isHovered = false, variant = '
     const isLink = Boolean(item?.href && !item?.isSkeleton);
     const clickable = Boolean((isLink || item?.onClick || onSelect) && !item?.isSkeleton);
     const Component = isLink ? "a" : clickable ? "button" : "div";
-    const highlightBackground = isActive
-        ? '#E1F2E9'
-        : (isHovered ? '#EEF8F2' : '#fff');
-    const highlightBorder = isActive
-        ? '1px solid #5EA986'
-        : (isHovered ? '1px solid #9FCDB4' : '1px solid #E7EBEF');
+    const highlightBackground = (isActive || isHovered)
+        ? '#F0F4F4'
+        : '#fff';
+    const highlightBorder = (isActive || isHovered)
+        ? '1px solid #2EA7A7'
+        : '1px solid #E7EBEF';
     const handleClick = (event) => {
         if (item?.isSkeleton) return;
         item?.onClick?.(item, event);
@@ -444,8 +444,8 @@ function EvidenceItem({ item, onSelect, isActive, isHovered = false, variant = '
                 transition: clickable ? "all 0.2s ease" : "none",
                 "&:hover": clickable
                     ? {
-                        background: isActive ? highlightBackground : '#F2FAF5',
-                        borderColor: isActive ? '#5EA986' : '#B7DCC8',
+                        background: '#F0F4F4',
+                        borderColor: '#2EA7A7',
                     }
                     : undefined,
             }}
@@ -1191,6 +1191,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
     const followUpInputValue = data?.followUp?.inputValue ?? "";
     const showFollowUpComposer = Boolean(data?.followUp?.showComposer);
     const isPank1Style = data?.styleVariant === 'pank1';
+    const isPank1FollowUpStyle = isPank1Style || data?.followUp?.styleVariant === 'pank1';
     const handleFollowUpSubmit = () => {
         if (isFollowUpDisabled) return;
         const submit = data?.followUp?.onSubmit;
@@ -1508,8 +1509,8 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                                         bgcolor: (isFollowUpDisabled || isFollowUpLoading) ? "#EDF2F7" : "#FFFFFF",
                                                         py: isPank1Style ? 1.25 : 2,
                                                         px: isPank1Style ? 1.5 : 3,
-                                                        borderRadius: isPank1Style ? "10px" : "16px",
-                                                        border: isPank1Style ? "1px solid #E7EBEF" : "none",
+                                                        borderRadius: isPank1FollowUpStyle ? "10px" : "16px",
+                                                        border: isPank1FollowUpStyle ? "1px solid #E7EBEF" : "none",
                                                         outline: "none",
                                                         appearance: "none",
                                                         cursor: clickable ? "pointer" : "not-allowed",
@@ -1518,8 +1519,8 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                                         textDecoration: "none",
                                                         "&:hover": clickable
                                                             ? {
-                                                                bgcolor: isPank1Style ? "#F0F4F4" : "#EFF6FF",
-                                                                borderColor: isPank1Style ? "#2EA7A7" : undefined,
+                                                                bgcolor: isPank1FollowUpStyle ? "#F0F4F4" : "#EFF6FF",
+                                                                borderColor: isPank1FollowUpStyle ? "#2EA7A7" : undefined,
                                                             }
                                                             : undefined,
                                                         opacity: (isFollowUpDisabled || isFollowUpLoading) ? 0.7 : 1,
