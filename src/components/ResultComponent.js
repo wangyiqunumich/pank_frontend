@@ -409,12 +409,12 @@ function EvidenceItem({ item, onSelect, isActive, isHovered = false, variant = '
     const isLink = Boolean(item?.href && !item?.isSkeleton);
     const clickable = Boolean((isLink || item?.onClick || onSelect) && !item?.isSkeleton);
     const Component = isLink ? "a" : clickable ? "button" : "div";
-    const highlightBackground = isActive
-        ? '#E1F2E9'
-        : (isHovered ? '#EEF8F2' : '#fff');
-    const highlightBorder = isActive
-        ? '1px solid #5EA986'
-        : (isHovered ? '1px solid #9FCDB4' : '1px solid #E7EBEF');
+    const highlightBackground = (isActive || isHovered)
+        ? '#F0F4F4'
+        : '#fff';
+    const highlightBorder = (isActive || isHovered)
+        ? '1px solid #2EA7A7'
+        : '1px solid #E7EBEF';
     const handleClick = (event) => {
         if (item?.isSkeleton) return;
         item?.onClick?.(item, event);
@@ -444,8 +444,8 @@ function EvidenceItem({ item, onSelect, isActive, isHovered = false, variant = '
                 transition: clickable ? "all 0.2s ease" : "none",
                 "&:hover": clickable
                     ? {
-                        background: isActive ? highlightBackground : '#F2FAF5',
-                        borderColor: isActive ? '#5EA986' : '#B7DCC8',
+                        background: '#F0F4F4',
+                        borderColor: '#2EA7A7',
                     }
                     : undefined,
             }}
