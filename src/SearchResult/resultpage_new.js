@@ -55,6 +55,7 @@ import QuestionAnswerPage, {
 } from '../components/ResultComponent';
 import { AlertMessage } from '../components/SupportingMaterial';
 import {
+  ensurePlannerAgentBaseUrl,
   PLANNER_AGENT_BASE_URL,
   STREAM_AGENT_BASE_URL,
 } from '../constants/apiEndpoints';
@@ -650,6 +651,13 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     }, [aiAnswer]);
 
     useEffect(() => {
+        if (!agentErrorType) {
+            return;
+        }
+        void ensurePlannerAgentBaseUrl({ force: true });
+    }, [agentErrorType]);
+
+    useEffect(() => {
         const shouldPreloadFunctionalImage = terminalMode && terminalPhase === 'confirm';
         if (!shouldPreloadFunctionalImage || !functionalDataRequestPath) {
             return;
@@ -875,6 +883,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
         setLiteratureLoading(true);
         try {
+            await ensurePlannerAgentBaseUrl();
             const response = await flaskBackendAxiosInstanceNew.post(
                 `${PLANNER_AGENT_BASE_URL}/chat/literature`,
                 { session_id: sid },
@@ -890,6 +899,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     }, []);
 
     const revisePlanSession = React.useCallback(async (sessionId, prompt) => {
+        await ensurePlannerAgentBaseUrl();
         const response = await flaskBackendAxiosInstanceNew.post(
             `${PLANNER_AGENT_BASE_URL}/plan/revise`,
             {
@@ -2038,6 +2048,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     }, [parseChatResponseContent, currentQuestion, question, chatSessionId, extractPayloadCypherQueries, fetchGraphFromCypher, fetchLiteratureMarkdown, appendLiteratureBlock]);
 
     const callChatStreamEndpoint = React.useCallback(async ({ path, body, requestLabel }) => {
+        await ensurePlannerAgentBaseUrl();
         const response = await fetch(`${PLANNER_AGENT_BASE_URL}${path}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -2139,6 +2150,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     }, []);
 
     const confirmChatPlanStream = React.useCallback(async ({ chatSessionId: targetChatSessionId, planSessionId, revisionPrompt = null, onHeartbeat }) => {
+        await ensurePlannerAgentBaseUrl();
         const response = await fetch(`${PLANNER_AGENT_BASE_URL}/chat/plan/confirm/stream`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -2683,6 +2695,8 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             const shouldPreserveGraphDuringPendingBootstrap = Boolean(
                 chatSessionIdFromUrl && pendingPlanSessionIdFromUrl
             );
+
+            await ensurePlannerAgentBaseUrl();
 
             setForceResultView(false);
             setChatRouteState('');
