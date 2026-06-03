@@ -98,7 +98,7 @@ function NavBar() {
                 <a className="menu-item">Data</a>
                 <div className="submenu">
                   {/*<a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/data-browser.html'}>Data Browser</a>*/}
-                  <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/donor-metadata.html'}>Donor Summary</a>
+                  <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/donors.html'}>Donor Summary</a>
                   <a className="submenu-item" href={process.env.REACT_APP_DATA_LIB_LINK}>Data Library</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/apis.html'}>APIs</a>
                 </div>
@@ -116,10 +116,13 @@ function NavBar() {
                   >
                     Integrated Cell Browser
                   </a>
+                  <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/atacseq.html'}>Genome Browser</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/diff-exp.html'}>Differential Gene Expression Browser</a>
+                  <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/gene.html'}>Gene Browser</a>
+                  <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/functional.html'}>Functional Browser</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/pca-explorer.html'}>PCA Explorer</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/analytical-library.html'}>Analytical Library</a>
-                  <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/metadata-data-standards.html'}>Metadata Standards</a>
+                  <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/metadata-data-standards.html'}>Data and Metadata Standards</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/tools-pipelines.html'}>Tools | Pipelines</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/publications.html'}>Publications</a>
                 </div>
@@ -132,6 +135,7 @@ function NavBar() {
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/policies.html'}>Policies</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/programs.html'}>Related Programs</a>
                   <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/collaborate.html'}>Collaborate</a>
+                  <a className="submenu-item" href={process.env.REACT_APP_PANKBASE_LINK + '/funding.html'}>Funding Opportunities</a>
                 </div>
               </div>
               <div className="menu-item-wrapper">
