@@ -1052,6 +1052,30 @@ export default function FunctionalDataPage() {
 
                 <Box sx={{ borderTop: '1px solid #E5EBF3', p: 2 }}>
                   <Typography sx={{ color: '#1E3F7C', fontWeight: '500 !important', fontSize: 12, mb: 1 }}>
+                    {rightPanel.relatedResourcesTitle}
+                  </Typography>
+                  <Typography sx={{ color: 'black', fontSize: 12, lineHeight: 1.4 }}>
+                    {String(rightPanel.relatedResourcesBodyPrefix || '').trim()} {' '}
+                    <Box
+                      component="a"
+                      href={rightPanel.relatedResourcesLinkUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      sx={{
+                        color: '#0F766E',
+                        fontWeight: 600,
+                        textDecoration: 'none',
+                        '&:hover': { textDecoration: 'none' },
+                      }}
+                    >
+                      {rightPanel.relatedResourcesLinkLabel}
+                    </Box>
+                    .
+                  </Typography>
+                </Box>
+
+                <Box sx={{ borderTop: '1px solid #E5EBF3', p: 2 }}>
+                  <Typography sx={{ color: '#1E3F7C', fontWeight: '500 !important', fontSize: 12, mb: 1 }}>
                     {rightPanel.whyUseTitle}
                   </Typography>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
