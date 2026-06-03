@@ -1117,6 +1117,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         },
         followUp: {
             title: "Follow Up",
+            styleVariant: "pank1",
             items: [
                 { label: "How does rs2402203 affect CFTR expression?", href: "#" },
                 { label: "What tissues show CFTR QTL signals?", href: "#" },
@@ -1143,6 +1144,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         evidences: evidenceTabs.length ? { title: "Evidences", tabs: evidenceTabs } : undefined,
         followUp: {
             title: "Follow Up",
+            styleVariant: "pank1",
             items: (nextQuestions || [])
                 .filter((item) => item?.question)
                 .map((item) => ({
