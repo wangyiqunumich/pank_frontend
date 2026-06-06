@@ -4854,7 +4854,7 @@ Please review this plan and provide edits if needed.`,
 
     if (showDebugStreamLoading) {
         return (
-            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px' }}>
+            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '140px' }}>
                 <SearchResultLoading
                     streamProgress={buildDebugStreamLoadingProgress(streamMilestones)}
                     handleClose={handleCancelAndGoHome}

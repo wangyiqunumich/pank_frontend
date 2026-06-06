@@ -234,7 +234,7 @@ function AgentLandingPage() {
                         // filter: 'blur(2px)',
                     }}
                 >
-                    <Box component="img" src={landingPageLogo} alt="background" sx={{ width: { xs: '95%', md: 992 }, maxWidth: '96%', objectFit: 'contain', transform: 'translateY(-40px)' }} />
+                    <Box component="img" src={landingPageLogo} alt="background" sx={{ width: { xs: '95%', md: 992 }, maxWidth: '96%', objectFit: 'contain', transform: 'translateY(-15px)' }} />
                 </Box>
 
                 <Box sx={{ maxWidth: 820, width: '100%', mx: 'auto', pt: { xs: 1, sm: 2, md: 3 }, pb: { xs: 3, sm: 4, md: 6 }, position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: { xs: 2.5, sm: 3, md: 3.25 }, transform: 'translateY(-20px)' }}>
