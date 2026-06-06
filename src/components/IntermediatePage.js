@@ -62,6 +62,10 @@ import IntermediateKG from './IntermediateKG';
 
 const tabsEnabled = true;
 
+const getTotalCredibleSetCount = (results = []) => (
+  results.reduce((sum, result) => sum + (result?.credible_sets?.length || 0), 0)
+);
+
 export const tabsQTL = [
   {
     "label": "Pancreatic eQTL",
@@ -267,7 +271,31 @@ function IntermediatePage({ onContinue }) {
       // console.log(queryResult.results);
       let cleanedResult;
       if (isNeptune) {
-        cleanedResult = JSON5.parse(queryResult.results) || [];
+        const parsedRecords = JSON5.parse(queryResult.results) || [];
+        cleanedResult = parsedRecords
+          .map((record) => {
+            if (!record) return null;
+            if (record.data_source || record.credible_sets) {
+              return {
+                data_source: record.data_source,
+                credible_sets: Array.isArray(record.credible_sets) ? record.credible_sets : [],
+              };
+            }
+            if (Array.isArray(record)) {
+              return {
+                data_source: record[0],
+                credible_sets: Array.isArray(record[1]) ? record[1] : [],
+              };
+            }
+            if (Array.isArray(record._fields)) {
+              return {
+                data_source: record._fields[0],
+                credible_sets: Array.isArray(record._fields[1]) ? record._fields[1] : [],
+              };
+            }
+            return null;
+          })
+          .filter(Boolean);
         // const lines = queryResult.results.trim().split('\n').slice(1);
         // cleanedResult = lines.map((line) => {
         //   const [dataSource, credibleSets] = JSON5.parse(`[${line}]`);
@@ -284,8 +312,14 @@ function IntermediatePage({ onContinue }) {
           "credible_sets": [cs]
         }));
       }
-      if (!cleanedResult || cleanedResult.length === 0) { return; }
-      setCleanedQueryResult({ results: cleanedResult });
+      const normalizedResult = Array.isArray(cleanedResult) ? cleanedResult : [];
+      if (normalizedResult.length === 0 || getTotalCredibleSetCount(normalizedResult) === 0) {
+        setCleanedQueryResult({ results: normalizedResult });
+        setError(true);
+        setLoading(false);
+        return;
+      }
+      setCleanedQueryResult({ results: normalizedResult });
     }
   }, [queryResult]);
 
@@ -446,8 +480,9 @@ function IntermediatePage({ onContinue }) {
   }, [queryData]);
 
   useEffect(() => {
+    const hasAnyCredibleSets = getTotalCredibleSetCount(cleanedQueryResult?.results || []) > 0;
     const timer = setTimeout(() => {
-      if (!cleanedQueryResult?.results || cleanedQueryResult.results.length === 0) {
+      if (!hasAnyCredibleSets) {
         console.log("No results found within timeout period.");
         setError(true);
       }
@@ -455,7 +490,7 @@ function IntermediatePage({ onContinue }) {
     }, 15000);
 
     // Clear error if results are found in 3 seconds
-    if (cleanedQueryResult?.results && cleanedQueryResult.results.length > 0) {
+    if (hasAnyCredibleSets) {
       console.log("Results found, clearing error.");
       setError(false);
       setLoading(false);
