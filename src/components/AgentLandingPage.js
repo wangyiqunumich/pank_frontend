@@ -28,6 +28,7 @@ import {
 import landingPageLogo from '../image/landing image cropped.png';
 import landingSendIcon from '../image/landing_send.svg';
 import ExampleQueries from '../schema/landing_sample_questions.json';
+import { trackGtagEvent } from '../utils/gtag';
 import AgentSidebar from './AgentSidebar';
 
 export const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
@@ -157,9 +158,19 @@ function AgentLandingPage() {
     const activeExamples = activeExampleGroup === 'search' ? searchExampleGroup.entries : (activeCard?.entries || []);
     const activeTitle = activeExampleGroup === 'search' ? searchExampleGroup.title : (activeCard?.title || 'Examples');
 
-    const handleSearch = (searchQuery) => {
+    const trackLandingEvent = (eventName, params = {}) => {
+        trackGtagEvent(eventName, {
+            source: 'agent_landing',
+            ...params,
+        });
+    };
+
+    const handleSearch = (searchQuery, trigger = 'button') => {
         const normalized = (searchQuery || '').trim();
         if (!normalized) return;
+        trackLandingEvent(trigger === 'enter' ? 'landing_search_submit_enter' : 'landing_search_submit_click', {
+            query_length: normalized.length,
+        });
         const encodedQuery = encodeURIComponent(utf8ToBase64(normalized));
         navigate(`/result-new2?question=${encodedQuery}`);
     };
@@ -172,6 +183,11 @@ function AgentLandingPage() {
         setActiveExampleGroup(undefined);
 
         const nextLink = (example?.link || '').trim();
+        trackLandingEvent('landing_example_item_click', {
+            group: activeExampleGroup || 'unknown',
+            has_link: Boolean(nextLink),
+            question_preview: nextQuery.slice(0, 120),
+        });
         if (nextLink) {
             if (nextLink.startsWith('/match')) {
                 const separator = nextLink.includes('?') ? '&' : '?';
@@ -300,7 +316,7 @@ function AgentLandingPage() {
                                     if (event.key === 'Enter') {
                                         event.preventDefault();
                                         setShowLoading(true);
-                                        handleSearch(query);
+                                        handleSearch(query, 'enter');
                                     }
                                 }}
                                 placeholder="Ask about GWAS signals, tissue-specific expression, or SNP impacts..."
@@ -321,6 +337,7 @@ function AgentLandingPage() {
                                         event.preventDefault();
                                     }}
                                     onClick={() => {
+                                        trackLandingEvent('landing_search_clear_click');
                                         setQuery('');
                                     }}
                                     sx={{
@@ -337,7 +354,7 @@ function AgentLandingPage() {
                                 disableElevation
                                 onClick={() => {
                                     setShowLoading(true);
-                                    handleSearch(query);
+                                    handleSearch(query, 'button');
                                 }}
                                 disabled={!query.trim() || showLoading}
                                 sx={{
@@ -367,6 +384,10 @@ function AgentLandingPage() {
                                 <Button
                                     key={card.key}
                                     onClick={() => {
+                                        trackLandingEvent('landing_quick_card_click', {
+                                            card: card.key,
+                                            will_open: activeExampleGroup !== card.key,
+                                        });
                                         setActiveExampleGroup((prev) => (prev === card.key ? undefined : card.key));
                                     }}
                                     sx={{
@@ -429,7 +450,12 @@ function AgentLandingPage() {
                                         </Typography>
                                     </Box>
                                     <Button
-                                        onClick={() => setActiveExampleGroup(undefined)}
+                                        onClick={() => {
+                                            trackLandingEvent('landing_examples_close_click', {
+                                                group: activeExampleGroup || 'unknown',
+                                            });
+                                            setActiveExampleGroup(undefined);
+                                        }}
                                         sx={{ minWidth: 'auto', p: 0.5, color: '#64748B' }}
                                     >
                                         <CloseIcon sx={{ fontSize: 18 }} />
