@@ -36,6 +36,7 @@ import {
 } from '@mui/material';
 
 import { ReactComponent as MynauiSendIcon } from '../image/mynaui_send.svg';
+import { trackGtagEvent } from '../utils/gtag';
 
 const PMID_HOVER_EVENT = 'pank:pmid-hover';
 const PMID_HOVER_CLEAR_EVENT = 'pank:pmid-hover-clear';
@@ -417,6 +418,12 @@ function EvidenceItem({ item, onSelect, isActive, isHovered = false, variant = '
         : '1px solid #E7EBEF';
     const handleClick = (event) => {
         if (item?.isSkeleton) return;
+        trackGtagEvent('result_evidence_item_click', {
+            source: 'result_component',
+            item_id: String(item?.id || ''),
+            item_title: String(item?.title || '').slice(0, 120),
+            has_href: Boolean(item?.href),
+        });
         item?.onClick?.(item, event);
         onSelect?.(item, event);
     };
@@ -570,11 +577,20 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
         if (isReviseDisabled) return;
         const trimmed = feedbackText.trim();
         if (!trimmed) return;
+        trackGtagEvent('plan_refine_submit_click', {
+            source: 'plan_confirmation',
+            question_id: String(data?.questionId || ''),
+            feedback_length: trimmed.length,
+        });
         data?.onSendFeedback?.(trimmed);
         setFeedbackText('');
     }, [feedbackText, data, isReviseDisabled]);
 
     const handleProceed = React.useCallback(() => {
+        trackGtagEvent('plan_run_steps_click', {
+            source: 'plan_confirmation',
+            question_id: String(data?.questionId || ''),
+        });
         data?.onProceed?.();
     }, [data]);
 
@@ -901,7 +917,14 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                     <ContentTabs
                                         tabs={visualTabs}
                                         value={visualTab}
-                                        onChange={(_, v) => setVisualTab(v)}
+                                        onChange={(_, v) => {
+                                            trackGtagEvent('plan_visual_tab_change_click', {
+                                                source: 'plan_confirmation',
+                                                question_id: String(data?.questionId || ''),
+                                                tab: String(visualTabs?.[v]?.label || v),
+                                            });
+                                            setVisualTab(v);
+                                        }}
                                     />
                                 </Box>
                             ) : null}
@@ -1029,11 +1052,22 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
     const visualPanelMaxWidth = isSingleColumn ? 640 : "100%";
 
     const handleVisualTabChange = (newTab) => {
+        trackGtagEvent('result_visual_tab_change_click', {
+            source: 'result_component',
+            question_id: String(data?.questionId || ''),
+            tab: String(visualTabs?.[newTab]?.label || newTab),
+        });
         setVisualTab(newTab);
         data?.visualMaterial?.onTabChange?.(newTab);
     };
 
     const handleEvidenceTabChange = (newTab) => {
+        const evidenceTabLabel = data?.evidences?.tabs?.[newTab]?.label;
+        trackGtagEvent('result_evidence_tab_change_click', {
+            source: 'result_component',
+            question_id: String(data?.questionId || ''),
+            tab: String(evidenceTabLabel || newTab),
+        });
         setEvidenceTab(newTab);
         data?.evidences?.onTabChange?.(newTab);
     };
@@ -1044,11 +1078,16 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
     );
 
     const handlePmidClick = React.useCallback((pmid) => {
+        trackGtagEvent('result_pmid_click', {
+            source: 'result_component',
+            question_id: String(data?.questionId || ''),
+            pmid: String(pmid || ''),
+        });
         setActiveReference(pmid);
         if (referencesTabIndex >= 0) {
             setEvidenceTab(referencesTabIndex);
         }
-    }, [referencesTabIndex]);
+    }, [referencesTabIndex, data?.questionId]);
 
     const isPmidEventForCurrentPage = React.useCallback((detail) => {
         if (!detail || !pageRootRef.current) return false;
@@ -1196,6 +1235,11 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
         if (isFollowUpDisabled) return;
         const submit = data?.followUp?.onSubmit;
         if (typeof submit === "function") {
+            trackGtagEvent('result_followup_submit_click', {
+                source: 'result_component',
+                question_id: String(data?.questionId || ''),
+                input_length: String(followUpInputValue || '').trim().length,
+            });
             submit(followUpInputValue);
         }
     };
@@ -1491,6 +1535,12 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                                     event?.preventDefault?.();
                                                     return;
                                                 }
+                                                trackGtagEvent('result_followup_item_click', {
+                                                    source: 'result_component',
+                                                    question_id: String(data?.questionId || ''),
+                                                    label: String(label || '').slice(0, 120),
+                                                    has_href: Boolean(isLink),
+                                                });
                                                 item?.onClick?.(item, event);
                                                 data?.followUp?.onSelect?.(item, event);
                                             };
