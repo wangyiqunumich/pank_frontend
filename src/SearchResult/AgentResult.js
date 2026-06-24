@@ -21,6 +21,7 @@ import { AlertMessage } from '../components/SupportingMaterial';
 import { PLANNER_AGENT_BASE_URL } from '../constants/apiEndpoints';
 import starFilledIcon from '../image/star-filled.svg';
 import starIcon from '../image/star.svg';
+import { trackGtagEvent } from '../utils/gtag';
 import SearchResult from './result';
 
 const FEEDBACK_AUTO_PROMPT_DISABLED_KEY = 'pank_feedback_auto_prompt_disabled_v1';
@@ -40,6 +41,13 @@ export function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVis
     const [fullScreenError, setFullScreenError] = useState("");
     const [fullScreenLoading, setFullScreenLoading] = useState(false);
     const [fullScreenInitialized, setFullScreenInitialized] = useState(false);
+
+    const trackGenomeEvent = (eventName, params = {}) => {
+        trackGtagEvent(eventName, {
+            source: 'genome_browser',
+            ...params,
+        });
+    };
 
     const baseOptions = useMemo(() => {
         return {
@@ -230,6 +238,7 @@ export function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVis
     };
 
     const openFullScreen = () => {
+        trackGenomeEvent('genome_browser_fullscreen_open_click', { locus: String(locus || '') });
         const nextLocus = getInlineLocus();
         fullScreenOptionsRef.current = {
             ...(fullScreenOptionsRef.current || baseOptions),
@@ -246,6 +255,7 @@ export function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVis
     };
 
     const closeFullScreen = () => {
+        trackGenomeEvent('genome_browser_fullscreen_close_click', { locus: String(locus || '') });
         setFullScreenOpen(false);
     };
 
@@ -449,6 +459,13 @@ export function AgentResultLayout({
     const isSingleColumn = useMediaQuery("(max-width:1199.95px)");
     const navigatorMenuVisible = isSingleColumn || menuOpen;
 
+    const trackAgentEvent = (eventName, params = {}) => {
+        trackGtagEvent(eventName, {
+            source: 'agent_result_layout',
+            ...params,
+        });
+    };
+
     const getAnchorPrefix = (index) => `result-${index + 1}`;
     const handleContentMeta = (index) => (meta) => {
         if (!meta) return;
@@ -461,9 +478,13 @@ export function AgentResultLayout({
         }));
     };
 
-    const scrollToAnchor = (anchorId, index) => {
+    const scrollToAnchor = (anchorId, index, section = '') => {
         const target = document.getElementById(anchorId);
         if (!target) return;
+        trackAgentEvent('agent_result_section_jump_click', {
+            result_index: index + 1,
+            section: section || anchorId,
+        });
         setActiveResultIndex(index);
         target.scrollIntoView({ behavior: "smooth", block: "start" });
     };
@@ -534,6 +555,10 @@ export function AgentResultLayout({
         if (!canSearch) return;
         const trimmed = searchQuery.trim();
         if (!trimmed) return;
+        trackAgentEvent('agent_result_search_submit_click', {
+            query_length: trimmed.length,
+            active_result_index: activeResultIndex + 1,
+        });
 
         // In chat mode the active result exposes a followUpHandler — delegate to it
         // so /chat/message is called on the existing session instead of mounting a new component.
@@ -559,12 +584,14 @@ export function AgentResultLayout({
     };
 
     const openFeedbackModal = () => {
+        trackAgentEvent('agent_result_feedback_open_click');
         setFeedbackError('');
         setFeedbackOpen(true);
     };
 
     const closeFeedbackModal = () => {
         if (feedbackSubmitting) return;
+        trackAgentEvent('agent_result_feedback_close_click');
         setFeedbackOpen(false);
         setFeedbackError('');
     };
@@ -576,6 +603,7 @@ export function AgentResultLayout({
     };
 
     const disableAutoFeedbackPrompt = () => {
+        trackAgentEvent('agent_result_feedback_prompt_dismiss_click');
         setFeedbackAutoPromptDisabled(true);
         if (typeof window !== 'undefined') {
             window.localStorage.setItem(FEEDBACK_AUTO_PROMPT_DISABLED_KEY, '1');
@@ -591,6 +619,11 @@ export function AgentResultLayout({
 
         setFeedbackSubmitting(true);
         setFeedbackError('');
+        trackAgentEvent('agent_result_feedback_submit_click', {
+            rating: feedbackRating,
+            has_feedback_text: Boolean(String(feedbackText || '').trim()),
+            has_email: Boolean(String(feedbackEmail || '').trim()),
+        });
 
         try {
             const payload = {
@@ -635,12 +668,17 @@ export function AgentResultLayout({
     const handleKeyPress = (e) => {
         if (!canSearch) return;
         if (e.key === "Enter") {
+            trackAgentEvent('agent_result_search_submit_enter', {
+                query_length: String(searchQuery || '').trim().length,
+                active_result_index: activeResultIndex + 1,
+            });
             handleSearch();
         }
     };
 
     const scrollToResult = (index) => {
         if (!effectiveAllowMulti) return;
+        trackAgentEvent('agent_result_question_jump_click', { result_index: index + 1 });
         setActiveResultIndex(index);
         scrollLockRef.current = {
             active: true,
@@ -883,7 +921,7 @@ export function AgentResultLayout({
                                             <div style={{ display: "flex", flexDirection: "column", gap: 2, paddingLeft: 18, marginBottom: 6 }}>
                                                 <button
                                                     type="button"
-                                                    onClick={() => scrollToAnchor(`${anchorPrefix}-ai-overview`, index)}
+                                                    onClick={() => scrollToAnchor(`${anchorPrefix}-ai-overview`, index, 'ai_overview')}
                                                     style={{
                                                         width: "100%",
                                                         borderRadius: 6,
@@ -903,7 +941,7 @@ export function AgentResultLayout({
                                                     <button
                                                         key={`${anchorPrefix}-heading-${heading.index}`}
                                                         type="button"
-                                                        onClick={() => scrollToAnchor(`${anchorPrefix}-ai-overview-${heading.index + 1}`, index)}
+                                                        onClick={() => scrollToAnchor(`${anchorPrefix}-ai-overview-${heading.index + 1}`, index, `ai_heading_${heading.index + 1}`)}
                                                         style={{
                                                             width: "100%",
                                                             borderRadius: 6,
@@ -923,7 +961,7 @@ export function AgentResultLayout({
                                                 {showVisual ? (
                                                     <button
                                                         type="button"
-                                                        onClick={() => scrollToAnchor(`${anchorPrefix}-visual-material`, index)}
+                                                        onClick={() => scrollToAnchor(`${anchorPrefix}-visual-material`, index, 'visual_material')}
                                                         style={{
                                                             width: "100%",
                                                             borderRadius: 6,
@@ -943,7 +981,7 @@ export function AgentResultLayout({
                                                 {showEvidences ? (
                                                     <button
                                                         type="button"
-                                                        onClick={() => scrollToAnchor(`${anchorPrefix}-evidences`, index)}
+                                                        onClick={() => scrollToAnchor(`${anchorPrefix}-evidences`, index, 'evidences')}
                                                         style={{
                                                             width: "100%",
                                                             borderRadius: 6,
@@ -963,7 +1001,7 @@ export function AgentResultLayout({
                                                 {showFollowUp ? (
                                                     <button
                                                         type="button"
-                                                        onClick={() => scrollToAnchor(`${anchorPrefix}-follow-up`, index)}
+                                                        onClick={() => scrollToAnchor(`${anchorPrefix}-follow-up`, index, 'follow_up')}
                                                         style={{
                                                             width: "100%",
                                                             borderRadius: 6,
@@ -1126,11 +1164,13 @@ export function AgentResultLayout({
             <FeedbackPromptDialog
                 open={feedbackPromptOpen}
                 onShareFeedback={() => {
+                    trackAgentEvent('agent_result_feedback_prompt_share_click');
                     disableAutoFeedbackPrompt();
                     setFeedbackPromptOpen(false);
                     openFeedbackModal();
                 }}
                 onMaybeLater={() => {
+                    trackAgentEvent('agent_result_feedback_prompt_later_click');
                     disableAutoFeedbackPrompt();
                     setFeedbackPromptOpen(false);
                 }}
@@ -1217,7 +1257,10 @@ export function AgentResultLayout({
                                     <button
                                         key={starValue}
                                         type="button"
-                                        onClick={() => setFeedbackRating(starValue)}
+                                        onClick={() => {
+                                            trackAgentEvent('agent_result_feedback_rating_click', { rating: starValue });
+                                            setFeedbackRating(starValue);
+                                        }}
                                         style={{
                                             width: 34,
                                             height: 34,

@@ -74,6 +74,7 @@ import {
   replaceConversationHistory,
   upsertRecentChat,
 } from '../utils/chatSessionStorage';
+import { trackGtagEvent } from '../utils/gtag';
 import { addHighlight } from '../utils/textProcessing';
 import {
   demoCoordData,
@@ -425,8 +426,11 @@ const NoGraphData = () => (
         </Typography>
 
         <Button
-            onClick={() => window.location.href =
-                'mailto:wyq@umich.edu, runbomao@umich.edu, drjieliu@umich.edu, fan.feng@vumc.org, help@pankbase.org'}
+            onClick={() => {
+                trackGtagEvent('agent_result_email_support_click', { source: 'agent_result_no_graph' });
+                window.location.href =
+                    'mailto:wyq@umich.edu, runbomao@umich.edu, drjieliu@umich.edu, fan.feng@vumc.org, help@pankbase.org';
+            }}
             sx={{
                 backgroundColor: "white",
                 border: "1px solid #219197",
@@ -633,6 +637,13 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     // Keep result-new2 terminal flow on Chat API path only (Group B).
     const isChatApiMode = terminalMode && !demoMode && !planDemoMode;
     const isAgentResultRoute = location.pathname === '/result-new2';
+
+    const trackResultNewEvent = React.useCallback((eventName, params = {}) => {
+        trackGtagEvent(eventName, {
+            source: 'result_new2',
+            ...params,
+        });
+    }, []);
 
     useEffect(() => {
         chatSessionIdRef.current = chatSessionId || '';
@@ -3175,6 +3186,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     ]);
 
     const handleCancelAndGoHome = React.useCallback(() => {
+        trackResultNewEvent('agent_result_cancel_click', { phase: terminalPhase });
         // Prevent in-flight planning/bootstrap completion from re-navigating after user cancels.
         if (planInactivityTimerRef.current) {
             clearTimeout(planInactivityTimerRef.current);
@@ -3183,7 +3195,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         chatBootstrapRunIdRef.current += 1;
         if (thunkref.current) thunkref.current.abort();
         navigate('/');
-    }, [navigate]);
+    }, [navigate, trackResultNewEvent, terminalPhase]);
 
     const clearPlanInactivityTimer = React.useCallback(() => {
         if (planInactivityTimerRef.current) {
@@ -3265,13 +3277,17 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         const cleanQuestion = stripHtml(label || '').trim();
         if (!cleanQuestion) return;
         if (!isQuestionComplete) return;
+        trackResultNewEvent('agent_result_followup_question_click', {
+            question_preview: cleanQuestion.slice(0, 120),
+            mode: isChatApiMode ? 'chat_followup' : 'new_query',
+        });
         if (isChatApiMode) {
             handleSendFollowUp(cleanQuestion);
             return;
         }
         const encodedQuery = encodeURIComponent(utf8ToBase64(cleanQuestion));
         navigate(`/result-new2?question=${encodedQuery}`);
-    }, [isQuestionComplete, isChatApiMode, handleSendFollowUp, navigate]);
+    }, [isQuestionComplete, isChatApiMode, handleSendFollowUp, navigate, trackResultNewEvent]);
 
     // Skeleton placeholder for summary loading
     const SummarySkeleton = () => (
@@ -3596,6 +3612,12 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             const csvContent = buildTableCsv(header, bodyRows);
             if (!csvContent) return;
 
+            trackResultNewEvent('agent_result_table_download_csv_click', {
+                title: title || 'table',
+                rows: bodyRows.length,
+                columns: header.length || (bodyRows[0]?.length || 0),
+            });
+
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
@@ -3610,6 +3632,10 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         const handleToggleExpanded = React.useCallback(() => {
             setExpanded((prevExpanded) => {
                 const nextExpanded = !prevExpanded;
+                trackResultNewEvent('agent_result_table_expand_toggle_click', {
+                    title: title || 'table',
+                    expanded: nextExpanded,
+                });
 
                 if (!prevExpanded && nextExpanded) {
                     requestAnimationFrame(() => {
@@ -3630,7 +3656,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
                 return nextExpanded;
             });
-        }, [findScrollableAncestor]);
+        }, [findScrollableAncestor, trackResultNewEvent, title]);
 
         return (
             <Box ref={tableRootRef} sx={{ my: 2.25 }}>
@@ -3682,7 +3708,10 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                                 <Button
                                     size="small"
                                     variant="outlined"
-                                    onClick={() => setIsTableOverlayOpen(true)}
+                                    onClick={() => {
+                                        trackResultNewEvent('agent_result_table_fullscreen_open_click', { title: title || 'table' });
+                                        setIsTableOverlayOpen(true);
+                                    }}
                                     disabled={!header.length && !bodyRows.length}
                                     startIcon={<OpenInFullIcon sx={{ fontSize: 14 }} />}
                                     sx={{
@@ -3775,7 +3804,10 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 <Backdrop
                     open={isTableOverlayOpen}
                     sx={{ zIndex: 1300, bgcolor: 'rgba(15, 23, 42, 0.45)', backdropFilter: 'blur(2px)' }}
-                    onClick={() => setIsTableOverlayOpen(false)}
+                    onClick={() => {
+                        trackResultNewEvent('agent_result_table_fullscreen_backdrop_close_click', { title: title || 'table' });
+                        setIsTableOverlayOpen(false);
+                    }}
                 >
                     <Box
                         onClick={(event) => event.stopPropagation()}
@@ -3828,7 +3860,10 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                                 <Button
                                     size="small"
                                     variant="outlined"
-                                    onClick={() => setIsTableOverlayOpen(false)}
+                                    onClick={() => {
+                                        trackResultNewEvent('agent_result_table_fullscreen_close_click', { title: title || 'table' });
+                                        setIsTableOverlayOpen(false);
+                                    }}
                                     startIcon={<CloseIcon sx={{ fontSize: 14 }} />}
                                     sx={{
                                         textTransform: 'none',
@@ -4222,10 +4257,16 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                             : VisuImage}
                         alt="Empirical Evidence"
                         sx={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: 2, cursor: 'pointer' }}
-                        onClick={() => setImagePopupOpen(true)}
+                        onClick={() => {
+                            trackResultNewEvent('agent_result_image_popup_open_click', { source: 'empirical_evidence' });
+                            setImagePopupOpen(true);
+                        }}
                     />
                     <Typography
-                        onClick={() => setImagePopupOpen(true)}
+                        onClick={() => {
+                            trackResultNewEvent('agent_result_image_popup_open_click', { source: 'empirical_evidence_label' });
+                            setImagePopupOpen(true);
+                        }}
                         sx={{
                             position: 'absolute',
                             top: 12,
@@ -4763,9 +4804,13 @@ Please review this plan and provide edits if needed.`,
     const handleQuestionJump = useCallback((anchorId, parentAnchorId = anchorId) => {
         const target = document.getElementById(anchorId) || document.getElementById(parentAnchorId);
         if (!target) return;
+        trackResultNewEvent('agent_result_question_jump_click', {
+            anchor_id: anchorId,
+            parent_anchor_id: parentAnchorId,
+        });
         setActiveQuestionJumpAnchor(parentAnchorId);
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, []);
+    }, [trackResultNewEvent]);
 
     const openQuestionJumpMenuWithDelay = useCallback(() => {
         if (questionJumpMenuTimersRef.current.close) {
@@ -4914,7 +4959,10 @@ Please review this plan and provide edits if needed.`,
                 <Backdrop
                     sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
                     open={imagePopupOpen}
-                    onClick={() => setImagePopupOpen(false)}
+                    onClick={() => {
+                        trackResultNewEvent('agent_result_image_popup_close_click');
+                        setImagePopupOpen(false);
+                    }}
                 >
                     <Box
                         component="img"

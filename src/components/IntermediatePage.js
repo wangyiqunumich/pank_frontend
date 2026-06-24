@@ -58,6 +58,7 @@ import {
   getGeneSymbol,
   replaceVariables,
 } from '../utils/textProcessing';
+import { trackGtagEvent } from '../utils/gtag';
 import IntermediateKG from './IntermediateKG';
 
 const tabsEnabled = true;
@@ -340,6 +341,13 @@ function IntermediatePage({ onContinue }) {
   const [toolTipsData, setToolTipsData] = useState({});
   const [queryData, setQueryData] = useState([]);
 
+  const trackIntermediateEvent = (eventName, params = {}) => {
+    trackGtagEvent(eventName, {
+      source: 'intermediate_page',
+      ...params,
+    });
+  };
+
   const HtmlTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} classes={{ popper: className }} />
   ))(({ theme }) => ({
@@ -412,11 +420,13 @@ function IntermediatePage({ onContinue }) {
   };
 
   const handleTabChange = (_, newValue) => {
+    trackIntermediateEvent('intermediate_tab_change_click', { tab: newValue });
     setCurrPage(1);
     setSelectedTab(newValue);
   };
 
   const handlePageChange = (_, newPage) => {
+    trackIntermediateEvent('intermediate_pagination_change_click', { page: newPage });
     setCurrPage(newPage);
   };
 
@@ -524,8 +534,13 @@ function IntermediatePage({ onContinue }) {
     ))
     : 'Loading...';
 
-  const handleSNPClick = (item) => {
+  const handleSNPClick = (item, eventName = 'intermediate_result_view_click') => {
     if (!viewSchema.question_for_result) return;
+    trackIntermediateEvent(eventName, {
+      selected_tab: selectedTab,
+      credible_set_id: item?.credible_set_id,
+      lead_snp: item?.lead_snp,
+    });
     const {
       sourceTerm,
       targetTerm,
@@ -566,6 +581,10 @@ function IntermediatePage({ onContinue }) {
   );
 
   const handleDownload = (category, credibleSet) => {
+    trackIntermediateEvent('intermediate_credible_set_download_click', {
+      category,
+      credible_set_id: credibleSet,
+    });
     const folder = tabsQTL.find(tab => tab.label === category)?.folder || "";
     const url = `https://pank-s3-to-share.s3.us-east-1.amazonaws.com/${folder}/${credibleSet}.txt`;
     window.open(url, "_blank");
@@ -683,7 +702,11 @@ function IntermediatePage({ onContinue }) {
               Question<TooltipComponent title="Question" />
             </Typography>
             {/*a link*/}
-            <a href={"/"} style={{ color: "#398289", textDecoration: "none" }}>
+            <a
+              href={"/"}
+              style={{ color: "#398289", textDecoration: "none" }}
+              onClick={() => trackIntermediateEvent('intermediate_cancel_click')}
+            >
               <Typography sx={{ fontFamily: 'Open Sans', color: "#398289", textDecoration: "underline", textUnderlineOffset: "3px", fontSize: "17px", marginBottom: "20px", fontWeight: 600 }}>
                 CANCEL
               </Typography>
@@ -794,7 +817,14 @@ function IntermediatePage({ onContinue }) {
                       borderRadius: '8px',
                     }}
                     action={
-                      <IconButton size="small" color="inherit" onClick={() => setNotification(false)}>
+                      <IconButton
+                        size="small"
+                        color="inherit"
+                        onClick={() => {
+                          trackIntermediateEvent('intermediate_notification_close_click');
+                          setNotification(false);
+                        }}
+                      >
                         <CloseIcon fontSize="small" />
                       </IconButton>
                     }
@@ -978,7 +1008,7 @@ function IntermediatePage({ onContinue }) {
                                     fontSize: '16px', paddingY: '8px', paddingX: '12px', backgroundColor: '#219197',
                                     textAlign: 'center', borderRadius: '8px', color: 'white',
                                     fontWeight: 700,
-                                  }} onClick={() => handleSNPClick(item)}>View</Typography>
+                                  }} onClick={() => handleSNPClick(item, 'intermediate_view_click')}>View</Typography>
                                 </TableCell>
                               </TableRow>
                             )
