@@ -506,10 +506,12 @@ export function AgentResultLayout({
     const menuTimersRef = useRef({ open: null, close: null });
     const feedbackPromptTimerRef = useRef(null);
     const previousQuestionCompleteRef = useRef(false);
+    const contentTopRef = useRef(null);
     const resultsContainerRef = useRef(null);
     const resultsRef = useRef([]);
     const feedbackQuestionsRef = useRef([]);
     const scrollRafRef = useRef(null);
+    const routeScrollResetRef = useRef({ frameIds: [], timeoutIds: [] });
     const scrollLockRef = useRef({ active: false, until: 0, index: null });
     const activeMeta = contentMetaByIndex[activeResultIndex];
     const urlSessionId = useMemo(() => {
@@ -959,7 +961,14 @@ export function AgentResultLayout({
         }
     };
 
-    useEffect(() => {
+    const clearRouteScrollResetJobs = useCallback(() => {
+        routeScrollResetRef.current.frameIds.forEach((frameId) => cancelAnimationFrame(frameId));
+        routeScrollResetRef.current.timeoutIds.forEach((timeoutId) => clearTimeout(timeoutId));
+        routeScrollResetRef.current.frameIds = [];
+        routeScrollResetRef.current.timeoutIds = [];
+    }, []);
+
+    const forcePageToTop = useCallback(() => {
         if (typeof window !== 'undefined') {
             window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
         }
@@ -984,6 +993,30 @@ export function AgentResultLayout({
             }
         }
 
+        resultsContainerRef.current?.scrollIntoView({ behavior: 'auto', block: 'start' });
+        contentTopRef.current?.scrollIntoView({ behavior: 'auto', block: 'start' });
+    }, []);
+
+    useEffect(() => {
+        clearRouteScrollResetJobs();
+        forcePageToTop();
+
+        const firstFrameId = requestAnimationFrame(() => {
+            forcePageToTop();
+            const secondFrameId = requestAnimationFrame(() => {
+                forcePageToTop();
+            });
+            routeScrollResetRef.current.frameIds.push(secondFrameId);
+        });
+        routeScrollResetRef.current.frameIds.push(firstFrameId);
+
+        [80, 220].forEach((delayMs) => {
+            const timeoutId = setTimeout(() => {
+                forcePageToTop();
+            }, delayMs);
+            routeScrollResetRef.current.timeoutIds.push(timeoutId);
+        });
+
         const rebuiltResults = buildFeedbackQuestionsFromContext();
         setFeedbackQuestions(rebuiltResults);
         setContentMetaByIndex({});
@@ -992,7 +1025,10 @@ export function AgentResultLayout({
         setFeedbackQuestionIndex(0);
         setFeedbackOpen(false);
         setFeedbackError('');
-    }, [location.pathname, location.search, buildFeedbackQuestionsFromContext]);
+        return () => {
+            clearRouteScrollResetJobs();
+        };
+    }, [location.pathname, location.search, buildFeedbackQuestionsFromContext, clearRouteScrollResetJobs, forcePageToTop]);
 
     useEffect(() => {
         const onHistoryUpdated = (event) => {
@@ -1012,11 +1048,12 @@ export function AgentResultLayout({
 
     useEffect(() => {
         return () => {
+            clearRouteScrollResetJobs();
             if (menuTimersRef.current.open) clearTimeout(menuTimersRef.current.open);
             if (menuTimersRef.current.close) clearTimeout(menuTimersRef.current.close);
             clearFeedbackPromptTimer();
         };
-    }, []);
+    }, [clearRouteScrollResetJobs]);
 
     useEffect(() => {
         const becameComplete = activeQuestionComplete && !previousQuestionCompleteRef.current;
@@ -1055,6 +1092,7 @@ export function AgentResultLayout({
 
     return (
         <div
+            ref={contentTopRef}
             style={{
                 display: "flex",
                 width: "100%",
