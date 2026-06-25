@@ -763,6 +763,9 @@ export function AgentResultLayout({
             style={{
                 display: "flex",
                 width: "100%",
+                flex: 1,
+                minHeight: "100%",
+                alignItems: "stretch",
             }}
         >
             <AgentSidebar activeNav="new-chat" />
