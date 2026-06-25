@@ -736,6 +736,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const stripCypherQueriesSection = React.useCallback((markdownText) => {
         const normalized = String(markdownText || '').replace(/\r\n/g, '\n');
         return normalized
+            .replace(/Supporting\s+Literature/gi, 'HIRN and Related Literature Evidence')
             // Keep literature sections ("## Literature Evidence" / "## References") in AI summary.
             .replace(/\s+$/g, '');
     }, []);
@@ -844,7 +845,9 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
 
     const summaryHasLiteratureSection = React.useCallback((summaryText) => {
         const text = String(summaryText || '');
-        return /##\s*Literature\s*Evidence/i.test(text) || /##\s*References/i.test(text);
+        return /##\s*Literature\s*Evidence/i.test(text)
+            || /##\s*References/i.test(text)
+            || /##\s*HIRN\s+and\s+Related\s+Literature\s+Evidence/i.test(text);
     }, []);
 
     const stripLiteratureSupportingSections = React.useCallback((markdownText) => {

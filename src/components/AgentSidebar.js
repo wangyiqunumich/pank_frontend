@@ -189,6 +189,8 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
         position: 'relative',
         zIndex: 1100,
         alignSelf: 'stretch',
+        height: '100%',
+        minHeight: '100%',
         width: open ? SIDEBAR_EXPANDED_WIDTH : SIDEBAR_COLLAPSED_WIDTH,
         minWidth: open ? SIDEBAR_EXPANDED_WIDTH : SIDEBAR_COLLAPSED_WIDTH,
         bgcolor: '#F8FBFC',

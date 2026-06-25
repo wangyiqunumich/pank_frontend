@@ -22,7 +22,6 @@ import LandingPage from './components/LandingPage';
 import MatchPage from './components/MatchPage';
 import PkbFooter from './Footer/footer';
 import NavBar from './NavBar';
-import ApiPage from './pages/ApiPage';
 import DocPage from './pages/DocPage';
 import Ontology from './pages/Ontology';
 import Pipeline from './pages/Pipeline';
@@ -83,7 +82,7 @@ root.render(
                 <Route path="/intermediate" element={<IntermediatePage />} />
                 <Route path="/ontology" element={<Ontology />} />
                 <Route path="/statistics" element={<StatPage />} />
-                <Route path="/api" element={<ApiPage />} />
+                {/* <Route path="/api" element={<ApiPage />} /> */}
                 <Route path="/tutorial" element={<Tutorial />} />
                 <Route path="/result" element={<ResultPage />} />
                 <Route
