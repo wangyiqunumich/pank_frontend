@@ -1,4 +1,5 @@
 import React, {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -11,7 +12,11 @@ import { useLocation } from 'react-router-dom';
 import ChatBubbleOutlineRoundedIcon
   from '@mui/icons-material/ChatBubbleOutlineRounded';
 import {
+  Box,
   Container,
+  FormControl,
+  MenuItem,
+  Select,
   useMediaQuery,
 } from '@mui/material';
 
@@ -21,11 +26,63 @@ import { AlertMessage } from '../components/SupportingMaterial';
 import { PLANNER_AGENT_BASE_URL } from '../constants/apiEndpoints';
 import starFilledIcon from '../image/star-filled.svg';
 import starIcon from '../image/star.svg';
+import { readConversationHistory } from '../utils/chatSessionStorage';
 import { trackGtagEvent } from '../utils/gtag';
 import SearchResult from './result';
 
 const FEEDBACK_AUTO_PROMPT_DISABLED_KEY = 'pank_feedback_auto_prompt_disabled_v1';
 const FEEDBACK_AUTO_PROMPT_DELAY_MS = 30 * 1000;
+
+const decodeBase64Utf8 = (value) => {
+    if (!value) return '';
+    try {
+        return decodeURIComponent(escape(atob(value)));
+    } catch (e) {
+        try {
+            return atob(value);
+        } catch (e2) {
+            return String(value || '');
+        }
+    }
+};
+
+const decodeQuestionFromQueryParam = (rawQuestionParam) => {
+    const raw = String(rawQuestionParam || '').trim();
+    if (!raw) return '';
+
+    const tryDecode = (input) => {
+        try {
+            return decodeBase64Utf8(input).trim();
+        } catch (e) {
+            return '';
+        }
+    };
+
+    // URLSearchParams already decodes percent-encoding in most cases.
+    let decoded = tryDecode(raw);
+    if (decoded) return decoded;
+
+    // Fallback for edge cases where upstream passes still-encoded content.
+    try {
+        decoded = tryDecode(decodeURIComponent(raw));
+        if (decoded) return decoded;
+    } catch (e) {
+        // ignore malformed URI sequences
+    }
+
+    return raw;
+};
+
+const extractUserQuestion = (item) => {
+    return String(item?.content || item?.question || item?.query || '').trim();
+};
+
+const normalizeRole = (rawRole) => {
+    const role = String(rawRole || '').trim().toLowerCase();
+    if (role === 'user' || role === 'human') return 'user';
+    if (role === 'assistant' || role === 'ai' || role === 'model') return 'assistant';
+    return '';
+};
 
 // Genome Browser Component - mounts only when tab is first selected
 export function GenomeBrowserEmbed({ locus = "chr7:55,085,725-55,276,031", isVisible = false, tracks = null, height = 600, compact = false }) {
@@ -423,10 +480,18 @@ export function AgentResultLayout({
     ]);
     const [searchQuery, setSearchQuery] = useState("");
     const [activeResultIndex, setActiveResultIndex] = useState(0);
+    const [activeQuestionIndex, setActiveQuestionIndex] = useState(0);
     const [hoveredResultIndex, setHoveredResultIndex] = useState(null);
     const [menuOpen, setMenuOpen] = useState(false);
     const [contentMetaByIndex, setContentMetaByIndex] = useState({});
+    const [feedbackQuestions, setFeedbackQuestions] = useState([
+        {
+            id: 1,
+            query: "How Does The SNP Rs2402203 Influence The Expression Of CFTR In Pancreas Tissue?",
+        }
+    ]);
     const [feedbackOpen, setFeedbackOpen] = useState(false);
+    const [feedbackQuestionIndex, setFeedbackQuestionIndex] = useState(0);
     const [feedbackRating, setFeedbackRating] = useState(0);
     const [feedbackText, setFeedbackText] = useState('');
     const [feedbackEmail, setFeedbackEmail] = useState('');
@@ -442,13 +507,21 @@ export function AgentResultLayout({
     const feedbackPromptTimerRef = useRef(null);
     const previousQuestionCompleteRef = useRef(false);
     const resultsContainerRef = useRef(null);
+    const resultsRef = useRef([]);
+    const feedbackQuestionsRef = useRef([]);
     const scrollRafRef = useRef(null);
     const scrollLockRef = useRef({ active: false, until: 0, index: null });
     const activeMeta = contentMetaByIndex[activeResultIndex];
-    const feedbackSessionId = useMemo(() => {
+    const urlSessionId = useMemo(() => {
         const urlSessionId = new URLSearchParams(location.search).get('session_id') || '';
-        return activeMeta?.feedbackSessionId || urlSessionId || '';
-    }, [activeMeta?.feedbackSessionId, location.search]);
+        return urlSessionId;
+    }, [location.search]);
+    const normalizedFeedbackQuestionIndex = Math.min(
+        Math.max(Number.isFinite(feedbackQuestionIndex) ? feedbackQuestionIndex : 0, 0),
+        Math.max(feedbackQuestions.length - 1, 0)
+    );
+    const selectedFeedbackQuestion = feedbackQuestions[normalizedFeedbackQuestionIndex] || feedbackQuestions[0] || null;
+    const feedbackSessionId = activeMeta?.feedbackSessionId || urlSessionId || '';
     const activeQuestionComplete = activeMeta?.isQuestionComplete ?? false;
     const hideFloatingSearchBarByPhase = Boolean(activeMeta?.hideFloatingSearchBar);
     const hasFloatingInputBar = Boolean(showFloatingSearchBar && !hideFloatingSearchBarByPhase);
@@ -467,6 +540,111 @@ export function AgentResultLayout({
     };
 
     const getAnchorPrefix = (index) => `result-${index + 1}`;
+    const primaryAnchorPrefix = contentMetaByIndex[0]?.anchorPrefix || getAnchorPrefix(0);
+    const navQuestions = feedbackQuestions.length ? feedbackQuestions : results;
+    const detectCurrentQuestionIndexFromViewport = useCallback((questionCount, anchorPrefixOverride) => {
+        const normalizedCount = Math.max(Number(questionCount) || 0, 0);
+        if (normalizedCount <= 1 || typeof document === 'undefined') return 0;
+
+        const activeAnchorPrefix = anchorPrefixOverride
+            || primaryAnchorPrefix;
+        const anchorY = 180;
+        let bestIndex = 0;
+        let bestDistance = Number.POSITIVE_INFINITY;
+
+        for (let i = 0; i < normalizedCount; i += 1) {
+            const target = document.getElementById(`${activeAnchorPrefix}-question-${i + 1}`);
+            if (!target) continue;
+            const rect = target.getBoundingClientRect();
+            const inView = rect.top <= anchorY && rect.bottom >= anchorY;
+            const distance = Math.abs(rect.top - anchorY);
+            if (inView) {
+                return i;
+            }
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                bestIndex = i;
+            }
+        }
+
+        return bestIndex;
+    }, [primaryAnchorPrefix]);
+
+    const buildFeedbackQuestionsFromContext = useCallback(() => {
+        const params = new URLSearchParams(location.search || '');
+        const nextSessionId = String(params.get('session_id') || '').trim();
+        const urlQuestion = decodeQuestionFromQueryParam(params.get('question'));
+
+        let nextQuestions = [];
+        if (nextSessionId) {
+            const history = readConversationHistory(nextSessionId);
+            if (Array.isArray(history) && history.length) {
+                nextQuestions = history
+                    .filter((item) => normalizeRole(item?.role) === 'user')
+                    .map((item) => extractUserQuestion(item))
+                    .filter(Boolean);
+            }
+        }
+
+        if (!nextQuestions.length && urlQuestion) {
+            nextQuestions = [urlQuestion];
+        }
+
+        if (!nextQuestions.length) {
+            nextQuestions = ["How Does The SNP Rs2402203 Influence The Expression Of CFTR In Pancreas Tissue?"];
+        }
+
+        const dedupedQuestions = [];
+        const seen = new Set();
+        nextQuestions.forEach((question) => {
+            const normalized = String(question || '').trim();
+            if (!normalized || seen.has(normalized)) return;
+            seen.add(normalized);
+            dedupedQuestions.push(normalized);
+        });
+
+        return dedupedQuestions.map((query, index) => ({ id: index + 1, query }));
+    }, [location.search]);
+
+    const refreshFeedbackQuestions = useCallback(({ closePanel = false, resetMeta = false } = {}) => {
+        const rebuiltResults = buildFeedbackQuestionsFromContext();
+        const previousLength = feedbackQuestionsRef.current.length;
+        const hasNewQuestion = rebuiltResults.length > previousLength;
+        const nextViewportIndex = detectCurrentQuestionIndexFromViewport(rebuiltResults.length);
+
+        setFeedbackQuestions(rebuiltResults);
+        if (resetMeta) {
+            setContentMetaByIndex({});
+            setActiveResultIndex(0);
+            setActiveQuestionIndex(0);
+        }
+
+        if (closePanel) {
+            setFeedbackQuestionIndex(0);
+            setFeedbackOpen(false);
+            setFeedbackError('');
+            return;
+        }
+
+        if (feedbackOpen) {
+            if (hasNewQuestion) {
+                setFeedbackQuestionIndex(Math.max(rebuiltResults.length - 1, 0));
+            } else {
+                setFeedbackQuestionIndex(nextViewportIndex);
+            }
+        }
+
+        setActiveQuestionIndex(hasNewQuestion ? Math.max(rebuiltResults.length - 1, 0) : nextViewportIndex);
+    }, [buildFeedbackQuestionsFromContext, detectCurrentQuestionIndexFromViewport, feedbackOpen]);
+
+    useEffect(() => {
+        resultsRef.current = results;
+    }, [results]);
+
+    useEffect(() => {
+        feedbackQuestionsRef.current = feedbackQuestions;
+    }, [feedbackQuestions]);
+
     const handleContentMeta = (index) => (meta) => {
         if (!meta) return;
         setContentMetaByIndex((prev) => ({
@@ -485,46 +663,92 @@ export function AgentResultLayout({
             result_index: index + 1,
             section: section || anchorId,
         });
-        setActiveResultIndex(index);
+        setActiveQuestionIndex(index);
         target.scrollIntoView({ behavior: "smooth", block: "start" });
     };
 
     useEffect(() => {
-        if (!effectiveAllowMulti || results.length < 2) {
+        if (navQuestions.length < 2) {
             return;
         }
+
+        const anchorIds = Array.from(
+            { length: navQuestions.length },
+            (_, index) => `${primaryAnchorPrefix}-question-${index + 1}`
+        );
+
+        const commitActiveQuestionIndex = (nextIndex) => {
+            setActiveQuestionIndex((prev) => (prev === nextIndex ? prev : nextIndex));
+        };
 
         const updateActiveFromScroll = () => {
             const now = Date.now();
             if (scrollLockRef.current.active && now < scrollLockRef.current.until) {
                 return;
             }
-            const container = resultsContainerRef.current;
-            if (!container) return;
-            const items = Array.from(container.children);
-            if (!items.length) return;
-
-            const anchor = 140;
+            const anchor = 180;
             let nextIndex = 0;
             let bestDistance = Number.POSITIVE_INFINITY;
 
-            items.forEach((item, index) => {
+            for (let index = 0; index < anchorIds.length; index += 1) {
+                const item = document.getElementById(anchorIds[index]);
+                if (!item) continue;
                 const rect = item.getBoundingClientRect();
                 const inView = rect.top <= anchor && rect.bottom >= anchor;
                 const distance = Math.abs(rect.top - anchor);
                 if (inView) {
                     nextIndex = index;
                     bestDistance = 0;
-                    return;
+                    break;
                 }
                 if (distance < bestDistance) {
                     bestDistance = distance;
                     nextIndex = index;
                 }
+            }
+
+            commitActiveQuestionIndex(nextIndex);
+        };
+
+        let observer = null;
+
+        if (typeof window !== 'undefined' && 'IntersectionObserver' in window) {
+            observer = new IntersectionObserver((entries) => {
+                const now = Date.now();
+                if (scrollLockRef.current.active && now < scrollLockRef.current.until) {
+                    return;
+                }
+
+                const visibleEntries = entries
+                    .filter((entry) => entry.isIntersecting)
+                    .sort((left, right) => {
+                        if (right.intersectionRatio !== left.intersectionRatio) {
+                            return right.intersectionRatio - left.intersectionRatio;
+                        }
+                        return Math.abs(left.boundingClientRect.top - 180) - Math.abs(right.boundingClientRect.top - 180);
+                    });
+
+                if (!visibleEntries.length) {
+                    return;
+                }
+
+                const nextIndex = anchorIds.findIndex((anchorId) => anchorId === visibleEntries[0].target.id);
+                if (nextIndex >= 0) {
+                    commitActiveQuestionIndex(nextIndex);
+                }
+            }, {
+                root: null,
+                rootMargin: '-180px 0px -55% 0px',
+                threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
             });
 
-            setActiveResultIndex(nextIndex);
-        };
+            anchorIds.forEach((anchorId) => {
+                const target = document.getElementById(anchorId);
+                if (target) {
+                    observer.observe(target);
+                }
+            });
+        }
 
         const onScroll = () => {
             if (scrollRafRef.current) return;
@@ -536,20 +760,26 @@ export function AgentResultLayout({
 
         updateActiveFromScroll();
         const rootScroll = document.getElementById("root");
+        const docScroll = document.scrollingElement || document.documentElement;
         window.addEventListener("scroll", onScroll, { passive: true });
         window.addEventListener("resize", onScroll);
+        document.addEventListener("scroll", onScroll, { passive: true });
         rootScroll?.addEventListener("scroll", onScroll, { passive: true });
+        docScroll?.addEventListener?.("scroll", onScroll, { passive: true });
 
         return () => {
+            observer?.disconnect();
             window.removeEventListener("scroll", onScroll);
             window.removeEventListener("resize", onScroll);
+            document.removeEventListener("scroll", onScroll);
             rootScroll?.removeEventListener("scroll", onScroll);
+            docScroll?.removeEventListener?.("scroll", onScroll);
             if (scrollRafRef.current) {
                 cancelAnimationFrame(scrollRafRef.current);
                 scrollRafRef.current = null;
             }
         };
-    }, [effectiveAllowMulti, results.length]);
+    }, [navQuestions.length, primaryAnchorPrefix]);
 
     const handleSearch = () => {
         if (!canSearch) return;
@@ -569,6 +799,10 @@ export function AgentResultLayout({
             return;
         }
 
+        if (!effectiveAllowMulti) {
+            return;
+        }
+
         // Non-chat: mount a new result component as before
         const newResult = {
             id: results.length + 1,
@@ -585,6 +819,12 @@ export function AgentResultLayout({
 
     const openFeedbackModal = () => {
         trackAgentEvent('agent_result_feedback_open_click');
+        const latestQuestions = buildFeedbackQuestionsFromContext();
+        const nextQuestionIndex = detectCurrentQuestionIndexFromViewport(latestQuestions.length);
+        setFeedbackQuestions(latestQuestions);
+        setFeedbackPromptOpen(false);
+        setFeedbackQuestionIndex(nextQuestionIndex);
+        setActiveQuestionIndex(nextQuestionIndex);
         setFeedbackError('');
         setFeedbackOpen(true);
     };
@@ -623,6 +863,7 @@ export function AgentResultLayout({
             rating: feedbackRating,
             has_feedback_text: Boolean(String(feedbackText || '').trim()),
             has_email: Boolean(String(feedbackEmail || '').trim()),
+            question_index: normalizedFeedbackQuestionIndex + 1,
         });
 
         try {
@@ -630,6 +871,8 @@ export function AgentResultLayout({
                 session_id: feedbackSessionId || 'unknown-session',
                 rating: feedbackRating,
                 feedback: String(feedbackText || ''),
+                question_index: normalizedFeedbackQuestionIndex + 1,
+                question: String(selectedFeedbackQuestion?.query || ''),
             };
             const trimmedEmail = String(feedbackEmail || '').trim();
             if (trimmedEmail) {
@@ -677,16 +920,15 @@ export function AgentResultLayout({
     };
 
     const scrollToResult = (index) => {
-        if (!effectiveAllowMulti) return;
         trackAgentEvent('agent_result_question_jump_click', { result_index: index + 1 });
-        setActiveResultIndex(index);
+        setActiveQuestionIndex(index);
         scrollLockRef.current = {
             active: true,
             until: Date.now() + 600,
             index,
         };
-        const resultElement = resultsContainerRef.current?.children[index];
-        resultElement?.scrollIntoView({ behavior: "smooth", block: "start" });
+        const target = document.getElementById(`${primaryAnchorPrefix}-question-${index + 1}`);
+        target?.scrollIntoView({ behavior: "smooth", block: "start" });
     };
 
     const openMenuWithDelay = () => {
@@ -716,6 +958,57 @@ export function AgentResultLayout({
             }, 260);
         }
     };
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+        }
+
+        if (typeof document !== 'undefined') {
+            const scrollRoot = document.getElementById('root');
+            if (document.scrollingElement) {
+                document.scrollingElement.scrollTop = 0;
+                document.scrollingElement.scrollLeft = 0;
+            }
+            if (document.documentElement) {
+                document.documentElement.scrollTop = 0;
+                document.documentElement.scrollLeft = 0;
+            }
+            if (document.body) {
+                document.body.scrollTop = 0;
+                document.body.scrollLeft = 0;
+            }
+            if (scrollRoot) {
+                scrollRoot.scrollTop = 0;
+                scrollRoot.scrollLeft = 0;
+            }
+        }
+
+        const rebuiltResults = buildFeedbackQuestionsFromContext();
+        setFeedbackQuestions(rebuiltResults);
+        setContentMetaByIndex({});
+        setActiveResultIndex(0);
+        setActiveQuestionIndex(0);
+        setFeedbackQuestionIndex(0);
+        setFeedbackOpen(false);
+        setFeedbackError('');
+    }, [location.pathname, location.search, buildFeedbackQuestionsFromContext]);
+
+    useEffect(() => {
+        const onHistoryUpdated = (event) => {
+            const updatedSessionId = String(event?.detail?.sessionId || '').trim();
+            const currentSessionId = String(new URLSearchParams(location.search || '').get('session_id') || '').trim();
+            if (!currentSessionId || !updatedSessionId || updatedSessionId !== currentSessionId) {
+                return;
+            }
+            refreshFeedbackQuestions({ closePanel: false, resetMeta: false });
+        };
+
+        window.addEventListener('pank-chat-history-updated', onHistoryUpdated);
+        return () => {
+            window.removeEventListener('pank-chat-history-updated', onHistoryUpdated);
+        };
+    }, [location.search, refreshFeedbackQuestions]);
 
     useEffect(() => {
         return () => {
@@ -758,6 +1051,8 @@ export function AgentResultLayout({
         };
     }, [activeQuestionComplete, feedbackAutoPromptDisabled, feedbackOpen]);
 
+    const renderedResults = effectiveAllowMulti ? results : results.slice(0, 1);
+
     return (
         <div
             style={{
@@ -774,15 +1069,15 @@ export function AgentResultLayout({
                     position: "relative",
                     flex: 1,
                     minWidth: 0,
-                    backgroundColor: effectiveAllowMulti && results.length > 1 ? "#f5f5f5" : "transparent",
-                    marginTop: effectiveAllowMulti && results.length > 1 ? -8 : 0,
-                    paddingTop: effectiveAllowMulti && results.length > 1 ? 8 : 0,
+                    backgroundColor: effectiveAllowMulti && renderedResults.length > 1 ? "#f5f5f5" : "transparent",
+                    marginTop: effectiveAllowMulti && renderedResults.length > 1 ? -8 : 0,
+                    paddingTop: effectiveAllowMulti && renderedResults.length > 1 ? 8 : 0,
                     paddingBottom: 0,
                 }}
             >
             {/* Results display */}
             <div ref={resultsContainerRef}>
-                {results.map((result, index) => {
+                {renderedResults.map((result, index) => {
                     const resultViewProps = getResultViewProps(result, index) || {};
                     const anchorPrefix = resultViewProps.contentAnchorPrefix || getAnchorPrefix(index);
                     const mergedProps = {
@@ -795,19 +1090,19 @@ export function AgentResultLayout({
                         <div
                             key={result.id}
                             style={{
-                                padding: effectiveAllowMulti && results.length > 1 ? "28px 16px" : "0",
+                                padding: effectiveAllowMulti && renderedResults.length > 1 ? "28px 16px" : "0",
                                 display: "flex",
                                 justifyContent: "center",
                             }}
                         >
                             <div
                                 style={{
-                                    backgroundColor: effectiveAllowMulti && results.length > 1 ? "#ffffff" : "transparent",
-                                    borderRadius: effectiveAllowMulti && results.length > 1 ? 16 : 0,
-                                    boxShadow: effectiveAllowMulti && results.length > 1 ? "0 6px 18px rgba(15, 23, 42, 0.08)" : "none",
-                                    padding: effectiveAllowMulti && results.length > 1 ? "16px" : "0",
+                                    backgroundColor: effectiveAllowMulti && renderedResults.length > 1 ? "#ffffff" : "transparent",
+                                    borderRadius: effectiveAllowMulti && renderedResults.length > 1 ? 16 : 0,
+                                    boxShadow: effectiveAllowMulti && renderedResults.length > 1 ? "0 6px 18px rgba(15, 23, 42, 0.08)" : "none",
+                                    padding: effectiveAllowMulti && renderedResults.length > 1 ? "16px" : "0",
                                     width: "100%",
-                                    maxWidth: effectiveAllowMulti && results.length > 1 ? 1344 : "100%",
+                                    maxWidth: effectiveAllowMulti && renderedResults.length > 1 ? 1344 : "100%",
                                 }}
                             >
                                 <Container maxWidth={false} disableGutters sx={{
@@ -823,7 +1118,7 @@ export function AgentResultLayout({
                 })}
             </div>
 
-            {results.length > 1 && (
+            {navQuestions.length > 1 && (
                 <>
                     <div
                         onMouseEnter={isSingleColumn ? undefined : openMenuWithDelay}
@@ -840,9 +1135,9 @@ export function AgentResultLayout({
                             margin: "-18px -12px",
                         }}
                     >
-                        {results.map((result, index) => {
-                            const isActive = activeResultIndex === index;
-                            const gap = index === results.length - 1 ? 0 : 14;
+                        {navQuestions.map((result, index) => {
+                            const isActive = activeQuestionIndex === index;
+                            const gap = index === navQuestions.length - 1 ? 0 : 14;
 
                             return (
                                 <div
@@ -882,10 +1177,10 @@ export function AgentResultLayout({
                         }}
                     >
                         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                            {results.map((result, index) => {
-                                const isActive = activeResultIndex === index;
+                            {navQuestions.map((result, index) => {
+                                const isActive = activeQuestionIndex === index;
                                 const meta = contentMetaByIndex[index];
-                                const anchorPrefix = meta?.anchorPrefix || getAnchorPrefix(index);
+                                const anchorPrefix = meta?.anchorPrefix || primaryAnchorPrefix;
                                 const aiHeadings = meta?.aiHeadings || [];
                                 const showVisual = meta?.hasVisual ?? true;
                                 const showEvidences = meta?.hasEvidences ?? true;
@@ -1248,6 +1543,110 @@ export function AgentResultLayout({
                         </div>
 
                         <div style={{ height: 30 }} />
+
+                        <div style={{ fontWeight: 400, fontSize: 13, color: '#6A7282', marginBottom: 8 }}>
+                            Which question are you giving feedback on?
+                        </div>
+                        <FormControl
+                            fullWidth
+                            size="small"
+                            sx={{ mb: 2, maxWidth: 420 }}
+                        >
+                            <Select
+                                value={normalizedFeedbackQuestionIndex}
+                                onChange={(event) => setFeedbackQuestionIndex(Number(event.target.value))}
+                                MenuProps={{
+                                    PaperProps: {
+                                        sx: {
+                                            maxWidth: 420,
+                                        },
+                                    },
+                                }}
+                                sx={{
+                                    borderRadius: '10px',
+                                    backgroundColor: '#FFFFFF',
+                                    '& .MuiSelect-select': {
+                                        py: 1.1,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 1,
+                                        overflow: 'hidden',
+                                    },
+                                }}
+                                renderValue={(value) => {
+                                    const current = feedbackQuestions[Number(value)] || selectedFeedbackQuestion;
+                                    const qIndex = Number(value) + 1;
+                                    return (
+                                        <Box sx={{ display: 'inline-flex', alignItems: 'center', minWidth: 0, width: '100%', gap: 1 }}>
+                                            <Box sx={{
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                px: 1,
+                                                py: 0.25,
+                                                borderRadius: '999px',
+                                                backgroundColor: 'rgba(20, 184, 166, 0.2)',
+                                                color: '#3A838B',
+                                                fontSize: 12,
+                                                fontWeight: 700,
+                                                flexShrink: 0,
+                                            }}>
+                                                {`Q${qIndex}`}
+                                            </Box>
+                                            <Box sx={{
+                                                color: '#111827',
+                                                fontSize: 13,
+                                                fontWeight: 600,
+                                                flex: 1,
+                                                minWidth: 0,
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap',
+                                            }}>
+                                                {current?.query || 'Current question'}
+                                            </Box>
+                                        </Box>
+                                    );
+                                }}
+                            >
+                                {feedbackQuestions.map((item, index) => (
+                                    <MenuItem
+                                        key={`feedback-question-${item.id || index}`}
+                                        value={index}
+                                        sx={{ maxWidth: 420 }}
+                                    >
+                                        <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, minWidth: 0, width: '100%' }}>
+                                            <Box sx={{
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                px: 1,
+                                                py: 0.25,
+                                                borderRadius: '999px',
+                                                backgroundColor: 'rgba(20, 184, 166, 0.2)',
+                                                color: '#3A838B',
+                                                fontSize: 12,
+                                                fontWeight: 700,
+                                                flexShrink: 0,
+                                            }}>
+                                                {`Q${index + 1}`}
+                                            </Box>
+                                            <Box sx={{
+                                                color: '#111827',
+                                                fontSize: 13,
+                                                flex: 1,
+                                                minWidth: 0,
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap',
+                                            }}>
+                                                {item?.query || 'Untitled question'}
+                                            </Box>
+                                        </Box>
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
 
                         <div style={{ fontWeight: 400, fontSize: 13, color: '#6A7282', marginBottom: 8 }}>
                             How would you rate your experience?

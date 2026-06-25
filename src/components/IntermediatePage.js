@@ -53,12 +53,12 @@ import { queryQueryResult } from '../redux/queryResultSlice';
 import { setSearchTerms } from '../redux/searchSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
+import { trackGtagEvent } from '../utils/gtag';
 import {
   addHighlight,
   getGeneSymbol,
   replaceVariables,
 } from '../utils/textProcessing';
-import { trackGtagEvent } from '../utils/gtag';
 import IntermediateKG from './IntermediateKG';
 
 const tabsEnabled = true;
