@@ -189,6 +189,8 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
         position: 'relative',
         zIndex: 1100,
         alignSelf: 'stretch',
+        height: '100%',
+        minHeight: '100%',
         width: open ? SIDEBAR_EXPANDED_WIDTH : SIDEBAR_COLLAPSED_WIDTH,
         minWidth: open ? SIDEBAR_EXPANDED_WIDTH : SIDEBAR_COLLAPSED_WIDTH,
         bgcolor: '#F8FBFC',
@@ -199,11 +201,12 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
           display: 'flex',
         },
         flexDirection: 'column',
+        overflow: 'hidden',
         boxSizing: 'border-box',
         transition: 'width 220ms ease, min-width 220ms ease, padding 220ms ease',
       }}
     >
-      <Box sx={{ position: 'sticky', top: 0, pt: open ? 4.5 : 4, pb: 1, bgcolor: '#F8FBFC', zIndex: 1 }}>
+      <Box sx={{ pt: open ? 4.5 : 4, pb: 1, bgcolor: '#F8FBFC', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: open ? 'space-between' : 'center', mb: 2 }}>
           {open ? (
             <Typography
@@ -243,7 +246,7 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
           </Tooltip>
         </Box>
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75, flex: 1, minHeight: 0 }}>
           <SidebarButton
             active={isNewChatActive}
             open={open}
@@ -284,7 +287,8 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 0.5,
-                maxHeight: '42vh',
+                flex: 1,
+                minHeight: 0,
                 overflowY: 'auto',
                 pr: 0.5,
               }}

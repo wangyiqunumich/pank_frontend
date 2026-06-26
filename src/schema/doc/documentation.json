@@ -41,7 +41,17 @@
                     },
                     {
                         "name": "API",
-                        "id": "API"
+                        "id": "API",
+                        "children": [
+                            {
+                                "name": "KG API",
+                                "id": "KG_API"
+                            },
+                            {
+                                "name": "Literature API",
+                                "id": "Literature_API"
+                            }
+                        ]
                     }
                 ]
             }

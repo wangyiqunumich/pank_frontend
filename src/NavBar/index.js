@@ -71,7 +71,8 @@ function NavBar() {
                     <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK}>Chat</a>
                     <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/skills'}>Tools</a>
                     <div style={{ height: '1px', backgroundColor: '#FFFFFF', opacity: 0.9, margin: '4px 0px', width: '100%' }} />
-                    <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/docs/API'}>API Doc</a>
+                    <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/docs/KG_API'}>KG API Doc</a>
+                    <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/docs/Literature_API'}>Literature API Doc</a>
                     <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/docs/ontology'}>Ontology</a>
                     <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/docs/usecase'}>Use cases</a>
                     <a className="submenu-item" href={process.env.REACT_APP_PANKGRAPH_LINK + '/docs/tutorial'}>Tutorials</a>

@@ -93,6 +93,14 @@ export const appendConversationMessages = (sessionId, messages) => {
   const current = safeParse(storage.getItem(key), []);
   const merged = Array.isArray(current) ? [...current, ...messages] : [...messages];
   storage.setItem(key, JSON.stringify(merged));
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('pank-chat-history-updated', {
+      detail: {
+        sessionId,
+        historyLength: merged.length,
+      },
+    }));
+  }
 };
 
 export const replaceConversationHistory = (sessionId, history) => {
@@ -100,6 +108,14 @@ export const replaceConversationHistory = (sessionId, history) => {
   if (!storage || !sessionId || !Array.isArray(history)) return;
   const key = `${CHAT_HISTORY_PREFIX}${sessionId}`;
   storage.setItem(key, JSON.stringify(history));
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('pank-chat-history-updated', {
+      detail: {
+        sessionId,
+        historyLength: history.length,
+      },
+    }));
+  }
 };
 
 export const readConversationHistory = (sessionId) => {
