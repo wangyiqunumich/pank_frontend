@@ -33,38 +33,6 @@ import AgentSidebar from './AgentSidebar';
 
 export const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
 
-function BetaBadge({ sx }) {
-    return (
-        <Box
-            sx={{
-                display: 'inline-flex',
-                height: 'fit-content',
-                alignItems: 'center',
-                border: '1px solid #F6C957',
-                borderRadius: '9999px',
-                backgroundColor: '#FFFFFF',
-                px: { xs: 1, md: 1.2 },
-                py: '2px',
-                flexShrink: 0,
-                ...sx,
-            }}
-        >
-            <Typography
-                sx={{
-                    color: '#F6C957',
-                    fontWeight: 700,
-                    fontSize: { xs: 10, md: 10.5 },
-                    whiteSpace: 'nowrap',
-                    fontFamily: 'Inter',
-                    lineHeight: 1,
-                }}
-            >
-                Beta
-            </Typography>
-        </Box>
-    );
-}
-
 function AgentLandingPage() {
     const navigate = useNavigate();
     const [query, setQuery] = useState('');
@@ -230,12 +198,13 @@ function AgentLandingPage() {
                 sx={{
                     flex: 1,
                     px: { xs: 2, md: 4 },
-                    py: { xs: 16, md: 20 },
+                    pt: { xs: 24, md: 20 },
+                    pb: { xs: 24, md: 20 },
                     position: 'relative',
                     overflow: 'visible',
                     display: 'flex',
                     flexDirection: 'column',
-                    justifyContent: { xs: 'flex-start', md: 'center' },
+                    justifyContent: 'center',
                 }}
             >
                 <Box
@@ -264,12 +233,9 @@ function AgentLandingPage() {
                                     explore?
                                 </Box>
                             </Typography>
-                            <BetaBadge sx={{ transform: 'translateY(2px)' }} />
                         </Box>
-                        <Typography sx={{ mt: { xs: 1.25, md: 2 }, fontFamily: 'Inter', fontWeight: 400, fontSize: { xs: 13, sm: 14, md: 14 }, lineHeight: 1.55, color: '#4C6261', maxWidth: { xs: 620, md: 640 }, mx: 'auto' }}>
-                            Explore our comprehensive database of T1D–related data, <Box component="br" sx={{ display: 'block' }} />
-                            knowledge, and insights. Simply type your question-our <Box component="br" sx={{ display: 'block' }} />
-                            PanKgraph agent will help you to explore the knowledge graph.
+                        <Typography sx={{ mt: { xs: 1.25, md: 2 }, fontFamily: 'Inter', fontWeight: 400, fontSize: { xs: 13, sm: 14, md: 14 }, lineHeight: 1.55, color: '#4C6261', maxWidth: { xs: 300, sm: 620, md: 640 }, mx: 'auto' }}>
+                            Explore our comprehensive database of T1D-related data, knowledge, and insights. Simply type your question — our PanKgraph agent will help you explore the knowledge graph.
                         </Typography>
                     </Box>
 
@@ -379,7 +345,7 @@ function AgentLandingPage() {
                     </Box>
 
                     <Box sx={{ width: '100%', maxWidth: 820, position: 'relative' }}>
-                        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: '30px' }}>
+                        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: { xs: '12px', md: '30px' } }}>
                             {quickCards.map((card) => (
                                 <Button
                                     key={card.key}
@@ -391,10 +357,10 @@ function AgentLandingPage() {
                                         setActiveExampleGroup((prev) => (prev === card.key ? undefined : card.key));
                                     }}
                                     sx={{
-                                        borderRadius: '32px',
+                                        borderRadius: { xs: '16px', md: '32px' },
                                         minHeight: 40,
-                                        px: '20px',
-                                        py: '20px',
+                                        px: { xs: '12px', md: '20px' },
+                                        py: { xs: '12px', md: '20px' },
                                         textTransform: 'none',
                                         justifyContent: 'flex-start',
                                         alignItems: 'center',

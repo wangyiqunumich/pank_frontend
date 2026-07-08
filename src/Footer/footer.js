@@ -1,6 +1,8 @@
 import './PkbFooter.scss'; // Import the CSS file for styles
 
-import React from 'react';
+import React, { useState } from 'react';
+
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 export const pkbMenu = {
     highlightItems: [
@@ -46,6 +48,12 @@ export const pkbMenu = {
 }
 
 function PkbFooter() {
+    const [openSections, setOpenSections] = useState({});
+
+    const toggleSection = (label) => {
+        setOpenSections((prev) => ({ ...prev, [label]: !prev[label] }));
+    };
+
     return (
         <div className="pkb-footer" style={{ minHeight: 'fit-content', height: 'auto', position: 'relative' }}>
             <div className="menu">
@@ -59,61 +67,74 @@ function PkbFooter() {
                     ))}
                 </div>
                 {pkbMenu.menuItems.map((item) => (
-                    <div className="menu-item-wrapper" key={item.path || item.label}>
-                        <a className="menu-item" href={item.path || null} style={{ fontWeight: 600 }}>
-                            {item.label}
-                        </a>
+                    <div
+                        className={`menu-item-wrapper${openSections[item.label] ? ' active' : ''}`}
+                        key={item.path || item.label}
+                    >
+                        {item.path ? (
+                            <a className="menu-item" href={item.path} style={{ fontWeight: 600 }}>
+                                {item.label}
+                            </a>
+                        ) : (
+                            <span className="menu-item menu-item-label" style={{ fontWeight: 600 }}>
+                                {item.label}
+                            </span>
+                        )}
                         {item.subMenuItems && (
-                            <div className="submenu">
-                                {item.subMenuItems.map((subItem) => (
-                                    <a
-                                        className="submenu-item"
-                                        href={subItem.path || null}
-                                        key={subItem.path || subItem.label}
-                                    >
-                                        {subItem.label}
-                                    </a>
-                                ))}
-                            </div>
+                            <>
+                                <button
+                                    type="button"
+                                    className="submenu-toggle"
+                                    aria-label={`Toggle ${item.label} submenu`}
+                                    aria-expanded={!!openSections[item.label]}
+                                    onClick={() => toggleSection(item.label)}
+                                >
+                                    <KeyboardArrowDownIcon fontSize="small" />
+                                </button>
+                                <div className="submenu">
+                                    {item.subMenuItems.map((subItem) => (
+                                        <a
+                                            className="submenu-item"
+                                            href={subItem.path || null}
+                                            key={subItem.path || subItem.label}
+                                        >
+                                            {subItem.label}
+                                        </a>
+                                    ))}
+                                </div>
+                            </>
                         )}
                     </div>
                 ))}
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly' }}>
-                <div className={'f-row'} style={{
-                    gap: "20px", flexDirection: 'row', display: 'flex', width: 'fit-content',
-                    marginBottom: '20px'
-                }}>
-                    <div className="logo">
-                        <a href="/old-landing">
-                            <img
-                                style={{ height: "37px", width: '200px' }}
-                                src="https://hugeampkpncms.org/sites/default/files/users/user32/pankbase/PanKbase_logo-black.svg"
-                                alt="PanKbase Logo"
-                            />
-                        </a>
-                    </div>
-                    <div style={{ textAlign: 'left' }}>
-                        Supported by <strong>National Institutes of Health (NIH)</strong>{" "}
-                        grants <strong>U24 DK138515</strong>, <strong>U24 DK138512</strong>
-                        <br />
-                        Supplemental funds from the{" "}
-                        <strong>NIH Office of Data Science Strategies</strong>
-                    </div>
+            <div className="info-rows">
+                <div className="logo info-logo-1">
+                    <a href="/old-landing">
+                        <img
+                            className="footer-logo-img"
+                            src="https://hugeampkpncms.org/sites/default/files/users/user32/pankbase/PanKbase_logo-black.svg"
+                            alt="PanKbase Logo"
+                        />
+                    </a>
                 </div>
-                <div className={'f-row'} style={{ gap: "20px", flexDirection: 'row', display: 'flex', width: 'fit-content' }}>
-                    <div className="logo">
-                        <a href="https://hirnetwork.org/">
-                            <img
-                                style={{ height: "37px", width: '200px' }}
-                                src="https://hirnetwork.org/2021/wp-content/uploads/2024/02/logo-hirn.svg"
-                                alt="Hirn Logo"
-                            />
-                        </a>
-                    </div>
-                    <div style={{ textAlign: 'left' }}>
-                        Check out the latest developments from the Human Islet Resource Network (HIRN) through its newsletter detailing research advancements, funding opportunities, job openings, and more.
-                    </div>
+                <div className="f-row-text info-text-1">
+                    Supported by <strong>National Institutes of Health (NIH)</strong>{" "}
+                    grants <strong>U24 DK138515</strong>, <strong>U24 DK138512</strong>
+                    <br />
+                    Supplemental funds from the{" "}
+                    <strong>NIH Office of Data Science Strategies</strong>
+                </div>
+                <div className="logo info-logo-2">
+                    <a href="https://hirnetwork.org/">
+                        <img
+                            className="footer-logo-img"
+                            src="https://hirnetwork.org/2021/wp-content/uploads/2024/02/logo-hirn.svg"
+                            alt="Hirn Logo"
+                        />
+                    </a>
+                </div>
+                <div className="f-row-text info-text-2">
+                    Check out the latest developments from the Human Islet Resource Network (HIRN) through its newsletter detailing research advancements, funding opportunities, job openings, and more.
                 </div>
             </div>
         </div>
