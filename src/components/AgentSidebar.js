@@ -11,7 +11,6 @@ import {
 } from 'react-router-dom';
 
 import AddIcon from '@mui/icons-material/Add';
-import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import PersonOutlineOutlinedIcon
   from '@mui/icons-material/PersonOutlineOutlined';
@@ -29,6 +28,7 @@ import {
 } from '@mui/material';
 
 import { ReactComponent as SidebarLeftIcon } from '../image/sidebar.left.svg';
+import { ReactComponent as SkillIcon } from '../image/skill.svg';
 import { readRecentChats } from '../utils/chatSessionStorage';
 
 const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
@@ -212,6 +212,7 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
             <Typography
               onClick={() => navigate('/')}
               sx={{
+                pl: 1,
                 fontFamily: 'Archivo, DM Sans, Inter, sans-serif',
                 fontWeight: 600,
                 fontSize: 22,
@@ -257,7 +258,7 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
           <SidebarButton
             active={activeNav === 'skills'}
             open={open}
-            icon={<AssignmentOutlinedIcon />}
+            icon={<SkillIcon style={{ width: 20, height: 20 }} />}
             label="Tools"
             onClick={() => navigate('/skills')}
           />
