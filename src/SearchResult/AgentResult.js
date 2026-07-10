@@ -11,10 +11,12 @@ import { useLocation } from 'react-router-dom';
 
 import ChatBubbleOutlineRoundedIcon
   from '@mui/icons-material/ChatBubbleOutlineRounded';
+import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
 import {
   Box,
   Container,
   FormControl,
+    IconButton,
   MenuItem,
   Select,
   useMediaQuery,
@@ -503,6 +505,7 @@ export function AgentResultLayout({
         if (typeof window === 'undefined') return false;
         return window.localStorage.getItem(FEEDBACK_AUTO_PROMPT_DISABLED_KEY) === '1';
     });
+    const [showScrollToPlanConfirmButton, setShowScrollToPlanConfirmButton] = useState(false);
     const menuTimersRef = useRef({ open: null, close: null });
     const feedbackPromptTimerRef = useRef(null);
     const previousQuestionCompleteRef = useRef(false);
@@ -514,6 +517,11 @@ export function AgentResultLayout({
     const routeScrollResetRef = useRef({ frameIds: [], timeoutIds: [] });
     const scrollLockRef = useRef({ active: false, until: 0, index: null });
     const activeMeta = contentMetaByIndex[activeResultIndex];
+    const routeQuestionKey = useMemo(() => {
+        const params = new URLSearchParams(location.search || '');
+        const decodedQuestion = decodeQuestionFromQueryParam(params.get('question'));
+        return `${location.pathname}::${decodedQuestion}`;
+    }, [location.pathname, location.search]);
     const urlSessionId = useMemo(() => {
         const urlSessionId = new URLSearchParams(location.search).get('session_id') || '';
         return urlSessionId;
@@ -544,6 +552,81 @@ export function AgentResultLayout({
     const getAnchorPrefix = (index) => `result-${index + 1}`;
     const primaryAnchorPrefix = contentMetaByIndex[0]?.anchorPrefix || getAnchorPrefix(0);
     const navQuestions = feedbackQuestions.length ? feedbackQuestions : results;
+    const scrollToPlanConfirmButton = useCallback(() => {
+        if (typeof document === 'undefined') return;
+        const activeAnchorPrefix = activeMeta?.anchorPrefix || primaryAnchorPrefix;
+        const targetId = activeMeta?.planProceedAnchorId || `${activeAnchorPrefix}-plan-proceed-button`;
+        const target = document.getElementById(targetId);
+        if (!target) return;
+        target.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }, [activeMeta?.anchorPrefix, activeMeta?.planProceedAnchorId, primaryAnchorPrefix]);
+
+    useEffect(() => {
+        if (typeof window === 'undefined' || typeof document === 'undefined') {
+            setShowScrollToPlanConfirmButton(false);
+            return undefined;
+        }
+
+        if (!activeMeta?.isPlanning) {
+            setShowScrollToPlanConfirmButton(false);
+            return undefined;
+        }
+
+        const activeAnchorPrefix = activeMeta?.anchorPrefix || primaryAnchorPrefix;
+        const targetId = activeMeta?.planProceedAnchorId || `${activeAnchorPrefix}-plan-proceed-button`;
+        let rafId = null;
+        let observer = null;
+
+        const updateVisibility = () => {
+            const target = document.getElementById(targetId);
+            if (!target) {
+                setShowScrollToPlanConfirmButton(false);
+                return;
+            }
+
+            const rect = target.getBoundingClientRect();
+            const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+            const isInViewport = rect.bottom > 0 && rect.top < viewportHeight;
+            const isBelowViewport = rect.top >= viewportHeight;
+            setShowScrollToPlanConfirmButton(!isInViewport && isBelowViewport);
+        };
+
+        const onScrollOrResize = () => {
+            if (rafId) return;
+            rafId = window.requestAnimationFrame(() => {
+                rafId = null;
+                updateVisibility();
+            });
+        };
+
+        updateVisibility();
+        const target = document.getElementById(targetId);
+        if (target && 'IntersectionObserver' in window) {
+            observer = new IntersectionObserver(onScrollOrResize, { threshold: 0 });
+            observer.observe(target);
+        }
+
+        const rootScroll = document.getElementById('root');
+        const docScroll = document.scrollingElement || document.documentElement;
+        window.addEventListener('scroll', onScrollOrResize, { passive: true });
+        window.addEventListener('resize', onScrollOrResize);
+        document.addEventListener('scroll', onScrollOrResize, { passive: true });
+        rootScroll?.addEventListener('scroll', onScrollOrResize, { passive: true });
+        docScroll?.addEventListener?.('scroll', onScrollOrResize, { passive: true });
+
+        return () => {
+            observer?.disconnect();
+            window.removeEventListener('scroll', onScrollOrResize);
+            window.removeEventListener('resize', onScrollOrResize);
+            document.removeEventListener('scroll', onScrollOrResize);
+            rootScroll?.removeEventListener('scroll', onScrollOrResize);
+            docScroll?.removeEventListener?.('scroll', onScrollOrResize);
+            if (rafId) {
+                window.cancelAnimationFrame(rafId);
+            }
+        };
+    }, [activeMeta?.anchorPrefix, activeMeta?.isPlanning, activeMeta?.planProceedAnchorId, primaryAnchorPrefix]);
+
     const detectCurrentQuestionIndexFromViewport = useCallback((questionCount, anchorPrefixOverride) => {
         const normalizedCount = Math.max(Number(questionCount) || 0, 0);
         if (normalizedCount <= 1 || typeof document === 'undefined') return 0;
@@ -998,6 +1081,11 @@ export function AgentResultLayout({
     }, []);
 
     useEffect(() => {
+        const rebuiltResults = buildFeedbackQuestionsFromContext();
+        setFeedbackQuestions(rebuiltResults);
+    }, [location.pathname, location.search, buildFeedbackQuestionsFromContext]);
+
+    useEffect(() => {
         clearRouteScrollResetJobs();
         forcePageToTop();
 
@@ -1017,8 +1105,6 @@ export function AgentResultLayout({
             routeScrollResetRef.current.timeoutIds.push(timeoutId);
         });
 
-        const rebuiltResults = buildFeedbackQuestionsFromContext();
-        setFeedbackQuestions(rebuiltResults);
         setContentMetaByIndex({});
         setActiveResultIndex(0);
         setActiveQuestionIndex(0);
@@ -1028,7 +1114,7 @@ export function AgentResultLayout({
         return () => {
             clearRouteScrollResetJobs();
         };
-    }, [location.pathname, location.search, buildFeedbackQuestionsFromContext, clearRouteScrollResetJobs, forcePageToTop]);
+    }, [routeQuestionKey, clearRouteScrollResetJobs, forcePageToTop]);
 
     useEffect(() => {
         const onHistoryUpdated = (event) => {
@@ -1488,6 +1574,30 @@ export function AgentResultLayout({
                     <ChatBubbleOutlineRoundedIcon sx={{ color: '#FFFFFF', fontSize: 20 }} />
                     Give Feedback
                 </button>
+            ) : null}
+
+            {showScrollToPlanConfirmButton ? (
+                <IconButton
+                    aria-label="Scroll to bottom"
+                    onClick={scrollToPlanConfirmButton}
+                    sx={{
+                        position: 'fixed',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        bottom: 24,
+                        zIndex: 1200,
+                        width: 48,
+                        height: 48,
+                        bgcolor: '#3A838B',
+                        color: '#FFFFFF',
+                        boxShadow: '0 8px 20px rgba(77, 129, 138, 0.28)',
+                        '&:hover': {
+                            bgcolor: '#2d6a70',
+                        },
+                    }}
+                >
+                    <ArrowDownwardRoundedIcon />
+                </IconButton>
             ) : null}
 
             <AlertMessage
