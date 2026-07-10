@@ -973,6 +973,7 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
 
                 <Divider sx={{ my: 2.5, borderColor: '#E2E8F0' }} />
                 <Button
+                    id={buildAnchorId('plan-proceed-button')}
                     type="button"
                     variant="contained"
                     startIcon={<CheckIcon sx={{ fontSize: 20 }} />}
