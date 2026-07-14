@@ -11,7 +11,6 @@ import {
 } from 'react-router-dom';
 
 import AddIcon from '@mui/icons-material/Add';
-import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import PersonOutlineOutlinedIcon
   from '@mui/icons-material/PersonOutlineOutlined';
@@ -29,6 +28,7 @@ import {
 } from '@mui/material';
 
 import { ReactComponent as SidebarLeftIcon } from '../image/sidebar.left.svg';
+import { ReactComponent as SkillIcon } from '../image/skill.svg';
 import { readRecentChats } from '../utils/chatSessionStorage';
 
 const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
@@ -36,6 +36,7 @@ const SIDEBAR_EXPANDED_WIDTH = 264;
 const SIDEBAR_COLLAPSED_WIDTH = 80;
 const SIDEBAR_HOVER_BG = '#E3F0F1';
 const SIDEBAR_ACTIVE_BG = '#D9EAEB';
+const SIDEBAR_CONTENT_ALIGN_PL = 2.625;
 const SHOW_SIDEBAR_SIGN_IN = false;
 
 function SidebarButton({ active, icon, label, onClick, open }) {
@@ -195,7 +196,7 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
         minWidth: open ? SIDEBAR_EXPANDED_WIDTH : SIDEBAR_COLLAPSED_WIDTH,
         bgcolor: '#F8FBFC',
         borderRight: '1px solid #E2E8F0',
-        px: open ? 2 : 1,
+        px: 1,
         display: 'none',
         '@media (min-width:1000px)': {
           display: 'flex',
@@ -212,6 +213,7 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
             <Typography
               onClick={() => navigate('/')}
               sx={{
+                pl: SIDEBAR_CONTENT_ALIGN_PL,
                 fontFamily: 'Archivo, DM Sans, Inter, sans-serif',
                 fontWeight: 600,
                 fontSize: 22,
@@ -257,15 +259,15 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
           <SidebarButton
             active={activeNav === 'skills'}
             open={open}
-            icon={<AssignmentOutlinedIcon />}
+            icon={<SkillIcon style={{ width: 20, height: 20 }} />}
             label="Tools"
             onClick={() => navigate('/skills')}
           />
           {open && (
             <Typography
               sx={{
-                mt: 0.5,
-                px: 1,
+                mt: '14px',
+                pl: SIDEBAR_CONTENT_ALIGN_PL,
                 color: '#8B949E',
                 fontFamily: 'DM Sans, Inter, sans-serif',
                 fontSize: 11,
@@ -310,7 +312,8 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
                       fontWeight: isActiveRecent ? 700 : 500,
                       textTransform: 'none',
                       minHeight: 32,
-                      px: 1,
+                      pl: SIDEBAR_CONTENT_ALIGN_PL,
+                      pr: SIDEBAR_CONTENT_ALIGN_PL,
                       py: 0.5,
                       bgcolor: isActiveRecent ? SIDEBAR_ACTIVE_BG : 'transparent',
                       '&:hover': { bgcolor: isActiveRecent ? SIDEBAR_ACTIVE_BG : SIDEBAR_HOVER_BG },
@@ -322,7 +325,7 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
                   </Button>
                 );
               }) : (
-                <Typography sx={{ fontFamily: 'DM Sans, Inter, sans-serif', fontSize: 12, color: '#94A3B8', px: 1 }}>
+                <Typography sx={{ fontFamily: 'DM Sans, Inter, sans-serif', fontSize: 12, color: '#94A3B8', pl: SIDEBAR_CONTENT_ALIGN_PL, pr: SIDEBAR_CONTENT_ALIGN_PL }}>
                   No recent conversations yet.
                 </Typography>
               )}

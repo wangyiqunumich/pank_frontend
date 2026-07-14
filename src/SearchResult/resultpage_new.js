@@ -3274,6 +3274,20 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         });
     }, [terminalMode, terminalLoading, terminalPhase, questionLoadingStartedAt, questionLoadingNow, streamMilestones.planningDone]);
 
+    const activeFollowUpPlanIndex = React.useMemo(() => {
+        if (!isChatApiMode || !followUpBlocks.length) {
+            return -1;
+        }
+
+        for (let index = followUpBlocks.length - 1; index >= 0; index -= 1) {
+            if (followUpBlocks[index]?.type === 'plan') {
+                return index;
+            }
+        }
+
+        return -1;
+    }, [isChatApiMode, followUpBlocks]);
+    const hasActiveFollowUpPlan = activeFollowUpPlanIndex >= 0;
     const isPlanningPhase = terminalPhase === 'confirm' || hasPendingFollowUpWork;
 
     const startFollowUpQuestion = React.useCallback((label) => {
@@ -4679,22 +4693,32 @@ Please review this plan and provide edits if needed.`,
         };
     }, [clearPlanInactivityTimer]);
 
-    const hideFloatingSearchBar = terminalMode
+    const anchorPrefix = contentAnchorPrefix || `result-${demoIndex}`;
+    const activePlanProceedAnchorId = shouldShowPlannerPage
+        ? `${anchorPrefix}-plan-proceed-button`
+        : (hasActiveFollowUpPlan
+            ? `${anchorPrefix}-followup-plan-${activeFollowUpPlanIndex + 1}-plan-proceed-button`
+            : '');
+    const hasActivePlanConfirmation = shouldShowPlannerPage || hasActiveFollowUpPlan;
+
+    const hideFloatingSearchBar = hasActivePlanConfirmation || (
+        terminalMode
         && !hasPendingFollowUpWork
-        && (terminalPhase === 'loading' || terminalPhase === 'confirm');
+        && (terminalPhase === 'loading' || terminalPhase === 'confirm')
+    );
 
     const resolvedPageData = planDemoMode
         ? buildPlanDemoPageData()
         : (shouldShowPlannerPage
             ? buildTerminalPlanPageData()
             : (demoMode ? buildDemoPageData(demoIndex) : pageData));
-    const anchorPrefix = contentAnchorPrefix || `result-${demoIndex}`;
     const lastMetaRef = useRef("");
     const showDebugStreamLoading = !terminalMode && !demoMode && !planDemoMode && debug && !streamComplete && !streamMilestones.cypherGenerated;
 
     useEffect(() => {
         if (!onContentMeta) return;
         const feedbackSessionId = chatSessionId || planSessionId || chatSessionIdFromUrl || pendingPlanSessionIdFromUrl || '';
+        const metaRouteKey = `${location.pathname}${location.search}`;
         const aiHeadings = (resolvedPageData?.aiOverview?.sections ?? [])
             .map((section, index) => (section?.heading ? ({ label: section.heading, index }) : null))
             .filter(Boolean);
@@ -4705,9 +4729,11 @@ Please review this plan and provide edits if needed.`,
             hasEvidences: Boolean(resolvedPageData?.evidences),
             hasFollowUp: Boolean(resolvedPageData?.followUp),
             isQuestionComplete,
-            isPlanning: isPlanningPhase,
+            isPlanning: hasActivePlanConfirmation,
             hideFloatingSearchBar,
+            planProceedAnchorId: activePlanProceedAnchorId,
             feedbackSessionId,
+            metaRouteKey,
         };
         const serialized = JSON.stringify(serializableMeta);
         if (serialized === lastMetaRef.current) return;
@@ -4718,14 +4744,17 @@ Please review this plan and provide edits if needed.`,
         onContentMeta,
         resolvedPageData,
         isQuestionComplete,
-        isPlanningPhase,
+        hasActivePlanConfirmation,
         hideFloatingSearchBar,
+        activePlanProceedAnchorId,
         isChatApiMode,
         handleSendFollowUp,
         chatSessionId,
         planSessionId,
         chatSessionIdFromUrl,
         pendingPlanSessionIdFromUrl,
+        location.pathname,
+        location.search,
     ]);
 
     const questionJumpItems = useMemo(() => {

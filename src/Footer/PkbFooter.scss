@@ -9,7 +9,7 @@
     min-height: 70px;
     margin-top: auto;
     //flex-direction: column;
-    gap: 30px;
+    gap: 32px;
     font-size: 13px;
 .menu {
     display: flex;
@@ -33,6 +33,10 @@
     flex-direction: column;
 }
 
+.menu-item-label {
+    cursor: default;
+}
+
 .submenu {
     display: flex;
     flex-direction: column;
@@ -40,6 +44,120 @@
 
 a.submenu-item {
     font-weight: normal;
+}
+
+.submenu-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    padding: 4px;
+}
+
+.info-rows {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+        "logo1 text1"
+        "logo2 text2";
+    column-gap: 20px;
+    row-gap: 20px;
+    align-items: center;
+}
+
+.info-logo-1 {
+    grid-area: logo1;
+}
+
+.info-text-1 {
+    grid-area: text1;
+}
+
+.info-logo-2 {
+    grid-area: logo2;
+}
+
+.info-text-2 {
+    grid-area: text2;
+}
+
+.f-row-text {
+    text-align: left;
+}
+
+.footer-logo-img {
+    height: 37px;
+    width: 200px;
+}
+
+@media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 20px 20px 24px;
+    gap: 20px;
+    text-align: left;
+
+    .menu {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .main-menu-items {
+        display: none;
+    }
+
+    .menu-item-wrapper {
+        position: relative;
+        flex-direction: column;
+        gap: 0;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .menu-item-wrapper .menu-item {
+        width: 100%;
+        padding: 12px 28px 12px 0;
+    }
+
+    .submenu-toggle {
+        display: flex;
+        position: absolute;
+        top: 8px;
+        right: 0;
+    }
+
+    .submenu {
+        display: none;
+        gap: 12px;
+        padding: 0 0 16px 4px;
+    }
+
+    .menu-item-wrapper.active .submenu {
+        display: flex;
+    }
+
+    .info-rows {
+        width: 100%;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "logo1 logo2"
+            "text1 text1"
+            "text2 text2";
+        justify-items: center;
+        row-gap: 16px;
+        column-gap: 16px;
+    }
+
+    .f-row-text {
+        text-align: center;
+    }
+
+    .footer-logo-img {
+        height: 32px;
+        width: auto;
+    }
 }
 
 }
