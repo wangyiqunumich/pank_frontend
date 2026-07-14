@@ -1687,7 +1687,7 @@ export function AgentResultLayout({
                             Share your feedback
                         </div>
                         <div style={{ marginTop: 6, fontWeight: 400, fontSize: 15, color: '#6A7282' }}>
-                            Your feedback helps us improve PanKgraph. We'd love to know what you think about your experience.
+                            Your feedback about the content and the reasoning process from AI will be in the PanKgraph Agentic Benchmark.
                         </div>
 
                         <div style={{ height: 30 }} />
@@ -1797,7 +1797,7 @@ export function AgentResultLayout({
                         </FormControl>
 
                         <div style={{ fontWeight: 400, fontSize: 13, color: '#6A7282', marginBottom: 8 }}>
-                            How would you rate your experience?
+                            How would you rate the accuracy of the content of AI?
                         </div>
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1833,7 +1833,7 @@ export function AgentResultLayout({
 
                         <div style={{ height: 16 }} />
                         <div style={{ fontWeight: 400, fontSize: 13, color: '#6A7282', marginBottom: 8 }}>
-                            What did you think of this response? (optional)
+                            What is your own reasoning process for this question?
                         </div>
                         <textarea
                             value={feedbackText}
@@ -1857,7 +1857,7 @@ export function AgentResultLayout({
                         <div style={{ height: 16 }} />
 
                         <div style={{ fontWeight: 400, fontSize: 13, color: '#6A7282', marginBottom: 8 }}>
-                            Email (optional)
+                            Email
                         </div>
                         <input
                             type="email"
