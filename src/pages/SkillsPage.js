@@ -3,6 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import ExtensionOutlinedIcon from '@mui/icons-material/ExtensionOutlined';
+import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
 import {
   Box,
   Button,
@@ -149,7 +150,7 @@ export default function SkillsPage() {
             sx={{
               mt: 8,
               display: 'grid',
-              gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' },
+              gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' },
               gap: { xs: 3, md: 4 },
             }}
           >
@@ -202,6 +203,19 @@ export default function SkillsPage() {
               iconShadow="0 8px 18px rgba(105, 46, 156, 0.28)"
               cardBg="#FAF7FC"
               actionHoverBg="#F3ECFA"
+            />
+
+            <SkillCard
+              icon={<MenuBookOutlinedIcon sx={{ fontSize: 44 }} />}
+              title="HIRN Literature QA Tool"
+              description="Ask plain-language questions about HIRN literature and receive direct, evidence-grounded answers with PubMed references."
+              actionLabel="Launch"
+              onAction={() => navigate('/hirn-literature')}
+              accent="#B45309"
+              iconBg="#FFF3D6"
+              iconShadow="0 8px 18px rgba(180, 83, 9, 0.24)"
+              cardBg="#FFFBF2"
+              actionHoverBg="#FFF3D6"
             />
           </Box>
 

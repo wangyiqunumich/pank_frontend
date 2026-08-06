@@ -16,6 +16,23 @@ Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 The page will reload when you make changes.\
 You may also see any lint errors in the console.
 
+### HIRN Literature QA configuration
+
+The `/hirn-literature` tool uses the public HIRN Literature API by default:
+
+```text
+https://jieliulab3.dcmb.med.umich.edu/hirn-literature-api
+```
+
+Set `REACT_APP_HIRN_LITERATURE_API_URL` before starting or building the app to
+use a different deployment or application proxy.
+
+The browser client intentionally sends no API key or authorization header. Do
+not place secrets in `REACT_APP_*` variables: Create React App embeds those
+values in the public JavaScript bundle. If the HIRN API requires authentication
+in the future, store the credential only in a server-side proxy and configure
+`REACT_APP_HIRN_LITERATURE_API_URL` to point to that proxy.
+
 ### `npm test`
 
 Launches the test runner in the interactive watch mode.\

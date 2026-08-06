@@ -38,6 +38,7 @@ import ResultPageNew from './SearchResult/index_new';
 import ResultPageNew2 from './SearchResult/resultpage_new';
 import FunctionalDataPage from './skills/FunctionalDataPage';
 import GWASExplorerPage from './skills/GWASExplorerPage';
+import HIRNLiteraturePage from './skills/HIRNLiteraturePage';
 import QTLExplorerPage from './skills/QTLExplorerPage';
 
 const isDevelopmentStage =
@@ -101,6 +102,7 @@ root.render(
                 <Route path="/qtl-explorer" element={<QTLExplorerPage />} />
                 <Route path="/gwas-explorer" element={<GWASExplorerPage />} />
                 <Route path="/functional-data" element={<FunctionalDataPage />} />
+                <Route path="/hirn-literature" element={<HIRNLiteraturePage />} />
                 <Route path="/agent-landing" element={<Navigate to="/" replace />} />
                 <Route path="/old-landing" element={<LandingPage />} />
                 <Route path="/callback" element={<AgentLandingPage />} />
