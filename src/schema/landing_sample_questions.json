@@ -26,14 +26,6 @@
                     "link": ""
                 },
                 {
-                    "question": "Which SNP serves as the lead QTL for [GENE]?",
-                    "link": "/match?qid=1"
-                },
-                {
-                    "question": "Which GENE is regulated by [SNP] as a QTL?",
-                    "link": "/match?qid=2"
-                },
-                {
                     "question": "For ADCY3, does the T1D-associated GWAS signal rs13393590 colocalize with ADCY3 molecular QTL evidence?",
                     "link": ""
                 }
