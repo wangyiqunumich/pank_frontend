@@ -11,12 +11,10 @@ import { useLocation } from 'react-router-dom';
 
 import ChatBubbleOutlineRoundedIcon
   from '@mui/icons-material/ChatBubbleOutlineRounded';
-import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
 import {
   Box,
   Container,
   FormControl,
-    IconButton,
   MenuItem,
   Select,
   useMediaQuery,
@@ -34,6 +32,8 @@ import SearchResult from './result';
 
 const FEEDBACK_AUTO_PROMPT_DISABLED_KEY = 'pank_feedback_auto_prompt_disabled_v1';
 const FEEDBACK_AUTO_PROMPT_DELAY_MS = 30 * 1000;
+const AGENT_SIDEBAR_EXPANDED_WIDTH = 264;
+const AGENT_SIDEBAR_COLLAPSED_WIDTH = 80;
 
 const decodeBase64Utf8 = (value) => {
     if (!value) return '';
@@ -506,6 +506,11 @@ export function AgentResultLayout({
         return window.localStorage.getItem(FEEDBACK_AUTO_PROMPT_DISABLED_KEY) === '1';
     });
     const [showScrollToPlanConfirmButton, setShowScrollToPlanConfirmButton] = useState(false);
+    const [isAgentSidebarOpen, setIsAgentSidebarOpen] = useState(() => {
+        if (typeof window === 'undefined') return true;
+        const stored = window.localStorage.getItem('pank-sidebar-open');
+        return stored === null ? true : stored === 'true';
+    });
     const menuTimersRef = useRef({ open: null, close: null });
     const feedbackPromptTimerRef = useRef(null);
     const previousQuestionCompleteRef = useRef(false);
@@ -540,7 +545,17 @@ export function AgentResultLayout({
         && !Boolean(activeMeta?.isPlanning)
         && (effectiveAllowMulti || activeQuestionComplete);
     const isSingleColumn = useMediaQuery("(max-width:1199.95px)");
+    const isDesktopSidebarVisible = useMediaQuery("(min-width:1000px)");
     const navigatorMenuVisible = isSingleColumn || menuOpen;
+
+    useEffect(() => {
+        const handleSidebarToggle = (event) => {
+            setIsAgentSidebarOpen(Boolean(event?.detail?.open));
+        };
+
+        window.addEventListener('pank-sidebar-toggle', handleSidebarToggle);
+        return () => window.removeEventListener('pank-sidebar-toggle', handleSidebarToggle);
+    }, []);
 
     const trackAgentEvent = (eventName, params = {}) => {
         trackGtagEvent(eventName, {
@@ -1460,7 +1475,7 @@ export function AgentResultLayout({
                         borderTop: "1px solid #e0e0e0",
                         boxShadow: "0 -2px 12px rgba(0,0,0,0.08)",
                         padding: "16px",
-                        zIndex: 900,
+                        zIndex: 1300,
                         marginTop: 8,
                         overflow: 'visible',
                     }}
@@ -1525,7 +1540,7 @@ export function AgentResultLayout({
                             position: 'absolute',
                             right: 24,
                             top: -60,
-                            zIndex: 1200,
+                            zIndex: 1300,
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: 8,
@@ -1555,7 +1570,7 @@ export function AgentResultLayout({
                         position: 'fixed',
                         right: 24,
                         bottom: 24,
-                        zIndex: 1200,
+                        zIndex: 1300,
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: 8,
@@ -1577,27 +1592,107 @@ export function AgentResultLayout({
             ) : null}
 
             {showScrollToPlanConfirmButton ? (
-                <IconButton
-                    aria-label="Scroll to bottom"
+                <Box
+                    aria-hidden="false"
                     onClick={scrollToPlanConfirmButton}
                     sx={{
                         position: 'fixed',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        bottom: 24,
+                        left: isDesktopSidebarVisible
+                            ? (isAgentSidebarOpen ? AGENT_SIDEBAR_EXPANDED_WIDTH : AGENT_SIDEBAR_COLLAPSED_WIDTH)
+                            : 0,
+                        right: 0,
+                        bottom: 0,
                         zIndex: 1200,
-                        width: 48,
-                        height: 48,
-                        bgcolor: '#3A838B',
-                        color: '#FFFFFF',
-                        boxShadow: '0 8px 20px rgba(77, 129, 138, 0.28)',
-                        '&:hover': {
-                            bgcolor: '#2d6a70',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        pt: 2.5,
+                        pb: 2,
+                        background: 'linear-gradient(to bottom, rgba(242, 247, 249, 0), rgba(242, 247, 249, 0.75) 42%, rgba(242, 247, 249, 0.9))',
+                        backdropFilter: 'blur(3px)',
+                        WebkitBackdropFilter: 'blur(3px)',
+                        pointerEvents: 'none',
+                        transition: 'left 220ms ease',
+                        '@keyframes scrollHintGlow': {
+                            '0%, 38%, 100%': { opacity: 0.28 },
+                            '16%': { opacity: 1 },
+                        },
+                        '@keyframes scrollHintSweep': {
+                            '0%': { backgroundPosition: '140% 0' },
+                            '100%': { backgroundPosition: '-40% 0' },
                         },
                     }}
                 >
-                    <ArrowDownwardRoundedIcon />
-                </IconButton>
+                    <Box
+                        component="button"
+                        type="button"
+                        aria-label="Scroll down and confirm"
+                        sx={{
+                            border: 0,
+                            p: 0,
+                            bgcolor: 'transparent',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: 0.25,
+                            cursor: 'pointer',
+                            pointerEvents: 'auto',
+                            fontFamily: 'Open Sans, sans-serif',
+                        }}
+                    >
+                        <svg
+                            width="12"
+                            height="20"
+                            viewBox="0 0 12 20"
+                            fill="none"
+                            aria-hidden="true"
+                            style={{
+                                width: '12px',
+                                minWidth: '12px',
+                                maxWidth: '12px',
+                                height: '20px',
+                                minHeight: '20px',
+                                maxHeight: '20px',
+                                display: 'block',
+                                flex: '0 0 12px',
+                                color: '#219197',
+                                overflow: 'visible',
+                            }}
+                        >
+                            <path
+                                d="M1 3L6 8L11 3"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                style={{ animation: 'scrollHintGlow 2.2s ease-in-out infinite' }}
+                            />
+                            <path
+                                d="M1 11L6 16L11 11"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                style={{ animation: 'scrollHintGlow 2.2s ease-in-out 0.35s infinite' }}
+                            />
+                        </svg>
+                        <Box
+                            component="span"
+                            sx={{
+                                fontSize: 12,
+                                lineHeight: 1.3,
+                                fontWeight: 600,
+                                background: 'linear-gradient(90deg, #000 0%, #000 40%, #7BC9C9 50%, #000 60%, #000 100%)',
+                                backgroundSize: '220% 100%',
+                                backgroundClip: 'text',
+                                WebkitBackgroundClip: 'text',
+                                color: 'transparent',
+                                animation: 'scrollHintSweep 2.6s ease-in-out infinite',
+                            }}
+                        >
+                            Scroll down and confirm
+                        </Box>
+                    </Box>
+                </Box>
             ) : null}
 
             <AlertMessage
@@ -1626,7 +1721,7 @@ export function AgentResultLayout({
                 <div
                     style={{
                         position: 'fixed',
-                        zIndex: 1300,
+                        zIndex: 1400,
                         right: 24,
                         bottom: 85,
                         width: 480,
