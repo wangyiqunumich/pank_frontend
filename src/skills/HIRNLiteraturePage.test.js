@@ -272,7 +272,7 @@ test('places a contextual follow-up composer below a completed answer', async ()
   expect(expandedQuestion).toContain(`Follow-up question: ${followUp}`);
 });
 
-test('shows the selected raw HIRN answer and expandable alternatives in Agent mode', async () => {
+test('shows separate raw HIRN results for the context mechanism and alternative explanation', async () => {
   askHirnAgent.mockResolvedValue({
     request_id: 'agent-1',
     selected: {
@@ -282,14 +282,32 @@ test('shows the selected raw HIRN answer and expandable alternatives in Agent mo
         references: fixture.references.slice(0, 1),
       },
     },
-    alternatives: [{
-      attempt_id: 'r1-2',
-      query: 'MDA5 viral sensing in T1D',
-      result: {
-        response: 'Alternative raw HIRN answer.',
-        references: fixture.references.slice(1),
+    perspectives: {
+      context_mechanism: {
+        label: "Evidence for the question's main mechanism",
+        selected: {
+          attempt_id: 'r1-1',
+          query: 'IFIH1 beta-cell antiviral response',
+          result: {
+            response: 'Selected raw HIRN mechanism answer.',
+            references: fixture.references.slice(0, 1),
+          },
+        },
+        alternatives: [],
       },
-    }],
+      alternative_explanation: {
+        label: 'Alternative explanations and open questions',
+        selected: {
+          attempt_id: 'r1-3',
+          query: 'Alternative explanations for MDA5 association with T1D',
+          result: {
+            response: 'Selected raw HIRN alternative-explanation answer.',
+            references: fixture.references.slice(1),
+          },
+        },
+        alternatives: [],
+      },
+    },
     usage_status: { warning_active: false },
   });
   renderPage();
@@ -298,11 +316,13 @@ test('shows the selected raw HIRN answer and expandable alternatives in Agent mo
   fireEvent.change(questionInput(), { target: { value: 'What is the role of MDA5 in T1D?' } });
   fireEvent.click(screen.getByRole('button', { name: 'Run Agent Search' }));
 
-  expect(await screen.findByText('Selected raw HIRN answer.')).not.toBeNull();
-  expect(screen.getByText(/Selected HIRN query: IFIH1/)).not.toBeNull();
-  expect(screen.getByText('Alternative HIRN answers (1)')).not.toBeNull();
-  fireEvent.click(screen.getByText('Alternative 1'));
-  expect(await screen.findByText('Alternative raw HIRN answer.')).not.toBeNull();
+  expect(await screen.findByText('Selected raw HIRN mechanism answer.')).not.toBeNull();
+  expect(screen.getByText('Selected raw HIRN alternative-explanation answer.')).not.toBeNull();
+  expect(screen.getByRole('heading', { name: /evidence for the question's main mechanism/i })).not.toBeNull();
+  expect(screen.getByRole('heading', { name: /alternative explanations and open questions/i })).not.toBeNull();
+  expect(screen.getByText(/HIRN query: IFIH1/)).not.toBeNull();
+  expect(screen.getByText(/HIRN query: Alternative explanations/)).not.toBeNull();
+  expect(screen.getByText(/Claude planned and ranked searches but did not write either scientific answer/i)).not.toBeNull();
   expect(askHirn).not.toHaveBeenCalled();
 });
 

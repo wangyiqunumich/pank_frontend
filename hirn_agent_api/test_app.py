@@ -76,7 +76,7 @@ class AgentApiTests(unittest.IsolatedAsyncioTestCase):
         self.assertIs(selected["result"], result)
         self.assertEqual(alternatives, [])
 
-    async def test_round_runs_three_queries(self):
+    async def test_round_runs_four_queries_across_two_perspectives(self):
         request = SimpleNamespace(is_disconnected=AsyncMock(return_value=False))
         completed = {
             "status": "complete",
@@ -87,15 +87,47 @@ class AgentApiTests(unittest.IsolatedAsyncioTestCase):
             return {**completed, "query": query, "attempt_id": attempt_id, "round": round_number}
 
         with patch.object(self.module, "_query_hirn", side_effect=fake_query) as query_mock:
-            results = await self.module._run_round(["one", "two", "three"], 1, request)
-        self.assertEqual(len(results), 3)
-        self.assertEqual(query_mock.call_count, 3)
+            results = await self.module._run_round([
+                {"query": "one", "perspective": "context_mechanism"},
+                {"query": "two", "perspective": "context_mechanism"},
+                {"query": "three", "perspective": "alternative_explanation"},
+                {"query": "four", "perspective": "alternative_explanation"},
+            ], 1, request)
+        self.assertEqual(len(results), 4)
+        self.assertEqual(query_mock.call_count, 4)
+        self.assertEqual(
+            [result["perspective"] for result in results],
+            ["context_mechanism", "context_mechanism", "alternative_explanation", "alternative_explanation"],
+        )
+
+    async def test_planner_requires_two_queries_for_each_perspective(self):
+        plan = {
+            "variants": [
+                {"query": "main mechanism query one", "perspective": "context_mechanism"},
+                {"query": "main mechanism query two", "perspective": "context_mechanism"},
+                {"query": "alternative query one", "perspective": "alternative_explanation"},
+                {"query": "alternative query two", "perspective": "alternative_explanation"},
+            ],
+            "strategy": "Check both evidence perspectives independently.",
+        }
+        payload = self.module.AgentSearchRequest(question="Does mechanism A explain outcome B?")
+        with patch.object(self.module, "_claude_tool_call", return_value=plan):
+            variants, strategy = await self.module._plan_queries(
+                SimpleNamespace(), "request", payload
+            )
+        self.assertEqual(len(variants), 4)
+        self.assertEqual(
+            [variant["perspective"] for variant in variants].count("alternative_explanation"),
+            2,
+        )
+        self.assertIn("independently", strategy)
 
     async def test_audit_fallback_never_generates_answer(self):
         attempts = [
             {
                 "attempt_id": "r1-1",
                 "query": "query",
+                "perspective": "context_mechanism",
                 "status": "complete",
                 "result": {"response": "Exact HIRN text", "references": [{"id": "1"}]},
             }
@@ -105,7 +137,8 @@ class AgentApiTests(unittest.IsolatedAsyncioTestCase):
                 SimpleNamespace(), "request", "question", attempts
             )
         self.assertTrue(fallback)
-        self.assertEqual(audit["selected_attempt_id"], "r1-1")
+        self.assertEqual(audit["selected_attempt_ids"]["context_mechanism"], "r1-1")
+        self.assertIsNone(audit["selected_attempt_ids"]["alternative_explanation"])
         self.assertNotIn("answer", audit)
 
     async def test_audit_limits_retry_queries_to_two(self):
@@ -113,15 +146,23 @@ class AgentApiTests(unittest.IsolatedAsyncioTestCase):
             {
                 "attempt_id": "r1-1",
                 "query": "query",
+                "perspective": "context_mechanism",
                 "status": "complete",
                 "result": {"response": "Not found", "references": []},
             }
         ]
         audit_payload = {
-            "selected_attempt_id": "r1-1",
+            "selected_attempt_ids": {
+                "context_mechanism": "r1-1",
+                "alternative_explanation": "missing",
+            },
             "scores": [],
             "retry_needed": True,
-            "retry_queries": ["retry one", "retry two", "retry three"],
+            "retry_queries": [
+                {"query": "retry one", "perspective": "context_mechanism"},
+                {"query": "retry two", "perspective": "alternative_explanation"},
+                {"query": "retry three", "perspective": "alternative_explanation"},
+            ],
             "rationale": "Coverage was weak.",
         }
         with patch.object(self.module, "_claude_tool_call", return_value=audit_payload):
@@ -129,7 +170,40 @@ class AgentApiTests(unittest.IsolatedAsyncioTestCase):
                 SimpleNamespace(), "request", "question", attempts
             )
         self.assertFalse(fallback)
-        self.assertEqual(audit["retry_queries"], ["retry one", "retry two"])
+        self.assertEqual(audit["retry_queries"], [
+            {"query": "retry one", "perspective": "context_mechanism"},
+            {"query": "retry two", "perspective": "alternative_explanation"},
+        ])
+
+    def test_preserves_one_raw_hirn_result_for_each_perspective(self):
+        attempts = [
+            {
+                "attempt_id": "r1-1",
+                "query": "main mechanism",
+                "perspective": "context_mechanism",
+                "status": "complete",
+                "result": {"response": "Raw main evidence", "references": [{"id": "1"}]},
+            },
+            {
+                "attempt_id": "r1-3",
+                "query": "alternative mechanism",
+                "perspective": "alternative_explanation",
+                "status": "complete",
+                "result": {"response": "Raw alternative evidence", "references": [{"id": "2"}]},
+            },
+        ]
+        perspectives = self.module._perspective_results(
+            attempts,
+            {"context_mechanism": "r1-1", "alternative_explanation": "r1-3"},
+        )
+        self.assertEqual(
+            perspectives["context_mechanism"]["selected"]["result"]["response"],
+            "Raw main evidence",
+        )
+        self.assertEqual(
+            perspectives["alternative_explanation"]["selected"]["result"]["response"],
+            "Raw alternative evidence",
+        )
 
 
 if __name__ == "__main__":

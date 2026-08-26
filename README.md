@@ -70,12 +70,16 @@ https://jieliulab3.dcmb.med.umich.edu/hirn-literature-api/agent
 
 Claude Haiku plans and audits retrieval queries there, while every displayed
 scientific answer is the unchanged `Complete` result from the HIRN literature
-API. The selected answer appears first and distinct raw alternatives remain
-expandable. The Anthropic key and usage database stay on the server.
+API. Agent mode runs four queries in parallel: two fact-check the main
+mechanism implied by the question and two independently search for competing
+mechanisms, limitations, or unresolved explanations. The best grounded raw
+HIRN result for each perspective is displayed in its own section; additional
+raw results remain expandable. This presents both evidence tracks without
+asking Claude to synthesize a biomedical answer or implying equal evidence.
+The Anthropic key and usage database stay on the server.
 
 Run the integrated local page with `npm run start:hirn-demo` and open
-<http://localhost:3001/hirn-literature>. This local frontend work is not pushed
-to `xuteng/react` until it has been reviewed.
+<http://localhost:3001/hirn-literature>.
 
 ### `npm test`
 

@@ -884,17 +884,29 @@ export const buildContextualHirnQuestion = (turns, followUp) => {
   ].join('\n\n');
 };
 
-const agentConversationFromTurns = (turns) => turns.map((turn) => ({
-  question: turn.question,
-  response: String(turn.result?.response || ''),
-  references: Array.isArray(turn.result?.references)
-    ? turn.result.references.map((reference) => ({
+const agentConversationFromTurns = (turns) => turns.map((turn) => {
+  const perspectiveSelections = turn.agentPerspectives
+    ? Object.values(turn.agentPerspectives)
+      .map((perspective) => perspective?.selected?.result)
+      .filter(Boolean)
+    : [];
+  const results = perspectiveSelections.length ? perspectiveSelections : [turn.result];
+  return {
+    question: turn.question,
+    response: perspectiveSelections.length
+      ? results
+        .map((result, index) => `${index === 0 ? 'Context mechanism' : 'Alternative explanation'} HIRN response: ${String(result?.response || '')}`)
+        .join('\n\n')
+      : String(turn.result?.response || ''),
+    references: results.flatMap((result) => (
+      Array.isArray(result?.references) ? result.references : []
+    )).map((reference) => ({
       id: reference?.id || reference?.pmid || null,
       pmid: reference?.pmid || null,
       title: reference?.title || null,
-    }))
-    : [],
-}));
+    })).slice(0, 30),
+  };
+});
 
 function ResultPanel({ result, anchorPrefix, heading = 'Direct answer' }) {
   const references = useMemo(
@@ -968,6 +980,60 @@ function ResultPanel({ result, anchorPrefix, heading = 'Direct answer' }) {
   );
 }
 
+function AgentPerspectiveSection({ perspectiveKey, perspective, turnIndex }) {
+  const isAlternative = perspectiveKey === 'alternative_explanation';
+  const selected = perspective?.selected;
+  const title = isAlternative
+    ? '2. Alternative explanations and open questions'
+    : "1. Evidence for the question's main mechanism";
+  const description = isAlternative
+    ? 'An independent HIRN search for competing mechanisms, limitations, or unresolved interpretations.'
+    : 'A HIRN fact-check of the mechanism or causal framing implied by your question.';
+
+  return (
+    <Box component="section" aria-label={title} sx={{ border: '1px solid #DDE7E9', borderRadius: '16px', p: { xs: 1.5, sm: 2 }, bgcolor: isAlternative ? '#FBFAFD' : '#F9FCFC' }}>
+      <Typography component="h3" sx={{ color: isAlternative ? '#57447F' : '#24595D', fontSize: 16, fontWeight: 800 }}>
+        {title}
+      </Typography>
+      <Typography sx={{ color: '#64748B', fontSize: 11.5, lineHeight: 1.55, mt: 0.35, mb: 1.5 }}>
+        {description}
+      </Typography>
+
+      {selected ? (
+        <>
+          <Alert icon={<AutoAwesomeOutlinedIcon />} severity="info" sx={{ mb: 1.5, borderRadius: '12px', bgcolor: isAlternative ? '#F8F5FD' : '#F2F8F7', color: isAlternative ? '#57447F' : '#24595D', border: `1px solid ${isAlternative ? '#DDD3EF' : '#CFE3E2'}` }}>
+            HIRN query: {selected.query}
+          </Alert>
+          <ResultPanel
+            result={selected.result}
+            anchorPrefix={`t${turnIndex}-${perspectiveKey}-main-`}
+            heading={isAlternative ? 'Raw HIRN alternative-evidence result' : 'Raw HIRN mechanism-evidence result'}
+          />
+          {perspective.alternatives?.map((alternative, alternativeIndex) => (
+            <Accordion key={alternative.attempt_id || alternativeIndex} disableGutters elevation={0} sx={{ mt: 1.25, border: '1px solid #DFE6EA', borderRadius: '12px !important', '&:before': { display: 'none' } }}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Box>
+                  <Typography sx={{ color: '#334155', fontSize: 12.5, fontWeight: 700 }}>
+                    Additional raw search for this perspective
+                  </Typography>
+                  <Typography sx={{ color: '#71838A', fontSize: 11, mt: 0.25 }}>Query: {alternative.query}</Typography>
+                </Box>
+              </AccordionSummary>
+              <AccordionDetails sx={{ pt: 0 }}>
+                <ResultPanel result={alternative.result} anchorPrefix={`t${turnIndex}-${perspectiveKey}-alt${alternativeIndex}-`} heading="Additional raw HIRN result" />
+              </AccordionDetails>
+            </Accordion>
+          ))}
+        </>
+      ) : (
+        <Alert severity="info" sx={{ borderRadius: '12px' }}>
+          No completed HIRN result was available for this evidence perspective.
+        </Alert>
+      )}
+    </Box>
+  );
+}
+
 function ConversationTurnCard({ turn, index }) {
   const modeLabel = turn.mode === 'agent' ? 'Agent search' : 'Standard search';
   return (
@@ -999,15 +1065,25 @@ function ConversationTurnCard({ turn, index }) {
         </Stack>
       </Paper>
 
-      {turn.mode === 'agent' && turn.agentQuery ? (
+      {turn.mode === 'agent' && !turn.agentPerspectives && turn.agentQuery ? (
         <Alert icon={<AutoAwesomeOutlinedIcon />} severity="info" sx={{ borderRadius: '12px', bgcolor: '#F8F5FD', color: '#57447F', border: '1px solid #DDD3EF' }}>
           Selected HIRN query: {turn.agentQuery}
         </Alert>
       ) : null}
 
-      <ResultPanel result={turn.result} anchorPrefix={`t${index}-main-`} />
+      {turn.mode === 'agent' && turn.agentPerspectives ? (
+        <Stack spacing={2}>
+          <Alert severity="info" sx={{ borderRadius: '12px', border: '1px solid #C8E0E4' }}>
+            Two-sided evidence check: each section below is a separate, unchanged HIRN API result. Claude planned and ranked searches but did not write either scientific answer.
+          </Alert>
+          <AgentPerspectiveSection perspectiveKey="context_mechanism" perspective={turn.agentPerspectives.context_mechanism} turnIndex={index} />
+          <AgentPerspectiveSection perspectiveKey="alternative_explanation" perspective={turn.agentPerspectives.alternative_explanation} turnIndex={index} />
+        </Stack>
+      ) : (
+        <ResultPanel result={turn.result} anchorPrefix={`t${index}-main-`} />
+      )}
 
-      {turn.alternatives?.length ? (
+      {!turn.agentPerspectives && turn.alternatives?.length ? (
         <Box component="section" aria-label="Alternative raw HIRN answers">
           <Typography component="h3" sx={{ color: '#173E43', fontSize: 15, fontWeight: 700, mb: 1 }}>
             Alternative HIRN answers ({turn.alternatives.length})
@@ -1093,7 +1169,7 @@ export default function HIRNLiteraturePage() {
 
     setLastSubmittedQuestion(normalizedQuestion);
     setStatus(REQUEST_STATE.STREAMING);
-    setProgress(mode === 'agent' ? 'Asking Claude to plan three HIRN searches…' : DEFAULT_PROGRESS);
+    setProgress(mode === 'agent' ? 'Planning a two-sided HIRN evidence check…' : DEFAULT_PROGRESS);
     setErrorMessage('');
 
     try {
@@ -1107,7 +1183,7 @@ export default function HIRNLiteraturePage() {
             onEvent: (eventType, payload) => {
               if (requestId !== requestIdRef.current || controller.signal.aborted) return;
               if (eventType === 'planning') {
-                setProgress(`Testing ${payload?.variants?.length || 3} query variants in parallel…`);
+                setProgress(`Testing ${payload?.variants?.length || 4} queries across two evidence perspectives…`);
               } else if (eventType === 'attempt_complete') {
                 setProgress('Reviewing completed HIRN searches…');
               } else if (eventType === 'audit') {
@@ -1122,9 +1198,10 @@ export default function HIRNLiteraturePage() {
           id: completed.request_id || `${Date.now()}-${requestId}`,
           question: normalizedQuestion,
           mode,
-          result: completed.selected?.result,
+          result: completed.perspectives?.context_mechanism?.selected?.result || completed.selected?.result,
           agentQuery: completed.selected?.query,
-          alternatives: completed.alternatives || [],
+          alternatives: completed.perspectives ? [] : (completed.alternatives || []),
+          agentPerspectives: completed.perspectives || null,
         };
         if (completed.usage_status) setUsageStatus(completed.usage_status);
       } else {
@@ -1215,7 +1292,7 @@ export default function HIRNLiteraturePage() {
               </Box>
               <Box sx={{ minWidth: 0 }}>
                 <Typography component="h1" sx={{ color: '#0F172A', fontSize: { xs: 22, sm: 25 }, fontWeight: 700, lineHeight: 1.25 }}>
-                  HIRN Literature QA
+                  HIRN Literature QA (Internal demo only)
                 </Typography>
                 <Typography sx={{ color: '#52727A', fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', mt: 0.25 }}>
                   Human Islet Research Network
