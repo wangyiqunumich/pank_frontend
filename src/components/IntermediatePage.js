@@ -12,16 +12,14 @@ import {
   useSelector,
 } from 'react-redux';
 
-import {
-  Close as CloseIcon,
-  Download as DownloadIcon,
-  Info as InfoIcon,
-  InfoOutlined as InfoOutlineIcon,
-  Mail as MailIcon,
-  NotificationsNone as NotificationsNoneIcon,
-  Warning as WarningIcon,
-  WarningAmber as WarningAmberIcon,
-} from '@mui/icons-material';
+import CloseIcon from '@mui/icons-material/Close';
+import DownloadIcon from '@mui/icons-material/Download';
+import InfoIcon from '@mui/icons-material/Info';
+import InfoOutlineIcon from '@mui/icons-material/InfoOutlined';
+import MailIcon from '@mui/icons-material/Mail';
+import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import WarningIcon from '@mui/icons-material/Warning';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import {
   Alert,
   Box,

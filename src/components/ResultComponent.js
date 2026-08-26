@@ -6,13 +6,11 @@ import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 
-import {
-  AutoAwesome as AutoAwesomeIcon,
-  ChatBubbleOutline as ChatBubbleOutlineIcon,
-  Check as CheckIcon,
-  Send as SendIcon,
-  Settings as SettingsIcon,
-} from '@mui/icons-material';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import CheckIcon from '@mui/icons-material/Check';
+import SendIcon from '@mui/icons-material/Send';
+import SettingsIcon from '@mui/icons-material/Settings';
 import {
   Box,
   Button,

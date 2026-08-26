@@ -12,7 +12,7 @@ import {
 } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 
-import { InfoOutlined as InfoOutlineIcon } from '@mui/icons-material';
+import InfoOutlineIcon from '@mui/icons-material/InfoOutlined';
 import {
   Backdrop,
   Box,

@@ -22,14 +22,12 @@ import {
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 
-import {
-  Close as CloseIcon,
-  InfoOutlined as InfoOutlineIcon,
-  KeyboardArrowDown as KeyboardArrowDownIcon,
-  KeyboardArrowUp as KeyboardArrowUpIcon,
-  Mail as MailIcon,
-  OpenInFull as OpenInFullIcon,
-} from '@mui/icons-material';
+import CloseIcon from '@mui/icons-material/Close';
+import InfoOutlineIcon from '@mui/icons-material/InfoOutlined';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import MailIcon from '@mui/icons-material/Mail';
+import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import {
   Backdrop,
   Box,

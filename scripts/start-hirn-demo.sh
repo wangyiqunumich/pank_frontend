@@ -15,4 +15,4 @@ curl --silent --fail --max-time 5 "http://127.0.0.1:${local_port}/health" >/dev/
 export BROWSER=none
 export DISABLE_ESLINT_PLUGIN=true
 export PORT="${frontend_port}"
-exec npm start
+exec node scripts/start-hirn-webpack.js

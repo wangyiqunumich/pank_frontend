@@ -12,7 +12,7 @@ import {
 } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-import { Warning } from '@mui/icons-material';
+import Warning from '@mui/icons-material/Warning';
 import CheckCircle from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';

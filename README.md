@@ -55,6 +55,28 @@ values in the public JavaScript bundle. The current HIRN service has no API-key
 authentication and is exposed locally only through the SSH tunnel. If a future
 deployment adds authentication, put the credential in a server-side proxy.
 
+### Conversational and Agent search demo
+
+The local `/hirn-literature` page keeps Standard search selected by default and
+adds follow-up questions below completed answers. Follow-ups are converted into
+standalone contextual questions in the browser, so the HIRN backend contract is
+unchanged.
+
+Agent search uses the public orchestration endpoint:
+
+```text
+https://jieliulab3.dcmb.med.umich.edu/hirn-literature-api/agent
+```
+
+Claude Haiku plans and audits retrieval queries there, while every displayed
+scientific answer is the unchanged `Complete` result from the HIRN literature
+API. The selected answer appears first and distinct raw alternatives remain
+expandable. The Anthropic key and usage database stay on the server.
+
+Run the integrated local page with `npm run start:hirn-demo` and open
+<http://localhost:3001/hirn-literature>. This local frontend work is not pushed
+to `xuteng/react` until it has been reviewed.
+
 ### `npm test`
 
 Launches the test runner in the interactive watch mode.\

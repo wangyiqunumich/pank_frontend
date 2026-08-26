@@ -13,11 +13,9 @@ import {
 } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-import {
-  ChevronRight as ChevronRightIcon,
-  InfoOutlined as InfoOutlineIcon,
-  Mail as MailIcon,
-} from '@mui/icons-material';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import InfoOutlineIcon from '@mui/icons-material/InfoOutlined';
+import MailIcon from '@mui/icons-material/Mail';
 import {
   Backdrop,
   Box,

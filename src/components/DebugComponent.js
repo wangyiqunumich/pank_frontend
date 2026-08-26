@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Box, TextField, Button, IconButton, Stack } from "@mui/material";
-import { Add, AutoAwesome, Delete } from "@mui/icons-material";
+import Add from '@mui/icons-material/Add';
+import AutoAwesome from '@mui/icons-material/AutoAwesome';
+import Delete from '@mui/icons-material/Delete';
 
 /**
  * MultiLineInputList

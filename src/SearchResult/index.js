@@ -12,10 +12,8 @@ import {
   useSelector,
 } from 'react-redux';
 
-import {
-  ChevronRight as ChevronRightIcon,
-  InfoOutlined as InfoOutlineIcon,
-} from '@mui/icons-material';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import InfoOutlineIcon from '@mui/icons-material/InfoOutlined';
 import {
   Backdrop,
   Box,
