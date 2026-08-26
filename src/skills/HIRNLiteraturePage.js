@@ -672,7 +672,7 @@ export function LegacyHIRNLiteraturePage() {
               </Box>
               <Box sx={{ minWidth: 0 }}>
                 <Typography component="h1" sx={{ color: '#0F172A', fontSize: { xs: 22, sm: 25 }, fontWeight: 700, lineHeight: 1.25 }}>
-                  HIRN Literature QA
+                  HIRN Literature QA (Internal demo only)
                 </Typography>
                 <Typography sx={{ color: '#52727A', fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', mt: 0.25 }}>
                   Human Islet Research Network
