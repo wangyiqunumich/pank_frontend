@@ -40,6 +40,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "start:hirn-demo": "bash scripts/start-hirn-demo.sh",
+    "start:hirn-standalone": "bash scripts/start-hirn-standalone.sh",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

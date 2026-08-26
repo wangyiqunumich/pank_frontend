@@ -15,7 +15,6 @@ import AutoStoriesOutlinedIcon from '@mui/icons-material/AutoStoriesOutlined';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import FormatQuoteOutlinedIcon from '@mui/icons-material/FormatQuoteOutlined';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import {
@@ -55,74 +54,60 @@ const humanizeLabel = (value) => {
 };
 
 const getProgressText = (event) => {
-  if (!event || event.done === true) return '';
-
-  const step = typeof event.step === 'string' ? event.step.trim() : '';
-  const content = typeof event.content === 'string' ? event.content.trim() : '';
-  return step || content;
+  if (!event || event.type !== 'progress') return '';
+  return typeof event.label === 'string' ? event.label.trim() : '';
 };
 
-const getPubmedUrl = (reference) => {
-  const pmid = String(reference?.pmid || '').trim();
-  if (/^\d+$/.test(pmid)) {
-    return `https://pubmed.ncbi.nlm.nih.gov/${encodeURIComponent(pmid)}/`;
-  }
-
-  const candidate = String(reference?.url || '').trim();
+const getSafeUrl = (value) => {
+  const candidate = String(value || '').trim();
   if (!candidate) return '';
 
   try {
     const parsed = new URL(candidate);
-    if (parsed.protocol !== 'https:' || parsed.hostname !== 'pubmed.ncbi.nlm.nih.gov') {
-      return '';
-    }
+    if (parsed.protocol !== 'https:') return '';
     return parsed.toString();
   } catch (_error) {
     return '';
   }
 };
 
-const normalizeEvidence = (evidence) => {
-  if (typeof evidence === 'string') {
-    const quote = evidence.trim();
-    return quote ? { quote, contextType: '' } : null;
-  }
-
-  if (!evidence || typeof evidence !== 'object') return null;
-  const quote = String(evidence.quote || evidence.excerpt || evidence.text || '').trim();
-  if (!quote) return null;
-
-  return {
-    quote,
-    contextType: humanizeLabel(evidence.context_type || evidence.contextType || evidence.type),
-  };
-};
-
 const normalizeReference = (reference, index) => {
   const source = reference && typeof reference === 'object' ? reference : {};
   const pmid = String(source.pmid || '').trim();
+  const documentId = String(source.id || pmid || `source-${index + 1}`).trim();
   const authors = Array.isArray(source.authors)
     ? source.authors.map((author) => String(author || '').trim()).filter(Boolean)
     : String(source.authors || '').trim()
       ? [String(source.authors).trim()]
       : [];
-  const evidence = Array.isArray(source.evidence)
-    ? source.evidence.map(normalizeEvidence).filter(Boolean)
-    : [];
 
   return {
-    id: index + 1,
-    title: String(source.title || '').trim() || (pmid ? `PubMed article ${pmid}` : 'Untitled PubMed article'),
+    listNumber: index + 1,
+    id: documentId,
+    anchorId: `hirn-reference-${documentId.replace(/[^A-Za-z0-9_-]/g, '-')}`,
+    title: String(source.title || '').trim() || `HIRN source ${documentId}`,
     pmid,
-    pubmedUrl: getPubmedUrl(source),
+    url: getSafeUrl(source.url),
+    fulltextUrl: getSafeUrl(source.fulltext_url),
     journal: String(source.journal || '').trim(),
     date: source.date === null || source.date === undefined ? '' : String(source.date).trim(),
     authors,
+    source: humanizeLabel(source.source),
+    consortia: String(source.consortia || '').trim(),
     citationCount: source.n_citation === null || source.n_citation === undefined
       ? null
       : source.n_citation,
-    evidence,
   };
+};
+
+const linkInternalCitations = (answer, references) => {
+  let linked = String(answer || '');
+  references.filter((reference) => !reference.pmid).forEach((reference) => {
+    const escapedId = reference.id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const marker = new RegExp(`\\[${escapedId}\\](?!\\()`, 'g');
+    linked = linked.replace(marker, `[${reference.id}](#${reference.anchorId})`);
+  });
+  return linked;
 };
 
 function SafeMarkdown({ children }) {
@@ -179,8 +164,18 @@ function SafeMarkdown({ children }) {
         skipHtml
         remarkPlugins={[remarkGfm]}
         components={{
-          // The MVP deliberately exposes links only on vetted PubMed references.
-          a: ({ children: linkChildren }) => <>{linkChildren}</>,
+          a: ({ href, children: linkChildren }) => {
+            const target = String(href || '');
+            if (target.startsWith('#hirn-reference-')) {
+              return <Link href={target} underline="hover" sx={{ color: '#087F7B', fontWeight: 700 }}>{linkChildren}</Link>;
+            }
+            const safeHref = getSafeUrl(target);
+            return safeHref ? (
+              <Link href={safeHref} target="_blank" rel="noopener noreferrer" underline="hover" sx={{ color: '#087F7B', fontWeight: 700 }}>
+                {linkChildren}
+              </Link>
+            ) : <>{linkChildren}</>;
+          },
           img: () => null,
           h1: ({ children: heading }) => (
             <Typography component="h2" sx={{ mt: 2.5, mb: 1, fontSize: 20, fontWeight: 700, color: '#0F172A' }}>
@@ -206,7 +201,7 @@ function SafeMarkdown({ children }) {
 }
 
 function ReferenceCard({ reference }) {
-  const metadata = [reference.journal, reference.date].filter(Boolean);
+  const metadata = [reference.source, reference.journal, reference.date, reference.consortia].filter(Boolean);
   const hasCitationCount = reference.citationCount !== null
     && reference.citationCount !== undefined
     && String(reference.citationCount).trim() !== '';
@@ -217,7 +212,7 @@ function ReferenceCard({ reference }) {
     <Typography
       component="span"
       sx={{
-        color: reference.pubmedUrl ? '#087F7B' : '#1E293B',
+        color: reference.url ? '#087F7B' : '#1E293B',
         fontSize: { xs: 14, md: 15 },
         fontWeight: 700,
         lineHeight: 1.45,
@@ -230,6 +225,7 @@ function ReferenceCard({ reference }) {
   return (
     <Paper
       component="article"
+      id={reference.anchorId}
       elevation={0}
       sx={{
         border: '1px solid #E0E8EA',
@@ -261,13 +257,13 @@ function ReferenceCard({ reference }) {
             mt: 0.15,
           }}
         >
-          {reference.id}
+          {reference.listNumber}
         </Box>
 
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          {reference.pubmedUrl ? (
+          {reference.url ? (
             <Link
-              href={reference.pubmedUrl}
+              href={reference.url}
               target="_blank"
               rel="noopener noreferrer"
               underline="hover"
@@ -286,22 +282,26 @@ function ReferenceCard({ reference }) {
             sx={{ mt: 0.85 }}
           >
             {reference.pmid ? (
-              reference.pubmedUrl ? (
+              reference.url ? (
                 <Link
-                  href={reference.pubmedUrl}
+                  href={reference.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   underline="hover"
                   sx={{ color: '#087F7B', fontSize: 11, fontWeight: 700 }}
                 >
-                  PMID: {reference.pmid}
+                  PMID {reference.pmid}
                 </Link>
               ) : (
                 <Typography sx={{ color: '#64748B', fontSize: 11, fontWeight: 700 }}>
-                  PMID: {reference.pmid}
+                  PMID {reference.pmid}
                 </Typography>
               )
-            ) : null}
+            ) : (
+              <Typography sx={{ color: '#52666D', fontSize: 11, fontWeight: 800 }}>
+                {reference.id}
+              </Typography>
+            )}
             {metadata.map((item, metadataIndex) => (
               <Chip
                 key={`${item}-${metadataIndex}`}
@@ -345,38 +345,10 @@ function ReferenceCard({ reference }) {
               {reference.authors.join(', ')}
             </Typography>
           ) : null}
-
-          {reference.evidence.length ? (
-            <Box
-              sx={{
-                mt: 1.5,
-                borderRadius: '10px',
-                border: '1px solid #E3ECEC',
-                bgcolor: '#F8FBFB',
-                p: { xs: 1.25, sm: 1.5 },
-              }}
-            >
-              <Stack direction="row" alignItems="center" spacing={0.65} sx={{ mb: 0.85 }}>
-                <FormatQuoteOutlinedIcon sx={{ color: '#4B8E8A', fontSize: 17 }} />
-                <Typography sx={{ color: '#315F62', fontSize: 11, fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-                  Evidence
-                </Typography>
-              </Stack>
-              <Stack spacing={1}>
-                {reference.evidence.map((evidence, index) => (
-                  <Box key={`${evidence.quote}-${index}`}>
-                    {evidence.contextType ? (
-                      <Typography sx={{ mb: 0.35, color: '#4B8E8A', fontSize: 10.5, fontWeight: 700 }}>
-                        {evidence.contextType}
-                      </Typography>
-                    ) : null}
-                    <Typography sx={{ color: '#475569', fontSize: 12, lineHeight: 1.6, overflowWrap: 'anywhere' }}>
-                      “{evidence.quote}”
-                    </Typography>
-                  </Box>
-                ))}
-              </Stack>
-            </Box>
+          {reference.fulltextUrl && reference.fulltextUrl !== reference.url ? (
+            <Link href={reference.fulltextUrl} target="_blank" rel="noopener noreferrer" underline="hover" sx={{ display: 'inline-block', mt: 1, color: '#087F7B', fontSize: 11.5, fontWeight: 700 }}>
+              Read full text
+            </Link>
           ) : null}
         </Box>
       </Stack>
@@ -562,7 +534,6 @@ export default function HIRNLiteraturePage() {
 
     try {
       const completedEvent = await askHirn(normalizedQuestion, {
-        maxArticles: 10,
         signal: controller.signal,
         onEvent: (event) => {
           if (requestId !== requestIdRef.current || controller.signal.aborted) return;
@@ -627,6 +598,11 @@ export default function HIRNLiteraturePage() {
     [finalEvent]
   );
   const isSuccess = status === REQUEST_STATE.SUCCESS;
+  const isRefusal = isSuccess && references.length === 0;
+  const renderedAnswer = useMemo(
+    () => linkInternalCitations(finalEvent?.response, references),
+    [finalEvent, references]
+  );
   const canRetry = Boolean(submittedQuestion)
     && (status === REQUEST_STATE.ERROR || status === REQUEST_STATE.CANCELLED);
 
@@ -687,10 +663,10 @@ export default function HIRNLiteraturePage() {
               </Box>
             </Stack>
             <Typography sx={{ maxWidth: 720, color: '#64748B', fontSize: { xs: 13, md: 14 }, lineHeight: 1.65 }}>
-              Ask a biomedical question in plain language and receive a direct answer grounded in HIRN literature, with its supporting PubMed references.
+              Ask a biomedical question and receive an answer grounded only in the closed HIRN literature library. If the library cannot support an answer, it will say so directly.
             </Typography>
             <Stack direction="row" useFlexGap flexWrap="wrap" spacing={0.75} sx={{ mt: 1.5 }}>
-              {['Direct literature answers', 'PubMed evidence', 'Up to 10 articles'].map((label) => (
+              {['Closed HIRN corpus', 'Source-linked answers', 'Single-turn search'].map((label) => (
                 <Chip
                   key={label}
                   label={label}
@@ -749,21 +725,30 @@ export default function HIRNLiteraturePage() {
                 aria-labelledby="hirn-answer-heading"
                 elevation={0}
                 sx={{
-                  border: '1px solid #DDE7E9',
+                  border: isRefusal ? '1px solid #D8DEE8' : '1px solid #DDE7E9',
                   borderRadius: '16px',
                   p: { xs: 2, sm: 2.75, md: 3 },
-                  bgcolor: '#FFFFFF',
+                  bgcolor: isRefusal ? '#F8FAFC' : '#FFFFFF',
                   boxShadow: '0 12px 36px rgba(29, 78, 78, 0.05)',
                 }}
               >
                 <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
-                  <CheckCircleOutlineIcon sx={{ color: '#24847C', fontSize: 21 }} />
+                  {isRefusal ? (
+                    <AutoStoriesOutlinedIcon sx={{ color: '#64748B', fontSize: 21 }} />
+                  ) : (
+                    <CheckCircleOutlineIcon sx={{ color: '#24847C', fontSize: 21 }} />
+                  )}
                   <Typography id="hirn-answer-heading" component="h2" sx={{ color: '#173E43', fontSize: 16, fontWeight: 700 }}>
-                    Direct answer
+                    {isRefusal ? 'Not found in this library' : 'Direct answer'}
                   </Typography>
+                  {finalEvent?.execution_time ? (
+                    <Typography sx={{ color: '#94A3B8', fontSize: 11 }}>
+                      {Number(finalEvent.execution_time).toFixed(1)}s
+                    </Typography>
+                  ) : null}
                 </Stack>
-                {String(finalEvent?.response || '').trim() ? (
-                  <SafeMarkdown>{finalEvent.response}</SafeMarkdown>
+                {renderedAnswer.trim() ? (
+                  <SafeMarkdown>{renderedAnswer}</SafeMarkdown>
                 ) : (
                   <Typography sx={{ color: '#64748B', fontSize: 14 }}>
                     The literature service completed without returning answer text.
@@ -771,6 +756,7 @@ export default function HIRNLiteraturePage() {
                 )}
               </Paper>
 
+              {!isRefusal ? (
               <Box component="section" aria-labelledby="hirn-references-heading">
                 <Stack direction="row" alignItems="baseline" spacing={1} sx={{ mb: 1.25 }}>
                   <Typography id="hirn-references-heading" component="h2" sx={{ color: '#173E43', fontSize: 16, fontWeight: 700 }}>
@@ -780,26 +766,17 @@ export default function HIRNLiteraturePage() {
                     {references.length}
                   </Typography>
                 </Stack>
-                {references.length ? (
-                  <Stack spacing={1.25}>
-                    {references.map((reference) => (
-                      <ReferenceCard
-                        key={`${reference.pmid || reference.title}-${reference.id}`}
-                        reference={reference}
-                      />
-                    ))}
-                  </Stack>
-                ) : (
-                  <Paper
-                    elevation={0}
-                    sx={{ border: '1px dashed #C9D8DB', borderRadius: '12px', p: 2, bgcolor: '#F8FBFB' }}
-                  >
-                    <Typography sx={{ color: '#64748B', fontSize: 13 }}>
-                      No PubMed references were returned for this answer.
-                    </Typography>
-                  </Paper>
-                )}
+                <Stack spacing={1.25}>
+                  {references.map((reference) => (
+                    <ReferenceCard key={reference.id} reference={reference} />
+                  ))}
+                </Stack>
               </Box>
+              ) : (
+                <Alert severity="info" sx={{ borderRadius: '12px', border: '1px solid #C8E0E4' }}>
+                  This is a successful closed-corpus result, not a service error. No outside source or fallback search was used.
+                </Alert>
+              )}
             </Stack>
           ) : (
             <Stack spacing={1.5}>

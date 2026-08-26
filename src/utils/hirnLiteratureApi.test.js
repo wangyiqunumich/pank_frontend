@@ -8,6 +8,7 @@ import {
   HirnIncompleteStreamError,
   HirnMalformedStreamError,
   HirnRequestCancelledError,
+  HirnServiceError,
   askHirn,
   parseSseBlock,
 } from './hirnLiteratureApi';
@@ -76,8 +77,8 @@ test('assembles arbitrary network chunks and preserves the complete fixture', as
   const serializedFixture = JSON.stringify(finalEventFixture);
   const response = createStreamResponse([
     ': keepalive\r',
-    '\n\r\ndata: {"step":"Sear',
-    'ching","content":"Searching PubMed"}\n\n',
+    '\n\r\ndata: {"step":"Searching for relevant articles","type":"progress",',
+    '"phase":"searching","label":"Searching the HIRN library"}\n\n',
     'data: [DONE]\n\n',
     `data: ${serializedFixture.slice(0, 90)}`,
     `${serializedFixture.slice(90)}\n\n`,
@@ -95,7 +96,7 @@ test('assembles arbitrary network chunks and preserves the complete fixture', as
 
   expect(finalEvent).toEqual(finalEventFixture);
   expect(onEvent.mock.calls.map(([event]) => event.step)).toEqual([
-    'Searching',
+    'Searching for relevant articles',
     'Complete',
   ]);
   expect(fetchImpl).toHaveBeenCalledWith(
@@ -108,8 +109,6 @@ test('assembles arbitrary network chunks and preserves the complete fixture', as
       },
       body: JSON.stringify({
         question: 'What is ZnT8?',
-        messages: [],
-        max_articles: 10,
       }),
       signal,
     }),
@@ -117,9 +116,9 @@ test('assembles arbitrary network chunks and preserves the complete fixture', as
   expect(response.cancel).toHaveBeenCalledTimes(1);
 });
 
-test('sends optional messages and session ID and clamps the article count', async () => {
+test('sends only supported optional request metadata', async () => {
   const response = createStreamResponse([
-    'data: {"response":"Answer","done":true}\n\n',
+    'data: {"step":"Complete","response":"Answer","references":[],"done":true}\n\n',
   ]);
   const fetchImpl = jest.fn().mockResolvedValue(response);
   const messages = [{ role: 'user', content: 'Earlier question' }];
@@ -128,16 +127,30 @@ test('sends optional messages and session ID and clamps the article count', asyn
     fetchImpl,
     messages,
     sessionId: 'session-1',
-    maxArticles: 100,
+    userId: 'demo-user',
   });
 
   const request = JSON.parse(fetchImpl.mock.calls[0][1].body);
   expect(request).toEqual({
     question: 'Question',
     messages,
-    max_articles: 30,
     session_id: 'session-1',
+    user_id: 'demo-user',
   });
+});
+
+test('swallows Processing frames and throws only for an Error terminal frame', async () => {
+  const response = createStreamResponse([
+    'data: {"step":"Processing","content":"confidential verbatim quote"}\n\n',
+    'data: {"step":"Error","content":"Upstream model unavailable","done":true}\n\n',
+  ]);
+  const onEvent = jest.fn();
+
+  await expect(askHirn('Question', {
+    fetchImpl: async () => response,
+    onEvent,
+  })).rejects.toBeInstanceOf(HirnServiceError);
+  expect(onEvent).not.toHaveBeenCalled();
 });
 
 test('uses the documented API URL when no environment override is configured', () => {
@@ -181,7 +194,7 @@ test('rejects malformed stream events and cancels the reader', async () => {
   expect(response.cancel).toHaveBeenCalledTimes(1);
 });
 
-test('rejects a stream that closes before an event with done true', async () => {
+test('rejects a stream that closes before a Complete frame', async () => {
   const response = createStreamResponse([
     'data: {"step":"Searching","content":"PubMed"}\n\n',
     'data: [DONE]\n\n',

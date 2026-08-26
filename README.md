@@ -16,22 +16,44 @@ Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 The page will reload when you make changes.\
 You may also see any lint errors in the console.
 
-### HIRN Literature QA configuration
+### Local HIRN Literature QA demo
 
-The `/hirn-literature` tool uses the public HIRN Literature API by default:
+The `/hirn-literature` page implements the closed-corpus HIRN SSE contract in
+`docs/FRONTEND_HANDOFF.md` from the `hirn-agent` service. It deliberately treats
+an empty-reference `Complete` frame as a successful refusal, supports sources
+without PMIDs or URLs, and never renders `Processing` frames or verbatim evidence.
+
+The checked-in browser default targets the public demo endpoint:
 
 ```text
-https://jieliulab3.dcmb.med.umich.edu/hirn-literature-api
+https://jieliulab3.dcmb.med.umich.edu/hirn-literature-api/demo
 ```
 
-Set `REACT_APP_HIRN_LITERATURE_API_URL` before starting or building the app to
-use a different deployment or application proxy.
+For the local demo, `.env.local` points the browser to an SSH tunnel on port
+18100. Start the tunnel and the React development server together with:
+
+```bash
+npm run start:hirn-demo
+```
+
+Then open <http://localhost:3001/hirn-literature>. Override `HIRN_SSH_HOST`,
+`HIRN_LOCAL_PORT`, or `PORT` when needed.
+
+For an immediate zero-build demo with the same live SSE behavior, run:
+
+```bash
+npm run start:hirn-standalone
+```
+
+Open <http://localhost:3002>. This is useful when the legacy Create React App
+bundle is slow to compile; the integrated `/hirn-literature` implementation
+remains the production handoff target.
 
 The browser client intentionally sends no API key or authorization header. Do
 not place secrets in `REACT_APP_*` variables: Create React App embeds those
-values in the public JavaScript bundle. If the HIRN API requires authentication
-in the future, store the credential only in a server-side proxy and configure
-`REACT_APP_HIRN_LITERATURE_API_URL` to point to that proxy.
+values in the public JavaScript bundle. The current HIRN service has no API-key
+authentication and is exposed locally only through the SSH tunnel. If a future
+deployment adds authentication, put the credential in a server-side proxy.
 
 ### `npm test`
 

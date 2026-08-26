@@ -38,32 +38,24 @@ const fixture = {
   references: [
     {
       pmid: '38743124',
+      id: '38743124',
       title: 'Example article about ZnT8 and type 1 diabetes',
       url: 'https://pubmed.ncbi.nlm.nih.gov/38743124/',
       n_citation: 12,
       date: 2024,
       journal: 'Example Journal',
       authors: ['A. Researcher', 'B. Scientist'],
-      evidence: [
-        {
-          quote: 'Example evidence excerpt for offline interface development.',
-          context_type: 'abstract',
-        },
-      ],
+      source: 'pmc_oa',
     },
     {
       pmid: '12345678',
+      id: '12345678',
       title: 'Second example article for citation-card testing',
       url: 'https://pubmed.ncbi.nlm.nih.gov/12345678/',
       date: 2020,
       journal: 'Fixture Biology',
       authors: ['C. Developer'],
-      evidence: [
-        {
-          quote: 'Synthetic fixture content; do not cite this record.',
-          context_type: 'fixture',
-        },
-      ],
+      source: 'pubmed_abstract',
     },
   ],
   trajectory: [],
@@ -114,8 +106,7 @@ test('renders the completed answer and its two associated PubMed references', as
 
   expect(await screen.findByText(fixture.response)).not.toBeNull();
   expect(screen.getAllByRole('article')).toHaveLength(2);
-  expect(screen.getByText(/Example evidence excerpt for offline interface development/)).not.toBeNull();
-  expect(screen.getAllByText('Evidence')).toHaveLength(2);
+  expect(screen.queryByText(/Example evidence excerpt/)).toBeNull();
 
   const titleLink = screen.getByRole('link', {
     name: 'Example article about ZnT8 and type 1 diabetes',
@@ -123,18 +114,64 @@ test('renders the completed answer and its two associated PubMed references', as
   expect(titleLink.getAttribute('href')).toBe('https://pubmed.ncbi.nlm.nih.gov/38743124/');
   expect(titleLink.getAttribute('target')).toBe('_blank');
   expect(titleLink.getAttribute('rel')).toContain('noopener');
-  expect(screen.getByRole('link', { name: 'PMID: 38743124' }).getAttribute('href'))
+  expect(screen.getByRole('link', { name: 'PMID 38743124' }).getAttribute('href'))
     .toBe('https://pubmed.ncbi.nlm.nih.gov/38743124/');
   expect(askHirn).toHaveBeenCalledWith(question, expect.objectContaining({
-    maxArticles: 10,
     signal: expect.any(AbortSignal),
     onEvent: expect.any(Function),
   }));
 });
 
+test('renders a meeting abstract without PMID or a dead link', async () => {
+  askHirn.mockResolvedValue({
+    step: 'Complete',
+    response: 'TET2-deficient beta cells resisted autoimmune cell death [HIRN2025_p031].',
+    references: [{
+      id: 'HIRN2025_p031',
+      pmid: null,
+      url: null,
+      title: 'TET2 Deficient Beta Cells are Resistant to Autoimmune Cell Death',
+      journal: 'HIRN 2025 Annual Investigator Meeting',
+      date: 2025,
+      authors: ['Jinxiu Rui'],
+      source: 'meeting_abstract',
+    }],
+  });
+  renderPage();
+
+  fireEvent.change(questionInput(), { target: { value: 'What does the TET2 abstract report?' } });
+  fireEvent.click(submitButton());
+
+  expect(await screen.findByText('HIRN2025_p031')).not.toBeNull();
+  expect(screen.queryByText(/PMID null/i)).toBeNull();
+  expect(screen.queryByRole('link', { name: /TET2 Deficient Beta Cells/ })).toBeNull();
+});
+
+test('treats an empty-reference Complete frame as a successful closed-corpus refusal', async () => {
+  askHirn.mockResolvedValue({
+    step: 'Complete',
+    response: 'Not found in the HIRN article library.',
+    references: [],
+    done: true,
+  });
+  renderPage();
+
+  fireEvent.change(questionInput(), { target: { value: 'How did moon landing navigation work?' } });
+  fireEvent.click(submitButton());
+
+  expect(await screen.findByText('Not found in this library')).not.toBeNull();
+  expect(screen.getByText(/successful closed-corpus result/i)).not.toBeNull();
+  expect(screen.queryByText(/Unable to complete/)).toBeNull();
+});
+
 test('cancels an in-flight request and leaves the composer usable', async () => {
   askHirn.mockImplementation((_question, options) => new Promise((_resolve, reject) => {
-    options.onEvent({ step: 'Searching PubMed', done: false });
+    options.onEvent({
+      step: 'Searching for relevant articles',
+      type: 'progress',
+      phase: 'searching',
+      label: 'Searching the HIRN library',
+    });
     options.signal.addEventListener('abort', () => {
       const error = new Error('cancelled');
       error.name = 'AbortError';
@@ -148,7 +185,7 @@ test('cancels an in-flight request and leaves the composer usable', async () => 
   });
   fireEvent.click(submitButton());
 
-  expect(await screen.findByText('Searching PubMed')).not.toBeNull();
+  expect(await screen.findByText('Searching the HIRN library')).not.toBeNull();
   fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
   expect(await screen.findByText('Request cancelled')).not.toBeNull();

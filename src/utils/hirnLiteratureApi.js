@@ -1,5 +1,5 @@
 export const DOCUMENTED_HIRN_API_BASE =
-  'https://jieliulab3.dcmb.med.umich.edu/hirn-literature-api';
+  'https://jieliulab3.dcmb.med.umich.edu/hirn-literature-api/demo';
 
 const configuredApiBase = process.env.REACT_APP_HIRN_LITERATURE_API_URL?.trim();
 
@@ -60,6 +60,12 @@ export class HirnIncompleteStreamError extends HirnApiError {
   }
 }
 
+export class HirnServiceError extends HirnApiError {
+  constructor(message = 'The HIRN literature service could not complete this request.') {
+    super(message, 'SERVICE_ERROR');
+  }
+}
+
 export class HirnRequestCancelledError extends HirnApiError {
   constructor(cause) {
     super('HIRN request was cancelled.', 'ABORTED', cause);
@@ -82,15 +88,6 @@ function normalizeApiBase(apiBase) {
   const normalized =
     typeof apiBase === 'string' ? apiBase.trim().replace(/\/+$/, '') : '';
   return normalized || DOCUMENTED_HIRN_API_BASE;
-}
-
-function normalizeMaxArticles(maxArticles) {
-  if (maxArticles === undefined || maxArticles === null) return 10;
-  if (typeof maxArticles !== 'number' || !Number.isFinite(maxArticles)) {
-    throw new HirnInputError('Maximum articles must be a number.');
-  }
-
-  return Math.min(30, Math.max(1, Math.trunc(maxArticles)));
 }
 
 async function readHttpErrorDetail(response) {
@@ -168,7 +165,6 @@ export async function askHirn(question, options = {}) {
   }
 
   const normalizedQuestion = question.trim();
-  const maxArticles = normalizeMaxArticles(options.maxArticles);
   const apiBase = normalizeApiBase(options.apiBase ?? DEFAULT_HIRN_API_BASE);
   const signal = options.signal;
   const availableFetch =
@@ -192,9 +188,9 @@ export async function askHirn(question, options = {}) {
       },
       body: JSON.stringify({
         question: normalizedQuestion,
-        messages: options.messages ?? [],
-        max_articles: maxArticles,
+        ...(options.messages ? { messages: options.messages } : {}),
         ...(options.sessionId ? { session_id: options.sessionId } : {}),
+        ...(options.userId ? { user_id: options.userId } : {}),
       }),
       signal,
     });
@@ -231,8 +227,29 @@ export async function askHirn(question, options = {}) {
     const event = parseSseBlock(block);
     if (!event) return null;
 
-    options.onEvent?.(event);
-    return event.done === true ? event : null;
+    // Processing frames contain verbatim source passages that the product must
+    // not expose. They are intentionally swallowed before reaching the UI.
+    if (event.step === 'Processing') return null;
+
+    if (event.type === 'progress') {
+      options.onProgress?.(event.label, event.phase, event);
+      options.onEvent?.(event);
+      return null;
+    }
+
+    if (event.step === 'Error') {
+      const message = typeof event.content === 'string' && event.content.trim()
+        ? event.content.trim()
+        : undefined;
+      throw new HirnServiceError(message);
+    }
+
+    if (event.step === 'Complete') {
+      options.onEvent?.(event);
+      return event;
+    }
+
+    return null;
   };
 
   const drainCompleteBlocks = () => {
