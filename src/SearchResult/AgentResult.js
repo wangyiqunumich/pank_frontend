@@ -544,6 +544,7 @@ export function AgentResultLayout({
         && (effectiveAllowMulti || showFloatingSearchBar)
         && !Boolean(activeMeta?.isPlanning)
         && (effectiveAllowMulti || activeQuestionComplete);
+    const isMobile = useMediaQuery("(max-width:599.95px)");
     const isSingleColumn = useMediaQuery("(max-width:1199.95px)");
     const isDesktopSidebarVisible = useMediaQuery("(min-width:1000px)");
     const navigatorMenuVisible = isSingleColumn || menuOpen;
@@ -1538,25 +1539,25 @@ export function AgentResultLayout({
                         onClick={openFeedbackModal}
                         style={{
                             position: 'absolute',
-                            right: 24,
-                            top: -60,
+                            right: isMobile ? 12 : 24,
+                            top: isMobile ? -50 : -60,
                             zIndex: 1300,
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: 8,
-                            padding: '12px 24px',
-                            borderRadius: 10,
+                            gap: isMobile ? 6 : 8,
+                            padding: isMobile ? '9px 19px' : '12px 24px',
+                            borderRadius: isMobile ? 8 : 10,
                             border: 'none',
                             backgroundColor: 'rgb(58, 131, 139)',
                             color: '#FFFFFF',
                             fontFamily: 'Open Sans, sans-serif',
                             fontWeight: 600,
-                            fontSize: 16,
+                            fontSize: isMobile ? 13 : 16,
                             cursor: 'pointer',
                             boxShadow: '0 8px 20px rgba(77, 129, 138, 0.28)',
                         }}
                     >
-                        <ChatBubbleOutlineRoundedIcon sx={{ color: '#FFFFFF', fontSize: 20 }} />
+                        <ChatBubbleOutlineRoundedIcon sx={{ color: '#FFFFFF', fontSize: isMobile ? 16 : 20 }} />
                         Give Feedback
                     </button>
                 </div>
@@ -1568,25 +1569,25 @@ export function AgentResultLayout({
                     onClick={openFeedbackModal}
                     style={{
                         position: 'fixed',
-                        right: 24,
-                        bottom: 24,
+                        right: isMobile ? 12 : 24,
+                        bottom: isMobile ? 12 : 24,
                         zIndex: 1300,
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: 8,
-                        padding: '12px 24px',
-                        borderRadius: 10,
+                        gap: isMobile ? 6 : 8,
+                        padding: isMobile ? '9px 19px' : '12px 24px',
+                        borderRadius: isMobile ? 8 : 10,
                         border: 'none',
                         backgroundColor: 'rgb(58, 131, 139)',
                         color: '#FFFFFF',
                         fontFamily: 'Open Sans, sans-serif',
                         fontWeight: 600,
-                        fontSize: 16,
+                        fontSize: isMobile ? 13 : 16,
                         cursor: 'pointer',
                         boxShadow: '0 8px 20px rgba(77, 129, 138, 0.28)',
                     }}
                 >
-                    <ChatBubbleOutlineRoundedIcon sx={{ color: '#FFFFFF', fontSize: 20 }} />
+                    <ChatBubbleOutlineRoundedIcon sx={{ color: '#FFFFFF', fontSize: isMobile ? 16 : 20 }} />
                     Give Feedback
                 </button>
             ) : null}
@@ -1722,18 +1723,25 @@ export function AgentResultLayout({
                     style={{
                         position: 'fixed',
                         zIndex: 1400,
-                        right: 24,
-                        bottom: 85,
-                        width: 480,
-                        maxWidth: 'calc(100vw - 24px)',
+                        top: isMobile ? 12 : 16,
+                        right: isMobile ? 12 : 24,
+                        bottom: isMobile ? 62 : 85,
+                        left: isMobile ? 12 : 'auto',
+                        width: isMobile ? 'auto' : 480,
+                        maxWidth: isMobile ? 'none' : 'calc(100vw - 48px)',
+                        display: 'flex',
+                        alignItems: 'flex-end',
                     }}
                 >
                     <div
                         style={{
                             width: '100%',
+                            maxHeight: '100%',
+                            overflowY: 'auto',
+                            boxSizing: 'border-box',
                             backgroundColor: '#FFFFFF',
                             borderRadius: 14,
-                            padding: '24px',
+                            padding: isMobile ? '16px' : '24px',
                             fontFamily: 'Open Sans, sans-serif',
                             boxShadow: '0px 25px 50px -12px rgba(0, 0, 0, 0.25)',
                             position: 'relative',

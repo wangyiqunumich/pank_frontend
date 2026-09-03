@@ -1205,7 +1205,12 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
 
             <Box ref={pageRootRef} sx={{ px: { xs: 2, md: 4 }, pt: { xs: 2.5, md: 3.5 }, pb: { xs: 0.5, md: 1 }, maxWidth: 1344, width: "100%", mx: "auto" }}>
                 {/* Header */}
-                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: '62px', columnGap: '17px' }}>
+                <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    spacing={1.5}
+                    alignItems={{ xs: "flex-start", sm: "center" }}
+                    sx={{ mb: '62px', columnGap: '17px' }}
+                >
                     <Chip
                         label={data.questionId || "Q1"}
                         sx={{
@@ -1220,7 +1225,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                     />
                     <Typography
                         sx={{
-                            fontSize: isPank1Style ? 24 : 32,
+                            fontSize: { xs: 24, sm: isPank1Style ? 24 : 32 },
                             fontWeight: 700,
                             letterSpacing: "-0.02em",
                             color: "#1E293B",
