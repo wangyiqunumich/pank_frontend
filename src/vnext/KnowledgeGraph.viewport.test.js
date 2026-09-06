@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { act } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import cytoscape from 'cytoscape';
@@ -58,4 +58,24 @@ test('fitted viewport starts at 100%, enables zoom-out below0.6, and recenter re
   expect(observeGraphViewport.mock.results[0].value.fit).toHaveBeenCalledTimes(1);
   expect(cytoscape.mock.calls[0][0].layout).toEqual({ name: 'preset', fit: false });
   unmount();
+});
+
+test('hover on a visible offset edge label opens its scientific evidence without a midpoint-distance gate', () => {
+  jest.useFakeTimers();
+  const { unmount } = render(view());
+  const cy = cytoscape.mock.results[0].value;
+  const edge = { id: () => 'edge-label', nonempty: () => true, isNode: () => false, removed: () => false,
+    midpoint: () => ({ x: 0, y: 0 }), data: () => ({ source: 'CFTR', target: 'ductal', type: 'gene_detected_in',
+      evidence_properties: { median_donor_cpm: 0, data_source: 'Recorded source', flag: false } }) };
+  cy.getElementById = () => edge;
+  cy.pan = () => ({ x: 0, y: 0 });
+  cy.renderer = () => ({ projectIntoViewport: () => [1000, 1000] });
+  const hover = cy.on.mock.calls.find(([event, selector]) => event === 'mousemove' && selector === 'edge')[2];
+  act(() => hover({ target: edge, originalEvent: { clientX: 1000, clientY: 1000 } }));
+  act(() => jest.advanceTimersByTime(600));
+  expect(screen.getByText('Graph evidence properties')).toBeTruthy();
+  expect(screen.getByText('flag').parentElement.textContent).toContain('false');
+  expect(screen.getByText('data_source').parentElement.textContent).toContain('Recorded source');
+  unmount();
+  jest.useRealTimers();
 });

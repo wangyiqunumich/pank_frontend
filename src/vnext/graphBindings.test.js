@@ -29,12 +29,16 @@ test('real Cytoscape attaches parallel edges before applying routed curve styles
     expect(enrichment.style('control-point-distances')).toBe('20px 20px');
     expect(enrichment.style('source-endpoint')).toBe('5px 0px');
     expect(enrichment.style('target-endpoint')).toBe('-5px 0px');
-    expect(enrichment.style('text-opacity')).toBe('0');
+    expect(enrichment.style('text-opacity')).toBe('1');
+    expect(enrichment.style('text-events')).toBe('yes');
     expect(enrichment.style('label')).toBe('enrichment');
     expect(detection.style('curve-style')).toBe('segments');
     expect(detection.style('segment-distances')).toBe('-20px -20px');
     expect(detection.style('label')).toBe('detection');
     expect(cy.getElementById('unrouted').style('curve-style')).toBe('bezier');
+    expect(cy.getElementById('unrouted').style('text-opacity')).toBe('1');
+    expect(cy.getElementById('unrouted').style('text-events')).toBe('yes');
+    expect(new Set(cy.edges().map((edge) => edge.style('text-margin-y'))).size).toBe(3);
   } finally { cy.destroy(); }
 });
 
@@ -51,6 +55,27 @@ test('route bindings retain inverted endpoints and can be reapplied safely', () 
     expect(edge.style('target-endpoint')).toBe('5px 0px');
     expect(edge.style('control-point-distances')).toBe('-20px -20px');
   } finally { cy.destroy(); }
+});
+
+test('visible parallel labels are stable across input ordering and preserve full evidence separately from renderer keys', () => {
+  const raw = { source: 'scientific source', id: 'source record id', padj: 0, confidence: false,
+    provenance: { file: 'evidence.tsv', version: 'test' }, data_source: 'Measured evidence' };
+  const input = { ...graph, edges: graph.edges.map((edge) => ({ ...edge, '~properties': raw })) };
+  const before = JSON.stringify(input);
+  const first = graphElements(input, positions, routes);
+  const reversed = graphElements({ ...input, edges: input.edges.slice().reverse() }, positions, routes);
+  first.edges.forEach((edge) => {
+    expect(edge.data.evidence_properties).toEqual(raw);
+    expect(edge.data.source).toBe('gene');
+    expect(edge.data.id).not.toBe(raw.id);
+    expect(first.edgeStyles.get(edge.data.id)).toEqual(reversed.edgeStyles.get(edge.data.id));
+  });
+  expect(JSON.stringify(input)).toBe(before);
+});
+
+test('blank display labels fall back to the relationship type', () => {
+  const input = { ...graph, edges: [{ ...graph.edges[0], display_label: '   ', '~type': 'GENE_ENRICHED_IN' }] };
+  expect(graphElements(input, positions).edges[0].data.label).toBe('GENE ENRICHED IN');
 });
 
 // Geometry from the reported three-node CFTR result, without biological rows.
@@ -87,7 +112,7 @@ test('reported compact CFTR layout gains legible spacing and a fitted 100% basel
   expect(edges.map((edge) => [edge.data.source, edge.data.target])).toEqual([['CFTR', 'ductal'], ['CFTR', 'ductal']]);
   expect(edgeStyles.get('detected')['source-endpoint']).toBe('0px -8px');
   expect(edgeStyles.get('enriched')['control-point-distances'][0]).not.toBe(edgeStyles.get('detected')['control-point-distances'][0]);
-  expect(edgeStyles.get('detected')['text-opacity']).toBe(0);
+  expect(edgeStyles.get('detected')['text-opacity']).toBe(1);
   const viewport = calculateGraphViewport(geometryBounds(spread.positions, spread.routes), { width: 600, height: 630 });
   expect(viewport.zoom).toBe(4);
   expect(6 * viewport.zoom).toBe(24); // Existing 6px node font, unchanged.

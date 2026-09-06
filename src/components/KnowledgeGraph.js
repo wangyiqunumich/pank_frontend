@@ -105,11 +105,16 @@ const LegendItem = ({ label, color, sx }) => (
   </span>
 );
 
+export const formatEvidenceValue = (value) => typeof value === 'object' && value !== null ? JSON.stringify(value) : String(value);
+
 const InfocardData = ({ value, config, dataKey }) => {
   // config can be either just a type or the form "type(setting)""
   const setting = config?.match(/\(([^)]+)\)/)?.[1];
   const type = setting ? config.split('(')[0] : config;
-  return !type ? (<>{value || "No Data"}</>) :
+  return type === 'raw' ? <>{formatEvidenceValue(value).match(/[\s\S]{1,16}/gu)?.map((part, index) =>
+    <React.Fragment key={index}>{part}<wbr /></React.Fragment>)}</> :
+    !type ? (<>{value === null || value === undefined || value === '' ? "No Data" :
+      typeof value === 'object' || typeof value === 'boolean' ? formatEvidenceValue(value) : value}</>) :
     type === "string" ? (
       <>{dataKey || "No Data"}</>
     ) :
@@ -151,7 +156,7 @@ const InfocardData = ({ value, config, dataKey }) => {
               fontWeight: "700",
               fontSize: "12px"
             }}>
-              {value ? (type === "label_chr" ? `Chr${value}` : `${parseFloat(value).toFixed(1)}%`) : "No Data"}
+              {value !== undefined && value !== null && value !== '' ? (type === "label_chr" ? `Chr${value}` : `${parseFloat(value).toFixed(1)}%`) : "No Data"}
             </div>
           ) : (
             <span>{value}</span>
@@ -595,11 +600,29 @@ const getSafeElementPosition = (ele) => {
   }
 };
 
-const InfocardMenu = ({ hoveredData, review }) => {
-  const isEdge = hoveredData?.source && hoveredData?.target;
-  const schema =
+const EDGE_EVIDENCE_ALIASES = { log2FoldChange: 'log2_fold_change', median_donor_logCPM: 'median_donor_log_cpm', median_donor_CPM: 'median_donor_cpm' };
+const EDGE_RENDERER_FIELDS = new Set(['id', 'source', 'target', 'source_name', 'target_name', 'type', 'raw_type', 'label', 'evidence_properties']);
+
+export function edgeInfocardModel(data, baseSchema) {
+  const rawProperties = data.evidence_properties && typeof data.evidence_properties === 'object' && !Array.isArray(data.evidence_properties)
+    ? data.evidence_properties : Object.fromEntries(Object.entries(data).filter(([key]) => !EDGE_RENDERER_FIELDS.has(key)));
+  const values = { ...rawProperties, ...data };
+  Object.entries(EDGE_EVIDENCE_ALIASES).forEach(([legacy, canonical]) => {
+    if (values[legacy] === undefined && Object.prototype.hasOwnProperty.call(rawProperties, canonical)) values[legacy] = rawProperties[canonical];
+  });
+  const schema = [...(baseSchema || [['Title', data.raw_type || data.type || 'Relationship evidence', 'string'],
+    ['Relationship identity', [['From', 'source'], ['To', 'target']]]])];
+  if (Object.keys(rawProperties).length) schema.push(['Graph evidence properties', Object.keys(rawProperties).sort().map((key) => [key, key, 'raw'])]);
+  return { data: values, schema, rawProperties };
+}
+
+export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
+  const isEdge = incomingData?.source && incomingData?.target;
+  const baseSchema =
     review ? isEdge ? graphInfocardReview?.edges["relationship"].info_panel : graphInfocardReview?.nodes["All nodes"].info_panel :
-      (isEdge ? graphInfocard?.edges : graphInfocard?.nodes)?.[hoveredData?.type]?.info_panel;
+      (isEdge ? graphInfocard?.edges : graphInfocard?.nodes)?.[incomingData?.type]?.info_panel;
+  const { data: hoveredData, schema, rawProperties } = isEdge && !review ? edgeInfocardModel(incomingData, baseSchema)
+    : { data: incomingData, schema: baseSchema, rawProperties: {} };
   const titleColumn = schema?.find(([label, _]) => label === "Title");
   const footerInfo = schema?.find(([label, _]) => label === "Footer")?.[1];
 
@@ -686,7 +709,7 @@ const InfocardMenu = ({ hoveredData, review }) => {
                                         lineHeight: "14px",
                                         marginTop: "-5px",
                                       }}>
-                                        {label}
+                                        {config === 'raw' ? <InfocardData value={label} config="raw" /> : label}
                                       </Typography>
                                       <Typography
                                         component="span"
@@ -701,7 +724,7 @@ const InfocardMenu = ({ hoveredData, review }) => {
                                           marginTop: "-5px",
                                         }}
                                       >
-                                        <InfocardData value={hoveredData[key]} dataKey={key} config={config} />
+                                        <InfocardData value={config === 'raw' ? rawProperties[key] : hoveredData[key]} dataKey={key} config={config} />
                                       </Typography>
                                     </Box>
                                   )))
@@ -982,6 +1005,10 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
       top = y + nodeHeight / 2 + 2;
     }
 
+    // Full edge measurements can be taller than the pane. Keep the existing
+    // popup inside the window so its scrollable content remains reachable.
+    left = Math.max(12 - containerLeft, Math.min(left, window.innerWidth - containerLeft - infocardWidth - 12));
+    top = Math.max(12 - containerTop, Math.min(top, window.innerHeight - containerTop - infocardHeight - 12));
     setInfocardPosition({ x: left, y: top });
   }, [hoveredId, nodeHovered, infocardEnabled, activeNode]);
 
@@ -1169,30 +1196,11 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
     };
 
     const handleEdge = (handler) => ((evt) => {
-      // compare mouse position with edge midpoint
-      const cy = cyRef.current;
-      if (!cy) return;
-
       const ele = evt?.target;
       if (!ele || ele.nonempty === false || (typeof ele.removed === 'function' && ele.removed())) return;
-
-      const midpoint = getSafeEdgeMidpoint(ele);
-      if (!midpoint) return;
-
-      const originalEvent = evt?.originalEvent;
-      if (!originalEvent) return;
-
-      const mouseRendered = cy.renderer()?.projectIntoViewport?.(originalEvent.clientX, originalEvent.clientY);
-      if (!mouseRendered || mouseRendered.length < 2) return;
-
-      const dist = Math.sqrt(
-        Math.pow(midpoint.x - mouseRendered[0], 2) +
-        Math.pow(midpoint.y - mouseRendered[1], 2)
-      );
-      // Only trigger the handler if the distance is less than 20 pixels
-      if (dist < 20) {
-        handler(evt);
-      }
+      // Cytoscape already hit-tests the edge/visible label. A midpoint-distance
+      // gate excludes long or offset labels, especially after zooming.
+      handler(evt);
     })
 
     const cy = cyRef.current;
@@ -1373,6 +1381,8 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
           background: "#fff",
           borderRadius: "8px",
           overflow: "hidden",
+          overflowY: "auto",
+          maxHeight: "calc(100vh - 24px)",
           color: "#333",
           boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
           zIndex: 1000,

@@ -40,8 +40,14 @@ test.each(['src/components/ResultComponent.js', 'src/components/KnowledgeGraph.j
   let current = attributes(fs.readFileSync(file, 'utf8'));
   // A fitted large graph may start below0.6. Only the zoom-out control's state
   // threshold changes; its enabled/disabled opacity and every style stay fixed.
-  if (file === 'src/components/KnowledgeGraph.js') current = current.map((style) =>
-    style.replace('opacity: zoomLevel <= minimumZoom ? 0.5 : 1', 'opacity: zoomLevel <= 0.6 ? 0.5 : 1'));
+  if (file === 'src/components/KnowledgeGraph.js') {
+    // Full evidence must remain reachable in the existing hover card. Only its
+    // height bound/vertical scrolling are added; popup/page styling is retained.
+    expect(current.filter((style) => style.includes('maxHeight: "calc(100vh - 24px)"'))).toHaveLength(1);
+    current = current.map((style) => style
+      .replace('opacity: zoomLevel <= minimumZoom ? 0.5 : 1', 'opacity: zoomLevel <= 0.6 ? 0.5 : 1')
+      .replace(/\n\s+overflowY: "auto",\n\s+maxHeight: "calc\(100vh - 24px\)",/, ''));
+  }
   expect(current).toEqual(attributes(upstream(file)));
 });
 test('existing answer tables/CSV/fullscreen renderer keeps upstream styles', () => {

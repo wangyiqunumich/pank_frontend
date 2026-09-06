@@ -89,9 +89,10 @@ test('graph binding preserves endpoints, IDs and real disease labels despite pro
   expect(bound.edges[0].data).toMatchObject({ id: 'e1', source: 'a', target: 'b', raw_type: 'ASSOCIATED_WITH' });
   expect(JSON.stringify(input)).toBe(before);
 });
-test('provided route positions become finite Cytoscape geometry, hidden labels respected', () => {
+test('provided routes retain finite geometry without suppressing evidence labels', () => {
   const style = routeStyle({ route_type: 'bezier', source_port: [5, 0], target_port: [95, 0], control_points: [[30, 20], [70, 20]], label_visible: false }, { x: 0, y: 0 }, { x: 100, y: 0 });
-  expect(style).toMatchObject({ 'curve-style': 'unbundled-bezier', 'control-point-weights': [0.3, 0.7], 'control-point-distances': [20, 20], 'text-opacity': 0 });
+  expect(style).toMatchObject({ 'curve-style': 'unbundled-bezier', 'control-point-weights': [0.3, 0.7], 'control-point-distances': [20, 20] });
+  expect(style).not.toHaveProperty('text-opacity', 0);
 });
 test('immutable presentation is not created from incomplete preflight or the first execution step', () => {
   const run = { run_id: 'r', status: 'planning', preview: { status: 'partial', pending_step_ids: ['step2'] }, evidence: null };

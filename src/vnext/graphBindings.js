@@ -113,8 +113,9 @@ export function routeStyle(route, source, target, inverted = false) {
   if (inverted) points = points.slice().reverse();
   const weights = points.map((p) => ((p.x - start.x) * dx + (p.y - start.y) * dy) / squared);
   const distances = points.map((p) => (dx * (p.y - start.y) - dy * (p.x - start.x)) / length);
-  // An empty string removes a Cytoscape bypass instead of hiding the label.
-  const style = route.label_visible === false ? { 'text-opacity': 0 } : {};
+  // Route label visibility is advisory: displayed relationships always retain
+  // their label as an evidence-inspection target in this viewer.
+  const style = {};
   if (points.length) {
     const polyline = route.route_type === 'polyline';
     style['curve-style'] = polyline ? 'segments' : 'unbundled-bezier';
@@ -147,13 +148,32 @@ export function graphElements(result, positions = {}, routes = {}, options = {})
   const edgeStyles = new Map();
   const edges = [...new Map((result?.edges || []).map((edge) => [edge['~id'], edge])).values()].filter((edge) => byId[edge['~start']] && byId[edge['~end']]).map((edge) => {
     const displayType = edge.display_type || edge['~type'];
+    const label = [edge.display_label, edgeLabels[displayType], displayType, edge['~type']]
+      .find((value) => typeof value === 'string' && value.trim()) || 'Relationship';
     const inverted = Boolean(edgeIsInverted[displayType]);
     const start = edge['~start'], end = edge['~end'];
     const style = routeStyle(routes[edge['~id']], byId[start].position, byId[end].position, inverted);
-    if (style) edgeStyles.set(edge['~id'], style);
+    edgeStyles.set(edge['~id'], { ...style, 'text-opacity': 1, 'text-events': 'yes' });
     return { data: { ...(edge[propertyKey] || {}), id: edge['~id'], source: inverted ? end : start, target: inverted ? start : end,
       source_name: byId[start].data.label, target_name: byId[end].data.label, type: displayType, raw_type: edge['~type'],
-      label: edge.display_label || edgeLabels[displayType] || String(displayType || '').replace(/_/g, ' ') } };
+      label: label.replace(/_/g, ' ').trim(),
+      evidence_properties: { ...(edge[propertyKey] || {}) } } };
+  });
+  // Parallel relationships share a midpoint. Separate their label baselines
+  // deterministically so each remains a distinct hover target, without moving
+  // nodes, routes or endpoint attachments.
+  const parallel = new Map();
+  edges.forEach((edge) => {
+    const key = JSON.stringify([edge.data.source, edge.data.target].sort());
+    if (!parallel.has(key)) parallel.set(key, []);
+    parallel.get(key).push(edge);
+  });
+  parallel.forEach((group) => {
+    if (group.length < 2) return;
+    group.sort((a, b) => String(a.data.id).localeCompare(String(b.data.id)));
+    group.forEach((edge, index) => {
+      edgeStyles.get(edge.data.id)['text-margin-y'] = (index - (group.length - 1) / 2) * 8;
+    });
   });
   return { nodes, edges, edgeStyles };
 }
