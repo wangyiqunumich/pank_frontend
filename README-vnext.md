@@ -3,6 +3,9 @@
 Baseline: upstream `xuteng/react`, `bc27e3f272057ba161ac827bd91adfb7823d7b07`.
 This independent checkout preserves the existing layout, styles, graph controls,
 plan confirmation, answer tables, and supplementary-resource tab positions.
+The conventional `/result` route retains its original Question/You May Also Ask
+card, paired overview/graph panels, and resource tabs. `/result-new` retains the
+separate newer result presentation; both use the same isolated result API.
 
 Build with `npm ci --ignore-scripts --no-audit --no-fund` then `npm run build`.
 The checked-in public configuration builds for `/pankgraph-vnext/`.

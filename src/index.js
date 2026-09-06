@@ -34,7 +34,7 @@ import StatPage from './pages/StatPage';
 import Tutorial from './pages/Tutorial';
 import UsecasesPage from './pages/UsecasePage';
 import { store } from './redux/store';
-import { ConventionalResultView as ResultPage } from './vnext/ResultView';
+import ResultPage from './vnext/LegacyResultView';
 import { AgentResultLayout } from './SearchResult/AgentResult';
 import { ConventionalResultView as ResultPageNew } from './vnext/ResultView';
 import ResultPageNew2 from './vnext/ResultView';

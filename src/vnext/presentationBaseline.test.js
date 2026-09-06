@@ -16,6 +16,26 @@ function attributes(source, names = ['sx', 'style']) {
   visit(ast);
   return values;
 }
+function resultStructure(source) {
+  const body = source.slice(source.indexOf('    return !(queryResultPage?.combined_query_result)'), source.lastIndexOf('export default'));
+  const ast = parser.parse(`function Page() { ${body}`, { sourceType: 'module', plugins: ['jsx'] });
+  const result = [];
+  function visit(node, parents = []) {
+    if (!node || typeof node !== 'object') return;
+    let path = parents;
+    if (node.type === 'JSXElement') {
+      path = [...parents, node.openingElement.name.name];
+      // Actual provenance may add a line break inside the existing author row.
+      if (!(node.openingElement.name.name === 'br' && parents.slice(-2).join('/') === 'ListItem/Typography')) result.push(path.join('/'));
+    }
+    // PMID is now conditional because some supplied references have document IDs.
+    const citationPunctuation = path.slice(-2).join('/') === 'ListItem/Typography' && /^[.;:()\s]+$/.test(node.value || '');
+    if (node.type === 'JSXText' && node.value.trim() && node.value.trim() !== 'PMID:' && !citationPunctuation) result.push(`${path.join('/')}:${node.value.trim()}`);
+    Object.entries(node).forEach(([key, value]) => { if (!['loc', 'start', 'end'].includes(key)) { if (Array.isArray(value)) value.forEach((item) => visit(item, path)); else visit(value, path); } });
+  }
+  visit(ast);
+  return result;
+}
 test.each(['src/components/ResultComponent.js', 'src/components/KnowledgeGraph.js', 'src/components/MatchPage.js', 'src/components/IntermediatePage.js', 'src/SearchResult/AgentResult.js', 'src/SearchResult/loading.js'])('%s preserves every existing inline presentation style', (file) => {
   expect(attributes(fs.readFileSync(file, 'utf8'))).toEqual(attributes(upstream(file)));
 });
@@ -23,6 +43,17 @@ test('existing answer tables/CSV/fullscreen renderer keeps upstream styles', () 
   const source = upstream('src/SearchResult/resultpage_new.js');
   const block = source.slice(source.indexOf('    const dispatchPmidReferenceEvent ='), source.indexOf('    const stripHtml =', source.indexOf('    const dispatchPmidReferenceEvent =')));
   expect(attributes(fs.readFileSync('src/vnext/AnswerMarkdown.js', 'utf8'))).toEqual(attributes(`function Renderer() { ${block} }`));
+});
+test('legacy /result preserves every original inline presentation style and control', () => {
+  const source = fs.readFileSync('src/vnext/LegacyResultPresentation.js', 'utf8');
+  const original = upstream('src/SearchResult/index.js');
+  expect(attributes(source)).toEqual(attributes(original));
+  expect(attributes(source, ['height', 'variant', 'scrollButtons', 'alt', 'target', 'rel'])).toEqual(attributes(original, ['height', 'variant', 'scrollButtons', 'alt', 'target', 'rel']));
+  expect(resultStructure(source)).toEqual(resultStructure(original));
+  const entry = fs.readFileSync('src/index.js', 'utf8');
+  expect(entry).toContain("import ResultPage from './vnext/LegacyResultView'");
+  expect(entry).toContain("import { ConventionalResultView as ResultPageNew } from './vnext/ResultView'");
+  expect(source).not.toMatch(/queryAiAnswer|queryArticles|queryImage|validateQuestions|flaskBackend|typeToImage|VisuImage|lambda_function|dispatch\(/);
 });
 test('active entrypoint uses local controllers and starts no production endpoint probes or analytics', () => {
   const entry = fs.readFileSync('src/index.js', 'utf8');
