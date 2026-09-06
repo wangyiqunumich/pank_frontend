@@ -1,4 +1,4 @@
-import { applyRunEvent, liveProgress, planMarkdown, projectionForRun, selectedResultParams, stageLabel, templateRequest, withLiteratureReferences } from './contracts';
+import { applyRunEvent, literatureNotice, liveProgress, planMarkdown, projectionForRun, selectedResultParams, stageLabel, templateRequest, withLiteratureReferences } from './contracts';
 import { graphElements, routeStyle } from './graphBindings';
 
 test.each([
@@ -41,6 +41,44 @@ test('failed preview remains reviewable; legacy/clarification plans explain revi
   expect(planMarkdown({ preview: { status: 'failed' }, plan: { steps: [] } })).toContain('failed');
   expect(planMarkdown({ preview: { status: 'not_requested' }, plan: { clarification: 'Resolve this entity', steps: [] } })).toContain('Resolve this entity');
   expect(stageLabel('preparing_execution')).toBe('Preparing the investigation');
+});
+test('plan text makes literature intent explicit using the readable policy summary', () => {
+  const summary = 'After confirmation, add literature context and alternative explanations.';
+  const text = planMarkdown({ plan: { literature: false, literature_intent: { included: true, reason: 'scientific_interpretation', summary, policy_version: 'scientific-intent-v1' }, steps: [] } });
+  expect(text).toContain(`Literature evidence: included. ${summary}`);
+  expect(text).not.toContain('scientific_interpretation');
+  expect(text).not.toContain('scientific-intent-v1');
+  expect(planMarkdown({ plan: { literature: true, steps: [] } })).toContain('After confirmation, add literature context and linked references.');
+  expect(planMarkdown({ plan: { literature: false, steps: [] } })).toContain('Literature evidence: not included.');
+  expect(planMarkdown({ plan: { steps: [] } })).toContain('Literature evidence: not specified in this saved plan.');
+});
+test('explicit graph-only summary remains visible despite a stale literature boolean', () => {
+  expect(planMarkdown({ plan: { literature: true, literature_intent: { included: false, reason: 'explicit_opt_out', summary: 'Use graph evidence only, as requested.' }, steps: [] } })).toContain('Literature evidence: not included. Use graph evidence only, as requested.');
+});
+test('literature progress distinguishes pending, partial, missing and unavailable outcomes', () => {
+  const run = { status: 'running', plan: { literature: true } };
+  expect(literatureNotice(run)).toBe('Literature evidence is pending.');
+  expect(literatureNotice({ ...run, status: 'completed' })).toBe('No literature outcome is recorded for this run.');
+  expect(literatureNotice(run, { status: 'not_requested' })).toContain('no search is recorded');
+  expect(literatureNotice({ ...run, plan: { literature: false } }, { status: 'not_requested' })).toBe('');
+  const partial = { status: 'partial', perspectives: [{ id: 'mechanism' }] };
+  expect(literatureNotice(run, partial)).toContain('still arriving');
+  expect(literatureNotice({ ...run, literature_complete: true }, partial)).toContain('Literature evidence is partial.');
+  expect(literatureNotice(run, { ...partial, status: 'unavailable' })).toContain('Available perspectives and references are preserved.');
+  expect(literatureNotice(run, { status: 'complete', perspectives: [] })).toBe('The literature search returned no validated perspectives.');
+  expect(literatureNotice({ status: 'completed', plan: { literature: false } }, { status: 'running', repair: { requested_by: 'user' } })).toBe('Literature evidence is pending.');
+});
+test('literature events retain progressive perspectives and mark the final outcome', () => {
+  const start = { event_sequence: 1, status: 'running', plan: { literature: true } };
+  const progress = applyRunEvent(start, { sequence: 2, type: 'literature_progress', payload: { status: 'running' } });
+  expect(progress.literature.status).toBe('running');
+  const perspective = { id: 'm', label: 'Mechanism', answer: 'Grounded context', references: [{ pmid: '12345678' }] };
+  const partial = applyRunEvent(progress, { sequence: 3, type: 'literature_perspective', payload: perspective });
+  const continued = applyRunEvent(partial, { sequence: 4, type: 'literature_progress', payload: { status: 'running' } });
+  expect(continued.literature.perspectives).toEqual([perspective]);
+  const final = applyRunEvent(continued, { sequence: 5, type: 'literature_complete', payload: { status: 'partial', perspectives: [perspective] } });
+  expect(final.literature_complete).toBe(true);
+  expect(literatureNotice(final)).toContain('Literature evidence is partial.');
 });
 test('graph binding preserves endpoints, IDs and real disease labels despite property collisions', () => {
   const input = { nodes: [{ '~id': 'a', '~labels': ['gene'], '~properties': { name: 'INS', id: 'wrong' }, display_type: 'coding_elements' }, { '~id': 'b', '~labels': ['disease'], '~properties': { name: 'Type 2 diabetes' } }], edges: [{ '~id': 'e1', '~start': 'a', '~end': 'b', '~type': 'ASSOCIATED_WITH', '~properties': { source: 'paper', target: 'paper2', id: 'bad' }, display_type: 'associated_with' }] };

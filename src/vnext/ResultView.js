@@ -10,7 +10,7 @@ import SearchResultLoading from '../SearchResult/loading';
 import { upsertRecentChat } from '../utils/chatSessionStorage';
 import AnswerMarkdown from './AnswerMarkdown';
 import { useResourcePanels } from './Resources';
-import { applyRunEvent, liveProgress, planMarkdown, projectionForRun, templateRequest, withLiteratureReferences } from './contracts';
+import { applyRunEvent, literatureNotice, liveProgress, planMarkdown, projectionForRun, templateRequest, withLiteratureReferences } from './contracts';
 import { cancelRun, confirmPlan, createPlanOnce, createResultOnce, getRun, pollResult, revisePlan, sitePath, TERMINAL_RUNS, watchRun } from './api';
 
 const readLocal = (key) => { try { return JSON.parse(localStorage.getItem(key)); } catch (_) { return null; } };
@@ -45,7 +45,8 @@ function GraphPanel({ result, waiting, error }) {
 }
 
 export function ResultSection({ run, result, error, planning, busy, onRevise, onConfirm, anchorPrefix }) {
-  const resources = useResourcePanels(withLiteratureReferences(result?.resources_tabs, run?.literature), result?.component_status?.resources);
+  const literature = run?.literature ?? result?.literature;
+  const resources = useResourcePanels(withLiteratureReferences(result?.resources_tabs, literature), result?.component_status?.resources);
   const graphData = result?.combined_query_result || null;
   const graphError = error || (planning && run?.plan?.clarification) || (planning && run?.preview?.status === 'failed' ? 'The initial graph retrieval failed. You can revise the question or confirm a bounded retry.' : '');
   const visualMaterial = { title: 'Visual Material', tabs: [{ label: 'Knowledge Graph', content: <GraphPanel result={result} waiting={!result && !graphError} error={graphError} /> }] };
@@ -56,7 +57,9 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
     onSendFeedback: onRevise, onProceed: onConfirm, graphData, visualMaterial,
   };
   const sections = [{ content: <AnswerMarkdown answer={run?.graph_answer || result?.answer?.text || result?.answer || (run?.error?.message || 'Writing the grounded answer…')} references={resources.references} /> }];
-  (run?.literature?.perspectives || []).forEach((perspective) => sections.push({ heading: perspective.label || 'Literature perspective', content: <AnswerMarkdown answer={perspective.answer || ''} references={resources.references} /> }));
+  const literatureStatus = literatureNotice(run, literature);
+  if (literatureStatus) sections.push({ content: <AnswerMarkdown answer={literatureStatus} references={resources.references} /> });
+  (literature?.perspectives || []).forEach((perspective) => sections.push({ heading: perspective.label || 'Literature perspective', content: <AnswerMarkdown answer={perspective.answer || ''} references={resources.references} /> }));
   const display = result?.display;
   const completeness = result?.completeness || run?.evidence?.completeness;
   const evidenceNotice = typeof display?.notice === 'string' ? display.notice : (['partial', 'failed', 'unavailable'].includes(completeness) ? `Graph evidence is ${completeness}.` : '');

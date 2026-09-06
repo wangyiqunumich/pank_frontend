@@ -1,6 +1,107 @@
 const point = (value) => Array.isArray(value) ? { x: value[0], y: value[1] } : value;
 const finitePoint = (value) => { const p = point(value); return p && Number.isFinite(p.x) && Number.isFinite(p.y) ? p : null; };
 
+// The server's compact layout uses the same 6px text scale as the old viewer.
+// Give small graphs breathing room without changing node sizes, graph topology,
+// or the optimized relative positions of larger graphs. Route endpoints retain
+// their original offset from their node; scaling that offset would detach them.
+export function spreadCompactLayout(result, positions = {}, routes = {}) {
+  const ids = [...new Set((result?.nodes || []).map((node) => node['~id']))];
+  if (ids.length < 2 || ids.length > 8 || ids.some((id) => !finitePoint(positions[id]))) return { positions, routes };
+  let factor = 1;
+  const dimension = (p, key) => Number.isFinite(p[key]) && p[key] > 0 ? p[key] : key === 'width' ? 40 : 16;
+  ids.forEach((id, index) => ids.slice(index + 1).forEach((other) => {
+    const a = positions[id], b = positions[other];
+    const dx = Math.abs(a.x - b.x), dy = Math.abs(a.y - b.y);
+    if (dx + dy === 0) return;
+    const sx = dx ? ((dimension(a, 'width') + dimension(b, 'width')) / 2 + 24) / dx : Infinity;
+    const sy = dy ? ((dimension(a, 'height') + dimension(b, 'height')) / 2 + 24) / dy : Infinity;
+    factor = Math.max(factor, Math.min(sx, sy));
+  }));
+  factor = Math.min(factor, 2.5);
+  if (factor === 1) return { positions, routes };
+  const center = { x: ids.reduce((sum, id) => sum + positions[id].x, 0) / ids.length,
+    y: ids.reduce((sum, id) => sum + positions[id].y, 0) / ids.length };
+  const transform = (value) => {
+    const p = finitePoint(value);
+    return p ? { x: center.x + (p.x - center.x) * factor, y: center.y + (p.y - center.y) * factor } : value;
+  };
+  const moved = Object.fromEntries(ids.map((id) => [id, { ...positions[id], ...transform(positions[id]) }]));
+  const anchor = (value, id) => {
+    const p = finitePoint(value);
+    return p && moved[id] ? { x: moved[id].x + p.x - positions[id].x, y: moved[id].y + p.y - positions[id].y } : value;
+  };
+  const byId = Object.fromEntries((result.edges || []).map((edge) => [edge['~id'], edge]));
+  const movedRoutes = Object.fromEntries(Object.entries(routes).map(([id, route]) => {
+    const edge = byId[id];
+    if (!edge || !route) return [id, route];
+    return [id, { ...route,
+      source_port: anchor(route.source_port, edge['~start']), target_port: anchor(route.target_port, edge['~end']),
+      ...(route.control_points ? { control_points: route.control_points.map(transform) } : {}),
+      ...(route.waypoints ? { waypoints: route.waypoints.map(transform) } : {}),
+    }];
+  }));
+  return { positions: moved, routes: movedRoutes };
+}
+
+export function calculateGraphViewport(bounds, size) {
+  if (!bounds || ![size?.width, size?.height].every((n) => Number.isFinite(n) && n > 0)
+    || ![bounds.x1, bounds.y1, bounds.x2, bounds.y2].every(Number.isFinite)) return null;
+  // Reserve the existing controls and collapsed legend, not just the pane edge.
+  const insetScale = Math.min(1, size.width / 320, size.height / 240);
+  const left = 24 * insetScale, right = 84 * insetScale, top = 24 * insetScale, bottom = 76 * insetScale;
+  const width = size.width - left - right, height = size.height - top - bottom;
+  const zoom = Math.min(4, width / Math.max(1, bounds.x2 - bounds.x1), height / Math.max(1, bounds.y2 - bounds.y1));
+  return { zoom, minZoom: Math.min(0.6, zoom / 2), maxZoom: 4,
+    pan: { x: left + width / 2 - zoom * (bounds.x1 + bounds.x2) / 2,
+      y: top + height / 2 - zoom * (bounds.y1 + bounds.y2) / 2 } };
+}
+
+export function fitGraphViewport(cy) {
+  if (cy.destroyed()) return null;
+  cy.resize();
+  if (!cy.nodes().length) return null;
+  const viewport = calculateGraphViewport(cy.elements().boundingBox({ includeLabels: true, includeOverlays: false }),
+    { width: cy.width(), height: cy.height() });
+  if (!viewport) return null;
+  cy.minZoom(viewport.minZoom);
+  cy.maxZoom(viewport.maxZoom);
+  cy.viewport({ zoom: viewport.zoom, pan: viewport.pan });
+  return viewport;
+}
+
+export function observeGraphViewport(cy, container, onFit = () => {}, host = window) {
+  let disposed = false, frame = null, lastSize = '';
+  const fit = () => {
+    if (disposed || cy.destroyed()) return null;
+    const box = container.getBoundingClientRect();
+    if (box.width <= 0 || box.height <= 0) return null;
+    const viewport = fitGraphViewport(cy);
+    if (viewport) { lastSize = `${box.width}:${box.height}`; onFit(viewport); }
+    return viewport;
+  };
+  const schedule = () => {
+    if (disposed || frame !== null) return;
+    frame = host.requestAnimationFrame(() => {
+      frame = null;
+      if (disposed || cy.destroyed()) return;
+      const box = container.getBoundingClientRect();
+      if (`${box.width}:${box.height}` !== lastSize) fit();
+    });
+  };
+  const observer = host.ResizeObserver ? new host.ResizeObserver(schedule) : null;
+  observer?.observe(container);
+  host.addEventListener('resize', schedule);
+  fit();
+  schedule();
+  return { fit, dispose() {
+    disposed = true;
+    observer?.disconnect();
+    host.removeEventListener('resize', schedule);
+    if (frame !== null) host.cancelAnimationFrame(frame);
+  } };
+}
+
 export function routeStyle(route, source, target, inverted = false) {
   if (!route || !source || !target) return undefined;
   const start = inverted ? target : source;
@@ -23,13 +124,15 @@ export function routeStyle(route, source, target, inverted = false) {
   }
   const sourcePort = finitePoint(inverted ? route.target_port : route.source_port);
   const targetPort = finitePoint(inverted ? route.source_port : route.target_port);
-  if (sourcePort) style['source-endpoint'] = `${sourcePort.x - start.x}px ${sourcePort.y - start.y}px`;
-  if (targetPort) style['target-endpoint'] = `${targetPort.x - end.x}px ${targetPort.y - end.y}px`;
+  const offset = (value) => Math.round(value * 1e6) / 1e6;
+  if (sourcePort) style['source-endpoint'] = `${offset(sourcePort.x - start.x)}px ${offset(sourcePort.y - start.y)}px`;
+  if (targetPort) style['target-endpoint'] = `${offset(targetPort.x - end.x)}px ${offset(targetPort.y - end.y)}px`;
   return style;
 }
 
 export function graphElements(result, positions = {}, routes = {}, options = {}) {
-  const { review = false, graphInfocard = {}, edgeIsInverted = {}, edgeLabels = {} } = options;
+  const { review = false, graphInfocard = {}, edgeIsInverted = {}, edgeLabels = {}, spreadCompact = false } = options;
+  if (spreadCompact && !review) ({ positions, routes } = spreadCompactLayout(result, positions, routes));
   const propertyKey = review ? 'properties' : '~properties';
   const unique = new Map((result?.nodes || []).map((node) => [node['~id'], node]));
   const nodes = [...unique.values()].map((node, index) => {

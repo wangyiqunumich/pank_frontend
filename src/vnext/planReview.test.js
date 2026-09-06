@@ -44,3 +44,25 @@ test('plan review uses the actual projected graph and clarified entities disable
   expect(screen.getByText(/Resolve the indicated entity/)).toBeTruthy();
   expect(document.getElementById('test-plan-proceed-button').disabled).toBe(true);
 });
+test('the existing plan content discloses included literature without adding controls', () => {
+  render(<ResultSection planning run={{ status: 'awaiting_confirmation', question: 'Why is CFTR enriched?', plan_id: 'p', preview: { status: 'complete' }, plan: { literature_intent: { included: true, summary: 'Add literature context and alternative explanations.' }, steps: [] } }} anchorPrefix="test" />);
+  expect(screen.getByText(/Literature evidence: included/)).toBeTruthy();
+  expect(screen.getByText(/Add literature context and alternative explanations/)).toBeTruthy();
+  expect(document.getElementById('test-plan-proceed-button').disabled).toBe(false);
+});
+test('existing answer sections show pending and unavailable literature while retaining graph and valid references', () => {
+  const run = { status: 'running', question: 'CFTR?', graph_answer: 'Graph answer remains visible.', plan: { literature: true } };
+  const { rerender } = render(<ResultSection run={run} anchorPrefix="test" />);
+  expect(screen.getByText('Literature evidence is pending.')).toBeTruthy();
+  const perspective = { id: 'm', label: 'Mechanism', answer: 'Available literature context.', references: [{ pmid: '12345678', title: 'Supplied paper title', journal: 'Supplied journal' }] };
+  rerender(<ResultSection run={{ ...run, status: 'partial', literature: { status: 'unavailable', perspectives: [perspective] } }} anchorPrefix="test" />);
+  expect(screen.getByText('Graph answer remains visible.')).toBeTruthy();
+  expect(screen.getByText(/Literature evidence is unavailable/)).toBeTruthy();
+  expect(screen.getByText('Available literature context.')).toBeTruthy();
+  expect(screen.getByRole('link', { name: /Supplied paper title/ }).getAttribute('href')).toBe('https://pubmed.ncbi.nlm.nih.gov/12345678/');
+});
+test('saved result literature is visible when the run wrapper has no literature field', () => {
+  render(<ResultSection run={{ status: 'completed', question: 'CFTR?', graph_answer: 'Graph answer.' }} result={{ literature: { status: 'complete', perspectives: [{ id: 'm', label: 'Mechanism', answer: 'Saved literature context.' }] } }} anchorPrefix="test" />);
+  expect(screen.getByText('Saved literature context.')).toBeTruthy();
+  expect(screen.queryByText('Literature evidence is pending.')).toBeNull();
+});

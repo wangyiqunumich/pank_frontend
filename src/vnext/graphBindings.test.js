@@ -1,5 +1,5 @@
 import cytoscape from 'cytoscape';
-import { applyGraphRoutes, graphElements } from './graphBindings';
+import { applyGraphRoutes, calculateGraphViewport, graphElements, observeGraphViewport, spreadCompactLayout } from './graphBindings';
 
 const graph = {
   nodes: ['gene', 'cell'].map((id) => ({ '~id': id, '~labels': [id], '~properties': { name: id } })),
@@ -51,4 +51,107 @@ test('route bindings retain inverted endpoints and can be reapplied safely', () 
     expect(edge.style('target-endpoint')).toBe('5px 0px');
     expect(edge.style('control-point-distances')).toBe('-20px -20px');
   } finally { cy.destroy(); }
+});
+
+// Geometry from the reported three-node CFTR result, without biological rows.
+const compactGraph = {
+  nodes: ['CFTR', 'ductal', 'MUC5B'].map((id) => ({ '~id': id, '~labels': ['Gene'], '~properties': { name: id } })),
+  edges: [{ '~id': 'detected', '~start': 'CFTR', '~end': 'ductal', '~type': 'GENE_DETECTED_IN' },
+    { '~id': 'enriched', '~start': 'CFTR', '~end': 'ductal', '~type': 'GENE_ENRICHED_IN' }],
+};
+const compactPositions = { CFTR: { x: 51.8, y: -26, width: 24.4, height: 16 },
+  ductal: { x: 51.8, y: -47.333, width: 49.6, height: 16 }, MUC5B: { x: 51.8, y: -4.667, width: 67.6, height: 16 } };
+const compactRoutes = { detected: { source_port: [51.8, -34], target_port: [51.8, -39.333],
+  control_points: [[52.467, -35.707], [52.467, -37.626]], route_type: 'bezier', label_visible: false },
+enriched: { source_port: [53.467, -34], target_port: [53.467, -39.333],
+  control_points: [[59.133, -35.707], [59.133, -37.626]], route_type: 'bezier', label_visible: false } };
+
+function geometryBounds(positions, routes = {}) {
+  const points = Object.values(positions).flatMap((p) => [{ x: p.x - (p.width || 40) / 2, y: p.y - (p.height || 16) / 2 },
+    { x: p.x + (p.width || 40) / 2, y: p.y + (p.height || 16) / 2 }]);
+  Object.values(routes).forEach((route) => (route.control_points || route.waypoints || []).forEach((p) => points.push(Array.isArray(p) ? { x: p[0], y: p[1] } : p)));
+  return { x1: Math.min(...points.map((p) => p.x)), x2: Math.max(...points.map((p) => p.x)),
+    y1: Math.min(...points.map((p) => p.y)), y2: Math.max(...points.map((p) => p.y)) };
+}
+
+test('reported compact CFTR layout gains legible spacing and a fitted 100% baseline without detaching routes', () => {
+  const original = JSON.stringify([compactGraph, compactPositions, compactRoutes]);
+  const spread = spreadCompactLayout(compactGraph, compactPositions, compactRoutes);
+  expect(Math.abs(spread.positions.CFTR.y - spread.positions.ductal.y)).toBeCloseTo(40);
+  expect(spread.positions.CFTR.width).toBe(24.4);
+  expect(spread.positions.CFTR.x).toBeCloseTo(51.8);
+  expect(spread.routes.detected.source_port.y - spread.positions.CFTR.y).toBeCloseTo(-8);
+  expect(spread.routes.detected.target_port.y - spread.positions.ductal.y).toBeCloseTo(8);
+  const { nodes, edges, edgeStyles } = graphElements(compactGraph, compactPositions, compactRoutes, { spreadCompact: true });
+  expect(nodes.map((node) => node.data.id)).toEqual(['CFTR', 'ductal', 'MUC5B']);
+  expect(edges.map((edge) => [edge.data.source, edge.data.target])).toEqual([['CFTR', 'ductal'], ['CFTR', 'ductal']]);
+  expect(edgeStyles.get('detected')['source-endpoint']).toBe('0px -8px');
+  expect(edgeStyles.get('enriched')['control-point-distances'][0]).not.toBe(edgeStyles.get('detected')['control-point-distances'][0]);
+  expect(edgeStyles.get('detected')['text-opacity']).toBe(0);
+  const viewport = calculateGraphViewport(geometryBounds(spread.positions, spread.routes), { width: 600, height: 630 });
+  expect(viewport.zoom).toBe(4);
+  expect(6 * viewport.zoom).toBe(24); // Existing 6px node font, unchanged.
+  expect(Math.abs(nodes[0].position.y - nodes[1].position.y) * viewport.zoom).toBeCloseTo(160);
+  expect(JSON.stringify([compactGraph, compactPositions, compactRoutes])).toBe(original);
+  expect(spreadCompactLayout(compactGraph, compactPositions, compactRoutes)).toEqual(spread);
+});
+
+test.each([25, 50, 100])('%i-node layouts retain positions/routes and fit panel and fullscreen, including curved route bounds', (count) => {
+  const nodes = Array.from({ length: count }, (_, i) => ({ '~id': String(i) }));
+  const coords = Object.fromEntries(nodes.map((node, i) => [node['~id'], { x: (i % 10) * 130, y: Math.floor(i / 10) * 90, width: 110, height: 16 }]));
+  const curves = { wide: { control_points: [[-200, -150], [1400, 1100]] } };
+  expect(spreadCompactLayout({ nodes, edges: [] }, coords, curves)).toEqual({ positions: coords, routes: curves });
+  const bounds = geometryBounds(coords, curves);
+  for (const size of [{ width: 600, height: 630 }, { width: 1440, height: 800 }]) {
+    const viewport = calculateGraphViewport(bounds, size);
+    expect(bounds.x1 * viewport.zoom + viewport.pan.x).toBeGreaterThanOrEqual(23.999);
+    expect(bounds.x2 * viewport.zoom + viewport.pan.x).toBeLessThanOrEqual(size.width - 83.999);
+    expect(bounds.y1 * viewport.zoom + viewport.pan.y).toBeGreaterThanOrEqual(23.999);
+    expect(bounds.y2 * viewport.zoom + viewport.pan.y).toBeLessThanOrEqual(size.height - 75.999);
+    expect(viewport.minZoom).toBeLessThan(viewport.zoom);
+    expect(viewport.zoom).toBeLessThanOrEqual(4);
+  }
+  expect(calculateGraphViewport(bounds, { width: 600, height: 630 }).zoom).toBeLessThan(0.6);
+});
+
+test('already spread layouts and review coordinates remain unchanged', () => {
+  expect(spreadCompactLayout(graph, positions, routes)).toEqual({ positions, routes });
+  const { nodes } = graphElements(compactGraph, compactPositions, compactRoutes, { spreadCompact: true, review: true });
+  expect(nodes[0].position).toEqual(compactPositions.CFTR);
+});
+
+test('viewport ignores hidden/invalid panels and caps a single-node fit at the existing maximum zoom', () => {
+  expect(calculateGraphViewport({ x1: 0, y1: 0, x2: 20, y2: 16 }, { width: 0, height: 630 })).toBeNull();
+  expect(calculateGraphViewport({ x1: NaN, y1: 0, x2: 20, y2: 16 }, { width: 600, height: 630 })).toBeNull();
+  expect(calculateGraphViewport({ x1: 0, y1: 0, x2: 20, y2: 16 }, { width: 600, height: 630 }).zoom).toBe(4);
+});
+
+test('resize observer waits for visibility, refits real size changes, preserves user zoom on unchanged size, and cleans up', () => {
+  let size = { width: 0, height: 0 }, callback, frame, destroyed = false, zoom = 1;
+  const bounds = { x1: 0, y1: 0, x2: 1000, y2: 400 };
+  const cy = { destroyed: () => destroyed, resize: jest.fn(), nodes: () => ({ length: 100 }),
+    elements: () => ({ boundingBox: jest.fn(() => bounds) }), width: () => size.width, height: () => size.height,
+    minZoom: jest.fn(), maxZoom: jest.fn(), viewport: jest.fn((view) => { zoom = view.zoom; }) };
+  const disconnect = jest.fn();
+  const host = { ResizeObserver: jest.fn(function Observer(fn) { callback = fn; this.observe = jest.fn(); this.disconnect = disconnect; }),
+    requestAnimationFrame: jest.fn((fn) => { frame = fn; return 1; }), cancelAnimationFrame: jest.fn(),
+    addEventListener: jest.fn(), removeEventListener: jest.fn() };
+  const onFit = jest.fn();
+  const controller = observeGraphViewport(cy, { getBoundingClientRect: () => size }, onFit, host);
+  expect(cy.viewport).not.toHaveBeenCalled();
+  frame();
+  size = { width: 600, height: 630 }; callback(); callback(); frame();
+  expect(onFit).toHaveBeenCalledTimes(1);
+  expect(zoom).toBeCloseTo(0.492);
+  zoom = 2; callback(); frame();
+  expect(zoom).toBe(2);
+  size = { width: 1440, height: 800 }; callback(); frame();
+  expect(zoom).toBeCloseTo(1.332);
+  size = { width: 600, height: 630 }; controller.fit();
+  expect(zoom).toBeCloseTo(0.492);
+  callback(); const lastFrame = frame; controller.dispose(); destroyed = true; lastFrame();
+  expect(onFit).toHaveBeenCalledTimes(3);
+  expect(disconnect).toHaveBeenCalledTimes(1);
+  expect(host.cancelAnimationFrame).toHaveBeenCalledWith(1);
+  expect(controller.fit()).toBeNull();
 });

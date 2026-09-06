@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 
 import cytoscape from 'cytoscape';
-import { applyGraphRoutes, graphElements } from '../vnext/graphBindings';
+import { applyGraphRoutes, graphElements, observeGraphViewport } from '../vnext/graphBindings';
 import JSON5 from 'json5';
 import {
   useDispatch,
@@ -818,11 +818,17 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
   const [nodeHovered, setNodeHovered] = useState(false);
 
   const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
+  // Answer/resource polling replaces response objects without changing the graph.
+  // Rebuild only when graph content changes, preserving the user's pan and zoom.
+  const graphInputKey = JSON.stringify([graphData || queryResultPage?.combined_query_result,
+    coordData || queryResultPage?.xy_json || {}, edgeRoutes || queryResultPage?.edge_routes || {}]);
+  const viewportRef = useRef(null);
 
   // toggle buttons & graph state
   const [legendVisible, setLegendVisible] = useState(defaultLegendVisible);
   const [zoomLevel, setZoomLevel] = useState(1.5);
   const [initZoom, setInitZoom] = useState(1.5); // default zoom scale
+  const [minimumZoom, setMinimumZoom] = useState(0.6);
   const [infocardEnabled, setInfocardEnabled] = useState(true);
   const [expanded, setExpanded] = useState(false);
 
@@ -913,10 +919,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
     cyRef.current && cyRef.current.zoom({ level: cyRef.current.zoom() * 1.2, renderedPosition: center });
 
   const handleRecenter = () => {
-    if (cyRef.current) {
-      cyRef.current.zoom(initZoom);
-      cyRef.current.center();
-    }
+    viewportRef.current?.fit();
   };
 
   const handleDownload = () => {
@@ -1033,13 +1036,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
     } else {
       document.documentElement.style.overflow = "clip";
     }
-    const timeoutId = setTimeout(() => {
-      if (cyRef.current) {
-        handleRecenter();
-      }
-    }, 200);
     return () => {
-      clearTimeout(timeoutId);
       document.documentElement.style.overflow = previousHtmlOverflow || "auto";
     };
   }, [location, expanded]);
@@ -1077,20 +1074,21 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
 
 
   useEffect(() => {
-    const result = graphData || queryResultPage?.combined_query_result;
-    const positionData = coordData || queryResultPage?.xy_json || {};
+    const [result, positionData, routeData] = JSON.parse(graphInputKey);
 
     if (!result?.nodes || !result?.edges) {
       return undefined;
     }
 
-    const { nodes, edges, edgeStyles } = graphElements(result, positionData, edgeRoutes || queryResultPage?.edge_routes || {}, { review, graphInfocard, edgeIsInverted, edgeLabels });
+    const { nodes, edges, edgeStyles } = graphElements(result, positionData, routeData,
+      { review, graphInfocard, edgeIsInverted, edgeLabels, spreadCompact: true });
 
     const container = containerRef.current;
     if (!container) {
       return undefined;
     }
     if (cyRef.current) {
+      viewportRef.current?.dispose();
       cyRef.current.destroy();
       cyRef.current = null;
     }
@@ -1137,7 +1135,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
           }
         }
       ]),
-      layout: { name: "preset" },
+      layout: { name: "preset", fit: false },
       zoom: 1.5,
       minZoom: 0.6,
       maxZoom: 4,
@@ -1198,10 +1196,6 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
     })
 
     const cy = cyRef.current;
-    cy.reset();
-    cy.center();
-    setZoomLevel(cy.zoom());
-    setInitZoom(cy.zoom());
 
     cy.container().addEventListener("mouseleave", handleLeave);
     cy.on("mousemove", "node", handleHover);
@@ -1209,8 +1203,14 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
     cy.on("mousemove", "edge", handleEdge(handleHover));
     cy.on("mouseout", "edge", handleOut);
     cy.on("zoom", () => {
-      setZoomLevel(cyRef.current.zoom());
+      setZoomLevel(cy.zoom());
     });
+    const viewport = observeGraphViewport(cy, container, ({ zoom, minZoom }) => {
+      setZoomLevel(zoom);
+      setInitZoom(zoom);
+      setMinimumZoom(minZoom);
+    });
+    viewportRef.current = viewport;
     if (selectable) {
       cy.on("select", "node, edge", (evt) => {
         const selectedId = evt.target.id();
@@ -1223,13 +1223,15 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
     }
 
     return () => {
+      viewport.dispose();
+      if (viewportRef.current === viewport) viewportRef.current = null;
       document.body.style.cursor = "default";
-      cyRef.current?.removeAllListeners();
-      cyRef.current?.container()?.removeEventListener("mouseleave", handleLeave);
-      cyRef.current?.destroy();
-      cyRef.current = null;
+      cy.removeAllListeners();
+      cy.container()?.removeEventListener("mouseleave", handleLeave);
+      cy.destroy();
+      if (cyRef.current === cy) cyRef.current = null;
     };
-  }, [queryResultPage, graphData, coordData, edgeRoutes, review, selectable]);
+  }, [graphInputKey, review, selectable]);
 
   useEffect(() => {
     // update setSelectedNode() to include all nodes and edges in selectedID, plus all edges connecting 2 selected nodes
@@ -1301,8 +1303,8 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
         </IconButton>
         <IconButton
           onClick={handleZoomIn}
-          style={{ padding: "5px", background: "none", borderRadius: "4px", opacity: zoomLevel <= 0.6 ? 0.5 : 1 }}
-          disabled={zoomLevel <= 0.6}
+          style={{ padding: "5px", background: "none", borderRadius: "4px", opacity: zoomLevel <= minimumZoom ? 0.5 : 1 }}
+          disabled={zoomLevel <= minimumZoom}
         >
           <img src={zoomInIcon} alt="Zoom In" width={26} height={26} />
         </IconButton>

@@ -1,5 +1,28 @@
 import { DEBUG_STREAM_LOADING_ENTRIES } from '../SearchResult/streamLoadingProgress';
 export const TEMPLATE_IDS = ['qtl_by_gene', 'qtl_by_variant_gene', 'qtl_by_variant', 'gwas_by_variant', 'coloc_by_gene', 'expression_by_gene'];
+const literatureIncluded = (plan) => typeof plan?.literature_intent?.included === 'boolean' ? plan.literature_intent.included : typeof plan?.literature === 'boolean' ? plan.literature : null;
+
+export function literatureNotice(run, literature = run?.literature) {
+  const included = literatureIncluded(run?.plan);
+  const state = literature?.status;
+  const hasPerspectives = Boolean(literature?.perspectives?.length);
+  const terminal = ['completed', 'complete', 'partial', 'failed', 'cancelled', 'interrupted', 'superseded'].includes(run?.status);
+  const preserved = hasPerspectives ? ' Available perspectives and references are preserved.' : '';
+  if (['unavailable', 'failed', 'timeout'].includes(state)) return `Literature evidence is unavailable.${preserved}`;
+  if (['cancelled', 'interrupted'].includes(state)) return `Literature retrieval was ${state}.${preserved}`;
+  if (state === 'not_requested') return included === true ? 'Literature enrichment was included in the plan, but no search is recorded for this run.' : '';
+  if (state === 'complete' || state === 'completed') return hasPerspectives ? '' : 'The literature search returned no validated perspectives.';
+  if (state === 'partial') return terminal || run?.literature_complete
+    ? `Literature evidence is partial.${preserved}`
+    : 'Literature evidence is still arriving; available perspectives are shown below.';
+  if (['pending', 'queued', 'running', 'searching'].includes(state)) return terminal && !literature?.repair
+    ? `Literature retrieval did not finish.${preserved}` : 'Literature evidence is pending.';
+  if (included !== true) return '';
+  if (terminal) return 'No literature outcome is recorded for this run.';
+  if (['planning', 'awaiting_confirmation'].includes(run?.status)) return 'Literature evidence will be retrieved after confirmation.';
+  return 'Literature evidence is pending.';
+}
+
 export function projectionForRun(run) {
   if (!run?.run_id) return null;
   const terminal = ['completed', 'complete', 'partial', 'failed', 'cancelled', 'interrupted'].includes(run.status);
@@ -80,7 +103,8 @@ export function applyRunEvent(state, event) {
     if (index < 0) perspectives.push(payload); else perspectives[index] = payload;
     next.literature = { ...state.literature, status: 'partial', perspectives };
   }
-  if (event.type === 'literature_complete') next.literature = payload;
+  if (event.type === 'literature_progress') next.literature = { ...state.literature, status: state.literature?.perspectives?.length ? 'partial' : 'running' };
+  if (event.type === 'literature_complete') { next.literature = payload; next.literature_complete = true; }
   if (event.type === 'terminal') Object.assign(next, { status: payload.status || event.status, error: payload.error || state.error, replacement_run_id: payload.replacement_run_id });
   return next;
 }
@@ -98,7 +122,11 @@ export function planMarkdown(run) {
   const notice = plan.clarification || (!preview && run?.status === 'awaiting_confirmation'
     ? 'This saved plan needs an initial evidence check. Revise the plan to continue.'
     : preview ? `Initial evidence check: ${preview.status}. Related context is preliminary.` : 'Checking initial graph evidence.');
-  return `${text}\n\n${notice}`;
+  const included = literatureIncluded(plan);
+  const summary = typeof plan.literature_intent?.summary === 'string' ? plan.literature_intent.summary.trim() : '';
+  const literature = included === null ? 'Literature evidence: not specified in this saved plan.'
+    : `Literature evidence: ${included ? 'included' : 'not included'}. ${summary || (included ? 'After confirmation, add literature context and linked references.' : 'This plan uses graph evidence only.')}`;
+  return `${text}\n\n${literature}\n\n${notice}`;
 }
 
 const STAGES = { queued: 'Waiting for capacity', planning: 'Preparing the plan', preparing_preview: 'Checking initial graph evidence', resolving_entities: 'Resolving graph entities', generating_cypher: 'Preparing the graph query', validating: 'Checking the graph query', querying_graph: 'Checking graph evidence', preparing_execution: 'Preparing the investigation', reusing_preview: 'Using the checked graph evidence', writing_answer: 'Writing the grounded answer', searching_literature: 'Searching literature', awaiting_confirmation: 'Awaiting confirmation' };
