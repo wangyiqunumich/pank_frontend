@@ -772,11 +772,11 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
                   index === 0
                     ? <span key={index}>
                       {`${label}: `}
-                      <InfocardData value={hoveredData[key]} dataKey={key} config={config} />
+                      <InfocardData value={hoveredData[key]} dataKey={key} config={isEdge && !review && !config && typeof hoveredData[key] === 'string' ? 'raw' : config} />
                     </span>
                     : <span key={index}>
                       {` | ${label}: `}
-                      <InfocardData value={hoveredData[key]} dataKey={key} config={config} />
+                      <InfocardData value={hoveredData[key]} dataKey={key} config={isEdge && !review && !config && typeof hoveredData[key] === 'string' ? 'raw' : config} />
                     </span>
               )}
             </Typography>
