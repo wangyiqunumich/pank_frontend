@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 
-import igv from 'https://cdn.jsdelivr.net/npm/igv@3.0.2/dist/igv.esm.min.js';
+// Genome-browser resources are outside the regular-graph demo.
 import { useLocation } from 'react-router-dom';
 
 import ChatBubbleOutlineRoundedIcon
@@ -28,7 +28,9 @@ import starFilledIcon from '../image/star-filled.svg';
 import starIcon from '../image/star.svg';
 import { readConversationHistory } from '../utils/chatSessionStorage';
 import { trackGtagEvent } from '../utils/gtag';
-import SearchResult from './result';
+import SearchResult from '../vnext/ResultView';
+
+const igv = { createBrowser: async () => { throw new Error('Genome browser is unavailable in this demo.'); } };
 
 const FEEDBACK_AUTO_PROMPT_DISABLED_KEY = 'pank_feedback_auto_prompt_disabled_v1';
 const FEEDBACK_AUTO_PROMPT_DELAY_MS = 30 * 1000;
@@ -501,10 +503,7 @@ export function AgentResultLayout({
     const [feedbackError, setFeedbackError] = useState('');
     const [feedbackSuccessOpen, setFeedbackSuccessOpen] = useState(false);
     const [feedbackPromptOpen, setFeedbackPromptOpen] = useState(false);
-    const [feedbackAutoPromptDisabled, setFeedbackAutoPromptDisabled] = useState(() => {
-        if (typeof window === 'undefined') return false;
-        return window.localStorage.getItem(FEEDBACK_AUTO_PROMPT_DISABLED_KEY) === '1';
-    });
+    const [feedbackAutoPromptDisabled, setFeedbackAutoPromptDisabled] = useState(true);
     const [showScrollToPlanConfirmButton, setShowScrollToPlanConfirmButton] = useState(false);
     const [isAgentSidebarOpen, setIsAgentSidebarOpen] = useState(() => {
         if (typeof window === 'undefined') return true;
@@ -953,60 +952,7 @@ export function AgentResultLayout({
     };
 
     const handleSubmitFeedback = async () => {
-        if (feedbackRating < 1 || feedbackRating > 5) {
-            setFeedbackError('Please select a star rating.');
-            return;
-        }
-
-        setFeedbackSubmitting(true);
-        setFeedbackError('');
-        trackAgentEvent('agent_result_feedback_submit_click', {
-            rating: feedbackRating,
-            has_feedback_text: Boolean(String(feedbackText || '').trim()),
-            has_email: Boolean(String(feedbackEmail || '').trim()),
-            question_index: normalizedFeedbackQuestionIndex + 1,
-        });
-
-        try {
-            const payload = {
-                session_id: feedbackSessionId || 'unknown-session',
-                rating: feedbackRating,
-                feedback: String(feedbackText || ''),
-                question_index: normalizedFeedbackQuestionIndex + 1,
-                question: String(selectedFeedbackQuestion?.query || ''),
-            };
-            const trimmedEmail = String(feedbackEmail || '').trim();
-            if (trimmedEmail) {
-                payload.email = trimmedEmail;
-            }
-
-            const response = await fetch(`${PLANNER_AGENT_BASE_URL}/feedback`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) {
-                let message = 'Failed to submit feedback.';
-                try {
-                    const body = await response.json();
-                    message = body?.detail || body?.message || body?.error || message;
-                } catch (e) {
-                    // keep fallback message
-                }
-                throw new Error(message);
-            }
-
-            setFeedbackOpen(false);
-            setFeedbackRating(0);
-            setFeedbackText('');
-            setFeedbackEmail('');
-            setFeedbackSuccessOpen(true);
-        } catch (error) {
-            setFeedbackError(String(error?.message || 'Failed to submit feedback.'));
-        } finally {
-            setFeedbackSubmitting(false);
-        }
+        setFeedbackError('Feedback submission is unavailable in this isolated demo.');
     };
 
     const handleKeyPress = (e) => {

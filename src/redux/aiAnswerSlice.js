@@ -9,7 +9,7 @@ import { QueryStatus } from '@reduxjs/toolkit/query';
 // import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 const flaskProduction =
     axios.create({
-        baseURL: 'https://nzi5e9mb0f.execute-api.us-east-1.amazonaws.com/production'
+        baseURL: '/pankgraph-vnext/api/disabled'
     });
 
 export const queryAiAnswer = createAsyncThunk('/queryResultToAiAnswer',

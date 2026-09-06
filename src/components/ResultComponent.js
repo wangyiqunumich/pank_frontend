@@ -3,7 +3,6 @@
 import * as React from 'react';
 
 import ReactMarkdown from 'react-markdown';
-import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
@@ -525,7 +524,8 @@ function EvidenceItem({ item, onSelect, isActive, isHovered = false, variant = '
 
 export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
     const [visualTab, setVisualTab] = React.useState(0);
-    const [feedbackText, setFeedbackText] = React.useState('');
+    const [feedbackText, setFeedbackText] = React.useState(data?.revisionQuestion || '');
+    React.useEffect(() => { setFeedbackText(data?.revisionQuestion || ''); }, [data?.revisionQuestion, data?.revisionKey]);
     const isSingleColumn = useMediaQuery("(max-width:1199.95px)");
     const visualTabs = data?.visualMaterial?.tabs ?? [];
     const normalizedVisualIndex = visualTab < visualTabs.length ? visualTab : 0;
@@ -569,7 +569,7 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
         const trimmed = feedbackText.trim();
         if (!trimmed) return;
         data?.onSendFeedback?.(trimmed);
-        setFeedbackText('');
+        if (!data?.revisionQuestion) setFeedbackText('');
     }, [feedbackText, data, isReviseDisabled]);
 
     const handleProceed = React.useCallback(() => {
@@ -763,7 +763,7 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                         >
                                             <ReactMarkdown
                                                 remarkPlugins={[remarkGfm]}
-                                                rehypePlugins={[rehypeRaw]}
+                                                skipHtml
                                                 components={{
                                                     p: ({ children }) => <Typography component="p" sx={{ fontSize: 16, fontWeight: 400, color: '#475569' }}>{children}</Typography>,
                                                     li: ({ children }) => <Typography component="li" sx={{ fontSize: 16, fontWeight: 400, color: '#475569' }}>{children}</Typography>,

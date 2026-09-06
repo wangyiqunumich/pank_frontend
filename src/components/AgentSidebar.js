@@ -173,16 +173,7 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
     auth.signinRedirect({ state: { returnTo } });
   };
 
-  const handleCognitoLogout = () => {
-    handleCloseUserMenu();
-    const clientId = process.env.REACT_APP_COGNITO_CLIENT_ID || '7anmab22h1r3968o5tinp682kj';
-    const runtimeOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://pankgraph.org';
-    const logoutUri = process.env.REACT_APP_COGNITO_LOGOUT_URI || runtimeOrigin;
-    const cognitoDomain = process.env.REACT_APP_COGNITO_DOMAIN || 'https://us-east-1yuekwjivn.auth.us-east-1.amazoncognito.com';
-
-    auth.removeUser();
-    window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
-  };
+  const handleCognitoLogout = () => { handleCloseUserMenu(); };
 
   return (
     <Box

@@ -6,6 +6,7 @@ import React, {
 } from 'react';
 
 import DOMPurify from 'dompurify';
+import { selectedResultParams } from '../vnext/contracts';
 import JSON5 from 'json5';
 import {
   useDispatch,
@@ -48,6 +49,8 @@ import {
 import defaultErrorImage from '../image/datanotfound.png';
 import notRelevant from '../image/not_relevant.png';
 import { queryQueryResult } from '../redux/queryResultSlice';
+import { sitePath, apiPath } from '../vnext/api';
+import { templateRequest } from '../vnext/contracts';
 import { setSearchTerms } from '../redux/searchSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
@@ -157,7 +160,7 @@ export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "
           <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '24px' }}>
             <Button
               variant="contained"
-              onClick={() => window.location.href = homePath}
+              onClick={() => window.location.href = sitePath(homePath)}
               sx={{
                 backgroundColor: "#219197",
                 border: "1px solid #219197",
@@ -183,7 +186,7 @@ export function ErrorComponent({ errorTitle = "Data not found", errorMessage = "
               </Typography>
             </Button>
             <Button
-              onClick={() => window.location.href = '/docs/tutorial'}
+              onClick={() => window.location.href = sitePath('/docs/tutorial')}
               sx={{
                 backgroundColor: "white",
                 border: "1px solid #219197",
@@ -539,27 +542,10 @@ function IntermediatePage({ onContinue }) {
       credible_set_id: item?.credible_set_id,
       lead_snp: item?.lead_snp,
     });
-    const {
-      sourceTerm,
-      targetTerm,
-      relationship
-    } = searchState;
-
-    const additionalParams = sourceTerm.includes("snp@") ?
-      {
-        lead_snp: item.lead_snp,
-        credible_set_id: item.credible_set_id,
-      } : {};
-
-    const params = new URLSearchParams({
-      ...additionalParams,
-      sourceTerm: sourceTerm.includes("@") ? sourceTerm : `${sourceTerm}@${item[sourceTerm]}`,
-      targetTerm: targetTerm.includes("@") ? targetTerm : `${targetTerm}@${item[targetTerm]}`,
-      relationship,
-    });
+    const params = selectedResultParams(searchState, item);
     const resultLayout = new URLSearchParams(window.location.search).get('resultLayout');
     const resultPath = resultLayout === 'old' ? '/result' : '/result-new';
-    window.location.href = `${resultPath}?${params.toString()}`;
+    window.location.href = sitePath(`${resultPath}?${params.toString()}`);
   };
 
   // function to get the credible set label based on the data source and index
@@ -584,7 +570,7 @@ function IntermediatePage({ onContinue }) {
       credible_set_id: credibleSet,
     });
     const folder = tabsQTL.find(tab => tab.label === category)?.folder || "";
-    const url = `https://pank-s3-to-share.s3.us-east-1.amazonaws.com/${folder}/${credibleSet}.txt`;
+    const url = apiPath(`/resources/download?${new URLSearchParams({ source: folder, credible_set: credibleSet })}`);
     window.open(url, "_blank");
     // fetch(url)
     //   .then(response => {
@@ -641,23 +627,10 @@ function IntermediatePage({ onContinue }) {
   }, []);
 
   useEffect(() => {
-    if (viewSchema?.cyper_for_intermediate_page) {
-      const processedCypher = replaceVariables(
-        viewSchema.cyper_for_intermediate_page,
-        {
-          sourceTerm: searchState.sourceTerm,
-          targetTerm: searchState.targetTerm
-        }
-      );
-
-      setIsNeptune(!searchState.sourceTerm.includes("snp@"));
-
-      dispatch(queryQueryResult({
-        query: processedCypher,
-        // query rds if sourceTerm is a SNP
-        // otherwise query neptune db
-        isNeptune: !searchState.sourceTerm.includes("snp@"),
-      })).unwrap();
+    if (viewSchema?.template_id && viewSchema?.intermediate_page_table?.length) {
+      const request = templateRequest(searchState);
+      setIsNeptune(false);
+      dispatch(queryQueryResult({ kind: 'credible_set', term: request.parameters.gene_id || request.parameters.variant_id || '', template_id: request.template_id, ...request.parameters })).unwrap().catch(() => { setError(true); setLoading(false); });
     }
   }, [viewSchema, searchState.sourceTerm, searchState.targetTerm]);
 
@@ -701,7 +674,7 @@ function IntermediatePage({ onContinue }) {
             </Typography>
             {/*a link*/}
             <a
-              href={"/"}
+              href={sitePath('/')}
               style={{ color: "#398289", textDecoration: "none" }}
               onClick={() => trackIntermediateEvent('intermediate_cancel_click')}
             >
@@ -750,7 +723,7 @@ function IntermediatePage({ onContinue }) {
               </Typography>
               <Button
                 variant="contained"
-                onClick={() => window.location.href = '/'}
+                onClick={() => window.location.href = sitePath('/')}
                 sx={{
                   backgroundColor: '#D32F2F',
                   '&:hover': {

@@ -1,5 +1,4 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
-import {flaskBackendAxiosInstance} from "../axios/axios";
 import {QueryStatus} from "@reduxjs/toolkit/query";
 import VisualizationSchema from "../schema/visualization_schema.json";
 

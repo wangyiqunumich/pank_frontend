@@ -41,7 +41,7 @@ export const queryAiAgent = createAsyncThunk(
 
     try {
       const response = await axios.post(
-        "https://agent.pankgraph.org/query",
+        "/pankgraph-vnext/api/disabled/query",
         normalizedPayload,
         {
           headers: {

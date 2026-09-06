@@ -33,6 +33,7 @@ import { queryQueryResult } from '../redux/queryResultSlice';
 import landingPageSchema from '../schema/landing_page_schema.json';
 import { nodeAutoWidth } from './style.js';
 import { AlertMessage } from './SupportingMaterial';
+import { routerPath, sitePath } from '../vnext/api';
 
 const nodeColors = {
   gene: "#A4D0F6",
@@ -241,8 +242,7 @@ function InputComponent({ type, setValue, setInputStatus, GWAS = false, defaultL
       return;
     }
     dispatch(queryQueryResult({
-      isNeptune: false,
-      query: "SELECT id, name FROM gene_name WHERE name % '" + keyWord + "'ORDER BY similarity(name, '" + keyWord + "') DESC LIMIT 5;"
+      kind: 'gene', term: keyWord
     })).unwrap()
       .then((response) => {
         if (response && newInputValue === inputValueRef.current) {
@@ -283,9 +283,7 @@ function InputComponent({ type, setValue, setInputStatus, GWAS = false, defaultL
     // };
     // type === snp
     dispatch(queryQueryResult({
-      isNeptune: false,
-      rawResponse: true,
-      query: `SELECT snp FROM ${GWAS ? "GWAS_DATA" : "QTL_DATA"} WHERE snp = '${termName}' LIMIT 1;`
+      kind: 'variant', term: termName, template_id: GWAS ? 'gwas_by_variant' : 'qtl_by_variant', rawResponse: true
     })).unwrap()
       .then((response2) => {
         if (newInputValue !== inputValueRef.current) return; // discard outdated response
@@ -486,7 +484,7 @@ function MatchPage() {
   const cancelPath = useMemo(() => {
     const params = new URLSearchParams(location.search);
     const requestedReturnTo = params.get('returnTo');
-    return requestedReturnTo && requestedReturnTo.startsWith('/') ? requestedReturnTo : '/';
+    return requestedReturnTo && requestedReturnTo.startsWith('/') && !requestedReturnTo.startsWith('//') ? routerPath(requestedReturnTo) : '/';
   }, [location.search]);
   const useOldResultLayout = useMemo(() => cancelPath.startsWith('/old-landing'), [cancelPath]);
   const [questionData, setQuestioData] = useState(null);
@@ -769,7 +767,7 @@ function MatchPage() {
               <TerminalIcon sx={{ width: '30px', color: '#C48E25' }} />
               <Typography sx={{ marginLeft: '10px', fontSize: '20px' }}>
                 Access PanKgraph with <Link
-                  href={'/api'}
+                  href={sitePath('/docs/API')}
                   sx={{ textDecoration: 'underline', color: 'black', textAlign: 'right' }}>API</Link>
               </Typography>
             </Box>
@@ -800,7 +798,7 @@ function MatchPage() {
               {questionData?.matched_page_title}
             </Typography>
             <Link
-              href={cancelPath}
+              href={sitePath(cancelPath)}
               onClick={(event) => {
                 event.preventDefault();
                 navigate(cancelPath);

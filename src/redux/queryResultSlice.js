@@ -4,43 +4,17 @@ import {
 } from '@reduxjs/toolkit';
 import { QueryStatus } from '@reduxjs/toolkit/query';
 
-import { flaskBackendAxiosInstanceNew } from '../axios/axios';
+import { searchEntities } from '../vnext/api';
 
-export const queryQueryResult = createAsyncThunk('/openCypherToQueryResult',
-    async (payload) => {
-        if (payload.isNeptune) {
-            return await flaskBackendAxiosInstanceNew
-                .post('/pank2-neo4j-api-development', { action: "query", query: payload.query }, {
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                })
-                .then((response) => ({ results: JSON.stringify(response.data?.records) }))
-                .catch((response) => {
-                    console.log(response);
-                });
-        }
-        return await flaskBackendAxiosInstanceNew
-            .post('/RDSLambda', { query: payload.query }, {
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            })
-            .then((response) =>
-                payload.rawResponse
-                    ? response.data
-                    : {
-                        results: [{
-                            credible_sets: response.data.results.map((result) => ({
-                                ...result,
-                                credible_set_id: result.credible_set
-                            }))
-                        }]
-                    }
-            )
-            .catch((response) => {
-                console.log(response);
-            });
+export const queryQueryResult = createAsyncThunk('/localSearch',
+    async (payload, { signal }) => {
+        const { rawResponse, isNeptune, ...parameters } = payload;
+        if (!parameters.kind || parameters.query) throw new Error('A typed search is required.');
+        const data = await searchEntities(parameters, { signal });
+        const items = Array.isArray(data.items) ? data.items : [];
+        return rawResponse
+            ? { results: items.map(item => ({ ...item, snp: item.snp || item.id })) }
+            : { ...data, results: [{ credible_sets: items.map(item => ({ ...item, credible_set_id: item.credible_set_id || item.credible_set })) }] };
     }
 );
 

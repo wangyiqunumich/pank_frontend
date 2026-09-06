@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 
 import cytoscape from 'cytoscape';
+import { applyGraphRoutes, graphElements } from '../vnext/graphBindings';
 import JSON5 from 'json5';
 import {
   useDispatch,
@@ -794,7 +795,7 @@ const InfocardMenu = ({ hoveredData, review }) => {
 }
 
 // Main KnowledgeGraph component
-export default function KnowledgeGraph({ selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, review = false, containerHeight = "600px", defaultLegendVisible = false }) {
+export default function KnowledgeGraph({ selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, edgeRoutes = null, review = false, containerHeight = "600px", defaultLegendVisible = false }) {
   const cyRef = useRef(null);
   const containerRef = useRef(null);
   const infocardRef = useRef(null);
@@ -1083,68 +1084,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
       return undefined;
     }
 
-    const uniqueNodesMap = {};
-    result.nodes?.forEach((node) => (uniqueNodesMap[node["~id"]] = node));
-    const properties = review ? "properties" : "~properties";
-    const nodes = Object.values(uniqueNodesMap).map((node) => {
-      // Determine type based on the labels
-      const type = review ? "cell_type" : node["~labels"].find((label) => graphInfocard.nodes[label]?.info_panel) || "coding_elements";
-      // Use the provided positionData and extract the Level property.
-      const posData = positionData[node["~id"]] || {
-        x: Math.random() * 250 - 125,
-        y: Math.random() * 200 - 125,
-        Level: "Core",
-      };
-      const pos = { x: posData.x, y: posData.y };
-
-      const baseName = node[properties]?.name;
-      const baseId = node[properties]?.id || node["~id"];
-
-      let labelText;
-      if (review) {
-        labelText = baseName;
-      } else if (node["~labels"].includes("disease")) {
-        labelText = "T1D";
-      } else if (baseName && baseName.length <= 15) {
-        labelText = baseName;
-      } else {
-        labelText = baseId;
-      }
-
-      return {
-        data: {
-          id: node["~id"],
-          ...node[properties],
-          label: (labelText || "").replace(/_/g, " "),
-          type,
-          Level: posData.Level,
-        },
-        position: pos,
-      };
-    });
-
-    console.log(nodes);
-
-    const nodeNameMap =
-      nodes.reduce((acc, node) => {
-        acc[node.data.id] = node.data.label;
-        return acc;
-      }, {});
-
-    const uniqueEdgesMap = {};
-    result.edges.forEach((edge, index) => (uniqueEdgesMap[edge["~id"] || index.toString()] = edge));
-    const edges = Object.values(uniqueEdgesMap).map((edge) => ({
-      data: {
-        id: edge["~id"],
-        source: edgeIsInverted[edge["~type"]] ? edge["~end"] : edge["~start"],
-        source_name: nodeNameMap[edge["~start"]],
-        target: edgeIsInverted[edge["~type"]] ? edge["~start"] : edge["~end"],
-        target_name: nodeNameMap[edge["~end"]],
-        type: edge["~type"],
-        label: edgeLabels[edge["~type"]] || edge["~type"].replace(/_/g, " "),
-        ...edge[properties],
-      },
-    }));
+    const { nodes, edges, edgeStyles } = graphElements(result, positionData, edgeRoutes || queryResultPage?.edge_routes || {}, { review, graphInfocard, edgeIsInverted, edgeLabels });
 
     const container = containerRef.current;
     if (!container) {
@@ -1204,6 +1144,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
       selectionType: selectable ? "additive" : "none",
       pan: { x: 0, y: 0 },
     });
+    applyGraphRoutes(cyRef.current, edgeStyles);
 
     const handleHover = (evt) => {
       document.body.style.cursor = "pointer";
@@ -1288,7 +1229,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
       cyRef.current?.destroy();
       cyRef.current = null;
     };
-  }, [queryResultPage]);
+  }, [queryResultPage, graphData, coordData, edgeRoutes, review, selectable]);
 
   useEffect(() => {
     // update setSelectedNode() to include all nodes and edges in selectedID, plus all edges connecting 2 selected nodes

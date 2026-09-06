@@ -3,7 +3,9 @@ import './index.css';
 import React from 'react';
 
 import ReactDOM from 'react-dom/client';
-import { AuthProvider } from 'react-oidc-context';
+import { AuthContext } from 'react-oidc-context';
+import { BASE_PATH } from './vnext/api';
+import { ErrorComponent } from './components/IntermediatePage';
 import { Provider } from 'react-redux';
 import {
   BrowserRouter,
@@ -15,8 +17,8 @@ import {
 import { Container } from '@mui/material';
 
 import AgentLandingPage from './components/AgentLandingPage';
-import DebugPage from './components/Debug';
-import IgvPage from './components/GeDebug';
+
+
 import IntermediatePage from './components/IntermediatePage';
 import LandingPage from './components/LandingPage';
 import MatchPage from './components/MatchPage';
@@ -26,54 +28,33 @@ import DocPage from './pages/DocPage';
 import Ontology from './pages/Ontology';
 import Pipeline from './pages/Pipeline';
 import QTLDataSource from './pages/QTL_data_source';
-import ReviewPage from './pages/ReviewPage';
-import SkillsPage from './pages/SkillsPage';
+
+
 import StatPage from './pages/StatPage';
 import Tutorial from './pages/Tutorial';
 import UsecasesPage from './pages/UsecasePage';
 import { store } from './redux/store';
-import ResultPage from './SearchResult';
+import { ConventionalResultView as ResultPage } from './vnext/ResultView';
 import { AgentResultLayout } from './SearchResult/AgentResult';
-import ResultPageNew from './SearchResult/index_new';
-import ResultPageNew2 from './SearchResult/resultpage_new';
-import FunctionalDataPage from './skills/FunctionalDataPage';
-import GWASExplorerPage from './skills/GWASExplorerPage';
-import HIRNLiteraturePage from './skills/HIRNLiteraturePage';
-import QTLExplorerPage from './skills/QTLExplorerPage';
+import { ConventionalResultView as ResultPageNew } from './vnext/ResultView';
+import ResultPageNew2 from './vnext/ResultView';
 
-const isDevelopmentStage =
-  (process.env.REACT_APP_API_GATEWAY_STAGE_NAME || '').toLowerCase() === 'development';
 
-const runtimeOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://pankgraph.org';
 
-const cognitoAuthConfig = {
-  authority: process.env.REACT_APP_COGNITO_AUTHORITY || 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yUEKWJIVn',
-  client_id: process.env.REACT_APP_COGNITO_CLIENT_ID || '7anmab22h1r3968o5tinp682kj',
-  redirect_uri: process.env.REACT_APP_COGNITO_REDIRECT_URI || `${runtimeOrigin}/callback`,
-  response_type: 'code',
-  scope: process.env.REACT_APP_COGNITO_SCOPE || 'email openid phone',
-  onSigninCallback: (user) => {
-    const nextPath =
-      typeof user?.state === 'object'
-      && user?.state
-      && typeof user.state.returnTo === 'string'
-      && user.state.returnTo.startsWith('/')
-        ? user.state.returnTo
-        : '/';
 
-    window.history.replaceState({}, document.title, nextPath);
-  },
-};
+
+const demoAuth = { isAuthenticated: false, isLoading: false, user: null, signinRedirect: async () => {}, removeUser: async () => {} };
+const Unavailable = () => <ErrorComponent errorTitle="Unavailable in this demo" errorMessage="This tool is outside the isolated regular-graph demonstration." />;
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <AuthProvider {...cognitoAuthConfig}>
+  <AuthContext.Provider value={demoAuth}>
     <Provider store={store}>
       <Container disableGutters maxWidth={false} sx={{
         padding: 0, margin: 0, minHeight: '100vh',
         display: 'flex', flexDirection: 'column'
       }}>
-        <BrowserRouter>
+        <BrowserRouter basename={BASE_PATH}>
           <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <NavBar />
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -97,21 +78,21 @@ root.render(
                 <Route path="/usecases" element={<UsecasesPage />} />
                 <Route path="/docs/*" element={<DocPage />} />
                 <Route path="/match" element={<MatchPage />} />
-                <Route path="/review/*" element={<ReviewPage />} />
-                <Route path="/skills" element={<SkillsPage />} />
-                <Route path="/qtl-explorer" element={<QTLExplorerPage />} />
-                <Route path="/gwas-explorer" element={<GWASExplorerPage />} />
-                <Route path="/functional-data" element={<FunctionalDataPage />} />
-                <Route path="/hirn-literature" element={<HIRNLiteraturePage />} />
+                <Route path="/review/*" element={<Unavailable />} />
+                <Route path="/skills" element={<Unavailable />} />
+                <Route path="/qtl-explorer" element={<Unavailable />} />
+                <Route path="/gwas-explorer" element={<Unavailable />} />
+                <Route path="/functional-data" element={<Unavailable />} />
+                <Route path="/hirn-literature" element={<Unavailable />} />
                 <Route path="/agent-landing" element={<Navigate to="/" replace />} />
                 <Route path="/old-landing" element={<LandingPage />} />
                 <Route path="/callback" element={<AgentLandingPage />} />
                 <Route path="/" element={<AgentLandingPage />} />
                 <Route
                   path="/debug"
-                  element={isDevelopmentStage ? <DebugPage /> : <Navigate to="/" replace />}
+                  element={<Unavailable />}
                 />
-                <Route path="/igv" element={<IgvPage />} />
+                <Route path="/igv" element={<Unavailable />} />
                 <Route path="*" element={<AgentLandingPage />} />
               </Routes>
             </div>
@@ -121,5 +102,5 @@ root.render(
 
       </Container>
     </Provider>
-  </AuthProvider>
+  </AuthContext.Provider>
 );

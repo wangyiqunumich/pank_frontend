@@ -1,12 +1,13 @@
 import './PkbFooter.scss'; // Import the CSS file for styles
 
 import React, { useState } from 'react';
+import { sitePath } from '../vnext/api';
 
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 export const pkbMenu = {
     highlightItems: [
-        { label: 'PanKgraph', path: 'https://dev.pankgraph.org/' },
+        { label: 'PanKgraph', path: sitePath('/') },
         { label: 'Data Library', path: 'https://data.pankbase.org' },
         { label: 'Integrated Cell Browser', path: 'https://pankbase.org:8000/single-cell.html' }
     ],
@@ -109,7 +110,7 @@ function PkbFooter() {
             </div>
             <div className="info-rows">
                 <div className="logo info-logo-1">
-                    <a href="/old-landing">
+                    <a href={sitePath('/old-landing')}>
                         <img
                             className="footer-logo-img"
                             src="https://hugeampkpncms.org/sites/default/files/users/user32/pankbase/PanKbase_logo-black.svg"

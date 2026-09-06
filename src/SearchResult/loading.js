@@ -539,7 +539,7 @@ export default function SearchResultLoading({ open, handleClose, streamProgress,
                     totalSteps={entry.steps.length} />
             ))}
         </Box>
-        <LinearProgress variant="determinate" sx={{
+        <LinearProgress variant={streamProgress?.indeterminate ? "indeterminate" : "determinate"} sx={{
             width: '100%',
             height: '8px',
             borderRadius: '999px',
