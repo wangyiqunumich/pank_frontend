@@ -84,7 +84,7 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
   (literature?.perspectives || []).forEach((perspective) => sections.push({ heading: perspective.label || 'Literature perspective', content: <AnswerMarkdown answer={perspective.answer || ''} references={resources.references} /> }));
   const display = result?.display;
   const completeness = result?.completeness || run?.evidence?.completeness;
-  const evidenceNotice = typeof display?.notice === 'string' ? display.notice : (['partial', 'failed', 'unavailable'].includes(completeness) ? `Graph evidence is ${completeness}.` : '');
+  const evidenceNotice = run?.rerun_advisory || (typeof display?.notice === 'string' ? display.notice : (['partial', 'failed', 'unavailable'].includes(completeness) ? `Graph evidence is ${completeness}.` : ''));
   if (evidenceNotice) sections.push({ content: <Typography sx={{ fontSize: 14, color: '#64748B' }}>{evidenceNotice}</Typography> });
   const data = {
     styleVariant: 'pank1', questionId: 'Q1', title: run?.plan?.interpreted_question || run?.question || result?.question || '',

@@ -117,10 +117,10 @@ export function planMarkdown(run) {
       if (entity.state === 'resolved') return `${entity.name || entity.id} (${entity.id})`;
       return `${entity.requested?.value || 'Entity'}: ${entity.state}${entity.candidates?.length ? `; candidates: ${entity.candidates.map((c) => `${c.name} (${c.id})`).join(', ')}` : ''}`;
     });
-    return `${index + 1}. **${step.title || step.question}**${step.purpose === 'context' ? ' — Related context' : ''}\n\n   ${step.rationale || ''}${entities.length ? `\n\n   Resolved entities: ${entities.join('; ')}` : ''}`;
+    return `${index + 1}. **${step.title || step.question}**${step.purpose === 'context' ? ' — Related context' : ''}\n\n   ${step.rationale || ''}${step.semantic_summary ? `\n\n   ${step.semantic_summary}` : ''}${step.semantic_issues?.length ? `\n\n   ${step.semantic_issues.join(' ')}` : ''}${entities.length ? `\n\n   Resolved entities: ${entities.join('; ')}` : ''}`;
   }).join('\n\n');
   const preview = run?.preview;
-  const notice = plan.clarification || (!preview && run?.status === 'awaiting_confirmation'
+  const notice = run?.rerun_advisory || plan.clarification || (!preview && run?.status === 'awaiting_confirmation'
     ? 'This saved plan needs an initial evidence check. Revise the plan to continue.'
     : preview ? `Initial evidence check: ${preview.status}. Related context is preliminary.` : 'Checking initial graph evidence.');
   const included = literatureIncluded(plan);

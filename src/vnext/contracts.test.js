@@ -145,3 +145,9 @@ test('validated plan is visible without advancing confirmation and replay is ide
   expect(projectionForRun(run)).toBeFalsy();
   expect(applyRunEvent(run, event)).toBe(run);
 });
+
+test('terminology interpretation and historical advisory use existing plan text', () => {
+  const text = planMarkdown({status:'awaiting_confirmation',rerun_advisory:'Rerun this saved donor result.',plan:{steps:[{id:'s1',question:'HPAP donors',semantic_summary:'RNA includes documented multiome components.'}]}});
+  expect(text).toContain('RNA includes documented multiome components.');
+  expect(text).toContain('Rerun this saved donor result.');
+});
