@@ -36,7 +36,7 @@ export async function request(path, options = {}) {
 const post = (path, body, options = {}) => request(path, { method: 'POST', body: JSON.stringify(body || {}), ...options });
 export const getRun = (id) => request(`/agent/v2/runs/${encodeURIComponent(id)}`);
 export const confirmPlan = (id) => post(`/agent/v2/plans/${encodeURIComponent(id)}/confirm`);
-export const revisePlan = (id, question, includeContext = true) => post(`/agent/v2/plans/${encodeURIComponent(id)}/revise`, { question, include_context: includeContext });
+export const revisePlan = (id, question, includeContext = true) => post(`/agent/v2/plans/${encodeURIComponent(id)}/revise`, { question, include_context: includeContext, revision_instruction: question, revision_mode: 'replacement_question' });
 export const cancelRun = (id) => post(`/agent/v2/runs/${encodeURIComponent(id)}/cancel`);
 
 // Re-render/StrictMode/reload resumes a saved run; uncertainty never repeats inference.

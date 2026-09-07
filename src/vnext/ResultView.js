@@ -13,6 +13,8 @@ import { useResourcePanels } from './Resources';
 import { applyRunEvent, literatureNotice, liveProgress, planMarkdown, projectionForRun, templateRequest, withLiteratureReferences } from './contracts';
 import { cancelRun, confirmPlan, createPlanOnce, createResultOnce, getRun, pollResult, revisePlan, sitePath, TERMINAL_RUNS, watchRun } from './api';
 
+import { recordInteraction, referenceKey } from './telemetry';
+
 const readLocal = (key) => { try { return JSON.parse(localStorage.getItem(key)); } catch (_) { return null; } };
 const writeLocal = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) { /* Storage is optional. */ } };
 const decodeQuestion = (value) => { try { return decodeURIComponent(escape(atob(value))); } catch (_) { return value || ''; } };
@@ -35,9 +37,9 @@ export function useProjectedResult(payload) {
   return [result, error];
 }
 
-function GraphPanel({ result, waiting, error }) {
+function GraphPanel({ result, waiting, error, onEvidenceInspect }) {
   if (result?.combined_query_result?.nodes?.length) return <Box sx={{ width: '100%', height: '100%' }}>
-    <KnowledgeGraph graphData={result.combined_query_result} coordData={result.xy_json} edgeRoutes={result.edge_routes} sx={{ height: '100%' }} containerHeight="100%" />
+    <KnowledgeGraph onEvidenceInspect={onEvidenceInspect} graphData={result.combined_query_result} coordData={result.xy_json} edgeRoutes={result.edge_routes} sx={{ height: '100%' }} containerHeight="100%" />
   </Box>;
   return <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
     {waiting && !error ? <CircularProgress size={28} /> : <Typography sx={{ fontSize: 14, color: '#64748B', textAlign: 'center', px: 2 }}>{error || (['failed', 'unavailable'].includes(result?.completeness) ? 'Graph retrieval failed. Available answer sections are preserved.' : 'No matching graph evidence was returned.')}</Typography>}
@@ -45,11 +47,31 @@ function GraphPanel({ result, waiting, error }) {
 }
 
 export function ResultSection({ run, result, error, planning, busy, onRevise, onConfirm, anchorPrefix }) {
+  const sectionRef = useRef(null);
+  const runId = run?.run_id || result?.result_id;
+  const trackingScope = run?.run_id ? 'run' : 'result';
+  const onEvidenceInspect = useCallback((id) => { recordInteraction(runId, 'graph_evidence_inspected', referenceKey(id), trackingScope); }, [runId, trackingScope]);
+  useEffect(() => {
+    if (!runId || !sectionRef.current || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver((entries) => entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        recordInteraction(runId, planning ? 'plan_displayed' : 'answer_section_displayed', planning ? 'plan' : entry.target.id, trackingScope);
+        observer.unobserve(entry.target);
+      }
+    }), { threshold: 0.01 });
+    const targets = planning ? [sectionRef.current] : [...sectionRef.current.querySelectorAll('[id]')].filter((el) => /-ai-overview-\d+$/.test(el.id));
+    targets.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [runId, trackingScope, planning, run?.graph_answer, run?.literature, result?.literature]);
+  const onResourceAccess = useCallback((event) => {
+    const link = event.target.closest?.('a[href]');
+    if (link) recordInteraction(runId, 'resource_accessed', referenceKey(link.getAttribute('href')), trackingScope);
+  }, [runId, trackingScope]);
   const literature = run?.literature ?? result?.literature;
   const resources = useResourcePanels(withLiteratureReferences(result?.resources_tabs, literature), result?.component_status?.resources);
   const graphData = result?.combined_query_result || null;
   const graphError = error || (planning && run?.plan?.clarification) || (planning && run?.preview?.status === 'failed' ? 'The initial graph retrieval failed. You can revise the question or confirm a bounded retry.' : '');
-  const visualMaterial = { title: 'Visual Material', tabs: [{ label: 'Knowledge Graph', content: <GraphPanel result={result} waiting={!result && !graphError} error={graphError} /> }] };
+  const visualMaterial = { title: 'Visual Material', tabs: [{ label: 'Knowledge Graph', content: <GraphPanel onEvidenceInspect={onEvidenceInspect} result={result} waiting={!result && !graphError} error={graphError} /> }] };
   const planData = {
     questionId: 'PLAN', title: 'Confirm Query & Execution Steps', originalQuestion: run?.question || '', parsedTitle: run?.plan?.interpreted_question || '',
     agentPlan: planMarkdown(run), revisionQuestion: run?.question || '', revisionKey: run?.plan_id,
@@ -70,7 +92,7 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
     graphData, visualMaterial, evidences: resources.tabs.length ? { title: 'Evidences', tabs: resources.tabs } : undefined,
     followUp: { title: 'Follow Up', items: [], loading: !TERMINAL_RUNS.has(run?.status), disabled: !TERMINAL_RUNS.has(run?.status) },
   };
-  return <>{resources.popup}<Box id={`${anchorPrefix}-question-1`}>{planning ? <PlanConfirmationPage data={planData} contentAnchorPrefix={anchorPrefix} /> : <QuestionAnswerPage data={data} contentAnchorPrefix={anchorPrefix} />}</Box></>;
+  return <>{resources.popup}<Box ref={sectionRef} onClickCapture={onResourceAccess} id={`${anchorPrefix}-question-1`}>{planning ? <PlanConfirmationPage data={planData} contentAnchorPrefix={anchorPrefix} /> : <QuestionAnswerPage data={data} contentAnchorPrefix={anchorPrefix} />}</Box></>;
 }
 
 export default function AgentResultView({ contentAnchorPrefix = 'result-1', onContentMeta } = {}) {

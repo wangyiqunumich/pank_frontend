@@ -818,7 +818,7 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
 }
 
 // Main KnowledgeGraph component
-export default function KnowledgeGraph({ selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, edgeRoutes = null, review = false, containerHeight = "600px", defaultLegendVisible = false }) {
+export default function KnowledgeGraph({ onEvidenceInspect, selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, edgeRoutes = null, review = false, containerHeight = "600px", defaultLegendVisible = false }) {
   const cyRef = useRef(null);
   const containerRef = useRef(null);
   const infocardRef = useRef(null);
@@ -1067,6 +1067,10 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
       document.documentElement.style.overflow = previousHtmlOverflow || "auto";
     };
   }, [location, expanded]);
+
+  useEffect(() => {
+    if (infocardVisible && activeNode?.isEdge?.()) onEvidenceInspect?.(activeNode.id());
+  }, [infocardVisible, activeNode, onEvidenceInspect]);
 
   const appearTimeoutRef = useRef(null);
   const appearNodeIdRef = useRef(null);

@@ -37,6 +37,7 @@ import KnowledgeGraph from '../components/KnowledgeGraph';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
 import { sitePath } from './api';
 import { safeLegacyHref } from './legacyResultData';
+import { recordInteraction, referenceKey } from './telemetry';
 const EMPTY = {};
 const EMPTY_LIST = [];
 const HtmlTooltip = styled(({ className, ...props }) => (
@@ -116,7 +117,23 @@ const LoadingSkeleton = () => (
     </Container>
 )
 
-export function LegacyResultPresentation({ data = EMPTY, error = '' }) {
+export function LegacyResultPresentation({ data = EMPTY, error = '', interactionResultId }) {
+    const auditRef = useRef(null);
+    useEffect(() => {
+        if (!interactionResultId || !data.aiAnswer?.answers?.length || !auditRef.current || typeof IntersectionObserver === 'undefined') return;
+        const observer = new IntersectionObserver((entries) => {
+            if (entries.some((entry) => entry.isIntersecting)) {
+                recordInteraction(interactionResultId, 'answer_section_displayed', 'legacy-answer', 'result');
+                observer.disconnect();
+            }
+        });
+        observer.observe(auditRef.current);
+        return () => observer.disconnect();
+    }, [interactionResultId, data.aiAnswer]);
+    const auditResource = (event) => {
+        const link = event.target.closest?.('a[href]');
+        if (link) recordInteraction(interactionResultId, 'resource_accessed', referenceKey(link.getAttribute('href')), 'result');
+    };
     const { queryResultPage, aiAnswer, currentQuestion, aiAnswerSubtitle, currentQuestionType,
         nextQuestions = null, referenceData = EMPTY, articlesData = EMPTY_LIST,
         viewSchema = EMPTY, hoverId, hoverState, displayNotice = '' } = data;
@@ -368,7 +385,7 @@ export function LegacyResultPresentation({ data = EMPTY, error = '' }) {
 
     // Show loading skeleton if queryResultPage is not ready
     return !(queryResultPage?.combined_query_result) ? <LoadingSkeleton /> :
-        (<Container sx={{ width: '100%', overflowX: 'auto', maxWidth: '1440px', marginTop: '24px', marginX: '20px', alignSelf: 'center', overflow: 'visible' }} maxWidth={false}>
+        (<Container ref={auditRef} onClickCapture={auditResource} sx={{ width: '100%', overflowX: 'auto', maxWidth: '1440px', marginTop: '24px', marginX: '20px', alignSelf: 'center', overflow: 'visible' }} maxWidth={false}>
             <Backdrop
                 sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
                 open={imagePopupOpen}
@@ -561,7 +578,7 @@ export function LegacyResultPresentation({ data = EMPTY, error = '' }) {
                                     textAlign: 'left',
                                     maxWidth: '100%',
                                 }}>
-                                    <KnowledgeGraph graphData={queryResultPage.combined_query_result} coordData={queryResultPage.xy_json} edgeRoutes={queryResultPage.edge_routes} containerHeight="100%" sx={{ height: "100%" }} />
+                                    <KnowledgeGraph onEvidenceInspect={(id) => recordInteraction(interactionResultId, 'graph_evidence_inspected', referenceKey(id), 'result')} graphData={queryResultPage.combined_query_result} coordData={queryResultPage.xy_json} edgeRoutes={queryResultPage.edge_routes} containerHeight="100%" sx={{ height: "100%" }} />
                                 </Box>
                             </Box>
                         </Grid>

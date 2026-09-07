@@ -13,5 +13,5 @@ export default function LegacyConventionalResultView() {
   const [result, error] = useProjectedResult(payload);
   const { hoverId, hoverState } = useSelector((state) => state.hover);
   const data = useMemo(() => legacyPresentationData(result, search, { hoverId, hoverState }), [result, search, hoverId, hoverState]);
-  return <LegacyResultPresentation data={data} error={error || (!payload ? 'This search is unavailable in the isolated demo.' : '')} />;
+  return <LegacyResultPresentation data={data} interactionResultId={result?.result_id} error={error || (!payload ? 'This search is unavailable in the isolated demo.' : '')} />;
 }
