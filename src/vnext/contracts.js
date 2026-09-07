@@ -91,6 +91,7 @@ export function applyRunEvent(state, event) {
   if (!Number.isFinite(sequence) || sequence <= Number(state.event_sequence || 0)) return state;
   const payload = event.payload || {};
   const next = { ...state, event_sequence: sequence, elapsed_ms: event.elapsed_ms, stage: event.stage || state.stage, status: event.status || state.status };
+  if (event.type === 'plan_validated') Object.assign(next, { plan: payload.plan, plan_id: payload.plan_id });
   if (event.type === 'plan_ready') Object.assign(next, { plan: payload.plan, plan_id: payload.plan_id, preview: payload.preview, status: 'awaiting_confirmation' });
   if (event.type === 'preview_step') next.preview = payload.preview;
   if (event.type === 'graph_answer') {

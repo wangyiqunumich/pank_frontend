@@ -136,3 +136,12 @@ test('shared PMID retains both perspectives and actual journal/date/source metad
   expect(withLiteratureReferences(result, literature).references['pmid:12345678'].subtitle.split(' • ').filter((value) => value === 'Mechanism')).toHaveLength(1);
   expect(JSON.stringify(literature)).toBe(before);
 });
+
+test('validated plan is visible without advancing confirmation and replay is idempotent', () => {
+  const event = {sequence: 3, type: 'plan_validated', payload: {plan_id: 'p1', plan: {review_ready: true, steps: [{id: 's1', question: 'INS expression'}]}}};
+  const run = applyRunEvent({status: 'planning', event_sequence: 2}, event);
+  expect(run.plan.review_ready).toBe(true);
+  expect(run.status).toBe('planning');
+  expect(projectionForRun(run)).toBeFalsy();
+  expect(applyRunEvent(run, event)).toBe(run);
+});

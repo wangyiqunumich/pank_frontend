@@ -144,7 +144,7 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     return () => { stopped = true; mounted.current = false; streamRef.current?.(); };
   }, [route, attachRun]);
 
-  const isPlanning = run?.status === 'awaiting_confirmation';
+  const isPlanning = run?.status === 'awaiting_confirmation' || (run?.status === 'planning' && run?.plan?.review_ready);
   const projectionPayload = projectionForRun(run);
   const [result, resultError] = useProjectedResult(projectionPayload);
   projectionRef.current = result;
@@ -185,7 +185,7 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     metaRef.current = signature;
     onContentMeta({ ...meta, followUpHandler: followUp });
   }, [onContentMeta, contentAnchorPrefix, run?.plan, run?.status, run?.session_id, result?.resources_tabs, isPlanning, location.pathname, location.search, followUp]);
-  const initialLoading = !run?.plan || run?.status === 'planning';
+  const initialLoading = !run?.plan || (run?.status === 'planning' && !run?.plan?.review_ready);
   const progress = liveProgress(run, connection);
   if ((!run && error) || (TERMINAL_RUNS.has(run?.status) && !run?.plan)) return <ErrorComponent errorTitle="Investigation could not finish" errorMessage={error || run?.error?.message || `Investigation ${run.status}.`} />;
   return <>

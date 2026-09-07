@@ -99,7 +99,7 @@ export function watchRun(runId, sequence, onEvent, onConnection = () => {}) {
     onEvent({ ...event, seq });
     if (event.type === 'terminal') source.close();
   };
-  ['progress', 'heartbeat', 'plan_ready', 'preview_step', 'preview_reused', 'graph_step', 'graph_answer', 'literature_progress', 'literature_perspective', 'literature_complete', 'terminal'].forEach((type) => source.addEventListener(type, handle));
+  ['progress', 'heartbeat', 'plan_validated', 'plan_ready', 'preview_step', 'preview_reused', 'graph_step', 'graph_answer', 'literature_progress', 'literature_perspective', 'literature_complete', 'terminal'].forEach((type) => source.addEventListener(type, handle));
   source.onopen = () => onConnection('connected');
   source.onerror = () => onConnection('reconnecting');
   return () => source.close();
