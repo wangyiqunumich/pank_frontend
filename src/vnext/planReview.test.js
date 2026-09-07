@@ -31,10 +31,11 @@ test('saved plan without preview disables confirmation and keeps revision usable
   expect(screen.getByRole('button', { name: 'send' }).disabled).toBe(false);
 });
 
-test('failed checked preview is disclosed and can be confirmed for bounded retry', () => {
-  render(<ResultSection planning run={{ status: 'awaiting_confirmation', question: 'INS?', plan_id: 'p', preview: { status: 'failed' }, plan: { steps: [] } }} anchorPrefix="test" />);
+test('failed checked preview with exhausted candidate budget keeps revision available without a false retry', () => {
+  render(<ResultSection planning run={{ status: 'awaiting_confirmation', question: 'INS?', plan_id: 'p', preview: { status: 'failed', confirmation_eligible: false }, plan: { steps: [] } }} anchorPrefix="test" />);
   expect(screen.getByText(/Initial evidence check: failed/)).toBeTruthy();
-  expect(document.getElementById('test-plan-proceed-button').disabled).toBe(false);
+  expect(document.getElementById('test-plan-proceed-button').disabled).toBe(true);
+  expect(screen.getByRole('button', { name: 'send' }).disabled).toBe(false);
 });
 
 test('plan review uses the actual projected graph and clarified entities disable confirmation', () => {

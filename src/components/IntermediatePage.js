@@ -392,14 +392,16 @@ function IntermediatePage({ onContinue }) {
   const tableValue = (item, column) => {
     // replace parts of the column.key that are not '(', ')', or ' '
     if (!item || !column || !column.key) return "-";
+    // Table identity differs from the graph's recorded lead node.
+    const displayItem = item.searched_snp ? { ...item, snp: item.searched_snp, pip: item.searched_pip } : item;
     const resultText = column.key.replace(/([^(\s)]+)/g, (match) => (
-      item[match]
+      displayItem[match] !== undefined && displayItem[match] !== null
         ? (floatKeys.includes(match)
-          ? item[match].toFixed(2)
-          : item[match]
+          ? Number(displayItem[match]).toFixed(2)
+          : displayItem[match]
         ) : "-"
     ));
-    if (column.key === "snp (pip)" && item.lead_snp && item.lead_snp !== item.snp) {
+    if (column.key === "snp (pip)" && item.lead_snp && item.lead_snp !== displayItem.snp) {
       return (
         <Box sx={{
           display: 'flex', flexDirection: 'row', alignItems: 'center', color: '#E77C40'
@@ -767,7 +769,7 @@ function IntermediatePage({ onContinue }) {
               <div className="styled-paper" style={{ padding: '10px 32px' }}>
                 <div className="answer-content">
                   <Typography sx={{ mb: 2, fontSize: 16, fontFamily: 'Open Sans', fontWeight: "400" }}>
-                    Found <span style={{ color: "#3A838B", fontWeight: "700" }}>four</span> categories of Quantitative Trait Loci (QTL) data, derived from pancreatic and islet tissue samples.
+                    Found <span style={{ color: "#3A838B", fontWeight: "700" }}>four</span> categories of Quantitative Trait Loci (QTL) data, derived from pancreatic and islet tissue samples. {queryResult?.coverage?.complete === false && "These results cover currently indexed source files; additional associations may not yet be indexed."}
                   </Typography>
 
                   <Alert

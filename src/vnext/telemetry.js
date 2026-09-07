@@ -16,7 +16,9 @@ export function recordInteraction(runId, kind, targetId, scope = 'run') {
   const key = JSON.stringify([scope, runId, kind, targetId]);
   if (sent.has(key)) return Promise.resolve(false);
   sent.add(key);
-  const payload = { event_id: crypto.randomUUID(), page_id: pageId, kind, target_id: targetId,
+  let actorSource = 'user';
+  try { const value = sessionStorage.getItem('pank-vnext:actor-source'); if (['audit_replay', 'synthetic_fault'].includes(value)) actorSource = value; } catch (_) { /* optional audit attribution */ }
+  const payload = { actor_source: actorSource, event_id: crypto.randomUUID(), page_id: pageId, kind, target_id: targetId,
     client_timestamp: new Date().toISOString(), client_elapsed_ms: Math.min(performance.now(), 86400000) };
   return request(`${scope === 'result' ? '/results' : '/agent/v2/runs'}/${encodeURIComponent(runId)}/interactions`, {
     method: 'POST', body: JSON.stringify(payload),

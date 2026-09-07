@@ -386,7 +386,7 @@ export function LegacyResultPresentation({ data = EMPTY, error = '', interaction
     // Show loading skeleton if queryResultPage is not ready
     return !(queryResultPage?.combined_query_result) ? <LoadingSkeleton /> :
         (<Container ref={auditRef} onClickCapture={auditResource} sx={{ width: '100%', overflowX: 'auto', maxWidth: '1440px', marginTop: '24px', marginX: '20px', alignSelf: 'center', overflow: 'visible' }} maxWidth={false}>
-            <Backdrop
+            {imageUrl && <Backdrop
                 sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
                 open={imagePopupOpen}
                 onClick={() => setImagePopupOpen(false)}
@@ -400,7 +400,7 @@ export function LegacyResultPresentation({ data = EMPTY, error = '', interaction
                         maxHeight: '100%',
                     }}
                 />
-            </Backdrop>
+            </Backdrop>}
             <Container sx={{
                 padding: 0, display: 'flex',
                 flexDirection: 'column', justifyContent: 'space-evenly',

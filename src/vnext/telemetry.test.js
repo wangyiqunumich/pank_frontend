@@ -14,6 +14,15 @@ test('rerender observations deduplicate without changing a query or exposing URL
   expect(payload.target_id).toMatch(/^ref-[a-f0-9]+$/);
   expect(JSON.stringify(payload)).not.toMatch(/private|example|source\?/);
   expect(payload.client_elapsed_ms).toBeGreaterThanOrEqual(0);
+  expect(payload.actor_source).toBe('user');
+});
+
+test('audit observations explicitly identify their source', async () => {
+  request.mockResolvedValue({ status: 'recorded' });
+  sessionStorage.setItem('pank-vnext:actor-source', 'audit_replay');
+  await recordInteraction('audit-run', 'plan_displayed', 'p1');
+  expect(JSON.parse(request.mock.calls.at(-1)[1].body).actor_source).toBe('audit_replay');
+  sessionStorage.removeItem('pank-vnext:actor-source');
 });
 
 test('telemetry failure is observable and does not reject the user operation', async () => {

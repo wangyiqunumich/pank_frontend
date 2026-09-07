@@ -43,7 +43,13 @@ export function legacyPresentationData(result, search = new URLSearchParams(), h
   const target = search.get('targetTerm') || '';
   const relationship = search.get('relationship') || '';
   const schema = visualizationSchema[`${source.split('@')[0]} - ${relationship} - ${target.split('@')[0]}`]?.[`${source.includes('@') ? 'specific' : 'general'} - relationship - ${target.includes('@') ? 'specific' : 'general'}`] || {};
-  const referenceData = result.resources_tabs || {};
+  let referenceData = result.resources_tabs || {};
+  if (!referenceData.empirical_evidence && ['partial', 'unavailable', 'failed'].includes(result.component_status?.resources)) {
+    referenceData = { ...referenceData, empirical_evidence: {
+      status: 'unavailable', title: 'Supplementary resources unavailable',
+      description: 'Some source files or plots could not be retrieved. This is a resource-availability limit, not evidence of biological absence.'
+    } };
+  }
   const articlesData = Object.values(referenceData.references || {}).map((ref, index) => {
     const original = ref.data || {};
     const authors = ref.authors || original.authors || [];

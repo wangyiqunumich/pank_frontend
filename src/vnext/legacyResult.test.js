@@ -45,6 +45,15 @@ test('legacy links reject script and protocol-relative targets', () => {
   expect(safeLegacyHref('//untrusted.example')).toBeUndefined();
   expect(safeLegacyHref('/result?sourceTerm=gene@g1')).toBe('/pankgraph-vnext/result?sourceTerm=gene@g1');
 });
+
+test('unavailable resources remain inspectable in the existing empirical tab without a placeholder image', () => {
+  const data = legacyPresentationData({ ...result, resources_tabs: {}, component_status: { resources: 'unavailable' } });
+  render(<LegacyResultPresentation data={data} />);
+  fireEvent.click(screen.getByRole('tab', { name: 'Empirical Evidence' }));
+  expect(screen.getByText('Supplementary resources unavailable')).toBeTruthy();
+  expect(screen.getByText(/not evidence of biological absence/)).toBeTruthy();
+  expect(screen.queryByAltText('Empirical Evidence')).toBeNull();
+});
 test('separate Markdown paragraphs use blocks while a plain-text answer keeps its original wrapper', async () => {
   const { rerender } = render(<LegacyResultPresentation data={legacyPresentationData({ ...result, answer: 'First paragraph.\n\nSecond paragraph.' })} />);
   const first = await screen.findByText('First paragraph.');

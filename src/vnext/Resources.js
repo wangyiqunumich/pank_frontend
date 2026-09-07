@@ -7,6 +7,9 @@ export function useResourcePanels(referenceData = {}, resourceStatus) {
     const [imagePopupOpen, setImagePopupOpen] = useState(false);
     const debug = false;
     const referencesLoading = resourceStatus === 'pending';
+    if (!referenceData.empirical_evidence && ['partial', 'unavailable', 'failed'].includes(resourceStatus)) {
+        referenceData = { ...referenceData, empirical_evidence: { status: 'unavailable', title: 'Supplementary resources unavailable', description: 'Some source files or plots could not be retrieved. This is a resource-availability limit, not evidence of biological absence.' } };
+    }
     const referencesItems = Object.values(referenceData.references || {}).map((ref, i) => ({ ...ref, id: ref.id || i + 1, href: /^https?:\/\//i.test(ref.href || ref.url || '') ? (ref.href || ref.url) : undefined, anchorId: ref.anchorId || `reference-item-main-${ref.pmid || ref.id || i}-${i + 1}` }));
     const imagePath = referenceData.empirical_evidence?.image_url || '';
     const imageUrl = imagePath.startsWith('/') && !imagePath.startsWith('//') ? sitePath(imagePath) : '';

@@ -46,7 +46,7 @@ function GraphPanel({ result, waiting, error, onEvidenceInspect }) {
   </Box>;
 }
 
-export function ResultSection({ run, result, error, planning, busy, onRevise, onConfirm, anchorPrefix }) {
+export function ResultSection({ run, result, error, planning, busy, onRevise, onConfirm, onFollowUp, anchorPrefix }) {
   const sectionRef = useRef(null);
   const runId = run?.run_id || result?.result_id;
   const trackingScope = run?.run_id ? 'run' : 'result';
@@ -70,12 +70,12 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
   const literature = run?.literature ?? result?.literature;
   const resources = useResourcePanels(withLiteratureReferences(result?.resources_tabs, literature), result?.component_status?.resources);
   const graphData = result?.combined_query_result || null;
-  const graphError = error || (planning && run?.plan?.clarification) || (planning && run?.preview?.status === 'failed' ? 'The initial graph retrieval failed. You can revise the question or confirm a bounded retry.' : '');
+  const graphError = error || (planning && run?.plan?.clarification) || (planning && run?.preview?.status === 'failed' ? 'The initial graph retrieval failed. Revise the plan before continuing; this failure does not indicate biological absence.' : '');
   const visualMaterial = { title: 'Visual Material', tabs: [{ label: 'Knowledge Graph', content: <GraphPanel onEvidenceInspect={onEvidenceInspect} result={result} waiting={!result && !graphError} error={graphError} /> }] };
   const planData = {
-    questionId: 'PLAN', title: 'Confirm Query & Execution Steps', originalQuestion: run?.question || '', parsedTitle: run?.plan?.interpreted_question || '',
+    questionId: 'PLAN', title: 'Confirm Query & Execution Steps', originalQuestion: run?.plan?.original_question || run?.question || '', parsedTitle: run?.plan?.interpreted_question || '',
     agentPlan: planMarkdown(run), revisionQuestion: run?.question || '', revisionKey: run?.plan_id,
-    disableRevise: busy, disableProceed: busy || !run?.preview || Boolean(run?.plan?.clarification) || run?.status !== 'awaiting_confirmation',
+    disableRevise: busy, disableProceed: busy || !run?.preview || run?.preview?.confirmation_eligible === false || Boolean(run?.plan?.clarification) || run?.status !== 'awaiting_confirmation',
     onSendFeedback: onRevise, onProceed: onConfirm, graphData, visualMaterial,
   };
   const sections = [{ content: <AnswerMarkdown answer={run?.graph_answer || result?.answer?.text || result?.answer || (run?.error?.message || 'Writing the grounded answer…')} references={resources.references} /> }];
@@ -90,7 +90,7 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
     styleVariant: 'pank1', questionId: 'Q1', title: run?.plan?.interpreted_question || run?.question || result?.question || '',
     aiOverview: { sections, isLoading: !run?.graph_answer && !result?.answer, scrollToTop: TERMINAL_RUNS.has(run?.status) },
     graphData, visualMaterial, evidences: resources.tabs.length ? { title: 'Evidences', tabs: resources.tabs } : undefined,
-    followUp: { title: 'Follow Up', items: [], loading: !TERMINAL_RUNS.has(run?.status), disabled: !TERMINAL_RUNS.has(run?.status) },
+    followUp: { title: 'Follow Up', onSelect: onFollowUp ? (item) => onFollowUp(item.label) : undefined, items: (run?.evidence?.follow_up_questions || result?.evidence?.follow_up_questions || []).map((question) => ({ label: question })), loading: !TERMINAL_RUNS.has(run?.status), disabled: !TERMINAL_RUNS.has(run?.status) },
   };
   return <>{resources.popup}<Box ref={sectionRef} onClickCapture={onResourceAccess} id={`${anchorPrefix}-question-1`}>{planning ? <PlanConfirmationPage data={planData} contentAnchorPrefix={anchorPrefix} /> : <QuestionAnswerPage data={data} contentAnchorPrefix={anchorPrefix} />}</Box></>;
 }
@@ -193,7 +193,7 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     {initialLoading ? <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px' }}><SearchResultLoading streamProgress={progress} handleClose={cancel} /></Box> :
       <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', px: { xs: 2, md: 3 }, py: 3 }}><Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 3 }}>
         {previous.map((item, index) => <ResultSection key={item.run.run_id} {...item} anchorPrefix={`${contentAnchorPrefix}-previous-${index}`} />)}
-        <ResultSection run={run} result={result} error={resultError} planning={isPlanning} busy={busy} onRevise={onRevise} onConfirm={onConfirm} anchorPrefix={contentAnchorPrefix} />
+        <ResultSection run={run} result={result} error={resultError} planning={isPlanning} busy={busy} onRevise={onRevise} onConfirm={onConfirm} onFollowUp={followUp} anchorPrefix={contentAnchorPrefix} />
       </Box></Box>}
   </>;
 }
