@@ -10,7 +10,7 @@ import SearchResultLoading from '../SearchResult/loading';
 import { upsertRecentChat } from '../utils/chatSessionStorage';
 import AnswerMarkdown from './AnswerMarkdown';
 import { useResourcePanels } from './Resources';
-import { applyRunEvent, literatureNotice, liveProgress, planMarkdown, projectionForRun, templateRequest, withLiteratureReferences } from './contracts';
+import { applyRunEvent, groundedLiterature, literatureNotice, liveProgress, planMarkdown, projectionForRun, templateRequest, withLiteratureReferences } from './contracts';
 import { cancelRun, confirmPlan, createPlanOnce, createResultOnce, getRun, pollResult, revisePlan, sitePath, TERMINAL_RUNS, watchRun } from './api';
 
 import { recordInteraction, referenceKey } from './telemetry';
@@ -67,7 +67,7 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
     const link = event.target.closest?.('a[href]');
     if (link) recordInteraction(runId, 'resource_accessed', referenceKey(link.getAttribute('href')), trackingScope);
   }, [runId, trackingScope]);
-  const literature = run?.literature ?? result?.literature;
+  const literature = groundedLiterature(run, result);
   const resources = useResourcePanels(withLiteratureReferences(result?.resources_tabs, literature), result?.component_status?.resources);
   const graphData = result?.combined_query_result || null;
   const graphError = error || (planning && run?.plan?.clarification) || (planning && run?.preview?.status === 'failed' ? 'The initial graph retrieval failed. Revise the plan before continuing; this failure does not indicate biological absence.' : '');

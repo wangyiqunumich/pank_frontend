@@ -2,7 +2,20 @@ import { DEBUG_STREAM_LOADING_ENTRIES } from '../SearchResult/streamLoadingProgr
 export const TEMPLATE_IDS = ['qtl_by_gene', 'qtl_by_variant_gene', 'qtl_by_variant', 'gwas_by_variant', 'coloc_by_gene', 'expression_by_gene'];
 const literatureIncluded = (plan) => typeof plan?.literature_intent?.included === 'boolean' ? plan.literature_intent.included : typeof plan?.literature === 'boolean' ? plan.literature : null;
 
+export function groundedLiterature(run, result) {
+  const saved = run?.literature ?? result?.literature;
+  const plan = run?.plan;
+  const evidence = run?.evidence ?? result?.evidence;
+  const noNewGraph = ['skills', 'skill_only', 'explanation'].includes(plan?.answer_mode) || (Array.isArray(plan?.steps) && plan.steps.length === 0);
+  const steps = Array.isArray(evidence?.steps) ? evidence.steps : evidence?.steps && Object.values(evidence.steps);
+  const usable = steps?.some((s) => s.purpose !== 'context' && ['complete', 'partial'].includes(s.status)
+    && ((s.nodes?.length || s.edges?.length) || (s.rows || []).some((row) => Object.values(row || {}).some((v) => typeof v === 'number' && Number.isFinite(v) && v !== 0))));
+  if (noNewGraph || (steps && !usable)) return {status:'not_requested', perspectives:[], reason:'no_usable_graph_evidence'};
+  return saved;
+}
+
 export function literatureNotice(run, literature = run?.literature) {
+  if (['no_usable_graph_evidence', 'no_new_graph_requested', 'no_graph_answer', 'graph_answer_failed'].includes(literature?.reason)) return '';
   const included = literatureIncluded(run?.plan);
   const state = literature?.status;
   const hasPerspectives = Boolean(literature?.perspectives?.length);

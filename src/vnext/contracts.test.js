@@ -1,3 +1,4 @@
+import { groundedLiterature } from './contracts';
 import { applyRunEvent, literatureNotice, liveProgress, planMarkdown, projectionForRun, selectedResultParams, stageLabel, templateRequest, withLiteratureReferences } from './contracts';
 import { graphElements, routeStyle } from './graphBindings';
 
@@ -161,4 +162,12 @@ test('groups multiple checks without dropping their readable scope', () => {
   expect(text).toContain('Check detection (after confirmation)');
   expect(text).toContain('Check enrichment (after confirmation)');
   expect(text).toContain('Genetic evidence');
+});
+
+test('old empty-result literature is hidden without deleting saved evidence', () => {
+ const run={plan:{steps:[{id:'s1'}],literature:true},evidence:{steps:[{status:'empty',nodes:[],edges:[],rows:[]}]},literature:{status:'complete',perspectives:[{answer:'Unrelated'}]}};
+ const visible=groundedLiterature(run);
+ expect(visible.perspectives).toEqual([]);expect(literatureNotice(run,visible)).toBe('');
+ expect(run.literature.perspectives).toHaveLength(1);
+ expect(groundedLiterature({...run,plan:{steps:[],answer_mode:'skills'}}).perspectives).toEqual([]);
 });
