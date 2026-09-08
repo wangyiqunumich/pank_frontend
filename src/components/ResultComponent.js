@@ -524,8 +524,8 @@ function EvidenceItem({ item, onSelect, isActive, isHovered = false, variant = '
 
 export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
     const [visualTab, setVisualTab] = React.useState(0);
-    const [feedbackText, setFeedbackText] = React.useState(data?.revisionQuestion || '');
-    React.useEffect(() => { setFeedbackText(data?.revisionQuestion || ''); }, [data?.revisionQuestion, data?.revisionKey]);
+    const [feedbackText, setFeedbackText] = React.useState('');
+    React.useEffect(() => { setFeedbackText(''); }, [data?.revisionQuestion, data?.revisionKey]);
     const isSingleColumn = useMediaQuery("(max-width:1199.95px)");
     const visualTabs = data?.visualMaterial?.tabs ?? [];
     const normalizedVisualIndex = visualTab < visualTabs.length ? visualTab : 0;
@@ -809,7 +809,7 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                         Refine The Plan
                                     </Typography>
                                     <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#64748B', mb: 1.25 }}>
-                                        Tell me how you'd like to adjust the plan. I'll update it instantly.
+                                        Tell me what to change. I’ll keep the rest of your plan.
                                     </Typography>
                                     <Box
                                         component="form"
@@ -839,7 +839,7 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                                     handleSendFeedback();
                                                 }
                                             }}
-                                            placeholder="Tell me if I missed anything..."
+                                            placeholder="e.g. Use spleen instead, keeping the same donor filters"
                                             variant="standard"
                                             fullWidth
                                             InputProps={{

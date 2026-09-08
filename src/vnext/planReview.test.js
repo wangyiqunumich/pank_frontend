@@ -9,18 +9,18 @@ jest.mock('rehype-raw', () => ({ __esModule: true, default: () => {} }));
 jest.mock('../components/KnowledgeGraph', () => ({ __esModule: true, default: ({ graphData }) => <div data-testid="actual-graph">{graphData.nodes.length} graph nodes</div> }));
 jest.mock('react-slick', () => ({ __esModule: true, default: ({ children }) => <div>{children}</div> }));
 
-test('the existing revision input hydrates the full question and sends it verbatim', () => {
+test('revision input starts empty and sends only the requested change', () => {
   const revise = jest.fn();
   const data = { originalQuestion: 'Which cells express INS?', revisionQuestion: 'Which cells express INS?', revisionKey: 'p1', agentPlan: 'Check expression evidence.', onSendFeedback: revise };
   const { rerender } = render(<PlanConfirmationPage data={data} />);
-  const input = screen.getByPlaceholderText('Tell me if I missed anything...');
-  expect(input.value).toBe('Which cells express INS?');
-  fireEvent.change(input, { target: { value: 'Which cells express GCG in ND?' } });
+  const input = screen.getByPlaceholderText('e.g. Use spleen instead, keeping the same donor filters');
+  expect(input.value).toBe('');
+  fireEvent.change(input, { target: { value: 'Use GCG instead, keeping ND' } });
   fireEvent.click(screen.getByRole('button', { name: 'send' }));
-  expect(revise).toHaveBeenCalledWith('Which cells express GCG in ND?');
-  expect(input.value).toBe('Which cells express GCG in ND?');
+  expect(revise).toHaveBeenCalledWith('Use GCG instead, keeping ND');
+  expect(input.value).toBe('Use GCG instead, keeping ND');
   rerender(<PlanConfirmationPage data={{ ...data, revisionQuestion: 'Which cells express SST?', revisionKey: 'p2' }} />);
-  expect(input.value).toBe('Which cells express SST?');
+  expect(input.value).toBe('');
 });
 
 test('saved plan without preview disables confirmation and keeps revision usable', () => {
@@ -28,6 +28,8 @@ test('saved plan without preview disables confirmation and keeps revision usable
   expect(screen.getByText(/This saved plan needs an initial evidence check/)).toBeTruthy();
   const proceed = document.getElementById('test-plan-proceed-button');
   expect(proceed.disabled).toBe(true);
+  expect(screen.getByRole('button', { name: 'send' }).disabled).toBe(true);
+  fireEvent.change(screen.getByPlaceholderText('e.g. Use spleen instead, keeping the same donor filters'), {target:{value:'Use spleen instead'}});
   expect(screen.getByRole('button', { name: 'send' }).disabled).toBe(false);
 });
 
@@ -35,6 +37,8 @@ test('failed checked preview with exhausted candidate budget keeps revision avai
   render(<ResultSection planning run={{ status: 'awaiting_confirmation', question: 'INS?', plan_id: 'p', preview: { status: 'failed', confirmation_eligible: false }, plan: { steps: [] } }} anchorPrefix="test" />);
   expect(screen.getByText(/Initial evidence check: failed/)).toBeTruthy();
   expect(document.getElementById('test-plan-proceed-button').disabled).toBe(true);
+  expect(screen.getByRole('button', { name: 'send' }).disabled).toBe(true);
+  fireEvent.change(screen.getByPlaceholderText('e.g. Use spleen instead, keeping the same donor filters'), {target:{value:'Use spleen instead'}});
   expect(screen.getByRole('button', { name: 'send' }).disabled).toBe(false);
 });
 

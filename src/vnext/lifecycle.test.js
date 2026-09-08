@@ -34,11 +34,12 @@ test('revision creates a fresh run and graph while preserving the edited biologi
   api.getRun.mockImplementation(async (id) => snapshot(id, id === 'r2' ? 'Which cells express SST?' : 'Which cells express INS?'));
   mount();
   await waitFor(() => expect(screen.getByTestId('graph').textContent).toBe('r1-preview'));
-  fireEvent.change(screen.getByPlaceholderText('Tell me if I missed anything...'), { target: { value: 'Which cells express SST?' } });
+  expect(screen.getByPlaceholderText('e.g. Use spleen instead, keeping the same donor filters').value).toBe('');
+  fireEvent.change(screen.getByPlaceholderText('e.g. Use spleen instead, keeping the same donor filters'), { target: { value: 'Which cells express SST?' } });
   fireEvent.click(screen.getByRole('button', { name: 'send' }));
   await waitFor(() => expect(screen.getByTestId('graph').textContent).toBe('r2-preview'));
   expect(api.revisePlan).toHaveBeenCalledWith('p-r1', 'Which cells express SST?', true);
-  expect(screen.getByPlaceholderText('Tell me if I missed anything...').value).toBe('Which cells express SST?');
+  expect(screen.getByPlaceholderText('e.g. Use spleen instead, keeping the same donor filters').value).toBe('');
   expect(api.createPlanOnce).not.toHaveBeenCalled();
 });
 test('SSE text is appended once and final evidence requests one final projection', async () => {
