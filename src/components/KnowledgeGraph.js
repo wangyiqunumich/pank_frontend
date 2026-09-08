@@ -620,6 +620,8 @@ export function edgeInfocardModel(data, baseSchema) {
 }
 
 export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
+  const [openSections, setOpenSections] = useState({});
+  useEffect(() => { setOpenSections({}); }, [incomingData?.id]);
   const isEdge = incomingData?.element_kind ? incomingData.element_kind === 'edge' : incomingData?.source && incomingData?.target;
   const baseSchema =
     review ? isEdge ? graphInfocardReview?.edges["relationship"].info_panel : graphInfocardReview?.nodes["All nodes"].info_panel :
@@ -693,7 +695,11 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
                               textTransform: "uppercase",
                             }}>
                               {title}
+                              {config === 'collapsed' && <IconButton aria-label={`${openSections[title] ? 'Hide' : 'Show'} ${title.toLowerCase()}`} aria-expanded={Boolean(openSections[title])} onClick={() => setOpenSections(previous => ({...previous, [title]: !previous[title]}))} sx={{ marginLeft: "8px", padding: "0px", marginBottom: "-2px" }} size="small">
+                                {openSections[title] ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                              </IconButton>}
                             </Typography>
+                            <Collapse in={config !== "collapsed" || Boolean(openSections[title])} timeout="auto">
                             <Box key={title} sx={{
                               width: "calc(100%)",
                               display: "flex",
@@ -703,7 +709,7 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
                               {
                                 Array.isArray(content) ? (
                                   content.map(([label, key, config, sourceKey]) => ( // Data Row
-                                    <Box key={key} data-field={sourceKey || key} title={sourceKey ? `Recorded field: ${sourceKey}` : undefined} sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                                    <Box key={key} data-field={sourceKey || key} title={sourceKey ? `Recorded field: ${sourceKey} · Exact value: ${formatEvidenceValue(rawProperties[sourceKey])}` : undefined} sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
                                       <Typography sx={{
                                         fontFamily: "Open Sans",
                                         fontWeight: "600",
@@ -755,6 +761,7 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
                                   )
                               }
                             </Box>
+                            </Collapse>
                           </Box>
                         )
               )

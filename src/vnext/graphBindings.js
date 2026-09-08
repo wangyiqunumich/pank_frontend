@@ -1,3 +1,4 @@
+import { displayWords } from './recordedPresentation';
 import { samplePresentation } from './samplePresentation';
 const point = (value) => Array.isArray(value) ? { x: value[0], y: value[1] } : value;
 const finitePoint = (value) => { const p = point(value); return p && Number.isFinite(p.x) && Number.isFinite(p.y) ? p : null; };
@@ -144,7 +145,7 @@ export function graphElements(result, positions = {}, routes = {}, options = {})
     const position = finitePoint(positions[node['~id']]) || { x: index * 36, y: 0 };
     const sample = review ? {} : samplePresentation(node, result);
     const label = labels.includes('provenance') ? 'Metadata definition' : sample.sample_display_label || raw.name || node.display_label || raw.id || node['~id'];
-    return { data: { ...raw, ...sample, evidence_properties: { ...raw }, element_kind: 'node', id: node['~id'], label: String(label).length > 55 ? String(label).slice(0, 52) + '…' : String(label), type, raw_labels: labels, Level: positions[node['~id']]?.Level || 'Core' }, position };
+    return { data: { ...raw, ...sample, evidence_properties: { ...raw }, element_kind: 'node', id: node['~id'], label: displayWords(label).length > 55 ? displayWords(label).slice(0, 52) + '…' : displayWords(label), type, raw_labels: labels, Level: positions[node['~id']]?.Level || 'Core' }, position };
   });
   const byId = Object.fromEntries(nodes.map((node) => [node.data.id, node]));
   const edgeStyles = new Map();

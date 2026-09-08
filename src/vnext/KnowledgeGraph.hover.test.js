@@ -23,21 +23,19 @@ test('current lowercase CFTR measurements populate curated aliases without chang
   expect(JSON.stringify(edge)).toBe(before);
 });
 
-test('edge popup includes every original scientific/provenance value, retaining raw precision, zero, false and nested values', () => {
-  render(<InfocardMenu hoveredData={edge} />);
-  expect(screen.getByText('7.62294179320318')).toBeTruthy();
-  expect(screen.getByText('10.5209895291038')).toBeTruthy();
-  expect(screen.getByText('Recorded evidence')).toBeTruthy();
+test('edge popup prioritizes readable measurements, retains exact values in hints and omits processing fields', () => {
+  const { container } = render(<InfocardMenu hoveredData={edge} />);
+  expect(screen.getByText('7.623')).toBeTruthy();
+  expect(screen.getByText('Key evidence')).toBeTruthy();
   Object.entries(props).forEach(([key, value]) => {
-    const row = document.querySelector(`[data-field="${key}"]`);
-    if (typeof value === 'string' && value.startsWith('https://')) { expect(row.querySelector('a').getAttribute('href')).toBe(value); return; }
-    expect(row.textContent).toContain(value === null ? 'Not recorded' : typeof value === 'object' ? JSON.stringify(value) : String(value));
+    const row = container.querySelector(`[data-field="${key}"]`);
+    if (['expression_support_match','expression_support_rule'].includes(key)) { expect(row).toBeNull(); return; }
+    expect(row.getAttribute('title')).toContain(typeof value === 'object' && value !== null ? JSON.stringify(value) : String(value));
   });
-  expect(document.querySelector('[data-field="log2_fold_change"]').textContent).toContain('7.62294179320318');
-  expect(document.querySelector('[data-field="data_source"] a').getAttribute('href')).toBe(props.data_source);
-  expect(document.querySelector('[data-field="flagged"]').textContent).toContain('false');
-  expect(document.querySelector('[data-field="rank_in_cell_type"]').textContent).toContain('0');
-  expect(screen.queryByText('evidence_properties')).toBeNull();
+  expect(container.querySelector('[data-field="log2_fold_change"]').textContent).toContain('7.623');
+  expect(container.querySelector('[data-field="pvalue"]').textContent).toContain('4.23 × 10⁻¹⁹⁹');
+  expect(container.querySelector('[data-field="data_source"] a').getAttribute('href')).toBe(props.data_source);
+  expect(screen.getByRole('button', {name:'Show additional details'}).getAttribute('aria-expanded')).toBe('false');
 });
 
 test('unmapped edges expose raw evidence safely, and missing evidence-properties supports old flat data', () => {

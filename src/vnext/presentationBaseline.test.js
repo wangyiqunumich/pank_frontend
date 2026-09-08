@@ -44,6 +44,10 @@ test.each(['src/components/ResultComponent.js', 'src/components/KnowledgeGraph.j
     // Full evidence must remain reachable in the existing hover card. Only its
     // height bound/vertical scrolling are added; popup/page styling is retained.
     expect(current.filter((style) => style.includes('maxHeight: "calc(100vh - 24px)"'))).toHaveLength(1);
+    const disclosureStyle = 'marginLeft: "8px", padding: "0px", marginBottom: "-2px"';
+    const addedDisclosure = current.findLastIndex(style => style.includes(disclosureStyle));
+    expect(addedDisclosure).toBeGreaterThan(-1);
+    current.splice(addedDisclosure, 1);
     current = current.map((style) => style
       .replace('opacity: zoomLevel <= minimumZoom ? 0.5 : 1', 'opacity: zoomLevel <= 0.6 ? 0.5 : 1')
       .replace(/\n\s+overflowY: "auto",\n\s+maxHeight: "calc\(100vh - 24px\)",/, ''));

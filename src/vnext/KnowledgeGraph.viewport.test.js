@@ -73,7 +73,7 @@ test('hover on a visible offset edge label opens its scientific evidence without
   const hover = cy.on.mock.calls.find(([event, selector]) => event === 'mousemove' && selector === 'edge')[2];
   act(() => hover({ target: edge, originalEvent: { clientX: 1000, clientY: 1000 } }));
   act(() => jest.advanceTimersByTime(600));
-  expect(screen.getByText('Recorded evidence')).toBeTruthy();
+  expect(screen.getByText('Additional details')).toBeTruthy();
   expect(document.querySelector('[data-field="flag"]').textContent).toContain('false');
   expect(document.querySelector('[data-field="data_source"]').textContent).toContain('Recorded source');
   unmount();
