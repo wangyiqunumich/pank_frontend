@@ -140,8 +140,12 @@ export function planMarkdown(run) {
       })) : checks;
   const text = displaySteps.map((step, index) => {
     const entities = (step.resolved_entities || []).map((entity) => {
-      if (entity.state === 'resolved') return `${entity.name || entity.id} (${entity.id})`;
-      return `${entity.requested?.value || 'Entity'}: ${entity.state}${entity.candidates?.length ? `; candidates: ${entity.candidates.map((c) => `${c.name} (${c.id})`).join(', ')}` : ''}`;
+      if (entity.state === 'resolved') {
+        const matched = `${entity.name || entity.id} (${entity.id})`;
+        return ['spelling_correction','verified_alias','dataset_proxy'].includes(entity.match_kind)
+          ? `${entity.original_term || entity.original_requested?.value || entity.requested?.value} → ${matched} (${entity.match_kind.replace(/_/g, ' ')})` : matched;
+      }
+      return `${entity.requested?.value || 'Entity'}: ${{needs_clarification:'please choose a match',ambiguous:'more than one possible match',not_found:'no verified match'}[entity.state] || entity.state}${entity.candidates?.length ? `; candidates: ${entity.candidates.map((c) => `${c.name} (${c.id})`).join(', ')}` : ''}`;
     });
     return `${index + 1}. **${step.title || step.question}**${step.purpose === 'context' ? ' — Related context' : ''}\n\n   ${step.rationale || ''}${step.semantic_summary ? `\n\n   ${step.semantic_summary}` : ''}${step.semantic_issues?.length ? `\n\n   ${step.semantic_issues.join(' ')}` : ''}${entities.length ? `\n\n   Resolved entities: ${entities.join('; ')}` : ''}`;
   }).join('\n\n');

@@ -171,3 +171,13 @@ test('old empty-result literature is hidden without deleting saved evidence', ()
  expect(run.literature.perspectives).toHaveLength(1);
  expect(groundedLiterature({...run,plan:{steps:[],answer_mode:'skills'}}).perspectives).toEqual([]);
 });
+
+test('plan explains corrected anatomy and offers ambiguous candidates without false resolution', () => {
+  const text=planMarkdown({plan:{steps:[{id:'s',question:'Find cells',resolved_entities:[
+    {state:'resolved',original_term:'ductla cells',name:'ductal cell',id:'CL_0002079',match_kind:'spelling_correction'},
+    {state:'ambiguous',requested:{value:'blood'},candidates:[{name:'blood tissue',id:'t'},{name:'blood cells',id:'c'}]}
+  ]}]}});
+  expect(text).toContain('ductla cells → ductal cell (CL_0002079) (spelling correction)');
+  expect(text).toContain('more than one possible match');
+  expect(text).toContain('blood tissue (t)');
+});
