@@ -181,3 +181,9 @@ test('plan explains corrected anatomy and offers ambiguous candidates without fa
   expect(text).toContain('more than one possible match');
   expect(text).toContain('blood tissue (t)');
 });
+
+test('functional selection bypasses planning while retaining cohort filters', () => {
+  const filters={disease:'T1D',age_min:18,age_max:60,trace_type:'ins_ieq'};
+  expect(templateRequest(new URLSearchParams({functional_filters:JSON.stringify(filters)})))
+    .toEqual({template_id:'functional_traces',parameters:{...filters,age_min:'18',age_max:'60'}});
+});

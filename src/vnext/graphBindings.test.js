@@ -180,3 +180,33 @@ test('resize observer waits for visibility, refits real size changes, preserves 
   expect(host.cancelAnimationFrame).toHaveBeenCalledWith(1);
   expect(controller.fit()).toBeNull();
 });
+
+test('ordered relationship rows preserve full evidence and visible leaf-edge labels', () => {
+  const input = { ...graph, nodes: graph.nodes.map(n => ({...n,list_label:'Compact row'})) };
+  const listRoutes = { enrichment: {...routes.enrichment,route_type:'polyline',list_leaf_endpoint:'target'} };
+  const bound = graphElements(input,positions,listRoutes);
+  expect(bound.nodes[0].data.label).toBe('Compact row');
+  expect(bound.nodes[0].data.evidence_properties.name).toBe('gene');
+  expect(bound.edgeStyles.get('enrichment')['target-label']).toBe('data(label)');
+  expect(bound.edgeStyles.get('enrichment')['text-events']).toBe('yes');
+  const inverted = graphElements(input,positions,listRoutes,{edgeIsInverted:{enrichment:true}});
+  expect(inverted.edgeStyles.get('enrichment')['source-label']).toBe('data(label)');
+});
+
+test('long lists fit width, scroll vertically and remove their wheel listener', () => {
+  let scroll;
+  const cy = {destroyed:()=>false,resize:jest.fn(),nodes:()=>({length:100}),
+    elements:()=>({boundingBox:()=>({x1:0,y1:0,x2:250,y2:3000})}),width:()=>600,height:()=>630,
+    minZoom:jest.fn(),maxZoom:jest.fn(),viewport:jest.fn(),panBy:jest.fn(),userZoomingEnabled:jest.fn()};
+  const host={requestAnimationFrame:jest.fn(()=>1),cancelAnimationFrame:jest.fn(),addEventListener:jest.fn(),removeEventListener:jest.fn()};
+  const container={getBoundingClientRect:()=>({width:600,height:630}),
+    addEventListener:jest.fn((name,fn)=>{scroll=fn;}),removeEventListener:jest.fn()};
+  const controller=observeGraphViewport(cy,container,()=>{},host,true);
+  expect(cy.viewport).toHaveBeenCalledWith(expect.objectContaining({zoom:1.968,pan:{x:24,y:24}}));
+  const event={deltaY:100,deltaMode:0,preventDefault:jest.fn(),stopImmediatePropagation:jest.fn()};
+  scroll(event);
+  expect(cy.panBy).toHaveBeenCalledWith({x:0,y:-100});
+  expect(event.preventDefault).toHaveBeenCalled();
+  controller.dispose();
+  expect(container.removeEventListener).toHaveBeenCalledWith('wheel',scroll,{capture:true});
+});

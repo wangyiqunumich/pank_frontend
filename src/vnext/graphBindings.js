@@ -59,26 +59,32 @@ export function calculateGraphViewport(bounds, size) {
       y: top + height / 2 - zoom * (bounds.y1 + bounds.y2) / 2 } };
 }
 
-export function fitGraphViewport(cy) {
+export function fitGraphViewport(cy, listMode = false) {
   if (cy.destroyed()) return null;
   cy.resize();
   if (!cy.nodes().length) return null;
   const viewport = calculateGraphViewport(cy.elements().boundingBox({ includeLabels: true, includeOverlays: false }),
     { width: cy.width(), height: cy.height() });
   if (!viewport) return null;
+  if (listMode) {
+    const bounds = cy.elements().boundingBox({ includeLabels: true, includeOverlays: false });
+    viewport.zoom = Math.min(4, Math.max(1,cy.width()-108) / Math.max(1,bounds.x2-bounds.x1));
+    viewport.pan = {x:24-viewport.zoom*bounds.x1,y:24-viewport.zoom*bounds.y1};
+    viewport.minZoom = Math.min(0.6,viewport.zoom/2);
+  }
   cy.minZoom(viewport.minZoom);
   cy.maxZoom(viewport.maxZoom);
   cy.viewport({ zoom: viewport.zoom, pan: viewport.pan });
   return viewport;
 }
 
-export function observeGraphViewport(cy, container, onFit = () => {}, host = window) {
+export function observeGraphViewport(cy, container, onFit = () => {}, host = window, listMode = false) {
   let disposed = false, frame = null, lastSize = '';
   const fit = () => {
     if (disposed || cy.destroyed()) return null;
     const box = container.getBoundingClientRect();
     if (box.width <= 0 || box.height <= 0) return null;
-    const viewport = fitGraphViewport(cy);
+    const viewport = fitGraphViewport(cy, listMode);
     if (viewport) { lastSize = `${box.width}:${box.height}`; onFit(viewport); }
     return viewport;
   };
@@ -94,11 +100,19 @@ export function observeGraphViewport(cy, container, onFit = () => {}, host = win
   const observer = host.ResizeObserver ? new host.ResizeObserver(schedule) : null;
   observer?.observe(container);
   host.addEventListener('resize', schedule);
+  const scroll = event => {
+    if (!listMode || event.ctrlKey || event.metaKey) return;
+    event.preventDefault(); event.stopImmediatePropagation();
+    cy.panBy({x:0,y:-event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? cy.height() : 1)});
+  };
+  if (listMode) { cy.userZoomingEnabled(false); container.addEventListener('wheel',scroll,{passive:false,capture:true}); }
+
   fit();
   schedule();
   return { fit, dispose() {
     disposed = true;
     observer?.disconnect();
+    if (listMode) container.removeEventListener('wheel',scroll,{capture:true});
     host.removeEventListener('resize', schedule);
     if (frame !== null) host.cancelAnimationFrame(frame);
   } };
@@ -130,6 +144,14 @@ export function routeStyle(route, source, target, inverted = false) {
   const offset = (value) => Math.round(value * 1e6) / 1e6;
   if (sourcePort) style['source-endpoint'] = `${offset(sourcePort.x - start.x)}px ${offset(sourcePort.y - start.y)}px`;
   if (targetPort) style['target-endpoint'] = `${offset(targetPort.x - end.x)}px ${offset(targetPort.y - end.y)}px`;
+  if (route.list_leaf_endpoint) {
+    let endpoint = route.list_leaf_endpoint;
+    if (inverted) endpoint = endpoint === 'source' ? 'target' : 'source';
+    style.label = '';
+    style[endpoint + '-label'] = 'data(label)';
+    style[endpoint + '-text-offset'] = 30;
+    style[endpoint + '-text-rotation'] = 'none';
+  }
   return style;
 }
 
@@ -144,7 +166,7 @@ export function graphElements(result, positions = {}, routes = {}, options = {})
     const type = review ? 'cell_type' : (labels.includes('provenance') ? 'provenance' : node.display_type) || labels.find((label) => graphInfocard.nodes?.[label]?.info_panel) || 'coding_elements';
     const position = finitePoint(positions[node['~id']]) || { x: index * 36, y: 0 };
     const sample = review ? {} : samplePresentation(node, result);
-    const label = labels.includes('provenance') ? 'Metadata definition' : sample.sample_display_label || raw.name || node.display_label || raw.id || node['~id'];
+    const label = node.list_label || (labels.includes('provenance') ? 'Metadata definition' : sample.sample_display_label || raw.name || node.display_label || raw.id || node['~id']);
     return { data: { ...raw, ...sample, evidence_properties: { ...raw }, element_kind: 'node', id: node['~id'], label: displayWords(label).length > 55 ? displayWords(label).slice(0, 52) + '…' : displayWords(label), type, raw_labels: labels, Level: positions[node['~id']]?.Level || 'Core' }, position };
   });
   const byId = Object.fromEntries(nodes.map((node) => [node.data.id, node]));

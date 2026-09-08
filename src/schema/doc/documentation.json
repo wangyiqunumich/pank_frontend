@@ -18,6 +18,10 @@
                     {
                         "name": "Tutorials",
                         "id": "tutorial"
+                    },
+                    {
+                        "name": "Demo tools",
+                        "id": "demo_tools"
                     }
                 ]
             },

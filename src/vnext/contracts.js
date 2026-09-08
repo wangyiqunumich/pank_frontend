@@ -79,6 +79,11 @@ export function selectedResultParams(searchState, item) {
 const termId = (value = '') => String(value).split('@').slice(1).join('@');
 export function templateRequest(input) {
   const get = (key) => input instanceof URLSearchParams ? input.get(key) : input[key];
+  if (get('functional_filters')) {
+    const parameters = JSON.parse(get('functional_filters'));
+    if (!parameters || Array.isArray(parameters) || typeof parameters !== 'object') throw new Error('Invalid functional filters');
+    return {template_id:'functional_traces',parameters:Object.fromEntries(Object.entries(parameters).filter(([,v])=>v!==null && v!==undefined).map(([k,v])=>[k,String(v)]))};
+  }
   const source = get('sourceTerm') || '';
   const target = get('targetTerm') || '';
   const relationship = get('relationship');

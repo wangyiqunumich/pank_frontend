@@ -173,7 +173,7 @@ export default function GWASExplorerPage() {
   const handleContinue = () => {
     if (!canContinue) return;
     const snp = normalizeSnp(snpInput);
-    navigate(`/result-new?sourceTerm=snp@${snp}&relationship=GWAS&targetTerm=disease`);
+    navigate(`/intermediate?sourceTerm=snp@${encodeURIComponent(snp)}&relationship=GWAS&targetTerm=disease&resultLayout=new`);
   };
 
   return (

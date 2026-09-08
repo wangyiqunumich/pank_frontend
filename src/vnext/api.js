@@ -56,7 +56,7 @@ export function createPlanOnce(question, sessionId = '', intentKey = question) {
 }
 
 export function createResultOnce(payload) {
-  const key = `pank-vnext:result:${JSON.stringify(payload)}`;
+  const key = `pank-vnext:result:tools1:${JSON.stringify(payload)}`;
   if (inFlight.has(key)) return inFlight.get(key);
   const previous = readSaved(key);
   if (previous?.result_id) return Promise.resolve(previous);

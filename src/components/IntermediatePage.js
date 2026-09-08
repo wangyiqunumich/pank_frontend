@@ -451,7 +451,7 @@ function IntermediatePage({ onContinue }) {
       }
     ), {});
     // Map to tabs or single result
-    const mappedResult = tabsEnabled ? tabsQTL.map(({ label, data_source }) => (
+    const mappedResult = searchState.relationship === "GWAS" ? Object.entries(groupedResults).map(([label,result]) => ({label,result})) : tabsEnabled ? tabsQTL.map(({ label, data_source }) => (
       {
         label,
         result: groupedResults[data_source] || []
@@ -769,7 +769,7 @@ function IntermediatePage({ onContinue }) {
               <div className="styled-paper" style={{ padding: '10px 32px' }}>
                 <div className="answer-content">
                   <Typography sx={{ mb: 2, fontSize: 16, fontFamily: 'Open Sans', fontWeight: "400" }}>
-                    Found <span style={{ color: "#3A838B", fontWeight: "700" }}>four</span> categories of Quantitative Trait Loci (QTL) data, derived from pancreatic and islet tissue samples. {queryResult?.coverage?.complete === false && "These results cover currently indexed source files; additional associations may not yet be indexed."}
+                    <span style={{ color: "#3A838B", fontWeight: "700" }}>{searchState.relationship === "GWAS" ? "Select a recorded T1D GWAS signal to inspect its evidence." : "Select a QTL record from the pancreatic and islet datasets below."}</span> {queryResult?.coverage?.complete === false && "These results cover currently indexed source files; additional associations may not yet be indexed."}
                   </Typography>
 
                   <Alert
@@ -1050,7 +1050,7 @@ function IntermediatePage({ onContinue }) {
               </Typography>
               <IntermediateKG data={{
                 credible_sets: getFilteredResults().slice((currPage - 1) * 5, currPage * 5),
-                type: searchState.sourceTerm.includes("snp@") ? "qtl" : "qtl_lead",
+                type: searchState.relationship === "GWAS" ? "gwas" : searchState.sourceTerm.includes("snp@") ? "qtl" : "qtl_lead",
                 intersectPositions: [
                   searchState.sourceTerm.includes("@") ? ["right"] : [],
                   searchState.targetTerm.includes("@") ? ["left"] : []

@@ -38,7 +38,6 @@ import {
 import AgentSidebar from '../components/AgentSidebar';
 import BoxSvg from '../image/Box.svg';
 import functionalDataApi from '../utils/functionalDataApi';
-import { buildFunctionalPlotPrompt } from '../utils/functionalPromptBuilder';
 import functionalDataContent from './functionalDataContent.json';
 
 const SEL_SX = {
@@ -649,13 +648,7 @@ export default function FunctionalDataPage() {
         ...getFilters(),
         trace_type: responseType,
       };
-      const currentData = await functionalDataApi.getCohortTraces(responseType, getFilters());
-      const prompt = buildFunctionalPlotPrompt({
-        filters,
-        currentData,
-      });
-      const encodedQuery = encodeURIComponent(utf8ToBase64(prompt));
-      navigate(`/result-new2?question=${encodedQuery}&prompt_source=functional_data_auto`);
+      navigate(`/result-new?functional_filters=${encodeURIComponent(JSON.stringify(filters))}`);
     } catch (err) {
       console.error('Failed to build Step 2 prompt:', err);
     } finally {

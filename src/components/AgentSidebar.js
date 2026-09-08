@@ -43,6 +43,8 @@ function SidebarButton({ active, icon, label, onClick, open }) {
   const button = (
     <Button
       disableElevation
+      aria-label={label}
+      aria-current={active ? "page" : undefined}
       onClick={onClick}
       sx={{
         minWidth: 0,
@@ -217,6 +219,8 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
           ) : null}
           <Tooltip title={open ? 'Collapse sidebar' : 'Expand sidebar'} placement="right" arrow>
             <IconButton
+              aria-label={open ? "Collapse sidebar" : "Expand sidebar"}
+              aria-expanded={open}
               onClick={() => setOpen((v) => !v)}
               size="small"
               sx={{

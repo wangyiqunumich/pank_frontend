@@ -5,8 +5,8 @@
  * Base URL: https://functional.pankgraph.org
  */
 
-const BASE_URL = process.env.REACT_APP_FUNCTIONAL_DATA_API_URL || 
-  'https://functional.pankgraph.org';
+import { apiPath } from '../vnext/api';
+const BASE_URL = apiPath('/functional');
 
 /**
  * Health check endpoint

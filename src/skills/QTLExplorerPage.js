@@ -121,8 +121,7 @@ function QtlTermAutocomplete({
 
     try {
       const response = await dispatch(queryQueryResult({
-        isNeptune: false,
-        query: `SELECT id, name FROM gene_name WHERE name % '${keyWord}'ORDER BY similarity(name, '${keyWord}') DESC LIMIT 5;`,
+        kind: 'gene', term: keyWord,
       })).unwrap();
 
       if (String(newInputValue || '') !== inputValueRef.current) return;

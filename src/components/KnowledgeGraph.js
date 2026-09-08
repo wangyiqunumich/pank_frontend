@@ -1231,7 +1231,7 @@ export default function KnowledgeGraph({ onEvidenceInspect, selectable = false, 
       setZoomLevel(zoom);
       setInitZoom(zoom);
       setMinimumZoom(minZoom);
-    });
+    }, window, (graphData || queryResultPage?.combined_query_result)?.presentation_mode === "relationship_list");
     viewportRef.current = viewport;
     if (selectable) {
       cy.on("select", "node, edge", (evt) => {

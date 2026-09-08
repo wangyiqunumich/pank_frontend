@@ -297,7 +297,24 @@
                     ]
                 ]
             },
-            "template_id": "gwas_by_variant"
+            "template_id": "gwas_by_variant",
+            "intermediate_page_table": [
+                {
+                    "Credible set": "credible_set"
+                },
+                {
+                    "Lead SNP": "snp"
+                },
+                {
+                    "PIP": "pip"
+                },
+                {
+                    "P value": "p_value"
+                },
+                {
+                    "#": "n_snp"
+                }
+            ]
         }
     },
     "gene - COLOC - disease": {

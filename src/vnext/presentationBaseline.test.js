@@ -86,6 +86,9 @@ test('conventional schema retains all presentation values while stripping execut
   };
   const current = JSON.parse(fs.readFileSync('src/schema/visualization_schema.json', 'utf8'));
   const original = JSON.parse(upstream('src/schema/visualization_schema.json'));
+  // Requested GWAS record selection reuses the existing table component.
+  expect(current["snp - GWAS - disease"]["specific - relationship - general"].intermediate_page_table).toEqual([{ "Credible set":"credible_set" },{"Lead SNP":"snp"},{"PIP":"pip"},{"P value":"p_value"},{"#":"n_snp"}]);
+  delete current["snp - GWAS - disease"]["specific - relationship - general"].intermediate_page_table;
   expect(clean(current, true)).toEqual(clean(original));
   expect(JSON.stringify(current)).not.toMatch(/SELECT |MATCH \(/);
   expect(Object.values(current).flatMap(Object.values).every((template) => Boolean(template.template_id))).toBe(true);

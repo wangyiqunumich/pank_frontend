@@ -5,6 +5,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { AuthContext } from 'react-oidc-context';
 import { BASE_PATH } from './vnext/api';
+import ToolPageLayout from './vnext/ToolPageLayout';
 import { ErrorComponent } from './components/IntermediatePage';
 import { Provider } from 'react-redux';
 import {
@@ -25,6 +26,10 @@ import MatchPage from './components/MatchPage';
 import PkbFooter from './Footer/footer';
 import NavBar from './NavBar';
 import DocPage from './pages/DocPage';
+import SkillsPage from './pages/SkillsPage';
+import QTLExplorerPage from './skills/QTLExplorerPage';
+import GWASExplorerPage from './skills/GWASExplorerPage';
+import FunctionalDataPage from './skills/FunctionalDataPage';
 import Ontology from './pages/Ontology';
 import Pipeline from './pages/Pipeline';
 import QTLDataSource from './pages/QTL_data_source';
@@ -61,7 +66,7 @@ root.render(
               <Routes>
                 <Route path="/pipeline" element={<Pipeline />} />
                 <Route path="/qtldatasource" element={<QTLDataSource />} />
-                <Route path="/intermediate" element={<IntermediatePage />} />
+                <Route path="/intermediate" element={<ToolPageLayout><IntermediatePage /></ToolPageLayout>} />
                 <Route path="/ontology" element={<Ontology />} />
                 <Route path="/statistics" element={<StatPage />} />
                 {/* <Route path="/api" element={<ApiPage />} /> */}
@@ -79,10 +84,10 @@ root.render(
                 <Route path="/docs/*" element={<DocPage />} />
                 <Route path="/match" element={<MatchPage />} />
                 <Route path="/review/*" element={<Unavailable />} />
-                <Route path="/skills" element={<Unavailable />} />
-                <Route path="/qtl-explorer" element={<Unavailable />} />
-                <Route path="/gwas-explorer" element={<Unavailable />} />
-                <Route path="/functional-data" element={<Unavailable />} />
+                <Route path="/skills" element={<SkillsPage />} />
+                <Route path="/qtl-explorer" element={<QTLExplorerPage />} />
+                <Route path="/gwas-explorer" element={<GWASExplorerPage />} />
+                <Route path="/functional-data" element={<FunctionalDataPage />} />
                 <Route path="/hirn-literature" element={<Unavailable />} />
                 <Route path="/agent-landing" element={<Navigate to="/" replace />} />
                 <Route path="/old-landing" element={<LandingPage />} />
