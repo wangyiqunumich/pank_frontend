@@ -1,3 +1,4 @@
+import { samplePresentation } from './samplePresentation';
 const point = (value) => Array.isArray(value) ? { x: value[0], y: value[1] } : value;
 const finitePoint = (value) => { const p = point(value); return p && Number.isFinite(p.x) && Number.isFinite(p.y) ? p : null; };
 
@@ -141,8 +142,9 @@ export function graphElements(result, positions = {}, routes = {}, options = {})
     const labels = node['~labels'] || [];
     const type = review ? 'cell_type' : node.display_type || labels.find((label) => graphInfocard.nodes?.[label]?.info_panel) || 'coding_elements';
     const position = finitePoint(positions[node['~id']]) || { x: index * 36, y: 0 };
-    const label = node.display_label || raw.name || raw.id || node['~id'];
-    return { data: { ...raw, id: node['~id'], label: String(label).replace(/_/g, ' '), type, raw_labels: labels, Level: positions[node['~id']]?.Level || 'Core' }, position };
+    const sample = review ? {} : samplePresentation(node, result);
+    const label = sample.sample_display_label || node.display_label || raw.name || raw.id || node['~id'];
+    return { data: { ...raw, ...sample, id: node['~id'], label: String(label).replace(/_/g, ' '), type, raw_labels: labels, Level: positions[node['~id']]?.Level || 'Core' }, position };
   });
   const byId = Object.fromEntries(nodes.map((node) => [node.data.id, node]));
   const edgeStyles = new Map();

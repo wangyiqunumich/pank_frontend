@@ -1094,26 +1094,34 @@
             "info_panel": [
                 [
                     "Title",
-                    "note"
+                    "sample_title"
                 ],
                 [
                     "Identity",
                     [
                         [
-                            "Data Modality",
-                            "Data Modality"
+                            "Sample ID",
+                            "sample_record_id"
                         ],
                         [
-                            "Anatomical Structure",
-                            "anatomical_structure"
+                            "Linked donor",
+                            "sample_donors"
                         ],
                         [
-                            "Note",
-                            "note"
+                            "Assay (recorded)",
+                            "sample_assay"
+                        ],
+                        [
+                            "Tissue / cell fraction",
+                            "sample_tissue"
+                        ],
+                        [
+                            "Sample notes",
+                            "sample_note"
                         ],
                         [
                             "Contact",
-                            "contact"
+                            "sample_contact"
                         ]
                     ]
                 ],
@@ -1122,7 +1130,11 @@
                     [
                         [
                             "Data Source",
-                            "data_source"
+                            "sample_source"
+                        ],
+                        [
+                            "Record version",
+                            "sample_version"
                         ]
                     ]
                 ]

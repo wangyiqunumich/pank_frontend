@@ -50,3 +50,14 @@ test('unmapped edges expose raw evidence safely, and missing evidence-properties
   const old = edgeInfocardModel({ id: 'legacy', source: 'gene', target: 'cell', type: 'relationship', score: 0, provenance: { version: 1 } });
   expect(old.rawProperties).toEqual({ score: 0, provenance: { version: 1 } });
 });
+
+test('sample popup has a descriptive title, exact ID and correctly bound recorded fields', () => {
+  const { samplePresentation } = require('./samplePresentation');
+  const sample = {'~id':'fixture_123','~labels':['Sample_node'],'~properties':{id:'fixture_123',data_modality:'Perifusion',anatomical_structure:'Islet',data_source:'Metadata',data_version:'release_fixture'}};
+  render(<InfocardMenu hoveredData={{id:sample['~id'],type:'Sample node',...samplePresentation(sample,{nodes:[sample],edges:[]})}} />);
+  expect(screen.getByText('Perifusion · Islet')).toBeTruthy();
+  expect(screen.getByText('Sample ID').parentElement.textContent).toContain('fixture_123');
+  expect(screen.getByText('Assay (recorded)').parentElement.textContent).toContain('Perifusion');
+  expect(screen.getByText('Tissue / cell fraction').parentElement.textContent).toContain('Islet');
+  expect(screen.queryByText('No Data')).toBeNull();
+});
