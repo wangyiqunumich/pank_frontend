@@ -151,3 +151,14 @@ test('terminology interpretation and historical advisory use existing plan text'
   expect(text).toContain('RNA includes documented multiome components.');
   expect(text).toContain('Rerun this saved donor result.');
 });
+
+test('groups multiple checks without dropping their readable scope', () => {
+  const run = {plan:{steps:[
+    {id:'a',title:'Check detection'}, {id:'b',title:'Check enrichment'}, {id:'c',title:'Check genetic support'}
+  ],display_groups:[{id:'cells',title:'Cell context',step_ids:['a','b']},{id:'genetics',title:'Genetic evidence',step_ids:['c']}]}};
+  const text = planMarkdown(run);
+  expect(text).toContain('Cell context');
+  expect(text).toContain('Check detection (after confirmation)');
+  expect(text).toContain('Check enrichment (after confirmation)');
+  expect(text).toContain('Genetic evidence');
+});

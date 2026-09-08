@@ -112,7 +112,20 @@ export function applyRunEvent(state, event) {
 
 export function planMarkdown(run) {
   const plan = run?.plan || {};
-  const text = (plan.steps || []).map((step, index) => {
+  const checks = plan.steps || [];
+  const displaySteps = plan.display_groups?.length && checks.length > 2
+    ? plan.display_groups.map(group => ({
+        title: group.title,
+        question: group.title,
+        rationale: group.step_ids.map(id => {
+          const check = checks.find(s => s.id === id);
+          const outcome = run.preview?.evidence?.steps?.find(s => s.step_id === id)?.status;
+          const status = {complete:'initial evidence available',empty:'no matching records',failed:'retrieval failed',partial:'partial evidence'}[outcome] || 'after confirmation';
+          return `${check?.title || check?.question || id} (${status})`;
+        }).join('; '),
+        resolved_entities: group.step_ids.flatMap(id => checks.find(s => s.id === id)?.resolved_entities || []),
+      })) : checks;
+  const text = displaySteps.map((step, index) => {
     const entities = (step.resolved_entities || []).map((entity) => {
       if (entity.state === 'resolved') return `${entity.name || entity.id} (${entity.id})`;
       return `${entity.requested?.value || 'Entity'}: ${entity.state}${entity.candidates?.length ? `; candidates: ${entity.candidates.map((c) => `${c.name} (${c.id})`).join(', ')}` : ''}`;
