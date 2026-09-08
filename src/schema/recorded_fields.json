@@ -1,0 +1,1033 @@
+{
+  "version": "2026-09-07.1",
+  "graph_release": "PanKgraph_08_04",
+  "fields": {
+    "HGVS_name": {
+      "label": "Standard sequence-change name (HGVS)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "aab_pos_ocr_gene_activity_score_mean": {
+      "label": "Autoantibody positive open chromatin gene activity score mean",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "Gene activity estimated from open chromatin; this is distinct from measured RNA expression."
+    },
+    "aab_pos_ocr_gene_activity_score_median": {
+      "label": "Autoantibody positive open chromatin gene activity score median",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "Gene activity estimated from open chromatin; this is distinct from measured RNA expression."
+    },
+    "aab_state": {
+      "label": "Autoantibody state",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "adjusted_p_value": {
+      "label": "Adjusted P-value",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "P-value adjusted for multiple tests; smaller values indicate stronger statistical evidence under the test assumptions."
+    },
+    "age": {
+      "label": "Age (recorded)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "alt": {
+      "label": "Alternative allele",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "alt_id_entrez": {
+      "label": "Alternative gene ID (Entrez)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "anatomical_structure": {
+      "label": "Tissue / cell fraction",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "assembly": {
+      "label": "Genome assembly (source field)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "author": {
+      "label": "Author",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "base_mean": {
+      "label": "Mean normalized counts",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "biogrid_id_interactor_a": {
+      "label": "BioGRID ID of interaction partner A",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "biogrid_id_interactor_b": {
+      "label": "BioGRID ID of interaction partner B",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "biogrid_interaction_id": {
+      "label": "BioGRID interaction ID",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "bmi": {
+      "label": "Body mass index (BMI)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "c_peptide_ng_ml": {
+      "label": "C-peptide (ng/mL)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "category": {
+      "label": "Category",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "cause_of_death": {
+      "label": "Cause of death",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "cell_type": {
+      "label": "Cell type",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "cell_type_label": {
+      "label": "Cell type label",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "cell_type_name": {
+      "label": "Cell type name",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "cell_type_source_column": {
+      "label": "Cell type source column",
+      "section": "Sources and record details",
+      "format": "recorded"
+    },
+    "center_donor_id": {
+      "label": "Center donor ID",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "chr": {
+      "label": "Chromosome",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "coloc_dataset": {
+      "label": "Colocalization analysis dataset",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "common_snp": {
+      "label": "Common-variant flag (recorded)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "comparison": {
+      "label": "Comparison",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "condition": {
+      "label": "Condition",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "contact": {
+      "label": "Recorded contact",
+      "section": "Sources and record details",
+      "format": "recorded"
+    },
+    "creation_date": {
+      "label": "Creation date",
+      "section": "Sources and record details",
+      "format": "recorded"
+    },
+    "credible_set": {
+      "label": "Credible-set ID (recorded)",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "A set of candidate variants representing a genetic signal under the source model; membership does not prove causation."
+    },
+    "credible_set_id": {
+      "label": "Credible set ID",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "A set of candidate variants representing a genetic signal under the source model; membership does not prove causation."
+    },
+    "credible_set_purity": {
+      "label": "Credible-set purity (source definition)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "credible_set_size": {
+      "label": "Number of variants in credible set",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "credibleset": {
+      "label": "Credible-set ID (alternate source field)",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "A set of candidate variants representing a genetic signal under the source model; membership does not prove causation."
+    },
+    "data_modality": {
+      "label": "Assay (recorded)",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "Recorded assay label. An indexed sample does not establish that downloadable files are available."
+    },
+    "data_source": {
+      "label": "Data source",
+      "section": "Sources and record details",
+      "format": "recorded"
+    },
+    "data_source_url": {
+      "label": "Source link",
+      "section": "Sources and record details",
+      "format": "link"
+    },
+    "data_version": {
+      "label": "Source version",
+      "section": "Sources and record details",
+      "format": "recorded"
+    },
+    "dataset_source": {
+      "label": "Dataset source",
+      "section": "Sources and record details",
+      "format": "recorded"
+    },
+    "deg_source_file": {
+      "label": "Differential expression source file",
+      "section": "Sources and record details",
+      "format": "recorded"
+    },
+    "derived_diabetes_status": {
+      "label": "Derived diabetes classification",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "description": {
+      "label": "Description",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "detection_rule": {
+      "label": "Detection rule",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "diabetes_duration": {
+      "label": "Diabetes duration (recorded; source units)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "diabetes_type": {
+      "label": "Diabetes type",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "donation_type": {
+      "label": "Donation type",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "effect_allele": {
+      "label": "Effect allele",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "effect_direction": {
+      "label": "Effect direction",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "effector_gene_list_url": {
+      "label": "Effector gene list link",
+      "section": "Recorded evidence",
+      "format": "link"
+    },
+    "end_id": {
+      "label": "Target record ID",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "end_loc": {
+      "label": "End position (source coordinate convention)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "ensembl_gene_version": {
+      "label": "Ensembl gene version",
+      "section": "Sources and record details",
+      "format": "recorded"
+    },
+    "entrez_id_a": {
+      "label": "Entrez gene ID of partner A",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "entrez_id_b": {
+      "label": "Entrez gene ID of partner B",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "es": {
+      "label": "Enrichment score (ES)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "evidence": {
+      "label": "Evidence",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "experimental_system": {
+      "label": "Experimental system",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "experimental_system_type": {
+      "label": "Experimental system type",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "expression_call": {
+      "label": "Recorded expression classification",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "expression_cell_type": {
+      "label": "Expression cell type",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "expression_source_file": {
+      "label": "Expression source file",
+      "section": "Sources and record details",
+      "format": "recorded"
+    },
+    "expression_support_match": {
+      "label": "How expression evidence was matched",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "expression_support_rule": {
+      "label": "Rule for supporting expression evidence",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "family_history_of_diabetes": {
+      "label": "Family history of diabetes",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "freq": {
+      "label": "Allele frequencies (recorded)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "gc_content": {
+      "label": "GC content (recorded; source units)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "gender": {
+      "label": "Gender (recorded)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "gene_mapping_source": {
+      "label": "Gene mapping source",
+      "section": "Sources and record details",
+      "format": "recorded"
+    },
+    "gene_name": {
+      "label": "Gene name",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "gene_source_column": {
+      "label": "Gene source column",
+      "section": "Sources and record details",
+      "format": "recorded"
+    },
+    "gene_symbol": {
+      "label": "Gene symbol",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "gene_type": {
+      "label": "Gene type",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "genome_assembly": {
+      "label": "Genome assembly",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "go_domain": {
+      "label": "GO category",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "go_evidence_code": {
+      "label": "Basis of GO annotation",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "Describes how a gene-function annotation is supported; annotation is not the same as measured enrichment."
+    },
+    "gwas_lead_vars": {
+      "label": "GWAS lead variants",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "gwas_locus_name": {
+      "label": "GWAS locus name",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "gwas_signal_id": {
+      "label": "GWAS signal ID",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "hba1c_percentage": {
+      "label": "Glycated hemoglobin (HbA1c, %)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "hgnc_id": {
+      "label": "HGNC ID",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "hgnc_symbol": {
+      "label": "HGNC symbol",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "hla_status": {
+      "label": "Immune-system gene status (HLA)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "hla_typing": {
+      "label": "Immune-system gene typing (HLA)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "hospital_stay_hours": {
+      "label": "Hospital stay hours",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "id": {
+      "label": "Record ID",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "in_3prime_gene_region": {
+      "label": "In 3\u2032 gene region",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "in_3prime_utr": {
+      "label": "In 3\u2032 untranslated region",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "in_5prime_gene_region": {
+      "label": "In 5\u2032 gene region",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "in_5prime_utr": {
+      "label": "In 5\u2032 untranslated region",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "in_acceptor_splice_site": {
+      "label": "In splice acceptor site",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "in_donor_splice_site": {
+      "label": "In splice donor site",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "in_intron": {
+      "label": "In intron",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "karyotype_band": {
+      "label": "Chromosome band",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "lbf": {
+      "label": "Log Bayes factor (source scale)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "lead_status": {
+      "label": "Lead-variant status",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "leading_edge": {
+      "label": "Genes contributing to enrichment",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "lfc_se": {
+      "label": "Standard error of log2 fold change",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "locus_name": {
+      "label": "Locus name",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "log2_fold_change": {
+      "label": "Log2 fold change",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "Difference on a base-2 log scale; +1 corresponds to a two-fold ratio. Direction depends on the recorded comparison."
+    },
+    "log2err": {
+      "label": "P-value uncertainty estimate (log2 scale)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "max_donor_log_cpm": {
+      "label": "Max donor log counts per million",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "max_pct_cells_expressing": {
+      "label": "Max percentage cells expressing",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "mean_donor_cpm": {
+      "label": "Mean donor counts per million",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "mean_donor_log_cpm": {
+      "label": "Mean donor log counts per million",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "mean_pct_cells_expressing": {
+      "label": "Mean percentage cells expressing",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "median_donor_cpm": {
+      "label": "Median donor counts per million",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "median_donor_log_cpm": {
+      "label": "Median donor log counts per million",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "median_pct_cells_expressing": {
+      "label": "Median percentage cells expressing",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "method": {
+      "label": "Method",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "min_donor_log_cpm": {
+      "label": "Min donor log counts per million",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "min_expression_log_cpm_threshold": {
+      "label": "Min expression log counts per million threshold",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "min_expression_pct_threshold": {
+      "label": "Min expression percentage threshold",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "min_median_log_cpm_threshold": {
+      "label": "Min median log counts per million threshold",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "min_median_pct_cells_threshold": {
+      "label": "Min median percentage cells threshold",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "modifications": {
+      "label": "Modifications",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "n_snp": {
+      "label": "Number of variants",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "name": {
+      "label": "Name",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "nes": {
+      "label": "Normalized enrichment score (NES)",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "Enrichment in a ranked gene list. Interpret sign using the recorded comparison; it does not by itself show pathway activation."
+    },
+    "nominal_p": {
+      "label": "Unadjusted P-value",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "A P-value measures compatibility with the test\u2019s null model, not the probability that a biological claim is true."
+    },
+    "non_diabetic_ocr_gene_activity_score_mean": {
+      "label": "Non diabetic open chromatin gene activity score mean",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "Gene activity estimated from open chromatin; this is distinct from measured RNA expression."
+    },
+    "non_diabetic_ocr_gene_activity_score_median": {
+      "label": "Non diabetic open chromatin gene activity score median",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "Gene activity estimated from open chromatin; this is distinct from measured RNA expression."
+    },
+    "non_effect_allele": {
+      "label": "Non effect allele",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "non_synonymous_frameshift": {
+      "label": "Reading-frame change flag",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "non_synonymous_missense": {
+      "label": "Protein-changing missense flag",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "non_synonymous_nonsense": {
+      "label": "Premature-stop flag",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "note": {
+      "label": "Sample notes",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "nsnp": {
+      "label": "Number of variants tested",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "ocr_gene_activity_score_mean": {
+      "label": "Open chromatin gene activity score mean",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "Gene activity estimated from open chromatin; this is distinct from measured RNA expression."
+    },
+    "ocr_gene_activity_score_median": {
+      "label": "Open chromatin gene activity score median",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "Gene activity estimated from open chromatin; this is distinct from measured RNA expression."
+    },
+    "official_symbol_interactor_a": {
+      "label": "Gene symbol of partner A",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "official_symbol_interactor_b": {
+      "label": "Gene symbol of partner B",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "organism_id_interactor_a": {
+      "label": "Species taxonomy ID of partner A",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "organism_id_interactor_b": {
+      "label": "Species taxonomy ID of partner B",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "other_allele": {
+      "label": "Other allele",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "other_disease_records": {
+      "label": "Other disease records",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "other_therapy": {
+      "label": "Other therapy",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "p_value": {
+      "label": "P-value",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "A P-value measures compatibility with the test\u2019s null model, not the probability that a biological claim is true."
+    },
+    "padj": {
+      "label": "Adjusted P-value",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "P-value adjusted for multiple tests; smaller values indicate stronger statistical evidence under the test assumptions."
+    },
+    "pancdb_id": {
+      "label": "PANC-DB ID",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "pankbase_id": {
+      "label": "PanKbase ID",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "pathway_collection": {
+      "label": "Pathway collection",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "pathway_name": {
+      "label": "Pathway name",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "pathway_term": {
+      "label": "Pathway term",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "pip": {
+      "label": "Variant inclusion probability (PIP)",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "Model-based probability that this variant is included in the signal. It is not experimental proof of causation."
+    },
+    "pip_rank": {
+      "label": "Rank by inclusion probability",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "pp_h0_abf": {
+      "label": "Colocalization probability H0: neither trait associated",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "Support for a shared causal variant under the colocalization model; depends on its assumptions and priors. It does not prove a biological mechanism. Trait 1/2 follow the source analysis order."
+    },
+    "pp_h1_abf": {
+      "label": "Colocalization probability H1: only trait 1 associated",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "Support for a shared causal variant under the colocalization model; depends on its assumptions and priors. It does not prove a biological mechanism. Trait 1/2 follow the source analysis order."
+    },
+    "pp_h2_abf": {
+      "label": "Colocalization probability H2: only trait 2 associated",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "Support for a shared causal variant under the colocalization model; depends on its assumptions and priors. It does not prove a biological mechanism. Trait 1/2 follow the source analysis order."
+    },
+    "pp_h3_abf": {
+      "label": "Colocalization probability H3: both traits, different causal variants",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "Support for a shared causal variant under the colocalization model; depends on its assumptions and priors. It does not prove a biological mechanism. Trait 1/2 follow the source analysis order."
+    },
+    "pp_h4_abf": {
+      "label": "Colocalization probability H4: both traits, shared causal variant",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "Support for a shared causal variant under the colocalization model; depends on its assumptions and priors. It does not prove a biological mechanism. Trait 1/2 follow the source analysis order."
+    },
+    "predicted_genetic_ancestry": {
+      "label": "Predicted genetic ancestry",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "publication_source": {
+      "label": "Publication source",
+      "section": "Sources and record details",
+      "format": "recorded"
+    },
+    "purity": {
+      "label": "Credible-set purity (source definition)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "pval": {
+      "label": "P-value",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "A P-value measures compatibility with the test\u2019s null model, not the probability that a biological claim is true."
+    },
+    "pvalue": {
+      "label": "P-value",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "A P-value measures compatibility with the test\u2019s null model, not the probability that a biological claim is true."
+    },
+    "qtl_lead_vars": {
+      "label": "QTL lead variants",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "qtl_locus_name": {
+      "label": "QTL locus name",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "qtl_signal_id": {
+      "label": "QTL signal ID",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "qualifications": {
+      "label": "Qualifications",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "race": {
+      "label": "Race (recorded)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "rank_in_cell_type": {
+      "label": "Rank in cell type",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "ref": {
+      "label": "Reference allele",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "rrid": {
+      "label": "Research resource ID",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "score": {
+      "label": "Score",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "se_of_log2_fold_change": {
+      "label": "Standard error of log2 fold change",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "sex_at_birth": {
+      "label": "Sex at birth (recorded)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "size": {
+      "label": "Gene-set size in analysis",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "slope": {
+      "label": "Estimated effect (source units)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "source_file": {
+      "label": "Source file",
+      "section": "Sources and record details",
+      "format": "recorded"
+    },
+    "source_row": {
+      "label": "Source row",
+      "section": "Sources and record details",
+      "format": "recorded"
+    },
+    "start_id": {
+      "label": "Source record ID",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "start_loc": {
+      "label": "Start position (source coordinate convention)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "stat": {
+      "label": "Test statistic",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "strand": {
+      "label": "Strand",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "Reference-sequence orientation as recorded. The viewer does not reinterpret the source encoding."
+    },
+    "synonyms": {
+      "label": "Synonyms",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "t1d_stage": {
+      "label": "Type 1 diabetes stage (recorded)",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "Clinical stage as recorded by the source; this viewer does not assign or verify a diagnosis."
+    },
+    "throughput": {
+      "label": "Experiment scale (throughput)",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "tissue_id": {
+      "label": "Tissue ID",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "tissue_name": {
+      "label": "Tissue name",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "total_cells": {
+      "label": "Total cells",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "type": {
+      "label": "Recorded type",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "type_1_diabetes_ocr_gene_activity_score_mean": {
+      "label": "Type 1 diabetes open chromatin gene activity score mean",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "Gene activity estimated from open chromatin; this is distinct from measured RNA expression."
+    },
+    "type_1_diabetes_ocr_gene_activity_score_median": {
+      "label": "Type 1 diabetes open chromatin gene activity score median",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "Gene activity estimated from open chromatin; this is distinct from measured RNA expression."
+    },
+    "type_2_diabetes_ocr_gene_activity_score_mean": {
+      "label": "Type 2 diabetes open chromatin gene activity score mean",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "Gene activity estimated from open chromatin; this is distinct from measured RNA expression."
+    },
+    "type_2_diabetes_ocr_gene_activity_score_median": {
+      "label": "Type 2 diabetes open chromatin gene activity score median",
+      "section": "Recorded evidence",
+      "format": "recorded",
+      "help": "Gene activity estimated from open chromatin; this is distinct from measured RNA expression."
+    },
+    "up_or_down_regulation": {
+      "label": "Direction of expression change",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    },
+    "variant_suspect_reason": {
+      "label": "Recorded variant-quality concern",
+      "section": "Recorded evidence",
+      "format": "recorded"
+    }
+  },
+  "node_types": [
+    "GO_term",
+    "Gene",
+    "OCR_peak",
+    "Sample_node",
+    "anatomical_structure",
+    "data_modality",
+    "deletion",
+    "disease",
+    "donor",
+    "indel",
+    "insertion",
+    "kegg",
+    "ontology",
+    "provenance",
+    "reactome",
+    "regulatory_elements",
+    "sequence_variant",
+    "snv",
+    "variants"
+  ],
+  "edge_types": [
+    "ADJACENT_TO",
+    "ASSOCIATED_WITH_GO",
+    "EFFECTOR_GENE_OF",
+    "FGSEA_ENRICHED_IN",
+    "FUNCTION_ANNOTATION",
+    "GENETIC_INTERACTION",
+    "GENE_ACTIVITY_SCORE_IN",
+    "GENE_DETECTED_IN",
+    "GENE_ENRICHED_IN",
+    "HAS_CELL_TYPE",
+    "HAS_DONOR",
+    "HAS_SAMPLE",
+    "HAS_STATE",
+    "LYMPH_FLOWS_TO",
+    "MARKER_GENE_OF",
+    "OCR_PEAK_IN",
+    "PART_OF",
+    "PART_OF_GWAS_SIGNAL",
+    "PART_OF_QTL_SIGNAL",
+    "PHYSICAL_INTERACTION",
+    "REPRESENTS_COMPOSITE_LABEL",
+    "SIGNAL_COLOC_WITH",
+    "SUBCLASS_OF",
+    "T1D_DEG_IN"
+  ],
+  "sources": [
+    "https://geneontology.org/docs/guide-go-evidence-codes/",
+    "https://chr1swallace.github.io/coloc/articles/a04_sensitivity.html"
+  ]
+}

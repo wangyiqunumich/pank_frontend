@@ -176,14 +176,14 @@
                         ],
                         [
                             "Link",
-                            "url",
+                            "data_source_url",
                             "link"
                         ]
                     ]
                 ],
                 [
                     "Description",
-                    "definition"
+                    "description"
                 ],
                 [
                     "Footer",
@@ -280,7 +280,7 @@
                     [
                         [
                             "Data Source",
-                            "link",
+                            "data_source_url",
                             "link"
                         ]
                     ]
@@ -310,8 +310,8 @@
                             "id"
                         ],
                         [
-                            "Ensembl",
-                            "link",
+                            "Source link",
+                            "data_source_url",
                             "link"
                         ]
                     ]
@@ -349,9 +349,9 @@
                     "Sequence Features",
                     [
                         [
-                            "GC Content",
-                            "GC_percentage",
-                            "label_percentage(#F0960B)"
+                            "GC content (source units)",
+                            "gc_content",
+                            "recorded"
                         ]
                     ]
                 ],
@@ -936,12 +936,12 @@
                             "gender"
                         ],
                         [
-                            "Genetic sex",
+                            "Sex at birth (recorded)",
                             "sex_at_birth"
                         ],
                         [
-                            "Self-reported race",
-                            "Race"
+                            "Race (recorded)",
+                            "race"
                         ],
                         [
                             "Cause of Death",

@@ -1,6 +1,7 @@
 "use client";
 
 import './styles.css';
+import { recordedInfocardModel, recordedText } from '../vnext/recordedPresentation';
 
 import React, {
   useEffect,
@@ -111,6 +112,8 @@ const InfocardData = ({ value, config, dataKey }) => {
   // config can be either just a type or the form "type(setting)""
   const setting = config?.match(/\(([^)]+)\)/)?.[1];
   const type = setting ? config.split('(')[0] : config;
+  if (type === 'recorded') return <>{recordedText(value).match(/[\s\S]{1,24}/gu)?.map((part, index) => <React.Fragment key={index}>{part}<wbr /></React.Fragment>)}</>;
+  if (type !== 'string' && type !== 'link_static' && (value === null || value === undefined || value === '')) return <>Not recorded</>;
   return type === 'raw' ? <>{formatEvidenceValue(value).match(/[\s\S]{1,16}/gu)?.map((part, index) =>
     <React.Fragment key={index}>{part}<wbr /></React.Fragment>)}</> :
     !type ? (<>{value === null || value === undefined || value === '' ? "No Data" :
@@ -119,7 +122,7 @@ const InfocardData = ({ value, config, dataKey }) => {
       <>{dataKey || "No Data"}</>
     ) :
       type === "list" ? ( //string, remove all [] and ''
-        <>{value.replace(/[\[\]']+/g, '') || "None"}</>
+        <>{recordedText(value) || "None"}</>
       ) :
         type === "int" ? (
           <>{value !== undefined ? parseInt(value).toLocaleString() : "No Data"}</>
@@ -617,11 +620,11 @@ export function edgeInfocardModel(data, baseSchema) {
 }
 
 export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
-  const isEdge = incomingData?.source && incomingData?.target;
+  const isEdge = incomingData?.element_kind ? incomingData.element_kind === 'edge' : incomingData?.source && incomingData?.target;
   const baseSchema =
     review ? isEdge ? graphInfocardReview?.edges["relationship"].info_panel : graphInfocardReview?.nodes["All nodes"].info_panel :
       (isEdge ? graphInfocard?.edges : graphInfocard?.nodes)?.[incomingData?.type]?.info_panel;
-  const { data: hoveredData, schema, rawProperties } = isEdge && !review ? edgeInfocardModel(incomingData, baseSchema)
+  const { data: hoveredData, schema, rawProperties } = !review && incomingData?.evidence_properties ? recordedInfocardModel(incomingData, isEdge) : isEdge && !review ? edgeInfocardModel(incomingData, baseSchema)
     : { data: incomingData, schema: baseSchema, rawProperties: {} };
   const titleColumn = schema?.find(([label, _]) => label === "Title");
   const footerInfo = schema?.find(([label, _]) => label === "Footer")?.[1];
@@ -654,7 +657,7 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
               fontSize: "20px",
               lineHeight: "20px",
             }}>
-              <InfocardData value={hoveredData[titleColumn?.[1]]?.replace(/_/g, " ")} dataKey={titleColumn?.[1]} config={titleDisplayConfig} />
+              <InfocardData value={recordedText(hoveredData[titleColumn?.[1]])} dataKey={titleColumn?.[1]} config={titleDisplayConfig} />
             </Typography>
           </Box>
           {
@@ -699,8 +702,8 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
                             }}>
                               {
                                 Array.isArray(content) ? (
-                                  content.map(([label, key, config]) => ( // Data Row
-                                    <Box key={key} sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                                  content.map(([label, key, config, sourceKey]) => ( // Data Row
+                                    <Box key={key} data-field={sourceKey || key} title={sourceKey ? `Recorded field: ${sourceKey}` : undefined} sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
                                       <Typography sx={{
                                         fontFamily: "Open Sans",
                                         fontWeight: "600",

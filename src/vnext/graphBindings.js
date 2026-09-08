@@ -140,11 +140,11 @@ export function graphElements(result, positions = {}, routes = {}, options = {})
   const nodes = [...unique.values()].map((node, index) => {
     const raw = node[propertyKey] || {};
     const labels = node['~labels'] || [];
-    const type = review ? 'cell_type' : node.display_type || labels.find((label) => graphInfocard.nodes?.[label]?.info_panel) || 'coding_elements';
+    const type = review ? 'cell_type' : (labels.includes('provenance') ? 'provenance' : node.display_type) || labels.find((label) => graphInfocard.nodes?.[label]?.info_panel) || 'coding_elements';
     const position = finitePoint(positions[node['~id']]) || { x: index * 36, y: 0 };
     const sample = review ? {} : samplePresentation(node, result);
-    const label = sample.sample_display_label || node.display_label || raw.name || raw.id || node['~id'];
-    return { data: { ...raw, ...sample, id: node['~id'], label: String(label).replace(/_/g, ' '), type, raw_labels: labels, Level: positions[node['~id']]?.Level || 'Core' }, position };
+    const label = labels.includes('provenance') ? 'Metadata definition' : sample.sample_display_label || raw.name || node.display_label || raw.id || node['~id'];
+    return { data: { ...raw, ...sample, evidence_properties: { ...raw }, element_kind: 'node', id: node['~id'], label: String(label).length > 55 ? String(label).slice(0, 52) + '…' : String(label), type, raw_labels: labels, Level: positions[node['~id']]?.Level || 'Core' }, position };
   });
   const byId = Object.fromEntries(nodes.map((node) => [node.data.id, node]));
   const edgeStyles = new Map();
@@ -156,7 +156,7 @@ export function graphElements(result, positions = {}, routes = {}, options = {})
     const start = edge['~start'], end = edge['~end'];
     const style = routeStyle(routes[edge['~id']], byId[start].position, byId[end].position, inverted);
     edgeStyles.set(edge['~id'], { ...style, 'text-opacity': 1, 'text-events': 'yes' });
-    return { data: { ...(edge[propertyKey] || {}), id: edge['~id'], source: inverted ? end : start, target: inverted ? start : end,
+    return { data: { ...(edge[propertyKey] || {}), element_kind: 'edge', id: edge['~id'], source: inverted ? end : start, target: inverted ? start : end,
       source_name: byId[start].data.label, target_name: byId[end].data.label, type: displayType, raw_type: edge['~type'],
       label: label.replace(/_/g, ' ').trim(),
       evidence_properties: { ...(edge[propertyKey] || {}) } } };

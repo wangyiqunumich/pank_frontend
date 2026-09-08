@@ -25,17 +25,18 @@ test('current lowercase CFTR measurements populate curated aliases without chang
 
 test('edge popup includes every original scientific/provenance value, retaining raw precision, zero, false and nested values', () => {
   render(<InfocardMenu hoveredData={edge} />);
-  expect(screen.getByText('7.623')).toBeTruthy();
-  expect(screen.getByText('10.521')).toBeTruthy();
-  expect(screen.getByText('Graph evidence properties')).toBeTruthy();
+  expect(screen.getByText('7.62294179320318')).toBeTruthy();
+  expect(screen.getByText('10.5209895291038')).toBeTruthy();
+  expect(screen.getByText('Recorded evidence')).toBeTruthy();
   Object.entries(props).forEach(([key, value]) => {
-    const row = screen.getByText(key).parentElement;
-    expect(row.textContent).toContain(typeof value === 'object' && value !== null ? JSON.stringify(value) : String(value));
+    const row = document.querySelector(`[data-field="${key}"]`);
+    if (typeof value === 'string' && value.startsWith('https://')) { expect(row.querySelector('a').getAttribute('href')).toBe(value); return; }
+    expect(row.textContent).toContain(value === null ? 'Not recorded' : typeof value === 'object' ? JSON.stringify(value) : String(value));
   });
-  expect(screen.getByText('log2_fold_change').parentElement.textContent).toContain('7.62294179320318');
-  expect(screen.getByText('data_source').parentElement.textContent).toContain(props.data_source);
-  expect(screen.getByText('flagged').parentElement.textContent).toContain('false');
-  expect(screen.getByText('rank_in_cell_type').parentElement.textContent).toContain('0');
+  expect(document.querySelector('[data-field="log2_fold_change"]').textContent).toContain('7.62294179320318');
+  expect(document.querySelector('[data-field="data_source"] a').getAttribute('href')).toBe(props.data_source);
+  expect(document.querySelector('[data-field="flagged"]').textContent).toContain('false');
+  expect(document.querySelector('[data-field="rank_in_cell_type"]').textContent).toContain('0');
   expect(screen.queryByText('evidence_properties')).toBeNull();
 });
 
@@ -44,8 +45,8 @@ test('unmapped edges expose raw evidence safely, and missing evidence-properties
   const model = edgeInfocardModel({ id: 'rendered-edge', source: 'gene', target: 'cell', type: 'new_measurement', evidence_properties: raw });
   expect(model.rawProperties).toEqual(raw);
   const { container } = render(<InfocardMenu hoveredData={{ ...model.data, evidence_properties: raw }} />);
-  expect(screen.getByText('id').parentElement.textContent).toContain('scientific-id');
-  expect(screen.getByText('source').parentElement.textContent).toContain('recorded-source');
+  expect(document.querySelector('[data-field="id"]').textContent).toContain('scientific-id');
+  expect(document.querySelector('[data-field="source"]').textContent).toContain('recorded-source');
   expect(container.querySelector('script')).toBeNull();
   const old = edgeInfocardModel({ id: 'legacy', source: 'gene', target: 'cell', type: 'relationship', score: 0, provenance: { version: 1 } });
   expect(old.rawProperties).toEqual({ score: 0, provenance: { version: 1 } });
