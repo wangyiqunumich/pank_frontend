@@ -154,6 +154,9 @@ test('swallows Processing frames and throws only for an Error terminal frame', a
 });
 
 test('uses the documented API URL when no environment override is configured', () => {
+  expect(DOCUMENTED_HIRN_API_BASE).toBe(
+    'https://jieliulab3.dcmb.med.umich.edu/hirn-literature-api/published',
+  );
   expect(DEFAULT_HIRN_API_BASE).toBe(
     process.env.REACT_APP_HIRN_LITERATURE_API_URL?.trim() ||
       DOCUMENTED_HIRN_API_BASE,

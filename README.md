@@ -23,10 +23,10 @@ The `/hirn-literature` page implements the closed-corpus HIRN SSE contract in
 an empty-reference `Complete` frame as a successful refusal, supports sources
 without PMIDs or URLs, and never renders `Processing` frames or verbatim evidence.
 
-The checked-in browser default targets the public demo endpoint:
+The checked-in browser default targets the public published-literature endpoint:
 
 ```text
-https://jieliulab3.dcmb.med.umich.edu/hirn-literature-api/demo
+https://jieliulab3.dcmb.med.umich.edu/hirn-literature-api/published
 ```
 
 For the local demo, `.env.local` points the browser to an SSH tunnel on port

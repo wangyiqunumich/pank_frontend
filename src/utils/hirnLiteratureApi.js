@@ -1,5 +1,5 @@
 export const DOCUMENTED_HIRN_API_BASE =
-  'https://jieliulab3.dcmb.med.umich.edu/hirn-literature-api/demo';
+  'https://jieliulab3.dcmb.med.umich.edu/hirn-literature-api/published';
 
 const configuredApiBase = process.env.REACT_APP_HIRN_LITERATURE_API_URL?.trim();
 
