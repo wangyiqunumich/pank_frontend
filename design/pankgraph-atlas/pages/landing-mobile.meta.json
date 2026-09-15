@@ -1,0 +1,15 @@
+{
+  "id": "landing-mobile",
+  "title": "Mobile landing",
+  "route": "/",
+  "group": "Entry & navigation",
+  "parent": "landing",
+  "description": "Current landing page at a 390px viewport for responsive layout review.",
+  "source": "src/components/AgentLandingPage.js; src/NavBar/index.js",
+  "kind": "current UI",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "captureNote": "Rendered current source locally. APIs blocked; synthetic fixtures are labeled. No inference or private donor data."
+}

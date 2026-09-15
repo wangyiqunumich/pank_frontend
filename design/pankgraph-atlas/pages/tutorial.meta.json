@@ -1,0 +1,15 @@
+{
+  "id": "tutorial",
+  "title": "Tutorial",
+  "route": "/tutorial",
+  "group": "Documentation & resources",
+  "parent": "documentation",
+  "source": "src/pages/Tutorial.js",
+  "description": "Standalone tutorial route and current embedded guide. For GitHub publication, one public tutorial screenshot with donor identifiers is replaced by the synthetic functional tool capture.",
+  "kind": "Current UI + synthetic tutorial substitution",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+}

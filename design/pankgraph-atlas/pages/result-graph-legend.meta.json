@@ -1,0 +1,10 @@
+{
+  "id": "result-graph-legend",
+  "title": "Knowledge graph \u00b7 legend",
+  "description": "Expanded graph legend and viewer controls.",
+  "source": "src/components/KnowledgeGraph.js",
+  "route": "/result-new2",
+  "group": "Result details",
+  "parent": "agent-result",
+  "kind": "Current UI + synthetic fixture"
+}

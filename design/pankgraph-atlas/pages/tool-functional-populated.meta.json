@@ -1,0 +1,15 @@
+{
+  "id": "tool-functional-populated",
+  "title": "Functional explorer \u2014 populated layout",
+  "route": "/functional-data",
+  "group": "Tools",
+  "parent": "tools",
+  "description": "Current functional tool with synthetic metadata rows and neutral chart-area fixtures. Demonstrates populated layout without donor data.",
+  "source": "src/skills/FunctionalDataPage.js",
+  "kind": "static fixture",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "captureNote": "Current source rendered using explicitly synthetic local API responses. DEMO rows are invented UI placeholders, not actual donors; chart areas contain no biological data."
+}

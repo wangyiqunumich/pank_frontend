@@ -1,0 +1,10 @@
+{
+  "id": "result-external-expanded",
+  "title": "External sources \u00b7 expanded group",
+  "description": "Linked entities and provenance appear inside expanded source groups.",
+  "source": "src/vnext/ExternalLinksPanel.js",
+  "route": "/result-new2",
+  "group": "Result details",
+  "parent": "agent-result",
+  "kind": "Current UI + synthetic fixture"
+}

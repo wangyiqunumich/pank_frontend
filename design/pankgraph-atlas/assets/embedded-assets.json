@@ -1,0 +1,251 @@
+{
+  "assets/external/fc0528d1f755.woff2": {
+    "sha256": "441af0def989ebfdbd6ad85ffaed85e967ab21a05f1dd342f16259464a206dd0",
+    "media_type": "font/woff2",
+    "bytes": 42964
+  },
+  "assets/external/a28b7e319024.woff2": {
+    "sha256": "c940764593d0fe5d596be327ca7558855e018039fb78509aa21921fd3644c3e4",
+    "media_type": "font/woff2",
+    "bytes": 48432
+  },
+  "assets/captured/e7b44c86b050fca766a9.gif": {
+    "sha256": "e7b44c86b050fca766a96ddac2d0932af0126da6f2305280342d909168dcce6b",
+    "media_type": "image/gif",
+    "bytes": 4178
+  },
+  "assets/static/media/slick.295183786cd8a1389865.woff": {
+    "sha256": "26726bac4060abb1226e6ceebc1336e84930fe7a7af1b3895a109d067f5b5dcc",
+    "media_type": "font/woff",
+    "bytes": 1380
+  },
+  "assets/static/media/slick.c94f7671dcc99dce43e2.ttf": {
+    "sha256": "37bc99cfdbbc046193a26396787374d00e7b10d3a758a36045c07bd8886360d2",
+    "media_type": "font/ttf",
+    "bytes": 1892
+  },
+  "assets/external/5c6802d3c71c.svg": {
+    "sha256": "66bf8271fcbf9d511175be3e37351339bed1e405f396a851060842f060b1ac24",
+    "media_type": "image/svg+xml",
+    "bytes": 45573
+  },
+  "assets/external/818074359b9e.svg": {
+    "sha256": "afea03d86c79bbd9baf5bbb22aa37ec0d9b88b9ce5d98a6e6f2ffbadcc21c95f",
+    "media_type": "image/svg+xml",
+    "bytes": 3787
+  },
+  "assets/external/a204b8f9dfa0.svg": {
+    "sha256": "5b5ea889508c63e977193fef5df84ea6887753a0a835db0b5a9a488fb4754d2b",
+    "media_type": "image/svg+xml",
+    "bytes": 467,
+    "original_sha256": "6fdb4b950553f656edd5882ae62f22f32f1136bbf0e93d8f3598f99435f4b4e5",
+    "normalization": "Line endings and trailing whitespace only."
+  },
+  "assets/external/23291bcd3e16.svg": {
+    "sha256": "540c2cec5584d5524244483f604ae215f7bcaf2d1622f9d51b241de1681d057b",
+    "media_type": "image/svg+xml",
+    "bytes": 476,
+    "original_sha256": "c3f4b13cd837c8a13a39a10367c863c64440e538085b313a9b8894b70ba29a5a",
+    "normalization": "Line endings and trailing whitespace only."
+  },
+  "assets/static/media/logo-hirn.198e6858a62155bf2a47d86f3b88473b.svg": {
+    "sha256": "e348b027ed29e18a9fff0cd7e0f2db1dbee33caabe8d064ed059245a195e3c95",
+    "media_type": "image/svg+xml",
+    "bytes": 14117
+  },
+  "assets/static/media/landing image cropped.b3d261686198627d6304.png": {
+    "sha256": "f53837a99afa50512058f3774155da8082f1a45ce0284e3d68c10c3178329f8f",
+    "media_type": "image/png",
+    "bytes": 645380
+  },
+  "assets/static/media/landing_send.fc25c7b8c6df1b7f3275d067f27cd226.svg": {
+    "sha256": "67f8cfd08e1387db9fcef67522adb1e75c871022790a0161a6d10f7e7f7fd25e",
+    "media_type": "image/svg+xml",
+    "bytes": 642
+  },
+  "assets/external/e5089d68fc14.svg": {
+    "sha256": "c2428304a041822372e3ea1136407712db9c2f53208d1f3f476d152bec55b595",
+    "media_type": "image/svg+xml",
+    "bytes": 21236
+  },
+  "assets/external/837e9c5067b9.svg": {
+    "sha256": "719a408ee9e26ccf5ac40f8d0607e61b956623330892acbd16b8a09d78af6bbe",
+    "media_type": "image/svg+xml",
+    "bytes": 16764
+  },
+  "assets/static/media/apiIcon.57e0ac1f288ad9fa778a.png": {
+    "sha256": "5a6d5624f78229737b5d699fb3fb54fb19ea9ec1367832b35bd0fe2f3b4b5a52",
+    "media_type": "image/png",
+    "bytes": 11788
+  },
+  "assets/static/media/loading.fa45ad54e48970bad18fc71cdc6f2515.svg": {
+    "sha256": "f343fcfe1e3dd81a9ef9f4e2d066770ab25c3de73d31bf8e4a651f9855db1725",
+    "media_type": "image/svg+xml",
+    "bytes": 1480
+  },
+  "assets/captured/ebec6d0f67c3217615a3.png": {
+    "sha256": "ebec6d0f67c3217615a319dd3438aee24f1f4c5031272e30df7a8ff586afac7a",
+    "media_type": "image/png",
+    "bytes": 3669
+  },
+  "assets/captured/4a35a0d7335fd1cf37a2.png": {
+    "sha256": "4a35a0d7335fd1cf37a230d8c301dd982b9f2c88d15cc21b8377c996aebfa811",
+    "media_type": "image/png",
+    "bytes": 8276
+  },
+  "assets/static/media/fullscreen.3c45e416c35a6846547b5ca22b4a3d63.svg": {
+    "sha256": "8caca96d5ffbe5a66f5ff4240b5d793ebc0e83676bc973d1a8a3d7db1a37b1ce",
+    "media_type": "image/svg+xml",
+    "bytes": 504,
+    "original_sha256": "4208f808c10dd04e53841200b6c3fe43bffbd042afcdff623ab4ad19b81209e7",
+    "normalization": "Line endings and trailing whitespace only."
+  },
+  "assets/static/media/zoom-plus.4c15c5b789e10278f17889953d7ebe75.svg": {
+    "sha256": "81d18eadc9b72c1a4c76fede102b5cff233514811f940b15a1349ac105cad510",
+    "media_type": "image/svg+xml",
+    "bytes": 883
+  },
+  "assets/static/media/zoom-minus.0e2af98629783562ea428ce5a2c99af4.svg": {
+    "sha256": "9196f4860c1c15c8fca32397b85f13416b21e9fe14378045bb5a6c5ad46471a4",
+    "media_type": "image/svg+xml",
+    "bytes": 797
+  },
+  "assets/static/media/recenter.e8bccd549361afbc85eec5c2abc378c0.svg": {
+    "sha256": "83d1c4a712481a763c5e43e76a5dbe44eef4b542749513a973caec5acecb50ac",
+    "media_type": "image/svg+xml",
+    "bytes": 575,
+    "original_sha256": "1203e79724ac3abd45d8345634c363fefdc436a3a099a74f789ea6fe436ecf7c",
+    "normalization": "Line endings and trailing whitespace only."
+  },
+  "assets/static/media/hover.d05b7e9ad3836c487c4b5bde5a398b7b.svg": {
+    "sha256": "fb133427c1e1035b345a573a8045e22df9222199bbc53cab424c01dccb2082e6",
+    "media_type": "image/svg+xml",
+    "bytes": 1383,
+    "original_sha256": "b19353ec2c5aad3f6aca300b363b63b4d1d9e94598e4f8c4c33ff5647258ed7f",
+    "normalization": "Line endings and trailing whitespace only."
+  },
+  "assets/static/media/download.82199bf0332851cee3adf839539ef01b.svg": {
+    "sha256": "dc8ac5a6fc9a44f96571968a552f042249149da244740dc83544273f594a947a",
+    "media_type": "image/svg+xml",
+    "bytes": 885
+  },
+  "assets/captured/3ecc777167216ad69b59.png": {
+    "sha256": "3ecc777167216ad69b5968262d82aa258bb5d473630b92663cc4be5b84869898",
+    "media_type": "image/png",
+    "bytes": 5658
+  },
+  "assets/captured/2d44b10013d87fb184cd.png": {
+    "sha256": "2d44b10013d87fb184cdb5e77faa9bacf5c5d9fbbab76c08f36f4e1ab48b8947",
+    "media_type": "image/png",
+    "bytes": 14213
+  },
+  "assets/static/media/designer-plot.svg": {
+    "sha256": "9be56581dbc07dbf328fc1af0d8f630f4bc61e9f0d38e4ae341dc2fee405fb4c",
+    "media_type": "image/svg+xml",
+    "bytes": 976,
+    "original_sha256": "382b6d23a8930cf8f98aa3c2a451183da7d46a31b73a58fef7831d47488c2b34",
+    "normalization": "Line endings and trailing whitespace only."
+  },
+  "assets/static/media/Box.c9e8d1362564f6283bf1717505ab3561.svg": {
+    "sha256": "190ad187569e7572824568f17504e287780da145b01fca61bd39e126c204a100",
+    "media_type": "image/svg+xml",
+    "bytes": 864
+  },
+  "assets/static/media/Vector.be2d92513e3056161307897117c447e4.svg": {
+    "sha256": "aff7ffea4660fe10a3019076931fb6638b05b75549615b087ee3da839e8e857c",
+    "media_type": "image/svg+xml",
+    "bytes": 1642
+  },
+  "assets/captured/b30dcedad101e833fe51.svg": {
+    "sha256": "80f6541245e890f1aa223a58111f8c218e4d733db20b5921a82a8a9f10584ac2",
+    "media_type": "image/svg+xml",
+    "bytes": 624,
+    "original_sha256": "b30dcedad101e833fe51585da15c0a42c1ecc4a709242a5a00bf0dadba1ac0d0",
+    "normalization": "Line endings and trailing whitespace only."
+  },
+  "assets/captured/fd42e9ed00b5f25d5b72.png": {
+    "sha256": "fd42e9ed00b5f25d5b72457dddeb65088570899cf77035265897e401fad54065",
+    "media_type": "image/png",
+    "bytes": 8140
+  },
+  "assets/captured/13c5a2f57cb09e4e3307.png": {
+    "sha256": "13c5a2f57cb09e4e3307a7f2c5d2dd71942981df5a36f4d3df15312a005bdc24",
+    "media_type": "image/png",
+    "bytes": 28850
+  },
+  "assets/captured/78b0c7d186f1cc81e1c6.png": {
+    "sha256": "78b0c7d186f1cc81e1c620117f5fc5b4312e48dede5f45020b9f6b4ea3fa59d0",
+    "media_type": "image/png",
+    "bytes": 9966
+  },
+  "assets/captured/26266435202d5dcd7f2e.png": {
+    "sha256": "26266435202d5dcd7f2eebe59ddffc1b5f0ee63e1bebf75a9467b83981fece92",
+    "media_type": "image/png",
+    "bytes": 28923
+  },
+  "assets/captured/e53f64a02f5cc4cbc17a.png": {
+    "sha256": "e53f64a02f5cc4cbc17af6199eb40a641edd33e2d8b004b3f7f42811bb637686",
+    "media_type": "image/png",
+    "bytes": 18033
+  },
+  "assets/captured/68ca1f291a6e10877ca2.png": {
+    "sha256": "68ca1f291a6e10877ca2b09e8ffc0f5aba64025b86acd6f7bc8fda1e50d13716",
+    "media_type": "image/png",
+    "bytes": 2013
+  },
+  "assets/captured/d3b5b33d35fe0c2dab83.png": {
+    "sha256": "d3b5b33d35fe0c2dab83e8e7a1dc0c274cd3e5fbf023817882ad56fd25a025a7",
+    "media_type": "image/png",
+    "bytes": 9967
+  },
+  "assets/static/media/star.849fd720d903f9a00911231e5bc98467.svg": {
+    "sha256": "95cb81b95b0e005a9e420b67cc4f2757dc897c5cb6b171abf266b63d2e31b06f",
+    "media_type": "image/svg+xml",
+    "bytes": 1802
+  },
+  "assets/captured/d9d33f675b6b5616b47c.png": {
+    "sha256": "d9d33f675b6b5616b47cbde7666c8e88dbebb2c6acc8cbcef4ba718bbf6d351c",
+    "media_type": "image/png",
+    "bytes": 49294
+  },
+  "assets/captured/0ef902e7c3520657a20a.png": {
+    "sha256": "0ef902e7c3520657a20a1f111ec24bc78056890cfdc422303aad152ac22a7060",
+    "media_type": "image/png",
+    "bytes": 14314
+  },
+  "assets/captured/1d1f93aae2cdc9c6f2fe.png": {
+    "sha256": "1d1f93aae2cdc9c6f2fe08889cee0981d911cfc70e635498b048f0d8513e7e44",
+    "media_type": "image/png",
+    "bytes": 4128
+  },
+  "assets/captured/dab20a4b81b072e6b628.png": {
+    "sha256": "dab20a4b81b072e6b6281a78fd42348b08eb7177579ec1c1d8f7c5301dc34559",
+    "media_type": "image/png",
+    "bytes": 8729
+  },
+  "assets/static/media/not_relevant.bf166cf6f66419d9f88d.png": {
+    "sha256": "684410fb7a3479b6dffe713828e0d1b4805b92a7f896701ff48e297b8fb1f23f",
+    "media_type": "image/png",
+    "bytes": 1526677
+  },
+  "assets/external/44680014ba25.png": {
+    "sha256": "80a3de37ddaa85090260a447178379ccc0bbcc3b1588ab86ad8473a24ac0bf3f",
+    "media_type": "image/png",
+    "bytes": 750722
+  },
+  "assets/external/1c1202f49b92.png": {
+    "sha256": "133b59b9e68e748856fb9fc697fe82899c495be53d246b48c7738b62bf16941a",
+    "media_type": "image/png",
+    "bytes": 611706
+  },
+  "assets/external/f66eeaddba8c.png": {
+    "sha256": "5f033ba0b3a31a6dc6e4f245659d3f5d7d2ac8dd52bc94759022a297c5aa5a87",
+    "media_type": "image/png",
+    "bytes": 549512
+  },
+  "assets/external/0fdf15b43c63.png": {
+    "sha256": "21d5603de3bd7589d8396d3f913b1f7e50f4ce23efa9dbf404c6557a076755bf",
+    "media_type": "image/png",
+    "bytes": 628268
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "landing",
+  "title": "Landing / new chat",
+  "route": "/",
+  "group": "Entry & navigation",
+  "parent": null,
+  "source": "src/components/AgentLandingPage.js",
+  "description": "Current default agent entry page with conversation sidebar, prompt composer and example topics.",
+  "kind": "current UI",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+}

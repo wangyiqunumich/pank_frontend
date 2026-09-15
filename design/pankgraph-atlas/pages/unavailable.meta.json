@@ -1,0 +1,15 @@
+{
+  "id": "unavailable",
+  "title": "Feature unavailable",
+  "route": "/hirn-literature",
+  "group": "Empty & error states",
+  "parent": "tools",
+  "source": "src/index.js; src/components/IntermediatePage.js",
+  "description": "Shared unavailable page used by /hirn-literature, /review/*, /debug and /igv.",
+  "kind": "current UI",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+}

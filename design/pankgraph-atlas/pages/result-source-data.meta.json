@@ -1,0 +1,15 @@
+{
+  "id": "result-source-data",
+  "title": "AI Overview \u00b7 source data download",
+  "description": "Current source-data insertion box with a valid typed synthetic association-table asset; included TSV contains EXAMPLE records only.",
+  "source": "src/vnext/SummaryInsertions.js; src/vnext/resultPageSchema.js",
+  "route": "/result-new2?run_id=design-run",
+  "group": "Result details",
+  "parent": "agent-result",
+  "kind": "Current UI + synthetic fixture",
+  "synthetic": true,
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  }
+}

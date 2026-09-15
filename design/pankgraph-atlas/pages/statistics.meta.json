@@ -1,0 +1,15 @@
+{
+  "id": "statistics",
+  "title": "Statistics",
+  "route": "/statistics",
+  "group": "Documentation & resources",
+  "parent": "documentation",
+  "source": "src/pages/StatPage.js",
+  "description": "Current source statistics page; displayed source counts are preserved as UI content and are not revalidated research claims.",
+  "kind": "current UI",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+}

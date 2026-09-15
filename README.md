@@ -135,3 +135,8 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+
+## Designer reference
+
+The [PanKgraph designer atlas](design/pankgraph-atlas/README.md) contains 66 linked page/state snapshots and a source-backed error library. Download or clone the repository and open `design/pankgraph-atlas/START-HERE.html` to review it offline. Edit the HTML, metadata, styles or message catalog through normal Git commits; this reference does not change the running application.

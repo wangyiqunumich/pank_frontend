@@ -1,0 +1,15 @@
+{
+  "id": "qtl-data-source",
+  "title": "QTL data sources",
+  "route": "/qtldatasource",
+  "group": "Documentation & resources",
+  "parent": "documentation",
+  "source": "src/pages/QTL_data_source.js",
+  "description": "Current QTL source documentation.",
+  "kind": "current UI",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+}

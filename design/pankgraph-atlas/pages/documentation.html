@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="design-snapshot" content="Current PanKgraph source; synthetic content where labeled">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#000000">
+<meta name="description" content="Web site created using create-react-app">
+<title>Documentation concept — overview · PanKgraph reference</title>
+<meta name="description" content="PanKgraph is a T1D knowledge graph that integrates multi-omic and curated biological data into a unified framework for discovery, visualization, and reproducible diabetes research.">
+<meta name="robots" content="noindex,nofollow">
+<meta name="twitter:title" content="PanKBase – Pan-genome Knowledge Base | pankgraph.org">
+<meta name="twitter:description" content="PanKgraph is a T1D knowledge graph that integrates multi-omic and curated biological data into a unified framework for discovery, visualization, and reproducible diabetes research.">
+<link rel="stylesheet" href="../styles/51842e0743a9df9725cb.css">
+<link rel="stylesheet" href="../styles/3981213a885f4a4cbe9d.css"></head>
+<body>
+<div id="root">
+<div class="MuiContainer-root MuiContainer-disableGutters css-1h4exh5">
+<div style="min-height: 100vh; display: flex; flex-direction: column;">
+<div style="position: relative; z-index: 1300;">
+<div class="pkb-nav"><button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall mobile-context-button css-1j7qk7u" tabindex="0" type="button" aria-label="Open context navigation"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1k33q06" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="MenuRoundedIcon"><path d="M4 18h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1m0-5h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1M3 7c0 .55.45 1 1 1h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1"></path></svg><span class="MuiTouchRipple-root css-w0pj6f"></span></button>
+<div class="logo"><a href="https://pankbase.org"><img class="logo-img" src="../assets/external/5c6802d3c71c.svg" alt="PanKbase Logo"></a></div>
+<div class="nav-right">
+<div class="menu-wrapper">
+<div class="topmenu"><a class="topmenu-item" href="https://pankbase.org/funding.html"><span>Funding Opportunities</span><img src="../assets/external/818074359b9e.svg" alt="Funding Icon" style="height: 15px; width: 15px;"></a><span class="topmenu-item topmenu-item-disabled"><span>Search</span><img src="../assets/external/a204b8f9dfa0.svg" alt="Search Icon" style="height: 15px; width: 15px;"></span><span class="topmenu-item topmenu-item-disabled"><span>Analysis</span></span><span class="topmenu-item topmenu-item-disabled"><span>Login</span><img src="../assets/external/23291bcd3e16.svg" alt="User Icon" style="height: 15px; width: 15px;"></span></div>
+<div class="menu">
+<div class="main-menu-items">
+<div class="menu-item-wrapper"><a class="menu-item menu-item-main menu-item-main-highlighted" href="landing.html" data-atlas-target="landing">PanKgraph</a>
+<div class="submenu"><a class="submenu-item" href="landing.html" data-atlas-target="landing">Chat</a><a class="submenu-item" href="tools.html" data-atlas-target="tools">Tools</a>
+<div class="submenu-divider"></div>
+<a class="submenu-item" href="documentation.html" data-atlas-target="documentation">KG API Doc</a><a class="submenu-item" href="documentation.html" data-atlas-target="documentation">Literature API Doc</a><a class="submenu-item" href="documentation.html" data-atlas-target="documentation">Ontology</a><a class="submenu-item" href="documentation.html" data-atlas-target="documentation">Use cases</a><a class="submenu-item" href="documentation.html" data-atlas-target="documentation">Tutorials</a><a class="submenu-item" href="documentation.html" data-atlas-target="documentation">Statistics</a></div>
+</div>
+<div class="menu-item-wrapper"><a class="menu-item menu-item-main" href="https://pankbase.org/single-cell.html">Integrated Cell Browser</a></div>
+</div>
+<div class="menu-item-wrapper"><button type="button" class="menu-item menu-trigger">Data</button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org/donors.html">Donor Summary</a><a class="submenu-item" href="https://data.pankbase.org">Data Library</a><a class="submenu-item" href="https://pankbase.org/apis.html">APIs</a></div>
+</div>
+<div class="menu-item-wrapper"><button type="button" class="menu-item menu-trigger">Resources</button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org/single-cell.html">Integrated Cell Browser</a><a class="submenu-item" href="https://pankbase.org/atacseq.html">Genome Browser</a><a class="submenu-item" href="https://pankbase.org/diff-exp.html">Differential Gene Expression Browser</a><a class="submenu-item" href="https://pankbase.org/gene.html">Gene Browser</a><a class="submenu-item" href="https://pankbase.org/functional.html">Functional Browser</a><a class="submenu-item" href="https://pankbase.org/pca-explorer.html">PCA Explorer</a><a class="submenu-item" href="https://pankbase.org/analytical-library.html">Analytical Library</a><a class="submenu-item" href="https://pankbase.org/metadata-data-standards.html">Data and Metadata Standards</a><a class="submenu-item" href="https://pankbase.org/tools-pipelines.html">Tools | Pipelines</a><a class="submenu-item" href="https://pankbase.org/publications.html">Publications</a></div>
+</div>
+<div class="menu-item-wrapper"><button type="button" class="menu-item menu-trigger">About</button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org/projects.html">PanKbase Program</a><a class="submenu-item" href="https://pankbase.org/people.html">People</a><a class="submenu-item" href="https://pankbase.org/policies.html">Policies</a><a class="submenu-item" href="https://pankbase.org/programs.html">Related Programs</a><a class="submenu-item" href="https://pankbase.org/collaborate.html">Collaborate</a><a class="submenu-item" href="https://pankbase.org/funding.html">Funding Opportunities</a></div>
+</div>
+<div class="menu-item-wrapper"><button type="button" class="menu-item menu-trigger">Help</button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org/contact.html">Contact | Feedback</a><a class="submenu-item" href="https://pankbase.org/tutorials.html">Tutorials</a><a class="submenu-item">GitHub</a><a class="submenu-item" href="https://pankbase.org/news.html">News</a></div>
+</div>
+</div>
+</div>
+<div class="logo hirn-logo"><a href="https://hirnetwork.org/" target="_blank" rel="noreferrer"><img class="logo-img" src="../assets/static/media/logo-hirn.198e6858a62155bf2a47d86f3b88473b.svg" alt="HIRN Logo"></a></div>
+</div>
+</div>
+<p class="MuiTypography-root MuiTypography-body1 css-7wf5jr">beta</p>
+</div>
+<div style="flex: 1 1 0%; display: flex; flex-direction: column;">
+<div class="App">
+<div class="MuiContainer-root MuiContainer-maxWidth100% css-8ww5ok">
+<div class="MuiBox-root css-1ooeuhl"></div>
+<div class="MuiBox-root css-5t3rzu">
+<div class="MuiBox-root css-1xzsyzi"></div>
+<div class="MuiAutocomplete-root css-f7t77y">
+<div class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-1jgi0v">
+<div class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiAutocomplete-inputRoot css-2xhzvc"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-vubbuv" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="SearchIcon"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg><input aria-invalid="false" autocomplete="off" id="search" placeholder="Search" type="text" class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiAutocomplete-input MuiAutocomplete-inputFocused css-1ixds2g" aria-autocomplete="list" aria-expanded="false" autocapitalize="none" spellcheck="false" role="combobox" value="" style=""><fieldset aria-hidden="true" class="MuiOutlinedInput-notchedOutline css-igs3ac"><legend class="css-ihdtdm"><span class="notranslate">​</span></legend></fieldset></div>
+</div>
+</div>
+<div class="MuiBox-root css-1xzsyzi"></div>
+<ul role="tree" aria-multiselectable="false" class="MuiSimpleTreeView-root css-f19itr" id="mui-tree-view-1" style="--TreeView-itemChildrenIndentation: 24px;">
+<li class="MuiTreeItem-root css-9j0j7e" role="treeitem" aria-expanded="true" aria-selected="false" id="mui-tree-view-1-quick_start" tabindex="-1">
+<div class="MuiTreeItem-content css-p13dy5 Mui-expanded">
+<div class="MuiTreeItem-iconContainer"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-vubbuv" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="ExpandLessIcon"><path d="m12 8-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z"></path></svg></div>
+<div class="MuiTreeItem-label">Quick Start</div>
+</div>
+<ul class="MuiCollapse-root MuiCollapse-vertical MuiTreeItem-groupTransition MuiCollapse-entered css-1kexzcg" role="group" style="min-height: 0px;">
+<div class="MuiCollapse-wrapper MuiCollapse-vertical css-hboir5">
+<div class="MuiCollapse-wrapperInner MuiCollapse-vertical css-8atqhb">
+<li class="MuiTreeItem-root css-105mfs8" role="treeitem" aria-selected="true" id="mui-tree-view-1-overview" tabindex="0">
+<div class="MuiTreeItem-content css-p13dy5 Mui-selected">
+<div class="MuiTreeItem-iconContainer"></div>
+<div class="MuiTreeItem-label">Overview</div>
+</div>
+</li>
+<li class="MuiTreeItem-root css-105mfs8" role="treeitem" aria-selected="false" id="mui-tree-view-1-usecase" tabindex="-1">
+<div class="MuiTreeItem-content css-p13dy5">
+<div class="MuiTreeItem-iconContainer"></div>
+<div class="MuiTreeItem-label">Use cases</div>
+</div>
+</li>
+<li class="MuiTreeItem-root css-105mfs8" role="treeitem" aria-selected="false" id="mui-tree-view-1-tutorial" tabindex="-1">
+<div class="MuiTreeItem-content css-p13dy5">
+<div class="MuiTreeItem-iconContainer"></div>
+<div class="MuiTreeItem-label">Tutorials</div>
+</div>
+</li>
+<li class="MuiTreeItem-root css-105mfs8" role="treeitem" aria-selected="false" id="mui-tree-view-1-demo_tools" tabindex="-1">
+<div class="MuiTreeItem-content css-p13dy5">
+<div class="MuiTreeItem-iconContainer"></div>
+<div class="MuiTreeItem-label">Demo tools</div>
+</div>
+</li>
+</div>
+</div>
+</ul>
+</li>
+<li class="MuiTreeItem-root css-9j0j7e" role="treeitem" aria-expanded="true" aria-selected="false" id="mui-tree-view-1-resources" tabindex="-1">
+<div class="MuiTreeItem-content css-p13dy5 Mui-expanded">
+<div class="MuiTreeItem-iconContainer"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-vubbuv" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="ExpandLessIcon"><path d="m12 8-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z"></path></svg></div>
+<div class="MuiTreeItem-label">Resources</div>
+</div>
+<ul class="MuiCollapse-root MuiCollapse-vertical MuiTreeItem-groupTransition MuiCollapse-entered css-1kexzcg" role="group" style="min-height: 0px;">
+<div class="MuiCollapse-wrapper MuiCollapse-vertical css-hboir5">
+<div class="MuiCollapse-wrapperInner MuiCollapse-vertical css-8atqhb">
+<li class="MuiTreeItem-root css-9j0j7e" role="treeitem" aria-expanded="false" aria-selected="false" id="mui-tree-view-1-data" tabindex="-1">
+<div class="MuiTreeItem-content css-p13dy5">
+<div class="MuiTreeItem-iconContainer"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-vubbuv" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="ExpandMoreIcon"><path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"></path></svg></div>
+<div class="MuiTreeItem-label">Data</div>
+</div>
+</li>
+<li class="MuiTreeItem-root css-105mfs8" role="treeitem" aria-selected="false" id="mui-tree-view-1-ontology" tabindex="-1">
+<div class="MuiTreeItem-content css-p13dy5">
+<div class="MuiTreeItem-iconContainer"></div>
+<div class="MuiTreeItem-label">Ontology</div>
+</div>
+</li>
+<li class="MuiTreeItem-root css-9j0j7e" role="treeitem" aria-expanded="false" aria-selected="false" id="mui-tree-view-1-API" tabindex="-1">
+<div class="MuiTreeItem-content css-p13dy5">
+<div class="MuiTreeItem-iconContainer"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-vubbuv" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="ExpandMoreIcon"><path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"></path></svg></div>
+<div class="MuiTreeItem-label">API</div>
+</div>
+</li>
+</div>
+</div>
+</ul>
+</li>
+</ul>
+</div>
+<div class="markdown-body MuiBox-root css-13brihr">
+<div>
+<div class="post-markdown">
+<h3 id="what-is-pankgraph?">What is PanKgraph?</h3>
+
+<p><strong>PanKgraph</strong> is a Type 1 diabetes (T1D)-focused knowledge graph that connects biological datasets, expert-curated knowledge, and literature-derived evidence within a unified, searchable framework. Powered by PanKgraph, <strong>PanKgraph.org</strong> provides a question-driven data portal for exploring pancreas and T1D research knowledge. It integrates multi-omic data, genetic associations, pathways, ontology terms, regulatory signals, and publication evidence, enabling researchers to move from biological questions to connected, evidence-backed answers.</p>
+
+<p>The portal is powered by <strong>PanKagent</strong>, an LLM-based human-language search system. Instead of requiring users to write Neo4j queries, PanKagent translates natural research questions into graph-aware searches, retrieves relevant entities and relationships, and returns evidence-backed answers with provenance from the knowledge graph. This makes PanKgraph both an exploratory research environment and a reliable AI layer for reproducible, collaborative discovery across the pancreas and T1D research community.</p>
+
+<h4 id="key-points">Key Points</h4>
+
+<ul>
+<li><strong>Question-driven data portal</strong>:
+<ul>
+<li>Start with a research question and use PanKgraph to discover genes, variants, pathways, cell types, ontology terms, datasets, and literature evidence connected to that question.</li>
+
+</ul>
+
+</li>
+
+<li><strong>Human-language search powered by an LLM agent</strong>:
+<ul>
+<li>PanKagent enables natural-language search over the knowledge graph, helping users ask biological questions without writing OpenCypher queries.</li>
+
+</ul>
+
+</li>
+
+<li><strong>Reliable AI supported by evidence and provenance in the knowledge graph</strong>:
+<ul>
+<li>Responses are grounded in graph relationships, source datasets, curated annotations, and literature evidence so users can trace where results came from and evaluate confidence.</li>
+
+</ul>
+
+</li>
+
+</ul>
+
+<h4 id="key-features">Key Features</h4>
+
+<ul>
+<li><strong>Unified Knowledge Representation</strong>:
+<ul>
+<li>Genes, variants, pathways, ontology terms, epigenomic signals, literature evidence, and other biological entities are organized into a structured, queryable graph.</li>
+
+</ul>
+
+</li>
+
+<li><strong>Multi-source Data Integration</strong>:
+<ul>
+<li>Integrates curated knowledge resources, graph-based knowledge bases such as GKB, text-mined literature resources such as GLKB, and heterogeneous omics datasets.</li>
+
+</ul>
+
+</li>
+
+<li><strong>PanKagent Search</strong>:
+<ul>
+<li>Lets users search with natural language, generate graph-aware results, and follow evidence trails through linked entities and source records.</li>
+
+</ul>
+
+</li>
+
+<li><strong>Interactive Exploration</strong>:
+<ul>
+<li>Search, filter, and visualize complex biological relationships through a user-friendly web portal.</li>
+
+</ul>
+
+</li>
+
+<li><strong>AWS Neptune Backend</strong>:
+<ul>
+<li>Built with OpenCypher queries and scalable cloud infrastructure.</li>
+
+</ul>
+
+</li>
+
+<li><strong>Research Support</strong>:
+<ul>
+<li>Enables hypothesis generation, target prioritization, evidence review, and biological insight discovery for T1D research.</li>
+
+</ul>
+
+</li>
+
+</ul>
+
+<h4 id="system-components">System Components</h4>
+
+<ul>
+<li><strong>PanKagent</strong>:
+<ul>
+<li>An LLM-powered agent that supports human-language search, graph query assistance, and evidence-grounded answer generation.</li>
+
+</ul>
+
+</li>
+
+<li><strong>PanKgraph Tool</strong>::
+<ul>
+<li>Enables experienced users to quickly access key resources through direct, configurable queries without going through the full human-language question workflow, maximizing efficiency.</li>
+
+</ul>
+
+</li>
+
+<li><strong>Programmatic Access</strong>:
+<ul>
+<li>APIs and SDKs for advanced queries and data analysis.</li>
+
+</ul>
+
+</li>
+
+</ul>
+
+<h4 id="applications">Applications</h4>
+
+<ul>
+<li>Prioritize candidate genes and variants in T1D.</li>
+
+<li>Ask human-language questions across connected T1D knowledge and datasets.</li>
+
+<li>Explore molecular mechanisms and regulatory networks.</li>
+
+<li>Support multi-omics data interpretation.</li>
+
+<li>Trace claims to supporting datasets, publications, and provenance in the graph.</li>
+
+<li>Enable machine learning applications in biomedical research.</li>
+
+</ul>
+
+<h4 id="future-directions">Future Directions</h4>
+
+<ul>
+<li>Continued improvement of PanKagent for evidence-grounded question answering.</li>
+
+<li>Expansion to broader autoimmune disease knowledge graphs.</li>
+
+<li>Incorporation of causal inference modeling.</li>
+
+<li>Community-driven data updates and validation.</li>
+
+</ul>
+
+<h4 id="acknowledgements">Acknowledgements</h4>
+
+<p>PanKgraph is developed as part of the collaborative effort under the Human Islet Research Network (HIRN) and supported by the broader T1D research community.</p>
+
+<hr>
+<p><em>For more information, please contact the PanKgraph development team.</em></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="pkb-footer" style="min-height: fit-content; height: auto; position: relative;">
+<div class="menu">
+<div class="main-menu-items">
+<div class="menu-item-wrapper"><a class="menu-item menu-item-main" href="landing.html" data-atlas-target="landing" style="font-weight: 600;">PanKgraph</a></div>
+<div class="menu-item-wrapper"><a class="menu-item menu-item-main" href="https://data.pankbase.org" style="font-weight: 600;">Data Library</a></div>
+<div class="menu-item-wrapper"><a class="menu-item menu-item-main" href="https://pankbase.org:8000/single-cell.html" style="font-weight: 600;">Integrated Cell Browser</a></div>
+</div>
+<div class="menu-item-wrapper"><span class="menu-item menu-item-label" style="font-weight: 600;">Data</span><button type="button" class="submenu-toggle" aria-label="Toggle Data submenu" aria-expanded="false"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1k33q06" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="KeyboardArrowDownIcon"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"></path></svg></button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org:8000/data-browser.html">Data Browser</a><a class="submenu-item" href="http://tools.cmdga.org:3838/metadata_analysis_assays/">Donor Metadata</a><a class="submenu-item" href="https://pankbase.org:8000/apis.html">APIs</a></div>
+</div>
+<div class="menu-item-wrapper"><span class="menu-item menu-item-label" style="font-weight: 600;">Resources</span><button type="button" class="submenu-toggle" aria-label="Toggle Resources submenu" aria-expanded="false"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1k33q06" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="KeyboardArrowDownIcon"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"></path></svg></button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org:8000/single-cell.html">Integrated Cell Browser</a><a class="submenu-item" href="https://pankbase.org:8000/analytical-library.html">Analytical Library</a><a class="submenu-item" href="https://pankbase.org:8000/publications.html">Publications</a></div>
+</div>
+<div class="menu-item-wrapper"><span class="menu-item menu-item-label" style="font-weight: 600;">About</span><button type="button" class="submenu-toggle" aria-label="Toggle About submenu" aria-expanded="false"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1k33q06" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="KeyboardArrowDownIcon"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"></path></svg></button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org:8000/projects.html">Project</a><a class="submenu-item" href="https://pankbase.org:8000/people.html">People</a><a class="submenu-item" href="https://pankbase.org:8000/policies.html">Policies</a><a class="submenu-item" href="https://pankbase.org:8000/programs.html">Programs</a><a class="submenu-item" href="https://pankbase.org:8000/collaborate.html">Collaborate</a></div>
+</div>
+<div class="menu-item-wrapper"><span class="menu-item menu-item-label" style="font-weight: 600;">Help</span><button type="button" class="submenu-toggle" aria-label="Toggle Help submenu" aria-expanded="false"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1k33q06" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="KeyboardArrowDownIcon"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"></path></svg></button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org:8000/contact.html">Contact</a><a class="submenu-item" href="https://pankbase.org:8000/metadata-data-standards.html">Metadata | Data Standards</a><a class="submenu-item" href="https://pankbase.org:8000/tools-pipelines.html">Tools | Pipelines</a><a class="submenu-item" href="https://pankbase.org:8000/tutorials.html">Tutorials</a><a class="submenu-item" href="https://pankbase.org:8000/news.html">News</a></div>
+</div>
+</div>
+<div class="info-rows">
+<div class="logo info-logo-1"><a href="landing-classic.html" data-atlas-target="landing-classic"><img class="footer-logo-img" src="../assets/external/e5089d68fc14.svg" alt="PanKbase Logo"></a></div>
+<div class="f-row-text info-text-1">Supported by <strong>National Institutes of Health (NIH)</strong> grants <strong>U24 DK138515</strong>, <strong>U24 DK138512</strong><br>Supplemental funds from the <strong>NIH Office of Data Science Strategies</strong></div>
+<div class="logo info-logo-2"><a href="https://hirnetwork.org/"><img class="footer-logo-img" src="../assets/external/837e9c5067b9.svg" alt="Hirn Logo"></a></div>
+<div class="f-row-text info-text-2">Check out the latest developments from the Human Islet Resource Network (HIRN) through its newsletter detailing research advancements, funding opportunities, job openings, and more.</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script src="../page-index.js"></script>
+
+<script>window.PAGE_META = {id: "documentation", availableIds: window.PAGE_IDS};</script>
+
+<script src="../page-runtime.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "id": "intermediate",
+  "title": "Credible-set selection \u00b7 populated source tabs",
+  "route": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000254647&targetSymbol=INS&resultLayout=new",
+  "group": "Conventional search",
+  "parent": "tool-qtl-gene",
+  "source": "pank_frontend_vnext/src/components/IntermediatePage.js",
+  "states": [
+    "Pancreatic eQTL rows",
+    "source tabs",
+    "download",
+    "view result"
+  ],
+  "synthetic": true,
+  "fixture": "Synthetic source-shaped values; all service APIs intercepted; no live requests"
+}

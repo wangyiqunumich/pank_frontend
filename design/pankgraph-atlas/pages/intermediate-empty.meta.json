@@ -1,0 +1,15 @@
+{
+  "id": "intermediate-empty",
+  "title": "Credible-set selection \u00b7 no matching QTL records",
+  "route": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000254647&targetSymbol=INS&resultLayout=new",
+  "group": "Empty & error states",
+  "parent": "intermediate",
+  "source": "pank_frontend_vnext/src/components/IntermediatePage.js:654-655",
+  "states": [
+    "Empty search response",
+    "existing no-data message",
+    "cancel / contact action"
+  ],
+  "synthetic": true,
+  "fixture": "Synthetic source-shaped values; all service APIs intercepted; no live requests"
+}

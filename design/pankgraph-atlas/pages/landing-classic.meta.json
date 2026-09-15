@@ -1,0 +1,15 @@
+{
+  "id": "landing-classic",
+  "title": "Classic landing",
+  "route": "/old-landing",
+  "group": "Entry & navigation",
+  "parent": "landing",
+  "source": "src/components/LandingPage.js",
+  "description": "Retained classic landing route and search experience.",
+  "kind": "current UI",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+}

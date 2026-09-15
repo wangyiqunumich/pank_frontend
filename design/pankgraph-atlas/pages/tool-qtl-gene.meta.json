@@ -1,0 +1,15 @@
+{
+  "id": "tool-qtl-gene",
+  "title": "QTL explorer \u2014 gene",
+  "route": "/qtl-explorer",
+  "group": "Tools",
+  "parent": "tools",
+  "source": "src/skills/QTLExplorerPage.js",
+  "description": "Default QTL gene search, configuration, examples and context panel.",
+  "kind": "current UI",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+}
