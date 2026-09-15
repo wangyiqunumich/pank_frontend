@@ -1,0 +1,15 @@
+{
+  "id": "navigation-menu",
+  "title": "Global PanKgraph menu",
+  "route": "/",
+  "group": "Entry & navigation",
+  "parent": "landing",
+  "description": "Desktop PanKgraph navigation dropdown with tool and documentation destinations. Dropdown appearance retained in static export.",
+  "source": "src/NavBar/index.js",
+  "kind": "current UI",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "captureNote": "Rendered current source locally. APIs blocked; synthetic fixtures are labeled. No inference or private donor data."
+}

@@ -1,0 +1,10 @@
+{
+  "id": "agent-plan",
+  "title": "Plan review \u00b7 confirm or revise",
+  "route": "/result-new2?run_id=design-run",
+  "group": "Agent investigation",
+  "parent": "agent-loading",
+  "kind": "Current UI + synthetic fixture",
+  "description": "Rendered current components with synthetic display content. No live query was submitted.",
+  "source": "src/vnext/ResultView.js"
+}

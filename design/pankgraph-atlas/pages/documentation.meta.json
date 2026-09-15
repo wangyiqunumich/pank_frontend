@@ -1,0 +1,15 @@
+{
+  "id": "documentation",
+  "title": "Documentation concept \u2014 overview",
+  "route": "/docs/overview",
+  "group": "Documentation & resources",
+  "parent": "landing",
+  "source": "src/pages/DocPage.js; src/schema/doc/overview.md",
+  "description": "Representative documentation page with navigation tree, content structure and search. Only one documentation concept is included.",
+  "kind": "current UI",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+}

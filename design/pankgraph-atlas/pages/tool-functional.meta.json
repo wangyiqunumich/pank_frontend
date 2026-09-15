@@ -1,0 +1,15 @@
+{
+  "id": "tool-functional",
+  "title": "Functional data explorer \u2014 service unavailable",
+  "route": "/functional-data",
+  "group": "Tools",
+  "parent": "tools",
+  "source": "src/skills/FunctionalDataPage.js",
+  "description": "Current functional tool layout and controls rendered with a synthetic 503 response to show its authentic chart-error treatment. No donor records are included.",
+  "kind": "static fixture",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+}

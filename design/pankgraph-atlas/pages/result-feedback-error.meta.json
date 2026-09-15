@@ -1,0 +1,10 @@
+{
+  "id": "result-feedback-error",
+  "title": "Feedback \u00b7 submission unavailable",
+  "description": "Current feedback submission failure. No message is sent.",
+  "source": "src/SearchResult/AgentResult.js",
+  "route": "/result-new2",
+  "group": "Result details",
+  "parent": "agent-result",
+  "kind": "Current UI + synthetic fixture"
+}

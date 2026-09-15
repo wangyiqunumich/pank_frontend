@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en" style="overflow: auto;">
+<head>
+<meta name="design-snapshot" content="Current PanKgraph source; synthetic content where labeled">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#000000">
+<meta name="description" content="Web site created using create-react-app">
+<title>Knowledge graph · relationship inspector · PanKgraph reference</title>
+<meta name="description" content="PanKgraph is a T1D knowledge graph that integrates multi-omic and curated biological data into a unified framework for discovery, visualization, and reproducible diabetes research.">
+<meta name="robots" content="noindex,nofollow">
+<meta name="twitter:title" content="PanKBase – Pan-genome Knowledge Base | pankgraph.org">
+<meta name="twitter:description" content="PanKgraph is a T1D knowledge graph that integrates multi-omic and curated biological data into a unified framework for discovery, visualization, and reproducible diabetes research.">
+<link rel="stylesheet" href="../styles/361e3775ca84836b755e.css">
+<link rel="stylesheet" href="../styles/3981213a885f4a4cbe9d.css"></head>
+<body style="cursor: default;">
+<div id="root">
+<div class="MuiContainer-root MuiContainer-disableGutters css-1h4exh5">
+<div style="min-height: 100vh; display: flex; flex-direction: column;">
+<div style="position: relative; z-index: 1300;">
+<div class="pkb-nav"><button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall mobile-context-button css-1j7qk7u" tabindex="0" type="button" aria-label="Open context navigation"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1k33q06" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="MenuRoundedIcon"><path d="M4 18h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1m0-5h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1M3 7c0 .55.45 1 1 1h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1"></path></svg><span class="MuiTouchRipple-root css-w0pj6f"></span></button>
+<div class="logo"><a href="https://pankbase.org"><img class="logo-img" src="../assets/external/5c6802d3c71c.svg" alt="PanKbase Logo"></a></div>
+<div class="nav-right">
+<div class="menu-wrapper">
+<div class="topmenu"><a class="topmenu-item" href="https://pankbase.org/funding.html"><span>Funding Opportunities</span><img src="../assets/external/818074359b9e.svg" alt="Funding Icon" style="height: 15px; width: 15px;"></a><span class="topmenu-item topmenu-item-disabled"><span>Search</span><img src="../assets/external/a204b8f9dfa0.svg" alt="Search Icon" style="height: 15px; width: 15px;"></span><span class="topmenu-item topmenu-item-disabled"><span>Analysis</span></span><span class="topmenu-item topmenu-item-disabled"><span>Login</span><img src="../assets/external/23291bcd3e16.svg" alt="User Icon" style="height: 15px; width: 15px;"></span></div>
+<div class="menu">
+<div class="main-menu-items">
+<div class="menu-item-wrapper"><a class="menu-item menu-item-main menu-item-main-highlighted" href="landing.html" data-atlas-target="landing">PanKgraph</a>
+<div class="submenu"><a class="submenu-item" href="landing.html" data-atlas-target="landing">Chat</a><a class="submenu-item" href="tools.html" data-atlas-target="tools">Tools</a>
+<div class="submenu-divider"></div>
+<a class="submenu-item" href="documentation.html" data-atlas-target="documentation">KG API Doc</a><a class="submenu-item" href="documentation.html" data-atlas-target="documentation">Literature API Doc</a><a class="submenu-item" href="documentation.html" data-atlas-target="documentation">Ontology</a><a class="submenu-item" href="documentation.html" data-atlas-target="documentation">Use cases</a><a class="submenu-item" href="documentation.html" data-atlas-target="documentation">Tutorials</a><a class="submenu-item" href="documentation.html" data-atlas-target="documentation">Statistics</a></div>
+</div>
+<div class="menu-item-wrapper"><a class="menu-item menu-item-main" href="https://pankbase.org/single-cell.html">Integrated Cell Browser</a></div>
+</div>
+<div class="menu-item-wrapper"><button type="button" class="menu-item menu-trigger">Data</button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org/donors.html">Donor Summary</a><a class="submenu-item" href="https://data.pankbase.org">Data Library</a><a class="submenu-item" href="https://pankbase.org/apis.html">APIs</a></div>
+</div>
+<div class="menu-item-wrapper"><button type="button" class="menu-item menu-trigger">Resources</button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org/single-cell.html">Integrated Cell Browser</a><a class="submenu-item" href="https://pankbase.org/atacseq.html">Genome Browser</a><a class="submenu-item" href="https://pankbase.org/diff-exp.html">Differential Gene Expression Browser</a><a class="submenu-item" href="https://pankbase.org/gene.html">Gene Browser</a><a class="submenu-item" href="https://pankbase.org/functional.html">Functional Browser</a><a class="submenu-item" href="https://pankbase.org/pca-explorer.html">PCA Explorer</a><a class="submenu-item" href="https://pankbase.org/analytical-library.html">Analytical Library</a><a class="submenu-item" href="https://pankbase.org/metadata-data-standards.html">Data and Metadata Standards</a><a class="submenu-item" href="https://pankbase.org/tools-pipelines.html">Tools | Pipelines</a><a class="submenu-item" href="https://pankbase.org/publications.html">Publications</a></div>
+</div>
+<div class="menu-item-wrapper"><button type="button" class="menu-item menu-trigger">About</button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org/projects.html">PanKbase Program</a><a class="submenu-item" href="https://pankbase.org/people.html">People</a><a class="submenu-item" href="https://pankbase.org/policies.html">Policies</a><a class="submenu-item" href="https://pankbase.org/programs.html">Related Programs</a><a class="submenu-item" href="https://pankbase.org/collaborate.html">Collaborate</a><a class="submenu-item" href="https://pankbase.org/funding.html">Funding Opportunities</a></div>
+</div>
+<div class="menu-item-wrapper"><button type="button" class="menu-item menu-trigger">Help</button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org/contact.html">Contact | Feedback</a><a class="submenu-item" href="https://pankbase.org/tutorials.html">Tutorials</a><a class="submenu-item">GitHub</a><a class="submenu-item" href="https://pankbase.org/news.html">News</a></div>
+</div>
+</div>
+</div>
+<div class="logo hirn-logo"><a href="https://hirnetwork.org/" target="_blank" rel="noreferrer"><img class="logo-img" src="../assets/static/media/logo-hirn.198e6858a62155bf2a47d86f3b88473b.svg" alt="HIRN Logo"></a></div>
+</div>
+</div>
+<p class="MuiTypography-root MuiTypography-body1 css-7wf5jr">beta</p>
+</div>
+<div style="flex: 1 1 0%; display: flex; flex-direction: column;">
+<div style="display: flex; width: 100%; flex: 1 1 0%; min-height: 100%; align-items: stretch;">
+<div class="MuiBox-root css-sq0jtx">
+<div class="MuiBox-root css-4p5pbt">
+<div class="MuiBox-root css-mbx0dj">
+<p class="MuiTypography-root MuiTypography-body1 css-1pvay5b">PanKgraph</p>
+<button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-18pivpe" tabindex="0" type="button" aria-label="Collapse sidebar" aria-expanded="true"><svg width="24" height="18" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 18px; height: 14px;"><path d="M3.06641 17.9785C2.04427 17.9785 1.27604 17.7246 0.761719 17.2168C0.253906 16.7155 0 15.9603 0 14.9512V3.02734C0 2.01823 0.253906 1.26302 0.761719 0.761719C1.27604 0.253906 2.04427 0 3.06641 0H19.9609C20.9896 0 21.7578 0.253906 22.2656 0.761719C22.7734 1.26302 23.0273 2.01823 23.0273 3.02734V14.9512C23.0273 15.9603 22.7734 16.7155 22.2656 17.2168C21.7578 17.7246 20.9896 17.9785 19.9609 17.9785H3.06641ZM3.08594 16.4062H19.9414C20.4232 16.4062 20.7943 16.2793 21.0547 16.0254C21.3216 15.765 21.4551 15.3809 21.4551 14.873V3.10547C21.4551 2.59766 21.3216 2.2168 21.0547 1.96289C20.7943 1.70247 20.4232 1.57227 19.9414 1.57227H3.08594C2.59766 1.57227 2.22331 1.70247 1.96289 1.96289C1.70247 2.2168 1.57227 2.59766 1.57227 3.10547V14.873C1.57227 15.3809 1.70247 15.765 1.96289 16.0254C2.22331 16.2793 2.59766 16.4062 3.08594 16.4062ZM7.44141 16.709V1.2793H8.97461V16.709H7.44141ZM5.56641 5.19531H3.4668C3.32357 5.19531 3.19661 5.13997 3.08594 5.0293C2.97526 4.91211 2.91992 4.78516 2.91992 4.64844C2.91992 4.4987 2.97526 4.37174 3.08594 4.26758C3.19661 4.1569 3.32357 4.10156 3.4668 4.10156H5.56641C5.70964 4.10156 5.83659 4.1569 5.94727 4.26758C6.06445 4.37174 6.12305 4.4987 6.12305 4.64844C6.12305 4.78516 6.06445 4.91211 5.94727 5.0293C5.83659 5.13997 5.70964 5.19531 5.56641 5.19531ZM5.56641 7.72461H3.4668C3.32357 7.72461 3.19661 7.66927 3.08594 7.55859C2.97526 7.44792 2.91992 7.31771 2.91992 7.16797C2.91992 7.02474 2.97526 6.90104 3.08594 6.79688C3.19661 6.6862 3.32357 6.63086 3.4668 6.63086H5.56641C5.70964 6.63086 5.83659 6.6862 5.94727 6.79688C6.06445 6.90104 6.12305 7.02474 6.12305 7.16797C6.12305 7.31771 6.06445 7.44792 5.94727 7.55859C5.83659 7.66927 5.70964 7.72461 5.56641 7.72461ZM5.56641 10.2441H3.4668C3.32357 10.2441 3.19661 10.1921 3.08594 10.0879C2.97526 9.97721 2.91992 9.85026 2.91992 9.70703C2.91992 9.55729 2.97526 9.43034 3.08594 9.32617C3.19661 9.21549 3.32357 9.16016 3.4668 9.16016H5.56641C5.70964 9.16016 5.83659 9.21549 5.94727 9.32617C6.06445 9.43034 6.12305 9.55729 6.12305 9.70703C6.12305 9.85026 6.06445 9.97721 5.94727 10.0879C5.83659 10.1921 5.70964 10.2441 5.56641 10.2441Z" fill="currentColor"></path></svg><span class="MuiTouchRipple-root css-w0pj6f"></span></button></div>
+<div class="MuiBox-root css-1h803w4"><button class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation css-x0rggo" tabindex="0" type="button" aria-label="New Chat" aria-current="page">
+<div class="sidebar-icon-bubble MuiBox-root css-1ef9h13"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-vubbuv" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="AddIcon"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"></path></svg></div>
+<span class="MuiBox-root css-al2wdu">New Chat</span><span class="MuiTouchRipple-root css-w0pj6f"></span></button><button class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation css-okki8e" tabindex="0" type="button" aria-label="Tools">
+<div class="sidebar-icon-bubble MuiBox-root css-1ef9h13"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 20px; height: 20px;"><path d="M5.99967 3.33333H4.66634C4.31272 3.33333 3.97358 3.47381 3.72353 3.72386C3.47348 3.97391 3.33301 4.31304 3.33301 4.66667V12.6667C3.33301 13.0203 3.47348 13.3594 3.72353 13.6095C3.97358 13.8595 4.31272 14 4.66634 14H11.333C11.6866 14 12.0258 13.8595 12.2758 13.6095C12.5259 13.3594 12.6663 13.0203 12.6663 12.6667V4.66667C12.6663 4.31304 12.5259 3.97391 12.2758 3.72386C12.0258 3.47381 11.6866 3.33333 11.333 3.33333H9.99967M5.99967 3.33333C5.99967 2.97971 6.14015 2.64057 6.3902 2.39052C6.64025 2.14048 6.97939 2 7.33301 2H8.66634C9.01996 2 9.3591 2.14048 9.60915 2.39052C9.8592 2.64057 9.99967 2.97971 9.99967 3.33333M5.99967 3.33333C5.99967 3.68696 6.14015 4.02609 6.3902 4.27614C6.64025 4.52619 6.97939 4.66667 7.33301 4.66667H8.66634C9.01996 4.66667 9.3591 4.52619 9.60915 4.27614C9.8592 4.02609 9.99967 3.68696 9.99967 3.33333M5.99967 11.3333V8.66667M7.99967 11.3333V10.6667M9.99967 11.3333V10" stroke="#7D7D7D" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+<span class="MuiBox-root css-al2wdu">Tools</span><span class="MuiTouchRipple-root css-w0pj6f"></span></button>
+<p class="MuiTypography-root MuiTypography-body1 css-w52wbx">Recent</p>
+<div class="MuiBox-root css-1hcm27b"><button class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-rddzdu" tabindex="0" type="button">
+<div class="MuiBox-root css-1whztik">Show the evidence connected to INS.</div>
+<span class="MuiTouchRipple-root css-w0pj6f"></span></button></div>
+</div>
+</div>
+</div>
+<div style="position: relative; flex: 1 1 0%; min-width: 0px; background-color: transparent; margin-top: 0px; padding-top: 0px; padding-bottom: 0px;">
+<div>
+<div style="padding: 0px; display: flex; justify-content: center;">
+<div style="background-color: transparent; border-radius: 0px; box-shadow: none; padding: 0px; width: 100%; max-width: 100%;">
+<div class="MuiContainer-root MuiContainer-disableGutters css-1qnw78m">
+<div class="MuiBox-root css-1coo4r8">
+<div class="MuiBox-root css-1tcf7lu">
+<div class="MuiBox-root css-0" id="result-1-question-1">
+<div class="MuiBox-root css-y2i71g">
+<div class="MuiStack-root css-1li60qh">
+<div class="MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-filledDefault css-1rmddvw"><span class="MuiChip-label MuiChip-labelMedium css-9iedg7">Q1</span></div>
+<p class="MuiTypography-root MuiTypography-body1 css-9etsy6">Find INS and review its connected evidence.</p>
+</div>
+<div class="MuiGrid-root MuiGrid-container css-30r288">
+<div class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-12 MuiGrid-grid-lg-7 css-17sz604" id="result-1-ai-overview">
+<div class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-qphchk">
+<div class="MuiBox-root css-18iel8m">
+<p class="MuiTypography-root MuiTypography-body1 css-r0xexn">AI Overview</p>
+<hr class="MuiDivider-root MuiDivider-fullWidth css-a1x0nw"></div>
+<div class="MuiBox-root css-1unq1gb">
+<div class="MuiStack-root css-pb4y8c">
+<div class="MuiBox-root css-0" id="result-1-ai-overview-1">
+<div class="MuiBox-root css-vsumi9">
+<p class="MuiTypography-root MuiTypography-body1 css-1tke7mm"><strong>Illustrative design fixture — not a scientific result.</strong></p>
+
+<p class="MuiTypography-root MuiTypography-body1 css-1tke7mm">This example shows the current answer layout, with links to retrieved evidence and supporting materials.</p>
+
+<div class="MuiBox-root css-1qzwrnv">
+<div class="MuiBox-root css-1d1z26w">
+<div class="MuiBox-root css-1v04mmd">
+<p class="MuiTypography-root MuiTypography-body1 css-1gay58j">Table 1</p>
+<div class="MuiBox-root css-axw7ok"><button class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary css-1hiuq95" tabindex="0" type="button">Download CSV<span class="MuiTouchRipple-root css-w0pj6f"></span></button><button class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary css-1hiuq95" tabindex="0" type="button"><span class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeSmall css-u0g51i"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1yls13q" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="OpenInFullIcon"><path d="M21 11V3h-8l3.29 3.29-10 10L3 13v8h8l-3.29-3.29 10-10z"></path></svg></span>Full Screen<span class="MuiTouchRipple-root css-w0pj6f"></span></button></div>
+</div>
+<div class="MuiBox-root css-1ygdrb6">
+<table>
+<thead>
+<tr><th>Evidence type</th><th>Example context</th><th>Review note</th></tr>
+</thead>
+<tbody>
+<tr><td>Expression</td><td>Beta cell</td><td>Synthetic display record</td></tr>
+<tr><td>Pathway</td><td>Example pathway</td><td>Check the linked source</td></tr>
+<tr><td>Genetic association</td><td>Example credible set</td><td>Association does not establish causality</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div aria-hidden="true" class="MuiBackdrop-root css-1jfx3rx" style="opacity: 0; visibility: hidden;">
+<div class="MuiBox-root css-1xk79jh">
+<div class="MuiBox-root css-ypz0uv">
+<p class="MuiTypography-root MuiTypography-body1 css-1nje5oq">Table 1</p>
+<div class="MuiBox-root css-axw7ok"><button class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary css-1hiuq95" tabindex="0" type="button">Download CSV<span class="MuiTouchRipple-root css-w0pj6f"></span></button><button class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary css-1hiuq95" tabindex="0" type="button"><span class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeSmall css-u0g51i"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1yls13q" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="CloseIcon"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg></span>Close<span class="MuiTouchRipple-root css-w0pj6f"></span></button></div>
+</div>
+<div class="MuiBox-root css-9d46rq">
+<table>
+<thead>
+<tr><th>Evidence type</th><th>Example context</th><th>Review note</th></tr>
+</thead>
+<tbody>
+<tr><td>Expression</td><td>Beta cell</td><td>Synthetic display record</td></tr>
+<tr><td>Pathway</td><td>Example pathway</td><td>Check the linked source</td></tr>
+<tr><td>Genetic association</td><td>Example credible set</td><td>Association does not establish causality</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+<p class="MuiTypography-root MuiTypography-body1 css-1tke7mm">The graph and table below are supplied only to help review the interface.</p>
+</div>
+</div>
+<div class="MuiBox-root css-0" id="result-1-ai-overview-2">
+<p class="MuiTypography-root MuiTypography-body1 css-1iwl1hc"><span style="margin-right: 6px;">✨</span>Example literature perspective</p>
+<div class="MuiBox-root css-vsumi9">
+<p class="MuiTypography-root MuiTypography-body1 css-1tke7mm">Illustrative prose for the literature section. This is not a retrieved scientific claim.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-12 MuiGrid-grid-lg-5 css-bkxi6e" id="result-1-visual-material">
+<div class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-122wl8u">
+<div class="MuiBox-root css-18iel8m">
+<p class="MuiTypography-root MuiTypography-body1 css-r0xexn">Visual Material</p>
+<hr class="MuiDivider-root MuiDivider-fullWidth css-a1x0nw"></div>
+<div class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-hy25i5">
+<div class="MuiBox-root css-uwwqev">
+<div style="display: flex; flex-direction: column; position: relative; justify-content: flex-start; width: 100%; height: 100%;">
+<div class=" __________cytoscape_container" style="width: 100%; height: 100%; background-color: transparent; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; border-radius: 8px; position: relative; flex: 1 1 0%; min-height: 0px; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
+<div style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative; z-index: 0; overflow: hidden; width: 388px; height: 486px;"><img src="../assets/captured/3ecc777167216ad69b59.png" width="388" height="486" style="user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); outline-style: none; position: absolute; z-index: 3; width: 388px; height: 486px;"><img src="../assets/captured/3ecc777167216ad69b59.png" width="388" height="486" style="user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); outline-style: none; position: absolute; z-index: 2; width: 388px; height: 486px;"><img src="../assets/captured/0ef902e7c3520657a20a.png" width="388" height="486" style="user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); outline-style: none; position: absolute; z-index: 1; width: 388px; height: 486px;"></div>
+</div>
+<div class="MuiBox-root css-1a1dctf"><button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1yxmbwk" tabindex="0" type="button" style="padding: 8px; background: none; border-radius: 4px;"><img src="../assets/static/media/fullscreen.3c45e416c35a6846547b5ca22b4a3d63.svg" alt="Enter/Exit Fullscreen" width="20" height="20"><span class="MuiTouchRipple-root css-w0pj6f"></span></button><button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1yxmbwk" tabindex="0" type="button" style="padding: 5px; background: none; border-radius: 4px; opacity: 1;"><img src="../assets/static/media/zoom-plus.4c15c5b789e10278f17889953d7ebe75.svg" alt="Zoom Out" width="26" height="26"><span class="MuiTouchRipple-root css-w0pj6f"></span></button><button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1yxmbwk" tabindex="0" type="button" style="padding: 5px; background: none; border-radius: 4px; opacity: 1;"><img src="../assets/static/media/zoom-minus.0e2af98629783562ea428ce5a2c99af4.svg" alt="Zoom In" width="26" height="26"><span class="MuiTouchRipple-root css-w0pj6f"></span></button><button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1yxmbwk" tabindex="0" type="button" style="padding: 7px; background: none; border-radius: 4px;"><img src="../assets/static/media/recenter.e8bccd549361afbc85eec5c2abc378c0.svg" alt="Recenter" width="22" height="22"><span class="MuiTouchRipple-root css-w0pj6f"></span></button><button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1yxmbwk" tabindex="0" type="button" style="padding: 7px; background: none; border-radius: 4px;"><img src="../assets/static/media/hover.d05b7e9ad3836c487c4b5bde5a398b7b.svg" alt="Disable Info Card" width="22" height="22"><span class="MuiTouchRipple-root css-w0pj6f"></span></button><button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1yxmbwk" tabindex="0" type="button" style="padding: 6px; background: none; border-radius: 4px;"><img src="../assets/static/media/download.82199bf0332851cee3adf839539ef01b.svg" alt="Download" width="24" height="24"><span class="MuiTouchRipple-root css-w0pj6f"></span></button></div>
+<div class="MuiBox-root css-3dw5tj">
+<p class="MuiTypography-root MuiTypography-body1 css-zus48z">100%</p>
+</div>
+<div style="font-family: &quot;Open Sans&quot;; font-weight: 400; position: absolute; left: -77.7645px; top: 198.994px; background: rgb(255, 255, 255); border-radius: 8px; overflow: hidden auto; max-height: calc(-24px + 100vh); color: rgb(51, 51, 51); box-shadow: rgba(0, 0, 0, 0.15) 0px 4px 12px; z-index: 1000; width: 280px; pointer-events: auto; opacity: 1; display: block; transform: translateY(0px); transition: opacity 0.15s allow-discrete, display 0.15s, left 0.15s, top 0.15s; will-change: transform, opacity; overflow-wrap: break-word;">
+<div class="MuiBox-root css-46u0gq">
+<p class="MuiTypography-root MuiTypography-body1 css-5l4vbl">Gene enriched in cell type</p>
+</div>
+<div class="MuiBox-root css-1bd0ghl">
+<p class="MuiTypography-root MuiTypography-body1 css-tv0q5d">Relationship</p>
+<div class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-c4sutr" style="min-height: 0px;">
+<div class="MuiCollapse-wrapper MuiCollapse-vertical css-hboir5">
+<div class="MuiCollapse-wrapperInner MuiCollapse-vertical css-8atqhb">
+<div class="MuiBox-root css-1igairg">
+<div class="MuiBox-root css-1ialerq" data-field="__from">
+<p class="MuiTypography-root MuiTypography-body1 css-6zf55f">From</p>
+<span class="MuiTypography-root MuiTypography-body1 css-jy1ub9">INS</span></div>
+<div class="MuiBox-root css-1ialerq" data-field="__to">
+<p class="MuiTypography-root MuiTypography-body1 css-6zf55f">To</p>
+<span class="MuiTypography-root MuiTypography-body1 css-jy1ub9">Beta cell</span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="MuiBox-root css-1bd0ghl">
+<p class="MuiTypography-root MuiTypography-body1 css-tv0q5d">Key evidence</p>
+<div class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-c4sutr" style="min-height: 0px;">
+<div class="MuiCollapse-wrapper MuiCollapse-vertical css-hboir5">
+<div class="MuiCollapse-wrapperInner MuiCollapse-vertical css-8atqhb">
+<div class="MuiBox-root css-1igairg">
+<div class="MuiBox-root css-1ialerq" data-field="gene_symbol" title="Recorded field: gene_symbol · Exact value: INS">
+<p class="MuiTypography-root MuiTypography-body1 css-6zf55f">Gene symbol</p>
+<span class="MuiTypography-root MuiTypography-body1 css-jy1ub9">INS<wbr></span></div>
+<div class="MuiBox-root css-1ialerq" data-field="cell_type_label" title="Recorded field: cell_type_label · Exact value: Beta cell">
+<p class="MuiTypography-root MuiTypography-body1 css-6zf55f">Cell type label</p>
+<span class="MuiTypography-root MuiTypography-body1 css-jy1ub9">Beta cell<wbr></span></div>
+<div class="MuiBox-root css-1ialerq" data-field="condition" title="Recorded field: condition · Exact value: EXAMPLE condition">
+<p class="MuiTypography-root MuiTypography-body1 css-6zf55f">Condition</p>
+<span class="MuiTypography-root MuiTypography-body1 css-jy1ub9">EXAMPLE condition<wbr></span></div>
+<div class="MuiBox-root css-1ialerq" data-field="comparison" title="Recorded field: comparison · Exact value: EXAMPLE comparison">
+<p class="MuiTypography-root MuiTypography-body1 css-6zf55f">Comparison</p>
+<span class="MuiTypography-root MuiTypography-body1 css-jy1ub9">EXAMPLE comparison<wbr></span></div>
+<div class="MuiBox-root css-1ialerq" data-field="log2_fold_change" title="Recorded field: log2_fold_change · Exact value: 1.25">
+<p class="MuiTypography-root MuiTypography-body1 css-6zf55f">Log2 fold change</p>
+<span class="MuiTypography-root MuiTypography-body1 css-jy1ub9">1.25<wbr></span></div>
+<div class="MuiBox-root css-1ialerq" data-field="padj" title="Recorded field: padj · Exact value: 0.008">
+<p class="MuiTypography-root MuiTypography-body1 css-6zf55f">Adjusted P-value</p>
+<span class="MuiTypography-root MuiTypography-body1 css-jy1ub9">0.008<wbr></span></div>
+<div class="MuiBox-root css-1ialerq" data-field="pvalue" title="Recorded field: pvalue · Exact value: 0.002">
+<p class="MuiTypography-root MuiTypography-body1 css-6zf55f">P-value</p>
+<span class="MuiTypography-root MuiTypography-body1 css-jy1ub9">0.002<wbr></span></div>
+<div class="MuiBox-root css-1ialerq" data-field="median_donor_log_cpm" title="Recorded field: median_donor_log_cpm · Exact value: 2.4">
+<p class="MuiTypography-root MuiTypography-body1 css-6zf55f">Median donor log counts per million</p>
+<span class="MuiTypography-root MuiTypography-body1 css-jy1ub9">2.4<wbr></span></div>
+<div class="MuiBox-root css-1ialerq" data-field="total_cells" title="Recorded field: total_cells · Exact value: 100">
+<p class="MuiTypography-root MuiTypography-body1 css-6zf55f">Total cells</p>
+<span class="MuiTypography-root MuiTypography-body1 css-jy1ub9">100<wbr></span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="MuiBox-root css-1bd0ghl">
+<p class="MuiTypography-root MuiTypography-body1 css-tv0q5d">Sources</p>
+<div class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-c4sutr" style="min-height: 0px;">
+<div class="MuiCollapse-wrapper MuiCollapse-vertical css-hboir5">
+<div class="MuiCollapse-wrapperInner MuiCollapse-vertical css-8atqhb">
+<div class="MuiBox-root css-1igairg">
+<div class="MuiBox-root css-1ialerq" data-field="data_source" title="Recorded field: data_source · Exact value: Synthetic design fixture">
+<p class="MuiTypography-root MuiTypography-body1 css-6zf55f">Data source</p>
+<span class="MuiTypography-root MuiTypography-body1 css-jy1ub9">Synthetic design fixture<wbr></span></div>
+<div class="MuiBox-root css-1ialerq" data-field="data_version" title="Recorded field: data_version · Exact value: EXAMPLE">
+<p class="MuiTypography-root MuiTypography-body1 css-6zf55f">Source version</p>
+<span class="MuiTypography-root MuiTypography-body1 css-jy1ub9">EXAMPLE<wbr></span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="MuiBox-root css-1bd0ghl">
+<p class="MuiTypography-root MuiTypography-body1 css-tv0q5d">Additional details<button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1j4csqq" tabindex="0" type="button" aria-label="Show additional details" aria-expanded="false"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-vubbuv" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="KeyboardArrowDownIcon"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"></path></svg><span class="MuiTouchRipple-root css-w0pj6f"></span></button></p>
+<div class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-a0y2e3" style="min-height: 0px;">
+<div class="MuiCollapse-wrapper MuiCollapse-vertical css-hboir5">
+<div class="MuiCollapse-wrapperInner MuiCollapse-vertical css-8atqhb">
+<div class="MuiBox-root css-1igairg">
+<div class="MuiBox-root css-1ialerq" data-field="context" title="Recorded field: context · Exact value: Synthetic evidence values for designer review; no biological result">
+<p class="MuiTypography-root MuiTypography-body1 css-6zf55f">Context</p>
+<span class="MuiTypography-root MuiTypography-body1 css-jy1ub9">Synthetic evidence value<wbr>s for designer review; n<wbr>o biological result<wbr></span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="MuiBox-root css-1bd0ghl">
+<p class="MuiTypography-root MuiTypography-body1 css-tv0q5d">How to read this evidence<button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1j4csqq" tabindex="0" type="button" aria-label="Show how to read this evidence" aria-expanded="false"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-vubbuv" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="KeyboardArrowDownIcon"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"></path></svg><span class="MuiTouchRipple-root css-w0pj6f"></span></button></p>
+<div class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-a0y2e3" style="min-height: 0px;">
+<div class="MuiCollapse-wrapper MuiCollapse-vertical css-hboir5">
+<div class="MuiCollapse-wrapperInner MuiCollapse-vertical css-8atqhb">
+<div class="MuiBox-root css-1igairg">
+<div class="MuiBox-root css-u4p24i">
+<p class="MuiTypography-root MuiTypography-body1 css-ou3ke4"><span>Difference on a base-2 log scale; +1 corresponds to a two-fold ratio. Direction depends on the recorded comparison. P-value adjusted for multiple tests; smaller values indicate stronger statistical evidence under the test assumptions. A P-value measures compatibility with the test’s null model, not the probability that a biological claim is true.</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="MuiBox-root css-14yq1du">
+<p class="MuiTypography-root MuiTypography-body1 css-ju9xlm"><span>Data source: Synthetic design<wbr> fixture<wbr></span></p>
+</div>
+</div>
+<div style="display: flex; flex-direction: row; gap: 200px;">
+<div style="position: absolute; bottom: 8px; left: 8px; display: flex; flex-direction: column; background: rgb(255, 255, 255); padding: 12px; border-radius: 8px; box-shadow: rgba(100, 100, 100, 0.25) 0px 4px 15px -3px; z-index: 10; user-select: none; height: fit-content; width: 110px; transition: width 0.3s, height 0.3s, opacity 0.3s, box-shadow 0.3s;">
+<div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center;">
+<div style="font-size: 14px; font-weight: 700; color: rgb(23, 42, 58); font-family: &quot;Open Sans&quot;;">Legend</div>
+<button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1yxmbwk" tabindex="0" type="button" style="padding: 4px; width: 28px; height: 28px; border-radius: 50%;"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-vubbuv" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="KeyboardArrowRightIcon" style="color: rgb(23, 42, 58); font-size: 20px;"><path d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z"></path></svg><span class="MuiTouchRipple-root css-w0pj6f"></span></button></div>
+<div class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-a0y2e3" style="min-height: 0px;">
+<div class="MuiCollapse-wrapper MuiCollapse-vertical css-hboir5">
+<div class="MuiCollapse-wrapperInner MuiCollapse-vertical css-8atqhb">
+<div style="width: 350px; padding-top: 6px; font-size: 14px; font-family: &quot;Open Sans&quot;; font-weight: 400;">
+<div style="display: flex; align-items: center; gap: 8px; padding-bottom: 2px; font-size: 12px;"><span style="padding: 2px 6px; border-radius: 6px; background-color: rgb(233, 233, 233); font-size: 12px; color: black; border: 1.5px solid rgb(233, 233, 233); height: 8px;">　　　　</span>Core Nodes<span style="padding: 2px 6px; border-radius: 6px; background-color: white; font-size: 12px; color: black; border: 1.5px solid rgb(233, 233, 233); height: 8px; margin-left: 16px;">　　　　</span>Neighbor</div>
+<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding-top: 4px;"><span style="padding: 2px 6px; border-radius: 6px; background-color: rgb(164, 208, 246); font-size: 12px; color: black;">Gene</span><span style="padding: 2px 6px; border-radius: 6px; background-color: rgb(255, 179, 113); font-size: 12px; color: black;">Sequence Variant</span><span style="padding: 2px 6px; border-radius: 6px; background-color: rgb(255, 222, 125); font-size: 12px; color: black;">Ontology</span><span style="padding: 2px 6px; border-radius: 6px; background-color: rgb(141, 215, 165); font-size: 12px; color: black;">Anatomical Structure</span><span style="padding: 2px 6px; border-radius: 6px; background-color: rgb(245, 190, 255); font-size: 12px; color: black;">Literature</span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-12 MuiGrid-grid-lg-7 css-191kbbk" id="result-1-evidences">
+<div class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-qphchk">
+<div class="MuiBox-root css-1c3srm3">
+<div class="MuiTabs-root css-1t3gu2d">
+<div class="MuiTabs-scrollableX MuiTabs-hideScrollbar css-oqr85h" style="width: 99px; height: 99px; position: absolute; top: -9999px; overflow: scroll;"></div>
+<div class="MuiTabs-scroller MuiTabs-hideScrollbar MuiTabs-scrollableX css-12qnib" style="margin-bottom: 0px;">
+<div class="MuiTabs-flexContainer css-k008qs" role="tablist"><button class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-fuh300" tabindex="0" type="button" role="tab" aria-selected="true">References<span class="MuiTouchRipple-root css-w0pj6f"></span></button><button class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-fuh300" tabindex="-1" type="button" role="tab" aria-selected="false">PanKbase Links<span class="MuiTouchRipple-root css-w0pj6f"></span></button><button class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-fuh300" tabindex="-1" type="button" role="tab" aria-selected="false">External Links<span class="MuiTouchRipple-root css-w0pj6f"></span></button><button class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-fuh300" tabindex="-1" type="button" role="tab" aria-selected="false">Empirical Evidence<span class="MuiTouchRipple-root css-w0pj6f"></span></button></div>
+<span class="MuiTabs-indicator css-ttwr4n" style="left: 0px; width: 65.875px;"></span></div>
+</div>
+</div>
+<div class="MuiStack-root css-j7qwjs">
+<div class="MuiBox-root css-13o7eu2">
+<div class="MuiStack-root css-wu34vq">
+<div class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-ii2cf9" id="reference-item-main-design-reference-1">
+<div class="MuiStack-root css-1ba2gr1">
+<div class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-13x6zay"><span class="MuiChip-label MuiChip-labelSmall css-1pjtbja">1</span></div>
+<div class="MuiBox-root css-1fjtzvx">
+<p class="MuiTypography-root MuiTypography-body1 css-8o6e5x">Example reference title for design review</p>
+<p class="MuiTypography-root MuiTypography-body1 css-1cjlnq0">Illustrative reference • 2026</p>
+</div>
+</div>
+</div>
+<div class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-ii2cf9" id="reference-item-main-ref-example-2">
+<div class="MuiStack-root css-1ba2gr1">
+<div class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-13x6zay"><span class="MuiChip-label MuiChip-labelSmall css-1pjtbja">2</span></div>
+<div class="MuiBox-root css-1fjtzvx">
+<p class="MuiTypography-root MuiTypography-body1 css-8o6e5x">Example reference title for design review</p>
+<p class="MuiTypography-root MuiTypography-body1 css-1cjlnq0">2026 • synthetic fixture • Example literature perspective</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="MuiBox-root css-1hyfx7x">
+<div class="MuiStack-root css-wu34vq"><a class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-auc7wd" href="https://pankbase.org/" target="_blank" rel="noreferrer">
+<div class="MuiStack-root css-1ba2gr1">
+<div class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-13x6zay"><span class="MuiChip-label MuiChip-labelSmall css-1pjtbja">1</span></div>
+<div class="MuiBox-root css-1fjtzvx">
+<p class="MuiTypography-root MuiTypography-body1 css-8o6e5x">PanKbase resource link</p>
+<p class="MuiTypography-root MuiTypography-body1 css-1cjlnq0">https://pankbase.org/</p>
+</div>
+</div>
+</a></div>
+</div>
+<div class="MuiBox-root css-1hyfx7x">
+<div class="MuiBox-root css-0" aria-label="External links by source">
+<div class="MuiStack-root css-wu34vq">
+<div class="MuiBox-root css-1a8gkh7"><button class="MuiButtonBase-root css-ntmn2d" tabindex="0" type="button" aria-expanded="false">
+<div class="MuiBox-root css-js5pb6" aria-hidden="true"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-24p29k" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="ExpandMoreIcon"><path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"></path></svg></div>
+<div class="MuiBox-root css-1fjtzvx">
+<div class="MuiStack-root css-1f6xda1">
+<p class="MuiTypography-root MuiTypography-body1 css-1ejxxlq">Ensembl</p>
+<p class="MuiTypography-root MuiTypography-body2 css-1lh7jie">1 link</p>
+</div>
+<p class="MuiTypography-root MuiTypography-body2 css-x9zmxl">INS</p>
+</div>
+<span class="MuiTouchRipple-root css-w0pj6f"></span></button></div>
+<div class="MuiBox-root css-1a8gkh7"><button class="MuiButtonBase-root css-ntmn2d" tabindex="0" type="button" aria-expanded="false">
+<div class="MuiBox-root css-js5pb6" aria-hidden="true"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-24p29k" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="ExpandMoreIcon"><path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"></path></svg></div>
+<div class="MuiBox-root css-1fjtzvx">
+<div class="MuiStack-root css-1f6xda1">
+<p class="MuiTypography-root MuiTypography-body1 css-1ejxxlq">Example source group</p>
+<p class="MuiTypography-root MuiTypography-body2 css-1lh7jie">1 link</p>
+</div>
+<p class="MuiTypography-root MuiTypography-body2 css-x9zmxl">Example entity</p>
+</div>
+<span class="MuiTouchRipple-root css-w0pj6f"></span></button></div>
+</div>
+</div>
+</div>
+<div class="MuiBox-root css-1hyfx7x">
+<div class="MuiBox-root css-1i43dhb">
+<div class="MuiBox-root css-ntwt7x">
+<div class="MuiBox-root css-d08y5i"><img class="MuiBox-root css-ajavj0" src="../assets/static/media/designer-plot.svg" alt="Empirical Evidence">
+<p class="MuiTypography-root MuiTypography-body1 css-pv5lk5">View plot</p>
+</div>
+<div class="MuiBox-root css-yd8sa2">
+<p class="MuiTypography-root MuiTypography-body1 css-zcknjv">Illustrative association plot</p>
+<p class="MuiTypography-root MuiTypography-body1 css-r5t6d8">Synthetic values for layout review only.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-12 MuiGrid-grid-lg-5 css-19ihigg" id="result-1-follow-up">
+<div class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-122wl8u">
+<div class="MuiBox-root css-18iel8m">
+<p class="MuiTypography-root MuiTypography-body1 css-r0xexn">Follow Up</p>
+<hr class="MuiDivider-root MuiDivider-fullWidth css-a1x0nw"></div>
+<div class="MuiStack-root css-1orv6po"><button class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-1i4npp" type="button">
+<p class="MuiTypography-root MuiTypography-body1 css-1xa1upw">Show supporting sources for this result.</p>
+</button><button class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-1i4npp" type="button">
+<p class="MuiTypography-root MuiTypography-body1 css-1xa1upw">Explore the related pathway evidence.</p>
+</button></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div style="position: sticky; bottom: 0px; background-color: rgb(255, 255, 255); border-top: 1px solid rgb(224, 224, 224); box-shadow: rgba(0, 0, 0, 0.08) 0px -2px 12px; padding: 16px; z-index: 1300; margin-top: 8px; overflow: visible;">
+<div style="max-width: 1200px; margin: 0px auto; display: flex; gap: 12px;"><input type="text" placeholder="Enter your search query..." value="" style="flex: 1 1 0%; padding: 12px 16px; border-radius: 8px; border: 1px solid rgb(221, 221, 221); font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.2s; background-color: rgb(255, 255, 255); color: rgb(15, 23, 42); cursor: text;"><button style="padding: 12px 24px; border-radius: 8px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background-color: rgb(58, 131, 139); color: rgb(255, 255, 255); font-weight: 600; cursor: pointer; font-size: 14px; transition: background-color 0.2s;">Search</button></div>
+<button type="button" style="position: absolute; right: 24px; top: -60px; z-index: 1300; display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 10px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background-color: rgb(58, 131, 139); color: rgb(255, 255, 255); font-family: &quot;Open Sans&quot;, sans-serif; font-weight: 600; font-size: 16px; cursor: pointer; box-shadow: rgba(77, 129, 138, 0.28) 0px 8px 20px;"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-ko87hv" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="ChatBubbleOutlineRoundedIcon"><path d="M20 4v12H5.17L4 17.17V4zm0-2H4c-1.1 0-2 .9-2 2v15.59c0 .89 1.08 1.34 1.71.71L6 18h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2"></path></svg>Give Feedback</button></div>
+</div>
+</div>
+</div>
+<div class="pkb-footer" style="min-height: fit-content; height: auto; position: relative;">
+<div class="menu">
+<div class="main-menu-items">
+<div class="menu-item-wrapper"><a class="menu-item menu-item-main" href="landing.html" data-atlas-target="landing" style="font-weight: 600;">PanKgraph</a></div>
+<div class="menu-item-wrapper"><a class="menu-item menu-item-main" href="https://data.pankbase.org" style="font-weight: 600;">Data Library</a></div>
+<div class="menu-item-wrapper"><a class="menu-item menu-item-main" href="https://pankbase.org:8000/single-cell.html" style="font-weight: 600;">Integrated Cell Browser</a></div>
+</div>
+<div class="menu-item-wrapper"><span class="menu-item menu-item-label" style="font-weight: 600;">Data</span><button type="button" class="submenu-toggle" aria-label="Toggle Data submenu" aria-expanded="false"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1k33q06" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="KeyboardArrowDownIcon"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"></path></svg></button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org:8000/data-browser.html">Data Browser</a><a class="submenu-item" href="http://tools.cmdga.org:3838/metadata_analysis_assays/">Donor Metadata</a><a class="submenu-item" href="https://pankbase.org:8000/apis.html">APIs</a></div>
+</div>
+<div class="menu-item-wrapper"><span class="menu-item menu-item-label" style="font-weight: 600;">Resources</span><button type="button" class="submenu-toggle" aria-label="Toggle Resources submenu" aria-expanded="false"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1k33q06" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="KeyboardArrowDownIcon"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"></path></svg></button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org:8000/single-cell.html">Integrated Cell Browser</a><a class="submenu-item" href="https://pankbase.org:8000/analytical-library.html">Analytical Library</a><a class="submenu-item" href="https://pankbase.org:8000/publications.html">Publications</a></div>
+</div>
+<div class="menu-item-wrapper"><span class="menu-item menu-item-label" style="font-weight: 600;">About</span><button type="button" class="submenu-toggle" aria-label="Toggle About submenu" aria-expanded="false"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1k33q06" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="KeyboardArrowDownIcon"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"></path></svg></button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org:8000/projects.html">Project</a><a class="submenu-item" href="https://pankbase.org:8000/people.html">People</a><a class="submenu-item" href="https://pankbase.org:8000/policies.html">Policies</a><a class="submenu-item" href="https://pankbase.org:8000/programs.html">Programs</a><a class="submenu-item" href="https://pankbase.org:8000/collaborate.html">Collaborate</a></div>
+</div>
+<div class="menu-item-wrapper"><span class="menu-item menu-item-label" style="font-weight: 600;">Help</span><button type="button" class="submenu-toggle" aria-label="Toggle Help submenu" aria-expanded="false"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1k33q06" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="KeyboardArrowDownIcon"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"></path></svg></button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org:8000/contact.html">Contact</a><a class="submenu-item" href="https://pankbase.org:8000/metadata-data-standards.html">Metadata | Data Standards</a><a class="submenu-item" href="https://pankbase.org:8000/tools-pipelines.html">Tools | Pipelines</a><a class="submenu-item" href="https://pankbase.org:8000/tutorials.html">Tutorials</a><a class="submenu-item" href="https://pankbase.org:8000/news.html">News</a></div>
+</div>
+</div>
+<div class="info-rows">
+<div class="logo info-logo-1"><a href="landing-classic.html" data-atlas-target="landing-classic"><img class="footer-logo-img" src="../assets/external/e5089d68fc14.svg" alt="PanKbase Logo"></a></div>
+<div class="f-row-text info-text-1">Supported by <strong>National Institutes of Health (NIH)</strong> grants <strong>U24 DK138515</strong>, <strong>U24 DK138512</strong><br>Supplemental funds from the <strong>NIH Office of Data Science Strategies</strong></div>
+<div class="logo info-logo-2"><a href="https://hirnetwork.org/"><img class="footer-logo-img" src="../assets/external/837e9c5067b9.svg" alt="Hirn Logo"></a></div>
+<div class="f-row-text info-text-2">Check out the latest developments from the Human Islet Resource Network (HIRN) through its newsletter detailing research advancements, funding opportunities, job openings, and more.</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script src="../page-index.js"></script>
+
+<script>window.PAGE_META = {id: "result-edge-inspector", availableIds: window.PAGE_IDS};</script>
+
+<script src="../page-runtime.js"></script>
+</body>
+</html>

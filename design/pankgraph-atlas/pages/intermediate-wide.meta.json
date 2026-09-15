@@ -1,0 +1,16 @@
+{
+  "id": "intermediate-wide",
+  "title": "Credible-set selection \u00b7 full desktop width",
+  "route": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000254647&targetSymbol=INS&resultLayout=new",
+  "group": "Conventional search",
+  "parent": "intermediate",
+  "source": "pank_frontend_vnext/src/components/IntermediatePage.js",
+  "states": [
+    "Full table including View action",
+    "Complete graph",
+    "1920 px desktop viewport"
+  ],
+  "synthetic": true,
+  "fixture": "Synthetic source-shaped values; all service APIs intercepted; no live requests",
+  "description": " Wide viewport captured at 1920px to show all columns; the standard viewport preserves the current horizontal overflow."
+}

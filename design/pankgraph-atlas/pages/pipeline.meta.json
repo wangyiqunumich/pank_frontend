@@ -1,0 +1,15 @@
+{
+  "id": "pipeline",
+  "title": "Pipeline",
+  "route": "/pipeline",
+  "group": "Documentation & resources",
+  "parent": "documentation",
+  "source": "src/pages/Pipeline.js",
+  "description": "Standalone pipeline explanation retained by the current router.",
+  "kind": "current UI",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+}

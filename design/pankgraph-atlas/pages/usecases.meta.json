@@ -1,0 +1,15 @@
+{
+  "id": "usecases",
+  "title": "Use cases",
+  "route": "/usecases",
+  "group": "Documentation & resources",
+  "parent": "documentation",
+  "source": "src/pages/UsecasePage.js",
+  "description": "Standalone use-case examples page.",
+  "kind": "current UI",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+}

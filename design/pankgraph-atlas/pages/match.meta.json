@@ -1,0 +1,15 @@
+{
+  "id": "match",
+  "title": "Classic question matching",
+  "route": "/match?qid=1&returnTo=%2Fold-landing",
+  "group": "Search & review",
+  "parent": "landing-classic",
+  "source": "src/components/MatchPage.js",
+  "description": "Retained question-matching form with the source gene-to-QTL question selected.",
+  "kind": "current UI",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+}

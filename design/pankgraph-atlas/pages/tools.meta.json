@@ -1,0 +1,15 @@
+{
+  "id": "tools",
+  "title": "Tool library",
+  "route": "/skills",
+  "group": "Tools",
+  "parent": "landing",
+  "source": "src/pages/SkillsPage.js",
+  "description": "Current subagent library and links to specialized exploration tools.",
+  "kind": "current UI",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+}

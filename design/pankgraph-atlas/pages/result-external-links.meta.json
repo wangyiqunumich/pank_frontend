@@ -1,0 +1,10 @@
+{
+  "id": "result-external-links",
+  "title": "Result \u00b7 External Links",
+  "route": "/result-new2",
+  "group": "Result views",
+  "parent": "agent-result",
+  "kind": "Current UI + synthetic fixture",
+  "description": "Current supporting materials tab populated with illustrative content.",
+  "source": "src/vnext/Resources.js"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "result-graph-list",
+  "title": "Knowledge graph \u00b7 ordered relationship list",
+  "description": "Actual relationship_list layout function applied locally to a synthetic 13-node / 12-edge star; existing graph renderer and vertical exploration behavior. No graph query was submitted.",
+  "source": "PanKagent_vnext/pankgraph_results/list_layout.py; src/components/KnowledgeGraph.js",
+  "route": "/result-new2?run_id=design-run",
+  "group": "Result details",
+  "parent": "agent-result",
+  "kind": "Current UI + synthetic fixture",
+  "synthetic": true,
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "id": "agent-result",
+  "title": "Agent result \u00b7 overview",
+  "route": "/result-new2?run_id=design-run",
+  "group": "Agent investigation",
+  "parent": "agent-plan",
+  "kind": "Current UI + synthetic fixture",
+  "description": "Rendered current components with synthetic display content. No live query was submitted.",
+  "source": "src/vnext/ResultView.js"
+}

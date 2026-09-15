@@ -1,0 +1,10 @@
+{
+  "id": "result-graph-fullscreen",
+  "title": "Knowledge graph \u00b7 full screen",
+  "description": "Current graph viewer full screen mode. Synthetic graph.",
+  "source": "src/components/KnowledgeGraph.js",
+  "route": "/result-new2",
+  "group": "Result details",
+  "parent": "agent-result",
+  "kind": "Current UI + synthetic fixture"
+}

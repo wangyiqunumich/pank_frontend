@@ -1,0 +1,10 @@
+{
+  "id": "result-node-inspector",
+  "title": "Knowledge graph \u00b7 node inspector",
+  "description": "Current recorded-field inspector for a synthetic node.",
+  "source": "src/components/KnowledgeGraph.js",
+  "route": "/result-new2",
+  "group": "Result details",
+  "parent": "agent-result",
+  "kind": "Current UI + synthetic fixture"
+}
