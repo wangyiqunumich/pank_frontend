@@ -2,13 +2,16 @@
 
 A versioned design reference for the current isolated vNext interface and its classic routes: **66 linked screens/states**, **29 mapped page families**, and **215 error/message entries**.
 
-![Page tree](atlas-preview.png)
+![Navigation tree](navigation-preview.png)
 
 ## Open it
 
 Download or clone this repository, then open **[START-HERE.html](START-HERE.html)** locally. The atlas works offline, without a server, login or API calls. GitHub displays HTML source rather than running it; download the directory/repository to use the interactive reference.
 
-- **[Page tree](index.html)** — landing → preparation → plan review → results; tools, information pages and failure states.
+To open the tree directly, double-click **[NAVIGATION-TREE.html](NAVIGATION-TREE.html)**. This uses the local files and does not depend on a running localhost preview server. Keep the full atlas folder together.
+
+- **[Navigation tree](index.html#view=navigation)** — a connected, expandable map of all 66 captures, with route/state distinctions and shared navigation paths.
+- **[Overview](index.html)** — a summary of the main page families and journeys.
 - **[Error library](errors.html)** — exact message copy, conditions, recovery, source references and proposed rewrites.
 - **[Screens](pages/)** and **[reference screenshots](screenshots/)** — page HTML and matching PNGs.
 - **[Coverage](inventories/page-coverage.md)** — route-family mapping, aliases and documented exclusions.
@@ -21,12 +24,22 @@ python3 -m http.server 8000 --bind 127.0.0.1 --directory design/pankgraph-atlas
 
 Open `http://127.0.0.1:8000/`.
 
+## Navigate the tree
+
+Choose the **Navigation tree** tab. Use **+ / −** on a card to expand or collapse its children; the small number counts captures below it. Select a card to see its screenshot, path from landing, and links to related flows. **Open editable screen** enters the existing screen editor, which includes a link back to its position in the tree.
+
+Search reveals a page and its ancestors, including inside collapsed branches. **Focus on** isolates a main journey; **Expand all**, **Collapse all**, zoom and **Fit** control the canvas. Scroll horizontally and vertically to explore a large branch. Keyboard users can tab through the controls; when the diagram is focused, use arrow keys to scroll and `+`, `−`, or `0` to zoom or fit.
+
+Solid connections show the primary hierarchy; dashed connections lead to views, overlays or recovery states. Section nodes organize the reference and do not imply extra application routes. The detail panel lists shared paths separately, including QTL/GWAS selection, follow-up and eligible retries. Operator-only errors do not imply a working retry. External destinations are labeled exits; the functional tool’s Step 2 plot interpretation links to the structured result, while Step 3 trait interpretation is disabled. Shared panel captures appear as related references. The tree reorganizes this dated snapshot for review; it does not change the application router.
+
 ## Edit and review
 
 | What you want to change | Files |
 | --- | --- |
 | Page content / layout | `pages/<screen-id>.html`; follow its stylesheet links into `styles/` |
 | Page title, parent, description or provenance | `pages/<screen-id>.meta.json` |
+| Logical tree hierarchy and cross-links | `navigation-data.js` |
+| Tree canvas, search, focus and detail panel | `navigation-tree.js`, `navigation-tree.css` |
 | Atlas navigation and frame controls | `atlas.js`, `atlas.css`, `index.html` |
 | Exact error catalog / source references | `inventories/error-catalog.json` |
 | Error library layout | `errors.html` (outside its generated `catalog-data` block) |
@@ -64,4 +77,4 @@ The standalone operator UI and graph-layout developer demo are documented in the
 
 ## Validation
 
-Run `scripts/check.py` for local-link, asset, source-index and private-path checks. Offline browser verification is recorded in `inventories/github-verification.json`. No live application endpoint, model inference or production deployment is part of this handoff.
+Run `scripts/check.py` for local-link, asset, source-index and private-path checks. The original capture verification is recorded in `inventories/github-verification.json`. Local tree, keyboard, cross-link and responsive verification is recorded in `inventories/navigation-verification.json`. No live application endpoint, model inference or production deployment is part of this handoff.
