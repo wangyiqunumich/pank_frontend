@@ -1,4 +1,7 @@
 import './index.css';
+import AgentPage from './vnext/AgentPage';
+import AgentRoute from './vnext/AgentRoute';
+import { loadDevConfig } from './vnext/runtimeConfig';
 
 import React from 'react';
 
@@ -66,7 +69,7 @@ const cognitoAuthConfig = {
 };
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
+loadDevConfig().then(() => root.render(
   <AuthProvider {...cognitoAuthConfig}>
     <Provider store={store}>
       <Container disableGutters maxWidth={false} sx={{
@@ -78,6 +81,7 @@ root.render(
             <NavBar />
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
               <Routes>
+                <Route path="/agent-vnext" element={<AgentPage />} />
                 <Route path="/pipeline" element={<Pipeline />} />
                 <Route path="/qtldatasource" element={<QTLDataSource />} />
                 <Route path="/intermediate" element={<IntermediatePage />} />
@@ -92,7 +96,7 @@ root.render(
                 />
                 <Route
                   path="/result-new2"
-                  element={<AgentResultLayout ResultView={ResultPageNew2} allowSearch={true} showFloatingSearchBar={true} />}
+                  element={<AgentRoute><AgentResultLayout ResultView={ResultPageNew2} allowSearch={true} showFloatingSearchBar={true} /></AgentRoute>}
                 />
                 <Route path="/usecases" element={<UsecasesPage />} />
                 <Route path="/docs/*" element={<DocPage />} />
@@ -122,4 +126,4 @@ root.render(
       </Container>
     </Provider>
   </AuthProvider>
-);
+));

@@ -1,0 +1,189 @@
+{
+  "baseline": "f16a5cb417d14e5473c0c86c85830fea31476258",
+  "source_branch": "vnext-jieliu3-demo",
+  "source_head": "6dcea1d",
+  "note": "Selected retained working-tree files, including schema/read recovery fixes. Source SHA256 precedes candidate adaptations. Legacy shared renderers remain unchanged.",
+  "files": [
+    {
+      "source": "src/vnext/api.js",
+      "sha256": "155f33db88f3f2efa0a505138035e244e68fa4d4cf44841e5927e264ae77d4fa"
+    },
+    {
+      "source": "src/vnext/api.test.js",
+      "sha256": "2457a8515c03c3322b126a6a98d9632de9a1b7eee390ffee35f182becca01cce"
+    },
+    {
+      "source": "src/vnext/contracts.js",
+      "sha256": "5cfa7e39e7ef70a8a1f0eade8a29d004c603dcef973c4617ec69d530b213e23e"
+    },
+    {
+      "source": "src/vnext/contracts.test.js",
+      "sha256": "e92fa97daa813e0fd3f31edbcb831da9bb20bb86ee96cea6731bc7b7921ca7cb"
+    },
+    {
+      "source": "src/vnext/readRecovery.js",
+      "sha256": "38d35c1343da9cb30b6df9e70acee012558a5efbf02f299c1e9e0e88be19a3db"
+    },
+    {
+      "source": "src/vnext/readRecovery.test.js",
+      "sha256": "ce1943c8fa7e73141417ae3dfedb53b45062f7d84cad573ca75eae6e34d916ae"
+    },
+    {
+      "source": "src/vnext/ConnectionNotice.js",
+      "sha256": "e6e2ed2cd1a0cb5f438dcfa1866816bfba8a01b210ff429a8f905a607933405f"
+    },
+    {
+      "source": "src/vnext/QueryRecoveryDialog.js",
+      "sha256": "1d9b0cab3082651c54a74ce36bea62c061e1d442238409c9598460719d7d948a"
+    },
+    {
+      "source": "src/vnext/QueryRecoveryDialog.test.js",
+      "sha256": "d635f68f8c441a6ec0d0c8427dcfddb298020bc858ca410d60a486b29a26f2e5"
+    },
+    {
+      "source": "src/vnext/AnswerMarkdown.js",
+      "sha256": "fcce6c7140770b1c9155dcc5942076d55da3443129e5c6cf79ec7fbbe0061595"
+    },
+    {
+      "source": "src/vnext/FunctionalVisual.js",
+      "sha256": "20d20b831af27f06ff20163634a039686650bebe7639a1b122349fad53a7cefb"
+    },
+    {
+      "source": "src/vnext/FunctionalVisual.test.js",
+      "sha256": "f761e37e22293fa5516b5604b9d9ede0f70487305c294d59458233f93fc88ebd"
+    },
+    {
+      "source": "src/vnext/SummaryInsertions.js",
+      "sha256": "65f72fc9f32bc1096298b3767021dfbaa84d6423a6741d2b200f20180b95872a"
+    },
+    {
+      "source": "src/vnext/resultPageSchema.js",
+      "sha256": "99cc83f6fe0b48b4f72474e62ebb201fe0d1aebb33aa5cc36ca4803be5a4ce37"
+    },
+    {
+      "source": "src/vnext/resultPageSchema.test.js",
+      "sha256": "1794910c1114e5cad26f2e6fd2929b3dda429be755618af20e78118f57d461da"
+    },
+    {
+      "source": "src/vnext/Resources.js",
+      "sha256": "e844a371a69256631376cf461c525ed46b434b52e3d2083deecfae1b5eb446ee"
+    },
+    {
+      "source": "src/vnext/Resources.schema.test.js",
+      "sha256": "0c9cc26b7517b18dd3700f5ece183127ed4454db3119d4a1d081f646cd090ce2"
+    },
+    {
+      "source": "src/vnext/ExternalLinksPanel.js",
+      "sha256": "4bfc5c00d88576bf17865ec710dae7663f814990fcf9fef0dd50236f157761a7"
+    },
+    {
+      "source": "src/vnext/ExternalLinksPanel.test.js",
+      "sha256": "8ade9091547dd81b920e607d717aa2362fa6ba3802ab2d34255f27a25b267f26"
+    },
+    {
+      "source": "src/vnext/externalLinks.js",
+      "sha256": "210ede7df27e229eeecd36dc0552b1008b56077cc50e72dfa0901402f40b880b"
+    },
+    {
+      "source": "src/vnext/ResultView.js",
+      "sha256": "e48b0f26c56356d3fe084580b590ffd55a8fd1b8dbabcd48ee161388720cf23e"
+    },
+    {
+      "source": "src/vnext/telemetry.js",
+      "sha256": "170bbb9831e7bed006b16db2b93b4aa3512df2f8c9c7cbafe44ce27dc536e315"
+    },
+    {
+      "source": "src/vnext/telemetry.test.js",
+      "sha256": "230c419596cf5e97d37c5488fceff26830b49ec149a6474ffe36cc027436cd22"
+    },
+    {
+      "source": "src/vnext/recordedPresentation.js",
+      "sha256": "0f545082de57a3345fad36ae4c483f4b8b967812c47d98570b56ad30d0d79c84"
+    },
+    {
+      "source": "src/vnext/recordedPresentation.test.js",
+      "sha256": "3c6108598f6463cccc361b0f2ad8a72e4eb097d9e4ec615fa58d6a8f48a99715"
+    },
+    {
+      "source": "src/vnext/graphBindings.js",
+      "sha256": "c8625b9a5c7ead4441acfa59ea495ddc2dbf4ad07cc31ad31a8d3cebe1ea6ddb"
+    },
+    {
+      "source": "src/vnext/graphBindings.test.js",
+      "sha256": "fbb1838f304e3c0ec54e332a670caad5b94e4cbe2754a7b26be9a190866b6303"
+    },
+    {
+      "source": "src/vnext/samplePresentation.js",
+      "sha256": "91a2c62b5a2019062c311464c62889c23d61dd96bdbe2dbfe785ae9bd52e4229"
+    },
+    {
+      "source": "src/vnext/samplePresentation.test.js",
+      "sha256": "17d18d5ac267cd6a50b15eb6c34533da474a0c86abf2dea4faa3cf4a14844fff"
+    },
+    {
+      "source": "src/vnext/lifecycle.test.js",
+      "sha256": "affa32f8134159b3cc493a7189aab45e970d57f9ea1c7fc56e044948340dd324"
+    },
+    {
+      "source": "src/vnext/planReview.test.js",
+      "sha256": "9bcbc69b93af215094838290441cb45567b8c9a6537d1e41a30292dcee871dc0"
+    },
+    {
+      "source": "src/vnext/KnowledgeGraph.hover.test.js",
+      "sha256": "1afcd05514b273bc183aeb551f6b8c67eda2c3a9f47f7ac7ca29e3adc400ee63"
+    },
+    {
+      "source": "src/vnext/KnowledgeGraph.viewport.test.js",
+      "sha256": "692c8e2288bcf119900dde1d2d4fec3c6cfcc20a424fe6282ec3cb9eae6879ca"
+    },
+    {
+      "source": "src/vnext/ResultSection.schema.test.js",
+      "sha256": "667658afd72be2a8fe6b148a8d9bf8bbe1eb01f0564f50dc703c5cf763444097"
+    },
+    {
+      "source": "src/components/KnowledgeGraph.js",
+      "sha256": "5d68e2924a38bc02a8c3478138dd20ef4f70408ce2e6d4ef73339eb701b8ae5b",
+      "candidate": "src/vnext/KnowledgeGraph.js"
+    },
+    {
+      "source": "src/components/ResultComponent.js",
+      "sha256": "7791420e48f2e3454ff50f1e0e7f2cea60bb4667040edc8d28c748f78f04d12e",
+      "candidate": "src/vnext/ResultComponent.js"
+    },
+    {
+      "source": "src/SearchResult/loading.js",
+      "sha256": "da19e287743e94a706510ac6bbcf4f3101bf5967d9616c4369f0eefe175e1833",
+      "candidate": "src/vnext/Loading.js"
+    },
+    {
+      "source": "src/utils/safeStorage.js",
+      "sha256": "9c2def9f20943889f67f7c58ba65dd6cb37c47529406c2fd945edbfb7396d681",
+      "candidate": "src/utils/safeStorage.js"
+    },
+    {
+      "source": "src/utils/safeStorage.test.js",
+      "sha256": "4982e2be680fac2fec8fccacb42ff7a9a25e1f30ae8de7d391a4ef41e209337a",
+      "candidate": "src/utils/safeStorage.test.js"
+    },
+    {
+      "source": "src/schema/graph_viewer_schema.json",
+      "sha256": "1eb1c813accacc8db3339dce580caa5e1964290e060899bcd5c8aa09cd8c3198"
+    },
+    {
+      "source": "src/schema/recorded_fields.json",
+      "sha256": "d55c1763e9b4402baa123106b5a4e37eb2c49eea7ae92b2d439b96c98a263ecd"
+    },
+    {
+      "source": "src/schema/result_page_schema.json",
+      "sha256": "bb9ef5f626536fd8be3d2eb672e91153c9dc8b9fc1204a4e9bee5289e1819c83"
+    }
+  ],
+  "adaptations": [
+    "Separate root UI routing from fixed same-origin API namespace",
+    "Isolate graph/plan/loading renderers and result schemas from legacy consumers",
+    "Version recent-chat routing and keep unknown saved sessions read-only",
+    "Basic bootstrap before v2 creation; runtime default disabled",
+    "Extract the existing baseline error presentation without importing conventional-query transport"
+  ],
+  "baseline_error_component_sha256": "a34d9d823ea1691018eaa77258a441d1755257d7a8c0f0a4372e71cf6e71343a"
+}
