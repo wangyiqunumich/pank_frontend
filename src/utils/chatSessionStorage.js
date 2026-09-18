@@ -1,17 +1,18 @@
+import { safeLocalStorage, safeSessionStorage } from './safeStorage';
 const RECENT_CHAT_KEY = 'pank_recent_conversations_v1';
 const CHAT_HISTORY_PREFIX = 'pank_chat_history_v1:';
 const CHAT_START_CACHE_KEY = 'pank_chat_start_cache_v1';
 const CHAT_PENDING_PLAN_CACHE_KEY = 'pank_chat_pending_plan_v1';
 const CHAT_STORAGE_MIGRATION_KEY = 'pank_chat_storage_migrated_to_local_v1';
 
-const canUseLocalStorage = () => typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
-const canUseSessionStorage = () => typeof window !== 'undefined' && typeof window.sessionStorage !== 'undefined';
+const canUseLocalStorage = () => typeof window !== 'undefined';
+const canUseSessionStorage = () => typeof window !== 'undefined';
 
 const migrateConversationStorageToLocal = () => {
   if (!canUseLocalStorage() || !canUseSessionStorage()) return;
 
-  const local = window.localStorage;
-  const session = window.sessionStorage;
+  const local = safeLocalStorage;
+  const session = safeSessionStorage;
 
   if (local.getItem(CHAT_STORAGE_MIGRATION_KEY) === '1') return;
 
@@ -38,9 +39,9 @@ const migrateConversationStorageToLocal = () => {
 export const getConversationStorage = () => {
   if (canUseLocalStorage()) {
     migrateConversationStorageToLocal();
-    return window.localStorage;
+    return safeLocalStorage;
   }
-  if (canUseSessionStorage()) return window.sessionStorage;
+  if (canUseSessionStorage()) return safeSessionStorage;
   return null;
 };
 
@@ -61,7 +62,12 @@ export const readRecentChats = () => {
   return list;
 };
 
-export const upsertRecentChat = ({ sessionId, firstQuestion }) => {
+export const chatProvider = (chat) => chat?.provider === 'vnext' && chat?.version === 2 ? 'vnext' : 'legacy';
+export const recentChatPath = (chat) => chatProvider(chat) === 'vnext'
+  ? `/agent-vnext?session_id=${encodeURIComponent(chat.sessionId)}`
+  : `/result-new2?question=${encodeURIComponent(btoa(unescape(encodeURIComponent(chat.firstQuestion || ''))))}&session_id=${encodeURIComponent(chat.sessionId)}`;
+
+export const upsertRecentChat = ({ sessionId, firstQuestion, provider = 'legacy', version = 1 }) => {
   const storage = getConversationStorage();
   if (!storage || !sessionId || !firstQuestion) return;
 
@@ -70,15 +76,18 @@ export const upsertRecentChat = ({ sessionId, firstQuestion }) => {
   if (!trimmedQuestion) return;
 
   const current = readRecentChats();
-  const existing = current.find((item) => item?.sessionId === sessionId);
+  const identity = chatProvider({ provider, version });
+  const matches = (item) => item?.sessionId === sessionId && chatProvider(item) === identity;
+  const existing = current.find(matches);
 
   const next = [
     {
-      sessionId,
+      ...existing,
+      sessionId, provider: identity, version: identity === 'vnext' ? 2 : 1,
       firstQuestion: existing?.firstQuestion || trimmedQuestion,
       updatedAt: now,
     },
-    ...current.filter((item) => item?.sessionId !== sessionId),
+    ...current.filter((item) => !matches(item)),
   ].slice(0, 20);
 
   storage.setItem(RECENT_CHAT_KEY, JSON.stringify(next));

@@ -1,3 +1,5 @@
+import { safeLocalStorage } from '../utils/safeStorage';
+import { recentChatPath, chatProvider } from '../utils/chatSessionStorage';
 import React, {
   useEffect,
   useMemo,
@@ -31,7 +33,6 @@ import { ReactComponent as SidebarLeftIcon } from '../image/sidebar.left.svg';
 import { ReactComponent as SkillIcon } from '../image/skill.svg';
 import { readRecentChats } from '../utils/chatSessionStorage';
 
-const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
 const SIDEBAR_EXPANDED_WIDTH = 264;
 const SIDEBAR_COLLAPSED_WIDTH = 80;
 const SIDEBAR_HOVER_BG = '#E3F0F1';
@@ -112,7 +113,7 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
   const [userMenuAnchorEl, setUserMenuAnchorEl] = useState(null);
   const [open, setOpen] = useState(() => {
     if (typeof window === 'undefined') return true;
-    const stored = window.localStorage.getItem('pank-sidebar-open');
+    const stored = safeLocalStorage.getItem('pank-sidebar-open');
     if (stored === null) return true;
     return stored === 'true';
   });
@@ -134,7 +135,7 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    window.localStorage.setItem('pank-sidebar-open', String(open));
+    safeLocalStorage.setItem('pank-sidebar-open', String(open));
     window.dispatchEvent(new CustomEvent('pank-sidebar-toggle', { detail: { open } }));
   }, [open]);
 
@@ -296,12 +297,11 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
               }}
             >
               {recentChats.length > 0 ? recentChats.map((chat) => {
-                const encodedQuestion = encodeURIComponent(utf8ToBase64(chat.firstQuestion || ''));
-                const target = `/result-new2?question=${encodedQuestion}&session_id=${encodeURIComponent(chat.sessionId)}`;
-                const isActiveRecent = String(chat?.sessionId || '') === currentSessionId;
+                const target = recentChatPath(chat);
+                const isActiveRecent = String(chat?.sessionId || '') === currentSessionId && (location.pathname === '/agent-vnext' ? 'vnext' : 'legacy') === chatProvider(chat);
                 return (
                   <Button
-                    key={chat.sessionId}
+                    key={`${chatProvider(chat)}:${chat.sessionId}`}
                     onClick={() => navigate(target)}
                     sx={{
                       justifyContent: 'flex-start',
