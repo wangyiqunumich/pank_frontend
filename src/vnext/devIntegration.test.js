@@ -45,12 +45,45 @@ test('401 offers top-level Basic login without mounting or creating an investiga
   request.mockRejectedValue(Object.assign(new Error('Unauthorized'), {status:401}));
   mount('/agent-vnext?run_id=saved');
   const signIn = await screen.findByRole('link',{name:'Sign in to preview'});
+  await screen.findByText('Sign in with your preview access to open the new agent.');
   expect(signIn.getAttribute('href')).toBe(accessLink);
   expect(screen.queryByText('Saved investigation')).toBeNull();
   signIn.addEventListener('click', (event) => event.preventDefault());
   fireEvent.click(signIn);
   expect(sessionStorage.getItem('pank-vnext:access-return')).toBe('/agent-vnext?run_id=saved');
   expect(request.mock.calls.map(([path])=>path)).toEqual(['/access']);
+});
+test('pending access check always offers top-level sign-in and preserves the requested investigation', () => {
+  request.mockReturnValue(new Promise(() => {}));
+  mount('/agent-vnext?question=SU5T&intent=pending');
+  expect(screen.getByRole('progressbar', {name:'Checking preview access'})).toBeTruthy();
+  const signIn = screen.getByRole('link', {name:'Sign in to preview'});
+  expect(signIn.getAttribute('href')).toBe(accessLink);
+  signIn.addEventListener('click', event => event.preventDefault());
+  fireEvent.click(signIn);
+  expect(sessionStorage.getItem('pank-vnext:access-return')).toBe('/agent-vnext?question=SU5T&intent=pending');
+  expect(screen.queryByText('Saved investigation')).toBeNull();
+  expect(request.mock.calls.map(([path])=>path)).toEqual(['/access']);
+});
+test('access timeout keeps sign-in available with access-specific recovery text', async () => {
+  request.mockRejectedValue(Object.assign(new Error('Reading the saved result timed out.'), {status:408}));
+  mount('/agent-vnext?run_id=saved');
+  await screen.findByText('Checking preview access timed out. Sign in to preview or refresh access.');
+  expect(screen.queryByText('Reading the saved result timed out.')).toBeNull();
+  const signIn = screen.getByRole('link', {name:'Sign in to preview'});
+  signIn.addEventListener('click', event => event.preventDefault());
+  fireEvent.click(signIn);
+  expect(sessionStorage.getItem('pank-vnext:access-return')).toBe('/agent-vnext?run_id=saved');
+  expect(screen.getByRole('button', {name:'Refresh access'})).toBeTruthy();
+  expect(screen.queryByText('Saved investigation')).toBeNull();
+});
+test('sign-in return state is constrained before it is saved', () => {
+  request.mockReturnValue(new Promise(() => {}));
+  mount('/agent-vnext-evil?run_id=saved');
+  const signIn = screen.getByRole('link', {name:'Sign in to preview'});
+  signIn.addEventListener('click', event => event.preventDefault());
+  fireEvent.click(signIn);
+  expect(sessionStorage.getItem('pank-vnext:access-return')).toBe('/agent-vnext');
 });
 test('authenticated bootstrap restores the saved run URL and consumes return state', async () => {
   request.mockResolvedValue({authenticated:true});
@@ -64,8 +97,10 @@ test('failed access can be refreshed, and no question is sent before user submis
   request.mockRejectedValueOnce(new Error('Offline')).mockResolvedValue({authenticated:true});
   mount();
   await screen.findByText('Offline');
+  expect(screen.getByRole('link', {name:'Sign in to preview'})).toBeTruthy();
   fireEvent.click(screen.getByRole('button',{name:'Refresh access'}));
   const question = await screen.findByLabelText('Your question');
+  expect(screen.queryByRole('link', {name:'Sign in to preview'})).toBeNull();
   expect(screen.queryByText('Saved investigation')).toBeNull();
   fireEvent.change(question,{target:{value:'Which cells express INS?'}});
   fireEvent.click(screen.getByRole('button',{name:'Review plan'}));
