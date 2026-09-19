@@ -31,7 +31,9 @@ export default function AgentPage() {
     }).catch((err) => {
       if (controller.signal.aborted) return;
       setAccess(err.status === 401 ? 'signin' : 'failed');
-      setError(err.status === 401 ? '' : err.message);
+      setError(err.status === 401 ? '' : err.status === 408
+        ? 'Checking preview access timed out. Sign in to preview or refresh access.'
+        : err.message);
     });
     return () => controller.abort();
   }, [attempt, navigate, location.search]);
@@ -51,11 +53,13 @@ export default function AgentPage() {
         <Typography variant="h6">Agent preview</Typography>
         <Button onClick={() => { setQuestion(''); navigate('/agent-vnext'); }}>New investigation</Button>
       </Box>
-      {access === 'checking' ? <Box sx={{ p: 4 }}><CircularProgress aria-label="Checking preview access" /></Box> : access !== 'ready' ?
+      {access !== 'ready' ?
         <Box sx={{ p: 4 }}>
-          <Typography>{access === 'signin' ? 'Sign in with your preview access to open the new agent.' : error}</Typography>
-          {access === 'signin' && <Button component="a" href={accessLink} onClick={() => safeSessionStorage.setItem(RETURN_KEY, `${location.pathname}${location.search}`)}>Sign in to preview</Button>}
-          <Button onClick={() => setAttempt((value) => value + 1)}>Refresh access</Button>
+          {access === 'checking' && <CircularProgress aria-label="Checking preview access" />}
+          <Typography>{access === 'checking' ? 'Checking preview access. You can sign in while this check completes.'
+            : access === 'signin' ? 'Sign in with your preview access to open the new agent.' : error}</Typography>
+          <Button component="a" href={accessLink} onClick={() => safeSessionStorage.setItem(RETURN_KEY, savedAccessReturn(`${location.pathname}${location.search}`) || '/agent-vnext')}>Sign in to preview</Button>
+          {access !== 'checking' && <Button onClick={() => setAttempt((value) => value + 1)}>Refresh access</Button>}
         </Box> : hasInvestigation ? <AgentResultView key={location.search} /> :
         <Box component="form" onSubmit={submit} sx={{ maxWidth: 800, m: 'auto', p: 4 }}>
           <Typography sx={{ mb: 2 }}>Ask a question, review the proposed investigation, then confirm execution.</Typography>
