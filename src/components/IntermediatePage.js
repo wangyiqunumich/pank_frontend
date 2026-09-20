@@ -2,11 +2,13 @@ import './styles.css';
 
 import React, {
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 
 import DOMPurify from 'dompurify';
 import JSON5 from 'json5';
+import { useLocation } from 'react-router-dom';
 import {
   useDispatch,
   useSelector,
@@ -48,6 +50,10 @@ import {
 import defaultErrorImage from '../image/datanotfound.png';
 import notRelevant from '../image/not_relevant.png';
 import { queryQueryResult } from '../redux/queryResultSlice';
+import { apiPath } from '../vnext/api';
+import { selectedResultParams, templateRequest } from '../vnext/contracts';
+import { getDevConfig } from '../vnext/runtimeConfig';
+import { toolSearchState, toolViewSchema } from '../vnext/toolSearch';
 import { setSearchTerms } from '../redux/searchSlice';
 import { queryViewSchema } from '../redux/viewSchemaSlice';
 import tooltipsSchema from '../schema/tool_tips_schema.json';
@@ -260,8 +266,17 @@ function IntermediatePage({ onContinue }) {
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
 
-  const { viewSchema } = useSelector((state) => state.viewSchema);
-  const { queryResult } = useSelector((state) => state.queryResult);
+  const vnextEnabled = getDevConfig().vnextEnabled;
+  const location = useLocation();
+  const nativeSearchState = useMemo(() => toolSearchState(location.search), [location.search]);
+  const nativeViewSchema = useMemo(() => toolViewSchema(nativeSearchState), [nativeSearchState]);
+  const { viewSchema: legacyViewSchema } = useSelector((state) => state.viewSchema);
+  const { queryResult: legacyQueryResult } = useSelector((state) => state.queryResult);
+  const [nativeQueryResult, setNativeQueryResult] = useState(null);
+  const [nativeSearchError, setNativeSearchError] = useState(null);
+  const [searchAttempt, setSearchAttempt] = useState(0);
+  const viewSchema = vnextEnabled ? nativeViewSchema : legacyViewSchema;
+  const queryResult = vnextEnabled ? nativeQueryResult : legacyQueryResult;
   const [cleanedQueryResult, setCleanedQueryResult] = useState(null);
   const [isNeptune, setIsNeptune] = useState(false);
 
@@ -322,13 +337,15 @@ function IntermediatePage({ onContinue }) {
     }
   }, [queryResult]);
 
-  const searchState = useSelector((state) => state.search) || {
+  const legacySearchState = useSelector((state) => state.search) || {
     sourceTerm: '',
     relationship: '',
     targetTerm: '',
     targetTermSymbol: '',
     sourceTermSymbol: '',
   };
+
+  const searchState = vnextEnabled ? nativeSearchState : legacySearchState;
 
   const [selectedTab, setSelectedTab] = useState('Pancreatic eQTL');
   const [currPage, setCurrPage] = useState(1);
@@ -389,14 +406,15 @@ function IntermediatePage({ onContinue }) {
   const tableValue = (item, column) => {
     // replace parts of the column.key that are not '(', ')', or ' '
     if (!item || !column || !column.key) return "-";
+    const displayItem = vnextEnabled && item.searched_snp ? { ...item, snp: item.searched_snp, pip: item.searched_pip } : item;
     const resultText = column.key.replace(/([^(\s)]+)/g, (match) => (
-      item[match]
+      displayItem[match] !== undefined && displayItem[match] !== null
         ? (floatKeys.includes(match)
-          ? item[match].toFixed(2)
-          : item[match]
+          ? Number(displayItem[match]).toFixed(2)
+          : displayItem[match]
         ) : "-"
     ));
-    if (column.key === "snp (pip)" && item.lead_snp && item.lead_snp !== item.snp) {
+    if (column.key === "snp (pip)" && item.lead_snp && item.lead_snp !== displayItem.snp) {
       return (
         <Box sx={{
           display: 'flex', flexDirection: 'row', alignItems: 'center', color: '#E77C40'
@@ -432,7 +450,7 @@ function IntermediatePage({ onContinue }) {
     const allResults = cleanedQueryResult?.results?.flatMap(result =>
       (result?.credible_sets || []).map(cs => ({
         ...cs,
-        gene_symbol: getGeneSymbol(cs.credible_set_id),
+        gene_symbol: cs.gene_name || getGeneSymbol(cs.credible_set_id),
       }))
     ) || [];
     // Group by data_source
@@ -446,7 +464,7 @@ function IntermediatePage({ onContinue }) {
       }
     ), {});
     // Map to tabs or single result
-    const mappedResult = tabsEnabled ? tabsQTL.map(({ label, data_source }) => (
+    const mappedResult = vnextEnabled && searchState.relationship === "GWAS" ? Object.entries(groupedResults).map(([label, result]) => ({ label, result })) : tabsEnabled ? tabsQTL.map(({ label, data_source }) => (
       {
         label,
         result: groupedResults[data_source] || []
@@ -489,6 +507,12 @@ function IntermediatePage({ onContinue }) {
 
   useEffect(() => {
     const hasAnyCredibleSets = getTotalCredibleSetCount(cleanedQueryResult?.results || []) > 0;
+    if (vnextEnabled) {
+      // The request has its own timeout. A slow or failed request is not an
+      // empty biological result, and only a received response can be empty.
+      if (cleanedQueryResult) { setError(!hasAnyCredibleSets); setLoading(false); }
+      return;
+    }
     const timer = setTimeout(() => {
       if (!hasAnyCredibleSets) {
         console.log("No results found within timeout period.");
@@ -551,14 +575,14 @@ function IntermediatePage({ onContinue }) {
         credible_set_id: item.credible_set_id,
       } : {};
 
-    const params = new URLSearchParams({
+    const params = vnextEnabled ? selectedResultParams(searchState, item) : new URLSearchParams({
       ...additionalParams,
       sourceTerm: sourceTerm.includes("@") ? sourceTerm : `${sourceTerm}@${item[sourceTerm]}`,
       targetTerm: targetTerm.includes("@") ? targetTerm : `${targetTerm}@${item[targetTerm]}`,
       relationship,
     });
     const resultLayout = new URLSearchParams(window.location.search).get('resultLayout');
-    const resultPath = resultLayout === 'old' ? '/result' : '/result-new';
+    const resultPath = !vnextEnabled && resultLayout === 'old' ? '/result' : '/result-new';
     window.location.href = `${resultPath}?${params.toString()}`;
   };
 
@@ -584,7 +608,9 @@ function IntermediatePage({ onContinue }) {
       credible_set_id: credibleSet,
     });
     const folder = tabsQTL.find(tab => tab.label === category)?.folder || "";
-    const url = `https://pank-s3-to-share.s3.us-east-1.amazonaws.com/${folder}/${credibleSet}.txt`;
+    const url = vnextEnabled
+      ? apiPath(`/resources/download?${new URLSearchParams({ source: folder, credible_set: credibleSet })}`)
+      : `https://pank-s3-to-share.s3.us-east-1.amazonaws.com/${folder}/${credibleSet}.txt`;
     window.open(url, "_blank");
     // fetch(url)
     //   .then(response => {
@@ -641,6 +667,24 @@ function IntermediatePage({ onContinue }) {
   }, []);
 
   useEffect(() => {
+    if (vnextEnabled) {
+      let active = true;
+      let task;
+      setLoading(true);
+      setError(false);
+      setNativeQueryResult(null);
+      setNativeSearchError(null);
+      setCleanedQueryResult(null);
+      try {
+        const request = templateRequest(searchState);
+        setIsNeptune(false);
+        task = dispatch(queryQueryResult({ kind: 'credible_set', term: request.parameters.gene_id || request.parameters.variant_id || '', template_id: request.template_id, ...request.parameters }));
+        task.unwrap().then(result => { if (active) setNativeQueryResult(result); }).catch(failure => {
+          if (active) { setNativeSearchError(failure); setError(true); setLoading(false); }
+        });
+      } catch (failure) { setNativeSearchError(failure); setError(true); setLoading(false); }
+      return () => { active = false; task?.abort(); };
+    }
     if (viewSchema?.cyper_for_intermediate_page) {
       const processedCypher = replaceVariables(
         viewSchema.cyper_for_intermediate_page,
@@ -659,7 +703,7 @@ function IntermediatePage({ onContinue }) {
         isNeptune: !searchState.sourceTerm.includes("snp@"),
       })).unwrap();
     }
-  }, [viewSchema, searchState.sourceTerm, searchState.targetTerm]);
+  }, [viewSchema, searchState.sourceTerm, searchState.targetTerm, searchState.relationship, vnextEnabled, searchAttempt]);
 
   useEffect(() => {
     setTableColumns(
@@ -676,7 +720,32 @@ function IntermediatePage({ onContinue }) {
     }
   }, [queryData]);
 
-  // error component for no data found
+  if (error && vnextEnabled) {
+    const denied = ['401', '403'].includes(String(nativeSearchError?.code || nativeSearchError?.status || ''));
+    const partialCoverage = nativeQueryResult?.coverage?.complete === false;
+    const title = nativeSearchError
+      ? (denied ? 'Search access denied' : 'Search is unavailable')
+      : (partialCoverage ? 'No matching records in the indexed sources' : 'No matching records returned');
+    const message = nativeSearchError
+      ? (denied
+        ? 'The dev search could not authorize this request. Refresh the page to restore access, then retry the search.'
+        : 'The search could not be completed. Retry the search to check the available evidence; this failure does not indicate an absence of associations.')
+      : (partialCoverage
+        ? 'Only currently indexed source files were searched. Additional associations may not yet be indexed; this result does not establish that the association is absent.'
+        : 'The configured graph returned no matching records for this search. This result does not establish that the association is absent.');
+    return <Container sx={{ py: 4 }}>
+      <Alert severity={nativeSearchError ? 'error' : 'info'}>
+        <Typography component="h2" sx={{ fontWeight: 600, mb: 1 }}>{title}</Typography>
+        <Typography>{message}</Typography>
+        <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
+          <Button variant="outlined" onClick={() => setSearchAttempt(attempt => attempt + 1)}>Retry search</Button>
+          {denied && <Button variant="outlined" onClick={() => window.location.reload()}>Refresh page</Button>}
+        </Box>
+      </Alert>
+    </Container>;
+  }
+
+  // Legacy no-data presentation remains unchanged.
   if (error) return <ErrorComponent errorTitle={viewSchema?.inter_error_title} errorMessage={viewSchema?.inter_error_message} />;
 
   return (<Container sx={{
@@ -794,7 +863,10 @@ function IntermediatePage({ onContinue }) {
               <div className="styled-paper" style={{ padding: '10px 32px' }}>
                 <div className="answer-content">
                   <Typography sx={{ mb: 2, fontSize: 16, fontFamily: 'Open Sans', fontWeight: "400" }}>
-                    Found <span style={{ color: "#3A838B", fontWeight: "700" }}>four</span> categories of Quantitative Trait Loci (QTL) data, derived from pancreatic and islet tissue samples.
+                    {vnextEnabled ? <>
+                      <span style={{ color: "#3A838B", fontWeight: "700" }}>{searchState.relationship === 'GWAS' ? 'Select a recorded T1D GWAS signal to inspect its evidence.' : 'Select a QTL record from the pancreatic and islet datasets below.'}</span>
+                      {queryResult?.coverage?.complete === false && ' These results cover currently indexed source files; additional associations may not yet be indexed.'}
+                    </> : <>Found <span style={{ color: "#3A838B", fontWeight: "700" }}>four</span> categories of Quantitative Trait Loci (QTL) data, derived from pancreatic and islet tissue samples.</>}
                   </Typography>
 
                   <Alert
@@ -987,13 +1059,13 @@ function IntermediatePage({ onContinue }) {
                                     {index === 0
                                       ? (<Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                                         {item[column.key]}
-                                        <IconButton
+                                        {(!vnextEnabled || tabsQTL.some(tab => tab.data_source === item.data_source)) && <IconButton
                                           aria-label="download"
                                           sx={{ color: '#3A838B', padding: '2px' }}
                                           onClick={() => handleDownload(selectedTab, item.credible_set_id)}
                                         >
                                           <DownloadIcon />
-                                        </IconButton>
+                                        </IconButton>}
                                       </Box>)
                                       : tableValue(item, column, column)
                                     }
@@ -1075,7 +1147,7 @@ function IntermediatePage({ onContinue }) {
               </Typography>
               <IntermediateKG data={{
                 credible_sets: getFilteredResults().slice((currPage - 1) * 5, currPage * 5),
-                type: searchState.sourceTerm.includes("snp@") ? "qtl" : "qtl_lead",
+                type: vnextEnabled && searchState.relationship === 'GWAS' ? 'gwas' : searchState.sourceTerm.includes("snp@") ? "qtl" : "qtl_lead",
                 intersectPositions: [
                   searchState.sourceTerm.includes("@") ? ["right"] : [],
                   searchState.targetTerm.includes("@") ? ["left"] : []

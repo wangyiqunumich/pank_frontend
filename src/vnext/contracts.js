@@ -89,6 +89,7 @@ export function templateRequest(input) {
   const relationship = get('relationship');
   const geneId = source.startsWith('gene@') ? termId(source) : (target.startsWith('gene@') ? termId(target) : '');
   const variantId = source.startsWith('snp@') ? termId(source) : '';
+  const diseaseId = target.startsWith('disease@') ? termId(target) : (source.startsWith('disease@') ? termId(source) : '');
   let templateId;
   if (relationship === 'express_in') templateId = 'expression_by_gene';
   else if (relationship === 'COLOC') templateId = 'coloc_by_gene';
@@ -97,6 +98,7 @@ export function templateRequest(input) {
   else throw new Error('This conventional search template is unavailable in this demo.');
   const parameters = {
     ...(geneId ? { gene_id: geneId } : {}), ...(variantId ? { variant_id: variantId } : {}),
+    ...(relationship === 'GWAS' && diseaseId ? { disease_id: diseaseId } : {}),
     ...(get('credible_set_id') ? { credible_set_id: get('credible_set_id') } : {}),
     ...(get('lead_snp') ? { lead_variant_id: get('lead_snp') } : {}),
     ...(get('data_source') ? { data_source: get('data_source') } : {}),

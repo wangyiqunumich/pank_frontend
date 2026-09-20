@@ -9,7 +9,8 @@ const pending = value => ['pending', 'queued', 'running', 'processing'].includes
 const failure = value => ['partial', 'unavailable', 'failed', 'interrupted', 'cancelled'].includes(value);
 const token = value => typeof value === 'string' && value.length <= 80 ? value.trim().toLowerCase() : '';
 const safeWebUrl = value => typeof value === 'string' && /^https?:\/\/[^\s]+$/i.test(value);
-export const isResultAssetUrl = value => typeof value === 'string' && /^\/api\/resources\/[a-zA-Z0-9_-]+$/.test(value);
+export const isResultAssetUrl = value => typeof value === 'string' && /^\/(?:pankgraph-vnext\/)?api\/resources\/[a-zA-Z0-9_-]+$/.test(value);
+const assetIdentity = value => isResultAssetUrl(value) ? value.replace(/^\/pankgraph-vnext/, '') : '';
 
 function getGraphTypes(evidence, projection) {
   const steps = values(evidence?.steps);
@@ -69,7 +70,7 @@ function independentEmpirical(tabs, groups, functionalUrl) {
   const seen = new Set();
   return candidates.filter(item => {
     // Only the exact primary functional asset is removed; another source remains.
-    if (functionalUrl && item.image_url === functionalUrl) return false;
+    if (functionalUrl && assetIdentity(item.image_url) === assetIdentity(functionalUrl)) return false;
     const key = [item.id, item.image_url, item.download_url || item.link, item.data_source, item.credible_set,
       item.title, item.status].filter(Boolean).join('|');
     if (seen.has(key)) return false;

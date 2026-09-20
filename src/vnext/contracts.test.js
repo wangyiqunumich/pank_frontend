@@ -187,3 +187,17 @@ test('functional selection bypasses planning while retaining cohort filters', ()
   expect(templateRequest(new URLSearchParams({functional_filters:JSON.stringify(filters)})))
     .toEqual({template_id:'functional_traces',parameters:{...filters,age_min:'18',age_max:'60'}});
 });
+
+test('GWAS signal selection keeps distinct disease identities through result creation', () => {
+  const state = { sourceTerm:'snp@rs1', targetTerm:'disease', relationship:'GWAS' };
+  const records = [
+    { disease:'MONDO:0005147', disease_name:'Type 1 diabetes' },
+    { disease:'MONDO:0005148', disease_name:'Type 2 diabetes' },
+  ];
+  const requests = records.map(record => templateRequest(selectedResultParams(state, {
+    ...record, snp:'rs1', lead_snp:'rs2', credible_set_id:'set1', data_source:'GWAS source',
+  })));
+  expect(requests.map(request => request.parameters.disease_id)).toEqual(['MONDO:0005147','MONDO:0005148']);
+  for (const request of requests) expect(request).toMatchObject({template_id:'gwas_by_variant',parameters:{variant_id:'rs1',lead_variant_id:'rs2',credible_set_id:'set1',data_source:'GWAS source'}});
+  expect(templateRequest(new URLSearchParams('sourceTerm=snp@rs1&relationship=GWAS&targetTerm=disease')).parameters).not.toHaveProperty('disease_id');
+});

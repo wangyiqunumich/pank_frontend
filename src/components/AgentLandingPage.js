@@ -30,12 +30,15 @@ import landingSendIcon from '../image/landing_send.svg';
 import ExampleQueries from '../schema/landing_sample_questions.json';
 import { trackGtagEvent } from '../utils/gtag';
 import AgentSidebar from './AgentSidebar';
+import { getDevConfig } from '../vnext/runtimeConfig';
+import { questionInputError } from '../vnext/questionInput';
 
 export const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
 
 function AgentLandingPage() {
     const navigate = useNavigate();
     const [query, setQuery] = useState('');
+    const inputError = getDevConfig().vnextEnabled ? questionInputError(query) : '';
     const [showLoading, setShowLoading] = useState(false);
     const [activeExampleGroup, setActiveExampleGroup] = useState(undefined);
     const examplesPanelRef = useRef(null);
@@ -135,7 +138,7 @@ function AgentLandingPage() {
 
     const handleSearch = (searchQuery, trigger = 'button') => {
         const normalized = (searchQuery || '').trim();
-        if (!normalized) return;
+        if (!normalized || (getDevConfig().vnextEnabled && questionInputError(normalized))) { setShowLoading(false); return; }
         trackLandingEvent(trigger === 'enter' ? 'landing_search_submit_enter' : 'landing_search_submit_click', {
             query_length: normalized.length,
         });
@@ -272,6 +275,8 @@ function AgentLandingPage() {
                                 variant="standard"
                                 fullWidth
                                 value={query}
+                                error={Boolean(inputError)}
+                                helperText={inputError}
                                 onChange={(event) => setQuery(event.target.value || '')}
                                 onFocus={() => {
                                     if (searchExampleGroup.entries.length > 0) {
@@ -322,7 +327,7 @@ function AgentLandingPage() {
                                     setShowLoading(true);
                                     handleSearch(query, 'button');
                                 }}
-                                disabled={!query.trim() || showLoading}
+                                disabled={!query.trim() || showLoading || Boolean(inputError)}
                                 sx={{
                                     height: 40,
                                     borderRadius: '24px',

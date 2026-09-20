@@ -470,6 +470,7 @@ export function AgentResultLayout({
     getResultViewProps = (result, index) => ({ demoIndex: index + 1, result }),
     allowSearch = false,
     showFloatingSearchBar = false,
+    questionCharacterLimit = null,
 }) {
     const location = useLocation();
     const isResultNewRoute = location.pathname === '/result-new';
@@ -540,6 +541,8 @@ export function AgentResultLayout({
     const activeQuestionComplete = activeMeta?.isQuestionComplete ?? false;
     const hideFloatingSearchBarByPhase = Boolean(activeMeta?.hideFloatingSearchBar);
     const hasFloatingInputBar = Boolean(showFloatingSearchBar && !hideFloatingSearchBarByPhase);
+    const inputError = questionCharacterLimit && Array.from(searchQuery).length > questionCharacterLimit
+        ? `Please shorten your question to ${questionCharacterLimit.toLocaleString('en-US')} characters or fewer. Your text has not been changed.` : '';
     const canSearch = allowSearch
         && (effectiveAllowMulti || showFloatingSearchBar)
         && !Boolean(activeMeta?.isPlanning)
@@ -654,7 +657,7 @@ export function AgentResultLayout({
         let bestDistance = Number.POSITIVE_INFINITY;
 
         for (let i = 0; i < normalizedCount; i += 1) {
-            const target = document.getElementById(`${activeAnchorPrefix}-question-${i + 1}`);
+            const target = document.getElementById(feedbackQuestionsRef.current[i]?.anchorId || `${activeAnchorPrefix}-question-${i + 1}`);
             if (!target) continue;
             const rect = target.getBoundingClientRect();
             const inView = rect.top <= anchorY && rect.bottom >= anchorY;
@@ -672,6 +675,7 @@ export function AgentResultLayout({
     }, [primaryAnchorPrefix]);
 
     const buildFeedbackQuestionsFromContext = useCallback(() => {
+        if (Array.isArray(activeMeta?.questions) && activeMeta.questions.length) return activeMeta.questions;
         const params = new URLSearchParams(location.search || '');
         const nextSessionId = String(params.get('session_id') || '').trim();
         const urlQuestion = decodeQuestionFromQueryParam(params.get('question'));
@@ -705,7 +709,7 @@ export function AgentResultLayout({
         });
 
         return dedupedQuestions.map((query, index) => ({ id: index + 1, query }));
-    }, [location.search]);
+    }, [location.search, activeMeta?.questions]);
 
     const refreshFeedbackQuestions = useCallback(({ closePanel = false, resetMeta = false } = {}) => {
         const rebuiltResults = buildFeedbackQuestionsFromContext();
@@ -775,7 +779,7 @@ export function AgentResultLayout({
 
         const anchorIds = Array.from(
             { length: navQuestions.length },
-            (_, index) => `${primaryAnchorPrefix}-question-${index + 1}`
+            (_, index) => navQuestions[index]?.anchorId || `${primaryAnchorPrefix}-question-${index + 1}`
         );
 
         const commitActiveQuestionIndex = (nextIndex) => {
@@ -880,10 +884,10 @@ export function AgentResultLayout({
                 scrollRafRef.current = null;
             }
         };
-    }, [navQuestions.length, primaryAnchorPrefix]);
+    }, [navQuestions, primaryAnchorPrefix]);
 
-    const handleSearch = () => {
-        if (!canSearch) return;
+    const handleSearch = async () => {
+        if (!canSearch || inputError) return;
         const trimmed = searchQuery.trim();
         if (!trimmed) return;
         trackAgentEvent('agent_result_search_submit_click', {
@@ -895,8 +899,8 @@ export function AgentResultLayout({
         // so /chat/message is called on the existing session instead of mounting a new component.
         const followUpHandler = activeMeta?.followUpHandler;
         if (followUpHandler) {
-            followUpHandler(trimmed);
-            setSearchQuery("");
+            const submitted = await followUpHandler(trimmed);
+            if (submitted !== false) setSearchQuery(value => value.trim() === trimmed ? "" : value);
             return;
         }
 
@@ -1028,7 +1032,7 @@ export function AgentResultLayout({
             until: Date.now() + 600,
             index,
         };
-        const target = document.getElementById(`${primaryAnchorPrefix}-question-${index + 1}`);
+        const target = document.getElementById(navQuestions[index]?.anchorId || `${primaryAnchorPrefix}-question-${index + 1}`);
         target?.scrollIntoView({ behavior: "smooth", block: "start" });
     };
 
@@ -1320,7 +1324,7 @@ export function AgentResultLayout({
                             {navQuestions.map((result, index) => {
                                 const isActive = activeQuestionIndex === index;
                                 const meta = contentMetaByIndex[index];
-                                const anchorPrefix = meta?.anchorPrefix || primaryAnchorPrefix;
+                                const anchorPrefix = result.anchorPrefix || meta?.anchorPrefix || primaryAnchorPrefix;
                                 const aiHeadings = meta?.aiHeadings || [];
                                 const showVisual = meta?.hasVisual ?? true;
                                 const showEvidences = meta?.hasEvidences ?? true;
@@ -1466,6 +1470,7 @@ export function AgentResultLayout({
                 </>
             )}
 
+            {inputError && <div role="alert" id="agent-followup-error" style={{ color: "#B91C1C", maxWidth: 1200, margin: "8px auto" }}>{inputError}</div>}
             {/* Floating search bar at bottom */}
             {showFloatingSearchBar && !hideFloatingSearchBarByPhase ? (
                 <div
@@ -1487,6 +1492,9 @@ export function AgentResultLayout({
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyPress={handleKeyPress}
+                            aria-label="Follow-up question"
+                            aria-invalid={Boolean(inputError)}
+                            aria-describedby={inputError ? 'agent-followup-error' : undefined}
                             placeholder="Enter your search query..."
                             disabled={!canSearch}
                             style={{
@@ -1511,7 +1519,7 @@ export function AgentResultLayout({
                         />
                         <button
                             onClick={handleSearch}
-                            disabled={!canSearch}
+                            disabled={!canSearch || Boolean(inputError)}
                             style={{
                                 padding: "12px 24px",
                                 borderRadius: 8,

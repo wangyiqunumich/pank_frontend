@@ -140,13 +140,15 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
   }, [open]);
 
   const isUserMenuOpen = Boolean(userMenuAnchorEl);
+  const routeParams = new URLSearchParams(location.search);
+  const currentProvider = location.pathname === '/agent-vnext' || routeParams.get('provider') === 'vnext' || routeParams.has('run_id') ? 'vnext' : 'legacy';
   const currentSessionId = useMemo(() => {
     const params = new URLSearchParams(location.search || '');
     return String(params.get('session_id') || '').trim();
   }, [location.search]);
   const hasActiveRecentChat = useMemo(
-    () => Boolean(currentSessionId && recentChats.some((chat) => String(chat?.sessionId || '') === currentSessionId)),
-    [currentSessionId, recentChats]
+    () => Boolean(currentSessionId && recentChats.some((chat) => String(chat?.sessionId || '') === currentSessionId && chatProvider(chat) === currentProvider)),
+    [currentSessionId, recentChats, currentProvider]
   );
   const isNewChatActive = activeNav === 'new-chat' && !hasActiveRecentChat;
   const userProfile = auth?.user?.profile || {};
@@ -298,7 +300,7 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
             >
               {recentChats.length > 0 ? recentChats.map((chat) => {
                 const target = recentChatPath(chat);
-                const isActiveRecent = String(chat?.sessionId || '') === currentSessionId && (location.pathname === '/agent-vnext' ? 'vnext' : 'legacy') === chatProvider(chat);
+                const isActiveRecent = String(chat?.sessionId || '') === currentSessionId && currentProvider === chatProvider(chat);
                 return (
                   <Button
                     key={`${chatProvider(chat)}:${chat.sessionId}`}
