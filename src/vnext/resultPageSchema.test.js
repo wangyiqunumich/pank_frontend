@@ -1,4 +1,4 @@
-import { resolveResultPage } from './resultPageSchema';
+import { isResultAssetUrl, resolveResultPage } from './resultPageSchema';
 
 const graph = () => ({ status: 'ready', combined_query_result: { nodes: [{ '~id': 'GENE1' }], edges: [{ '~type': 'part_of_QTL_signal' }] }, component_status: { graph: 'available', resources: 'available' } });
 const functional = () => ({ status: 'ready', visual_material_kind: 'functional_traces',
@@ -111,4 +111,22 @@ test('pending functional response uses its own status without empty graph/refere
   const page = resolveResultPage({ result });
   expect(page.mainVisuals).toEqual([{ id: 'functional_data', label: 'Functional Data', status: 'pending' }]);
   expect(page.supportingTabs).toEqual([]);
+});
+
+
+test('namespaced saved functional assets are available and never become an unavailable duplicate card', () => {
+  const result = {status:'ready',visual_material_kind:'functional_traces',source:{template_id:'functional_traces'},component_status:{resources:'available'},resources_tabs:{empirical_evidence:{title:'Selected cohort functional response',status:'available',image_url:'/pankgraph-vnext/api/resources/functionalplot',download_url:'/pankgraph-vnext/api/resources/functionalplot',link:'/pankgraph-vnext/api/resources/functionalplot'}}};
+  const page = resolveResultPage({result});
+  expect(page.mainVisuals).toEqual([{id:'functional_data',label:'Functional Data',status:'available'}]);
+  expect(page.supportingTabs).toEqual([]);
+  expect(page.resourceTabs.empirical_evidence).toBeUndefined();
+  const independent = {title:'Independent source',image_url:'/pankgraph-vnext/api/resources/independent',download_url:'/pankgraph-vnext/api/resources/rawtable'};
+  result.resources = {resource_groups:[{resources_tabs:{empirical_evidence:{...result.resources_tabs.empirical_evidence,image_url:'/api/resources/functionalplot'}}},{resources_tabs:{empirical_evidence:independent}}]};
+  expect(resolveResultPage({result}).resourceTabs.empirical_evidence_groups).toEqual([independent]);
+});
+
+test('asset recognition permits only the two exact same-origin resource namespaces', () => {
+  expect(isResultAssetUrl('/api/resources/plot_1')).toBe(true);
+  expect(isResultAssetUrl('/pankgraph-vnext/api/resources/plot_1')).toBe(true);
+  for (const path of ['https://other.test/api/resources/plot','//other.test/api/resources/plot','/pankgraph-vnext/api/resources/../secret','/pankgraph-vnext/api/resources/%2fsecret','/pankgraph-vnext/api/resources/plot?url=other','/other/api/resources/plot']) expect(isResultAssetUrl(path)).toBe(false);
 });
