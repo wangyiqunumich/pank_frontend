@@ -64,7 +64,7 @@ export const readRecentChats = () => {
 
 export const chatProvider = (chat) => chat?.provider === 'vnext' && chat?.version === 2 ? 'vnext' : 'legacy';
 export const recentChatPath = (chat) => chatProvider(chat) === 'vnext'
-  ? `/agent-vnext?session_id=${encodeURIComponent(chat.sessionId)}`
+  ? `/result-new2?provider=vnext&session_id=${encodeURIComponent(chat.sessionId)}`
   : `/result-new2?question=${encodeURIComponent(btoa(unescape(encodeURIComponent(chat.firstQuestion || ''))))}&session_id=${encodeURIComponent(chat.sessionId)}`;
 
 export const upsertRecentChat = ({ sessionId, firstQuestion, provider = 'legacy', version = 1 }) => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import AgentResultView, { useProjectedResult, readPriorConversation } from './ResultView';
+import AgentResultView, { ConventionalResultView, useProjectedResult, readPriorConversation } from './ResultView';
 import ConnectionNotice from './ConnectionNotice';
 import * as api from './api';
 
@@ -150,4 +150,35 @@ test('missing prior presentation preserves the saved answer with an explicit gra
   expect(history.items[0].error).toMatch(/saved graph presentation is unavailable/);
   expect(api.getResult).not.toHaveBeenCalled();
   expect(api.createResultOnce).not.toHaveBeenCalled();
+});
+
+test('native follow-up handler keeps the previous answer visible until new plan creation succeeds', async () => {
+  api.getRun.mockImplementation(async id => ({...snapshot(id), status:'completed', graph_answer:'Recorded answer', evidence:{graph_version:'test'}, graph_complete:true}));
+  let rejectPlan;
+  api.createPlanOnce.mockImplementation(() => new Promise((_, reject) => { rejectPlan = reject; }));
+  const onContentMeta = jest.fn();
+  render(<MemoryRouter initialEntries={['/result-new2?run_id=r1&provider=vnext']}><AgentResultView onContentMeta={onContentMeta} /></MemoryRouter>);
+  await screen.findByText('Recorded answer');
+  const handler = onContentMeta.mock.calls.at(-1)[0].followUpHandler;
+  act(() => { handler('What about SST?'); handler('What about SST?'); });
+  expect(api.createPlanOnce).toHaveBeenCalledTimes(1);
+  expect(screen.getByText('Recorded answer')).toBeTruthy();
+  await act(async () => rejectPlan(new Error('Temporary plan failure')));
+  expect(screen.getByText('Recorded answer')).toBeTruthy();
+  expect(onContentMeta.mock.calls.at(-1)[0].isQuestionComplete).toBe(true);
+  expect(screen.getByText('What about SST?')).toBeTruthy();
+  api.createPlanOnce.mockResolvedValueOnce({run_id:'r2'});
+  fireEvent.click(screen.getByRole('button',{name:'Retry follow-up'}));
+  await waitFor(() => expect(api.createPlanOnce).toHaveBeenCalledTimes(2));
+  expect(api.createPlanOnce.mock.calls[1]).toEqual(['What about SST?', 's1', 'r1:What about SST?']);
+  expect(api.createPlanOnce.mock.calls[1][0]).not.toBe('Which cells express INS?');
+});
+
+
+test('explicit saved conventional identity performs only reads, even with original query parameters', async () => {
+  render(<MemoryRouter initialEntries={['/result-new?provider=vnext&result_id=saved-result&sourceTerm=snp@rs1&targetTerm=disease&relationship=GWAS']}><ConventionalResultView /></MemoryRouter>);
+  await waitFor(() => expect(screen.getByTestId('graph').textContent).toBe('saved-result'));
+  expect(api.createResultOnce).not.toHaveBeenCalled();
+  expect(api.createPlanOnce).not.toHaveBeenCalled();
+  expect(api.pollResult).toHaveBeenCalledWith('saved-result',expect.any(Function),expect.any(Object));
 });

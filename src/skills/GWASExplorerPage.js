@@ -29,6 +29,7 @@ import AgentSidebar from '../components/AgentSidebar';
 import BoxSvg from '../image/Box.svg';
 import VectorSvg from '../image/Vector.svg';
 import { queryQueryResult } from '../redux/queryResultSlice';
+import { getDevConfig } from '../vnext/runtimeConfig';
 import gwasContent from './gwasExplorerContent.json';
 
 function normalizeSnp(value) {
@@ -53,7 +54,9 @@ function GwasSnpAutocomplete({ value, onChange, defaultOptions, onValidated }) {
     }
 
     try {
-      const response = await dispatch(queryQueryResult({
+      const response = await dispatch(queryQueryResult(getDevConfig().vnextEnabled ? {
+        kind: 'variant', term: snp, rawResponse: true,
+      } : {
         isNeptune: false,
         rawResponse: true,
         query: `SELECT snp FROM GWAS_DATA WHERE snp = '${snp}' LIMIT 1;`,
@@ -173,7 +176,9 @@ export default function GWASExplorerPage() {
   const handleContinue = () => {
     if (!canContinue) return;
     const snp = normalizeSnp(snpInput);
-    navigate(`/result-new?sourceTerm=snp@${snp}&relationship=GWAS&targetTerm=disease`);
+    navigate(getDevConfig().vnextEnabled
+      ? `/intermediate?sourceTerm=snp@${encodeURIComponent(snp)}&relationship=GWAS&targetTerm=disease&resultLayout=new`
+      : `/result-new?sourceTerm=snp@${encodeURIComponent(snp)}&relationship=GWAS&targetTerm=disease`);
   };
 
   return (

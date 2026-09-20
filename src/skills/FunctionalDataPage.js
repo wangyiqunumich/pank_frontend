@@ -38,6 +38,7 @@ import {
 import AgentSidebar from '../components/AgentSidebar';
 import BoxSvg from '../image/Box.svg';
 import functionalDataApi from '../utils/functionalDataApi';
+import { getDevConfig } from '../vnext/runtimeConfig';
 import { buildFunctionalPlotPrompt } from '../utils/functionalPromptBuilder';
 import functionalDataContent from './functionalDataContent.json';
 
@@ -649,6 +650,10 @@ export default function FunctionalDataPage() {
         ...getFilters(),
         trace_type: responseType,
       };
+      if (getDevConfig().vnextEnabled) {
+        navigate(`/result-new?functional_filters=${encodeURIComponent(JSON.stringify(filters))}`);
+        return;
+      }
       const currentData = await functionalDataApi.getCohortTraces(responseType, getFilters());
       const prompt = buildFunctionalPlotPrompt({
         filters,

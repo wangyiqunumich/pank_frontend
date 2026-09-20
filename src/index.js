@@ -1,6 +1,7 @@
 import './index.css';
 import AgentPage from './vnext/AgentPage';
 import AgentRoute from './vnext/AgentRoute';
+import ConventionalRoute from './vnext/ConventionalRoute';
 import { loadDevConfig } from './vnext/runtimeConfig';
 
 import React from 'react';
@@ -92,7 +93,7 @@ loadDevConfig().then(() => root.render(
                 <Route path="/result" element={<ResultPage />} />
                 <Route
                   path="/result-new"
-                  element={<AgentResultLayout ResultView={ResultPageNew} allowSearch={false} />}
+                  element={<ConventionalRoute><AgentResultLayout ResultView={ResultPageNew} allowSearch={false} /></ConventionalRoute>}
                 />
                 <Route
                   path="/result-new2"

@@ -20,6 +20,7 @@ import { applyRunEvent, groundedLiterature, literatureNotice, liveProgress, plan
 import { cancelRun, confirmPlan, createPlanOnce, createResultOnce, getRun, getResult, pollResult, revisePlan, sitePath, TERMINAL_RUNS, watchRun } from './api';
 
 import { recordInteraction, referenceKey } from './telemetry';
+import { questionInputError } from './questionInput';
 
 const readLocal = (key) => { try { return JSON.parse(safeLocalStorage.getItem(key)); } catch (_) { return null; } };
 const writeLocal = (key, value) => safeLocalStorage.setItem(key, JSON.stringify(value));
@@ -41,8 +42,8 @@ export async function readPriorConversation(ids, currentId, options = {}) {
   return { items: saved.filter(Boolean), unavailable };
 }
 
-export function useProjectedResult(payload) {
-  const key = payload ? JSON.stringify(payload) : '';
+export function useProjectedResult(payload, savedId = '') {
+  const key = savedId ? `saved:${savedId}` : payload ? JSON.stringify(payload) : '';
   const [storedResult, setStoredResult] = useState(null);
   // Clearing the preview on preview -> final is not needed anymore: the
   // updated PanKagent streams one durable run. Keep its graph mounted until
@@ -61,11 +62,16 @@ export function useProjectedResult(payload) {
     setConnection('connected');
     if (!key) return;
     const controller = new AbortController();
-    const creation = createdRef.current?.key === key ? Promise.resolve(createdRef.current) : createResultOnce(JSON.parse(key));
+    const creation = createdRef.current?.key === key ? Promise.resolve(createdRef.current) : savedId ? Promise.resolve({ result_id: savedId }) : createResultOnce(JSON.parse(key));
     creation.then((created) => {
       if (!controller.signal.aborted) {
         createdRef.current = { key, result_id: created.result_id };
-        const source = JSON.parse(key);
+        const source = savedId ? {} : JSON.parse(key);
+        if (source.template_id && window.location.pathname === '/result-new') {
+          const params = new URLSearchParams(window.location.search);
+          params.set('provider', 'vnext'); params.set('result_id', created.result_id);
+          window.history.replaceState({}, '', sitePath(`/result-new?${params}`));
+        }
         if (source.run_id) writeLocal(resultKey(source.run_id, source.phase || 'final'), created.result_id);
       }
       if (!controller.signal.aborted) return pollResult(created.result_id, (value) => {
@@ -80,7 +86,7 @@ export function useProjectedResult(payload) {
       }, { signal: controller.signal, onConnection: state => { if (!controller.signal.aborted) setConnection(state); } });
     }).catch((err) => { if (!controller.signal.aborted) { setError(err.message); if (createdRef.current?.key === key) setConnection('exhausted'); } });
     return () => controller.abort();
-  }, [key, scope, readAttempt]);
+  }, [key, scope, readAttempt, savedId]);
   return [result, error, { status: connection, reconnect: createdRef.current?.key === key ? reconnect : undefined }];
 }
 
@@ -174,12 +180,14 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
   const [connection, setConnection] = useState('connected');
   const [previous, setPrevious] = useState([]);
   const [historyError, setHistoryError] = useState('');
+  const [failedFollowUp, setFailedFollowUp] = useState(null);
   const streamRef = useRef(null);
   const runRef = useRef(null);
   const mounted = useRef(true);
   const metaRef = useRef('');
   const bootstrapRef = useRef(null);
   const projectionRef = useRef(null);
+  const followUpPending = useRef(false);
   const loadVersion = useRef(0);
   const readController = useRef(null);
   const readRunId = useRef(null);
@@ -208,8 +216,8 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
       setHistoryError(unavailable ? 'Some saved conversation turns could not be read. Refresh history to try again.' : '');
     });
     upsertRecentChat({ sessionId: snapshot.session_id, firstQuestion: snapshot.question, provider: 'vnext', version: 2 });
-    const params = new URLSearchParams({ run_id: runId, session_id: snapshot.session_id });
-    window.history.replaceState({}, '', sitePath(`/agent-vnext?${params}`));
+    const params = new URLSearchParams({ provider: 'vnext', run_id: runId, session_id: snapshot.session_id });
+    window.history.replaceState({}, '', sitePath(`/result-new2?${params}`));
     if (!TERMINAL_RUNS.has(snapshot.status)) streamRef.current = watchRun(runId, snapshot.event_sequence, (event) => {
       if (!mounted.current || version !== loadVersion.current) return;
       setRun((value) => applyRunEvent(value || snapshot, event));
@@ -255,23 +263,32 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     streamRef.current?.(); navigate('/');
   }, [navigate]);
   const followUp = useCallback(async (question) => {
-    if (!question?.trim() || !TERMINAL_RUNS.has(runRef.current?.status)) return;
+    if (!question?.trim() || followUpPending.current || !TERMINAL_RUNS.has(runRef.current?.status)) return false;
+    const inputError = questionInputError(question);
+    if (inputError) { setFailedFollowUp({ question, message: inputError }); return false; }
     const current = runRef.current;
-    setPrevious((items) => [...items, { run: current, result: projectionRef.current, presentationState: location.state?.result_page }]); setRun(null); setError('');
-    try { const created = await createPlanOnce(question.trim(), current.session_id, `${current.run_id}:${question.trim()}`); await attachRun(created.run_id); }
-    catch (err) { setError(err.message); }
+    followUpPending.current = true; setBusy(true); setFailedFollowUp(null);
+    try {
+      const created = await createPlanOnce(question.trim(), current.session_id, `${current.run_id}:${question.trim()}`);
+      if (!mounted.current) return;
+      setPrevious((items) => [...items, { run: current, result: projectionRef.current, presentationState: location.state?.result_page }]);
+      setRun(null); await attachRun(created.run_id);
+      return true;
+    } catch (err) { if (mounted.current) setFailedFollowUp({ question, message: err.message }); return false; }
+    finally { followUpPending.current = false; if (mounted.current) setBusy(false); }
   }, [attachRun, location.state?.result_page]);
   useEffect(() => {
     if (!onContentMeta) return;
     const page = resolveResultPage({ result, run, state: location.state?.result_page, resourceTabs: withLiteratureReferences(result?.resources_tabs, groundedLiterature(run, result)) });
-    const meta = { anchorPrefix: contentAnchorPrefix, aiHeadings: [], hasVisual: page.mainVisuals.length > 0, hasEvidences: page.supportingTabs.length > 0, hasFollowUp: !isPlanning,
-      isQuestionComplete: TERMINAL_RUNS.has(run?.status), isPlanning, hideFloatingSearchBar: !TERMINAL_RUNS.has(run?.status),
+    const questions = [...previous.map((item, index) => ({ id: item.run.run_id, query: item.run.question, anchorPrefix: `${contentAnchorPrefix}-previous-${index}`, anchorId: `${contentAnchorPrefix}-previous-${index}-question-1` })), ...(run ? [{ id: run.run_id, query: run.question, anchorPrefix: contentAnchorPrefix, anchorId: `${contentAnchorPrefix}-question-1` }] : [])];
+    const meta = { anchorPrefix: contentAnchorPrefix, questions, aiHeadings: [], hasVisual: page.mainVisuals.length > 0, hasEvidences: page.supportingTabs.length > 0, hasFollowUp: !isPlanning,
+      isQuestionComplete: TERMINAL_RUNS.has(run?.status) && !busy, isPlanning, hideFloatingSearchBar: !TERMINAL_RUNS.has(run?.status),
       planProceedAnchorId: isPlanning ? `${contentAnchorPrefix}-plan-proceed-button` : '', feedbackSessionId: run?.session_id || '', metaRouteKey: `${location.pathname}${location.search}` };
     const signature = JSON.stringify(meta);
     if (metaRef.current === signature) return;
     metaRef.current = signature;
     onContentMeta({ ...meta, followUpHandler: followUp });
-  }, [onContentMeta, contentAnchorPrefix, run, result, isPlanning, location.pathname, location.search, location.state?.result_page, followUp]);
+  }, [onContentMeta, contentAnchorPrefix, run, result, isPlanning, location.pathname, location.search, location.state?.result_page, followUp, busy, previous]);
   // Read-transport failures reconnect to saved state; only recorded execution
   // failures or explicit mutation failures belong in the query-recovery dialog.
   const missingSavedSession = !run && Boolean(route.get('session_id')) && !route.get('run_id') && Boolean(error);
@@ -297,6 +314,7 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     <ConnectionNotice status={connection} onReconnect={() => { if (readRunId.current) attachRun(readRunId.current); }} />
     <ConnectionNotice status={resultConnection.status} onReconnect={resultConnection.reconnect} />
     <QueryRecoveryDialog issue={recovery} question={run?.plan?.original_question || run?.question || decodeQuestion(route.get('question'))} busy={busy} onRevise={retryRecovery} onRetry={()=>retryRecovery()} onCancel={cancel} />
+    {failedFollowUp && <Box role="alert" sx={{ p: 2 }}><Typography>Could not submit follow-up: {failedFollowUp.message}</Typography><Typography>{failedFollowUp.question}</Typography><Button disabled={busy} onClick={() => followUp(failedFollowUp.question)}>Retry follow-up</Button></Box>}
     <AlertMessage type="warning" content={error || resultError} open={!recovery && Boolean(error || resultError)} onClose={() => setError('')} />
     {initialLoading ? <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px' }}><SearchResultLoading streamProgress={progress} handleClose={cancel} /></Box> :
       <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', px: { xs: 2, md: 3 }, py: 3 }}><Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -309,18 +327,19 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
 
 export function ConventionalResultView({ contentAnchorPrefix = 'result-1', onContentMeta } = {}) {
   const location = useLocation();
+  const savedId = new URLSearchParams(location.search).get('result_id') || '';
   const payload = useMemo(() => { try { return templateRequest(new URLSearchParams(location.search)); } catch (_) { return null; } }, [location.search]);
-  const [result, error, connection] = useProjectedResult(payload);
+  const [result, error, connection] = useProjectedResult(payload, savedId);
   const metaRef = useRef('');
   const run = useMemo(() => ({ question: result?.question || result?.answer?.title || '', status: result?.status === 'ready' ? 'completed' : 'running', graph_answer: typeof result?.answer === 'string' ? result.answer : result?.answer?.text }), [result]);
   useEffect(() => {
     const page = resolveResultPage({ result, run, state: location.state?.result_page, resourceTabs: withLiteratureReferences(result?.resources_tabs, groundedLiterature(run, result)) });
-    const meta = { anchorPrefix: contentAnchorPrefix, aiHeadings: [], hasVisual: page.mainVisuals.length > 0, hasEvidences: page.supportingTabs.length > 0, isQuestionComplete: Boolean(result), isPlanning: false, hideFloatingSearchBar: true, metaRouteKey: `${location.pathname}${location.search}` };
+    const meta = { anchorPrefix: contentAnchorPrefix, questions: [{ id: result?.result_id || 'tool', query: run.question || 'Search results', anchorPrefix: contentAnchorPrefix, anchorId: `${contentAnchorPrefix}-question-1` }], aiHeadings: [], hasVisual: page.mainVisuals.length > 0, hasEvidences: page.supportingTabs.length > 0, isQuestionComplete: Boolean(result), isPlanning: false, hideFloatingSearchBar: true, metaRouteKey: `${location.pathname}${location.search}` };
     const signature = JSON.stringify(meta);
     if (metaRef.current !== signature) { metaRef.current = signature; onContentMeta?.(meta); }
   }, [onContentMeta, contentAnchorPrefix, result, run, location.pathname, location.search, location.state?.result_page]);
   return <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', px: { xs: 2, md: 3 }, py: 3 }}><Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 3 }}>
     <ConnectionNotice status={connection.status} onReconnect={connection.reconnect} />
-    <ResultSection run={run} result={result} error={error || (!payload ? 'This search is unavailable in the isolated demo.' : '')} anchorPrefix={contentAnchorPrefix} presentationState={location.state?.result_page} />
+    <ResultSection run={run} result={result} error={error || (!payload && !savedId ? 'This search is unavailable. Return to the tool and choose a supported search.' : '')} anchorPrefix={contentAnchorPrefix} presentationState={location.state?.result_page} />
   </Box></Box>;
 }

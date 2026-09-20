@@ -16,6 +16,7 @@ Cytoscape.use(coseBilkent);
 
 const colorMap = {
   gene: "#ABD0F1",
+  disease: "#c79bcc",
   sequence_variant: "#FFB77F",
   pathway: "#F6C957",
   ontology: "#8c561b",
@@ -37,19 +38,19 @@ function IntermediateKG({ data }) {
     const credible_sets = data.credible_sets;
     const edgeOrientation = 'right';
     const edgeLabels = {
-      left: generateEdgeLabel(credible_sets[0].data_source, conversionTable),
+      left: data.type === "gwas" ? "GWAS association" : generateEdgeLabel(credible_sets[0].data_source, conversionTable),
       right: data.type === "qtl_lead" ? "lead SNP" : "SNP"
     }
     const graphPaths = credible_sets.map((credible_set) => (
       {
-        left: getGeneSymbol(credible_set.credible_set_id),
+        left: data.type === "gwas" ? credible_set.disease_name || credible_set.disease : credible_set.gene_name || getGeneSymbol(credible_set.credible_set_id),
         mid: credible_set.credible_set,
         right: credible_set.snp
       }
     ));
 
     const typesDetail = {
-      'left': 'gene',
+      'left': data.type === 'gwas' ? 'disease' : 'gene',
       'mid': 'credible_set',
       'right': 'sequence_variant'
     };
