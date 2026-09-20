@@ -306,6 +306,7 @@ function QtlTermAutocomplete({
 
 export default function QTLExplorerPage() {
   const navigate = useNavigate();
+  const vnextEnabled = getDevConfig().vnextEnabled;
   const [mode, setMode] = useState(qtlContent.defaults.mode);
 
   const [geneInput, setGeneInput] = useState('');
@@ -534,13 +535,13 @@ export default function QTLExplorerPage() {
                     </Box>
                     <Box>
                       <Typography sx={{ color: '#000000', fontWeight: '600 !important', fontSize: 14 }}>
-                        {qtlContent.stats.count}
+                        {vnextEnabled ? 'QTL evidence' : qtlContent.stats.count}
                       </Typography>
                       <Typography sx={{ color: '#000000', fontWeight: '500 !important', fontSize: 12 }}>
-                        {qtlContent.stats.label}
+                        {vnextEnabled ? 'Current graph' : qtlContent.stats.label}
                       </Typography>
                       <Typography sx={{ color: '#000000', fontSize: 12 }}>
-                        {qtlContent.stats.subLabel}
+                        {vnextEnabled ? 'and indexed sources' : qtlContent.stats.subLabel}
                       </Typography>
                     </Box>
                   </Box>
@@ -795,7 +796,7 @@ export default function QTLExplorerPage() {
 
                   <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.7 }}>
                     <SecurityOutlinedIcon sx={{ fontSize: 16, color: '#3B7A9B' }} />
-                      <Typography sx={{ color: '#305F8C', fontSize: 12 }}>{qtlContent.shared.securityNote}</Typography>
+                      <Typography sx={{ color: '#305F8C', fontSize: 12 }}>{vnextEnabled ? 'Results are saved so you can reopen them.' : qtlContent.shared.securityNote}</Typography>
                   </Box>
                 </Box>
               </Box>

@@ -154,6 +154,7 @@ function GwasSnpAutocomplete({ value, onChange, defaultOptions, onValidated }) {
 
 export default function GWASExplorerPage() {
   const navigate = useNavigate();
+  const vnextEnabled = getDevConfig().vnextEnabled;
   const [snpInput, setSnpInput] = useState('');
   const [snpValid, setSnpValid] = useState(false);
 
@@ -275,13 +276,13 @@ export default function GWASExplorerPage() {
                     </Box>
                     <Box>
                       <Typography sx={{ color: '#000000', fontWeight: '600 !important', fontSize: 14 }}>
-                        {gwasContent.stats.count}
+                        {vnextEnabled ? 'GWAS evidence' : gwasContent.stats.count}
                       </Typography>
                       <Typography sx={{ color: '#000000', fontWeight: '500 !important', fontSize: 12 }}>
-                        {gwasContent.stats.label}
+                        {vnextEnabled ? 'Current graph' : gwasContent.stats.label}
                       </Typography>
                       <Typography sx={{ color: '#000000', fontSize: 12 }}>
-                        {gwasContent.stats.subLabel}
+                        {vnextEnabled ? 'and indexed sources' : gwasContent.stats.subLabel}
                       </Typography>
                     </Box>
                   </Box>
@@ -402,7 +403,7 @@ export default function GWASExplorerPage() {
 
                 <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.7 }}>
                   <SecurityOutlinedIcon sx={{ fontSize: 16, color: '#3B7A9B' }} />
-                  <Typography sx={{ color: '#305F8C', fontSize: 12 }}>{gwasContent.shared.securityNote}</Typography>
+                  <Typography sx={{ color: '#305F8C', fontSize: 12 }}>{vnextEnabled ? 'Results are saved so you can reopen them.' : gwasContent.shared.securityNote}</Typography>
                 </Box>
               </Box>
 
