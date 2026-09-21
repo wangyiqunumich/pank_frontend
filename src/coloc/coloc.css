@@ -104,3 +104,66 @@
 .coloc-results [role="tabpanel"]:focus-visible { outline: 2px solid #438878; outline-offset: 3px; }
 @media (max-width: 1100px) { .coloc-summary-grid { grid-template-columns: 1fr; } }
 @media (max-width: 650px) { .coloc-results .coloc-header { flex-wrap: wrap; gap: 0; } .coloc-posterior .coloc-svg-wrap > svg { min-width: 460px; } .coloc-results-toolbar { align-items: flex-start; } }
+
+/* Match the QTL/GWAS tool landing pages without changing the result views. */
+.coloc-landing { color: #0f172a; }
+.coloc-landing .coloc-back { display: inline-flex; align-items: center; gap: 8px; }
+.coloc-landing .coloc-back svg { font-size: 16px; }
+.coloc-landing-layout { display: grid; grid-template-columns: minmax(0, 9fr) minmax(0, 3fr); gap: 20px; align-items: start; }
+.coloc-landing-body { min-width: 0; }
+.coloc-landing-header { display: grid; grid-template-columns: minmax(0, 7fr) minmax(170px, 2fr); gap: 16px; margin-bottom: 16px; }
+.coloc-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.coloc-landing .coloc-title-row h1 { margin: 0; color: #0f172a; }
+.coloc-tool-icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #6669b0; }
+.coloc-tool-icon img { width: 16px; height: 16px; }
+.coloc-version { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; background: #f1f5f9; border-radius: 999px; color: #64748b; font-size: 10px; }
+.coloc-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.coloc-tags span { padding: 0 9px; background: #ebf0f6; border-radius: 999px; color: #444d6c; font-size: 10px; }
+.coloc-landing-header p { margin: 0; color: #64748b; }
+.coloc-catalog-stat { display: flex; align-items: flex-start; gap: 8px; padding-top: 1px; }
+.coloc-catalog-stat strong, .coloc-catalog-stat div > span { display: block; }
+.coloc-catalog-stat strong { font-size: 14px; font-weight: 600; }
+.coloc-catalog-stat div > span { color: #334155; }
+.coloc-stat-icon { display: inline-flex; align-items: center; justify-content: center; background: #e9f6f7; color: #3a838b; border-radius: 4px; width: 32px; height: 32px; flex-shrink: 0; }
+.coloc-stat-icon svg { font-size: 16px; }
+.coloc-landing .coloc-step-heading { display: flex; align-items: center; gap: 8px; color: #111; }
+.coloc-step-heading > span { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; background: #3a838b; border-radius: 50%; color: #fff; font-size: 12px; flex-shrink: 0; }
+.coloc-landing .coloc-section-hint { color: #2e4f8f; margin: 4px 0 10px; }
+.coloc-filter-panel { background: #f4f9fc; border-radius: 10px; padding: 14px; margin-bottom: 18px; }
+.coloc-landing .coloc-filters { grid-template-columns: minmax(120px, 1.5fr) repeat(3, minmax(90px, 1fr)) auto; gap: 10px; padding: 0 0 12px; }
+.coloc-landing .coloc-filter { color: #64748b; }
+.coloc-landing .coloc-filter input, .coloc-landing .coloc-filter select { border-color: #cfd8e1; border-radius: 4px; }
+.coloc-landing .coloc-info-bar { display: flex; align-items: flex-start; gap: 7px; margin: 0; color: #64748b; }
+.coloc-info-bar svg { font-size: 17px; flex-shrink: 0; color: #3b7a9b; }
+.coloc-catalog-section { min-width: 0; scroll-margin-top: 12px; }
+.coloc-catalog-section:focus { outline: none; }
+.coloc-catalog-section:focus-visible { outline: 2px solid #3a838b; outline-offset: 5px; border-radius: 6px; }
+.coloc-catalog-section .coloc-panel-heading p:last-child { margin-bottom: 0; font-size: 11px; }
+.coloc-landing .coloc-overview tbody th { min-width: 110px; }
+.coloc-landing .coloc-overview td { min-width: 68px; }
+.coloc-about { border: 1px solid #e5ebf3; border-radius: 14px; overflow: hidden; }
+.coloc-about section { padding: 16px; }
+.coloc-about section + section { border-top: 1px solid #e5ebf3; }
+.coloc-about h2 { display: flex; align-items: center; gap: 5px; color: #1e3f7c; font-size: 12px; margin-bottom: 8px; }
+.coloc-about h2 svg { font-size: 20px; flex-shrink: 0; }
+.coloc-about p { color: #111; margin: 0; }
+.coloc-about p + p { margin-top: 4px; }
+.coloc-about ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.coloc-about li { display: flex; align-items: flex-start; gap: 8px; color: #007a8d; }
+.coloc-about li svg { flex-shrink: 0; font-size: 18px; color: #1a9dc0; margin-top: 1px; }
+.coloc-about li button { display: flex; align-items: flex-start; gap: 8px; width: 100%; text-align: left; border: 0; padding: 2px 3px; background: transparent; color: #007a8d; border-radius: 6px; }
+.coloc-about li button:hover { background: #f2f8fc; }
+.coloc-about li button:focus-visible { outline-offset: -2px; }
+.coloc-next { margin-top: 18px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); align-items: center; gap: 16px; }
+.coloc-next h2 { font-size: 11px; color: #111; }
+.coloc-next p { font-size: 10px; margin: 3px 0 0; }
+.coloc-next ol { display: flex; align-items: stretch; margin: 0; padding: 0; list-style: none; gap: 10px; }
+.coloc-next li { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+.coloc-next li > svg { color: #8aa4c5; font-size: 18px; flex-shrink: 0; }
+.coloc-next li > div { flex: 1; padding: 10px; min-height: 54px; box-sizing: border-box; border: 1px solid #dee6f0; border-radius: 6px; background: #f4fbff; text-align: center; color: #2e4f8f; font-size: 10px; }
+.coloc-next li:first-child > div { background: #fff0da; }
+.coloc-next li:last-child > div { background: #fbe7e8; }
+.coloc-next strong { display: block; font-weight: 500; margin-bottom: 6px; }
+@media (max-width: 1200px) { .coloc-landing .coloc-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .coloc-landing .coloc-filters > button { justify-self: start; } .coloc-next { grid-template-columns: 1fr; } }
+@media (max-width: 1000px) { .coloc-landing-layout { grid-template-columns: 1fr; } .coloc-about { display: grid; grid-template-columns: 1fr 1fr; } .coloc-about section:nth-child(2) { border-top: 0; } .coloc-about section:nth-child(even) { border-left: 1px solid #e5ebf3; } }
+@media (max-width: 650px) { .coloc-landing-header { grid-template-columns: 1fr; } .coloc-catalog-stat { margin-top: 2px; } .coloc-landing .coloc-filters, .coloc-about { grid-template-columns: 1fr; } .coloc-about section:nth-child(2) { border-top: 1px solid #e5ebf3; } .coloc-about section:nth-child(even) { border-left: 0; } .coloc-next ol { flex-direction: column; } .coloc-next li { flex-direction: column; gap: 6px; } .coloc-next li > svg { transform: rotate(90deg); } .coloc-next li > div { width: 100%; } }

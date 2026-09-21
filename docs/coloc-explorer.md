@@ -32,6 +32,36 @@ links remain shared. The AI summary loads within its own card while the
 recorded evidence stays visible. Summary or connection failures leave all other
 evidence views usable.
 
+## Editable landing-page content
+
+[src/skills/colocExplorerContent.json](../src/skills/colocExplorerContent.json)
+is the dedicated content file for the Coloc landing page. Edit it in GitHub and
+use the normal frontend review/build/deployment flow to publish changes. It
+follows the QTL/GWAS content-file pattern; it is bundled frontend content, not
+a runtime configuration file or a backend prompt.
+
+| Section | Editable fields |
+| --- | --- |
+| `header` | `backText`, `title`, `version`, `badges`, `descriptionLines` |
+| `configureSection` | `title`, `subtitle` for catalog filters |
+| `selectionSection` | `title`, `subtitle` for choosing a recorded comparison |
+| `shared` | `infoBar`, `whatNextTitle`, `whatNextDescription`, and `workflow` entries containing `title` and `text` |
+| `rightPanel` | About/Important/Why/Example questions titles and copy; `importantBodyLines`, `whyItems`, and `examples` arrays |
+
+Each example is `{ "text": "Displayed question", "fill": { ... } }`. Supported
+fill keys are `gene`, `dataset`, `tissue`, and `qtl_type`; values are strings.
+Use exact catalog values for dataset, tissue and QTL type, including case.
+Initial examples filter by `ADCY3`, `GSDMB`, and `qtl_type: "exonQTL"`.
+Selecting an example replaces the catalog filters, clears omitted filters, and
+returns focus to the catalog. It does not open a detail, submit a question to
+an agent, run colocalization, or start AI synthesis. The user chooses a specific
+record to open its detail and summary.
+
+Keep copy about recorded evidence and its source coverage. Do not add fixed
+catalog counts, causal claims, promises of new statistical analysis, or claims
+that credible-set members cover every variant tested. Live record counts and
+evidence remain supplied by the API; editing this JSON does not change them.
+
 ## Activation
 
 The route `/coloc-explorer` and its Tools card require the separate boolean
