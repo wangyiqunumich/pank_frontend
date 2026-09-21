@@ -94,3 +94,41 @@ test.each([
   expect(screen.getAllByRole('tab')[0].textContent).toBe(expected);
   expect(screen.getByRole('tab', { name: expected }).getAttribute('aria-selected')).toBe('true');
 });
+
+test('plan graph stays loading from Cypher completion through presentation preparation', () => {
+  const planRun = { ...run, status: 'awaiting_confirmation', plan: { interpreted_question: run.question, steps: [] }, preview: { status: 'complete' } };
+  const { rerender } = render(<ResultSection run={planRun} planning anchorPrefix="pending-graph" />);
+  expect(screen.getByRole('status', { name: 'Loading graph' })).toBeTruthy();
+  for (const pending of [
+    { status: 'preparing', component_status: { graph: 'pending', layout: 'pending' } },
+    { status: 'queued' },
+    { status: 'running', combined_query_result: { nodes: [], edges: [] } },
+    { status: 'ready', component_status: { graph: { status: 'processing' } } },
+  ]) {
+    rerender(<ResultSection run={planRun} planning result={pending} anchorPrefix="pending-graph" />);
+    expect(screen.getByRole('status', { name: 'Loading graph' })).toBeTruthy();
+    expect(screen.queryByText('No matching graph evidence was returned.')).toBeNull();
+  }
+  rerender(<ResultSection run={planRun} planning result={result} anchorPrefix="pending-graph" />);
+  expect(screen.queryByRole('status', { name: 'Loading graph' })).toBeNull();
+  expect(screen.getByTestId('schema-graph').textContent).toBe('INS');
+});
+
+test('only completed empty graph evidence shows the empty message, even while resources load', () => {
+  render(<ResultSection run={run} result={{ ...result, combined_query_result: { nodes: [], edges: [] }, component_status: { graph: 'empty', resources: 'pending' } }} anchorPrefix="empty-graph" />);
+  expect(screen.getByText('No matching graph evidence was returned.')).toBeTruthy();
+  expect(screen.queryByRole('status', { name: 'Loading graph' })).toBeNull();
+});
+
+test.each(['failed', 'cancelled', 'interrupted'])('a %s graph request is neither loading nor biological absence', status => {
+  render(<ResultSection run={run} result={{ status, component_status: { graph: 'pending' } }} anchorPrefix="failed-graph" />);
+  expect(screen.getByText('Graph retrieval could not finish. Available answer sections are preserved.')).toBeTruthy();
+  expect(screen.queryByRole('status', { name: 'Loading graph' })).toBeNull();
+  expect(screen.queryByText('No matching graph evidence was returned.')).toBeNull();
+});
+
+test('an existing graph remains visible during subsequent preparation', () => {
+  render(<ResultSection run={run} result={{ ...result, status: 'preparing', component_status: { graph: 'pending' } }} anchorPrefix="preserved-graph" />);
+  expect(screen.getByTestId('schema-graph').textContent).toBe('INS');
+  expect(screen.queryByRole('status', { name: 'Loading graph' })).toBeNull();
+});
