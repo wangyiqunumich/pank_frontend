@@ -1,0 +1,157 @@
+/* ==========================================================================
+   PanKgraph design tokens — Material Design 3 system tokens, PanKbase palette.
+   Single source of truth for every redesigned screen in this atlas.
+   Rules:
+     • Design stylesheets reference ONLY these tokens (no literal px / colors).
+     • Every length is a multiple of the 4px base unit.
+     • New needs → add a token here first, then use it.
+   Naming follows Material: --md-sys-* (system tokens), --md-comp-* (component tokens).
+   ========================================================================== */
+
+:root {
+  /* ---- Color roles (Material color roles → PanKbase palette) ---- */
+  --md-sys-color-primary:               rgb(33, 145, 151);   /* PanKbase teal */
+  --md-sys-color-on-primary:            rgb(255, 255, 255);
+  --md-sys-color-primary-container:     rgb(240, 247, 248);
+  --md-sys-color-on-primary-container:  rgb(24, 118, 123);
+  --md-sys-color-primary-hover:         rgb(24, 118, 123);   /* primary + pressed state */
+  --md-sys-color-section-label:         rgb(93, 109, 116);   /* #5d6d74 — Level 2 section labels */
+  --md-sys-color-secondary-container:   rgb(227, 240, 241);
+  --md-sys-color-on-secondary-container:rgb(24, 118, 123);
+  --md-sys-color-surface:               rgb(255, 255, 255);
+  --md-sys-color-surface-container:     rgb(246, 248, 250);
+  --md-sys-color-on-surface:            rgb(15, 23, 42);
+  --md-sys-color-on-surface-variant:    rgb(89, 99, 110);
+  --md-sys-color-outline:               rgb(203, 213, 225);
+  --md-sys-color-outline-variant:       rgb(226, 232, 240);
+  --md-sys-color-placeholder:           rgb(148, 163, 184);
+  --md-sys-color-error:                 rgb(186, 26, 26);
+  --md-sys-color-on-error:              rgb(255, 255, 255);
+  --md-sys-color-error-container:       rgb(255, 218, 214);
+  --md-sys-color-scrim:                 rgba(15, 23, 42, 0.40);
+  --md-sys-color-shadow:                rgb(15, 23, 42);
+
+  /* ---- State layers (opacity of on-surface over a component) ---- */
+  --md-sys-state-hover-opacity:    0.08;
+  --md-sys-state-focus-opacity:    0.12;
+  --md-sys-state-pressed-opacity:  0.12;
+  --md-sys-state-disabled-container-opacity: 0.12;
+  --md-sys-state-disabled-content-opacity:   0.38;
+  --md-sys-state-hover-layer:    rgba(15, 23, 42, 0.08);
+  --md-sys-state-focus-layer:    rgba(15, 23, 42, 0.12);
+  --md-sys-state-disabled-container: rgba(15, 23, 42, 0.12);
+  --md-sys-state-disabled-content:   rgba(15, 23, 42, 0.38);
+
+  /* ---- Typography: family & weights ---- */
+  --md-ref-typeface-brand: Roboto, Helvetica, Arial, sans-serif;  /* existing MUI theme face */
+  --md-ref-typeface-plain: Roboto, Helvetica, Arial, sans-serif;
+  --md-ref-typeface-weight-regular: 400;
+  --md-ref-typeface-weight-medium:  500;
+  --md-ref-typeface-weight-bold:    700;
+
+  /* ---- Type scale (size / line-height / weight / tracking) ---- */
+  --md-sys-typescale-headline-large-size: 32px;  --md-sys-typescale-headline-large-line-height: 40px;
+  --md-sys-typescale-headline-medium-size: 28px; --md-sys-typescale-headline-medium-line-height: 36px;
+  --md-sys-typescale-headline-small-size: 24px;  --md-sys-typescale-headline-small-line-height: 32px;
+  --md-sys-typescale-headline-weight: 700;       /* brand adaptation: bold headlines */
+  --md-sys-typescale-headline-tracking: 0;
+
+  --md-sys-typescale-title-large-size: 22px;     --md-sys-typescale-title-large-line-height: 28px;
+  --md-sys-typescale-title-medium-size: 16px;    --md-sys-typescale-title-medium-line-height: 24px;
+  --md-sys-typescale-title-small-size: 14px;     --md-sys-typescale-title-small-line-height: 20px;
+  --md-sys-typescale-title-weight: 500;
+  --md-sys-typescale-section-label-size: 16px;  --md-sys-typescale-section-label-line-height: 24px;
+  --md-sys-typescale-section-label-weight: 700;  /* Level 2 section labels */
+  --md-sys-typescale-title-tracking: 0;
+
+  --md-sys-typescale-body-large-size: 16px;      --md-sys-typescale-body-large-line-height: 24px;
+  --md-sys-typescale-body-medium-size: 14px;     --md-sys-typescale-body-medium-line-height: 20px;
+  --md-sys-typescale-body-small-size: 12px;      --md-sys-typescale-body-small-line-height: 16px;
+  --md-sys-typescale-body-weight: 400;
+  --md-sys-typescale-body-tracking: 0;
+
+  --md-sys-typescale-label-large-size: 14px;     --md-sys-typescale-label-large-line-height: 20px;
+  --md-sys-typescale-label-medium-size: 12px;    --md-sys-typescale-label-medium-line-height: 16px;
+  --md-sys-typescale-label-small-size: 11px;     --md-sys-typescale-label-small-line-height: 16px;
+  --md-sys-typescale-label-weight: 500;
+  --md-sys-typescale-label-tracking: 0.01em;
+  --md-sys-typescale-label-uppercase-tracking: 0.08em;  /* eyebrows, chips, overlines */
+
+  /* ---- Spacing scale (4px base unit) ---- */
+  --md-sys-spacing-1:  4px;
+  --md-sys-spacing-2:  8px;
+  --md-sys-spacing-3:  12px;
+  --md-sys-spacing-4:  16px;
+  --md-sys-spacing-5:  20px;
+  --md-sys-spacing-6:  24px;
+  --md-sys-spacing-8:  32px;
+  --md-sys-spacing-10: 40px;
+  --md-sys-spacing-12: 48px;
+  --md-sys-spacing-16: 64px;
+
+  /* ---- Shape scale ---- */
+  --md-sys-shape-corner-none:        0;
+  --md-sys-shape-corner-extra-small: 4px;   /* chips, badges */
+  --md-sys-shape-corner-small:       8px;   /* buttons, inputs */
+  --md-sys-shape-corner-medium:      12px;  /* cards, list options, text areas */
+  --md-sys-shape-corner-large:       16px;  /* dialogs, sheets */
+  --md-sys-shape-corner-extra-large: 28px;
+  --md-sys-shape-corner-full:        9999px;
+
+  /* ---- Elevation ---- */
+  --md-sys-elevation-0: none;
+  --md-sys-elevation-1: 0 1px 2px rgba(15, 23, 42, 0.12), 0 1px 3px 1px rgba(15, 23, 42, 0.08);
+  --md-sys-elevation-2: 0 2px 4px rgba(15, 23, 42, 0.16), 0 1px 3px rgba(15, 23, 42, 0.08);
+  --md-sys-elevation-3: 0 8px 16px -8px rgba(15, 23, 42, 0.16), 0 24px 48px -12px rgba(15, 23, 42, 0.24);
+
+  /* ---- Motion ---- */
+  --md-sys-motion-duration-short:  150ms;
+  --md-sys-motion-duration-medium: 250ms;
+  --md-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-easing-emphasized: cubic-bezier(0.3, 0, 0, 1);
+
+  /* ---- Focus ---- */
+  --md-sys-focus-ring-width:  2px;
+  --md-sys-focus-ring-offset: 2px;
+
+  /* ---- Component tokens (standard dimensions, all on the 4px grid) ---- */
+  --md-comp-icon-size:               24px;   /* standard icon */
+  --md-comp-icon-size-small:         20px;   /* dense icon, radio/checkbox glyph */
+  --md-comp-icon-size-glyph:         12px;   /* check inside a 20px selection control */
+  --md-comp-touch-target:            40px;   /* icon-button / state-layer size */
+  --md-comp-button-height:           40px;
+  --md-comp-button-min-width:        64px;
+  --md-comp-button-padding-x:        24px;   /* filled / outlined */
+  --md-comp-button-text-padding-x:   12px;   /* text button */
+  --md-comp-list-item-height:        56px;   /* one-line list item / choice card */
+  --md-comp-list-item-padding-x:     16px;
+  --md-comp-list-item-padding-y:     12px;
+  --md-comp-selection-control-size:  20px;
+  --md-comp-selection-control-stroke:2px;
+  --md-comp-badge-height:            24px;   /* inline status chip */
+  --md-comp-badge-padding-x:         8px;
+  --md-comp-text-field-height:       56px;
+  --md-comp-text-field-multiline-min-height: 96px;
+  --md-comp-text-field-padding-x:    16px;
+  --md-comp-text-field-padding-y:    12px;
+  --md-comp-outline-width:           1px;
+  --md-comp-outline-width-focus:     2px;
+  --md-comp-accent-rule-width:       2px;    /* quote / section accent rule */
+  --md-comp-divider-thickness:       1px;
+  --md-comp-dialog-width:            800px;   /* standard desktop dialog; never content-driven */
+  --md-comp-dialog-margin:           32px;
+  --md-comp-dialog-padding:          24px;
+  --md-comp-section-label-gap:       8px;    /* label → controls it introduces */
+  --md-comp-dialog-margin-compact:   16px;
+  --md-comp-dialog-padding-compact:  16px;
+  --md-comp-scrim-blur:              8px;
+}
+
+/* Reusable typography classes — apply instead of restating sizes. */
+.md-headline-small { font: var(--md-sys-typescale-headline-weight) var(--md-sys-typescale-headline-small-size) / var(--md-sys-typescale-headline-small-line-height) var(--md-ref-typeface-brand); letter-spacing: var(--md-sys-typescale-headline-tracking); }
+.md-title-large    { font: var(--md-sys-typescale-title-weight) var(--md-sys-typescale-title-large-size) / var(--md-sys-typescale-title-large-line-height) var(--md-ref-typeface-brand); letter-spacing: var(--md-sys-typescale-title-tracking); }
+.md-title-medium   { font: var(--md-sys-typescale-title-weight) var(--md-sys-typescale-title-medium-size) / var(--md-sys-typescale-title-medium-line-height) var(--md-ref-typeface-plain); letter-spacing: var(--md-sys-typescale-title-tracking); }
+.md-body-large     { font: var(--md-sys-typescale-body-weight) var(--md-sys-typescale-body-large-size) / var(--md-sys-typescale-body-large-line-height) var(--md-ref-typeface-plain); letter-spacing: var(--md-sys-typescale-body-tracking); }
+.md-body-medium    { font: var(--md-sys-typescale-body-weight) var(--md-sys-typescale-body-medium-size) / var(--md-sys-typescale-body-medium-line-height) var(--md-ref-typeface-plain); letter-spacing: var(--md-sys-typescale-body-tracking); }
+.md-label-large    { font: var(--md-sys-typescale-label-weight) var(--md-sys-typescale-label-large-size) / var(--md-sys-typescale-label-large-line-height) var(--md-ref-typeface-plain); letter-spacing: var(--md-sys-typescale-label-tracking); }
+.md-label-medium   { font: var(--md-sys-typescale-label-weight) var(--md-sys-typescale-label-medium-size) / var(--md-sys-typescale-label-medium-line-height) var(--md-ref-typeface-plain); letter-spacing: var(--md-sys-typescale-label-tracking); }

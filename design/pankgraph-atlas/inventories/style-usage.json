@@ -230,6 +230,12 @@
   "styles/eeb20642a1f952fd45fa.css": [
     "error-clarification.html"
   ],
+  "styles/design-tokens.css": [
+    "error-clarification.html"
+  ],
+  "styles/recovery-dialog.css": [
+    "error-clarification.html"
+  ],
   "styles/1de6dda36acdf030729f.css": [
     "agent-loading.html"
   ]

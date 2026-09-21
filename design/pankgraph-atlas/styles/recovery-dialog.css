@@ -1,0 +1,319 @@
+/* ==========================================================================
+   PanKgraph recovery dialog — QueryRecoveryDialog (clarification state).
+   Material Design 3 dialog anatomy: scrim → container → headline / scrollable
+   supporting content / actions. Uses ONLY tokens from design-tokens.css.
+
+   Typography hierarchy (one system for the whole dialog)
+     L0  Status eyebrow .......... label-medium   12/16 · bold · uppercase · primary
+     L1  Dialog title ............ headline-small 24/32 · bold   · on-surface
+     L2  Section labels .......... section-label  16/24 · bold   · section-label grey #5d6d74
+     L3  Primary content ......... body-large     16/24 · regular· on-surface
+     L4  Supporting information .. body-medium    14/20 · regular· on-surface-variant
+         (stage annotations inherit L3 size, take L4 color; badge = label-small)
+   Spacing rhythm (4px grid)
+     title → supporting text 8 · section → section 24 · label → content 8 · option → option 8
+   ========================================================================== */
+
+/* ---------- Scrim ---------- */
+.MuiDialog-root .MuiBackdrop-root {
+  background-color: var(--md-sys-color-scrim);
+  -webkit-backdrop-filter: blur(var(--md-comp-scrim-blur));
+  backdrop-filter: blur(var(--md-comp-scrim-blur));
+}
+
+/* ---------- Container: standard width, height follows content ---------- */
+.MuiDialog-root .MuiDialog-paper[aria-labelledby="query-recovery-title"] {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: min(var(--md-comp-dialog-width), calc(100vw - var(--md-comp-dialog-margin) * 2));
+  max-width: none;
+  min-height: 0;
+  max-height: calc(100vh - var(--md-comp-dialog-margin) * 2);
+  margin: var(--md-comp-dialog-margin);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  font-family: var(--md-ref-typeface-plain);
+  box-shadow: var(--md-sys-elevation-3);
+}
+
+/* ==========================================================================
+   Typography levels
+   ========================================================================== */
+
+/* L1 — dialog title (with status eyebrow above) */
+.MuiDialog-paper .MuiDialogTitle-root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-spacing-2);
+  margin: 0;
+  padding: var(--md-comp-dialog-padding) calc(var(--md-comp-dialog-padding) + var(--md-comp-touch-target)) 0 var(--md-comp-dialog-padding);
+  font: var(--md-sys-typescale-headline-weight) var(--md-sys-typescale-headline-small-size) / var(--md-sys-typescale-headline-small-line-height) var(--md-ref-typeface-brand);
+  letter-spacing: var(--md-sys-typescale-headline-tracking);
+  color: var(--md-sys-color-on-surface);
+}
+
+/* Status eyebrow above the title: label-medium, uppercase, primary */
+.MuiDialogTitle-root .pk-eyebrow {
+  display: block;
+  margin: 0;
+  font: var(--md-ref-typeface-weight-bold) var(--md-sys-typescale-label-medium-size) / var(--md-sys-typescale-label-medium-line-height) var(--md-ref-typeface-plain);
+  letter-spacing: var(--md-sys-typescale-label-uppercase-tracking);
+  text-transform: uppercase;
+  color: var(--md-sys-color-primary);
+}
+
+/* L2 — section labels: identical treatment for all four sections */
+.MuiDialogContent-root .pk-section-label,
+.MuiDialogContent-root .MuiDivider-wrapper {
+  display: block;
+  margin: 0;
+  padding: 0;
+  font: var(--md-sys-typescale-section-label-weight) var(--md-sys-typescale-section-label-size) / var(--md-sys-typescale-section-label-line-height) var(--md-ref-typeface-plain);
+  letter-spacing: var(--md-sys-typescale-title-tracking);
+  text-transform: none;
+  color: var(--md-sys-color-section-label);
+}
+
+/* L3 — primary content: original question, option text, user input */
+.MuiDialogContent-root .pk-original .MuiTypography-body1,
+.MuiRadioGroup-root .MuiFormControlLabel-label,
+.MuiDialog-paper .MuiOutlinedInput-root {
+  margin: 0;
+  font: var(--md-sys-typescale-body-weight) var(--md-sys-typescale-body-large-size) / var(--md-sys-typescale-body-large-line-height) var(--md-ref-typeface-plain);
+  letter-spacing: var(--md-sys-typescale-body-tracking);
+  color: var(--md-sys-color-on-surface);
+}
+
+/* L4 — supporting information */
+.MuiDialogContent-root .pk-reason .MuiTypography-body1,
+.MuiDialogContent-root .pk-supporting {
+  margin: 0;
+  font: var(--md-sys-typescale-body-weight) var(--md-sys-typescale-body-medium-size) / var(--md-sys-typescale-body-medium-line-height) var(--md-ref-typeface-plain);
+  letter-spacing: var(--md-sys-typescale-body-tracking);
+  color: var(--md-sys-color-on-surface-variant);
+}
+.MuiRadioGroup-root .pk-detail { color: var(--md-sys-color-on-surface-variant); }          /* inherits L3 size */
+.MuiDialog-paper .MuiOutlinedInput-input::placeholder { color: var(--md-sys-color-placeholder); opacity: 1; }
+
+/* ==========================================================================
+   Spacing rhythm
+   ========================================================================== */
+.MuiDialog-paper .MuiDialogContent-root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-spacing-6);                       /* section → section */
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--md-sys-spacing-2) var(--md-comp-dialog-padding) 0;   /* title → supporting text (header group) */
+}
+.MuiDialogContent-root .pk-original,
+.MuiDialogContent-root .pk-reason,
+.MuiDialogContent-root .pk-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-comp-section-label-gap);              /* label → content */
+}
+.MuiDialogContent-root .MuiRadioGroup-root { display: flex; flex-direction: column; gap: var(--md-sys-spacing-2); }  /* option → option */
+/* Divider label + field are siblings: pull the field up so the pair shares the label → content gap */
+.MuiDialogContent-root .MuiTextField-root { margin-top: calc(var(--md-comp-section-label-gap) - var(--md-sys-spacing-6)); }
+
+/* ==========================================================================
+   Components (structure unchanged; grouping via subtle surfaces, not dividers)
+   ========================================================================== */
+
+/* Close icon button */
+.MuiDialog-paper .MuiIconButton-root.pk-close {
+  position: absolute;
+  top: var(--md-sys-spacing-4);
+  right: var(--md-sys-spacing-4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--md-comp-touch-target);
+  height: var(--md-comp-touch-target);
+  border-radius: var(--md-sys-shape-corner-full);
+  color: var(--md-sys-color-on-surface-variant);
+  text-decoration: none;
+  transition: background-color var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+}
+.MuiDialog-paper .MuiIconButton-root.pk-close:hover { background: var(--md-sys-state-hover-layer); color: var(--md-sys-color-on-surface); }
+.MuiDialog-paper .MuiIconButton-root.pk-close .MuiSvgIcon-root { width: var(--md-comp-icon-size); height: var(--md-comp-icon-size); fill: currentColor; }
+
+/* Original question — quiet tinted group */
+.MuiDialogContent-root .pk-original {
+  padding: var(--md-sys-spacing-4);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-primary-container);
+}
+
+/* Section label divider: label only, no rule (hierarchy comes from type + spacing) */
+.MuiDialogContent-root .MuiDivider-root { display: block; margin: 0; border: 0; }
+.MuiDialogContent-root .MuiDivider-root::before,
+.MuiDialogContent-root .MuiDivider-root::after { content: none; }
+
+/* Options: RadioGroup → FormControlLabel + Radio */
+.MuiRadioGroup-root .MuiFormControlLabel-root {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-spacing-3);
+  min-height: var(--md-comp-list-item-height);
+  margin: 0;
+  padding: var(--md-comp-list-item-padding-y) var(--md-comp-list-item-padding-x);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface);
+  box-shadow: inset 0 0 0 var(--md-comp-outline-width) var(--md-sys-color-outline);
+  cursor: pointer;
+  transition: background-color var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard),
+              box-shadow var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+}
+.MuiRadioGroup-root .MuiFormControlLabel-root:hover { background: var(--md-sys-color-secondary-container); }
+.MuiRadioGroup-root .MuiFormControlLabel-label { flex: 1 1 auto; min-width: 0; }
+.MuiRadioGroup-root .MuiRadio-root {
+  position: relative;
+  flex: 0 0 auto;
+  display: inline-flex;
+  width: var(--md-comp-selection-control-size);
+  height: var(--md-comp-selection-control-size);
+  padding: 0;
+}
+.MuiRadioGroup-root .PrivateSwitchBase-input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.MuiRadioGroup-root .pk-radio-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--md-comp-selection-control-size);
+  height: var(--md-comp-selection-control-size);
+  border-radius: var(--md-sys-shape-corner-full);
+  box-shadow: inset 0 0 0 var(--md-comp-selection-control-stroke) var(--md-sys-color-outline);
+  color: transparent;
+  transition: background-color var(--md-sys-motion-duration-short), box-shadow var(--md-sys-motion-duration-short), color var(--md-sys-motion-duration-short);
+}
+.MuiRadioGroup-root .pk-radio-icon .MuiSvgIcon-root { width: var(--md-comp-icon-size-glyph); height: var(--md-comp-icon-size-glyph); fill: currentColor; }
+.MuiRadioGroup-root .PrivateSwitchBase-input:checked + .pk-radio-icon {
+  background: var(--md-sys-color-primary);
+  box-shadow: inset 0 0 0 var(--md-comp-selection-control-stroke) var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+}
+.MuiRadioGroup-root .MuiFormControlLabel-root:has(.PrivateSwitchBase-input:checked) {
+  background: var(--md-sys-color-primary-container);
+  box-shadow: inset 0 0 0 var(--md-comp-outline-width-focus) var(--md-sys-color-primary);
+}
+.MuiRadioGroup-root .MuiFormControlLabel-root:has(.PrivateSwitchBase-input:focus-visible) {
+  outline: var(--md-sys-focus-ring-width) solid var(--md-sys-color-primary);
+  outline-offset: var(--md-sys-focus-ring-offset);
+}
+
+/* Recommended badge — tertiary metadata (label-small, sentence case, quiet tint) */
+.MuiFormControlLabel-label .MuiChip-root {
+  position: relative;
+  top: -1px;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  height: var(--md-comp-badge-height);
+  margin-left: var(--md-sys-spacing-2);
+  border-radius: var(--md-sys-shape-corner-extra-small);
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+.MuiFormControlLabel-label .MuiChip-label {
+  padding: 0 var(--md-comp-badge-padding-x);
+  font: var(--md-sys-typescale-label-weight) var(--md-sys-typescale-label-small-size) / var(--md-sys-typescale-label-small-line-height) var(--md-ref-typeface-plain);
+  letter-spacing: var(--md-sys-typescale-label-tracking);
+  text-transform: none;
+}
+
+/* Text field (outlined, multiline) */
+.MuiDialog-paper .MuiOutlinedInput-root {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  min-height: var(--md-comp-text-field-multiline-min-height);
+  box-sizing: border-box;
+  padding: var(--md-comp-text-field-padding-y) var(--md-comp-text-field-padding-x);
+  border-radius: var(--md-sys-shape-corner-medium);
+}
+.MuiDialog-paper .MuiOutlinedInput-root .MuiOutlinedInput-input {
+  width: 100%;
+  min-height: calc(var(--md-comp-text-field-multiline-min-height) - var(--md-comp-text-field-padding-y) * 2);
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  resize: vertical;
+  font: inherit;
+  color: inherit;
+}
+.MuiDialog-paper .MuiOutlinedInput-notchedOutline {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+  border: var(--md-comp-outline-width) solid var(--md-sys-color-outline);
+  border-radius: inherit;
+  transition: border-color var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+}
+.MuiDialog-paper .MuiOutlinedInput-notchedOutline legend { display: none; }
+.MuiDialog-paper .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline { border-color: var(--md-sys-color-on-surface-variant); }
+.MuiDialog-paper .MuiOutlinedInput-root:focus-within .MuiOutlinedInput-notchedOutline { border-color: var(--md-sys-color-primary); border-width: var(--md-comp-outline-width-focus); }
+
+/* Actions (pinned) */
+.MuiDialog-paper .MuiDialogActions-root {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--md-sys-spacing-2);
+  flex: 0 0 auto;
+  padding: var(--md-comp-dialog-padding);
+}
+.MuiDialog-paper .MuiDialogActions-root .MuiButton-root,
+.MuiDialog-paper .MuiDialogActions-root a.MuiButton-root {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--md-comp-button-height);
+  min-width: var(--md-comp-button-min-width);
+  padding: 0 var(--md-comp-button-padding-x);
+  box-sizing: border-box;
+  border: 0;
+  border-radius: var(--md-sys-shape-corner-small);
+  font: var(--md-sys-typescale-label-weight) var(--md-sys-typescale-label-large-size) / var(--md-sys-typescale-label-large-line-height) var(--md-ref-typeface-plain);
+  line-height: var(--md-sys-typescale-label-large-line-height);
+  letter-spacing: var(--md-sys-typescale-label-tracking);
+  text-transform: none;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: var(--md-sys-elevation-0);
+  transition: background-color var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard),
+              box-shadow var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+}
+.MuiDialog-paper .MuiDialogActions-root a.MuiButton-text { padding: 0 var(--md-comp-button-text-padding-x); background: transparent; color: var(--md-sys-color-on-surface-variant); }
+.MuiDialog-paper .MuiDialogActions-root a.MuiButton-text:hover { background: var(--md-sys-state-hover-layer); color: var(--md-sys-color-on-surface); }
+.MuiDialog-paper .MuiDialogActions-root a.MuiButton-contained { background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }
+.MuiDialog-paper .MuiDialogActions-root a.MuiButton-contained:hover { background-color: var(--md-sys-color-primary-hover); box-shadow: var(--md-sys-elevation-2); }
+.MuiDialog-paper .MuiDialogActions-root .MuiButton-contained.Mui-disabled { background-color: var(--md-sys-state-disabled-container); color: var(--md-sys-state-disabled-content); }
+.MuiDialog-paper .MuiDialogActions-root .MuiButton-root:focus-visible,
+.MuiDialog-paper .pk-close:focus-visible { outline: var(--md-sys-focus-ring-width) solid var(--md-sys-color-primary); outline-offset: var(--md-sys-focus-ring-offset); }
+
+/* ---------- Compact viewports (< 600px) ---------- */
+@media (max-width: 599px) {
+  .MuiDialog-root .MuiDialog-paper[aria-labelledby="query-recovery-title"] {
+    width: calc(100vw - var(--md-comp-dialog-margin-compact) * 2);
+    max-height: calc(100vh - var(--md-comp-dialog-margin-compact) * 2);
+    margin: var(--md-comp-dialog-margin-compact);
+  }
+  .MuiDialog-paper .MuiDialogTitle-root {
+    padding: var(--md-sys-spacing-5) calc(var(--md-comp-dialog-padding-compact) + var(--md-comp-touch-target)) 0 var(--md-comp-dialog-padding-compact);
+    font-size: var(--md-sys-typescale-title-large-size);
+    line-height: var(--md-sys-typescale-title-large-line-height);
+  }
+  .MuiDialog-paper .MuiDialogContent-root { padding-left: var(--md-comp-dialog-padding-compact); padding-right: var(--md-comp-dialog-padding-compact); }
+  .MuiDialog-paper .MuiDialogActions-root { padding: var(--md-sys-spacing-5) var(--md-comp-dialog-padding-compact); }
+}

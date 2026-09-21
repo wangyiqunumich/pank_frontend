@@ -32,6 +32,10 @@ Search reveals a page and its ancestors, including inside collapsed branches. **
 
 Solid connections show the primary hierarchy; dashed connections lead to views, overlays or recovery states. Section nodes organize the reference and do not imply extra application routes. The detail panel lists shared paths separately, including QTL/GWAS selection, follow-up and eligible retries. Operator-only errors do not imply a working retry. External destinations are labeled exits; the functional tool’s Step 2 plot interpretation links to the structured result, while Step 3 trait interpretation is disabled. Shared panel captures appear as related references. The tree reorganizes this dated snapshot for review; it does not change the application router.
 
+## Design system
+
+Redesigned screens follow **Material Design 3** with one shared token sheet, [`styles/design-tokens.css`](styles/design-tokens.css), covering the type scale, 4px spacing grid, shape, elevation, color roles and standard component dimensions. Component stylesheets use tokens only; `python3 design/pankgraph-atlas/scripts/check_tokens.py` flags hardcoded values. Rules and tables: [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md).
+
 ## Edit and review
 
 | What you want to change | Files |
@@ -43,6 +47,8 @@ Solid connections show the primary hierarchy; dashed connections lead to views, 
 | Atlas navigation and frame controls | `atlas.js`, `atlas.css`, `index.html` |
 | Exact error catalog / source references | `inventories/error-catalog.json` |
 | Error library layout | `errors.html` (outside its generated `catalog-data` block) |
+| Design tokens (type, spacing, shape, color, dimensions) | `styles/design-tokens.css`; rules in `DESIGN-SYSTEM.md` |
+| Redesigned recovery dialog | `styles/recovery-dialog.css` (tokens only) |
 | Shared screen controls | `page-runtime.js` |
 | Images and fonts | `assets/`; original public URLs are in `assets/source-provenance.json` |
 
