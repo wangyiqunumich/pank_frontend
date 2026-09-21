@@ -4,9 +4,10 @@ import { MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-rou
 import { request } from '../vnext/api';
 import ColocExplorerPage from '../skills/ColocExplorerPage';
 import ColocDetailPage from '../skills/ColocDetailPage';
+import colocContent from '../skills/colocExplorerContent.json';
 /* eslint-disable no-script-url -- Test that untrusted source URLs never become links. */
 
-jest.mock('../components/AgentSidebar', () => () => <aside>Tools navigation</aside>);
+jest.mock('../components/AgentSidebar', () => props => <aside aria-label="Tools navigation" data-active-nav={props.activeNav}>Tools navigation</aside>);
 jest.mock('../vnext/KnowledgeGraph', () => props => <div>{props.graphData.nodes.length} recorded graph nodes</div>);
 jest.mock('../vnext/ColocSummary', () => props => <section aria-label="AI Summary">{props.loading ? 'Summary awaiting selected evidence' : props.detail ? `Summary for ${props.detail.record.id}` : 'Summary unavailable'}</section>);
 jest.mock('../vnext/api', () => ({ request: jest.fn() }));
@@ -116,4 +117,45 @@ test('graph-row retrieval completeness stays distinct from original credible-set
   renderPage('/coloc-explorer/r1'); await screen.findByRole('tab', { name: 'Sources & coverage' }); fireEvent.click(screen.getByRole('tab', { name: 'Sources & coverage' }));
   expect(screen.getByText('Coverage: Recorded graph membership · 1 returned · All recorded graph rows retrieved')).toBeTruthy();
   expect(screen.queryByText(/1 returned · Complete recorded credible set/)).toBeNull();
+});
+
+test('landing presents the configured tool identity and guidance alongside the complete catalog', async () => {
+  request.mockResolvedValue(catalog); renderPage();
+  await screen.findByText('2 of 2 returned analyses · All H4 values included');
+  expect(screen.getByRole('heading', { level: 1 }).textContent).toContain(colocContent.header.title);
+  expect(screen.getByRole('complementary', { name: 'Tools navigation' }).getAttribute('data-active-nav')).toBe('skills');
+  expect(screen.getByRole('link', { name: colocContent.header.backText }).getAttribute('href')).toBe('/skills');
+  ['aboutTitle', 'importantTitle', 'whyTitle', 'examplesTitle'].forEach(key => expect(screen.getByText(colocContent.rightPanel[key])).toBeTruthy());
+  colocContent.rightPanel.examples.forEach(example => expect(screen.getByRole('button', { name: example.text })).toBeTruthy());
+  expect(screen.getByRole('heading', { name: 'Recorded colocalizations' })).toBeTruthy();
+  expect(screen.queryByRole('region', { name: 'AI Summary' })).toBeNull();
+  expect(request.mock.calls.every(([path]) => path === '/coloc/records')).toBe(true);
+});
+
+test.each(colocContent.rightPanel.examples.map((example, index) => [example.text, example, index]))('example "%s" replaces stale filters without requesting an analysis', async (_, example, index) => {
+  const fill = example.fill;
+  // Two separate recorded analyses deliberately share the same example filters.
+  // Applying a preset must preserve those identities, not preselect a gene result.
+  const matching = { ...first, id: `example-${index}`, gene_name: fill.gene || first.gene_name,
+    dataset: fill.dataset || first.dataset, tissue: fill.tissue || first.tissue,
+    qtl_type: fill.qtl_type || first.qtl_type, qtl_signal_id: `QTL-example-${index}-1` };
+  const otherSignal = { ...matching, id: `example-${index}-other`, qtl_signal_id: `QTL-example-${index}-2`, posteriors: { ...matching.posteriors, h4: 0 } };
+  request.mockResolvedValue({ ...catalog, records: [first, matching, otherSignal] });
+  renderPage('/coloc-explorer?gene=STALE-GENE&dataset=INSPIRE&tissue=Islet&qtl_type=eQTL');
+  await screen.findByText('0 of 3 returned analyses · All H4 values included');
+  const initialRequests = request.mock.calls.length;
+  fireEvent.click(screen.getByRole('button', { name: example.text }));
+
+  const expected = new URLSearchParams();
+  [['gene', 'Gene', 'textbox'], ['dataset', 'Dataset', 'combobox'], ['tissue', 'Tissue', 'combobox'], ['qtl_type', 'QTL type', 'combobox']].forEach(([key, label, role]) => {
+    expect(screen.getByRole(role, { name: label }).value).toBe(fill[key] || '');
+    if (fill[key]) expected.set(key, fill[key]);
+  });
+  const query = expected.toString() ? `?${expected}` : '';
+  expect(screen.getByLabelText('Current route').textContent).toBe(`/coloc-explorer${query}`);
+  expect(screen.getByRole('region', { name: 'Recorded colocalizations' }).matches(':focus')).toBe(true);
+  expect(request).toHaveBeenCalledTimes(initialRequests);
+  expect(screen.queryByRole('region', { name: 'AI Summary' })).toBeNull();
+  expect(screen.getByRole('link', { name: new RegExp(`QTL signal ${matching.qtl_signal_id},`) }).getAttribute('href')).toBe(`/coloc-explorer/${matching.id}${query}`);
+  expect(screen.getByRole('link', { name: new RegExp(`QTL signal ${otherSignal.qtl_signal_id},`) }).getAttribute('href')).toBe(`/coloc-explorer/${otherSignal.id}${query}`);
 });
