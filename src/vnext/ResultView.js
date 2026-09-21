@@ -90,12 +90,20 @@ export function useProjectedResult(payload, savedId = '') {
   return [result, error, { status: connection, reconnect: createdRef.current?.key === key ? reconnect : undefined }];
 }
 
-function GraphPanel({ result, waiting, error, onEvidenceInspect }) {
+function GraphPanel({ result, error, onEvidenceInspect }) {
+  const graphStatus = typeof result?.component_status?.graph === 'string'
+    ? result.component_status.graph : result?.component_status?.graph?.status;
+  const pending = value => ['preparing', 'pending', 'queued', 'running', 'processing'].includes(value);
+  const failed = value => ['failed', 'unavailable', 'cancelled', 'interrupted'].includes(value);
+  const graphError = error || (failed(result?.status) || failed(graphStatus) || failed(result?.completeness)
+    ? 'Graph retrieval could not finish. Available answer sections are preserved.' : '');
+  const waiting = !graphError && (!result || pending(result.status) || pending(graphStatus));
+  const empty = !waiting && (graphStatus === 'empty' || (result?.status === 'ready' && Array.isArray(result?.combined_query_result?.nodes) && !result.combined_query_result.nodes.length));
   if (result?.combined_query_result?.nodes?.length) return <Box sx={{ width: '100%', height: '100%' }}>
     <KnowledgeGraph onEvidenceInspect={onEvidenceInspect} graphData={result.combined_query_result} coordData={result.xy_json} edgeRoutes={result.edge_routes} sx={{ height: '100%' }} containerHeight="100%" />
   </Box>;
   return <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-    {waiting && !error ? <CircularProgress size={28} /> : <Typography sx={{ fontSize: 14, color: '#64748B', textAlign: 'center', px: 2 }}>{error || (['failed', 'unavailable'].includes(result?.completeness) ? 'Graph retrieval failed. Available answer sections are preserved.' : 'No matching graph evidence was returned.')}</Typography>}
+    {waiting ? <Box role="status" aria-label="Loading graph" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}><CircularProgress size={28} /><Typography sx={{ fontSize: 14, color: '#64748B' }}>Loading graph…</Typography></Box> : <Typography sx={{ fontSize: 14, color: '#64748B', textAlign: 'center', px: 2 }}>{graphError || (empty ? 'No matching graph evidence was returned.' : 'The graph presentation is unavailable. Available answer sections are preserved.')}</Typography>}
   </Box>;
 }
 
@@ -128,7 +136,7 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
   const graphData = result?.combined_query_result || null;
   const graphError = error || (planning && run?.plan?.clarification) || (planning && run?.preview?.status === 'failed' ? 'The initial graph retrieval failed. Revise the plan before continuing; this failure does not indicate biological absence.' : '');
   const visualRenderers = {
-    graph_viewer: <GraphPanel onEvidenceInspect={onEvidenceInspect} result={result} waiting={!result && !graphError} error={graphError} />,
+    graph_viewer: <GraphPanel onEvidenceInspect={onEvidenceInspect} result={result} error={graphError} />,
     functional_data: <FunctionalVisual result={result} />,
   };
   const selectedVisuals = page.mainVisuals.filter((visual) => Object.prototype.hasOwnProperty.call(visualRenderers, visual.id));
