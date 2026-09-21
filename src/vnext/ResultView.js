@@ -316,12 +316,12 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     <QueryRecoveryDialog issue={recovery} question={run?.plan?.original_question || run?.question || decodeQuestion(route.get('question'))} busy={busy} onRevise={retryRecovery} onRetry={()=>retryRecovery()} onCancel={cancel} />
     {failedFollowUp && <Box role="alert" sx={{ p: 2 }}><Typography>Could not submit follow-up: {failedFollowUp.message}</Typography><Typography>{failedFollowUp.question}</Typography><Button disabled={busy} onClick={() => followUp(failedFollowUp.question)}>Retry follow-up</Button></Box>}
     <AlertMessage type="warning" content={error || resultError} open={!recovery && Boolean(error || resultError)} onClose={() => setError('')} />
-    {initialLoading ? <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px' }}><SearchResultLoading streamProgress={progress} handleClose={cancel} /></Box> :
-      <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', px: { xs: 2, md: 3 }, py: 3 }}><Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 3 }}>
-        {historyError && <Box role="status"><Typography>{historyError}</Typography><Button onClick={() => attachRun(run.run_id)}>Refresh history</Button></Box>}
+    <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', px: { xs: 2, md: 3 }, py: 3 }}><Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 3 }}>
+        {historyError && <Box role="status"><Typography>{historyError}</Typography><Button onClick={() => attachRun(readRunId.current)}>Refresh history</Button></Box>}
         {previous.map((item, index) => <ResultSection key={item.run.run_id} {...item} anchorPrefix={`${contentAnchorPrefix}-previous-${index}`} />)}
-        <ResultSection run={run} result={result} error={resultError} planning={isPlanning} busy={busy || connection !== 'connected'} onRevise={onRevise} onConfirm={onConfirm} onFollowUp={followUp} anchorPrefix={contentAnchorPrefix} presentationState={location.state?.result_page} />
-      </Box></Box>}
+        {initialLoading ? <Box role="status" aria-label="Loading current question" sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px' }}><SearchResultLoading streamProgress={progress} handleClose={cancel} /></Box> :
+          <ResultSection run={run} result={result} error={resultError} planning={isPlanning} busy={busy || connection !== 'connected'} onRevise={onRevise} onConfirm={onConfirm} onFollowUp={followUp} anchorPrefix={contentAnchorPrefix} presentationState={location.state?.result_page} />}
+      </Box></Box>
   </>;
 }
 

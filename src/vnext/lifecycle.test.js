@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import AgentResultView, { ConventionalResultView, useProjectedResult, readPriorConversation } from './ResultView';
 import ConnectionNotice from './ConnectionNotice';
@@ -181,4 +181,31 @@ test('explicit saved conventional identity performs only reads, even with origin
   expect(api.createResultOnce).not.toHaveBeenCalled();
   expect(api.createPlanOnce).not.toHaveBeenCalled();
   expect(api.pollResult).toHaveBeenCalledWith('saved-result',expect.any(Function),expect.any(Object));
+});
+
+
+test('follow-up loading keeps earlier answers outside the loading body through plan hydration', async () => {
+  const completed = { ...snapshot(), status: 'completed', graph_answer: 'Earlier answer remains readable', evidence: { graph_version: 'test' }, graph_complete: true };
+  let resolveFollowUp;
+  api.getRun.mockImplementation(id => id === 'r2'
+    ? new Promise(resolve => { resolveFollowUp = resolve; })
+    : Promise.resolve(completed));
+  api.createPlanOnce.mockResolvedValue({ run_id: 'r2' });
+  const onContentMeta = jest.fn();
+  render(<MemoryRouter initialEntries={['/result-new2?run_id=r1&provider=vnext']}><AgentResultView onContentMeta={onContentMeta} /></MemoryRouter>);
+  await screen.findByText('Earlier answer remains readable');
+  await waitFor(() => expect(screen.getByTestId('graph').textContent).toBe('r1-final'));
+  act(() => { onContentMeta.mock.calls.at(-1)[0].followUpHandler('What about SST?'); });
+  await waitFor(() => expect(resolveFollowUp).toBeDefined());
+  const loading = screen.getByRole('status', { name: 'Loading current question' });
+  expect(screen.getByText('Earlier answer remains readable')).toBeTruthy();
+  expect(within(loading).queryByText('Earlier answer remains readable')).toBeNull();
+  expect(screen.getByTestId('graph').textContent).toBe('r1-final');
+  await act(async () => resolveFollowUp({ ...snapshot('r2', 'What about SST?'), status: 'planning', plan: null, preview: null }));
+  expect(screen.getByText('Earlier answer remains readable')).toBeTruthy();
+  expect(screen.getByRole('status', { name: 'Loading current question' })).toBeTruthy();
+  const emit = api.watchRun.mock.calls.find(([id]) => id === 'r2')[2];
+  act(() => emit({ sequence: 41, type: 'plan_ready', payload: { plan: { ...snapshot('r2', 'What about SST?').plan, review_ready: true }, plan_id: 'p-r2' } }));
+  await waitFor(() => expect(screen.queryByRole('status', { name: 'Loading current question' })).toBeNull());
+  expect(screen.getByText('Earlier answer remains readable')).toBeTruthy();
 });
