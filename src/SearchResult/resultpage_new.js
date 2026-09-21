@@ -4965,17 +4965,6 @@ Please review this plan and provide edits if needed.`,
             />
             <Backdrop
                 sx={(theme) => ({ color: '#fff', zIndex: Math.max(theme.zIndex.modal + 10, 2200) })}
-                open={followUpSubmitting}
-            >
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
-                    <CircularProgress size={32} sx={{ color: '#FFFFFF' }} />
-                    <Typography sx={{ color: '#FFFFFF', fontSize: 14, fontWeight: 600 }}>
-                        Analyzing your question...
-                    </Typography>
-                </Box>
-            </Backdrop>
-            <Backdrop
-                sx={(theme) => ({ color: '#fff', zIndex: Math.max(theme.zIndex.modal + 10, 2200) })}
                 open={isPlanRevisionInProgress || isFollowUpPlanRevisionInProgress}
             >
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
@@ -5019,7 +5008,26 @@ Please review this plan and provide edits if needed.`,
 
                     {isChatApiMode ? followUpBlocks.map((block, index) => {
                         if (block.type === 'loading') {
-                            return null;
+                            return (
+                                <Box key={block.id} id={`${anchorPrefix}-question-${index + 2}`}>
+                                    <Typography component="h2" sx={{ color: '#1E293B', fontSize: 24, fontWeight: 700, mb: 3 }}>
+                                        {`Q${index + 2}: ${block.question}`}
+                                    </Typography>
+                                    <Box role="status" aria-label="Analyzing your question" aria-busy="true" sx={{ position: 'relative', isolation: 'isolate', minHeight: 320 }}>
+                                        <Backdrop
+                                            sx={{ color: '#fff', position: 'absolute', zIndex: 1 }}
+                                            open
+                                        >
+                                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
+                                                <CircularProgress size={32} sx={{ color: '#FFFFFF' }} />
+                                                <Typography sx={{ color: '#FFFFFF', fontSize: 14, fontWeight: 600 }}>
+                                                    Analyzing your question...
+                                                </Typography>
+                                            </Box>
+                                        </Backdrop>
+                                    </Box>
+                                </Box>
+                            );
                         }
 
                         if (block.type === 'plan') {
