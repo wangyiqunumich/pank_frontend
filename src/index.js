@@ -45,6 +45,7 @@ import GWASExplorerPage from './skills/GWASExplorerPage';
 import HIRNLiteraturePage from './skills/HIRNLiteraturePage';
 import QTLExplorerPage from './skills/QTLExplorerPage';
 import ColocExplorerPage from './skills/ColocExplorerPage';
+import ColocDetailPage from './skills/ColocDetailPage';
 
 const isDevelopmentStage =
   (process.env.REACT_APP_API_GATEWAY_STAGE_NAME || '').toLowerCase() === 'development';
@@ -106,6 +107,7 @@ loadDevConfig().then(() => root.render(
                 <Route path="/review/*" element={<ReviewPage />} />
                 <Route path="/skills" element={<SkillsPage />} />
                 <Route path="/coloc-explorer" element={getDevConfig().colocEnabled ? <ColocExplorerPage /> : <Navigate to="/skills" replace />} />
+                <Route path="/coloc-explorer/:recordId" element={getDevConfig().colocEnabled ? <ColocDetailPage /> : <Navigate to="/skills" replace />} />
                 <Route path="/qtl-explorer" element={<QTLExplorerPage />} />
                 <Route path="/gwas-explorer" element={<GWASExplorerPage />} />
                 <Route path="/functional-data" element={<FunctionalDataPage />} />

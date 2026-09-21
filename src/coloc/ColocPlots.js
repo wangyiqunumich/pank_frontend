@@ -5,7 +5,7 @@ const COLORS = ['#c2cbd5', '#a6c8dc', '#7cabc4', '#e7b872', '#2f827a'];
 const HYPOTHESES = ['Neither trait associated', 'Only trait 1 associated', 'Only trait 2 associated', 'Both traits, different signals', 'Both traits, shared signal'];
 const font = { fontFamily: 'Inter, Arial, sans-serif', fontSize: 11, fill: '#40535b' };
 
-export function PlotFrame({ title, subtitle, metadata, filename, children }) {
+export function PlotFrame({ title, subtitle, metadata, filename, children, className = '' }) {
   const ref = useRef(null), [error, setError] = useState(''), [exporting, setExporting] = useState(false);
   async function save(kind) {
     setError(''); setExporting(true);
@@ -13,7 +13,7 @@ export function PlotFrame({ title, subtitle, metadata, filename, children }) {
     catch (failure) { setError(failure.message); }
     finally { setExporting(false); }
   }
-  return <section className="coloc-card">
+  return <section className={`coloc-card ${className}`}>
     <div className="coloc-panel-heading"><div><h3>{title}</h3><p>{subtitle}</p></div>
       <div className="coloc-actions"><button disabled={exporting} onClick={() => save('svg')} aria-label={`Export ${title} as SVG`}>SVG</button><button disabled={exporting} onClick={() => save('png')} aria-label={`Export ${title} as PNG`}>PNG</button></div>
     </div>
@@ -22,13 +22,14 @@ export function PlotFrame({ title, subtitle, metadata, filename, children }) {
   </section>;
 }
 
-function PlotFooter({ metadata, y }) {
+function PlotFooter({ metadata, y, compact = false }) {
   // Labels are in the SVG itself, so PNG and SVG carry visible provenance.
-  const short = value => String(value || 'Not recorded').slice(0, 120);
+  const short = value => String(value || 'Not recorded').slice(0, compact ? 90 : 120);
   return <g style={{ ...font, fontSize: 10 }}>
     <text x="20" y={y}>{short(`${metadata.gene_name || metadata.gene_id} · ${metadata.dataset || 'Source not recorded'} · ${metadata.tissue || 'Tissue not recorded'} · ${metadata.qtl_type || 'QTL'}`)}</text>
     <text x="20" y={y + 15}>{short(`Source version: ${metadata.data_version || 'not recorded'} · Graph: ${metadata.graph_version || 'not recorded'}`)}</text>
-    <text x="20" y={y + 30}>{short(`Record: ${metadata.record_id} · Retrieved: ${metadata.checked_at || 'not recorded'}`)}</text>
+    <text x="20" y={y + 30}>{short(compact ? `Record: ${metadata.record_id}` : `Record: ${metadata.record_id} · Retrieved: ${metadata.checked_at || 'not recorded'}`)}</text>
+    {compact && <text x="20" y={y + 45}>{short(`Retrieved: ${metadata.checked_at || 'not recorded'}`)}</text>}
   </g>;
 }
 
@@ -36,25 +37,25 @@ export function PosteriorPlot({ record, metadata }) {
   const values = ['h0', 'h1', 'h2', 'h3', 'h4'].map(key => probability(record.posteriors?.[key]));
   let offset = 0;
   const total = values.reduce((sum, value) => sum + (value ?? 0), 0);
-  return <PlotFrame title="Colocalization posteriors" subtitle={`Original analysis SNP count (nsnp): ${numeric(record.nsnp) === null ? 'Not recorded' : record.nsnp}. H1/H2 follow the source trait ordering.`} metadata={metadata} filename={`coloc-${record.id}-posteriors`}>
-    <svg viewBox="0 0 900 325" width="900" height="325" role="img" aria-label="Recorded H0 to H4 posterior probabilities" style={font}>
-      <rect width="900" height="325" fill="white" /><text x="20" y="25" fontSize="16" fontWeight="600">Recorded H0–H4 posteriors</text>
-      <text x="20" y="46">Original analysis nsnp: {numeric(record.nsnp) === null ? 'Not recorded' : record.nsnp} · Probabilities are not renormalized</text>
-      <rect x="20" y="65" width="860" height="35" fill="#f2f4f5" rx="4" />
+  return <PlotFrame className="coloc-posterior" title="Colocalization posteriors" subtitle={`Original analysis SNP count (nsnp): ${numeric(record.nsnp) === null ? 'Not recorded' : record.nsnp}. H1/H2 follow the source trait ordering.`} metadata={metadata} filename={`coloc-${record.id}-posteriors`}>
+    <svg viewBox="0 0 600 260" width="600" height="260" role="img" aria-label="Recorded H0 to H4 posterior probabilities" style={font}>
+      <rect width="600" height="260" fill="white" /><text x="20" y="20" fontSize="13" fontWeight="600">Recorded H0–H4 posteriors</text>
+      <text x="20" y="38">Original analysis nsnp: {numeric(record.nsnp) === null ? 'Not recorded' : record.nsnp} · Probabilities are not renormalized</text>
+      <rect x="20" y="50" width="560" height="25" fill="#f2f4f5" rx="4" />
       {total <= 1.01 && values.map((value, index) => {
-        const x = 20 + offset * 860; offset += value ?? 0;
-        return value === null ? null : <g key={index}><rect x={x} y="65" width={value * 860} height="35" fill={COLORS[index]}><title>{`H${index}: ${formatNumber(value)}`}</title></rect>{value >= 0.08 && <text x={x + value * 430} y="87" textAnchor="middle" fill={index === 4 ? 'white' : '#233744'}>{`H${index}`}</text>}</g>;
+        const x = 20 + offset * 560; offset += value ?? 0;
+        return value === null ? null : <g key={index}><rect x={x} y="50" width={value * 560} height="25" fill={COLORS[index]}><title>{`H${index}: ${formatNumber(value)}`}</title></rect>{value >= 0.08 && <text x={x + value * 280} y="67" textAnchor="middle" fill={index === 4 ? 'white' : '#233744'}>{`H${index}`}</text>}</g>;
       })}
-      {total > 1.01 && <text x="30" y="87">Posterior sum exceeds one; inspect source values below.</text>}
-      {values.map((value, index) => <g key={index} transform={`translate(20 ${126 + index * 24})`}><rect width="12" height="12" rx="2" fill={COLORS[index]} /><text x="22" y="10">{`H${index} · ${HYPOTHESES[index]}`}</text><text x="680" y="10" fontWeight="600">{formatNumber(value)}</text></g>)}
-      <PlotFooter metadata={metadata} y={277} />
+      {total > 1.01 && <text x="30" y="67">Posterior sum exceeds one; inspect source values below.</text>}
+      {values.map((value, index) => <g key={index} transform={`translate(20 ${90 + index * 19})`}><rect width="12" height="12" rx="2" fill={COLORS[index]} /><text x="22" y="10">{`H${index} · ${HYPOTHESES[index]}`}</text><text x="455" y="10" fontWeight="600">{formatNumber(value)}</text></g>)}
+      <PlotFooter metadata={metadata} y={202} compact />
     </svg>
     <p className="coloc-footnote">H4 supports a shared association signal; it does not establish a biological mechanism. PIP and credible-set overlap measure different things.</p>
   </PlotFrame>;
 }
 
 export function VariantMatrix({ detail, activeVariant, onHover, onSelect, metadata }) {
-  const pageSize = 30, [page, setPage] = useState(0);
+  const pageSize = 12, [page, setPage] = useState(0);
   const variants = detail.variants, pages = Math.max(1, Math.ceil(variants.length / pageSize));
   const activeIndex = variants.findIndex(variant => variant.id === activeVariant);
   // A linked plot selection should bring the corresponding matrix row into view.
