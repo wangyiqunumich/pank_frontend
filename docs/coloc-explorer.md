@@ -84,3 +84,10 @@ acceptance comparison remain in the table with an explicit coverage notice.
 The source panel distinguishes all retrieved graph rows from a complete original
 credible set. Turbo extracts remain optional and require source validation;
 no raw regional file or T2D workbook is silently substituted.
+
+The results addition was activated after 176 Linux tests and 25 subtests passed
+against the preserved live release. Public dev catalog authentication, all four
+detail records, exact source downloads/checksums and an existing saved result
+passed. Dev configuration therefore enables `colocEnabled`; production hosts
+continue to reject this flag through hostname gating. Roll back the UI by setting
+only `colocEnabled` to false and verifying the resulting deployed JSON.
