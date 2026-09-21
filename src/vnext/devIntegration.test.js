@@ -26,7 +26,7 @@ async function enable(value) {
 test('only dev boolean enables new requests while unversioned sessions retain their reader', () => {
   expect(normalizeDevConfig({}, 'dev.pankgraph.org').vnextEnabled).toBe(false);
   expect(normalizeDevConfig({vnextEnabled:'true'}, 'dev.pankgraph.org').vnextEnabled).toBe(false);
-  expect(normalizeDevConfig({vnextEnabled:true,apiBase:'https://attacker.test'}, 'pankgraph.org')).toEqual({vnextEnabled:false,apiBase:'/pankgraph-vnext/api'});
+  expect(normalizeDevConfig({vnextEnabled:true,apiBase:'https://attacker.test'}, 'pankgraph.org')).toEqual({vnextEnabled:false,colocEnabled:false,apiBase:'/pankgraph-vnext/api'});
   expect(normalizeDevConfig({vnextEnabled:true}, 'dev.pankgraph.org').vnextEnabled).toBe(true);
   expect(shouldUseVnextForNewQuestion('?question=INS', false)).toBe(false);
   expect(shouldUseVnextForNewQuestion('?question=INS', true)).toBe(true);
@@ -104,4 +104,13 @@ test('explicit conventional identities remain readable after rollout rollback', 
   mount('/result-new?provider=vnext&result_id=saved-result');
   expect(screen.getByText('New tool result')).toBeTruthy();
   expect(screen.queryByText('Legacy tool result')).toBeNull();
+});
+
+
+test('coloc explorer requires explicit dev-host activation independently of the agent', () => {
+  expect(normalizeDevConfig({ vnextEnabled: true }, 'dev.pankgraph.org').colocEnabled).toBe(false);
+  expect(normalizeDevConfig({ colocEnabled: true }, 'dev.pankgraph.org').colocEnabled).toBe(true);
+  expect(normalizeDevConfig({ colocEnabled: true }, 'localhost').colocEnabled).toBe(true);
+  expect(normalizeDevConfig({ colocEnabled: true }, 'pankgraph.org').colocEnabled).toBe(false);
+  expect(normalizeDevConfig({ colocEnabled: 'true' }, 'dev.pankgraph.org').colocEnabled).toBe(false);
 });

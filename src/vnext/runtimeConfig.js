@@ -1,8 +1,9 @@
-const DEFAULTS = Object.freeze({ vnextEnabled: false, apiBase: '/pankgraph-vnext/api' });
+const DEFAULTS = Object.freeze({ vnextEnabled: false, colocEnabled: false, apiBase: '/pankgraph-vnext/api' });
 let config = DEFAULTS;
 export const isDevHost = (hostname) => ['dev.pankgraph.org', 'localhost', '127.0.0.1'].includes(hostname);
 export const normalizeDevConfig = (value, hostname) => ({
   vnextEnabled: isDevHost(hostname) && value?.vnextEnabled === true,
+  colocEnabled: isDevHost(hostname) && value?.colocEnabled === true,
   // Only this same-origin, authenticated namespace is supported by this release.
   apiBase: DEFAULTS.apiBase,
 });

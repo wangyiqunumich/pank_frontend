@@ -2,7 +2,7 @@ import './index.css';
 import AgentPage from './vnext/AgentPage';
 import AgentRoute from './vnext/AgentRoute';
 import ConventionalRoute from './vnext/ConventionalRoute';
-import { loadDevConfig } from './vnext/runtimeConfig';
+import { loadDevConfig, getDevConfig } from './vnext/runtimeConfig';
 
 import React from 'react';
 
@@ -44,6 +44,7 @@ import FunctionalDataPage from './skills/FunctionalDataPage';
 import GWASExplorerPage from './skills/GWASExplorerPage';
 import HIRNLiteraturePage from './skills/HIRNLiteraturePage';
 import QTLExplorerPage from './skills/QTLExplorerPage';
+import ColocExplorerPage from './skills/ColocExplorerPage';
 
 const isDevelopmentStage =
   (process.env.REACT_APP_API_GATEWAY_STAGE_NAME || '').toLowerCase() === 'development';
@@ -104,6 +105,7 @@ loadDevConfig().then(() => root.render(
                 <Route path="/match" element={<MatchPage />} />
                 <Route path="/review/*" element={<ReviewPage />} />
                 <Route path="/skills" element={<SkillsPage />} />
+                <Route path="/coloc-explorer" element={getDevConfig().colocEnabled ? <ColocExplorerPage /> : <Navigate to="/skills" replace />} />
                 <Route path="/qtl-explorer" element={<QTLExplorerPage />} />
                 <Route path="/gwas-explorer" element={<GWASExplorerPage />} />
                 <Route path="/functional-data" element={<FunctionalDataPage />} />

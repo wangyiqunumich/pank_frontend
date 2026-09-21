@@ -12,6 +12,8 @@ import {
 } from '@mui/material';
 
 import AgentSidebar from '../components/AgentSidebar';
+import { getDevConfig } from '../vnext/runtimeConfig';
+import BubbleChartOutlinedIcon from '@mui/icons-material/BubbleChartOutlined';
 import {
   ReactComponent as FunctionalDataSkillLogo,
 } from '../image/new_logos/functional-data-icon.svg';
@@ -191,6 +193,18 @@ export default function SkillsPage() {
               cardBg="#F5FBF6"
               actionHoverBg="#ECF8EE"
             />
+
+            {getDevConfig().colocEnabled && <SkillCard
+              icon={<BubbleChartOutlinedIcon sx={{ fontSize: 44 }} />}
+              title="Coloc Explorer"
+              description="Browse recorded T1D colocalization evidence and compare signal probabilities, credible-set variants, and genomic tracks."
+              actionLabel="Launch"
+              onAction={() => navigate('/coloc-explorer')}
+              accent="#0F766E"
+              iconBg="#E5F4F1"
+              cardBg="#F5FBFA"
+              actionHoverBg="#E5F4F1"
+            />}
 
             <SkillCard
               icon={<SkillLogo SvgIcon={FunctionalDataSkillLogo} size={50} color="#4e0f9e" />}
