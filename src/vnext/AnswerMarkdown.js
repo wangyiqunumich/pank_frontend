@@ -1,4 +1,4 @@
-// Existing answer renderer extracted unchanged in appearance from resultpage_new.
+// Shared answer renderer for the main agent, saved legacy answers, and tools.
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -12,9 +12,15 @@ const PMID_HOVER_EVENT = 'pank:pmid-hover';
 const PMID_HOVER_CLEAR_EVENT = 'pank:pmid-hover-clear';
 const PMID_CLICK_EVENT = 'pank:pmid-click';
 const PMID_CITATION_PATTERN = /(\[\s*(?:pmid|pubmedid)\s*:\s*(\d{7,8})\s*\]|\(\s*(?:pmid|pubmedid)\s*:?\s*(\d{7,8})\s*\)|\[\s*(\d{7,8})\s*\]\(\s*https?:\/\/(?:www\.)?pubmed(?:\.ncbi\.nlm\.nih\.gov|\.gov)\/(\d{7,8})\/?[^)]*\))/gi;
-export default function AnswerMarkdown({ answer = '', references = [] }) {
+export default function AnswerMarkdown({ answer = '', references = [], referenceAnchors, density = 'default', legacyHtmlPlugin = null }) {
+    const compact = density === 'compact';
+    const bodyFontSize = compact ? 12 : 16;
     const overviewSummary = String(answer || '');
-    const mainReferenceAnchorByPmid = Object.fromEntries(references.filter(r => r.pmid).map(r => [r.pmid, r.anchorId]));
+    const referenceItems = Array.isArray(references) ? references : Object.values(references || {});
+    const mainReferenceAnchorByPmid = {
+        ...Object.fromEntries(referenceItems.filter(r => r?.pmid).map(r => [r.pmid, r.anchorId])),
+        ...referenceAnchors,
+    };
     const dispatchPmidReferenceEvent = (eventName, payload) => {
         if (typeof window === 'undefined') return;
         try {
@@ -332,7 +338,7 @@ export default function AnswerMarkdown({ answer = '', references = [] }) {
         }, [findScrollableAncestor, trackResultNewEvent, title]);
 
         return (
-            <Box ref={tableRootRef} sx={{ my: 2.25 }}>
+            <Box ref={tableRootRef} sx={{ my: compact ? 1.5 : 2.25 }}>
                 <Box
                     sx={{
                         border: '1px solid #DCE3EB',
@@ -430,7 +436,7 @@ export default function AnswerMarkdown({ answer = '', references = [] }) {
                             },
                             '& th, & td': {
                                 textAlign: 'left',
-                                padding: '8px 10px',
+                                padding: compact ? '6px 8px' : '8px 10px',
                                 verticalAlign: 'middle',
                             },
                             '& th': {
@@ -583,7 +589,7 @@ export default function AnswerMarkdown({ answer = '', references = [] }) {
                                 },
                                 '& th, & td': {
                                     textAlign: 'left',
-                                    padding: '8px 10px',
+                                    padding: compact ? '6px 8px' : '8px 10px',
                                     verticalAlign: 'middle',
                                 },
                                 '& th': {
@@ -604,12 +610,12 @@ export default function AnswerMarkdown({ answer = '', references = [] }) {
     const markdownSummaryContent = (
         <Box
             sx={{
-                fontSize: 16,
+                fontSize: bodyFontSize,
                 fontWeight: 400,
                 color: '#475569',
-                lineHeight: 1.7,
-                '& p': { margin: '0 0 0.85em 0' },
-                '& ul, & ol': { margin: '0.2em 0 0.85em 1.4em', padding: 0 },
+                lineHeight: compact ? 1.55 : 1.7,
+                '& p': { margin: compact ? '0 0 0.65em 0' : '0 0 0.85em 0' },
+                '& ul, & ol': { margin: compact ? '0.2em 0 0.65em 1.4em' : '0.2em 0 0.85em 1.4em', padding: 0 },
                 '& li': { marginBottom: '0.25em' },
                 '& h1, & h2, & h3, & h4': {
                     margin: '0.9em 0 0.45em 0',
@@ -658,17 +664,18 @@ export default function AnswerMarkdown({ answer = '', references = [] }) {
                 },
                 '& th, & td': {
                     textAlign: 'left',
-                    padding: '8px 10px',
+                    padding: compact ? '6px 8px' : '8px 10px',
                     verticalAlign: 'top',
                 },
             }}
         >
             <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
-                skipHtml
+                skipHtml={!legacyHtmlPlugin}
+                rehypePlugins={legacyHtmlPlugin ? [legacyHtmlPlugin] : []}
                 components={{
-                    p: ({ children }) => <Typography component="p" sx={{ fontSize: 16, fontWeight: 400, color: '#475569' }}>{renderChildrenWithPmids(children, 'p', false, mainReferenceAnchorByPmid)}</Typography>,
-                    li: ({ children }) => <Typography component="li" sx={{ fontSize: 16, fontWeight: 400, color: '#475569' }}>{renderChildrenWithPmids(children, 'li', false, mainReferenceAnchorByPmid)}</Typography>,
+                    p: ({ children }) => <Typography component="p" sx={{ fontSize: bodyFontSize, fontWeight: 400, color: '#475569' }}>{renderChildrenWithPmids(children, 'p', false, mainReferenceAnchorByPmid)}</Typography>,
+                    li: ({ children }) => <Typography component="li" sx={{ fontSize: bodyFontSize, fontWeight: 400, color: '#475569' }}>{renderChildrenWithPmids(children, 'li', false, mainReferenceAnchorByPmid)}</Typography>,
                     a: ({ href, children }) => {
                         const pmid = extractPubmedIdFromHref(href);
                         if (pmid) {
@@ -689,10 +696,10 @@ export default function AnswerMarkdown({ answer = '', references = [] }) {
                     },
                     strong: ({ children }) => <strong>{renderChildrenWithPmids(children, 'strong', false, mainReferenceAnchorByPmid)}</strong>,
                     em: ({ children }) => <em>{renderChildrenWithPmids(children, 'em', false, mainReferenceAnchorByPmid)}</em>,
-                    h1: ({ children }) => <Typography component="h1" sx={{ fontSize: 26 }}>{renderChildrenWithPmids(children, 'h1', false, mainReferenceAnchorByPmid)}</Typography>,
-                    h2: ({ children }) => <Typography component="h2" sx={{ fontSize: 22 }}>{renderChildrenWithPmids(children, 'h2', false, mainReferenceAnchorByPmid)}</Typography>,
-                    h3: ({ children }) => <Typography component="h3" sx={{ fontSize: 18 }}>{renderChildrenWithPmids(children, 'h3', false, mainReferenceAnchorByPmid)}</Typography>,
-                    h4: ({ children }) => <Typography component="h4" sx={{ fontSize: 16 }}>{renderChildrenWithPmids(children, 'h4', false, mainReferenceAnchorByPmid)}</Typography>,
+                    h1: ({ children }) => <Typography component="h1" sx={{ fontSize: compact ? 16 : 26 }}>{renderChildrenWithPmids(children, 'h1', false, mainReferenceAnchorByPmid)}</Typography>,
+                    h2: ({ children }) => <Typography component="h2" sx={{ fontSize: compact ? 14 : 22 }}>{renderChildrenWithPmids(children, 'h2', false, mainReferenceAnchorByPmid)}</Typography>,
+                    h3: ({ children }) => <Typography component="h3" sx={{ fontSize: compact ? 13 : 18 }}>{renderChildrenWithPmids(children, 'h3', false, mainReferenceAnchorByPmid)}</Typography>,
+                    h4: ({ children }) => <Typography component="h4" sx={{ fontSize: compact ? 12 : 16 }}>{renderChildrenWithPmids(children, 'h4', false, mainReferenceAnchorByPmid)}</Typography>,
                     th: ({ children }) => <th>{renderChildrenWithPmids(children, 'th', false, mainReferenceAnchorByPmid)}</th>,
                     td: ({ children }) => <td>{renderChildrenWithPmids(children, 'td', false, mainReferenceAnchorByPmid)}</td>,
                     table: ({ children }) => {

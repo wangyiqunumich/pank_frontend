@@ -1,10 +1,36 @@
 # T1D Coloc Explorer
 
 The explorer browses recorded T1D colocalization analyses. It does not calculate
-new posterior probabilities, run a model, or infer causality from variant overlap.
+new posterior probabilities or infer causality from variant overlap.
 The catalog is supplied by the read-only results-service `/api/coloc/records`
 endpoint; selecting a source-defined signal pair reads `/api/coloc/records/{id}`.
 All requests use the authenticated same-origin `/pankgraph-vnext/api` namespace.
+
+## Selection and detail pages
+
+`/coloc-explorer` contains only the catalog, overview matrix and filters. Each
+mark opens `/coloc-explorer/{recordId}` for the exact recorded GWAS–QTL signal
+pair. The detail page loads independently on refresh or a shared link; catalog
+filters stay in the URL and are restored by Back to analyses. It uses the
+QTL/GWAS tool scale: 20px page headings, 14px section headings and 12px body text.
+The posterior and graph share an overview row, with locus, membership, evidence
+table and provenance available through keyboard-accessible tabs.
+
+Once detail evidence is loaded, `POST /api/coloc/records/{recordId}/summary`
+creates or reuses a durable result. Existing `/api/results/{resultId}` polling
+reads its answer; catalog/detail GET requests never initiate inference. The
+service uses PanKagent's existing synthesis gateway, answer-skill bundle,
+budget and citation processing. Scientific snapshot and shared answer-version
+changes invalidate the server cache. The browser coalesces simultaneous POSTs
+without maintaining a stale permanent record-to-summary cache. Failed saved
+summaries are not silently regenerated.
+
+`src/vnext/AnswerMarkdown.js` is the shared display component for current agent
+answers, legacy main/follow-up answers and Coloc. Its compact mode changes only
+Coloc typography; CSV download, expanded tables, full-screen tables and citation
+links remain shared. The AI summary loads within its own card while the
+recorded evidence stays visible. Summary or connection failures leave all other
+evidence views usable.
 
 ## Activation
 
