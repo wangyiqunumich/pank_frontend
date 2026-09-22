@@ -82,6 +82,18 @@ The error catalog contains 108 active frontend entries, 46 backend-exposed entri
 
 The standalone operator UI and graph-layout developer demo are documented in the inventory rather than mixed into main-site screens. Documentation has one representative concept page; the distinct ontology, statistics, sources, pipeline, tutorial and use-case layouts are also captured.
 
+## Preview screenshots
+
+Gallery and navigation-tree previews are the PNGs in `screenshots/` (1440 × 1080). After changing a page, regenerate its preview from the live HTML so the preview matches the page:
+
+```sh
+python3 serve.py &   # or: python3 -m http.server 8000 --bind 127.0.0.1 --directory design/pankgraph-atlas
+python3 design/pankgraph-atlas/scripts/capture.py error-clarification            # one screen
+python3 design/pankgraph-atlas/scripts/capture.py --group "Recovery dialogs"     # a whole group
+```
+
+`capture.py` drives Google Chrome headlessly and loads each page with `?capture=1`, which hides the atlas toolbar.
+
 ## Validation
 
 Run `scripts/check.py` for local-link, asset, source-index and private-path checks. The original capture verification is recorded in `inventories/github-verification.json`. Local tree, keyboard, cross-link and responsive verification is recorded in `inventories/navigation-verification.json`. No live application endpoint, model inference or production deployment is part of this handoff.

@@ -105,3 +105,4 @@ Material color roles mapped to the PanKbase palette: `primary` teal `rgb(33 145 
 1. Link `../styles/design-tokens.css` first, then the component sheets the page needs: `recovery-dialog.css` for any recovery dialog, `message-states.css` for any page with alerts, empty/error panels or text inputs, or a new `styles/<component>.css` for a new component.
 2. Reuse existing component sheets where the component already exists; extend a token rather than adding a literal.
 3. Run `python3 scripts/check_tokens.py` and `python3 scripts/check.py` before committing.
+4. Regenerate the page's preview with `python3 scripts/capture.py <screen-id>` so the gallery and navigation-tree thumbnails show the current design.
