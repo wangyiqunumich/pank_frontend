@@ -26,7 +26,6 @@ Every dialog reads in five levels. Pick the level, never a size.
 | 4 | label-small | 11 / 16 | 500 | on-secondary-container | Tertiary badges ("Recommended"), sentence case |
 | — | label-large | 14 / 20 | 500 | — | Buttons |
 | — | title-large | 22 / 28 | 700 | on-surface | Dialog title below 600px |
-| 1 (page) | headline-medium | 28 / 36 | 700 | on-surface | Title of a full-page state panel (unavailable, no data) |
 
 Inline annotations inside primary content (for example "(stage 3)") keep the level-3 size and take the level-4 color. Captions that merely name a piece of content (such as "Your original question") are level 4, not level 2; level 2 is reserved for labels that introduce controls. No divider rules under labels: hierarchy comes from type, color and spacing.
 
@@ -62,7 +61,7 @@ Inline messages share the dialog's tokens so a banner, an empty state and a reco
 | --- | --- | --- |
 | Info alert (MuiAlert standard) | "Reconnecting to the saved result…" banners, plan / streaming notices | `primary-container` fill, corner-medium, 12 × 16 padding, 24px primary icon, body-medium on-surface text, no border |
 | Outlined alert (MuiAlert outlined) | Selection hints on credible-set pages | Same, but `surface` fill with 1px `outline`; action icon button 40px |
-| Full-page state panel | Feature unavailable, no QTL records (and any future empty / no-data / error page) | Keeps the existing card: 460px content + 76px padding (≈ 612px), corner 32px, 36px gap, 200px illustration, centered. Internals on system roles: headline-medium title (on-surface), body-large supporting text (on-surface-variant, 8px under the title), filled + outlined 40px buttons, 12px apart |
+| Empty / error state panel | Available for empty / error pages (`.pk-empty-state`); the current "Feature unavailable" and "no QTL records" captures keep their original design by request | 800px max (same as dialogs), corner-large, elevation-1, 32 × 24 padding, centered; 160px illustration → L1 title → L4 supporting text (4px below title) → actions (filled + text, 40px) |
 | Outlined text input | Every MUI outlined field on message pages and in dialogs | 1px `outline` border; `outline-hover` on hover; unchanged on focus/typing; `error` when invalid. Sizes come from the field's own component token |
 | Inline error block | Chart failed to load | `error-container` fill, 1px `error-outline`, corner-medium, 16px padding; title-small in `error`, body-small in `on-error-container` |
 
@@ -95,7 +94,7 @@ Inline messages share the dialog's tokens so a banner, an empty state and a reco
 | Section label → controls gap | `--md-comp-section-label-gap` | 8 |
 | Outline | `--md-comp-outline-width` / `-focus` | 1 / 2 (2 only marks a selected option card; inputs never use it) |
 | Alert padding | `--md-comp-alert-padding-y` / `-x` | 12 / 16 |
-| State panel | `--md-comp-state-panel-content-width` / `-padding` / `-gap` / `-radius` / `-illustration` | 460 / 76 / 36 / 32 / 200 |
+| Empty-state illustration | `--md-comp-empty-state-illustration` | 160 |
 
 ## Color roles
 

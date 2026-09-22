@@ -150,12 +150,7 @@
   --md-comp-scrim-blur:              8px;
   --md-comp-alert-padding-y:         12px;   /* inline alert / banner */
   --md-comp-alert-padding-x:         16px;
-  /* Full-page state panel (unavailable / no data / error). Dimensions preserve the existing card. */
-  --md-comp-state-panel-content-width: 460px;
-  --md-comp-state-panel-padding:       76px;   /* 75 → nearest 4px step */
-  --md-comp-state-panel-gap:           36px;
-  --md-comp-state-panel-radius:        32px;
-  --md-comp-state-panel-illustration:  200px;
+  --md-comp-empty-state-illustration: 160px; /* empty / error state artwork */
 }
 
 /* Reusable typography classes — apply instead of restating sizes. */

@@ -44,40 +44,39 @@
 }
 .MuiAlert-root .MuiAlert-action .MuiIconButton-root:hover { background: var(--md-sys-state-hover-layer); }
 
-/* ---------- Full-page state panel (illustration, title, body, actions) ----------
-   Container size and placement preserved from the existing pages; internals use system roles. */
+/* ---------- Empty / error state panel (illustration, title, body, actions) ---------- */
 .MuiBox-root.pk-empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--md-comp-state-panel-gap);
-  width: var(--md-comp-state-panel-content-width);
-  max-width: calc(100vw - var(--md-comp-dialog-margin) * 2);
-  padding: var(--md-comp-state-panel-padding);
-  border-radius: var(--md-comp-state-panel-radius);
+  gap: var(--md-sys-spacing-4);
+  width: min(var(--md-comp-dialog-width), calc(100vw - var(--md-comp-dialog-margin) * 2));
+  box-sizing: border-box;
+  padding: var(--md-sys-spacing-8) var(--md-comp-dialog-padding);
+  border-radius: var(--md-sys-shape-corner-large);
   background: var(--md-sys-color-surface);
+  box-shadow: var(--md-sys-elevation-1);
   text-align: center;
 }
-.MuiBox-root.pk-empty-state > img { width: var(--md-comp-state-panel-illustration); max-width: 100%; margin: 0; }
-/* Title — headline-medium (page-level L1) */
+.MuiBox-root.pk-empty-state > img { width: var(--md-comp-empty-state-illustration); max-width: 100%; margin: 0; }
+/* L1 — panel title */
 .MuiBox-root.pk-empty-state > .MuiTypography-body1:nth-of-type(1) {
   margin: 0;
-  font: var(--md-sys-typescale-headline-weight) var(--md-sys-typescale-headline-medium-size) / var(--md-sys-typescale-headline-medium-line-height) var(--md-ref-typeface-brand);
+  font: var(--md-sys-typescale-headline-weight) var(--md-sys-typescale-headline-small-size) / var(--md-sys-typescale-headline-small-line-height) var(--md-ref-typeface-brand);
   letter-spacing: var(--md-sys-typescale-headline-tracking);
   color: var(--md-sys-color-on-surface);
   white-space: normal;
 }
-/* Supporting text — body-large, pulled up to the header-group gap (8px under the title) */
+/* L4 — supporting text, pulled up to the header-group gap */
 .MuiBox-root.pk-empty-state > .MuiTypography-body1:nth-of-type(2) {
-  margin: calc(var(--md-sys-spacing-2) - var(--md-comp-state-panel-gap)) 0 0;
+  margin: calc(var(--md-sys-spacing-1) - var(--md-sys-spacing-4)) 0 0;
   max-width: 100%;
-  font: var(--md-sys-typescale-body-weight) var(--md-sys-typescale-body-large-size) / var(--md-sys-typescale-body-large-line-height) var(--md-ref-typeface-plain);
-  letter-spacing: var(--md-sys-typescale-body-tracking);
+  font: var(--md-sys-typescale-body-weight) var(--md-sys-typescale-body-medium-size) / var(--md-sys-typescale-body-medium-line-height) var(--md-ref-typeface-plain);
   color: var(--md-sys-color-on-surface-variant);
 }
-/* Actions — filled + outlined, 40px, corner-small, label-large */
-.MuiBox-root.pk-empty-state > .MuiBox-root { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--md-sys-spacing-3); }
+/* Actions */
+.MuiBox-root.pk-empty-state > .MuiBox-root { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--md-sys-spacing-2); margin-top: var(--md-sys-spacing-2); }
 .MuiBox-root.pk-empty-state .MuiButton-root {
   display: inline-flex;
   align-items: center;
@@ -91,21 +90,14 @@
   font: var(--md-sys-typescale-label-weight) var(--md-sys-typescale-label-large-size) / var(--md-sys-typescale-label-large-line-height) var(--md-ref-typeface-plain);
   letter-spacing: var(--md-sys-typescale-label-tracking);
   text-transform: none;
-  white-space: nowrap;
   box-shadow: none;
   transition: background-color var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
 }
 .MuiBox-root.pk-empty-state .MuiButton-root .MuiTypography-root { margin: 0; font: inherit; letter-spacing: inherit; color: inherit; text-transform: none; }
 .MuiBox-root.pk-empty-state .MuiButton-contained { background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }
 .MuiBox-root.pk-empty-state .MuiButton-contained:hover { background-color: var(--md-sys-color-primary-hover); box-shadow: var(--md-sys-elevation-2); }
-.MuiBox-root.pk-empty-state .MuiButton-outlined,
-.MuiBox-root.pk-empty-state .MuiButton-text {
-  background: var(--md-sys-color-surface);
-  color: var(--md-sys-color-primary);
-  box-shadow: inset 0 0 0 var(--md-comp-outline-width) var(--md-sys-color-primary);
-}
-.MuiBox-root.pk-empty-state .MuiButton-outlined:hover,
-.MuiBox-root.pk-empty-state .MuiButton-text:hover { background: var(--md-sys-color-secondary-container); box-shadow: inset 0 0 0 var(--md-comp-outline-width) var(--md-sys-color-primary); }
+.MuiBox-root.pk-empty-state .MuiButton-text { padding: 0 var(--md-comp-button-text-padding-x); background: transparent; color: var(--md-sys-color-on-surface-variant); }
+.MuiBox-root.pk-empty-state .MuiButton-text:hover { background: var(--md-sys-state-hover-layer); color: var(--md-sys-color-on-surface); }
 .MuiBox-root.pk-empty-state .MuiButton-root:focus-visible { outline: var(--md-sys-focus-ring-width) solid var(--md-sys-color-primary); outline-offset: var(--md-sys-focus-ring-offset); }
 
 /* ---------- Inline error block (e.g. chart failed to load) ---------- */
