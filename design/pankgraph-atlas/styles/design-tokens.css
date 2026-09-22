@@ -106,7 +106,7 @@
   --md-comp-dialog-radius:      20px;                             /* dialog / modal container */
   --md-comp-card-radius:        var(--md-sys-shape-corner-medium); /* cards, contextual containers, banners, alerts, snackbar */
   --md-comp-text-field-radius:  var(--md-sys-shape-corner-medium); /* text fields, textareas */
-  --md-comp-button-radius:      var(--md-sys-shape-corner-medium); /* standard contained / outlined / text buttons */
+  --md-comp-button-radius:      var(--md-sys-shape-corner-full);   /* standard contained / outlined / text buttons — fully rounded, like the homepage Search button */
   --md-comp-icon-button-radius: var(--md-sys-shape-corner-full);   /* 40×40 icon-button interaction area */
   --md-comp-chip-radius:        var(--md-sys-shape-corner-full);   /* chips, tags and pill controls only */
 

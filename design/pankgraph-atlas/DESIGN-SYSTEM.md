@@ -45,7 +45,7 @@ All 12 recovery variants are rendered by **one component**, [`recovery-dialog.js
 
 **Accessibility:** `role="alertdialog"`, `aria-labelledby` / `aria-describedby`, focus moves to the primary on open (textarea when `editRequired`), focus trapped inside.
 
-**Recovery tokens (`--md-comp-recovery-*`, 8px grid):** max-width 720, padding 32, section gap 24, shadow 0 24px 48px rgba(15,23,42,.18); radii from the corner-radius hierarchy (dialog 20, cards/fields 12, buttons 12, chips full); buttons 44px / 12px gap, primary #0B7F77 (hover #086660, active #065550), Cancel is a text button; close ✕ 40px round; text #0F172A / body #475569 / secondary #5B6878; card #F1F5F7.
+**Recovery tokens (`--md-comp-recovery-*`, 8px grid):** max-width 720, padding 32, section gap 24, shadow 0 24px 48px rgba(15,23,42,.18); radii from the corner-radius hierarchy (dialog 20, cards/fields 12, buttons and chips full); buttons 44px / 12px gap, primary #0B7F77 (hover #086660, active #065550), Cancel is a text button; close ✕ 40px round; text #0F172A / body #475569 / secondary #5B6878; card #F1F5F7.
 
 **Variant matrix (checked against `inventories/error-catalog.json`):**
 
@@ -99,11 +99,11 @@ Aligned with the PanKgraph homepage's rounded language, translated into Material
 | Dialog / modal container | `--md-comp-dialog-radius` | 20 |
 | Cards, contextual containers (original-question card, option cards, banners, alerts, inline errors, empty-state panel, snackbar) | `--md-comp-card-radius` | 12 |
 | Text fields / textareas | `--md-comp-text-field-radius` | 12 |
-| Standard contained / outlined / text buttons (Try again, Apply changes, Contact operator, Continue, Cancel query, Back to Home …) | `--md-comp-button-radius` | 12 |
+| Standard contained / outlined / text buttons (Try again, Apply changes, Contact operator, Continue, Cancel query, Back to Home …) | `--md-comp-button-radius` | full (pill, like the homepage Search button) |
 | Icon-button interaction area (40 × 40 close ✕, alert dismiss) | `--md-comp-icon-button-radius` | full (20 on 40) |
 | Chips / tags / pill controls only (Recommended, Optional; homepage search field and suggestion chips) | `--md-comp-chip-radius` | full |
 
-Standard action buttons are never pills; fully rounded corners are reserved for chip and pill controls.
+Buttons, chips and icon buttons are fully rounded, matching the homepage's Search button and suggestion chips; containers and fields keep 12px so the hierarchy dialog → card/input → button/chip stays legible.
 
 ## Spacing, shape, elevation
 
@@ -130,7 +130,7 @@ Standard action buttons are never pills; fully rounded corners are reserved for 
 | Dialog | `--md-comp-dialog-width` / `-padding` | 800 wide on desktop, height follows content (viewport-capped) / 24 (compact: 16) |
 | Section label → controls gap | `--md-comp-section-label-gap` | 8 |
 | Outline | `--md-comp-outline-width` / `-focus` | 1 / 2 (2 only marks a selected option card; inputs never use it) |
-| Radii | `--md-comp-dialog-radius` / `-card-` / `-text-field-` / `-button-` / `-icon-button-` / `-chip-radius` | 20 / 12 / 12 / 12 / full / full |
+| Radii | `--md-comp-dialog-radius` / `-card-` / `-text-field-` / `-button-` / `-icon-button-` / `-chip-radius` | 20 / 12 / 12 / full / full / full |
 | Alert padding | `--md-comp-alert-padding-y` / `-x` | 12 / 16 |
 | Empty-state illustration | `--md-comp-empty-state-illustration` | 160 |
 
