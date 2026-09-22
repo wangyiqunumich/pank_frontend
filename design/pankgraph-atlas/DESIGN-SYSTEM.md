@@ -1,51 +1,55 @@
-# PanKgraph design system (Material Design 3)
+# PanKgraph design system — Material Design 3, strictly
 
-Every redesigned screen in this atlas follows Material Design 3 and draws all values from one token sheet: **[`styles/design-tokens.css`](styles/design-tokens.css)**. Component stylesheets ([`styles/recovery-dialog.css`](styles/recovery-dialog.css) for every recovery dialog, [`styles/message-states.css`](styles/message-states.css) for alerts, empty/error panels, inline errors and outlined text inputs) contain no literal sizes or colors; they reference tokens only. This keeps typography, spacing, dimensions and color identical across screens and across future work.
+Every redesigned screen in this atlas follows the Material Design 3 specification without custom deviations, and draws all values from one token sheet: **[`styles/design-tokens.css`](styles/design-tokens.css)**. Component stylesheets ([`styles/recovery-dialog.css`](styles/recovery-dialog.css) for every recovery dialog, [`styles/message-states.css`](styles/message-states.css) for alerts, empty/error panels, inline errors and outlined text inputs) contain no literal sizes or colors; they reference tokens only. This keeps typography, spacing, dimensions and color identical across screens and across future work.
 
 ## Rules
 
-1. **Tokens only.** Use `var(--md-sys-*)` / `var(--md-comp-*)`. If a value is missing, add a token first, then use it. `python3 scripts/check_tokens.py` fails on any hardcoded value.
-2. **4px grid.** Every length is a multiple of 4px. Spacing comes from `--md-sys-spacing-1 … -16` (4 → 64px).
-3. **One type scale.** Pick a level (0–4, see below), never a size. Do not invent sizes between steps.
-4. **Standard dimensions.** Controls share heights and radii (see table). Do not size a component to its content.
-5. **Structure before style.** Keep the app's Material UI component structure (Dialog → DialogTitle / DialogContent / DialogActions, RadioGroup → FormControlLabel + Radio, TextField, Chip, IconButton). Restyle; do not rebuild.
-6. **Fixed frames, flexible content.** Every desktop dialog is 800px wide regardless of content; height follows content up to the viewport, then the content region scrolls while header and actions stay pinned. Never vary width per scenario.
-7. **States.** Hover, focus, pressed and disabled use the state-layer tokens. Keyboard focus on buttons and option cards is a 2px primary ring with 2px offset. Text inputs keep a 1px neutral border in every normal state: `outline` by default, `outline-hover` (slightly darker neutral) on hover, and the same `outline` when focused or while typing. No teal border, thicker border or focus ring on inputs: the caret and the entered text show that the field is active. Only an error state changes the color, to the semantic `error` role.
+1. **Material 3 values only.** Component dimensions, shapes, type roles, color roles and state layers are the M3 specification values encoded in the token sheet. No custom radii, heights or palettes per component.
+2. **Tokens only.** Use `var(--md-sys-*)` / `var(--md-comp-*)`. `python3 scripts/check_tokens.py` fails on any literal.
+3. **4dp grid.** Every length is a multiple of 4px (`--md-sys-spacing-1 … -16`).
+4. **One type scale.** Pick an M3 role, never a size. Headlines are regular weight (400); titles and labels medium (500); body regular.
+5. **Structure before style.** Keep the app's Material UI component structure. Restyle; do not rebuild.
+6. **States.** Hover 8 %, focus/pressed 10 % state layers; disabled 12 % container / 38 % content; keyboard focus = 3dp primary ring, 2dp offset. Text fields: 1dp `outline`, `on-surface` on hover, **2dp `primary` when focused**, `error` when invalid.
 
-## Type scale and hierarchy
+## Type scale (M3)
 
-Every dialog reads in five levels. Pick the level, never a size.
+| Role | Size / line | Weight | Use |
+| --- | --- | --- | --- |
+| headline-medium | 28 / 36 | 400 | Full-page state panel title |
+| headline-small | 24 / 32 | 400 | Dialog headline |
+| title-medium | 16 / 24 | 500 | Section labels inside dialogs |
+| title-small | 14 / 20 | 500 | Inline error title |
+| body-large | 16 / 24 | 400 | Primary content: original question, option text, input text |
+| body-medium | 14 / 20 | 400 | Dialog supporting text, messages, helper copy |
+| body-small | 12 / 16 | 400 | Text-field floating label and supporting text |
+| label-large | 14 / 20 | 500 | Buttons, chips, snackbar action |
+| label-medium | 12 / 16 | 500 | Category label above a dialog headline, card captions |
 
-| Level | Role | Size / line | Weight | Color | Use |
-| --- | --- | --- | --- | --- | --- |
-| 0 | label-medium, uppercase | 12 / 16 | 700 | primary | Status eyebrow above the title ("Needs clarification"). The only uppercase text in a dialog. |
-| 1 | headline-small | 24 / 32 | 700 | on-surface | The single dialog / page title ("Let's clarify this search") |
-| 2 | section-label | 16 / 24 | 700 | section-label `#5d6d74` | Section labels that introduce a group of controls, sentence case ("Suggested options — select one to continue:", "Or describe it yourself") |
-| 3 | body-large | 16 / 24 | 400 | on-surface | Primary content: the quoted question, option text, user input |
-| 4 | body-medium | 14 / 20 | 400 | on-surface-variant | Supporting text: the reason under the title, the "Your original question" caption inside its container, helper copy |
-| 4 | label-small | 11 / 16 | 500 | on-secondary-container | Tertiary badges ("Recommended"), sentence case |
-| — | label-large | 14 / 20 | 500 | — | Buttons |
-| — | title-large | 22 / 28 | 700 | on-surface | Dialog title below 600px |
+No uppercase text (M3 has no overline role); no bold headlines; no custom grey label color — labels use `on-surface` or `on-surface-variant`.
 
-Inline annotations inside primary content (for example "(stage 3)") keep the level-3 size and take the level-4 color. Captions that merely name a piece of content (such as "Your original question") are level 4, not level 2; level 2 is reserved for labels that introduce controls. No divider rules under labels: hierarchy comes from type, color and spacing.
+## Components (M3 specification)
 
-Typeface: Roboto stack (the existing MUI theme face).
+| Component | Spec |
+| --- | --- |
+| Basic dialog | 280–560dp wide, `surface-container-high`, corner extra-large 28dp, 24dp padding, elevation 3, scrim 32 %; headline-small; supporting body-medium `on-surface-variant`; actions right-aligned, 8dp apart |
+| Common buttons | 40dp, corner full, label-large; filled = `primary` / `on-primary`; outlined = 1dp `outline`, `primary` text; text = `primary`, 12dp side padding; filled/outlined 24dp side padding; min width 48dp |
+| Icon button | 40dp state layer, 24dp icon, corner full |
+| Outlined text field | 56dp (multiline min 96dp), corner extra-small 4dp, 16dp padding, floating label body-small in the notch, supporting text body-small below; states per rule 6 |
+| Radio button | 20dp, 2dp ring `on-surface-variant`; selected = `primary` ring + 8dp dot |
+| List item / option | 56dp, 16dp side / 8dp vertical padding; selected = `secondary-container` fill |
+| Suggestion chip | 32dp, corner small 8dp, 1dp `outline`, label-large |
+| Cards | corner medium 12dp; filled = `surface-container-highest`; elevated = `surface-container-low` + elevation 1 |
+| Snackbar | 48dp min, corner extra-small, `inverse-surface` / `inverse-on-surface`, action `inverse-primary` label-large, bottom-center |
+| Inline message | filled card, 16dp padding, 24dp `primary` icon, body-medium |
+| Error container | `error-container` / `on-error-container`, corner medium |
 
-### Recovery dialog — one shared component (spec 2026-09-22)
+### Recovery dialog — one shared component
 
-All 12 recovery variants are rendered by **one component**, [`recovery-dialog.js`](recovery-dialog.js), from the per-variant table in [`recovery-dialog-config.js`](recovery-dialog-config.js). Pages contain only a mount: `<div data-recovery-dialog="<variant>" data-atlas-interactive>`. Do not restyle a variant separately; change the config or the component.
+All 12 recovery variants are rendered by [`recovery-dialog.js`](recovery-dialog.js) from [`recovery-dialog-config.js`](recovery-dialog-config.js); pages hold only `<div data-recovery-dialog="<variant>" data-atlas-interactive>`.
 
-**Structure, fixed order:** eyebrow (category, uppercase, teal) → title (what happened) → description (why, who acts, whether the question needs changing) → original-question card (read-only, always) → edit field (only if `editable`) → inline status banner (only after a failed retry) → actions `[Cancel query] [primary]`, right-aligned. Clarification additionally shows suggestions between the card and the edit field; picking one fills the field.
+**Structure:** category label (label-medium, `primary`) → headline → supporting text → original-question filled card → outlined text field (if `editable`; label "Tell us what to change (Optional)" in the notch, supporting text below, variant placeholder) → error-container banner after a failed retry → `[Cancel query] [primary]`. Clarification adds radio list items with a "Recommended" suggestion chip; picking one fills the field.
 
-**Config per variant:** `eyebrow, title, description, userFixable, editable, editRequired, retryable, primaryLabel, secondaryLabel, placeholder, countdownSeconds?, suggestions?`.
-
-**Action rules:** primary is never disabled for empty input unless `editRequired`; with text in the field the label becomes "Apply & try again" (except when `editRequired`, where the configured label already means apply); loading = 16px spinner + "Trying…" + disabled; Cancel, ✕ and Esc close and show a bottom-center snackbar "Query cancelled · Undo" that reopens; non-retryable variants' primary is not a retry ("Contact operator"). Failed retry: banner `role="status"` (#FDECEC / #8A1C1C, 10px radius) reading "Still unavailable. Try again shortly." then "Still unavailable after N attempts. Contact the demo operator."; rate limited and timeout add a 12s countdown in the button and disable it until 0.
-
-**Edit field:** label "Tell us what to change" + "Optional" tag (hidden when required), helper "Describe only the change. We'll keep the rest of your question." linked by `aria-describedby`, variant-specific placeholder, 12px radius, 96px min, focus = teal border + 3px ring rgba(11,127,119,.18).
-
-**Accessibility:** `role="alertdialog"`, `aria-labelledby` / `aria-describedby`, focus moves to the primary on open (textarea when `editRequired`), focus trapped inside.
-
-**Recovery tokens (`--md-comp-recovery-*`, 8px grid):** max-width 720, padding 32, section gap 24, radius 20, shadow 0 24px 48px rgba(15,23,42,.18); buttons 44px / 10px radius / 12px gap, primary #0B7F77 (hover #086660, active #065550), Cancel is a text button; close ✕ 40px round; text #0F172A / body #475569 / secondary #5B6878; card #F1F5F7.
+**Behaviour:** primary never disabled for empty input unless `editRequired`; typed change → "Apply & try again" (except when `editRequired`); loading = 18dp circular progress + "Trying…" + disabled; Cancel / ✕ / Esc close with an M3 snackbar "Query cancelled · Undo"; failure banner "Still unavailable. Try again shortly." then "…after N attempts. Contact the demo operator."; rate limited and timeout add a 12 s countdown; non-retryable variants' primary is "Contact operator". `role="alertdialog"`, `aria-labelledby` / `aria-describedby`, focus to primary (textarea when `editRequired`), focus trapped.
 
 **Variant matrix (checked against `inventories/error-catalog.json`):**
 
@@ -60,35 +64,29 @@ All 12 recovery variants are rendered by **one component**, [`recovery-dialog.js
 | graph release mismatch | no | no | no | yes | Start a fresh search |
 | planning failure | yes | yes | no | yes | Try again |
 | query validation | yes | yes | no | yes | Try again |
-| rate limited | no | no | no | yes, 12s countdown | Try again |
-| timeout | partly | yes | no | yes, 12s countdown | Try again |
+| rate limited | no | no | no | yes, 12 s countdown | Try again |
+| timeout | partly | yes | no | yes, 12 s countdown | Try again |
 | unknown failure | no | yes | no | yes | Try again |
-
-The catalog lists "Operator correction or explicit clarification" for authentication, authorization, billing, budget exhausted and graph identity, so none of them retries; the optional edit field carries an explicit clarification to the operator. Query validation is "You can retry the same question", so its edit is optional. Graph release mismatch's page copy asks for a fresh search, so its primary starts one.
 
 ### Vertical rhythm (dialogs)
 
 | Relationship | Token | Value |
 | --- | --- | --- |
-| Eyebrow → title | spacing-2 | 8 |
-| Title → reason (header group) | spacing-1 | 4 |
-| Header group → first section, and section → section | spacing-4 | 16 |
-| Section label or caption → its content | section-label-gap | 8 |
+| Category label → headline | spacing-1 | 4 |
+| Headline → supporting text, and section → section | spacing-4 | 16 |
+| Section label → its content | spacing-2 | 8 |
 | Option → option | spacing-2 | 8 |
-| Last section → actions | dialog-padding | 24 |
-| Container padding (dialog, tinted block) | dialog-padding / spacing-4 | 24 (compact 16) / 16 |
+| Container padding | dialog-padding | 24 |
 
 ## Message components
 
-Inline messages share the dialog's tokens so a banner, an empty state and a recovery dialog read as one system.
-
 | Component | Where | Spec |
 | --- | --- | --- |
-| Info alert (MuiAlert standard) | "Reconnecting to the saved result…" banners, plan / streaming notices | `primary-container` fill, corner-medium, 12 × 16 padding, 24px primary icon, body-medium on-surface text, no border |
-| Outlined alert (MuiAlert outlined) | Selection hints on credible-set pages | Same, but `surface` fill with 1px `outline`; action icon button 40px |
-| Full-page state panel (`.pk-state-panel`) | Feature unavailable, no QTL records | Card, illustration and typography keep the page's own styles. Rhythm on tokens: illustration → title 16, title → description 8, description → actions 32; actions are system buttons (40px, corner-small, label-large), filled primary + outlined secondary, 12px apart |
-| Outlined text input | Every MUI outlined field on message pages and in dialogs | 1px `outline` border; `outline-hover` on hover; unchanged on focus/typing; `error` when invalid. Sizes come from the field's own component token |
-| Inline error block | Chart failed to load | `error-container` fill, 1px `error-outline`, corner-medium, 16px padding; title-small in `error`, body-small in `on-error-container` |
+| Inline message (MuiAlert standard) | "Reconnecting to the saved result…" banners, plan / streaming notices | filled card `surface-container-high`, corner medium, 16dp padding, 24dp `primary` icon, body-medium |
+| Inline message (MuiAlert outlined) | Selection hints on credible-set pages | `surface` + 1dp `outline-variant`; action icon button 40dp |
+| Full-page state panel (`.pk-state-panel`) | Feature unavailable, no QTL records | elevated card (corner medium, elevation 1, `surface-container-low`) at the existing 460dp + 76dp size; 200dp illustration → headline-medium → body-medium → filled + outlined common buttons, 8dp apart |
+| Inline error container | Chart failed to load | `error-container` / `on-error-container`, corner medium, 16dp padding; title-small + body-small |
+| Outlined text input | Every MUI outlined field | rule 6 states |
 
 ## Spacing, shape, elevation
 
@@ -96,34 +94,34 @@ Inline messages share the dialog's tokens so a banner, an empty state and a reco
 | --- | --- | --- |
 | spacing-1 … -6 | 4, 8, 12, 16, 20, 24 | Internal gaps and padding |
 | spacing-8 / -10 / -12 / -16 | 32, 40, 48, 64 | Dialog margins, page-level gaps |
-| corner-extra-small | 4 | Chips, badges |
-| corner-small | 8 | Buttons |
-| corner-medium | 12 | Cards, option rows, text fields |
-| corner-large | 16 | Dialogs, sheets |
-| elevation-2 | soft 2/4px shadow | Raised buttons on hover |
-| elevation-3 | layered 24/48px shadow | Dialogs |
+| corner-extra-small | 4 | Text fields, snackbar |
+| corner-small | 8 | Chips |
+| corner-medium | 12 | Cards, list options, message containers |
+| corner-large | 16 | Sheets |
+| corner-extra-large | 28 | Dialogs |
+| corner-full | pill | Buttons, icon buttons, radios |
+| elevation-1 / -2 / -3 | M3 levels 1–3 | Elevated cards / raised buttons on hover / dialogs, snackbar |
 
 ## Component dimensions
 
 | Component | Token | Value |
 | --- | --- | --- |
-| Button height | `--md-comp-button-height` | 40 |
+| Button height / min width | `--md-comp-button-height` / `-min-width` | 40 / 48 |
+| Button side padding | `--md-comp-button-padding-x` / `-text-padding-x` | 24 / 12 |
 | Icon button / touch target | `--md-comp-touch-target` | 40 |
 | Standard icon | `--md-comp-icon-size` | 24 |
-| Selection control (radio, checkbox) | `--md-comp-selection-control-size` | 20 |
-| List item / option card | `--md-comp-list-item-height` | 56 (12 × 16 padding) |
-| Text field | `--md-comp-text-field-height` | 56 |
-| Multiline field min | `--md-comp-text-field-multiline-min-height` | 96 |
-| Inline chip / badge | `--md-comp-badge-height` | 24 |
-| Dialog | `--md-comp-dialog-width` / `-padding` | 800 wide on desktop, height follows content (viewport-capped) / 24 (compact: 16) |
-| Section label → controls gap | `--md-comp-section-label-gap` | 8 |
-| Outline | `--md-comp-outline-width` / `-focus` | 1 / 2 (2 only marks a selected option card; inputs never use it) |
-| Alert padding | `--md-comp-alert-padding-y` / `-x` | 12 / 16 |
-| Empty-state illustration | `--md-comp-empty-state-illustration` | 160 |
+| Radio / checkbox | `--md-comp-selection-control-size` | 20 |
+| List item | `--md-comp-list-item-height` | 56 (16 × 8 padding) |
+| Chip | `--md-comp-chip-height` | 32 |
+| Text field / multiline min | `--md-comp-text-field-height` / `-multiline-min-height` | 56 / 96 |
+| Dialog | `--md-comp-dialog-min-width` / `-max-width` / `-padding` | 280 / 560 / 24 |
+| Snackbar | `--md-comp-snackbar-min-height` | 48 |
+| Outline | `--md-comp-outline-width` / `-focus` | 1 / 2 |
+| State panel (existing size) | `--md-comp-state-panel-content-width` / `-padding` / `-illustration` | 460 / 76 / 200 |
 
 ## Color roles
 
-Material color roles mapped to the PanKbase palette: `primary` teal `rgb(33 145 151)`, `section-label` `#5d6d74`, `on-primary` white, `primary-container` `rgb(240 247 248)`, `secondary-container` `rgb(227 240 241)` (hover tint), `on-surface` `rgb(15 23 42)`, `on-surface-variant` `rgb(89 99 110)`, `outline` `rgb(203 213 225)`, `outline-variant` `rgb(226 232 240)`, `outline-hover` `rgb(148 163 184)`, `scrim` 40 % on-surface; `error` `rgb(186 26 26)`, `error-container` `rgb(254 242 242)`, `on-error-container` `rgb(153 27 27)`, `error-outline` `rgb(252 165 165)`. Always pair a container with its `on-` role.
+M3 scheme seeded from PanKbase teal: `primary` `rgb(33 145 151)`, `on-primary` white, `primary-container` `rgb(240 247 248)`, `on-primary-container` `rgb(24 118 123)`, `secondary-container` `rgb(227 240 241)`, `surface` white, `surface-container-low/‑/high/highest` `rgb(246 248 250)` / `rgb(241 245 247)` / `rgb(236 241 244)` / `rgb(230 236 239)`, `on-surface` `rgb(15 23 42)`, `on-surface-variant` `rgb(89 99 110)`, `outline` `rgb(148 163 184)`, `outline-variant` `rgb(203 213 225)`, `inverse-surface` `rgb(32 58 72)`, `inverse-primary` `rgb(140 210 214)`, `error` `rgb(179 38 30)`, `error-container` `rgb(249 222 220)`, `on-error-container` `rgb(65 14 11)`, `scrim` black 32 %. Always pair a container with its `on-` role.
 
 ## Adding a new design
 
