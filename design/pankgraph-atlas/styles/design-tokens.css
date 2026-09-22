@@ -151,6 +151,32 @@
   --md-comp-alert-padding-y:         12px;   /* inline alert / banner */
   --md-comp-alert-padding-x:         16px;
   --md-comp-empty-state-illustration: 160px; /* empty / error state artwork */
+  /* ---- Recovery dialog component scope (spec 2026-09-22): 8px grid, own palette ---- */
+  --md-comp-recovery-primary:            rgb(11, 127, 119);    /* #0B7F77 */
+  --md-comp-recovery-primary-hover:      rgb(8, 102, 96);      /* #086660 */
+  --md-comp-recovery-primary-active:     rgb(6, 85, 80);       /* #065550 */
+  --md-comp-recovery-focus-ring:         rgba(11, 127, 119, 0.18);
+  --md-comp-recovery-text-primary:       rgb(15, 23, 42);      /* #0F172A */
+  --md-comp-recovery-text-body:          rgb(71, 85, 105);     /* #475569 */
+  --md-comp-recovery-text-secondary:     rgb(91, 104, 120);    /* #5B6878 */
+  --md-comp-recovery-card-bg:            rgb(241, 245, 247);   /* #F1F5F7 */
+  --md-comp-recovery-banner-bg:          rgb(253, 236, 236);   /* #FDECEC */
+  --md-comp-recovery-banner-text:        rgb(138, 28, 28);     /* #8A1C1C */
+  --md-comp-recovery-banner-radius:      10px;
+  --md-comp-recovery-max-width:          720px;
+  --md-comp-recovery-padding:            32px;
+  --md-comp-recovery-section-gap:        24px;
+  --md-comp-recovery-radius:             20px;
+  --md-comp-recovery-shadow:             0 24px 48px rgba(15, 23, 42, 0.18);
+  --md-comp-recovery-button-height:      44px;
+  --md-comp-recovery-button-radius:      10px;
+  --md-comp-recovery-button-gap:         12px;
+  --md-comp-recovery-close-size:         40px;
+  --md-comp-recovery-field-radius:       12px;
+  --md-comp-recovery-field-min-height:   96px;
+  --md-comp-recovery-focus-ring-width:   3px;
+  --md-comp-recovery-spinner-size:       16px;
+  --md-comp-recovery-snackbar-bg:        rgb(32, 58, 72);
 }
 
 /* Reusable typography classes — apply instead of restating sizes. */

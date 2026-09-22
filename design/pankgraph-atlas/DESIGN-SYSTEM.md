@@ -31,15 +31,40 @@ Inline annotations inside primary content (for example "(stage 3)") keep the lev
 
 Typeface: Roboto stack (the existing MUI theme face).
 
-### Dialog anatomy (all recovery states)
+### Recovery dialog — one shared component (spec 2026-09-22)
 
-One anatomy serves clarification, timeout, rate limit, validation, planning and operator-error states. Only the copy, the presence of options, and the action set change; the frame, order and spacing do not.
+All 12 recovery variants are rendered by **one component**, [`recovery-dialog.js`](recovery-dialog.js), from the per-variant table in [`recovery-dialog-config.js`](recovery-dialog-config.js). Pages contain only a mount: `<div data-recovery-dialog="<variant>" data-atlas-interactive>`. Do not restyle a variant separately; change the config or the component.
 
-1. **Header group** — eyebrow (L0) naming the state ("Needs clarification", "Timeout", "Rate limited" …), title (L1), reason (L4). Close icon button top-right.
-2. **Original question** — tinted `primary-container` block, corner-medium, 16px padding, containing the L4 caption and the L3 question text.
-3. **Suggested options** *(clarification only)* — L2 label, then single-select option cards (56px, corner-medium, 1px outline; selected = 2px primary outline + `primary-container` fill; optional "Recommended" badge inline after the label).
-4. **Free text** — L2 label ("Or describe it yourself" / "Tell us what to change"), then outlined multiline field (96px min, corner-medium, 1px neutral border in all states (`outline`, `outline-hover` on hover, `error` only when invalid), placeholder in L4 placeholder color).
-5. **Actions** — right-aligned, 40px, corner-small, label-large. Three variants, always in this order: **text** for dismiss (Cancel / Cancel query), **outlined** for an alternative primary action (Retry original question), **filled** for the primary action (Continue / Apply changes; disabled state = 12 % on-surface fill, 38 % text).
+**Structure, fixed order:** eyebrow (category, uppercase, teal) → title (what happened) → description (why, who acts, whether the question needs changing) → original-question card (read-only, always) → edit field (only if `editable`) → inline status banner (only after a failed retry) → actions `[Cancel query] [primary]`, right-aligned. Clarification additionally shows suggestions between the card and the edit field; picking one fills the field.
+
+**Config per variant:** `eyebrow, title, description, userFixable, editable, editRequired, retryable, primaryLabel, secondaryLabel, placeholder, countdownSeconds?, suggestions?`.
+
+**Action rules:** primary is never disabled for empty input unless `editRequired`; with text in the field the label becomes "Apply & try again" (except when `editRequired`, where the configured label already means apply); loading = 16px spinner + "Trying…" + disabled; Cancel, ✕ and Esc close and show a bottom-center snackbar "Query cancelled · Undo" that reopens; non-retryable variants' primary is not a retry ("Contact operator"). Failed retry: banner `role="status"` (#FDECEC / #8A1C1C, 10px radius) reading "Still unavailable. Try again shortly." then "Still unavailable after N attempts. Contact the demo operator."; rate limited and timeout add a 12s countdown in the button and disable it until 0.
+
+**Edit field:** label "Tell us what to change" + "Optional" tag (hidden when required), helper "Describe only the change. We'll keep the rest of your question." linked by `aria-describedby`, variant-specific placeholder, 12px radius, 96px min, focus = teal border + 3px ring rgba(11,127,119,.18).
+
+**Accessibility:** `role="alertdialog"`, `aria-labelledby` / `aria-describedby`, focus moves to the primary on open (textarea when `editRequired`), focus trapped inside.
+
+**Recovery tokens (`--md-comp-recovery-*`, 8px grid):** max-width 720, padding 32, section gap 24, radius 20, shadow 0 24px 48px rgba(15,23,42,.18); buttons 44px / 10px radius / 12px gap, primary #0B7F77 (hover #086660, active #065550), Cancel is a text button; close ✕ 40px round; text #0F172A / body #475569 / secondary #5B6878; card #F1F5F7.
+
+**Variant matrix (checked against `inventories/error-catalog.json`):**
+
+| variant | userFixable | editable | editRequired | retryable | primary |
+| --- | --- | --- | --- | --- | --- |
+| authentication | no | yes (optional) | no | no | Contact operator |
+| authorization | no | yes (optional) | no | no | Contact operator |
+| billing | no | yes (optional) | no | no | Contact operator |
+| budget exhausted | no | yes (optional) | no | no | Contact operator |
+| clarification required | yes | yes | yes | yes | Send clarification |
+| graph identity | no | yes (optional) | no | no | Contact operator |
+| graph release mismatch | no | no | no | yes | Start a fresh search |
+| planning failure | yes | yes | no | yes | Try again |
+| query validation | yes | yes | no | yes | Try again |
+| rate limited | no | no | no | yes, 12s countdown | Try again |
+| timeout | partly | yes | no | yes, 12s countdown | Try again |
+| unknown failure | no | yes | no | yes | Try again |
+
+The catalog lists "Operator correction or explicit clarification" for authentication, authorization, billing, budget exhausted and graph identity, so none of them retries; the optional edit field carries an explicit clarification to the operator. Query validation is "You can retry the same question", so its edit is optional. Graph release mismatch's page copy asks for a fresh search, so its primary starts one.
 
 ### Vertical rhythm (dialogs)
 
