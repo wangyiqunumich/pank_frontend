@@ -58,7 +58,7 @@
 .coloc-signal-pair span { display: block; color: #688377; font-size: 10px; text-transform: uppercase; margin-bottom: 4px; }
 .coloc-signal-pair strong { font-size: 12px; font-weight: 500; }
 .coloc-svg-wrap { overflow-x: auto; }
-.coloc-svg-wrap > svg { display: block; width: 100%; min-width: 660px; height: auto; }
+.coloc-svg-wrap > svg { display: block; width: 100%; min-width: 660px; max-width: 900px; height: auto; margin: 0 auto; }
 .coloc-content .coloc-footnote { color: #778480; font-size: 11px; margin: 8px 0 0; }
 .coloc-counts { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; }
 .coloc-counts strong { font-size: 13px; color: #346f62; font-weight: 600; }
