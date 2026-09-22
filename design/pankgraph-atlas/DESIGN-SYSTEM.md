@@ -61,7 +61,7 @@ Inline messages share the dialog's tokens so a banner, an empty state and a reco
 | --- | --- | --- |
 | Info alert (MuiAlert standard) | "Reconnecting to the saved result…" banners, plan / streaming notices | `primary-container` fill, corner-medium, 12 × 16 padding, 24px primary icon, body-medium on-surface text, no border |
 | Outlined alert (MuiAlert outlined) | Selection hints on credible-set pages | Same, but `surface` fill with 1px `outline`; action icon button 40px |
-| Empty / error state panel | Feature unavailable, no QTL records | 800px max (same as dialogs), corner-large, elevation-1, 32 × 24 padding, centered; 160px illustration → L1 title → L4 supporting text (4px below title) → actions (filled + text, 40px) |
+| Empty / error state panel | Available for empty / error pages (`.pk-empty-state`); the current "Feature unavailable" and "no QTL records" captures keep their original design by request | 800px max (same as dialogs), corner-large, elevation-1, 32 × 24 padding, centered; 160px illustration → L1 title → L4 supporting text (4px below title) → actions (filled + text, 40px) |
 | Outlined text input | Every MUI outlined field on message pages and in dialogs | 1px `outline` border; `outline-hover` on hover; unchanged on focus/typing; `error` when invalid. Sizes come from the field's own component token |
 | Inline error block | Chart failed to load | `error-container` fill, 1px `error-outline`, corner-medium, 16px padding; title-small in `error`, body-small in `on-error-container` |
 

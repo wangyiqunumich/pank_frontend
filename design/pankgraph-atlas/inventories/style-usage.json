@@ -82,8 +82,6 @@
   "styles/design-tokens.css": [
     "error-graph_release_mismatch.html",
     "error-timeout.html",
-    "unavailable.html",
-    "intermediate-empty.html",
     "error-billing.html",
     "error-authorization.html",
     "result-streaming.html",
@@ -119,8 +117,6 @@
   "styles/message-states.css": [
     "error-graph_release_mismatch.html",
     "error-timeout.html",
-    "unavailable.html",
-    "intermediate-empty.html",
     "error-billing.html",
     "error-authorization.html",
     "result-streaming.html",
