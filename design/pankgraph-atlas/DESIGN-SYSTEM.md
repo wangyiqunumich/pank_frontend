@@ -45,7 +45,7 @@ All 12 recovery variants are rendered by **one component**, [`recovery-dialog.js
 
 **Accessibility:** `role="alertdialog"`, `aria-labelledby` / `aria-describedby`, focus moves to the primary on open (textarea when `editRequired`), focus trapped inside.
 
-**Recovery tokens (`--md-comp-recovery-*`, 8px grid):** max-width 720, padding 32, section gap 24, radius 20, shadow 0 24px 48px rgba(15,23,42,.18); buttons 44px / 10px radius / 12px gap, primary #0B7F77 (hover #086660, active #065550), Cancel is a text button; close ✕ 40px round; text #0F172A / body #475569 / secondary #5B6878; card #F1F5F7.
+**Recovery tokens (`--md-comp-recovery-*`, 8px grid):** max-width 720, padding 32, section gap 24, shadow 0 24px 48px rgba(15,23,42,.18); radii from the corner-radius hierarchy (dialog 20, cards/fields 12, buttons 12, chips full); buttons 44px / 12px gap, primary #0B7F77 (hover #086660, active #065550), Cancel is a text button; close ✕ 40px round; text #0F172A / body #475569 / secondary #5B6878; card #F1F5F7.
 
 **Variant matrix (checked against `inventories/error-catalog.json`):**
 
@@ -90,16 +90,28 @@ Inline messages share the dialog's tokens so a banner, an empty state and a reco
 | Outlined text input | Every MUI outlined field on message pages and in dialogs | 1px `outline` border; `outline-hover` on hover; unchanged on focus/typing; `error` when invalid. Sizes come from the field's own component token |
 | Inline error block | Chart failed to load | `error-container` fill, 1px `error-outline`, corner-medium, 16px padding; title-small in `error`, body-small in `on-error-container` |
 
+## Corner-radius hierarchy
+
+Aligned with the PanKgraph homepage's rounded language, translated into Material component types. Components reference these semantic tokens, never the raw shape scale, so every current and future Message / Recovery page inherits them.
+
+| Component type | Token | Value |
+| --- | --- | --- |
+| Dialog / modal container | `--md-comp-dialog-radius` | 20 |
+| Cards, contextual containers (original-question card, option cards, banners, alerts, inline errors, empty-state panel, snackbar) | `--md-comp-card-radius` | 12 |
+| Text fields / textareas | `--md-comp-text-field-radius` | 12 |
+| Standard contained / outlined / text buttons (Try again, Apply changes, Contact operator, Continue, Cancel query, Back to Home …) | `--md-comp-button-radius` | 12 |
+| Icon-button interaction area (40 × 40 close ✕, alert dismiss) | `--md-comp-icon-button-radius` | full (20 on 40) |
+| Chips / tags / pill controls only (Recommended, Optional; homepage search field and suggestion chips) | `--md-comp-chip-radius` | full |
+
+Standard action buttons are never pills; fully rounded corners are reserved for chip and pill controls.
+
 ## Spacing, shape, elevation
 
 | Token | Value | Use |
 | --- | --- | --- |
 | spacing-1 … -6 | 4, 8, 12, 16, 20, 24 | Internal gaps and padding |
 | spacing-8 / -10 / -12 / -16 | 32, 40, 48, 64 | Dialog margins, page-level gaps |
-| corner-extra-small | 4 | Chips, badges |
-| corner-small | 8 | Buttons |
-| corner-medium | 12 | Cards, option rows, text fields |
-| corner-large | 16 | Dialogs, sheets |
+| corner-extra-small … corner-full | 4 / 8 / 12 / 16 / 28 / pill | Raw scale; components use the corner-radius hierarchy above |
 | elevation-2 | soft 2/4px shadow | Raised buttons on hover |
 | elevation-3 | layered 24/48px shadow | Dialogs |
 
@@ -118,6 +130,7 @@ Inline messages share the dialog's tokens so a banner, an empty state and a reco
 | Dialog | `--md-comp-dialog-width` / `-padding` | 800 wide on desktop, height follows content (viewport-capped) / 24 (compact: 16) |
 | Section label → controls gap | `--md-comp-section-label-gap` | 8 |
 | Outline | `--md-comp-outline-width` / `-focus` | 1 / 2 (2 only marks a selected option card; inputs never use it) |
+| Radii | `--md-comp-dialog-radius` / `-card-` / `-text-field-` / `-button-` / `-icon-button-` / `-chip-radius` | 20 / 12 / 12 / 12 / full / full |
 | Alert padding | `--md-comp-alert-padding-y` / `-x` | 12 / 16 |
 | Empty-state illustration | `--md-comp-empty-state-illustration` | 160 |
 

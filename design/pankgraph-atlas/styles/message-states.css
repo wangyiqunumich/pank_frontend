@@ -12,7 +12,7 @@
   gap: var(--md-sys-spacing-3);
   padding: var(--md-comp-alert-padding-y) var(--md-comp-alert-padding-x);
   border: 0;
-  border-radius: var(--md-sys-shape-corner-medium);
+  border-radius: var(--md-comp-card-radius);
   background: var(--md-sys-color-primary-container);
   color: var(--md-sys-color-on-surface);
   font: var(--md-sys-typescale-body-weight) var(--md-sys-typescale-body-medium-size) / var(--md-sys-typescale-body-medium-line-height) var(--md-ref-typeface-plain);
@@ -40,6 +40,7 @@
   width: var(--md-comp-touch-target);
   height: var(--md-comp-touch-target);
   padding: 0;
+  border-radius: var(--md-comp-icon-button-radius);
   color: var(--md-sys-color-on-surface-variant);
 }
 .MuiAlert-root .MuiAlert-action .MuiIconButton-root:hover { background: var(--md-sys-state-hover-layer); }
@@ -53,6 +54,7 @@
   align-items: center;
   justify-content: center;
   gap: 0;
+  border-radius: var(--md-comp-card-radius);
   text-align: center;
 }
 .MuiBox-root.pk-state-panel > img { margin: 0 0 var(--md-sys-spacing-4); }                          /* illustration → title 16 */
@@ -70,7 +72,7 @@
   padding: 0 var(--md-comp-button-padding-x);
   box-sizing: border-box;
   border: 0;
-  border-radius: var(--md-sys-shape-corner-small);
+  border-radius: var(--md-comp-button-radius);
   font: var(--md-sys-typescale-label-weight) var(--md-sys-typescale-label-large-size) / var(--md-sys-typescale-label-large-line-height) var(--md-ref-typeface-plain);
   letter-spacing: var(--md-sys-typescale-label-tracking);
   text-transform: none;
@@ -96,7 +98,7 @@
   gap: var(--md-sys-spacing-1);
   padding: var(--md-sys-spacing-4);
   border: var(--md-comp-outline-width) solid var(--md-sys-color-error-outline);
-  border-radius: var(--md-sys-shape-corner-medium);
+  border-radius: var(--md-comp-card-radius);
   background: var(--md-sys-color-error-container);
 }
 .MuiBox-root.pk-inline-error > .MuiTypography-body1:nth-of-type(1) {

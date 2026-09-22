@@ -63,7 +63,7 @@
   height: var(--md-comp-recovery-close-size);
   padding: 0;
   border: 0;
-  border-radius: var(--md-sys-shape-corner-full);
+  border-radius: var(--md-comp-icon-button-radius);
   background: transparent;
   color: var(--md-comp-recovery-text-secondary);
   cursor: pointer;
@@ -94,7 +94,7 @@
   flex-direction: column;
   gap: var(--md-sys-spacing-2);
   padding: var(--md-sys-spacing-4);
-  border-radius: var(--md-comp-recovery-field-radius);
+  border-radius: var(--md-comp-card-radius);
   background: var(--md-comp-recovery-card-bg);
 }
 .pk-recovery .pk-original .pk-supporting {
@@ -119,7 +119,7 @@
   display: inline-block;
   margin-left: var(--md-sys-spacing-2);
   padding: 0 var(--md-sys-spacing-2);
-  border-radius: var(--md-sys-shape-corner-extra-small);
+  border-radius: var(--md-comp-chip-radius);
   background: var(--md-comp-recovery-card-bg);
   font: var(--md-sys-typescale-label-weight) var(--md-sys-typescale-label-small-size) / var(--md-comp-badge-height) var(--md-ref-typeface-plain);
   color: var(--md-comp-recovery-text-secondary);
@@ -136,7 +136,7 @@
   min-height: var(--md-comp-list-item-height);
   margin: 0;
   padding: var(--md-comp-list-item-padding-y) var(--md-comp-list-item-padding-x);
-  border-radius: var(--md-comp-recovery-field-radius);
+  border-radius: var(--md-comp-card-radius);
   background: var(--md-sys-color-surface);
   box-shadow: inset 0 0 0 var(--md-comp-outline-width) var(--md-sys-color-outline);
   cursor: pointer;
@@ -165,7 +165,7 @@
 .pk-recovery .MuiChip-root {
   display: inline-flex; align-items: center; vertical-align: middle;
   height: var(--md-comp-badge-height); margin-left: var(--md-sys-spacing-2);
-  border-radius: var(--md-sys-shape-corner-extra-small);
+  border-radius: var(--md-comp-chip-radius);
   background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container);
 }
 .pk-recovery .MuiChip-label { padding: 0 var(--md-comp-badge-padding-x); font: var(--md-sys-typescale-label-weight) var(--md-sys-typescale-label-small-size) / var(--md-sys-typescale-label-small-line-height) var(--md-ref-typeface-plain); }
@@ -252,7 +252,7 @@
   display: flex; align-items: center; gap: var(--md-sys-spacing-4);
   min-height: var(--md-comp-recovery-close-size);
   padding: var(--md-sys-spacing-2) var(--md-sys-spacing-4);
-  border-radius: var(--md-sys-shape-corner-small);
+  border-radius: var(--md-comp-card-radius);
   background: var(--md-comp-recovery-snackbar-bg); color: var(--md-sys-color-on-primary);
   font: var(--md-sys-typescale-body-weight) var(--md-sys-typescale-body-medium-size) / var(--md-sys-typescale-body-medium-line-height) var(--md-ref-typeface-plain);
   box-shadow: var(--md-sys-elevation-3);
@@ -260,7 +260,7 @@
 .pk-snackbar[hidden] { display: none; }
 .pk-snackbar__action {
   height: var(--md-sys-spacing-8); padding: 0 var(--md-sys-spacing-2);
-  border: 0; border-radius: var(--md-sys-shape-corner-extra-small); background: transparent;
+  border: 0; border-radius: var(--md-comp-button-radius); background: transparent;
   color: var(--md-sys-color-secondary-container);
   font: var(--md-sys-typescale-label-weight) var(--md-sys-typescale-label-large-size) / var(--md-sys-typescale-label-large-line-height) var(--md-ref-typeface-plain);
   text-transform: uppercase; letter-spacing: var(--md-sys-typescale-label-tracking); cursor: pointer;

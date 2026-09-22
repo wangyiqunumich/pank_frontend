@@ -94,12 +94,21 @@
 
   /* ---- Shape scale ---- */
   --md-sys-shape-corner-none:        0;
-  --md-sys-shape-corner-extra-small: 4px;   /* chips, badges */
-  --md-sys-shape-corner-small:       8px;   /* buttons, inputs */
-  --md-sys-shape-corner-medium:      12px;  /* cards, list options, text areas */
-  --md-sys-shape-corner-large:       16px;  /* dialogs, sheets */
+  --md-sys-shape-corner-extra-small: 4px;
+  --md-sys-shape-corner-small:       8px;
+  --md-sys-shape-corner-medium:      12px;
+  --md-sys-shape-corner-large:       16px;
   --md-sys-shape-corner-extra-large: 28px;
   --md-sys-shape-corner-full:        9999px;
+
+  /* ---- Corner-radius hierarchy (homepage-aligned, Material component types) ----
+     dialog → card / input → button → chip. Components reference these, never the scale directly. */
+  --md-comp-dialog-radius:      20px;                             /* dialog / modal container */
+  --md-comp-card-radius:        var(--md-sys-shape-corner-medium); /* cards, contextual containers, banners, alerts, snackbar */
+  --md-comp-text-field-radius:  var(--md-sys-shape-corner-medium); /* text fields, textareas */
+  --md-comp-button-radius:      var(--md-sys-shape-corner-medium); /* standard contained / outlined / text buttons */
+  --md-comp-icon-button-radius: var(--md-sys-shape-corner-full);   /* 40×40 icon-button interaction area */
+  --md-comp-chip-radius:        var(--md-sys-shape-corner-full);   /* chips, tags and pill controls only */
 
   /* ---- Elevation ---- */
   --md-sys-elevation-0: none;
@@ -162,17 +171,17 @@
   --md-comp-recovery-card-bg:            rgb(241, 245, 247);   /* #F1F5F7 */
   --md-comp-recovery-banner-bg:          rgb(253, 236, 236);   /* #FDECEC */
   --md-comp-recovery-banner-text:        rgb(138, 28, 28);     /* #8A1C1C */
-  --md-comp-recovery-banner-radius:      10px;
+  --md-comp-recovery-banner-radius:      var(--md-comp-card-radius);
   --md-comp-recovery-max-width:          720px;
   --md-comp-recovery-padding:            32px;
   --md-comp-recovery-section-gap:        24px;
-  --md-comp-recovery-radius:             20px;
+  --md-comp-recovery-radius:             var(--md-comp-dialog-radius);
   --md-comp-recovery-shadow:             0 24px 48px rgba(15, 23, 42, 0.18);
   --md-comp-recovery-button-height:      44px;
-  --md-comp-recovery-button-radius:      10px;
+  --md-comp-recovery-button-radius:      var(--md-comp-button-radius);
   --md-comp-recovery-button-gap:         12px;
   --md-comp-recovery-close-size:         40px;
-  --md-comp-recovery-field-radius:       12px;
+  --md-comp-recovery-field-radius:       var(--md-comp-text-field-radius);
   --md-comp-recovery-field-min-height:   96px;
   --md-comp-recovery-focus-ring-width:   3px;
   --md-comp-recovery-spinner-size:       16px;
