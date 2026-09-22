@@ -41,7 +41,7 @@ All 12 recovery variants are rendered by **one component**, [`recovery-dialog.js
 
 **Action rules:** primary is never disabled for empty input unless `editRequired`; with text in the field the label becomes "Apply & try again" (except when `editRequired`, where the configured label already means apply); loading = 16px spinner + "Trying…" + disabled; Cancel, ✕ and Esc close and show a bottom-center snackbar "Query cancelled · Undo" that reopens; non-retryable variants' primary is not a retry ("Contact operator"). Failed retry: banner `role="status"` (#FDECEC / #8A1C1C, 10px radius) reading "Still unavailable. Try again shortly." then "Still unavailable after N attempts. Contact the demo operator."; rate limited and timeout add a 12s countdown in the button and disable it until 0.
 
-**Edit field:** label "Tell us what to change" + "Optional" tag (hidden when required), helper "Describe only the change. We'll keep the rest of your question." linked by `aria-describedby`, variant-specific placeholder, 12px radius, 96px min, focus = teal border + 3px ring rgba(11,127,119,.18).
+**Edit field:** label "Tell us what to change" + "Optional" tag (hidden when required), helper "Describe only the change. We'll keep the rest of your question." linked by `aria-describedby`, variant-specific placeholder, 12px radius, 96px min; no focus or typing effect (1px neutral outline in every state, slightly darker on hover).
 
 **Accessibility:** `role="alertdialog"`, `aria-labelledby` / `aria-describedby`, focus moves to the primary on open (textarea when `editRequired`), focus trapped inside.
 

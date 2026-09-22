@@ -185,7 +185,9 @@
 .pk-recovery .pk-edit .MuiOutlinedInput-notchedOutline { position: absolute; inset: 0; margin: 0; padding: 0; pointer-events: none; border: var(--md-comp-outline-width) solid var(--md-sys-color-outline); border-radius: inherit; transition: border-color var(--md-sys-motion-duration-short), box-shadow var(--md-sys-motion-duration-short); }
 .pk-recovery .pk-edit .MuiOutlinedInput-notchedOutline legend { display: none; }
 .pk-recovery .pk-edit .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline { border-color: var(--md-sys-color-outline-hover); }
-.pk-recovery .pk-edit .MuiOutlinedInput-root:focus-within .MuiOutlinedInput-notchedOutline { border-color: var(--md-comp-recovery-primary); box-shadow: 0 0 0 var(--md-comp-recovery-focus-ring-width) var(--md-comp-recovery-focus-ring); }
+/* Focus / typing: no additional effect — the caret and entered text mark the active field. */
+.pk-recovery .pk-edit .MuiOutlinedInput-root:focus-within .MuiOutlinedInput-notchedOutline { border-color: var(--md-sys-color-outline); box-shadow: none; }
+.pk-recovery .pk-edit .MuiOutlinedInput-root:focus-within:hover .MuiOutlinedInput-notchedOutline { border-color: var(--md-sys-color-outline-hover); }
 .pk-recovery .pk-edit__helper {
   margin: 0;
   font: var(--md-sys-typescale-body-weight) var(--md-sys-typescale-body-medium-size) / var(--md-sys-typescale-body-medium-line-height) var(--md-ref-typeface-plain);
