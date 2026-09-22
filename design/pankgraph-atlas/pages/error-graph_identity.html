@@ -12,7 +12,10 @@
 <meta name="twitter:title" content="PanKBase – Pan-genome Knowledge Base | pankgraph.org">
 <meta name="twitter:description" content="PanKgraph is a T1D knowledge graph that integrates multi-omic and curated biological data into a unified framework for discovery, visualization, and reproducible diabetes research.">
 <link rel="stylesheet" href="../styles/0d9c82f435c8e547eedb.css">
-<link rel="stylesheet" href="../styles/3981213a885f4a4cbe9d.css"></head>
+<link rel="stylesheet" href="../styles/3981213a885f4a4cbe9d.css">
+<link rel="stylesheet" href="../styles/design-tokens.css">
+<link rel="stylesheet" href="../styles/recovery-dialog.css">
+<link rel="stylesheet" href="../styles/message-states.css"></head>
 <body style="overflow: hidden;">
 <div id="root" aria-hidden="true">
 <div class="MuiContainer-root MuiContainer-disableGutters css-1h4exh5">
@@ -336,20 +339,22 @@
 <div aria-hidden="true" class="MuiBackdrop-root MuiModal-backdrop css-919eu4" style="opacity: 1; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1);"></div>
 <div tabindex="0" data-testid="sentinelStart"></div>
 <div class="MuiDialog-container MuiDialog-scrollPaper css-ekeie0" role="presentation" tabindex="-1" style="opacity: 1; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1);">
-<div class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthLg MuiDialog-paperFullWidth css-szwd0o" role="dialog" aria-labelledby="query-recovery-title">
-<h2 class="MuiTypography-root MuiTypography-h6 MuiDialogTitle-root css-uitj7a" id="query-recovery-title">The graph release could not be verified</h2>
-<div class="MuiDialogContent-root css-21itka">
-<div class="MuiBox-root css-jm00xg"><span class="MuiTypography-root MuiTypography-overline css-lofix8">Your original question</span>
-<p class="MuiTypography-root MuiTypography-body1 css-2k3bc7">Show the evidence connected to INS.</p>
+<div class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthSm MuiDialog-paperFullWidth" role="dialog" aria-modal="true" aria-labelledby="query-recovery-title" aria-describedby="query-recovery-description">
+<h2 class="MuiTypography-root MuiTypography-h6 MuiDialogTitle-root" id="query-recovery-title"><span class="MuiTypography-root MuiTypography-overline pk-eyebrow">Graph identity</span>The graph release could not be verified</h2>
+<a class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium pk-close" role="button" href="landing.html" data-atlas-target="landing" aria-label="Close and cancel query"><svg class="MuiSvgIcon-root" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></a>
+<div class="MuiDialogContent-root">
+<div class="MuiBox-root pk-reason"><p class="MuiTypography-root MuiTypography-body1 MuiDialogContentText-root" id="query-recovery-description">The server could not verify the configured graph release. The demo operator needs to check the connection; do not change your biological question.</p>
 </div>
-<div class="MuiBox-root css-0"><h6 class="MuiTypography-root MuiTypography-h6 css-1anx036">Why it didn’t work</h6>
-<p class="MuiTypography-root MuiTypography-body1 css-zx08nf">The server could not verify the configured graph release. The demo operator needs to check the connection; do not change your biological question.</p>
+<div class="MuiBox-root pk-original"><span class="MuiTypography-root MuiTypography-body2 pk-supporting">Your original question</span>
+<p class="MuiTypography-root MuiTypography-body1">Show the evidence connected to INS.</p>
 </div>
-<div class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-feqhe6"><label class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-p0rm37" data-shrink="false" for=":r2:" id=":r2:-label">Tell us what to change</label>
-<div class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-multiline css-15kq27i"><textarea aria-invalid="false" id=":r2:" placeholder="Describe only the change. We’ll keep the rest of your question." class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-u36398" style="height: 69px;"></textarea><textarea aria-hidden="true" class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-u36398" readonly="" tabindex="-1" style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0px); padding-top: 0px; padding-bottom: 0px; width: 1024px;">x</textarea><fieldset aria-hidden="true" class="MuiOutlinedInput-notchedOutline css-igs3ac"><legend class="css-yjsfm1"><span>Tell us what to change</span></legend></fieldset></div>
+<div class="MuiDivider-root MuiDivider-withChildren MuiDivider-textAlignLeft" role="presentation"><label class="MuiDivider-wrapper" for="query-recovery-freetext">Tell us what to change</label></div>
+<div class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root"><div class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-multiline"><textarea aria-invalid="false" id="query-recovery-freetext" rows="3" placeholder="Describe only the change. We’ll keep the rest of your question." class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline"></textarea><fieldset aria-hidden="true" class="MuiOutlinedInput-notchedOutline"><legend><span class="notranslate">​</span></legend></fieldset></div></div>
 </div>
+<div class="MuiDialogActions-root MuiDialogActions-spacing">
+<button class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium" tabindex="0" type="button">Cancel query</button>
+<button class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium Mui-disabled" tabindex="-1" disabled="" type="button">Apply changes</button>
 </div>
-<div class="MuiDialogActions-root MuiDialogActions-spacing css-o3m480"><button class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1ujsas3" tabindex="0" type="button">Cancel query<span class="MuiTouchRipple-root css-w0pj6f"></span></button><button class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1hw9j7s" tabindex="-1" type="button" disabled="">Apply changes</button></div>
 </div>
 </div>
 <div tabindex="0" data-testid="sentinelEnd"></div>

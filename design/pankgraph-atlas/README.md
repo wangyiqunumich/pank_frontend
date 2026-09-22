@@ -48,7 +48,8 @@ Redesigned screens follow **Material Design 3** with one shared token sheet, [`s
 | Exact error catalog / source references | `inventories/error-catalog.json` |
 | Error library layout | `errors.html` (outside its generated `catalog-data` block) |
 | Design tokens (type, spacing, shape, color, dimensions) | `styles/design-tokens.css`; rules in `DESIGN-SYSTEM.md` |
-| Redesigned recovery dialog | `styles/recovery-dialog.css` (tokens only) |
+| Recovery dialogs (all 12 states) | `styles/recovery-dialog.css` (tokens only) |
+| Alerts, empty/error panels, inline errors | `styles/message-states.css` (tokens only) |
 | Shared screen controls | `page-runtime.js` |
 | Images and fonts | `assets/`; original public URLs are in `assets/source-provenance.json` |
 

@@ -24,10 +24,13 @@
   --md-sys-color-on-surface-variant:    rgb(89, 99, 110);
   --md-sys-color-outline:               rgb(203, 213, 225);
   --md-sys-color-outline-variant:       rgb(226, 232, 240);
+  --md-sys-color-outline-hover:         rgb(148, 163, 184);   /* medium neutral — hovered inputs */
   --md-sys-color-placeholder:           rgb(148, 163, 184);
   --md-sys-color-error:                 rgb(186, 26, 26);
   --md-sys-color-on-error:              rgb(255, 255, 255);
-  --md-sys-color-error-container:       rgb(255, 218, 214);
+  --md-sys-color-error-container:       rgb(254, 242, 242);   /* existing chart-error tint */
+  --md-sys-color-on-error-container:    rgb(153, 27, 27);
+  --md-sys-color-error-outline:         rgb(252, 165, 165);
   --md-sys-color-scrim:                 rgba(15, 23, 42, 0.40);
   --md-sys-color-shadow:                rgb(15, 23, 42);
 
@@ -75,7 +78,7 @@
   --md-sys-typescale-label-small-size: 11px;     --md-sys-typescale-label-small-line-height: 16px;
   --md-sys-typescale-label-weight: 500;
   --md-sys-typescale-label-tracking: 0.01em;
-  --md-sys-typescale-label-uppercase-tracking: 0.08em;  /* eyebrows, chips, overlines */
+  --md-sys-typescale-label-uppercase-tracking: 0.08em;  /* Level 0 status eyebrow (the only uppercase text) */
 
   /* ---- Spacing scale (4px base unit) ---- */
   --md-sys-spacing-1:  4px;
@@ -145,6 +148,9 @@
   --md-comp-dialog-margin-compact:   16px;
   --md-comp-dialog-padding-compact:  16px;
   --md-comp-scrim-blur:              8px;
+  --md-comp-alert-padding-y:         12px;   /* inline alert / banner */
+  --md-comp-alert-padding-x:         16px;
+  --md-comp-empty-state-illustration: 160px; /* empty / error state artwork */
 }
 
 /* Reusable typography classes — apply instead of restating sizes. */

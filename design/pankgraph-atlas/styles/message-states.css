@@ -1,0 +1,132 @@
+/* ==========================================================================
+   PanKgraph message states — inline alerts, empty / error panels, inline errors.
+   Same design system as recovery-dialog.css; uses ONLY tokens from design-tokens.css.
+   Targets the Material UI classes the app already renders (Alert, Box, Button).
+   ========================================================================== */
+
+/* ---------- Inline alert / banner (MuiAlert, info) ---------- */
+.MuiAlert-root.MuiAlert-standard,
+.MuiAlert-root.MuiAlert-outlined {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--md-sys-spacing-3);
+  padding: var(--md-comp-alert-padding-y) var(--md-comp-alert-padding-x);
+  border: 0;
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-surface);
+  font: var(--md-sys-typescale-body-weight) var(--md-sys-typescale-body-medium-size) / var(--md-sys-typescale-body-medium-line-height) var(--md-ref-typeface-plain);
+  letter-spacing: var(--md-sys-typescale-body-tracking);
+  box-shadow: none;
+}
+.MuiAlert-root.MuiAlert-outlined {
+  background: var(--md-sys-color-surface);
+  box-shadow: inset 0 0 0 var(--md-comp-outline-width) var(--md-sys-color-outline);
+  color: var(--md-sys-color-on-surface);
+}
+.MuiAlert-root .MuiAlert-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  margin: 0;
+  padding: 0;
+  opacity: 1;
+  font-size: var(--md-comp-icon-size);
+  color: var(--md-sys-color-primary);
+}
+.MuiAlert-root .MuiAlert-icon .MuiSvgIcon-root { width: var(--md-comp-icon-size); height: var(--md-comp-icon-size); }
+.MuiAlert-root .MuiAlert-message { flex: 1 1 auto; min-width: 0; padding: var(--md-sys-spacing-1) 0; overflow: visible; }
+.MuiAlert-root .MuiAlert-action { margin: 0 0 0 auto; padding: 0 0 0 var(--md-sys-spacing-2); align-items: center; }
+.MuiAlert-root .MuiAlert-action .MuiIconButton-root {
+  width: var(--md-comp-touch-target);
+  height: var(--md-comp-touch-target);
+  padding: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+.MuiAlert-root .MuiAlert-action .MuiIconButton-root:hover { background: var(--md-sys-state-hover-layer); }
+
+/* ---------- Empty / error state panel (illustration, title, body, actions) ---------- */
+.MuiBox-root.pk-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--md-sys-spacing-4);
+  width: min(var(--md-comp-dialog-width), calc(100vw - var(--md-comp-dialog-margin) * 2));
+  box-sizing: border-box;
+  padding: var(--md-sys-spacing-8) var(--md-comp-dialog-padding);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface);
+  box-shadow: var(--md-sys-elevation-1);
+  text-align: center;
+}
+.MuiBox-root.pk-empty-state > img { width: var(--md-comp-empty-state-illustration); max-width: 100%; margin: 0; }
+/* L1 — panel title */
+.MuiBox-root.pk-empty-state > .MuiTypography-body1:nth-of-type(1) {
+  margin: 0;
+  font: var(--md-sys-typescale-headline-weight) var(--md-sys-typescale-headline-small-size) / var(--md-sys-typescale-headline-small-line-height) var(--md-ref-typeface-brand);
+  letter-spacing: var(--md-sys-typescale-headline-tracking);
+  color: var(--md-sys-color-on-surface);
+  white-space: normal;
+}
+/* L4 — supporting text, pulled up to the header-group gap */
+.MuiBox-root.pk-empty-state > .MuiTypography-body1:nth-of-type(2) {
+  margin: calc(var(--md-sys-spacing-1) - var(--md-sys-spacing-4)) 0 0;
+  max-width: 100%;
+  font: var(--md-sys-typescale-body-weight) var(--md-sys-typescale-body-medium-size) / var(--md-sys-typescale-body-medium-line-height) var(--md-ref-typeface-plain);
+  color: var(--md-sys-color-on-surface-variant);
+}
+/* Actions */
+.MuiBox-root.pk-empty-state > .MuiBox-root { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--md-sys-spacing-2); margin-top: var(--md-sys-spacing-2); }
+.MuiBox-root.pk-empty-state .MuiButton-root {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--md-comp-button-height);
+  min-width: var(--md-comp-button-min-width);
+  padding: 0 var(--md-comp-button-padding-x);
+  box-sizing: border-box;
+  border: 0;
+  border-radius: var(--md-sys-shape-corner-small);
+  font: var(--md-sys-typescale-label-weight) var(--md-sys-typescale-label-large-size) / var(--md-sys-typescale-label-large-line-height) var(--md-ref-typeface-plain);
+  letter-spacing: var(--md-sys-typescale-label-tracking);
+  text-transform: none;
+  box-shadow: none;
+  transition: background-color var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+}
+.MuiBox-root.pk-empty-state .MuiButton-root .MuiTypography-root { margin: 0; font: inherit; letter-spacing: inherit; color: inherit; text-transform: none; }
+.MuiBox-root.pk-empty-state .MuiButton-contained { background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }
+.MuiBox-root.pk-empty-state .MuiButton-contained:hover { background-color: var(--md-sys-color-primary-hover); box-shadow: var(--md-sys-elevation-2); }
+.MuiBox-root.pk-empty-state .MuiButton-text { padding: 0 var(--md-comp-button-text-padding-x); background: transparent; color: var(--md-sys-color-on-surface-variant); }
+.MuiBox-root.pk-empty-state .MuiButton-text:hover { background: var(--md-sys-state-hover-layer); color: var(--md-sys-color-on-surface); }
+.MuiBox-root.pk-empty-state .MuiButton-root:focus-visible { outline: var(--md-sys-focus-ring-width) solid var(--md-sys-color-primary); outline-offset: var(--md-sys-focus-ring-offset); }
+
+/* ---------- Inline error block (e.g. chart failed to load) ---------- */
+.MuiBox-root.pk-inline-error {
+  gap: var(--md-sys-spacing-1);
+  padding: var(--md-sys-spacing-4);
+  border: var(--md-comp-outline-width) solid var(--md-sys-color-error-outline);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-error-container);
+}
+.MuiBox-root.pk-inline-error > .MuiTypography-body1:nth-of-type(1) {
+  margin: 0;
+  font: var(--md-sys-typescale-title-weight) var(--md-sys-typescale-title-small-size) / var(--md-sys-typescale-title-small-line-height) var(--md-ref-typeface-plain);
+  color: var(--md-sys-color-error);
+}
+.MuiBox-root.pk-inline-error > .MuiTypography-body1:nth-of-type(2) {
+  margin: 0;
+  font: var(--md-sys-typescale-body-weight) var(--md-sys-typescale-body-small-size) / var(--md-sys-typescale-body-small-line-height) var(--md-ref-typeface-plain);
+  color: var(--md-sys-color-on-error-container);
+  text-align: center;
+}
+
+/* ---------- Outlined text inputs (shared interaction rule) ----------
+   1px neutral border in every normal state; hover darkens slightly; focus/typing keep the default border
+   (caret + entered text mark the active field); only an error state changes color. Dimensions untouched. */
+.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline { border-width: var(--md-comp-outline-width); border-color: var(--md-sys-color-outline); }
+.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline { border-color: var(--md-sys-color-outline-hover); }
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline,
+.MuiOutlinedInput-root:focus-within .MuiOutlinedInput-notchedOutline { border-width: var(--md-comp-outline-width); border-color: var(--md-sys-color-outline); }
+.MuiOutlinedInput-root:focus-within:hover .MuiOutlinedInput-notchedOutline { border-color: var(--md-sys-color-outline-hover); }
+.MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline,
+.MuiOutlinedInput-root:has([aria-invalid="true"]) .MuiOutlinedInput-notchedOutline { border-color: var(--md-sys-color-error); }

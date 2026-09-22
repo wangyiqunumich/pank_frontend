@@ -79,6 +79,66 @@
     "error-rate_limited.html",
     "error-unknown_failure.html"
   ],
+  "styles/design-tokens.css": [
+    "error-graph_release_mismatch.html",
+    "error-timeout.html",
+    "unavailable.html",
+    "intermediate-empty.html",
+    "error-billing.html",
+    "error-authorization.html",
+    "result-streaming.html",
+    "error-authentication.html",
+    "error-query_validation.html",
+    "intermediate-wide.html",
+    "error-rate_limited.html",
+    "intermediate.html",
+    "error-budget_exhausted.html",
+    "error-empty-plan.html",
+    "intermediate-source-tab.html",
+    "agent-plan.html",
+    "functional-chart-error.html",
+    "error-clarification.html",
+    "error-graph_identity.html",
+    "error-unknown_failure.html",
+    "agent-loading.html"
+  ],
+  "styles/recovery-dialog.css": [
+    "error-graph_release_mismatch.html",
+    "error-timeout.html",
+    "error-billing.html",
+    "error-authorization.html",
+    "error-authentication.html",
+    "error-query_validation.html",
+    "error-rate_limited.html",
+    "error-budget_exhausted.html",
+    "error-empty-plan.html",
+    "error-clarification.html",
+    "error-graph_identity.html",
+    "error-unknown_failure.html"
+  ],
+  "styles/message-states.css": [
+    "error-graph_release_mismatch.html",
+    "error-timeout.html",
+    "unavailable.html",
+    "intermediate-empty.html",
+    "error-billing.html",
+    "error-authorization.html",
+    "result-streaming.html",
+    "error-authentication.html",
+    "error-query_validation.html",
+    "intermediate-wide.html",
+    "error-rate_limited.html",
+    "intermediate.html",
+    "error-budget_exhausted.html",
+    "error-empty-plan.html",
+    "intermediate-source-tab.html",
+    "agent-plan.html",
+    "functional-chart-error.html",
+    "error-clarification.html",
+    "error-graph_identity.html",
+    "error-unknown_failure.html",
+    "agent-loading.html"
+  ],
   "styles/c976116229953555f4a4.css": [
     "tool-gwas.html"
   ],
@@ -228,12 +288,6 @@
     "result-table-fullscreen.html"
   ],
   "styles/eeb20642a1f952fd45fa.css": [
-    "error-clarification.html"
-  ],
-  "styles/design-tokens.css": [
-    "error-clarification.html"
-  ],
-  "styles/recovery-dialog.css": [
     "error-clarification.html"
   ],
   "styles/1de6dda36acdf030729f.css": [
