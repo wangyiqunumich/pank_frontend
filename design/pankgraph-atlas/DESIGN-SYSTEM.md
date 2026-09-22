@@ -2,6 +2,10 @@
 
 Every redesigned screen in this atlas follows Material Design 3 and draws all values from one token sheet: **[`styles/design-tokens.css`](styles/design-tokens.css)**. Component stylesheets ([`styles/recovery-dialog.css`](styles/recovery-dialog.css) for every recovery dialog, [`styles/message-states.css`](styles/message-states.css) for alerts, empty/error panels, inline errors and outlined text inputs) contain no literal sizes or colors; they reference tokens only. This keeps typography, spacing, dimensions and color identical across screens and across future work.
 
+## Scope
+
+Redesigned screens: the 12 **Recovery dialogs** and the 3 **Empty & error states** (feature unavailable, no QTL records, chart service unavailable). All other captures keep the team's original design; only shared atlas tooling (`page-runtime.js` click pass-through for interactive prototypes, `scripts/capture.py`, `scripts/check_tokens.py`) changed outside those screens.
+
 ## Rules
 
 1. **Tokens only.** Use `var(--md-sys-*)` / `var(--md-comp-*)`. If a value is missing, add a token first, then use it. `python3 scripts/check_tokens.py` fails on any hardcoded value.
@@ -84,8 +88,8 @@ Inline messages share the dialog's tokens so a banner, an empty state and a reco
 
 | Component | Where | Spec |
 | --- | --- | --- |
-| Info alert (MuiAlert standard) | "Reconnecting to the saved result…" banners, plan / streaming notices | `primary-container` fill, corner-medium, 12 × 16 padding, 24px primary icon, body-medium on-surface text, no border |
-| Outlined alert (MuiAlert outlined) | Selection hints on credible-set pages | Same, but `surface` fill with 1px `outline`; action icon button 40px |
+| Info alert (MuiAlert standard) | Pages that link `message-states.css` (the 15 Recovery / Empty & error screens); the loading, plan, streaming and credible-set pages keep their original banners | `primary-container` fill, corner-medium, 12 × 16 padding, 24px primary icon, body-medium on-surface text, no border |
+| Outlined alert (MuiAlert outlined) | Available; not applied to the credible-set pages | Same, but `surface` fill with 1px `outline`; action icon button 40px |
 | Full-page state panel (`.pk-state-panel`) | Feature unavailable, no QTL records | Card, illustration and typography keep the page's own styles. Rhythm on tokens: illustration → title 16, title → description 8, description → actions 32; actions are system buttons (40px, corner-small, label-large), filled primary + outlined secondary, 12px apart |
 | Outlined text input | Every MUI outlined field on message pages and in dialogs | 1px `outline` border; `outline-hover` on hover; unchanged on focus/typing; `error` when invalid. Sizes come from the field's own component token |
 | Inline error block | Chart failed to load | `error-container` fill, 1px `error-outline`, corner-medium, 16px padding; title-small in `error`, body-small in `on-error-container` |

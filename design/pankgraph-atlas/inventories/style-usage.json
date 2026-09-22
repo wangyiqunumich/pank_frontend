@@ -86,21 +86,15 @@
     "intermediate-empty.html",
     "error-billing.html",
     "error-authorization.html",
-    "result-streaming.html",
     "error-authentication.html",
     "error-query_validation.html",
-    "intermediate-wide.html",
     "error-rate_limited.html",
-    "intermediate.html",
     "error-budget_exhausted.html",
     "error-empty-plan.html",
-    "intermediate-source-tab.html",
-    "agent-plan.html",
     "functional-chart-error.html",
     "error-clarification.html",
     "error-graph_identity.html",
-    "error-unknown_failure.html",
-    "agent-loading.html"
+    "error-unknown_failure.html"
   ],
   "styles/recovery-dialog.css": [
     "error-graph_release_mismatch.html",
@@ -123,21 +117,15 @@
     "intermediate-empty.html",
     "error-billing.html",
     "error-authorization.html",
-    "result-streaming.html",
     "error-authentication.html",
     "error-query_validation.html",
-    "intermediate-wide.html",
     "error-rate_limited.html",
-    "intermediate.html",
     "error-budget_exhausted.html",
     "error-empty-plan.html",
-    "intermediate-source-tab.html",
-    "agent-plan.html",
     "functional-chart-error.html",
     "error-clarification.html",
     "error-graph_identity.html",
-    "error-unknown_failure.html",
-    "agent-loading.html"
+    "error-unknown_failure.html"
   ],
   "styles/c976116229953555f4a4.css": [
     "tool-gwas.html"
