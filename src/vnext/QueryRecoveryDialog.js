@@ -147,7 +147,7 @@ export default function QueryRecoveryDialog({issue, question, busy, onRevise, on
           : instruction.trim()
             ? 'Apply changes'
             : issue?.retryable
-              ? 'Try again'
+              ? 'Retry original question'
               : 'Apply changes';
 
   const handlePrimary = () => {
@@ -226,7 +226,6 @@ export default function QueryRecoveryDialog({issue, question, busy, onRevise, on
 
     <DialogActions className="query-recovery-actions">
       <Button className="query-recovery-cancel" onClick={onCancel} disabled={busy}>Cancel query</Button>
-      {issue?.retryable && !isReleaseMismatch && !isOperatorIssue && !countDownSeconds && <Button className="query-recovery-retry" onClick={onRetry} disabled={busy}>Retry original question</Button>}
       <Button className="query-recovery-primary" variant="contained" onClick={handlePrimary} disabled={busy || countdown > 0 || (editRequired && !instruction.trim()) || (!issue?.retryable && !isOperatorIssue && !isReleaseMismatch && !instruction.trim())}>
         {primaryLabel}
       </Button>

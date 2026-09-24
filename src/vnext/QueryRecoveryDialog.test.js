@@ -7,10 +7,17 @@ test('empty plan explains internal failure; original question retained and retry
  const retry=jest.fn(),revise=jest.fn(),cancel=jest.fn();
  render(<QueryRecoveryDialog issue={queryRecovery(run,'graph_release_mismatch')} question={run.question} onRetry={retry} onRevise={revise} onCancel={cancel}/>);
  expect(screen.getByRole('alertdialog')).toBeTruthy();expect(screen.getByText(run.question)).toBeTruthy();
+ expect(screen.getAllByRole('button',{name:'Retry original question'})).toHaveLength(1);
  fireEvent.click(screen.getByRole('button',{name:'Retry original question'}));expect(retry).toHaveBeenCalledTimes(1);expect(revise).not.toHaveBeenCalled();
  fireEvent.change(screen.getByLabelText('Tell us what to change'),{target:{value:'Use spleen instead'}});
  fireEvent.click(screen.getByRole('button',{name:'Apply changes'}));expect(revise).toHaveBeenCalledWith('Use spleen instead');
  fireEvent.click(screen.getByRole('button',{name:'Cancel query'}));expect(cancel).toHaveBeenCalledTimes(1);
+});
+test('retryable failures show one original-question retry action',()=>{
+ const issue=queryRecovery({status:'failed',plan:{steps:[{}]},error:{category:'service_or_retrieval_failure'}});
+ render(<QueryRecoveryDialog issue={issue} question="Find islet donors" onRetry={jest.fn()} onRevise={jest.fn()}/>);
+ expect(screen.getAllByRole('button',{name:'Retry original question'})).toHaveLength(1);
+ expect(screen.queryByRole('button',{name:'Try again'})).toBeNull();
 });
 test('suggestions require explicit submission and do not prefill original question',()=>{
  const issue=queryRecovery({status:'awaiting_confirmation',plan:{steps:[{semantic_issues:['Requested stage cannot be uniquely matched.']}],clarification:'Which stage?'}});

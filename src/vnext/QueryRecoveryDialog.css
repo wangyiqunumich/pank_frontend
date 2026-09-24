@@ -169,7 +169,6 @@
 }
 
 .query-recovery-dialog .query-recovery-cancel.MuiButton-root,
-.query-recovery-dialog .query-recovery-retry.MuiButton-root { color: #5b6878; }
 .query-recovery-dialog .query-recovery-primary.MuiButton-root { background: #0b7f77; color: #fff; }
 .query-recovery-dialog .query-recovery-primary.MuiButton-root:hover { background: #086660; box-shadow: none; }
 .query-recovery-dialog .query-recovery-primary.MuiButton-root:disabled { background: rgba(15, 23, 42, 0.12); color: rgba(15, 23, 42, 0.38); }
