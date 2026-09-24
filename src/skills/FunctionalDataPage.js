@@ -226,20 +226,11 @@ function ChartPlaceholder({ height = 240, aspectRatio = null, icon: Icon, loadin
 
   if (error) {
     return (
-      <Box
-        sx={{
-          ...sizeSx,
-          bgcolor: '#FEF2F2', borderRadius: '8px',
-          border: '1.5px solid #FCA5A5',
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center', gap: 1,
-          p: 2,
-        }}
-      >
-        <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#DC2626', fontWeight: 500 }}>
+      <Box className="pk-inline-error" role="alert" sx={sizeSx}>
+        <Typography component="p">
           Failed to load chart
         </Typography>
-        <Typography sx={{ fontFamily: 'Inter', fontSize: 11, color: '#991B1B', textAlign: 'center' }}>
+        <Typography component="p">
           {error}
         </Typography>
       </Box>

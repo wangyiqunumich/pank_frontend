@@ -227,7 +227,7 @@ export default function QueryRecoveryDialog({issue, question, busy, onRevise, on
         />
         <Typography className="query-recovery-helper">Describe only the change. We’ll keep the rest of your question.</Typography>
       </Box>}
-      {busy && <Alert className="query-recovery-busy" severity="info">Updating your search…</Alert>}
+      {busy && <Alert className="query-recovery-busy pk-message-alert" severity="info">Updating your search…</Alert>}
     </DialogContent>
 
     <DialogActions className="query-recovery-actions">

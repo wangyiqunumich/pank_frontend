@@ -147,6 +147,9 @@
 
 .query-recovery-dialog .query-recovery-edit .MuiOutlinedInput-notchedOutline { border-color: #cbd5e1; }
 .query-recovery-dialog .query-recovery-edit .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline { border-color: #94a3b8; }
+.query-recovery-dialog .query-recovery-edit .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline,
+.query-recovery-dialog .query-recovery-edit .MuiOutlinedInput-root:focus-within .MuiOutlinedInput-notchedOutline { border-width: 1px; border-color: #cbd5e1; }
+.query-recovery-dialog .query-recovery-edit .MuiOutlinedInput-root:focus-within:hover .MuiOutlinedInput-notchedOutline { border-color: #94a3b8; }
 .query-recovery-dialog .query-recovery-edit textarea { resize: vertical; }
 .query-recovery-helper.MuiTypography-root { margin: 0; }
 .query-recovery-busy.MuiAlert-root { margin: 0; }

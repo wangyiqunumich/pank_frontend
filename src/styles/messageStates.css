@@ -1,0 +1,69 @@
+/* Atlas-derived message, empty-state and inline-error styles. */
+.pk-message-alert.MuiAlert-root {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--md-sys-spacing-3);
+  padding: var(--md-comp-alert-padding-y) var(--md-comp-alert-padding-x);
+  border: 0;
+  border-radius: var(--md-comp-card-radius);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-surface);
+  font: var(--md-sys-typescale-body-weight) var(--md-sys-typescale-body-medium-size) / var(--md-sys-typescale-body-medium-line-height) var(--md-ref-typeface-plain);
+  box-shadow: none;
+}
+.pk-message-alert.MuiAlert-outlined {
+  background: var(--md-sys-color-surface);
+  box-shadow: inset 0 0 0 var(--md-comp-outline-width) var(--md-sys-color-outline);
+}
+.pk-message-alert .MuiAlert-icon { margin: 0; padding: 0; color: var(--md-sys-color-primary); font-size: var(--md-comp-icon-size); }
+.pk-message-alert .MuiAlert-message { min-width: 0; padding: var(--md-sys-spacing-1) 0; }
+.pk-message-alert .MuiAlert-action { margin: 0 0 0 auto; padding: 0 0 0 var(--md-sys-spacing-2); align-items: center; }
+.pk-message-alert .MuiAlert-action .MuiIconButton-root {
+  width: var(--md-comp-touch-target); height: var(--md-comp-touch-target); padding: 0;
+  border-radius: var(--md-comp-icon-button-radius); color: var(--md-sys-color-on-surface-variant);
+}
+.pk-message-alert .MuiAlert-action .MuiIconButton-root:hover { background: var(--md-sys-state-hover-layer); }
+
+.pk-state-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  text-align: center;
+}
+.pk-state-panel > img { margin: 0 0 var(--md-sys-spacing-4); }
+.pk-state-panel > .pk-state-title { margin: 0 0 var(--md-sys-spacing-2); }
+.pk-state-panel > .pk-state-description { max-width: 100%; margin: 0 0 var(--md-sys-spacing-8); }
+.pk-state-panel__actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--md-sys-spacing-3); }
+.pk-state-panel .MuiButton-root {
+  min-width: var(--md-comp-button-min-width); height: var(--md-comp-button-height); margin: 0;
+  padding: 0 var(--md-comp-button-padding-x); border-radius: var(--md-comp-button-radius);
+  font: var(--md-sys-typescale-label-weight) var(--md-sys-typescale-label-large-size) / var(--md-sys-typescale-label-large-line-height) var(--md-ref-typeface-plain);
+  letter-spacing: var(--md-sys-typescale-label-tracking); text-transform: none; box-shadow: none;
+}
+.pk-state-panel .MuiButton-contained { background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }
+.pk-state-panel .MuiButton-contained:hover { background: var(--md-comp-recovery-primary); box-shadow: var(--md-sys-elevation-2); }
+.pk-state-panel .MuiButton-outlined { border-color: var(--md-sys-color-primary); background: var(--md-sys-color-surface); color: var(--md-sys-color-primary); }
+.pk-state-panel .MuiButton-outlined:hover { background: var(--md-sys-color-secondary-container); }
+.pk-state-panel .MuiButton-root:focus-visible { outline: var(--md-sys-focus-ring-width) solid var(--md-sys-color-primary); outline-offset: var(--md-sys-focus-ring-offset); }
+
+.pk-error-page { display: flex; flex-direction: column; width: 100%; min-width: 0; flex: 1 1 auto; }
+.pk-search-state-wrap .pk-state-title { color: var(--md-sys-color-on-surface); font: var(--md-sys-typescale-headline-weight) var(--md-sys-typescale-headline-small-size) / var(--md-sys-typescale-headline-small-line-height) var(--md-ref-typeface-plain); }
+.pk-search-state-wrap .pk-state-description { color: var(--md-sys-color-on-surface-variant); font: var(--md-sys-typescale-body-weight) var(--md-sys-typescale-body-large-size) / var(--md-sys-typescale-body-large-line-height) var(--md-ref-typeface-plain); }
+.pk-search-state-wrap { display: flex; flex: 1 1 auto; align-items: center; justify-content: center; min-width: 0; min-height: 520px; padding: var(--md-sys-spacing-8) var(--md-sys-spacing-4); }
+.pk-search-state-wrap .pk-state-panel { width: min(100%, 610px); box-sizing: border-box; padding: var(--md-sys-spacing-8); border-radius: var(--md-comp-card-radius); background: var(--md-sys-color-surface); box-shadow: var(--md-sys-elevation-1); }
+.pk-inline-error {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--md-sys-spacing-1); padding: var(--md-sys-spacing-4);
+  border: var(--md-comp-outline-width) solid var(--md-sys-color-error-outline);
+  border-radius: var(--md-comp-card-radius); background: var(--md-sys-color-error-container);
+}
+.pk-inline-error > .MuiTypography-body1:first-child { margin: 0; color: var(--md-sys-color-error); font: var(--md-sys-typescale-title-weight) var(--md-sys-typescale-title-small-size) / var(--md-sys-typescale-title-small-line-height) var(--md-ref-typeface-plain); }
+.pk-inline-error > .MuiTypography-body1:nth-of-type(2) { margin: 0; color: var(--md-sys-color-on-error-container); font: var(--md-sys-typescale-body-weight) var(--md-sys-typescale-body-small-size) / var(--md-sys-typescale-body-small-line-height) var(--md-ref-typeface-plain); text-align: center; }
+
+@media (max-width: 600px) {
+  .pk-search-state-wrap .pk-state-panel { padding: var(--md-sys-spacing-6) var(--md-sys-spacing-4); }
+  .pk-state-panel__actions { width: 100%; }
+  .pk-state-panel__actions .MuiButton-root { flex: 1 1 auto; }
+}
