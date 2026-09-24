@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import { Box, Button, Typography } from '@mui/material';
 
 export function diagnosticsFor(run) {
@@ -6,16 +6,26 @@ export function diagnosticsFor(run) {
   return items.filter(d => /^E\d{2}\.[A-Z_]+$/.test(d?.code || ''));
 }
 
-export default function Diagnostics({items = []}) {
+export default function Diagnostics({items = [], description}) {
+  const [expanded, setExpanded] = useState(false);
+  const detailsId = useId();
   const [copied, setCopied] = useState('');
-  if (!items.length) return null;
+  if (!items.length) return description ? <Typography className="query-recovery-description" id="query-recovery-description">{description}</Typography> : null;
   // Copy only the public diagnostic contract, never the run, prompt or query payload.
   const safe = items.map(d => Object.fromEntries(['code','module','message','reason','severity','blocking','run_id','step_id','attempts','outcome'].filter(k=>d[k]!==undefined).map(k=>[k,d[k]])));
   const copy = async () => {
     try { await navigator.clipboard.writeText(JSON.stringify(safe,null,2)); setCopied('Copied'); }
     catch (_) { setCopied('Copy unavailable; select the details below.'); }
   };
-  return <Box aria-label="Search diagnostics" sx={{borderLeft:'3px solid #b42318',pl:2,my:1}}>
+  const codes = [...new Set(items.map(d => d.code.split('.')[0]))].join(', ');
+  return <>
+    <Typography component="div" className={description ? 'query-recovery-description' : undefined} id={description ? 'query-recovery-description' : undefined}>
+      {description}{description && ' '}
+      <Button size="small" aria-label={`Error ${codes} details`} aria-expanded={expanded} aria-controls={detailsId}
+        onClick={() => setExpanded(value => !value)}
+        sx={{minWidth:0,p:0,verticalAlign:'baseline',fontSize:'0.8em',lineHeight:'inherit',color:'#b42318',textTransform:'none','&:hover':{textDecoration:'underline'}}}>{codes}</Button>
+    </Typography>
+    {expanded && <Box id={detailsId} aria-label="Search diagnostics" sx={{borderLeft:'3px solid #b42318',pl:2,my:1}}>
     {safe.map((d,i)=><Box key={`${d.code}-${d.step_id || i}`} sx={{mb:1}}>
       <Typography sx={{color:'#b42318',fontWeight:700}}>{d.code} · {d.module}</Typography>
       <Typography>{d.message}</Typography>
@@ -24,5 +34,6 @@ export default function Diagnostics({items = []}) {
     </Box>)}
     <details><summary>Technical details</summary><pre style={{whiteSpace:'pre-wrap',overflowWrap:'anywhere'}}>{JSON.stringify(safe,null,2)}</pre></details>
     <Button onClick={copy} size="small">Copy diagnostics</Button><span role="status">{copied}</span>
-  </Box>;
+  </Box>}
+  </>;
 }
