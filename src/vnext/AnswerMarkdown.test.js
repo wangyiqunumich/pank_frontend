@@ -127,3 +127,15 @@ test('legacy HTML formatting is explicit and remains disabled for tool and vNext
   rerender(<AnswerMarkdown answer={answer} density="compact" />);
   expect(screen.queryByTestId('saved-html')).toBeNull();
 });
+
+test.each(['default', 'compact'])('%s clipped cells retain full identifiers and annotations for hover and CSV', async density => {
+  const signal = 'ENSG00000138031__ADCY3__ENSG00000138031.10_25062742_25062900__credibleSet1';
+  const annotation = 'Verified member of both GWAS and QTL credible sets (recorded as QTL lead) [G1]';
+  jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+  const { container } = render(<AnswerMarkdown density={density} answer={`| Signal | Role |\n| --- | --- |\n| ${signal} | ${annotation} |\n| second | short |`} />);
+  expect(container.querySelector('tbody td .answer-table-cell').getAttribute('title')).toBe(signal);
+  fireEvent.click(screen.getByRole('button', { name: 'Download CSV' }));
+  expect(await readBlob(window.URL.createObjectURL.mock.calls[0][0])).toBe(`Signal,Role\n${signal},${annotation}\nsecond,short`);
+  fireEvent.click(screen.getByRole('button', { name: 'Full Screen' }));
+  expect(container.querySelector('.MuiBackdrop-root tbody td .answer-table-cell').textContent).toBe(signal);
+});
