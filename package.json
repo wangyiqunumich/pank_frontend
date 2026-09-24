@@ -65,6 +65,7 @@
     ]
   },
   "devDependencies": {
+    "http-proxy-middleware": "^2.0.7",
     "raw-loader": "^4.0.2",
     "raw.macro": "^0.7.0"
   }

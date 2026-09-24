@@ -482,6 +482,7 @@ export function AgentResultLayout({
         }
     ]);
     const [searchQuery, setSearchQuery] = useState("");
+    const [followUpSubmitPending, setFollowUpSubmitPending] = useState(false);
     const [activeResultIndex, setActiveResultIndex] = useState(0);
     const [activeQuestionIndex, setActiveQuestionIndex] = useState(0);
     const [hoveredResultIndex, setHoveredResultIndex] = useState(null);
@@ -540,7 +541,7 @@ export function AgentResultLayout({
     const feedbackSessionId = activeMeta?.feedbackSessionId || urlSessionId || '';
     const activeQuestionComplete = activeMeta?.isQuestionComplete ?? false;
     const hideFloatingSearchBarByPhase = Boolean(activeMeta?.hideFloatingSearchBar);
-    const hasFloatingInputBar = Boolean(showFloatingSearchBar && !hideFloatingSearchBarByPhase);
+    const hasFloatingInputBar = Boolean(showFloatingSearchBar && activeMeta && !hideFloatingSearchBarByPhase && !followUpSubmitPending);
     const inputError = questionCharacterLimit && Array.from(searchQuery).length > questionCharacterLimit
         ? `Please shorten your question to ${questionCharacterLimit.toLocaleString('en-US')} characters or fewer. Your text has not been changed.` : '';
     const canSearch = allowSearch
@@ -752,6 +753,7 @@ export function AgentResultLayout({
 
     const handleContentMeta = (index) => (meta) => {
         if (!meta) return;
+        if (index === activeResultIndex && meta.hideFloatingSearchBar) setFollowUpSubmitPending(false);
         setContentMetaByIndex((prev) => ({
             ...prev,
             [index]: {
@@ -899,8 +901,14 @@ export function AgentResultLayout({
         // so /chat/message is called on the existing session instead of mounting a new component.
         const followUpHandler = activeMeta?.followUpHandler;
         if (followUpHandler) {
-            const submitted = await followUpHandler(trimmed);
-            if (submitted !== false) setSearchQuery(value => value.trim() === trimmed ? "" : value);
+            setFollowUpSubmitPending(true);
+            try {
+                const submitted = await followUpHandler(trimmed);
+                if (submitted !== false) setSearchQuery(value => value.trim() === trimmed ? "" : value);
+                setFollowUpSubmitPending(false);
+            } catch (_) {
+                setFollowUpSubmitPending(false);
+            }
             return;
         }
 
@@ -1472,7 +1480,7 @@ export function AgentResultLayout({
 
             {inputError && <div role="alert" id="agent-followup-error" style={{ color: "#B91C1C", maxWidth: 1200, margin: "8px auto" }}>{inputError}</div>}
             {/* Floating search bar at bottom */}
-            {showFloatingSearchBar && !hideFloatingSearchBarByPhase ? (
+            {hasFloatingInputBar ? (
                 <div
                     style={{
                         position: "sticky",

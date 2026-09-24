@@ -78,6 +78,13 @@ raw results remain expandable. This presents both evidence tracks without
 asking Claude to synthesize a biomedical answer or implying equal evidence.
 The Anthropic key and usage database stay on the server.
 
+The local vNext UI proxies only `/pankgraph-vnext/api/*` and
+`/pankgraph-vnext/access*` to `https://dev.pankgraph.org`, matching the
+authenticated API namespace used by the deployed dev site. Override the
+server-side proxy target with `PANKGRAPH_DEV_PROXY_TARGET` when testing against
+another compatible environment. This proxy does not add credentials or bypass
+authentication; protected endpoints still require the normal dev-site access.
+
 Run the integrated local page with `npm run start:hirn-demo` and open
 <http://localhost:3001/hirn-literature>.
 

@@ -17,12 +17,19 @@ function RecordedResult({onContentMeta}) {
   useEffect(() => { Promise.resolve().then(() => onContentMeta(meta)); }, []);
   return <div><div id="previous-question-1">Saved INS answer</div><div id="recorded-question-1">Saved SST answer</div></div>;
 }
+function DelayedMetaResult() { return <div>Loading saved question</div>; }
 beforeEach(()=>{
   followUp.mockClear();
   localStorage.clear();
   localStorage.setItem('pank_feedback_auto_prompt_disabled_v1','1');
   window.scrollTo = jest.fn();
   Element.prototype.scrollIntoView = jest.fn();
+});
+test('follow-up composer stays hidden until the initial question phase is known', () => {
+  render(<MemoryRouter initialEntries={['/result-new2?question=SU5T']}>
+    <AgentResultLayout ResultView={DelayedMetaResult} allowSearch showFloatingSearchBar questionCharacterLimit={6000} />
+  </MemoryRouter>);
+  expect(screen.queryByLabelText('Follow-up question')).toBeNull();
 });
 test('native shell follows recorded question anchors and sends free follow-ups through the adapter', async () => {
   render(<MemoryRouter initialEntries={['/result-new2?provider=vnext&run_id=b']}><AgentResultLayout ResultView={RecordedResult} allowSearch showFloatingSearchBar questionCharacterLimit={6000} /></MemoryRouter>);
@@ -36,15 +43,17 @@ test('native shell follows recorded question anchors and sends free follow-ups t
   fireEvent.change(input,{target:{value:'What about glucagon?'}});
   fireEvent.keyPress(input,{key:'Enter',charCode:13});
   expect(followUp).toHaveBeenCalledWith('What about glucagon?');
-  await waitFor(()=>expect(input.value).toBe(''));
+  await waitFor(()=>expect(screen.getByLabelText('Follow-up question').value).toBe(''));
+  const followUpInput = screen.getByLabelText('Follow-up question');
   followUp.mockResolvedValueOnce(false);
-  fireEvent.change(input,{target:{value:'Failed follow-up'}});
-  fireEvent.keyPress(input,{key:'Enter',charCode:13});
+  fireEvent.change(followUpInput,{target:{value:'Failed follow-up'}});
+  fireEvent.keyPress(followUpInput,{key:'Enter',charCode:13});
   await waitFor(()=>expect(followUp).toHaveBeenCalledTimes(2));
-  expect(input.value).toBe('Failed follow-up');
-  fireEvent.change(input,{target:{value:'a'.repeat(6001)}});
-  fireEvent.keyPress(input,{key:'Enter',charCode:13});
+  await waitFor(()=>expect(screen.getByLabelText('Follow-up question').value).toBe('Failed follow-up'));
+  expect(screen.getByLabelText('Follow-up question').value).toBe('Failed follow-up');
+  fireEvent.change(screen.getByLabelText('Follow-up question'),{target:{value:'a'.repeat(6001)}});
+  fireEvent.keyPress(screen.getByLabelText('Follow-up question'),{key:'Enter',charCode:13});
   expect(followUp).toHaveBeenCalledTimes(2);
-  expect(input.value).toHaveLength(6001);
+  expect(screen.getByLabelText('Follow-up question').value).toHaveLength(6001);
   expect(screen.getByText(/Please shorten your question to 6,000/)).toBeTruthy();
 });

@@ -9,7 +9,7 @@ import { AlertMessage } from '../components/SupportingMaterial';
 import SearchResultLoading from './Loading';
 import { upsertRecentChat } from '../utils/chatSessionStorage';
 import { safeLocalStorage } from '../utils/safeStorage';
-import ConnectionNotice from './ConnectionNotice';
+import ConnectionNotice, { ConnectionNoticeGroup } from './ConnectionNotice';
 import QueryRecoveryDialog, { queryRecovery } from './QueryRecoveryDialog';
 import Diagnostics, { diagnosticsFor } from './Diagnostics';
 import AnswerMarkdown from './AnswerMarkdown';
@@ -265,11 +265,17 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     catch (err) { setError(err.message); } finally { setBusy(false); }
   }, [attachRun, busy]);
   const cancel = useCallback(async () => {
+    const currentRun = runRef.current;
+    // Leave immediately; the bootstrap/create request may still be pending.
+    // Once it yields an id, best-effort cancel the server-side run as well.
+    streamRef.current?.(); streamRef.current = null;
+    readController.current?.abort(); readController.current = null;
+    loadVersion.current += 1;
+    navigate('/');
     try {
-      const pending = runRef.current?.run_id ? runRef.current : await bootstrapRef.current;
+      const pending = currentRun?.run_id ? currentRun : await bootstrapRef.current;
       if (pending?.run_id) await cancelRun(pending.run_id);
-    } catch (err) { setError(err.message); return; }
-    streamRef.current?.(); navigate('/');
+    } catch (_) { /* Leaving the page must not wait on a failed or slow cancel request. */ }
   }, [navigate]);
   const followUp = useCallback(async (question) => {
     if (!question?.trim() || followUpPending.current || !TERMINAL_RUNS.has(runRef.current?.status)) return false;
@@ -320,8 +326,10 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
   const progress = liveProgress(run, connection);
   if (!recovery && ((!run && error) || (TERMINAL_RUNS.has(run?.status) && !run?.plan))) return <ErrorComponent errorTitle="Investigation could not finish" errorMessage={error || run?.error?.message || `Investigation ${run.status}.`} />;
   return <>
-    <ConnectionNotice status={connection} onReconnect={() => { if (readRunId.current) attachRun(readRunId.current); }} />
-    <ConnectionNotice status={resultConnection.status} onReconnect={resultConnection.reconnect} />
+    <ConnectionNoticeGroup notices={[
+      { status: connection, onReconnect: () => { if (readRunId.current) attachRun(readRunId.current); } },
+      { status: resultConnection.status, onReconnect: resultConnection.reconnect },
+    ]} />
     {!recovery && ['partial','completed'].includes(run?.status) && <Diagnostics items={diagnosticsFor(run)} />}
     <QueryRecoveryDialog issue={recovery} question={run?.plan?.original_question || run?.question || decodeQuestion(route.get('question'))} busy={busy} onRevise={retryRecovery} onRetry={()=>retryRecovery()} onCancel={cancel} />
     {failedFollowUp && <Box role="alert" sx={{ p: 2 }}><Typography>Could not submit follow-up: {failedFollowUp.message}</Typography><Typography>{failedFollowUp.question}</Typography><Button disabled={busy} onClick={() => followUp(failedFollowUp.question)}>Retry follow-up</Button></Box>}

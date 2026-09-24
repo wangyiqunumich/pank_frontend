@@ -1,6 +1,6 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import AgentResultView, { ConventionalResultView, useProjectedResult, readPriorConversation } from './ResultView';
 import ConnectionNotice from './ConnectionNotice';
 import * as api from './api';
@@ -20,6 +20,7 @@ beforeEach(() => {
   api.watchRun.mockReturnValue(jest.fn());
 });
 const mount = () => render(<MemoryRouter initialEntries={['/result-new2?run_id=r1']}><AgentResultView contentAnchorPrefix="lifecycle" onContentMeta={jest.fn()} /></MemoryRouter>);
+function RouteProbe() { return <div data-testid="current-route">{useLocation().pathname}</div>; }
 
 test('saved run hydrates preview, resumes cursor, and does not create a model call', async () => {
   const { unmount } = mount();
@@ -29,6 +30,20 @@ test('saved run hydrates preview, resumes cursor, and does not create a model ca
   expect(api.createResultOnce).toHaveBeenCalledTimes(1);
   unmount();
   expect(api.watchRun.mock.results[0].value).toHaveBeenCalled();
+});
+test('cancel leaves immediately while plan creation is still pending, then cancels the created run', async () => {
+  let finishCreation;
+  api.createPlanOnce.mockReturnValue(new Promise((resolve) => { finishCreation = resolve; }));
+  api.cancelRun.mockReturnValue(new Promise(() => {}));
+  render(<MemoryRouter initialEntries={[`/result-new2?question=${btoa('Which cells express INS?')}`]}>
+    <AgentResultView contentAnchorPrefix="lifecycle" onContentMeta={jest.fn()} />
+    <RouteProbe />
+  </MemoryRouter>);
+  const cancel = await screen.findByRole('button', { name: 'Cancel and ask a new question' });
+  fireEvent.click(cancel);
+  expect(screen.getByTestId('current-route').textContent).toBe('/');
+  finishCreation({ run_id: 'created-run' });
+  await waitFor(() => expect(api.cancelRun).toHaveBeenCalledWith('created-run'));
 });
 test('revision creates a fresh run and graph while preserving the edited biological question', async () => {
   api.revisePlan.mockResolvedValue({ run_id: 'r2' });
