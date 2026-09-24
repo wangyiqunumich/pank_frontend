@@ -233,7 +233,7 @@ export default function QueryRecoveryDialog({issue, question, busy, onRevise, on
 
     <DialogActions className="query-recovery-actions">
       <Button className="query-recovery-cancel" onClick={onCancel} disabled={busy}>Cancel query</Button>
-      <Button className="query-recovery-primary" variant="contained" onClick={handlePrimary} disabled={busy || countdown > 0 || (editRequired && !instruction.trim()) || (!issue?.retryable && !isOperatorIssue && !isReleaseMismatch && !instruction.trim())}>
+      <Button className="query-recovery-primary" variant={primaryLabel === 'Retry original question' ? 'outlined' : 'contained'} onClick={handlePrimary} disabled={busy || countdown > 0 || (editRequired && !instruction.trim()) || (!issue?.retryable && !isOperatorIssue && !isReleaseMismatch && !instruction.trim())}>
         {primaryLabel}
       </Button>
     </DialogActions>
