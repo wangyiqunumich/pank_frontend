@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, TextField, Button, Box, Alert, IconButton } from '@mui/material';
 import './QueryRecoveryDialog.css';
+import Diagnostics, { diagnosticsFor } from './Diagnostics';
 
 const FALLBACK_FAILURE = {
   category: 'service_or_retrieval_failure', title: 'The search could not finish',
@@ -32,7 +33,7 @@ function errorCode(error) {
   return typeof error === 'string' ? error : error?.category || error?.code || '';
 }
 
-export function queryRecovery(run, error = '') {
+function recoveryFor(run, error = '') {
   if (['cancelled', 'superseded'].includes(run?.status)) return null;
   const plan = run?.plan;
   const terminalFailure = ['failed', 'interrupted'].includes(run?.status);
@@ -101,6 +102,11 @@ function recoveryEyebrow(category = '') {
     timeout: 'Timeout', service_or_retrieval_failure: 'Unknown failure',
   };
   return labels[category] || 'Search recovery';
+}
+
+export function queryRecovery(run, error = '') {
+  const issue = recoveryFor(run, error);
+  return issue ? {...issue, diagnostics: diagnosticsFor(run)} : null;
 }
 
 export default function QueryRecoveryDialog({issue, question, busy, onRevise, onRetry, onCancel}) {
@@ -179,6 +185,7 @@ export default function QueryRecoveryDialog({issue, question, busy, onRevise, on
 
     <DialogContent className="query-recovery-content">
       <Typography className="query-recovery-description" id="query-recovery-description">{issue?.message}</Typography>
+      <Diagnostics items={issue?.diagnostics || []} />
       <Box className="query-recovery-original" aria-label="Your original question">
         <Typography className="query-recovery-supporting">Your original question</Typography>
         <Typography>{question}</Typography>

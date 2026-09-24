@@ -11,6 +11,7 @@ import { upsertRecentChat } from '../utils/chatSessionStorage';
 import { safeLocalStorage } from '../utils/safeStorage';
 import ConnectionNotice from './ConnectionNotice';
 import QueryRecoveryDialog, { queryRecovery } from './QueryRecoveryDialog';
+import Diagnostics, { diagnosticsFor } from './Diagnostics';
 import AnswerMarkdown from './AnswerMarkdown';
 import FunctionalVisual from './FunctionalVisual';
 import SummaryInsertions from './SummaryInsertions';
@@ -321,6 +322,7 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
   return <>
     <ConnectionNotice status={connection} onReconnect={() => { if (readRunId.current) attachRun(readRunId.current); }} />
     <ConnectionNotice status={resultConnection.status} onReconnect={resultConnection.reconnect} />
+    {!recovery && ['partial','completed'].includes(run?.status) && <Diagnostics items={diagnosticsFor(run)} />}
     <QueryRecoveryDialog issue={recovery} question={run?.plan?.original_question || run?.question || decodeQuestion(route.get('question'))} busy={busy} onRevise={retryRecovery} onRetry={()=>retryRecovery()} onCancel={cancel} />
     {failedFollowUp && <Box role="alert" sx={{ p: 2 }}><Typography>Could not submit follow-up: {failedFollowUp.message}</Typography><Typography>{failedFollowUp.question}</Typography><Button disabled={busy} onClick={() => followUp(failedFollowUp.question)}>Retry follow-up</Button></Box>}
     <AlertMessage type="warning" content={error || resultError} open={!recovery && Boolean(error || resultError)} onClose={() => setError('')} />
