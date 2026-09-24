@@ -184,8 +184,7 @@ export default function QueryRecoveryDialog({issue, question, busy, onRevise, on
     </IconButton>
 
     <DialogContent className="query-recovery-content">
-      <Typography className="query-recovery-description" id="query-recovery-description">{issue?.message}</Typography>
-      <Diagnostics items={issue?.diagnostics || []} />
+      <Diagnostics key={JSON.stringify(issue)} description={issue?.message} items={issue?.diagnostics || []} />
       <Box className="query-recovery-original" aria-label="Your original question">
         <Typography className="query-recovery-supporting">Your original question</Typography>
         <Typography>{question}</Typography>

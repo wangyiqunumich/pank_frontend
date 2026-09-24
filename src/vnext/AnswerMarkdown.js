@@ -219,6 +219,19 @@ export default function AnswerMarkdown({ answer = '', references = [], reference
         return '';
     };
 
+    // Clamp presentation only: source children remain intact for CSV and full-text hover.
+    const renderTableCell = (children, kind) => (
+        <Box className="answer-table-cell" title={extractTextFromNode(children)} sx={{
+            display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2,
+            overflow: 'hidden', overflowWrap: 'anywhere', whiteSpace: 'normal',
+            fontSize: bodyFontSize, lineHeight: '1.4em', maxHeight: '2.8em',
+            '& *': { lineHeight: 'inherit', maxWidth: '100%' },
+            '& p, & ul, & ol, & pre': { margin: 0 },
+        }}>
+            {renderChildrenWithPmids(children, kind, false, mainReferenceAnchorByPmid)}
+        </Box>
+    );
+
     const extractTableMatrix = (children) => {
         const elements = React.Children.toArray(children).filter((child) => React.isValidElement(child));
         const thead = elements.find((el) => el.type === 'thead');
@@ -418,6 +431,7 @@ export default function AnswerMarkdown({ answer = '', references = [], reference
                             maxHeight: expanded ? 420 : 'none',
                             '& table': {
                                 width: '100%',
+                                tableLayout: 'fixed',
                                 borderCollapse: 'collapse',
                                 margin: 0,
                                 borderTop: 'none',
@@ -440,7 +454,7 @@ export default function AnswerMarkdown({ answer = '', references = [], reference
                                 verticalAlign: 'middle',
                             },
                             '& th': {
-                                height: 38,
+                                height: 'auto',
                             },
                             '& tbody tr:nth-of-type(n+4)': expanded ? undefined : { display: 'none' },
                             ...(expanded
@@ -567,6 +581,7 @@ export default function AnswerMarkdown({ answer = '', references = [], reference
                                 overflow: 'auto',
                                 '& table': {
                                     width: '100%',
+                                    tableLayout: 'fixed',
                                     borderCollapse: 'collapse',
                                     margin: 0,
                                     borderTop: 'none',
@@ -593,7 +608,7 @@ export default function AnswerMarkdown({ answer = '', references = [], reference
                                     verticalAlign: 'middle',
                                 },
                                 '& th': {
-                                    height: 38,
+                                    height: 'auto',
                                 },
                             }}
                         >
@@ -652,6 +667,7 @@ export default function AnswerMarkdown({ answer = '', references = [], reference
                 },
                 '& table': {
                     width: '100%',
+                    tableLayout: 'fixed',
                     borderCollapse: 'collapse',
                     margin: '0.8em 0',
                     borderTop: '1px solid #CBD5E1',
@@ -700,8 +716,8 @@ export default function AnswerMarkdown({ answer = '', references = [], reference
                     h2: ({ children }) => <Typography component="h2" sx={{ fontSize: compact ? 14 : 22 }}>{renderChildrenWithPmids(children, 'h2', false, mainReferenceAnchorByPmid)}</Typography>,
                     h3: ({ children }) => <Typography component="h3" sx={{ fontSize: compact ? 13 : 18 }}>{renderChildrenWithPmids(children, 'h3', false, mainReferenceAnchorByPmid)}</Typography>,
                     h4: ({ children }) => <Typography component="h4" sx={{ fontSize: compact ? 12 : 16 }}>{renderChildrenWithPmids(children, 'h4', false, mainReferenceAnchorByPmid)}</Typography>,
-                    th: ({ children }) => <th>{renderChildrenWithPmids(children, 'th', false, mainReferenceAnchorByPmid)}</th>,
-                    td: ({ children }) => <td>{renderChildrenWithPmids(children, 'td', false, mainReferenceAnchorByPmid)}</td>,
+                    th: ({ children }) => <th>{renderTableCell(children, 'th')}</th>,
+                    td: ({ children }) => <td>{renderTableCell(children, 'td')}</td>,
                     table: ({ children }) => {
                         const { header, bodyRows } = extractTableMatrix(children);
                         const shouldNumberTable = !(header.length > 0 && bodyRows.length === 1);
