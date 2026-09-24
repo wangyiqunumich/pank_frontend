@@ -1,0 +1,834 @@
+[
+  {
+    "id": "landing",
+    "title": "Landing / new chat",
+    "route": "/",
+    "group": "Entry & navigation",
+    "parent": null,
+    "source": "src/components/AgentLandingPage.js",
+    "description": "Current default agent entry page with conversation sidebar, prompt composer and example topics.",
+    "kind": "current UI",
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    },
+    "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+  },
+  {
+    "id": "landing-classic",
+    "title": "Classic landing",
+    "route": "/old-landing",
+    "group": "Entry & navigation",
+    "parent": "landing",
+    "source": "src/components/LandingPage.js",
+    "description": "Retained classic landing route and search experience.",
+    "kind": "current UI",
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    },
+    "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+  },
+  {
+    "id": "navigation-menu",
+    "title": "Global PanKgraph menu",
+    "route": "/",
+    "group": "Entry & navigation",
+    "parent": "landing",
+    "description": "Desktop PanKgraph navigation dropdown with tool and documentation destinations. Dropdown appearance retained in static export.",
+    "source": "src/NavBar/index.js",
+    "kind": "current UI",
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    },
+    "captureNote": "Rendered current source locally. APIs blocked; synthetic fixtures are labeled. No inference or private donor data."
+  },
+  {
+    "id": "landing-mobile",
+    "title": "Mobile landing",
+    "route": "/",
+    "group": "Entry & navigation",
+    "parent": "landing",
+    "description": "Current landing page at a 390px viewport for responsive layout review.",
+    "source": "src/components/AgentLandingPage.js; src/NavBar/index.js",
+    "kind": "current UI",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "captureNote": "Rendered current source locally. APIs blocked; synthetic fixtures are labeled. No inference or private donor data."
+  },
+  {
+    "id": "navigation-mobile",
+    "title": "Mobile navigation drawer",
+    "route": "/",
+    "group": "Entry & navigation",
+    "parent": "landing-mobile",
+    "description": "Current global navigation drawer opened at 390px viewport.",
+    "source": "src/NavBar/index.js",
+    "kind": "current UI",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "captureNote": "Source UI navigation interaction captured locally; APIs blocked."
+  },
+  {
+    "id": "agent-loading",
+    "title": "Investigation · preparing evidence",
+    "route": "/result-new2?run_id=design-run",
+    "group": "Agent investigation",
+    "parent": "landing",
+    "kind": "Current UI + synthetic fixture",
+    "description": "Rendered current components with synthetic display content. No live query was submitted.",
+    "source": "src/vnext/ResultView.js"
+  },
+  {
+    "id": "agent-plan",
+    "title": "Plan review · confirm or revise",
+    "route": "/result-new2?run_id=design-run",
+    "group": "Agent investigation",
+    "parent": "agent-loading",
+    "kind": "Current UI + synthetic fixture",
+    "description": "Rendered current components with synthetic display content. No live query was submitted.",
+    "source": "src/vnext/ResultView.js"
+  },
+  {
+    "id": "agent-result",
+    "title": "Agent result · overview",
+    "route": "/result-new2?run_id=design-run",
+    "group": "Agent investigation",
+    "parent": "agent-plan",
+    "kind": "Current UI + synthetic fixture",
+    "description": "Rendered current components with synthetic display content. No live query was submitted.",
+    "source": "src/vnext/ResultView.js"
+  },
+  {
+    "id": "tools",
+    "title": "Tool library",
+    "route": "/skills",
+    "group": "Tools",
+    "parent": "landing",
+    "source": "src/pages/SkillsPage.js",
+    "description": "Current subagent library and links to specialized exploration tools.",
+    "kind": "current UI",
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    },
+    "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+  },
+  {
+    "id": "tool-qtl-gene",
+    "title": "QTL explorer — gene",
+    "route": "/qtl-explorer",
+    "group": "Tools",
+    "parent": "tools",
+    "source": "src/skills/QTLExplorerPage.js",
+    "description": "Default QTL gene search, configuration, examples and context panel.",
+    "kind": "current UI",
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    },
+    "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+  },
+  {
+    "id": "tool-qtl-snp",
+    "title": "QTL explorer — SNP",
+    "route": "/qtl-explorer",
+    "group": "Tools",
+    "parent": "tool-qtl-gene",
+    "description": "SNP mode selected through the current tool controls.",
+    "source": "src/skills/QTLExplorerPage.js",
+    "kind": "current UI",
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    },
+    "captureNote": "Rendered current source locally. APIs blocked; synthetic fixtures are labeled. No inference or private donor data."
+  },
+  {
+    "id": "tool-qtl-pair",
+    "title": "QTL explorer — SNP + gene",
+    "route": "/qtl-explorer",
+    "group": "Tools",
+    "parent": "tool-qtl-gene",
+    "description": "SNP + gene mode with both input fields.",
+    "source": "src/skills/QTLExplorerPage.js",
+    "kind": "current UI",
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    },
+    "captureNote": "Rendered current source locally. APIs blocked; synthetic fixtures are labeled. No inference or private donor data."
+  },
+  {
+    "id": "tool-gwas",
+    "title": "GWAS explorer",
+    "route": "/gwas-explorer",
+    "group": "Tools",
+    "parent": "tools",
+    "source": "src/skills/GWASExplorerPage.js",
+    "description": "Current GWAS explorer configuration and supporting content.",
+    "kind": "current UI",
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    },
+    "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+  },
+  {
+    "id": "functional-populated",
+    "title": "Functional Data · populated synthetic cohort",
+    "route": "/functional-data",
+    "group": "Tools",
+    "parent": "tool-functional",
+    "states": [
+      "Cohort filters",
+      "response plot",
+      "trait plot",
+      "metadata preview"
+    ],
+    "synthetic": true,
+    "fixture": "Synthetic source-shaped values; all service APIs intercepted; no live requests",
+    "source": "pank_frontend_vnext/src/skills/FunctionalDataPage.js"
+  },
+  {
+    "id": "functional-metadata",
+    "title": "Functional Data · donor metadata full screen",
+    "route": "/functional-data",
+    "group": "Tools",
+    "parent": "functional-populated",
+    "states": [
+      "Metadata fullscreen overlay",
+      "eight EXAMPLE records",
+      "download action"
+    ],
+    "synthetic": true,
+    "fixture": "Synthetic source-shaped values; all service APIs intercepted; no live requests",
+    "source": "pank_frontend_vnext/src/skills/FunctionalDataPage.js"
+  },
+  {
+    "id": "tool-functional",
+    "title": "Functional data explorer — service unavailable",
+    "route": "/functional-data",
+    "group": "Tools",
+    "parent": "tools",
+    "source": "src/skills/FunctionalDataPage.js",
+    "description": "Current functional tool layout and controls rendered with a synthetic 503 response to show its authentic chart-error treatment. No donor records are included.",
+    "kind": "static fixture",
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    },
+    "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+  },
+  {
+    "id": "tool-functional-table",
+    "title": "Functional donor table overlay",
+    "route": "/functional-data",
+    "group": "Tools",
+    "parent": "tool-functional-populated",
+    "description": "Full donor table overlay opened through Show more. All six rows are explicit synthetic design placeholders.",
+    "source": "src/skills/FunctionalDataPage.js",
+    "kind": "static fixture",
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    },
+    "captureNote": "Current source rendered using explicitly synthetic local API responses. DEMO rows are invented UI placeholders, not actual donors; chart areas contain no biological data."
+  },
+  {
+    "id": "tool-functional-populated",
+    "title": "Functional explorer — populated layout",
+    "route": "/functional-data",
+    "group": "Tools",
+    "parent": "tools",
+    "description": "Current functional tool with synthetic metadata rows and neutral chart-area fixtures. Demonstrates populated layout without donor data.",
+    "source": "src/skills/FunctionalDataPage.js",
+    "kind": "static fixture",
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    },
+    "captureNote": "Current source rendered using explicitly synthetic local API responses. DEMO rows are invented UI placeholders, not actual donors; chart areas contain no biological data."
+  },
+  {
+    "id": "tool-qtl-suggestions",
+    "title": "QTL gene suggestions",
+    "route": "/qtl-explorer",
+    "group": "Tools",
+    "parent": "tool-qtl-gene",
+    "description": "Input opened to show default source-provided gene suggestions.",
+    "source": "src/skills/QTLExplorerPage.js",
+    "kind": "current UI",
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    },
+    "captureNote": "Rendered current source locally. APIs blocked; synthetic fixtures are labeled. No inference or private donor data."
+  },
+  {
+    "id": "intermediate",
+    "title": "Credible-set selection · populated source tabs",
+    "route": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000254647&targetSymbol=INS&resultLayout=new",
+    "group": "Conventional search",
+    "parent": "tool-qtl-gene",
+    "source": "pank_frontend_vnext/src/components/IntermediatePage.js",
+    "states": [
+      "Pancreatic eQTL rows",
+      "source tabs",
+      "download",
+      "view result"
+    ],
+    "synthetic": true,
+    "fixture": "Synthetic source-shaped values; all service APIs intercepted; no live requests"
+  },
+  {
+    "id": "conventional-result",
+    "title": "Conventional result · overview",
+    "route": "/result-new?sourceTerm=gene@ENSG00000254647&relationship=QTL&targetTerm=snp",
+    "group": "Conventional search",
+    "parent": "intermediate",
+    "kind": "Current UI + synthetic fixture",
+    "description": "Rendered current components with synthetic display content. No live query was submitted.",
+    "source": "src/vnext/ResultView.js"
+  },
+  {
+    "id": "legacy-result",
+    "title": "Classic result layout",
+    "route": "/result?sourceTerm=gene@ENSG00000254647&relationship=QTL&targetTerm=snp",
+    "group": "Conventional search",
+    "parent": "intermediate",
+    "kind": "Current UI + synthetic fixture",
+    "description": "Rendered current components with synthetic display content. No live query was submitted.",
+    "source": "src/vnext/ResultView.js"
+  },
+  {
+    "id": "intermediate-source-tab",
+    "title": "Credible-set selection · Islet eQTL tab",
+    "route": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000254647&targetSymbol=INS&resultLayout=new",
+    "group": "Conventional search",
+    "parent": "intermediate",
+    "source": "pank_frontend_vnext/src/components/IntermediatePage.js",
+    "states": [
+      "Alternative source tab",
+      "one source-scoped example row"
+    ],
+    "synthetic": true,
+    "fixture": "Synthetic source-shaped values; all service APIs intercepted; no live requests"
+  },
+  {
+    "id": "intermediate-wide",
+    "title": "Credible-set selection · full desktop width",
+    "route": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000254647&targetSymbol=INS&resultLayout=new",
+    "group": "Conventional search",
+    "parent": "intermediate",
+    "source": "pank_frontend_vnext/src/components/IntermediatePage.js",
+    "states": [
+      "Full table including View action",
+      "Complete graph",
+      "1920 px desktop viewport"
+    ],
+    "synthetic": true,
+    "fixture": "Synthetic source-shaped values; all service APIs intercepted; no live requests",
+    "description": " Wide viewport captured at 1920px to show all columns; the standard viewport preserves the current horizontal overflow."
+  },
+  {
+    "id": "match",
+    "title": "Classic question matching",
+    "route": "/match?qid=1&returnTo=%2Fold-landing",
+    "group": "Search & review",
+    "parent": "landing-classic",
+    "source": "src/components/MatchPage.js",
+    "description": "Retained question-matching form with the source gene-to-QTL question selected.",
+    "kind": "current UI",
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    },
+    "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+  },
+  {
+    "id": "result-empirical-evidence",
+    "title": "Result · Empirical Evidence",
+    "route": "/result-new2",
+    "group": "Result views",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture",
+    "description": "Current supporting materials tab populated with illustrative content.",
+    "source": "src/vnext/Resources.js"
+  },
+  {
+    "id": "result-external-links",
+    "title": "Result · External Links",
+    "route": "/result-new2",
+    "group": "Result views",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture",
+    "description": "Current supporting materials tab populated with illustrative content.",
+    "source": "src/vnext/Resources.js"
+  },
+  {
+    "id": "result-pankbase-links",
+    "title": "Result · Pankbase Links",
+    "route": "/result-new2",
+    "group": "Result views",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture",
+    "description": "Current supporting materials tab populated with illustrative content.",
+    "source": "src/vnext/Resources.js"
+  },
+  {
+    "id": "result-functional",
+    "title": "Result · functional data plot",
+    "route": "/result-new2?run_id=design-run",
+    "group": "Result views",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture",
+    "description": "Rendered current components with synthetic display content. No live query was submitted.",
+    "source": "src/vnext/ResultView.js"
+  },
+  {
+    "id": "result-source-data",
+    "title": "AI Overview · source data download",
+    "description": "Current source-data insertion box with a valid typed synthetic association-table asset; included TSV contains EXAMPLE records only.",
+    "source": "src/vnext/SummaryInsertions.js; src/vnext/resultPageSchema.js",
+    "route": "/result-new2?run_id=design-run",
+    "group": "Result details",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture",
+    "synthetic": true,
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    }
+  },
+  {
+    "id": "result-table-fullscreen",
+    "title": "Answer table · full screen",
+    "description": "Current Markdown table expanded for review. Synthetic display rows.",
+    "source": "src/components/ResultComponent.js",
+    "route": "/result-new2",
+    "group": "Result details",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture"
+  },
+  {
+    "id": "result-plot-lightbox",
+    "title": "Empirical plot · lightbox",
+    "description": "Current plot lightbox. The image contains synthetic values.",
+    "source": "src/vnext/Resources.js",
+    "route": "/result-new2",
+    "group": "Result details",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture"
+  },
+  {
+    "id": "result-external-expanded",
+    "title": "External sources · expanded group",
+    "description": "Linked entities and provenance appear inside expanded source groups.",
+    "source": "src/vnext/ExternalLinksPanel.js",
+    "route": "/result-new2",
+    "group": "Result details",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture"
+  },
+  {
+    "id": "result-feedback",
+    "title": "Feedback · form",
+    "description": "Reachable form. Submission is unavailable in the current demo. The question selector currently shows source fallback question text; this is a current UI gap.",
+    "source": "src/SearchResult/AgentResult.js",
+    "route": "/result-new2",
+    "group": "Result details",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture"
+  },
+  {
+    "id": "result-feedback-error",
+    "title": "Feedback · submission unavailable",
+    "description": "Current feedback submission failure. No message is sent.",
+    "source": "src/SearchResult/AgentResult.js",
+    "route": "/result-new2",
+    "group": "Result details",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture"
+  },
+  {
+    "id": "result-functional-expanded",
+    "title": "Functional result · expanded plot",
+    "description": "Current Functional Data plot dialog with illustrative synthetic chart and Close plot control.",
+    "source": "src/vnext/FunctionalVisual.js",
+    "route": "/result-new2?run_id=design-run",
+    "group": "Result details",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture",
+    "synthetic": true,
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    }
+  },
+  {
+    "id": "result-graph-fullscreen",
+    "title": "Knowledge graph · full screen",
+    "description": "Current graph viewer full screen mode. Synthetic graph.",
+    "source": "src/components/KnowledgeGraph.js",
+    "route": "/result-new2",
+    "group": "Result details",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture"
+  },
+  {
+    "id": "result-graph-legend",
+    "title": "Knowledge graph · legend",
+    "description": "Expanded graph legend and viewer controls.",
+    "source": "src/components/KnowledgeGraph.js",
+    "route": "/result-new2",
+    "group": "Result details",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture"
+  },
+  {
+    "id": "result-node-inspector",
+    "title": "Knowledge graph · node inspector",
+    "description": "Current recorded-field inspector for a synthetic node.",
+    "source": "src/components/KnowledgeGraph.js",
+    "route": "/result-new2",
+    "group": "Result details",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture"
+  },
+  {
+    "id": "result-graph-list",
+    "title": "Knowledge graph · ordered relationship list",
+    "description": "Actual relationship_list layout function applied locally to a synthetic 13-node / 12-edge star; existing graph renderer and vertical exploration behavior. No graph query was submitted.",
+    "source": "PanKagent_vnext/pankgraph_results/list_layout.py; src/components/KnowledgeGraph.js",
+    "route": "/result-new2?run_id=design-run",
+    "group": "Result details",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture",
+    "synthetic": true,
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    }
+  },
+  {
+    "id": "result-edge-inspector",
+    "title": "Knowledge graph · relationship inspector",
+    "description": "Current hover inspector for a synthetic gene-to-cell relationship; all evidence values illustrative.",
+    "source": "src/components/KnowledgeGraph.js",
+    "route": "/result-new2?run_id=design-run",
+    "group": "Result details",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture",
+    "synthetic": true,
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    }
+  },
+  {
+    "id": "result-streaming",
+    "title": "Result · answer and literature arriving",
+    "route": "/result-new2?run_id=design-run",
+    "group": "Result states",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture",
+    "description": "Rendered current components with synthetic display content. No live query was submitted.",
+    "source": "src/vnext/ResultView.js"
+  },
+  {
+    "id": "result-empty",
+    "title": "Result · no matching graph evidence",
+    "route": "/result-new2?run_id=design-run",
+    "group": "Result states",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture",
+    "description": "Rendered current components with synthetic display content. No live query was submitted.",
+    "source": "src/vnext/ResultView.js"
+  },
+  {
+    "id": "result-partial",
+    "title": "Result · partial literature and resources",
+    "route": "/result-new2?run_id=design-run",
+    "group": "Result states",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture",
+    "description": "Rendered current components with synthetic display content. No live query was submitted.",
+    "source": "src/vnext/ResultView.js"
+  },
+  {
+    "id": "error-authentication",
+    "title": "Recovery · authentication",
+    "route": "/result-new2?run_id=design-run",
+    "group": "Recovery dialogs",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture",
+    "description": "Rendered current components with synthetic display content. No live query was submitted.",
+    "source": "src/vnext/QueryRecoveryDialog.js"
+  },
+  {
+    "id": "error-authorization",
+    "title": "Recovery · authorization",
+    "route": "/result-new2?run_id=design-run",
+    "group": "Recovery dialogs",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture",
+    "description": "Rendered current components with synthetic display content. No live query was submitted.",
+    "source": "src/vnext/QueryRecoveryDialog.js"
+  },
+  {
+    "id": "error-billing",
+    "title": "Recovery · billing",
+    "route": "/result-new2?run_id=design-run",
+    "group": "Recovery dialogs",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture",
+    "description": "Rendered current components with synthetic display content. No live query was submitted.",
+    "source": "src/vnext/QueryRecoveryDialog.js"
+  },
+  {
+    "id": "error-budget_exhausted",
+    "title": "Recovery · budget exhausted",
+    "route": "/result-new2?run_id=design-run",
+    "group": "Recovery dialogs",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture",
+    "description": "Rendered current components with synthetic display content. No live query was submitted.",
+    "source": "src/vnext/QueryRecoveryDialog.js"
+  },
+  {
+    "id": "error-clarification",
+    "title": "Recovery · clarification required",
+    "route": "/result-new2?run_id=design-run",
+    "group": "Recovery dialogs",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture",
+    "description": "Rendered current components with synthetic display content. No live query was submitted.",
+    "source": "src/vnext/QueryRecoveryDialog.js"
+  },
+  {
+    "id": "error-graph_identity",
+    "title": "Recovery · graph identity",
+    "route": "/result-new2?run_id=design-run",
+    "group": "Recovery dialogs",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture",
+    "description": "Rendered current components with synthetic display content. No live query was submitted.",
+    "source": "src/vnext/QueryRecoveryDialog.js"
+  },
+  {
+    "id": "error-graph_release_mismatch",
+    "title": "Recovery · graph release mismatch",
+    "route": "/result-new2?run_id=design-run",
+    "group": "Recovery dialogs",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture",
+    "description": "Rendered current components with synthetic display content. No live query was submitted.",
+    "source": "src/vnext/QueryRecoveryDialog.js"
+  },
+  {
+    "id": "error-empty-plan",
+    "title": "Recovery · planning failure",
+    "route": "/result-new2?run_id=design-run",
+    "group": "Recovery dialogs",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture",
+    "description": "Rendered current components with synthetic display content. No live query was submitted.",
+    "source": "src/vnext/QueryRecoveryDialog.js"
+  },
+  {
+    "id": "error-query_validation",
+    "title": "Recovery · query validation",
+    "route": "/result-new2?run_id=design-run",
+    "group": "Recovery dialogs",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture",
+    "description": "Rendered current components with synthetic display content. No live query was submitted.",
+    "source": "src/vnext/QueryRecoveryDialog.js"
+  },
+  {
+    "id": "error-rate_limited",
+    "title": "Recovery · rate limited",
+    "route": "/result-new2?run_id=design-run",
+    "group": "Recovery dialogs",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture",
+    "description": "Rendered current components with synthetic display content. No live query was submitted.",
+    "source": "src/vnext/QueryRecoveryDialog.js"
+  },
+  {
+    "id": "error-timeout",
+    "title": "Recovery · timeout",
+    "route": "/result-new2?run_id=design-run",
+    "group": "Recovery dialogs",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture",
+    "description": "Rendered current components with synthetic display content. No live query was submitted.",
+    "source": "src/vnext/QueryRecoveryDialog.js"
+  },
+  {
+    "id": "error-unknown_failure",
+    "title": "Recovery · unknown failure",
+    "route": "/result-new2?run_id=design-run",
+    "group": "Recovery dialogs",
+    "parent": "agent-result",
+    "kind": "Current UI + synthetic fixture",
+    "description": "Rendered current components with synthetic display content. No live query was submitted.",
+    "source": "src/vnext/QueryRecoveryDialog.js"
+  },
+  {
+    "id": "intermediate-empty",
+    "title": "Credible-set selection · no matching QTL records",
+    "route": "/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000254647&targetSymbol=INS&resultLayout=new",
+    "group": "Empty & error states",
+    "parent": "intermediate",
+    "source": "pank_frontend_vnext/src/components/IntermediatePage.js:654-655",
+    "states": [
+      "Empty search response",
+      "existing no-data message",
+      "cancel / contact action"
+    ],
+    "synthetic": true,
+    "fixture": "Synthetic source-shaped values; all service APIs intercepted; no live requests"
+  },
+  {
+    "id": "unavailable",
+    "title": "Feature unavailable",
+    "route": "/hirn-literature",
+    "group": "Empty & error states",
+    "parent": "tools",
+    "source": "src/index.js; src/components/IntermediatePage.js",
+    "description": "Shared unavailable page used by /hirn-literature, /review/*, /debug and /igv.",
+    "kind": "current UI",
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    },
+    "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+  },
+  {
+    "id": "functional-chart-error",
+    "title": "Functional Data · chart service unavailable",
+    "route": "/functional-data",
+    "group": "Empty & error states",
+    "parent": "functional-populated",
+    "states": [
+      "Trace plot failure",
+      "trait plot failure",
+      "preserved filters and metadata"
+    ],
+    "synthetic": true,
+    "fixture": "Synthetic source-shaped values; all service APIs intercepted; no live requests",
+    "source": "pank_frontend_vnext/src/skills/FunctionalDataPage.js"
+  },
+  {
+    "id": "documentation",
+    "title": "Documentation concept — overview",
+    "route": "/docs/overview",
+    "group": "Documentation & resources",
+    "parent": "landing",
+    "source": "src/pages/DocPage.js; src/schema/doc/overview.md",
+    "description": "Representative documentation page with navigation tree, content structure and search. Only one documentation concept is included.",
+    "kind": "current UI",
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    },
+    "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+  },
+  {
+    "id": "ontology",
+    "title": "Ontology browser",
+    "route": "/ontology",
+    "group": "Documentation & resources",
+    "parent": "documentation",
+    "source": "src/pages/Ontology.js",
+    "description": "Current standalone ontology page. The root is expanded for inspection.",
+    "kind": "current UI",
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    },
+    "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+  },
+  {
+    "id": "pipeline",
+    "title": "Pipeline",
+    "route": "/pipeline",
+    "group": "Documentation & resources",
+    "parent": "documentation",
+    "source": "src/pages/Pipeline.js",
+    "description": "Standalone pipeline explanation retained by the current router.",
+    "kind": "current UI",
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    },
+    "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+  },
+  {
+    "id": "qtl-data-source",
+    "title": "QTL data sources",
+    "route": "/qtldatasource",
+    "group": "Documentation & resources",
+    "parent": "documentation",
+    "source": "src/pages/QTL_data_source.js",
+    "description": "Current QTL source documentation.",
+    "kind": "current UI",
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    },
+    "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+  },
+  {
+    "id": "statistics",
+    "title": "Statistics",
+    "route": "/statistics",
+    "group": "Documentation & resources",
+    "parent": "documentation",
+    "source": "src/pages/StatPage.js",
+    "description": "Current source statistics page; displayed source counts are preserved as UI content and are not revalidated research claims.",
+    "kind": "current UI",
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    },
+    "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+  },
+  {
+    "id": "tutorial",
+    "title": "Tutorial",
+    "route": "/tutorial",
+    "group": "Documentation & resources",
+    "parent": "documentation",
+    "source": "src/pages/Tutorial.js",
+    "description": "Standalone tutorial route and current embedded guide. For GitHub publication, one public tutorial screenshot with donor identifiers is replaced by the synthetic functional tool capture.",
+    "kind": "Current UI + synthetic tutorial substitution",
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    },
+    "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+  },
+  {
+    "id": "usecases",
+    "title": "Use cases",
+    "route": "/usecases",
+    "group": "Documentation & resources",
+    "parent": "documentation",
+    "source": "src/pages/UsecasePage.js",
+    "description": "Standalone use-case examples page.",
+    "kind": "current UI",
+    "viewport": {
+      "width": 1440,
+      "height": 1080
+    },
+    "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+  }
+]

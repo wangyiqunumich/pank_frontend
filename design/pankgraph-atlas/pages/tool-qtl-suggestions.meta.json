@@ -1,0 +1,15 @@
+{
+  "id": "tool-qtl-suggestions",
+  "title": "QTL gene suggestions",
+  "route": "/qtl-explorer",
+  "group": "Tools",
+  "parent": "tool-qtl-gene",
+  "description": "Input opened to show default source-provided gene suggestions.",
+  "source": "src/skills/QTLExplorerPage.js",
+  "kind": "current UI",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "captureNote": "Rendered current source locally. APIs blocked; synthetic fixtures are labeled. No inference or private donor data."
+}

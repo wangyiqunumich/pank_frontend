@@ -35,6 +35,7 @@ import { ReactComponent as GeneModeLogo } from '../image/new_logos/gene.svg';
 import { ReactComponent as SnpModeLogo } from '../image/new_logos/snp.svg';
 import VectorSvg from '../image/Vector.svg';
 import { queryQueryResult } from '../redux/queryResultSlice';
+import { getDevConfig } from '../vnext/runtimeConfig';
 import qtlContent from './qtlExplorerContent.json';
 
 function parseGeneOption(value) {
@@ -120,7 +121,9 @@ function QtlTermAutocomplete({
     }
 
     try {
-      const response = await dispatch(queryQueryResult({
+      const response = await dispatch(queryQueryResult(getDevConfig().vnextEnabled ? {
+        kind: 'gene', term: keyWord,
+      } : {
         isNeptune: false,
         query: `SELECT id, name FROM gene_name WHERE name % '${keyWord}'ORDER BY similarity(name, '${keyWord}') DESC LIMIT 5;`,
       })).unwrap();
@@ -170,7 +173,9 @@ function QtlTermAutocomplete({
     const termName = String(newInputValue || '').split('(')[0].trim();
 
     try {
-      const response = await dispatch(queryQueryResult({
+      const response = await dispatch(queryQueryResult(getDevConfig().vnextEnabled ? {
+        kind: 'variant', term: termName, rawResponse: true,
+      } : {
         isNeptune: false,
         rawResponse: true,
         query: `SELECT snp FROM QTL_DATA WHERE snp = '${termName}' LIMIT 1;`,
@@ -301,6 +306,7 @@ function QtlTermAutocomplete({
 
 export default function QTLExplorerPage() {
   const navigate = useNavigate();
+  const vnextEnabled = getDevConfig().vnextEnabled;
   const [mode, setMode] = useState(qtlContent.defaults.mode);
 
   const [geneInput, setGeneInput] = useState('');
@@ -416,21 +422,21 @@ export default function QTLExplorerPage() {
 
     if (mode === 'gene' && parsedGene) {
       navigate(
-        `/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@${parsedGene.id}&targetSymbol=${parsedGene.symbol}&resultLayout=new`
+        `/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@${encodeURIComponent(parsedGene.id)}&targetSymbol=${encodeURIComponent(parsedGene.symbol)}&resultLayout=new`
       );
       return;
     }
 
     if (mode === 'snp') {
       navigate(
-        `/intermediate?sourceTerm=snp@${snp}&relationship=QTL&targetTerm=gene&resultLayout=new`
+        `/intermediate?sourceTerm=snp@${encodeURIComponent(snp)}&relationship=QTL&targetTerm=gene&resultLayout=new`
       );
       return;
     }
 
     if (mode === 'pair' && parsedGene) {
       navigate(
-        `/intermediate?sourceTerm=snp@${snp}&relationship=QTL&targetTerm=gene@${parsedGene.id}&targetSymbol=${parsedGene.symbol}&resultLayout=new`
+        `/intermediate?sourceTerm=snp@${encodeURIComponent(snp)}&relationship=QTL&targetTerm=gene@${encodeURIComponent(parsedGene.id)}&targetSymbol=${encodeURIComponent(parsedGene.symbol)}&resultLayout=new`
       );
     }
   };
@@ -529,13 +535,13 @@ export default function QTLExplorerPage() {
                     </Box>
                     <Box>
                       <Typography sx={{ color: '#000000', fontWeight: '600 !important', fontSize: 14 }}>
-                        {qtlContent.stats.count}
+                        {vnextEnabled ? 'QTL evidence' : qtlContent.stats.count}
                       </Typography>
                       <Typography sx={{ color: '#000000', fontWeight: '500 !important', fontSize: 12 }}>
-                        {qtlContent.stats.label}
+                        {vnextEnabled ? 'Current graph' : qtlContent.stats.label}
                       </Typography>
                       <Typography sx={{ color: '#000000', fontSize: 12 }}>
-                        {qtlContent.stats.subLabel}
+                        {vnextEnabled ? 'and indexed sources' : qtlContent.stats.subLabel}
                       </Typography>
                     </Box>
                   </Box>
@@ -790,7 +796,7 @@ export default function QTLExplorerPage() {
 
                   <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.7 }}>
                     <SecurityOutlinedIcon sx={{ fontSize: 16, color: '#3B7A9B' }} />
-                      <Typography sx={{ color: '#305F8C', fontSize: 12 }}>{qtlContent.shared.securityNote}</Typography>
+                      <Typography sx={{ color: '#305F8C', fontSize: 12 }}>{vnextEnabled ? 'Results are saved so you can reopen them.' : qtlContent.shared.securityNote}</Typography>
                   </Box>
                 </Box>
               </Box>

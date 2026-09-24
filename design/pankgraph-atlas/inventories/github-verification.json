@@ -1,0 +1,280 @@
+{
+  "checked_at": "2026-09-15T14:08:18.782Z",
+  "screens": [
+    {
+      "id": "landing",
+      "brokenImages": 0
+    },
+    {
+      "id": "landing-classic",
+      "brokenImages": 0
+    },
+    {
+      "id": "navigation-menu",
+      "brokenImages": 0
+    },
+    {
+      "id": "landing-mobile",
+      "brokenImages": 0
+    },
+    {
+      "id": "navigation-mobile",
+      "brokenImages": 0
+    },
+    {
+      "id": "agent-loading",
+      "brokenImages": 0
+    },
+    {
+      "id": "agent-plan",
+      "brokenImages": 0
+    },
+    {
+      "id": "agent-result",
+      "brokenImages": 0
+    },
+    {
+      "id": "tools",
+      "brokenImages": 0
+    },
+    {
+      "id": "tool-qtl-gene",
+      "brokenImages": 0
+    },
+    {
+      "id": "tool-qtl-snp",
+      "brokenImages": 0
+    },
+    {
+      "id": "tool-qtl-pair",
+      "brokenImages": 0
+    },
+    {
+      "id": "tool-gwas",
+      "brokenImages": 0
+    },
+    {
+      "id": "functional-populated",
+      "brokenImages": 0
+    },
+    {
+      "id": "functional-metadata",
+      "brokenImages": 0
+    },
+    {
+      "id": "tool-functional",
+      "brokenImages": 0
+    },
+    {
+      "id": "tool-functional-table",
+      "brokenImages": 0
+    },
+    {
+      "id": "tool-functional-populated",
+      "brokenImages": 0
+    },
+    {
+      "id": "tool-qtl-suggestions",
+      "brokenImages": 0
+    },
+    {
+      "id": "intermediate",
+      "brokenImages": 0
+    },
+    {
+      "id": "conventional-result",
+      "brokenImages": 0
+    },
+    {
+      "id": "legacy-result",
+      "brokenImages": 0
+    },
+    {
+      "id": "intermediate-source-tab",
+      "brokenImages": 0
+    },
+    {
+      "id": "intermediate-wide",
+      "brokenImages": 0
+    },
+    {
+      "id": "match",
+      "brokenImages": 0
+    },
+    {
+      "id": "result-empirical-evidence",
+      "brokenImages": 0
+    },
+    {
+      "id": "result-external-links",
+      "brokenImages": 0
+    },
+    {
+      "id": "result-pankbase-links",
+      "brokenImages": 0
+    },
+    {
+      "id": "result-functional",
+      "brokenImages": 0
+    },
+    {
+      "id": "result-source-data",
+      "brokenImages": 0
+    },
+    {
+      "id": "result-table-fullscreen",
+      "brokenImages": 0
+    },
+    {
+      "id": "result-plot-lightbox",
+      "brokenImages": 0
+    },
+    {
+      "id": "result-external-expanded",
+      "brokenImages": 0
+    },
+    {
+      "id": "result-feedback",
+      "brokenImages": 0
+    },
+    {
+      "id": "result-feedback-error",
+      "brokenImages": 0
+    },
+    {
+      "id": "result-functional-expanded",
+      "brokenImages": 0
+    },
+    {
+      "id": "result-graph-fullscreen",
+      "brokenImages": 0
+    },
+    {
+      "id": "result-graph-legend",
+      "brokenImages": 0
+    },
+    {
+      "id": "result-node-inspector",
+      "brokenImages": 0
+    },
+    {
+      "id": "result-graph-list",
+      "brokenImages": 0
+    },
+    {
+      "id": "result-edge-inspector",
+      "brokenImages": 0
+    },
+    {
+      "id": "result-streaming",
+      "brokenImages": 0
+    },
+    {
+      "id": "result-empty",
+      "brokenImages": 0
+    },
+    {
+      "id": "result-partial",
+      "brokenImages": 0
+    },
+    {
+      "id": "error-authentication",
+      "brokenImages": 0
+    },
+    {
+      "id": "error-authorization",
+      "brokenImages": 0
+    },
+    {
+      "id": "error-billing",
+      "brokenImages": 0
+    },
+    {
+      "id": "error-budget_exhausted",
+      "brokenImages": 0
+    },
+    {
+      "id": "error-clarification",
+      "brokenImages": 0
+    },
+    {
+      "id": "error-graph_identity",
+      "brokenImages": 0
+    },
+    {
+      "id": "error-graph_release_mismatch",
+      "brokenImages": 0
+    },
+    {
+      "id": "error-empty-plan",
+      "brokenImages": 0
+    },
+    {
+      "id": "error-query_validation",
+      "brokenImages": 0
+    },
+    {
+      "id": "error-rate_limited",
+      "brokenImages": 0
+    },
+    {
+      "id": "error-timeout",
+      "brokenImages": 0
+    },
+    {
+      "id": "error-unknown_failure",
+      "brokenImages": 0
+    },
+    {
+      "id": "intermediate-empty",
+      "brokenImages": 0
+    },
+    {
+      "id": "unavailable",
+      "brokenImages": 0
+    },
+    {
+      "id": "functional-chart-error",
+      "brokenImages": 0
+    },
+    {
+      "id": "documentation",
+      "brokenImages": 0
+    },
+    {
+      "id": "ontology",
+      "brokenImages": 0
+    },
+    {
+      "id": "pipeline",
+      "brokenImages": 0
+    },
+    {
+      "id": "qtl-data-source",
+      "brokenImages": 0
+    },
+    {
+      "id": "statistics",
+      "brokenImages": 0
+    },
+    {
+      "id": "tutorial",
+      "brokenImages": 0
+    },
+    {
+      "id": "usecases",
+      "brokenImages": 0
+    }
+  ],
+  "unexpectedNetworkRequests": [],
+  "javaScriptErrors": [],
+  "gallerySearchMatches": 1,
+  "textEditing": true,
+  "editedHTMLSaved": true,
+  "standalone": {
+    "brokenImages": 0,
+    "localAssetReferences": 0
+  },
+  "tutorialPublicDonorImageReplaced": true,
+  "source": "Git-friendly shared-asset version; all model/API requests blocked"
+}

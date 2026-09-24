@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://hirnetwork.org/2021/wp-content/uploads/2024/02/logo-hirn.svg",
+    "file": "assets/external/837e9c5067b9.svg",
+    "contentType": "image/svg+xml",
+    "bytes": 16764
+  },
+  {
+    "url": "https://hugeampkpncms.org/sites/default/files/images/pankbase/icons/funding_icon_black.svg",
+    "file": "assets/external/818074359b9e.svg",
+    "contentType": "image/svg+xml",
+    "bytes": 3787
+  },
+  {
+    "url": "https://hugeampkpncms.org/sites/default/files/users/user32/pankbase/PanKbase_logo-black-tagline.svg",
+    "file": "assets/external/5c6802d3c71c.svg",
+    "contentType": "image/svg+xml",
+    "bytes": 45573
+  },
+  {
+    "url": "https://hugeampkpncms.org/sites/default/files/users/user32/pankbase/PanKbase_logo-black.svg",
+    "file": "assets/external/e5089d68fc14.svg",
+    "contentType": "image/svg+xml",
+    "bytes": 21236
+  },
+  {
+    "url": "https://hugeampkpncms.org/sites/default/files/users/user32/pankbase/search-icon.svg",
+    "file": "assets/external/a204b8f9dfa0.svg",
+    "contentType": "image/svg+xml",
+    "bytes": 469
+  },
+  {
+    "url": "https://hugeampkpncms.org/sites/default/files/users/user32/pankbase/user-icon.svg",
+    "file": "assets/external/23291bcd3e16.svg",
+    "contentType": "image/svg+xml",
+    "bytes": 475
+  },
+  {
+    "url": "https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/tut/landing%20page.png",
+    "file": "assets/external/44680014ba25.png",
+    "contentType": "image/png",
+    "bytes": 750722
+  },
+  {
+    "url": "https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/tut/plan%20confirm%20page.png",
+    "file": "assets/external/1c1202f49b92.png",
+    "contentType": "image/png",
+    "bytes": 611706
+  },
+  {
+    "url": "https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/tut/resut%20page.png",
+    "file": "assets/external/f66eeaddba8c.png",
+    "contentType": "image/png",
+    "bytes": 549512
+  },
+  {
+    "url": "https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/tut/tool%20landing%20page.png",
+    "file": "assets/external/0fdf15b43c63.png",
+    "contentType": "image/png",
+    "bytes": 628268
+  },
+  {
+    "url": "https://fonts.gstatic.com/s/opensans/v44/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTS-mu0SC55I.woff2",
+    "file": "assets/external/fc0528d1f755.woff2",
+    "contentType": "font/woff2",
+    "bytes": 42964
+  },
+  {
+    "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2",
+    "file": "assets/external/a28b7e319024.woff2",
+    "contentType": "font/woff2",
+    "bytes": 48432
+  }
+]

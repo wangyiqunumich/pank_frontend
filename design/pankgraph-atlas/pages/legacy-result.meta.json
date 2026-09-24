@@ -1,0 +1,10 @@
+{
+  "id": "legacy-result",
+  "title": "Classic result layout",
+  "route": "/result?sourceTerm=gene@ENSG00000254647&relationship=QTL&targetTerm=snp",
+  "group": "Conventional search",
+  "parent": "intermediate",
+  "kind": "Current UI + synthetic fixture",
+  "description": "Rendered current components with synthetic display content. No live query was submitted.",
+  "source": "src/vnext/ResultView.js"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "result-edge-inspector",
+  "title": "Knowledge graph \u00b7 relationship inspector",
+  "description": "Current hover inspector for a synthetic gene-to-cell relationship; all evidence values illustrative.",
+  "source": "src/components/KnowledgeGraph.js",
+  "route": "/result-new2?run_id=design-run",
+  "group": "Result details",
+  "parent": "agent-result",
+  "kind": "Current UI + synthetic fixture",
+  "synthetic": true,
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  }
+}

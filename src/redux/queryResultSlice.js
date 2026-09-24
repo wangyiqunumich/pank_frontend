@@ -5,9 +5,27 @@ import {
 import { QueryStatus } from '@reduxjs/toolkit/query';
 
 import { flaskBackendAxiosInstanceNew } from '../axios/axios';
+import { searchEntities } from '../vnext/api';
+import { getDevConfig } from '../vnext/runtimeConfig';
 
 export const queryQueryResult = createAsyncThunk('/openCypherToQueryResult',
-    async (payload) => {
+    async (payload, { signal }) => {
+        // Explicit typed tool searches use vNext only on enabled dev hosts.
+        // Existing SQL/Cypher callers retain their original backend.
+        if (payload.kind && getDevConfig().vnextEnabled) {
+            const { rawResponse, isNeptune, ...parameters } = payload;
+            if (parameters.query) throw new Error('A typed search cannot include a raw query.');
+            const data = await searchEntities(parameters, { signal }).catch(error => {
+                // Redux keeps standard Error.code but drops custom HTTP status.
+                if (Number.isInteger(error?.status)) error.code = String(error.status);
+                throw error;
+            });
+            if (!Array.isArray(data.items)) throw new Error('The search service returned an invalid response.');
+            return rawResponse
+                ? { ...data, results: data.items.map(item => ({ ...item, snp: item.snp || item.id })) }
+                : { ...data, results: [{ credible_sets: data.items.map(item => ({ ...item, credible_set_id: item.credible_set_id || item.credible_set })) }] };
+        }
+        if (payload.kind) throw new Error('The new search service is disabled.');
         if (payload.isNeptune) {
             return await flaskBackendAxiosInstanceNew
                 .post('/pank2-neo4j-api-development', { action: "query", query: payload.query }, {

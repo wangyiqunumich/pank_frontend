@@ -1,0 +1,10 @@
+{
+  "id": "result-empirical-evidence",
+  "title": "Result \u00b7 Empirical Evidence",
+  "route": "/result-new2",
+  "group": "Result views",
+  "parent": "agent-result",
+  "kind": "Current UI + synthetic fixture",
+  "description": "Current supporting materials tab populated with illustrative content.",
+  "source": "src/vnext/Resources.js"
+}

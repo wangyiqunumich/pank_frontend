@@ -1,0 +1,15 @@
+{
+  "id": "functional-metadata",
+  "title": "Functional Data \u00b7 donor metadata full screen",
+  "route": "/functional-data",
+  "group": "Tools",
+  "parent": "functional-populated",
+  "states": [
+    "Metadata fullscreen overlay",
+    "eight EXAMPLE records",
+    "download action"
+  ],
+  "synthetic": true,
+  "fixture": "Synthetic source-shaped values; all service APIs intercepted; no live requests",
+  "source": "pank_frontend_vnext/src/skills/FunctionalDataPage.js"
+}

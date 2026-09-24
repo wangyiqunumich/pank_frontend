@@ -1,0 +1,25 @@
+{
+  "checked_at": "2026-09-16T15:37:19.644Z",
+  "scope": "Local navigation tree enhancement; the dated UI captures remain unchanged",
+  "captures": 66,
+  "tree_nodes": 80,
+  "cross_links": 32,
+  "passed": [
+    "Every capture appears exactly once",
+    "All cross-link endpoints exist",
+    "Offline file preview with no external requests or JavaScript errors",
+    "Local HTTP preview",
+    "Expand and collapse branches",
+    "Search and reveal hidden ancestor paths",
+    "Open editable screen and return to its tree position",
+    "Focus a journey, zoom and fit",
+    "All 80 nodes and 79 tree connectors render",
+    "Desktop, tablet and mobile layouts without document overflow",
+    "Keyboard focus survives node selection; parent-first traversal",
+    "Selected-node URL stays consistent through focus, collapse and reload",
+    "Source-specific retry and functional interpretation paths",
+    "Existing overview and 66-screen gallery navigation"
+  ],
+  "javascript_errors": [],
+  "failed_local_requests": []
+}

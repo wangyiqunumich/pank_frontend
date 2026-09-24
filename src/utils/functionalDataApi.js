@@ -5,15 +5,19 @@
  * Base URL: https://functional.pankgraph.org
  */
 
-const BASE_URL = process.env.REACT_APP_FUNCTIONAL_DATA_API_URL || 
-  'https://functional.pankgraph.org';
+import { apiPath } from '../vnext/api';
+import { getDevConfig } from '../vnext/runtimeConfig';
+
+const getBaseUrl = () => getDevConfig().vnextEnabled
+  ? apiPath('/functional')
+  : (process.env.REACT_APP_FUNCTIONAL_DATA_API_URL || 'https://functional.pankgraph.org');
 
 /**
  * Health check endpoint
  * @returns {Promise<{status: string}>}
  */
 export async function healthCheck() {
-  const response = await fetch(`${BASE_URL}/health`, {
+  const response = await fetch(`${getBaseUrl()}/health`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });
@@ -28,7 +32,7 @@ export async function healthCheck() {
  * @returns {Promise<{summary, options, ranges, traits}>}
  */
 export async function getSummary() {
-  const response = await fetch(`${BASE_URL}/api/data/summary`, {
+  const response = await fetch(`${getBaseUrl()}/api/data/summary`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });
@@ -61,7 +65,7 @@ export async function getDonors(filters = {}) {
   if (filters.bmi_min !== undefined && filters.bmi_min !== null) params.append('bmi_min', filters.bmi_min);
   if (filters.bmi_max !== undefined && filters.bmi_max !== null) params.append('bmi_max', filters.bmi_max);
 
-  const url = `${BASE_URL}/api/data/donors${params.toString() ? '?' + params.toString() : ''}`;
+  const url = `${getBaseUrl()}/api/data/donors${params.toString() ? '?' + params.toString() : ''}`;
   
   const response = await fetch(url, {
     method: 'GET',
@@ -91,7 +95,7 @@ export async function getCohortTraces(trace_type = 'ins_ieq', filters = {}) {
   if (filters.bmi_min !== undefined && filters.bmi_min !== null) params.append('bmi_min', filters.bmi_min);
   if (filters.bmi_max !== undefined && filters.bmi_max !== null) params.append('bmi_max', filters.bmi_max);
 
-  const url = `${BASE_URL}/api/charts/cohort-traces?${params.toString()}`;
+  const url = `${getBaseUrl()}/api/charts/cohort-traces?${params.toString()}`;
   
   const response = await fetch(url, {
     method: 'GET',
@@ -121,7 +125,7 @@ export async function getCohortTracesPng(trace_type = 'ins_ieq', filters = {}) {
   if (filters.bmi_min !== undefined && filters.bmi_min !== null) params.append('bmi_min', filters.bmi_min);
   if (filters.bmi_max !== undefined && filters.bmi_max !== null) params.append('bmi_max', filters.bmi_max);
 
-  const url = `${BASE_URL}/api/charts/cohort-traces.png?${params.toString()}`;
+  const url = `${getBaseUrl()}/api/charts/cohort-traces.png?${params.toString()}`;
   
   const response = await fetch(url, {
     method: 'GET',
@@ -150,7 +154,7 @@ export async function getTraitSummary(trait = 'INS-IEQ G 16.7 SI', filters = {})
   if (filters.bmi_min !== undefined && filters.bmi_min !== null) params.append('bmi_min', filters.bmi_min);
   if (filters.bmi_max !== undefined && filters.bmi_max !== null) params.append('bmi_max', filters.bmi_max);
 
-  const url = `${BASE_URL}/api/charts/trait-summary?${params.toString()}`;
+  const url = `${getBaseUrl()}/api/charts/trait-summary?${params.toString()}`;
   
   const response = await fetch(url, {
     method: 'GET',
@@ -180,7 +184,7 @@ export async function getTraitSummaryPng(trait = 'INS-IEQ G 16.7 SI', filters = 
   if (filters.bmi_min !== undefined && filters.bmi_min !== null) params.append('bmi_min', filters.bmi_min);
   if (filters.bmi_max !== undefined && filters.bmi_max !== null) params.append('bmi_max', filters.bmi_max);
 
-  const url = `${BASE_URL}/api/charts/trait-summary.png?${params.toString()}`;
+  const url = `${getBaseUrl()}/api/charts/trait-summary.png?${params.toString()}`;
   
   const response = await fetch(url, {
     method: 'GET',
@@ -211,7 +215,7 @@ export async function getAssociation(x_key = 'age', y_trait = 'INS-IEQ G 16.7 AU
   if (filters.bmi_min !== undefined && filters.bmi_min !== null) params.append('bmi_min', filters.bmi_min);
   if (filters.bmi_max !== undefined && filters.bmi_max !== null) params.append('bmi_max', filters.bmi_max);
 
-  const url = `${BASE_URL}/api/charts/association?${params.toString()}`;
+  const url = `${getBaseUrl()}/api/charts/association?${params.toString()}`;
   
   const response = await fetch(url, {
     method: 'GET',
@@ -243,7 +247,7 @@ export async function getAssociationPng(x_key = 'age', y_trait = 'INS-IEQ G 16.7
   if (filters.bmi_min !== undefined && filters.bmi_min !== null) params.append('bmi_min', filters.bmi_min);
   if (filters.bmi_max !== undefined && filters.bmi_max !== null) params.append('bmi_max', filters.bmi_max);
 
-  const url = `${BASE_URL}/api/charts/association.png?${params.toString()}`;
+  const url = `${getBaseUrl()}/api/charts/association.png?${params.toString()}`;
   
   const response = await fetch(url, {
     method: 'GET',

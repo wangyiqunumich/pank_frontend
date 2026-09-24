@@ -1,0 +1,15 @@
+{
+  "id": "tool-qtl-pair",
+  "title": "QTL explorer \u2014 SNP + gene",
+  "route": "/qtl-explorer",
+  "group": "Tools",
+  "parent": "tool-qtl-gene",
+  "description": "SNP + gene mode with both input fields.",
+  "source": "src/skills/QTLExplorerPage.js",
+  "kind": "current UI",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "captureNote": "Rendered current source locally. APIs blocked; synthetic fixtures are labeled. No inference or private donor data."
+}

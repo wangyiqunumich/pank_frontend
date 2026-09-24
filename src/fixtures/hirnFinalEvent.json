@@ -1,0 +1,45 @@
+{
+  "step": "Complete",
+  "response": "ZnT8 is a pancreatic beta-cell zinc transporter and an important type 1 diabetes autoantigen. Genetic and immune evidence links SLC30A8 to beta-cell function and diabetes risk.",
+  "references": [
+    {
+      "pmid": "38743124",
+      "title": "Example article about ZnT8 and type 1 diabetes",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38743124/",
+      "n_citation": 12,
+      "date": 2024,
+      "journal": "Example Journal",
+      "authors": ["A. Researcher", "B. Scientist"],
+      "evidence": [
+        {
+          "quote": "Example evidence excerpt for offline interface development.",
+          "context_type": "abstract"
+        }
+      ]
+    },
+    {
+      "pmid": "12345678",
+      "title": "Second example article for citation-card testing",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/12345678/",
+      "date": 2020,
+      "journal": "Fixture Biology",
+      "authors": ["C. Developer"],
+      "evidence": [
+        {
+          "quote": "Synthetic fixture content; do not cite this record.",
+          "context_type": "fixture"
+        }
+      ]
+    }
+  ],
+  "trajectory": [],
+  "execution_time": 18.4,
+  "session_id": "fixture-session",
+  "invocation_id": "fixture-invocation",
+  "usage": {
+    "prompt_tokens": 1300,
+    "completion_tokens": 420,
+    "total_tokens": 1720
+  },
+  "done": true
+}

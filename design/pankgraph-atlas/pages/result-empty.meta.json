@@ -1,0 +1,10 @@
+{
+  "id": "result-empty",
+  "title": "Result \u00b7 no matching graph evidence",
+  "route": "/result-new2?run_id=design-run",
+  "group": "Result states",
+  "parent": "agent-result",
+  "kind": "Current UI + synthetic fixture",
+  "description": "Rendered current components with synthetic display content. No live query was submitted.",
+  "source": "src/vnext/ResultView.js"
+}

@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="design-snapshot" content="Current PanKgraph source; synthetic content where labeled">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#000000">
+<meta name="description" content="Web site created using create-react-app">
+<title>Functional data explorer — service unavailable · PanKgraph reference</title>
+<meta name="description" content="PanKgraph is a T1D knowledge graph that integrates multi-omic and curated biological data into a unified framework for discovery, visualization, and reproducible diabetes research.">
+<meta name="robots" content="noindex,nofollow">
+<meta name="twitter:title" content="PanKBase – Pan-genome Knowledge Base | pankgraph.org">
+<meta name="twitter:description" content="PanKgraph is a T1D knowledge graph that integrates multi-omic and curated biological data into a unified framework for discovery, visualization, and reproducible diabetes research.">
+<link rel="stylesheet" href="../styles/688724dadd1a2680ea61.css">
+<link rel="stylesheet" href="../styles/3981213a885f4a4cbe9d.css"></head>
+<body>
+<div id="root">
+<div class="MuiContainer-root MuiContainer-disableGutters css-1h4exh5">
+<div style="min-height: 100vh; display: flex; flex-direction: column;">
+<div style="position: relative; z-index: 1300;">
+<div class="pkb-nav"><button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall mobile-context-button css-1j7qk7u" tabindex="0" type="button" aria-label="Open context navigation"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1k33q06" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="MenuRoundedIcon"><path d="M4 18h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1m0-5h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1M3 7c0 .55.45 1 1 1h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1"></path></svg><span class="MuiTouchRipple-root css-w0pj6f"></span></button>
+<div class="logo"><a href="https://pankbase.org"><img class="logo-img" src="../assets/external/5c6802d3c71c.svg" alt="PanKbase Logo"></a></div>
+<div class="nav-right">
+<div class="menu-wrapper">
+<div class="topmenu"><a class="topmenu-item" href="https://pankbase.org/funding.html"><span>Funding Opportunities</span><img src="../assets/external/818074359b9e.svg" alt="Funding Icon" style="height: 15px; width: 15px;"></a><span class="topmenu-item topmenu-item-disabled"><span>Search</span><img src="../assets/external/a204b8f9dfa0.svg" alt="Search Icon" style="height: 15px; width: 15px;"></span><span class="topmenu-item topmenu-item-disabled"><span>Analysis</span></span><span class="topmenu-item topmenu-item-disabled"><span>Login</span><img src="../assets/external/23291bcd3e16.svg" alt="User Icon" style="height: 15px; width: 15px;"></span></div>
+<div class="menu">
+<div class="main-menu-items">
+<div class="menu-item-wrapper"><a class="menu-item menu-item-main menu-item-main-highlighted" href="landing.html" data-atlas-target="landing">PanKgraph</a>
+<div class="submenu"><a class="submenu-item" href="landing.html" data-atlas-target="landing">Chat</a><a class="submenu-item" href="tools.html" data-atlas-target="tools">Tools</a>
+<div class="submenu-divider"></div>
+<a class="submenu-item" href="documentation.html" data-atlas-target="documentation">KG API Doc</a><a class="submenu-item" href="documentation.html" data-atlas-target="documentation">Literature API Doc</a><a class="submenu-item" href="documentation.html" data-atlas-target="documentation">Ontology</a><a class="submenu-item" href="documentation.html" data-atlas-target="documentation">Use cases</a><a class="submenu-item" href="documentation.html" data-atlas-target="documentation">Tutorials</a><a class="submenu-item" href="documentation.html" data-atlas-target="documentation">Statistics</a></div>
+</div>
+<div class="menu-item-wrapper"><a class="menu-item menu-item-main" href="https://pankbase.org/single-cell.html">Integrated Cell Browser</a></div>
+</div>
+<div class="menu-item-wrapper"><button type="button" class="menu-item menu-trigger">Data</button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org/donors.html">Donor Summary</a><a class="submenu-item" href="https://data.pankbase.org">Data Library</a><a class="submenu-item" href="https://pankbase.org/apis.html">APIs</a></div>
+</div>
+<div class="menu-item-wrapper"><button type="button" class="menu-item menu-trigger">Resources</button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org/single-cell.html">Integrated Cell Browser</a><a class="submenu-item" href="https://pankbase.org/atacseq.html">Genome Browser</a><a class="submenu-item" href="https://pankbase.org/diff-exp.html">Differential Gene Expression Browser</a><a class="submenu-item" href="https://pankbase.org/gene.html">Gene Browser</a><a class="submenu-item" href="https://pankbase.org/functional.html">Functional Browser</a><a class="submenu-item" href="https://pankbase.org/pca-explorer.html">PCA Explorer</a><a class="submenu-item" href="https://pankbase.org/analytical-library.html">Analytical Library</a><a class="submenu-item" href="https://pankbase.org/metadata-data-standards.html">Data and Metadata Standards</a><a class="submenu-item" href="https://pankbase.org/tools-pipelines.html">Tools | Pipelines</a><a class="submenu-item" href="https://pankbase.org/publications.html">Publications</a></div>
+</div>
+<div class="menu-item-wrapper"><button type="button" class="menu-item menu-trigger">About</button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org/projects.html">PanKbase Program</a><a class="submenu-item" href="https://pankbase.org/people.html">People</a><a class="submenu-item" href="https://pankbase.org/policies.html">Policies</a><a class="submenu-item" href="https://pankbase.org/programs.html">Related Programs</a><a class="submenu-item" href="https://pankbase.org/collaborate.html">Collaborate</a><a class="submenu-item" href="https://pankbase.org/funding.html">Funding Opportunities</a></div>
+</div>
+<div class="menu-item-wrapper"><button type="button" class="menu-item menu-trigger">Help</button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org/contact.html">Contact | Feedback</a><a class="submenu-item" href="https://pankbase.org/tutorials.html">Tutorials</a><a class="submenu-item">GitHub</a><a class="submenu-item" href="https://pankbase.org/news.html">News</a></div>
+</div>
+</div>
+</div>
+<div class="logo hirn-logo"><a href="https://hirnetwork.org/" target="_blank" rel="noreferrer"><img class="logo-img" src="../assets/static/media/logo-hirn.198e6858a62155bf2a47d86f3b88473b.svg" alt="HIRN Logo"></a></div>
+</div>
+</div>
+<p class="MuiTypography-root MuiTypography-body1 css-7wf5jr">beta</p>
+</div>
+<div style="flex: 1 1 0%; display: flex; flex-direction: column;">
+<div class="MuiBox-root css-87zj8r">
+<div class="MuiBox-root css-sq0jtx">
+<div class="MuiBox-root css-4p5pbt">
+<div class="MuiBox-root css-mbx0dj">
+<p class="MuiTypography-root MuiTypography-body1 css-1pvay5b">PanKgraph</p>
+<button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-18pivpe" tabindex="0" type="button" aria-label="Collapse sidebar" aria-expanded="true"><svg width="24" height="18" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 18px; height: 14px;"><path d="M3.06641 17.9785C2.04427 17.9785 1.27604 17.7246 0.761719 17.2168C0.253906 16.7155 0 15.9603 0 14.9512V3.02734C0 2.01823 0.253906 1.26302 0.761719 0.761719C1.27604 0.253906 2.04427 0 3.06641 0H19.9609C20.9896 0 21.7578 0.253906 22.2656 0.761719C22.7734 1.26302 23.0273 2.01823 23.0273 3.02734V14.9512C23.0273 15.9603 22.7734 16.7155 22.2656 17.2168C21.7578 17.7246 20.9896 17.9785 19.9609 17.9785H3.06641ZM3.08594 16.4062H19.9414C20.4232 16.4062 20.7943 16.2793 21.0547 16.0254C21.3216 15.765 21.4551 15.3809 21.4551 14.873V3.10547C21.4551 2.59766 21.3216 2.2168 21.0547 1.96289C20.7943 1.70247 20.4232 1.57227 19.9414 1.57227H3.08594C2.59766 1.57227 2.22331 1.70247 1.96289 1.96289C1.70247 2.2168 1.57227 2.59766 1.57227 3.10547V14.873C1.57227 15.3809 1.70247 15.765 1.96289 16.0254C2.22331 16.2793 2.59766 16.4062 3.08594 16.4062ZM7.44141 16.709V1.2793H8.97461V16.709H7.44141ZM5.56641 5.19531H3.4668C3.32357 5.19531 3.19661 5.13997 3.08594 5.0293C2.97526 4.91211 2.91992 4.78516 2.91992 4.64844C2.91992 4.4987 2.97526 4.37174 3.08594 4.26758C3.19661 4.1569 3.32357 4.10156 3.4668 4.10156H5.56641C5.70964 4.10156 5.83659 4.1569 5.94727 4.26758C6.06445 4.37174 6.12305 4.4987 6.12305 4.64844C6.12305 4.78516 6.06445 4.91211 5.94727 5.0293C5.83659 5.13997 5.70964 5.19531 5.56641 5.19531ZM5.56641 7.72461H3.4668C3.32357 7.72461 3.19661 7.66927 3.08594 7.55859C2.97526 7.44792 2.91992 7.31771 2.91992 7.16797C2.91992 7.02474 2.97526 6.90104 3.08594 6.79688C3.19661 6.6862 3.32357 6.63086 3.4668 6.63086H5.56641C5.70964 6.63086 5.83659 6.6862 5.94727 6.79688C6.06445 6.90104 6.12305 7.02474 6.12305 7.16797C6.12305 7.31771 6.06445 7.44792 5.94727 7.55859C5.83659 7.66927 5.70964 7.72461 5.56641 7.72461ZM5.56641 10.2441H3.4668C3.32357 10.2441 3.19661 10.1921 3.08594 10.0879C2.97526 9.97721 2.91992 9.85026 2.91992 9.70703C2.91992 9.55729 2.97526 9.43034 3.08594 9.32617C3.19661 9.21549 3.32357 9.16016 3.4668 9.16016H5.56641C5.70964 9.16016 5.83659 9.21549 5.94727 9.32617C6.06445 9.43034 6.12305 9.55729 6.12305 9.70703C6.12305 9.85026 6.06445 9.97721 5.94727 10.0879C5.83659 10.1921 5.70964 10.2441 5.56641 10.2441Z" fill="currentColor"></path></svg><span class="MuiTouchRipple-root css-w0pj6f"></span></button></div>
+<div class="MuiBox-root css-1h803w4"><button class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation css-okki8e" tabindex="0" type="button" aria-label="New Chat">
+<div class="sidebar-icon-bubble MuiBox-root css-1ef9h13"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-vubbuv" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="AddIcon"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"></path></svg></div>
+<span class="MuiBox-root css-al2wdu">New Chat</span><span class="MuiTouchRipple-root css-w0pj6f"></span></button><button class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation css-x0rggo" tabindex="0" type="button" aria-label="Tools" aria-current="page">
+<div class="sidebar-icon-bubble MuiBox-root css-1ef9h13"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 20px; height: 20px;"><path d="M5.99967 3.33333H4.66634C4.31272 3.33333 3.97358 3.47381 3.72353 3.72386C3.47348 3.97391 3.33301 4.31304 3.33301 4.66667V12.6667C3.33301 13.0203 3.47348 13.3594 3.72353 13.6095C3.97358 13.8595 4.31272 14 4.66634 14H11.333C11.6866 14 12.0258 13.8595 12.2758 13.6095C12.5259 13.3594 12.6663 13.0203 12.6663 12.6667V4.66667C12.6663 4.31304 12.5259 3.97391 12.2758 3.72386C12.0258 3.47381 11.6866 3.33333 11.333 3.33333H9.99967M5.99967 3.33333C5.99967 2.97971 6.14015 2.64057 6.3902 2.39052C6.64025 2.14048 6.97939 2 7.33301 2H8.66634C9.01996 2 9.3591 2.14048 9.60915 2.39052C9.8592 2.64057 9.99967 2.97971 9.99967 3.33333M5.99967 3.33333C5.99967 3.68696 6.14015 4.02609 6.3902 4.27614C6.64025 4.52619 6.97939 4.66667 7.33301 4.66667H8.66634C9.01996 4.66667 9.3591 4.52619 9.60915 4.27614C9.8592 4.02609 9.99967 3.68696 9.99967 3.33333M5.99967 11.3333V8.66667M7.99967 11.3333V10.6667M9.99967 11.3333V10" stroke="#7D7D7D" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+<span class="MuiBox-root css-al2wdu">Tools</span><span class="MuiTouchRipple-root css-w0pj6f"></span></button>
+<p class="MuiTypography-root MuiTypography-body1 css-w52wbx">Recent</p>
+<div class="MuiBox-root css-1hcm27b">
+<p class="MuiTypography-root MuiTypography-body1 css-1u4sc7z">No recent conversations yet.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="MuiBox-root css-1y6mq88">
+<div class="MuiBox-root css-4s38ny">
+<div class="MuiBox-root css-pw1cew"><button class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-n7iosp" tabindex="0" type="button"><span class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-6xugel"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSize12px css-jpbqk9" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="ArrowBackIcon"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20z"></path></svg></span>Back to Subagent Library<span class="MuiTouchRipple-root css-w0pj6f"></span></button>
+<div class="MuiBox-root css-y9rird">
+<div class="MuiBox-root css-0">
+<div class="MuiBox-root css-5nrxsk">
+<div class="MuiBox-root css-0">
+<div class="MuiBox-root css-dpjmko">
+<div class="MuiBox-root css-kiartw"><img class="MuiBox-root css-3o0h5k" src="../assets/static/media/Box.c9e8d1362564f6283bf1717505ab3561.svg" alt="Box"></div>
+<p class="MuiTypography-root MuiTypography-body1 css-b2qz60">Pancreatic Islet Function Data Tool</p>
+<div class="MuiBox-root css-jooitx">v1.0</div>
+</div>
+<div class="MuiBox-root css-plpnp3">
+<div class="MuiBox-root css-7dq0d7">Interactive Cohort Filtering</div>
+<div class="MuiBox-root css-7dq0d7">Agent-Ready Interpretation</div>
+</div>
+<p class="MuiTypography-root MuiTypography-body1 css-125xvcn">Explore donor-level functional data across selected biological contexts using interactive filtering and visualization.</p>
+<p class="MuiTypography-root MuiTypography-body1 css-125xvcn">Designed for rapid hypothesis generation, transparent cohort review, and future agent-assisted interpretation.</p>
+</div>
+<div class="MuiBox-root css-10k0wx7">
+<div class="MuiBox-root css-128maw8">
+<div class="MuiBox-root css-axw7ok">
+<div class="MuiBox-root css-16w9grq"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-17nc6m8" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="PeopleAltOutlinedIcon"><path d="M16.67 13.13C18.04 14.06 19 15.32 19 17v3h4v-3c0-2.18-3.57-3.47-6.33-3.87M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4c-.47 0-.91.1-1.33.24C14.5 5.27 15 6.58 15 8s-.5 2.73-1.33 3.76c.42.14.86.24 1.33.24m-6 0c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4m0-6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2m0 7c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4m6 5H3v-.99C3.2 16.29 6.3 15 9 15s5.8 1.29 6 2z"></path></svg></div>
+<div class="MuiBox-root css-0">
+<p class="MuiTypography-root MuiTypography-body1 css-ajwq3s">0 Donors Selected</p>
+<p class="MuiTypography-root MuiTypography-body1 css-104j8le">Showing filtered functional data from 0 / 114 total donors</p>
+</div>
+</div>
+<div class="MuiBox-root css-5p3fzb">
+<div class="MuiBox-root css-1itlboc">
+<div class="MuiBox-root css-171onha"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1qxo5hb" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="PeopleAltOutlinedIcon"><path d="M16.67 13.13C18.04 14.06 19 15.32 19 17v3h4v-3c0-2.18-3.57-3.47-6.33-3.87M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4c-.47 0-.91.1-1.33.24C14.5 5.27 15 6.58 15 8s-.5 2.73-1.33 3.76c.42.14.86.24 1.33.24m-6 0c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4m0-6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2m0 7c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4m6 5H3v-.99C3.2 16.29 6.3 15 9 15s5.8 1.29 6 2z"></path></svg>
+<p class="MuiTypography-root MuiTypography-body1 css-r4knot">Disease</p>
+</div>
+<p class="MuiTypography-root MuiTypography-body1 css-zh12ur">T1D</p>
+</div>
+<div class="MuiBox-root css-1itlboc">
+<div class="MuiBox-root css-171onha"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1qxo5hb" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="PeopleAltOutlinedIcon"><path d="M16.67 13.13C18.04 14.06 19 15.32 19 17v3h4v-3c0-2.18-3.57-3.47-6.33-3.87M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4c-.47 0-.91.1-1.33.24C14.5 5.27 15 6.58 15 8s-.5 2.73-1.33 3.76c.42.14.86.24 1.33.24m-6 0c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4m0-6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2m0 7c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4m6 5H3v-.99C3.2 16.29 6.3 15 9 15s5.8 1.29 6 2z"></path></svg>
+<p class="MuiTypography-root MuiTypography-body1 css-r4knot">Genetic sex</p>
+</div>
+<p class="MuiTypography-root MuiTypography-body1 css-zh12ur">All</p>
+</div>
+<div class="MuiBox-root css-1itlboc">
+<div class="MuiBox-root css-171onha"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1qxo5hb" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="PeopleAltOutlinedIcon"><path d="M16.67 13.13C18.04 14.06 19 15.32 19 17v3h4v-3c0-2.18-3.57-3.47-6.33-3.87M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4c-.47 0-.91.1-1.33.24C14.5 5.27 15 6.58 15 8s-.5 2.73-1.33 3.76c.42.14.86.24 1.33.24m-6 0c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4m0-6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2m0 7c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4m6 5H3v-.99C3.2 16.29 6.3 15 9 15s5.8 1.29 6 2z"></path></svg>
+<p class="MuiTypography-root MuiTypography-body1 css-r4knot">Age range</p>
+</div>
+<p class="MuiTypography-root MuiTypography-body1 css-zh12ur">3 - 65</p>
+</div>
+<div class="MuiBox-root css-1itlboc">
+<div class="MuiBox-root css-171onha"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1qxo5hb" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="PeopleAltOutlinedIcon"><path d="M16.67 13.13C18.04 14.06 19 15.32 19 17v3h4v-3c0-2.18-3.57-3.47-6.33-3.87M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4c-.47 0-.91.1-1.33.24C14.5 5.27 15 6.58 15 8s-.5 2.73-1.33 3.76c.42.14.86.24 1.33.24m-6 0c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4m0-6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2m0 7c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4m6 5H3v-.99C3.2 16.29 6.3 15 9 15s5.8 1.29 6 2z"></path></svg>
+<p class="MuiTypography-root MuiTypography-body1 css-r4knot">BMI range</p>
+</div>
+<p class="MuiTypography-root MuiTypography-body1 css-zh12ur">12 - 45.5</p>
+</div>
+</div>
+<button class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-wso948" tabindex="0" type="button"><span class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeSmall css-u0g51i"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1bdxnx3" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="RefreshIcon"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4z"></path></svg></span>Reset filters<span class="MuiTouchRipple-root css-w0pj6f"></span></button></div>
+</div>
+</div>
+<div class="MuiBox-root css-11hjkaj">
+<div class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-14vcxiv">
+<div class="MuiBox-root css-10astbh">
+<div class="MuiBox-root css-172hjuw">
+<div class="MuiBox-root css-1t745gc">1</div>
+<p class="MuiTypography-root MuiTypography-body1 css-1g3ii6y">Interactive Cohort Filtering</p>
+<svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-was2nh" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="InfoOutlinedIcon" aria-label="Use metadata and range filters to define the analysis cohort before exploring functional signals."><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"></path></svg></div>
+<div class="MuiBox-root css-172hjuw"></div>
+</div>
+<div class="MuiBox-root css-11wqjmh">
+<div class="MuiBox-root css-0">
+<p class="MuiTypography-root MuiTypography-body1 css-j9cepb">Disease</p>
+<div class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-sizeSmall css-171ct0t">
+<div tabindex="0" role="combobox" aria-controls=":r2:" aria-expanded="false" aria-haspopup="listbox" class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-182didf"><span class="notranslate">​</span></div>
+<input aria-invalid="false" aria-hidden="true" tabindex="-1" class="MuiSelect-nativeInput css-1k3x8v3" value="T1D" style=""><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-1636szt" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="ArrowDropDownIcon"><path d="M7 10l5 5 5-5z"></path></svg><fieldset aria-hidden="true" class="MuiOutlinedInput-notchedOutline css-igs3ac"><legend class="css-ihdtdm"><span class="notranslate">​</span></legend></fieldset></div>
+</div>
+<div class="MuiBox-root css-0">
+<p class="MuiTypography-root MuiTypography-body1 css-j9cepb">Genetic sex</p>
+<div class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-sizeSmall css-171ct0t">
+<div tabindex="0" role="combobox" aria-controls=":r3:" aria-expanded="false" aria-haspopup="listbox" class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-182didf">All</div>
+<input aria-invalid="false" aria-hidden="true" tabindex="-1" class="MuiSelect-nativeInput css-1k3x8v3" value="All" style=""><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-1636szt" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="ArrowDropDownIcon"><path d="M7 10l5 5 5-5z"></path></svg><fieldset aria-hidden="true" class="MuiOutlinedInput-notchedOutline css-igs3ac"><legend class="css-ihdtdm"><span class="notranslate">​</span></legend></fieldset></div>
+</div>
+<div class="MuiBox-root css-0">
+<p class="MuiTypography-root MuiTypography-body1 css-j9cepb">Center</p>
+<div class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-sizeSmall css-171ct0t">
+<div tabindex="0" role="combobox" aria-controls=":r4:" aria-expanded="false" aria-haspopup="listbox" class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-182didf">All</div>
+<input aria-invalid="false" aria-hidden="true" tabindex="-1" class="MuiSelect-nativeInput css-1k3x8v3" value="All" style=""><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-1636szt" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="ArrowDropDownIcon"><path d="M7 10l5 5 5-5z"></path></svg><fieldset aria-hidden="true" class="MuiOutlinedInput-notchedOutline css-igs3ac"><legend class="css-ihdtdm"><span class="notranslate">​</span></legend></fieldset></div>
+</div>
+</div>
+<div class="MuiBox-root css-kx0ndr">
+<div class="MuiBox-root css-0">
+<p class="MuiTypography-root MuiTypography-body1 css-1sl63qr">Age range (years)</p>
+<div class="MuiBox-root css-mro3c9"><span class="MuiSlider-root MuiSlider-colorPrimary MuiSlider-sizeMedium css-1h6sow0"><span class="MuiSlider-rail css-3ndvyc"></span><span class="MuiSlider-track css-10opxo5" style="left: 0%; width: 100%;"></span><span data-index="0" class="MuiSlider-thumb MuiSlider-thumbSizeMedium MuiSlider-thumbColorPrimary MuiSlider-thumb MuiSlider-thumbSizeMedium MuiSlider-thumbColorPrimary css-5s1qf1" style="left: 0%;"><input data-index="0" aria-valuenow="3" aria-orientation="horizontal" aria-valuemax="65" aria-valuemin="3" type="range" min="3" max="65" step="1" value="3" style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 100%; margin: -1px; overflow: hidden; padding: 0px; position: absolute; white-space: nowrap; width: 100%; direction: ltr;"><span class="MuiSlider-valueLabel css-1ym2qpd" aria-hidden="true"><span class="MuiSlider-valueLabelCircle"><span class="MuiSlider-valueLabelLabel">3</span></span></span></span><span data-index="1" class="MuiSlider-thumb MuiSlider-thumbSizeMedium MuiSlider-thumbColorPrimary MuiSlider-thumb MuiSlider-thumbSizeMedium MuiSlider-thumbColorPrimary css-5s1qf1" style="left: 100%;"><input data-index="1" aria-valuenow="65" aria-orientation="horizontal" aria-valuemax="65" aria-valuemin="3" type="range" min="3" max="65" step="1" value="65" style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 100%; margin: -1px; overflow: hidden; padding: 0px; position: absolute; white-space: nowrap; width: 100%; direction: ltr;"><span class="MuiSlider-valueLabel css-1ym2qpd" aria-hidden="true"><span class="MuiSlider-valueLabelCircle"><span class="MuiSlider-valueLabelLabel">65</span></span></span></span></span>
+<div class="MuiBox-root css-1atrz3n">
+<p class="MuiTypography-root MuiTypography-body1 css-bdl6om">3</p>
+<p class="MuiTypography-root MuiTypography-body1 css-bdl6om">65</p>
+</div>
+</div>
+</div>
+<div class="MuiBox-root css-0">
+<p class="MuiTypography-root MuiTypography-body1 css-1sl63qr">BMI range (kg/m²)</p>
+<div class="MuiBox-root css-mro3c9"><span class="MuiSlider-root MuiSlider-colorPrimary MuiSlider-sizeMedium css-1h6sow0"><span class="MuiSlider-rail css-3ndvyc"></span><span class="MuiSlider-track css-10opxo5" style="left: 0%; width: 100%;"></span><span data-index="0" class="MuiSlider-thumb MuiSlider-thumbSizeMedium MuiSlider-thumbColorPrimary MuiSlider-thumb MuiSlider-thumbSizeMedium MuiSlider-thumbColorPrimary css-5s1qf1" style="left: 0%;"><input data-index="0" aria-valuenow="12" aria-orientation="horizontal" aria-valuemax="45.5" aria-valuemin="12" type="range" min="12" max="45.5" step="0.5" value="12" style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 100%; margin: -1px; overflow: hidden; padding: 0px; position: absolute; white-space: nowrap; width: 100%; direction: ltr;"><span class="MuiSlider-valueLabel css-1ym2qpd" aria-hidden="true"><span class="MuiSlider-valueLabelCircle"><span class="MuiSlider-valueLabelLabel">12</span></span></span></span><span data-index="1" class="MuiSlider-thumb MuiSlider-thumbSizeMedium MuiSlider-thumbColorPrimary MuiSlider-thumb MuiSlider-thumbSizeMedium MuiSlider-thumbColorPrimary css-5s1qf1" style="left: 100%;"><input data-index="1" aria-valuenow="45.5" aria-orientation="horizontal" aria-valuemax="45.5" aria-valuemin="12" type="range" min="12" max="45.5" step="0.5" value="45.5" style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 100%; margin: -1px; overflow: hidden; padding: 0px; position: absolute; white-space: nowrap; width: 100%; direction: ltr;"><span class="MuiSlider-valueLabel css-1ym2qpd" aria-hidden="true"><span class="MuiSlider-valueLabelCircle"><span class="MuiSlider-valueLabelLabel">45.5</span></span></span></span></span>
+<div class="MuiBox-root css-1atrz3n">
+<p class="MuiTypography-root MuiTypography-body1 css-bdl6om">12</p>
+<p class="MuiTypography-root MuiTypography-body1 css-bdl6om">45.5</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="MuiBox-root css-1ccmitd">
+<div class="MuiBox-root css-31l7gp">
+<div class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-14vcxiv">
+<div class="MuiBox-root css-p4toan">
+<div class="MuiBox-root css-172hjuw">
+<div class="MuiBox-root css-1t745gc">2</div>
+<p class="MuiTypography-root MuiTypography-body1 css-1g3ii6y">Functional feature plots</p>
+<svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-was2nh" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="InfoOutlinedIcon" aria-label="Inspect response trajectories across stimulation windows for the currently filtered donors."><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"></path></svg></div>
+<div class="MuiBox-root css-172hjuw"><span aria-label="Send the current plot and selected cohort filters to the AI agent for interpretation." class=""><button class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-vzcff5" tabindex="0" type="button"><span class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeSmall css-u0g51i"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1yls13q" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="AutoAwesomeIcon"><path d="m19 9 1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25z"></path></svg></span>Interpret plot with AI<span class="MuiTouchRipple-root css-w0pj6f"></span></button></span></div>
+</div>
+<div class="MuiBox-root css-1xtj5lf">
+<p class="MuiTypography-root MuiTypography-body1 css-1t5fg3s">Time-series / stimulation response</p>
+<svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-6nvq19" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="InfoOutlinedIcon" aria-label="This panel emphasizes temporal dynamics, donor variability, and mean trend under stimulation."><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"></path></svg></div>
+<div class="MuiBox-root css-y7bv5w">
+<p class="MuiTypography-root MuiTypography-body1 css-8ukmoc">Response type</p>
+<svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-6nvq19" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="InfoOutlinedIcon" aria-label="Switch analytes to compare secretion profiles (e.g., INS, GCG, SST) under the same cohort filter."><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"></path></svg>
+<div class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-sizeSmall css-plxv27">
+<div tabindex="0" role="combobox" aria-controls=":r9:" aria-expanded="false" aria-haspopup="listbox" class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-182didf">INS IEQ</div>
+<input aria-invalid="false" aria-hidden="true" tabindex="-1" class="MuiSelect-nativeInput css-1k3x8v3" value="ins_ieq" style=""><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-1636szt" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="ArrowDropDownIcon"><path d="M7 10l5 5 5-5z"></path></svg><fieldset aria-hidden="true" class="MuiOutlinedInput-notchedOutline css-igs3ac"><legend class="css-ihdtdm"><span class="notranslate">​</span></legend></fieldset></div>
+<div class="MuiBox-root css-1cne68d"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-b7hd36" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="ShowChartIcon"><path d="m3.5 18.49 6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"></path></svg></div>
+</div>
+<div class="MuiBox-root css-1juavsr">
+<p class="MuiTypography-root MuiTypography-body1 css-1nw33w5">Failed to load chart</p>
+<p class="MuiTypography-root MuiTypography-body1 css-ffy2an">Failed to fetch trace chart image: Service Unavailable</p>
+</div>
+<div class="MuiBox-root css-1qxdmkx">
+<div class="MuiBox-root css-171onha">
+<div class="MuiBox-root css-jlq64x"></div>
+<p class="MuiTypography-root MuiTypography-body1 css-bdl6om">Individual donors</p>
+</div>
+<div class="MuiBox-root css-171onha">
+<div class="MuiBox-root css-1v19u35"></div>
+<p class="MuiTypography-root MuiTypography-body1 css-bdl6om">Mean response</p>
+</div>
+<div class="MuiBox-root css-171onha">
+<div class="MuiBox-root css-102jixj"></div>
+<p class="MuiTypography-root MuiTypography-body1 css-bdl6om">Stimulus window</p>
+</div>
+</div>
+</div>
+</div>
+<div class="MuiBox-root css-31l7gp">
+<div class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-14vcxiv">
+<div class="MuiBox-root css-10astbh">
+<div class="MuiBox-root css-172hjuw">
+<div class="MuiBox-root css-1t745gc">3</div>
+<p class="MuiTypography-root MuiTypography-body1 css-1g3ii6y">Explore trait distribution</p>
+<svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-was2nh" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="InfoOutlinedIcon" aria-label="Review trait-level distribution changes after cohort filtering to identify outliers and subgroup shifts."><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"></path></svg></div>
+<div class="MuiBox-root css-172hjuw"><span aria-label="Send the current plot and selected cohort filters to the AI agent for interpretation." class=""><button class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1jv9vhm" tabindex="-1" type="button" disabled=""><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1yls13q" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="AutoAwesomeIcon"><path d="m19 9 1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25z"></path></svg></button></span></div>
+</div>
+<div class="MuiBox-root css-21htf3">
+<p class="MuiTypography-root MuiTypography-body1 css-8ukmoc">Trait</p>
+<div class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-sizeSmall css-1uba28p">
+<div tabindex="0" role="combobox" aria-controls=":rc:" aria-expanded="false" aria-haspopup="listbox" class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-182didf">INS-IEQ G 16.7 SI</div>
+<input aria-invalid="false" aria-hidden="true" tabindex="-1" class="MuiSelect-nativeInput css-1k3x8v3" value="INS-IEQ G 16.7 SI" style=""><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-1636szt" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="ArrowDropDownIcon"><path d="M7 10l5 5 5-5z"></path></svg><fieldset aria-hidden="true" class="MuiOutlinedInput-notchedOutline css-igs3ac"><legend class="css-ihdtdm"><span class="notranslate">​</span></legend></fieldset></div>
+</div>
+<div class="MuiBox-root css-e9uwk2">
+<p class="MuiTypography-root MuiTypography-body1 css-1nw33w5">Failed to load chart</p>
+<p class="MuiTypography-root MuiTypography-body1 css-ffy2an">Failed to fetch trait chart image: Service Unavailable</p>
+</div>
+<div class="MuiBox-root css-1uthhvt">
+<div class="MuiBox-root css-171onha">
+<div class="MuiBox-root css-irn2wf"></div>
+<p class="MuiTypography-root MuiTypography-body1 css-bdl6om">Top filtered donors</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-14vcxiv">
+<div class="MuiBox-root css-10astbh">
+<div class="MuiBox-root css-172hjuw">
+<div class="MuiBox-root css-1t745gc">4</div>
+<p class="MuiTypography-root MuiTypography-body1 css-1g3ii6y">Inspect donor metadata</p>
+<svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-was2nh" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="InfoOutlinedIcon" aria-label="Audit donor-level rows and export the filtered table for downstream analysis."><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"></path></svg></div>
+<div class="MuiBox-root css-172hjuw"><button class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-bjbm8n" tabindex="-1" type="button" disabled=""><span class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeSmall css-u0g51i"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1yls13q" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="DownloadOutlinedIcon"><path d="M19 9h-4V3H9v6H5l7 7zm-8 2V5h2v6h1.17L12 13.17 9.83 11zm-6 7h14v2H5z"></path></svg></span>Download CSV</button></div>
+</div>
+<div class="MuiBox-root css-fuvtzb">
+<div class="MuiBox-root css-avi2jn">
+<p class="MuiTypography-root MuiTypography-body1 css-1wd6c2r">ID</p>
+<p class="MuiTypography-root MuiTypography-body1 css-1wd6c2r">RRID</p>
+<p class="MuiTypography-root MuiTypography-body1 css-1wd6c2r">Center ID</p>
+<p class="MuiTypography-root MuiTypography-body1 css-1wd6c2r">Disease</p>
+<p class="MuiTypography-root MuiTypography-body1 css-1wd6c2r">Age</p>
+<p class="MuiTypography-root MuiTypography-body1 css-1wd6c2r">Genetic sex</p>
+<p class="MuiTypography-root MuiTypography-body1 css-1wd6c2r">BMI (kg/m²)</p>
+<p class="MuiTypography-root MuiTypography-body1 css-1wd6c2r">Center</p>
+</div>
+<div class="MuiBox-root css-110evp6">
+<p class="MuiTypography-root MuiTypography-body1 css-1aen765">No donors found</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="MuiBox-root css-1jkffvv">
+<div class="MuiBox-root css-19midj6">
+<div class="MuiBox-root css-hgy2d8"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1xqlcix" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="InfoOutlinedIcon" aria-label="Background context for the source, status, and interpretation of functional data."><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"></path></svg>
+<p class="MuiTypography-root MuiTypography-body1 css-1wpa9fj">About Functional Data</p>
+</div>
+<p class="MuiTypography-root MuiTypography-body1 css-14u6nc4">The functional data shown here were generated by the Human Pancreas Analysis Program (HPAP) and the Human Islet Phenotyping Program (HIPP) of the Integrated Islet Isolation Program (IIDP) using a Vanderbilt-developed islet phenotyping pipeline shared with both HPAP and HIPP. These data capture human islet insulin or glucagon secretion in response to physiological&nbsp;and pharmacological stimuli over time&nbsp;and are displayed with PanKgraph-linked donor context. The HPAP dataset has not yet been published; the HIPP data has been published (PMID: <a class="MuiBox-root css-mz9193" href="https://pubmed.ncbi.nlm.nih.gov/39605606/" target="_blank" rel="noopener noreferrer">39605606</a>). The underlying pipeline has been used since 2013 and is documented in prior publications, including PMID: <a class="MuiBox-root css-mz9193" href="https://pubmed.ncbi.nlm.nih.gov/38049589/" target="_blank" rel="noopener noreferrer">38049589</a>, <a class="MuiBox-root css-mz9193" href="https://pubmed.ncbi.nlm.nih.gov/35642629/" target="_blank" rel="noopener noreferrer">35642629</a>, <a class="MuiBox-root css-mz9193" href="https://pubmed.ncbi.nlm.nih.gov/34870058/" target="_blank" rel="noopener noreferrer">34870058</a>, <a class="MuiBox-root css-mz9193" href="https://pubmed.ncbi.nlm.nih.gov/33844836/" target="_blank" rel="noopener noreferrer">33844836</a>, <a class="MuiBox-root css-mz9193" href="https://pubmed.ncbi.nlm.nih.gov/34428183/" target="_blank" rel="noopener noreferrer">34428183</a>, <a class="MuiBox-root css-mz9193" href="https://pubmed.ncbi.nlm.nih.gov/32352931/" target="_blank" rel="noopener noreferrer">32352931</a>, <a class="MuiBox-root css-mz9193" href="https://pubmed.ncbi.nlm.nih.gov/30507613/" target="_blank" rel="noopener noreferrer">30507613</a>, <a class="MuiBox-root css-mz9193" href="https://pubmed.ncbi.nlm.nih.gov/29669939/" target="_blank" rel="noopener noreferrer">29669939</a>, <a class="MuiBox-root css-mz9193" href="https://pubmed.ncbi.nlm.nih.gov/29514095/" target="_blank" rel="noopener noreferrer">29514095</a>.</p>
+</div>
+<div class="MuiBox-root css-3a281z">
+<p class="MuiTypography-root MuiTypography-body1 css-rhjh58">Important</p>
+<p class="MuiTypography-root MuiTypography-body1 css-14u6nc4">This tool supports interactive filtering and visualization of islet functional data. Formal statistical conclusions should be based on the corresponding analyses published in PMID: <a class="MuiBox-root css-mz9193" href="https://pubmed.ncbi.nlm.nih.gov/42120367/" target="_blank" rel="noopener noreferrer">42120367</a></p>
+</div>
+<div class="MuiBox-root css-3a281z">
+<p class="MuiTypography-root MuiTypography-body1 css-rhjh58">Related Resources</p>
+<p class="MuiTypography-root MuiTypography-body1 css-14u6nc4">For free exploration of these functional data, visit the  <a class="MuiBox-root css-mz9193" href="https://pankbase.org/functional.html" target="_blank" rel="noopener noreferrer">Islet perifusion data explorer</a>.</p>
+</div>
+<div class="MuiBox-root css-3a281z">
+<p class="MuiTypography-root MuiTypography-body1 css-rhjh58">Why use this tool?</p>
+<div class="MuiBox-root css-1821gv5">
+<div class="MuiBox-root css-fm4r4t"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-acj3om" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="CheckIcon"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
+<p class="MuiTypography-root MuiTypography-body1 css-1y9hv0h">Access HIPP-generated functional readouts</p>
+</div>
+<div class="MuiBox-root css-fm4r4t"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-acj3om" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="CheckIcon"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
+<p class="MuiTypography-root MuiTypography-body1 css-1y9hv0h">Filter donors and biological contexts interactively</p>
+</div>
+<div class="MuiBox-root css-fm4r4t"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-acj3om" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="CheckIcon"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
+<p class="MuiTypography-root MuiTypography-body1 css-1y9hv0h">Connect visual patterns to agent-assisted interpretation and future HIPP publication evidence</p>
+</div>
+</div>
+</div>
+<div class="MuiBox-root css-3a281z">
+<p class="MuiTypography-root MuiTypography-body1 css-rhjh58">Example use cases</p>
+<div class="MuiBox-root css-10w146b">
+<div class="MuiBox-root css-apiu9r"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-4pngha" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="SearchIcon"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg>
+<p class="MuiTypography-root MuiTypography-body1 css-1y9hv0h">Show insulin secretion patterns for selected HIPP donors.</p>
+</div>
+<div class="MuiBox-root css-apiu9r"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-4pngha" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="PsychologyIcon"><path d="M13 8.57c-.79 0-1.43.64-1.43 1.43s.64 1.43 1.43 1.43 1.43-.64 1.43-1.43-.64-1.43-1.43-1.43"></path><path d="M13 3C9.25 3 6.2 5.94 6.02 9.64L4.1 12.2c-.25.33-.01.8.4.8H6v3c0 1.1.9 2 2 2h1v3h7v-4.68c2.36-1.12 4-3.53 4-6.32 0-3.87-3.13-7-7-7m3 7c0 .13-.01.26-.02.39l.83.66c.08.06.1.16.05.25l-.8 1.39c-.05.09-.16.12-.24.09l-.99-.4c-.21.16-.43.29-.67.39L14 13.83c-.01.1-.1.17-.2.17h-1.6c-.1 0-.18-.07-.2-.17l-.15-1.06c-.25-.1-.47-.23-.68-.39l-.99.4c-.09.03-.2 0-.25-.09l-.8-1.39c-.05-.08-.03-.19.05-.25l.84-.66c-.01-.13-.02-.26-.02-.39s.02-.27.04-.39l-.85-.66c-.08-.06-.1-.16-.05-.26l.8-1.38c.05-.09.15-.12.24-.09l1 .4c.2-.15.43-.29.67-.39L12 6.17c.02-.1.1-.17.2-.17h1.6c.1 0 .18.07.2.17l.15 1.06c.24.1.46.23.67.39l1-.4c.09-.03.2 0 .24.09l.8 1.38c.05.09.03.2-.05.26l-.85.66c.03.12.04.25.04.39"></path></svg>
+<p class="MuiTypography-root MuiTypography-body1 css-1y9hv0h">Ask the agent to interpret observed features and relevant metadata.</p>
+</div>
+<div class="MuiBox-root css-apiu9r"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-4pngha" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="BiotechIcon"><path d="M7 19c-1.1 0-2 .9-2 2h14c0-1.1-.9-2-2-2h-4v-2h3c1.1 0 2-.9 2-2h-8c-1.66 0-3-1.34-3-3 0-1.09.59-2.04 1.46-2.56C8.17 9.03 8 8.54 8 8c0-.21.04-.42.09-.62C6.28 8.13 5 9.92 5 12c0 2.76 2.24 5 5 5v2z"></path><path d="M10.56 5.51C11.91 5.54 13 6.64 13 8c0 .75-.33 1.41-.85 1.87l.59 1.62.94-.34.34.94 1.88-.68-.34-.94.94-.34-2.74-7.53-.94.34-.34-.94-1.88.68.34.94-.94.35z"></path><circle cx="10.5" cy="8" r="1.5"></circle></svg>
+<p class="MuiTypography-root MuiTypography-body1 css-1y9hv0h">Link this visual pattern to available HIPP study evidence when available.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div aria-hidden="true" class="MuiBackdrop-root css-1jfx3rx" style="opacity: 0; visibility: hidden;">
+<div class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-17yl4uw">
+<div class="MuiBox-root css-fkbiji">
+<div class="MuiBox-root css-axw7ok">
+<div class="MuiBox-root css-62qqgj"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1ghpggd" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="PeopleAltOutlinedIcon"><path d="M16.67 13.13C18.04 14.06 19 15.32 19 17v3h4v-3c0-2.18-3.57-3.47-6.33-3.87M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4c-.47 0-.91.1-1.33.24C14.5 5.27 15 6.58 15 8s-.5 2.73-1.33 3.76c.42.14.86.24 1.33.24m-6 0c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4m0-6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2m0 7c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4m6 5H3v-.99C3.2 16.29 6.3 15 9 15s5.8 1.29 6 2z"></path></svg></div>
+<div class="MuiBox-root css-0">
+<div class="MuiBox-root css-1lxy77r">
+<p class="MuiTypography-root MuiTypography-body1 css-1m30t3">Donor Metadata</p>
+<div class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1kntdl4"><span class="MuiChip-label MuiChip-labelSmall css-1pjtbja">Full Screen</span></div>
+</div>
+<p class="MuiTypography-root MuiTypography-body1 css-8ukmoc">0 donors under current filters</p>
+</div>
+</div>
+<div class="MuiBox-root css-axw7ok"><button class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-9hw17m" tabindex="-1" type="button" disabled=""><span class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeSmall css-u0g51i"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1yls13q" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="DownloadOutlinedIcon"><path d="M19 9h-4V3H9v6H5l7 7zm-8 2V5h2v6h1.17L12 13.17 9.83 11zm-6 7h14v2H5z"></path></svg></span>Download CSV</button><button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-ir6pa5" tabindex="0" type="button"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-vubbuv" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="CloseIcon"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg><span class="MuiTouchRipple-root css-w0pj6f"></span></button></div>
+</div>
+<div class="MuiBox-root css-1oc33tg">
+<div class="MuiBox-root css-120wfhw">
+<p class="MuiTypography-root MuiTypography-body1 css-1wd6c2r">ID</p>
+<p class="MuiTypography-root MuiTypography-body1 css-1wd6c2r">RRID</p>
+<p class="MuiTypography-root MuiTypography-body1 css-1wd6c2r">Center ID</p>
+<p class="MuiTypography-root MuiTypography-body1 css-1wd6c2r">Disease</p>
+<p class="MuiTypography-root MuiTypography-body1 css-1wd6c2r">Age</p>
+<p class="MuiTypography-root MuiTypography-body1 css-1wd6c2r">Genetic sex</p>
+<p class="MuiTypography-root MuiTypography-body1 css-1wd6c2r">BMI (kg/m²)</p>
+<p class="MuiTypography-root MuiTypography-body1 css-1wd6c2r">Center</p>
+</div>
+</div>
+<div class="MuiBox-root css-ky1oc9">
+<div class="MuiBox-root css-8vy6sb">
+<p class="MuiTypography-root MuiTypography-body1 css-491ezq">No donors found</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="pkb-footer" style="min-height: fit-content; height: auto; position: relative;">
+<div class="menu">
+<div class="main-menu-items">
+<div class="menu-item-wrapper"><a class="menu-item menu-item-main" href="landing.html" data-atlas-target="landing" style="font-weight: 600;">PanKgraph</a></div>
+<div class="menu-item-wrapper"><a class="menu-item menu-item-main" href="https://data.pankbase.org" style="font-weight: 600;">Data Library</a></div>
+<div class="menu-item-wrapper"><a class="menu-item menu-item-main" href="https://pankbase.org:8000/single-cell.html" style="font-weight: 600;">Integrated Cell Browser</a></div>
+</div>
+<div class="menu-item-wrapper"><span class="menu-item menu-item-label" style="font-weight: 600;">Data</span><button type="button" class="submenu-toggle" aria-label="Toggle Data submenu" aria-expanded="false"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1k33q06" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="KeyboardArrowDownIcon"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"></path></svg></button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org:8000/data-browser.html">Data Browser</a><a class="submenu-item" href="http://tools.cmdga.org:3838/metadata_analysis_assays/">Donor Metadata</a><a class="submenu-item" href="https://pankbase.org:8000/apis.html">APIs</a></div>
+</div>
+<div class="menu-item-wrapper"><span class="menu-item menu-item-label" style="font-weight: 600;">Resources</span><button type="button" class="submenu-toggle" aria-label="Toggle Resources submenu" aria-expanded="false"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1k33q06" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="KeyboardArrowDownIcon"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"></path></svg></button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org:8000/single-cell.html">Integrated Cell Browser</a><a class="submenu-item" href="https://pankbase.org:8000/analytical-library.html">Analytical Library</a><a class="submenu-item" href="https://pankbase.org:8000/publications.html">Publications</a></div>
+</div>
+<div class="menu-item-wrapper"><span class="menu-item menu-item-label" style="font-weight: 600;">About</span><button type="button" class="submenu-toggle" aria-label="Toggle About submenu" aria-expanded="false"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1k33q06" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="KeyboardArrowDownIcon"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"></path></svg></button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org:8000/projects.html">Project</a><a class="submenu-item" href="https://pankbase.org:8000/people.html">People</a><a class="submenu-item" href="https://pankbase.org:8000/policies.html">Policies</a><a class="submenu-item" href="https://pankbase.org:8000/programs.html">Programs</a><a class="submenu-item" href="https://pankbase.org:8000/collaborate.html">Collaborate</a></div>
+</div>
+<div class="menu-item-wrapper"><span class="menu-item menu-item-label" style="font-weight: 600;">Help</span><button type="button" class="submenu-toggle" aria-label="Toggle Help submenu" aria-expanded="false"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1k33q06" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="KeyboardArrowDownIcon"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"></path></svg></button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org:8000/contact.html">Contact</a><a class="submenu-item" href="https://pankbase.org:8000/metadata-data-standards.html">Metadata | Data Standards</a><a class="submenu-item" href="https://pankbase.org:8000/tools-pipelines.html">Tools | Pipelines</a><a class="submenu-item" href="https://pankbase.org:8000/tutorials.html">Tutorials</a><a class="submenu-item" href="https://pankbase.org:8000/news.html">News</a></div>
+</div>
+</div>
+<div class="info-rows">
+<div class="logo info-logo-1"><a href="landing-classic.html" data-atlas-target="landing-classic"><img class="footer-logo-img" src="../assets/external/e5089d68fc14.svg" alt="PanKbase Logo"></a></div>
+<div class="f-row-text info-text-1">Supported by <strong>National Institutes of Health (NIH)</strong> grants <strong>U24 DK138515</strong>, <strong>U24 DK138512</strong><br>Supplemental funds from the <strong>NIH Office of Data Science Strategies</strong></div>
+<div class="logo info-logo-2"><a href="https://hirnetwork.org/"><img class="footer-logo-img" src="../assets/external/837e9c5067b9.svg" alt="Hirn Logo"></a></div>
+<div class="f-row-text info-text-2">Check out the latest developments from the Human Islet Resource Network (HIRN) through its newsletter detailing research advancements, funding opportunities, job openings, and more.</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script src="../page-index.js"></script>
+
+<script>window.PAGE_META = {id: "tool-functional", availableIds: window.PAGE_IDS};</script>
+
+<script src="../page-runtime.js"></script>
+</body>
+</html>

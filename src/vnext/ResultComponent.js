@@ -1,0 +1,1625 @@
+// QuestionAnswerPage.jsx
+// Requires: @mui/material @mui/icons-material @emotion/react @emotion/styled @fontsource/open-sans
+import * as React from 'react';
+
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import CheckIcon from '@mui/icons-material/Check';
+import SendIcon from '@mui/icons-material/Send';
+import SettingsIcon from '@mui/icons-material/Settings';
+import {
+  Box,
+  Button,
+  Chip,
+  createTheme,
+  CssBaseline,
+  Divider,
+  Grid,
+  IconButton,
+  InputAdornment,
+  Link,
+  Paper,
+  Skeleton,
+  Stack,
+  Tab,
+  Tabs,
+  TextField,
+  ThemeProvider,
+  Typography,
+  useMediaQuery,
+} from '@mui/material';
+
+import { ReactComponent as MynauiSendIcon } from '../image/mynaui_send.svg';
+
+const PMID_HOVER_EVENT = 'pank:pmid-hover';
+const PMID_HOVER_CLEAR_EVENT = 'pank:pmid-hover-clear';
+const PMID_CLICK_EVENT = 'pank:pmid-click';
+
+/**
+ * All information is passed in as a single object: `data`.
+ *
+ * Suggested shape:
+ * {
+ *   questionId: "Q1",
+ *   title: "How Does ... ?",
+ *   aiOverview: { sections: [{ heading: "Gene Function:", body: "..." }, ...] },
+ *   visualMaterial: {
+ *     title: "VISUAL MATERIAL",
+ *     tabs: [{ label: "Knowledge Graph", content: <JSX/> | "string" }, { label: "Provenance", content: ... }]
+ *   },
+ *   evidences: {
+ *     title: "Evidences",
+ *     tabs: [
+ *       { label: "References", items: [{ id: "1", title: "...", subtitle: "NATURE GENETICS, 2021 • PMID: ..." }, ...] },
+ *       { label: "Provenance", items: [...] },
+ *       { label: "Pankbase Links", items: [...] },
+ *       { label: "External Links", items: [...] },
+ *     ]
+ *   },
+ *   followUp: { title: "Follow Up", items: ["Question ...", "Question ..."] }
+ * }
+ */
+
+const theme = createTheme({
+    typography: {
+        fontFamily: 'Inter, "Open Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif',
+    },
+    palette: {
+        background: {
+            default: "#ffffff",
+        },
+        text: {
+            primary: "#0F172A",
+            secondary: "#64748B",
+        },
+    },
+    shape: { borderRadius: 14 },
+});
+
+function SectionCard({ title, children, sx, showTitleDivider = true, variant = 'default' }) {
+    const isPank1 = variant === 'pank1';
+    return (
+        <Paper
+            elevation={0}
+            sx={{
+                background: "#fff",
+                ...sx,
+            }}
+        >
+            {title ? (
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.25, mb: 1.5 }}>
+                    <Typography
+                        sx={{
+                            fontSize: isPank1 ? 12 : 14,
+                            letterSpacing: isPank1 ? "0.06em" : "0.08em",
+                            fontWeight: 600,
+                            color: "#94A3B8",
+                            whiteSpace: "nowrap",
+                        }}
+                    >
+                        {title}
+                    </Typography>
+                    {showTitleDivider ? <Divider sx={{ flex: 1, borderColor: "#E6EAF2" }} /> : null}
+                </Box>
+            ) : null}
+            {children}
+        </Paper>
+    );
+}
+
+export function ResultComponentSkeleton() {
+    return (
+        <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <Box sx={{ px: { xs: 2, md: 4 }, pt: { xs: 2.5, md: 3.5 }, pb: { xs: 0.5, md: 1 }, maxWidth: 1344, width: "100%", mx: "auto" }}>
+                <Stack direction="row" spacing={0} alignItems="center" sx={{ mb: '62px', columnGap: '30px' }}>
+                    <Skeleton variant="rounded" width={48} height={30} />
+                    <Skeleton variant="text" width="60%" height={36} />
+                </Stack>
+
+                <Grid container columnSpacing={4.5} rowSpacing={2.5} alignItems="stretch">
+                    <Grid item xs={12} md={12} lg={7}>
+                        <Skeleton variant="rounded" height={320} sx={{ borderRadius: 3 }} />
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={5}>
+                        <Skeleton variant="rounded" height={320} sx={{ borderRadius: 3 }} />
+                    </Grid>
+                </Grid>
+
+                <Grid container spacing={2.5} sx={{ mt: 2.5 }}>
+                    <Grid item xs={12} md={12} lg={7}>
+                        <Skeleton variant="rounded" height={260} sx={{ borderRadius: 3 }} />
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={5}>
+                        <Skeleton variant="rounded" height={260} sx={{ borderRadius: 3 }} />
+                    </Grid>
+                </Grid>
+            </Box>
+        </ThemeProvider>
+    );
+}
+
+function ContentTabs({ tabs, value, onChange, variant = 'default' }) {
+    const isPank1 = variant === 'pank1';
+    return (
+        <Tabs
+            value={value}
+            onChange={onChange}
+            variant="scrollable"
+            scrollButtons={false}
+            sx={{
+                minHeight: 0,
+                "& .MuiTab-root": {
+                    minHeight: 0,
+                    pb: 1,
+                    pt: 0,
+                    px: 0,
+                    minWidth: "auto",
+                    marginRight: "24px",
+                    textTransform: "none",
+                    fontWeight: "600 !important",
+                    fontSize: isPank1 ? "12px !important" : "14px !important",
+                    color: "#94A3B8 !important",
+                    "&:last-child": {
+                        marginRight: 0,
+                    },
+                },
+                "& .Mui-selected": { color: "#3A838B !important" },
+                "& .MuiTabs-indicator": { backgroundColor: "#3A838B !important", height: 2 },
+            }}
+        >
+            {tabs.map((t) => (
+                <Tab key={t.label} label={t.label} />
+            ))}
+        </Tabs>
+    );
+}
+
+function processTextLinks(text, graphData, onPmidClick) {
+    if (!text) return [];
+
+    const removeConsecutiveAsterisks = (str) => str.replace(/\*\*/g, '');
+
+    // Helper to get link from graph data by node ID
+    const getLink = (id) => {
+        if (!graphData?.nodes) return null;
+        const node = graphData.nodes.find(n => n['~id'] === id);
+        return node?.['~properties']?.link || null;
+    };
+
+    // Process gene with ID: **CFTR**(ENSG00000001626)
+    const processGeneWithId = (str) => {
+        const pattern = /(\*\*[A-Za-z0-9_-]+\*\*\s*\([A-Za-z0-9]+\))/;
+        const output = [];
+        const textList = str.split(pattern).filter(Boolean);
+
+        textList.forEach(part => {
+            const match = part.match(pattern);
+            if (match) {
+                const gene = match[1];
+                const word = removeConsecutiveAsterisks(gene).split(" ");
+                const id = word[1]?.replace('(', '').replace(')', '');
+                const link = getLink(id);
+                output.push({
+                    text: word[0] + " " + word[1],
+                    type: "link",
+                    url: link,
+                });
+            } else {
+                output.push({ text: part, type: "text" });
+            }
+        });
+        return output;
+    };
+
+    // Process [text] for PMIDs and [text](url) for markdown links
+    const processLinksTemp = (str) => {
+        if (!str) return [];
+        return str.split(/(\[[^\]]+\]\([^)]+\)|\[[^\]]+\])/)
+            .flatMap(part => {
+                if (part.match(/^\[[^\]]+\]$/)) {
+                    // [text] - split by digits for PMID
+                    return part.split(/(\d+)/g).map(subPart =>
+                        subPart.match(/^\d{8}$/)
+                            ? { text: subPart, type: "pubmedid" }
+                            : { text: subPart, type: "text" }
+                    );
+                } else if (part.match(/^\[[^\]]+\]\([^)]+\)$/)) {
+                    // [text](url)
+                    return [{
+                        text: part.split("]")[0].substr(1),
+                        type: "link",
+                        url: part.split("(")[1].slice(0, -1)
+                    }];
+                }
+                return [{ text: part, type: "text" }];
+            });
+    };
+
+    // Combine gene processing with link processing
+    const result = processGeneWithId(text);
+    const output = [];
+    result.forEach(data => {
+        if (data.type === "link") {
+            output.push(data);
+        } else {
+            const textPart = removeConsecutiveAsterisks(data.text);
+            const list = processLinksTemp(textPart);
+            output.push(...list);
+        }
+    });
+
+    return output;
+}
+
+function BodyText({ text, graphData, onPmidClick }) {
+    const processedParts = React.useMemo(
+        () => processTextLinks(text, graphData, onPmidClick),
+        [text, graphData, onPmidClick]
+    );
+
+    return (
+        <Typography
+            component="div"
+            sx={{
+                fontSize: 16,
+                fontWeight: 400,
+                color: "#475569",
+                whiteSpace: "pre-wrap",
+            }}
+        >
+            {processedParts.map((part, index) => {
+                if (part.type === "pubmedid") {
+                    return (
+                        <Link
+                            key={index}
+                            href={`#reference-item-${part.text}`}
+                            sx={{
+                                color: '#1976d2',
+                                fontWeight: 400,
+                                textDecoration: 'none',
+                                '&:hover': {
+                                    textDecoration: 'underline'
+                                }
+                            }}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                onPmidClick?.(part.text);
+                            }}
+                        >
+                            {part.text}
+                        </Link>
+                    );
+                } else if (part.type === "link") {
+                    return (
+                        <Link
+                            key={index}
+                            href={part.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            sx={{
+                                color: "#0069c2",
+                                textDecoration: "none",
+                                '&:hover': {
+                                    textDecoration: 'underline'
+                                }
+                            }}
+                        >
+                            {part.text}
+                        </Link>
+                    );
+                }
+                return <React.Fragment key={index}>{part.text}</React.Fragment>;
+            })}
+        </Typography>
+    );
+}
+
+function MarkdownBody({ text, graphData, onPmidClick }) {
+    if (!text) return null;
+
+    const lines = text.split(/\n/);
+    const blocks = [];
+    let paragraph = [];
+    let isFirstLineOfBlock = true;
+
+    const flushParagraph = () => {
+        if (paragraph.length === 0) return;
+        const paragraphText = paragraph.join("\n");
+
+        // Split paragraph by first line as subtitle if there are multiple lines
+        if (paragraph.length > 1) {
+            const firstLine = paragraph[0];
+            const restLines = paragraph.slice(1).join("\n");
+
+            blocks.push({ type: "subtitle", text: firstLine });
+            blocks.push({ type: "paragraph", text: restLines });
+        } else {
+            blocks.push({ type: "paragraph", text: paragraphText });
+        }
+
+        paragraph = [];
+    };
+
+    lines.forEach((line) => {
+        const trimmed = line.trim();
+        if (trimmed.startsWith("### ")) {
+            flushParagraph();
+            blocks.push({ type: "heading", text: trimmed.replace(/^###\s+/, "") });
+            return;
+        }
+
+        if (trimmed === "") {
+            flushParagraph();
+            return;
+        }
+
+        paragraph.push(line);
+    });
+
+    flushParagraph();
+
+    return (
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1.25 }}>
+            {blocks.map((block, index) =>
+                block.type === "heading" ? (
+                    <Typography
+                        key={`heading-${index}`}
+                        sx={{
+                            fontSize: 14,
+                            fontWeight: 600,
+                            color: "#3A838B",
+                        }}
+                    >
+                        {block.text}
+                    </Typography>
+                ) : block.type === "subtitle" ? (
+                    <Typography
+                        key={`subtitle-${index}`}
+                        sx={{
+                            fontSize: 13,
+                            fontWeight: 700,
+                            color: "#0F766E",
+                            marginBottom: "-8px",
+                        }}
+                    >
+                        {block.text}
+                    </Typography>
+                ) : (
+                    <BodyText
+                        key={`paragraph-${index}`}
+                        text={block.text}
+                        graphData={graphData}
+                        onPmidClick={onPmidClick}
+                    />
+                )
+            )}
+        </Box>
+    );
+}
+
+function EvidenceItem({ item, onSelect, isActive, isHovered = false, variant = 'default' }) {
+    const isPank1 = variant === 'pank1';
+    const isLink = Boolean(item?.href && !item?.isSkeleton);
+    const clickable = Boolean((isLink || item?.onClick || onSelect) && !item?.isSkeleton);
+    const Component = isLink ? "a" : clickable ? "button" : "div";
+    const highlightBackground = (isActive || isHovered)
+        ? '#F0F4F4'
+        : '#fff';
+    const highlightBorder = (isActive || isHovered)
+        ? '1px solid #2EA7A7'
+        : '1px solid #E7EBEF';
+    const handleClick = (event) => {
+        if (item?.isSkeleton) return;
+        item?.onClick?.(item, event);
+        onSelect?.(item, event);
+    };
+
+    return (
+        <Paper
+            elevation={0}
+            component={Component}
+            href={isLink ? item.href : undefined}
+            target={isLink ? item.target || "_blank" : undefined}
+            rel={isLink ? "noreferrer" : undefined}
+            onClick={clickable ? handleClick : undefined}
+            type={Component === "button" ? "button" : undefined}
+            id={item?.anchorId}
+            data-pmid={item?.pmid || undefined}
+            sx={{
+                background: highlightBackground,
+                border: highlightBorder,
+                borderRadius: isPank1 ? "10px" : "16px",
+                p: isPank1 ? 1.25 : 2,
+                textAlign: "left",
+                width: "100%",
+                cursor: clickable ? "pointer" : "default",
+                textDecoration: "none",
+                transition: clickable ? "all 0.2s ease" : "none",
+                "&:hover": clickable
+                    ? {
+                        background: '#F0F4F4',
+                        borderColor: '#2EA7A7',
+                    }
+                    : undefined,
+            }}
+        >
+            <Stack direction="row" spacing={3} alignItems="flex-start">
+                {item.isSkeleton ? (
+                    <Skeleton
+                        variant="circular"
+                        width={24}
+                        height={24}
+                        sx={{
+                            mt: 0.2,
+                            flexShrink: 0,
+                        }}
+                    />
+                ) : (
+                    <Chip
+                        label={String(item.id)}
+                        size="small"
+                        sx={{
+                            mt: 0.2,
+                            flexShrink: 0,
+                            fontWeight: 900,
+                            fontSize: "10px",
+                            bgcolor: "transparent",
+                            color: "#008C8C",
+                            border: "1px solid #008C8C",
+                            width: "24px",
+                            height: "24px",
+                            borderRadius: "50%",
+                            "& .MuiChip-label": {
+                                padding: 0,
+                            },
+                        }}
+                    />
+                )}
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                    {item.isSkeleton ? (
+                        <>
+                            <Skeleton variant="text" width="85%" height={20} sx={{ mb: 0.5 }} />
+                            <Skeleton variant="text" width="75%" height={20} sx={{ mb: 1 }} />
+                            <Skeleton variant="text" width="60%" height={16} />
+                        </>
+                    ) : (
+                        <>
+                            <Typography
+                                sx={{
+                                    fontSize: isPank1 ? 12 : 14,
+                                    fontWeight: 700,
+                                    color: isPank1 ? "#1E293B" : "#008C8C",
+                                    mb: 0.35,
+                                    display: "-webkit-box",
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: "vertical",
+                                    overflow: "hidden",
+                                }}
+                            >
+                                {item.title}
+                            </Typography>
+                            {item.subtitle ? (
+                                <Typography
+                                    sx={{
+                                        fontSize: isPank1 ? 9.5 : 9,
+                                        fontWeight: 700,
+                                        color: "#94A3B8",
+                                        letterSpacing: isPank1 ? "0.05em" : "0.02em",
+                                    }}
+                                >
+                                    {item.subtitle}
+                                </Typography>
+                            ) : null}
+                        </>
+                    )}
+                </Box>
+            </Stack>
+        </Paper>
+    );
+}
+
+export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
+    const [visualTab, setVisualTab] = React.useState(0);
+    const [feedbackText, setFeedbackText] = React.useState('');
+    React.useEffect(() => { setFeedbackText(''); }, [data?.revisionQuestion, data?.revisionKey]);
+    const isSingleColumn = useMediaQuery("(max-width:1199.95px)");
+    const visualTabs = data?.visualMaterial?.tabs ?? [];
+    const normalizedVisualIndex = visualTab < visualTabs.length ? visualTab : 0;
+    const activeVisualMinHeight = visualTabs[normalizedVisualIndex]?.minHeight;
+    const anchorPrefix = React.useMemo(() => {
+        if (contentAnchorPrefix) return contentAnchorPrefix;
+        if (data?.questionId) {
+            return `result-${String(data.questionId).replace(/[^a-zA-Z0-9-_]/g, "-")}`;
+        }
+        return "result";
+    }, [contentAnchorPrefix, data?.questionId]);
+    const buildAnchorId = React.useCallback(
+        (suffix) => `${anchorPrefix}-${suffix}`,
+        [anchorPrefix]
+    );
+    const singleColumnHeight = "clamp(420px, 55vw, 560px)";
+    const desktopHeight = activeVisualMinHeight
+        ? `max(${activeVisualMinHeight}px, 520px)`
+        : "520px";
+    const visualPanelHeight = isSingleColumn ? singleColumnHeight : desktopHeight;
+    const confirmationColumnsHeight = isSingleColumn ? 'auto' : visualPanelHeight;
+
+    React.useEffect(() => {
+        if (visualTab > 0 && visualTab >= visualTabs.length) {
+            setVisualTab(0);
+        }
+    }, [visualTab, visualTabs.length]);
+
+    const originalQuestion = data?.originalQuestion || "";
+    const hideOriginalQueryBox = Boolean(data?.hideOriginalQueryBox);
+    const parsedTitle = data?.parsedTitle || "";
+    const agentPlanText = data?.agentPlan || '';
+    const normalizedPlanText = String(agentPlanText || '').toLowerCase().replace(/\s+/g, '');
+    const hideReviseComponent = normalizedPlanText.includes('queryplan(chain)');
+    const isFeedbackEmpty = !feedbackText.trim();
+    const isReviseDisabled = Boolean(data?.disableRevise);
+    const isProceedDisabled = Boolean(data?.disableProceed);
+
+    const handleSendFeedback = React.useCallback(() => {
+        if (isReviseDisabled) return;
+        const trimmed = feedbackText.trim();
+        if (!trimmed) return;
+        data?.onSendFeedback?.(trimmed);
+        if (!data?.revisionQuestion) setFeedbackText('');
+    }, [feedbackText, data, isReviseDisabled]);
+
+    const handleProceed = React.useCallback(() => {
+        data?.onProceed?.();
+    }, [data]);
+
+    return (
+        <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <Box sx={{ px: { xs: 2, md: 4 }, pt: { xs: 2.5, md: 3.5 }, pb: { xs: 0.5, md: 1 }, maxWidth: 1344, width: "100%", mx: "auto" }}>
+                <Typography
+                    sx={{
+                        fontFamily: 'Open Sans',
+                        fontWeight: 700,
+                        fontSize: 20,
+                        color: '#1E293B',
+                        textAlign: 'left',
+                        textTransform: 'uppercase',
+                        mb: 2,
+                    }}
+                >
+                    {data?.title || 'Confirm Query & Execution Steps'}
+                </Typography>
+
+                <Box
+                    sx={{
+                        width: '100%',
+                        borderRadius: '12px',
+                        border: '2px solid #EDF0F4',
+                        overflow: 'hidden',
+                        mb: 2.5,
+                    }}
+                >
+                    {!hideOriginalQueryBox ? (
+                        <Box
+                            sx={{
+                                height: '50px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                px: 2,
+                                backgroundColor: '#FFFFFF',
+                                gap: 2,
+                            }}
+                        >
+                            <Stack direction="row" alignItems="center" spacing={1} sx={{ minWidth: 0, flex: 1 }}>
+                                <ChatBubbleOutlineIcon sx={{ color: '#94A3B8', fontSize: 20 }} />
+                                <Typography
+                                    sx={{
+                                        color: '#94A3B8',
+                                        fontSize: 16,
+                                        fontWeight: 600,
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                    }}
+                                >
+                                    {originalQuestion}
+                                </Typography>
+                            </Stack>
+                            <Typography
+                                sx={{
+                                    color: '#94A3B8',
+                                    fontSize: 12,
+                                    fontWeight: 700,
+                                    letterSpacing: '0.08em',
+                                    textTransform: 'uppercase',
+                                    whiteSpace: 'nowrap',
+                                }}
+                            >
+                                Original Query
+                            </Typography>
+                        </Box>
+                    ) : null}
+
+                    <Box
+                        sx={{
+                            backgroundColor: '#F2F7F9',
+                            px: 2,
+                            py: 2,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            gap: 0.75,
+                        }}
+                    >
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                            <AutoAwesomeIcon sx={{ color: '#3A838B', fontSize: 22 }} />
+                            <Typography sx={{ fontFamily: 'Open Sans', fontSize: 20, fontWeight: 700, color: '#3A838B' }}>
+                                AI Interpretation
+                            </Typography>
+                        </Stack>
+                        <Typography
+                            sx={{
+                                fontFamily: 'Open Sans',
+                                fontSize: 20,
+                                fontWeight: 600,
+                                color: '#0F172A',
+                                lineHeight: 1.2,
+                                display: '-webkit-box',
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
+                            }}
+                        >
+                            {parsedTitle}
+                        </Typography>
+                    </Box>
+                </Box>
+
+                <Grid container columnSpacing={4.5} rowSpacing={2.5} alignItems="stretch">
+                    <Grid item xs={12} md={12} lg={7} id={buildAnchorId('agent-plan')} sx={{ display: 'flex', height: confirmationColumnsHeight }}>
+                        <Stack spacing={2} sx={{ width: '100%', height: '100%', minWidth: 0 }}>
+                            <SectionCard sx={{ width: '100%', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+                                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1.5 }}>
+                                    <SettingsIcon sx={{ color: '#94A3B8', fontSize: 18 }} />
+                                    <Typography
+                                        sx={{
+                                            fontSize: 14,
+                                            letterSpacing: '0.08em',
+                                            fontWeight: 600,
+                                            color: '#94A3B8',
+                                            whiteSpace: 'nowrap',
+                                        }}
+                                    >
+                                        Proposed Execution
+                                    </Typography>
+                                </Stack>
+                                <Box sx={{ flex: 1, minHeight: 0, overflowY: isSingleColumn ? 'visible' : 'auto', pr: 0.5 }}>
+                                    {agentPlanText ? (
+                                        <Box
+                                            sx={{
+                                                fontSize: 16,
+                                                fontWeight: 400,
+                                                color: '#475569',
+                                                lineHeight: 1.7,
+                                                '& p': { margin: '0 0 0.85em 0' },
+                                                '& ul, & ol': { margin: '0.2em 0 0.85em 1.4em', padding: 0 },
+                                                '& li': { marginBottom: '0.25em' },
+                                                '& h1, & h2, & h3, & h4': {
+                                                    margin: '0.9em 0 0.45em 0',
+                                                    color: '#0F172A',
+                                                    fontWeight: 700,
+                                                    lineHeight: 1.3,
+                                                },
+                                                '& :not(pre) > code': {
+                                                    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+                                                    backgroundColor: '#F1F5F9',
+                                                    borderRadius: '4px',
+                                                    padding: '0 4px',
+                                                    fontSize: '0.92em',
+                                                },
+                                                '& pre': {
+                                                    backgroundColor: '#F8FAFC',
+                                                    border: '1px solid #E2E8F0',
+                                                    borderRadius: '8px',
+                                                    padding: '12px',
+                                                    overflowX: 'hidden',
+                                                    margin: '0.8em 0',
+                                                    whiteSpace: 'pre-wrap',
+                                                    wordBreak: 'break-word',
+                                                    overflowWrap: 'anywhere',
+                                                },
+                                                '& pre code': {
+                                                    backgroundColor: 'transparent',
+                                                    padding: 0,
+                                                    borderRadius: 0,
+                                                    whiteSpace: 'inherit',
+                                                    wordBreak: 'inherit',
+                                                    overflowWrap: 'inherit',
+                                                    fontSize: 'inherit',
+                                                },
+                                                '& table': {
+                                                    width: '100%',
+                                                    borderCollapse: 'collapse',
+                                                    margin: '0.8em 0',
+                                                    borderTop: '1px solid #CBD5E1',
+                                                },
+                                                '& thead tr': {
+                                                    borderBottom: '1px solid #CBD5E1',
+                                                },
+                                                '& tbody tr': {
+                                                    borderBottom: '1px solid #CBD5E1',
+                                                },
+                                                '& th, & td': {
+                                                    textAlign: 'left',
+                                                    padding: '8px 10px',
+                                                    verticalAlign: 'top',
+                                                },
+                                            }}
+                                        >
+                                            <ReactMarkdown
+                                                remarkPlugins={[remarkGfm]}
+                                                skipHtml
+                                                components={{
+                                                    p: ({ children }) => <Typography component="p" sx={{ fontSize: 16, fontWeight: 400, color: '#475569' }}>{children}</Typography>,
+                                                    li: ({ children }) => <Typography component="li" sx={{ fontSize: 16, fontWeight: 400, color: '#475569' }}>{children}</Typography>,
+                                                    a: ({ href, children }) => (
+                                                        <Link
+                                                            href={href}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            sx={{ color: '#0069c2', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+                                                        >
+                                                            {children}
+                                                        </Link>
+                                                    ),
+                                                    h1: ({ children }) => <Typography component="h1" sx={{ fontSize: 18 }}>{children}</Typography>,
+                                                    h2: ({ children }) => <Typography component="h2" sx={{ fontSize: 16 }}>{children}</Typography>,
+                                                    h3: ({ children }) => <Typography component="h3" sx={{ fontSize: 15 }}>{children}</Typography>,
+                                                    h4: ({ children }) => <Typography component="h4" sx={{ fontSize: 14 }}>{children}</Typography>,
+                                                }}
+                                            >
+                                                {agentPlanText}
+                                            </ReactMarkdown>
+                                        </Box>
+                                    ) : (
+                                        <Typography sx={{ fontSize: 14, color: '#64748B', fontWeight: 600 }}>
+                                            No plan text available.
+                                        </Typography>
+                                    )}
+                                </Box>
+                            </SectionCard>
+
+                            {!hideReviseComponent ? (
+                                <Box
+                                    sx={{
+                                        width: '100%',
+                                        border: '1px solid #E2E8F0',
+                                        borderRadius: '16px',
+                                        backgroundColor: '#F3F7F9',
+                                        py: 2,
+                                        px: 3,
+                                    }}
+                                >
+                                    <Typography sx={{ fontSize: 14, fontWeight: 700, color: '#4A7F8D', mb: 0.4 }}>
+                                        Refine The Plan
+                                    </Typography>
+                                    <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#64748B', mb: 1.25 }}>
+                                        Tell me what to change. I’ll keep the rest of your plan.
+                                    </Typography>
+                                    <Box
+                                        component="form"
+                                        onSubmit={(event) => {
+                                            event.preventDefault();
+                                            handleSendFeedback();
+                                        }}
+                                        sx={{
+                                            width: '100%',
+                                            border: '1px solid #DCE5EE',
+                                            borderRadius: '14px',
+                                            p: 1,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 1,
+                                            backgroundColor: '#FFFFFF',
+                                            boxShadow: '0px 2px 8px -3px #64646F30',
+                                        }}
+                                    >
+                                        <TextField
+                                            value={feedbackText}
+                                            onChange={(event) => setFeedbackText(event.target.value)}
+                                            disabled={isReviseDisabled}
+                                            onKeyDown={(event) => {
+                                                if (event.key === 'Enter' && !event.shiftKey) {
+                                                    event.preventDefault();
+                                                    handleSendFeedback();
+                                                }
+                                            }}
+                                            placeholder="e.g. Use spleen instead, keeping the same donor filters"
+                                            variant="standard"
+                                            fullWidth
+                                            InputProps={{
+                                                disableUnderline: true,
+                                            }}
+                                            sx={{
+                                                '& .MuiInputBase-input': {
+                                                    fontSize: 14,
+                                                    color: '#334155',
+                                                    paddingLeft: '8px',
+                                                },
+                                            }}
+                                        />
+                                        <IconButton
+                                            type="submit"
+                                            aria-label="send"
+                                            disabled={isFeedbackEmpty || isReviseDisabled}
+                                            sx={{
+                                                borderRadius: '999px',
+                                                color: isFeedbackEmpty ? '#94A3B8' : '#3A838B',
+                                                width: 34,
+                                                height: 34,
+                                                '&:hover': {
+                                                    backgroundColor: '#F0F7FA',
+                                                },
+                                                '&.Mui-disabled': {
+                                                    color: '#94A3B8',
+                                                },
+                                            }}
+                                        >
+                                            <MynauiSendIcon style={{ width: 20, height: 20 }} />
+                                        </IconButton>
+                                    </Box>
+                                </Box>
+                            ) : null}
+                        </Stack>
+                    </Grid>
+
+                    <Grid item xs={12} md={12} lg={5} id={buildAnchorId('visual-material')} sx={{ display: 'flex', height: confirmationColumnsHeight }}>
+                        <SectionCard sx={{ height: '100%', width: '100%', flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+                            {visualTabs.length <= 1 ? (
+                                <Typography
+                                    sx={{
+                                        fontSize: 14,
+                                        letterSpacing: '0.08em',
+                                        fontWeight: 600,
+                                        color: '#94A3B8',
+                                        whiteSpace: 'nowrap',
+                                        mb: 1.5,
+                                    }}
+                                >
+                                    {data?.visualMaterial?.title || 'Visual Material'}
+                                </Typography>
+                            ) : null}
+                            {visualTabs.length > 1 ? (
+                                <Box sx={{ mb: 1.2 }}>
+                                    <ContentTabs
+                                        tabs={visualTabs}
+                                        value={visualTab}
+                                        onChange={(_, v) => setVisualTab(v)}
+                                    />
+                                </Box>
+                            ) : null}
+
+                            {visualTabs.length ? (
+                                visualTabs.map((tab, idx) => {
+                                    const isActive = visualTabs.length === 1 || visualTab === idx;
+                                    const isFullBleed = Boolean(tab.fullBleed);
+
+                                    return (
+                                        <Paper
+                                            key={`plan-visual-tab-${idx}`}
+                                            elevation={0}
+                                            sx={{
+                                                border: isFullBleed ? 'none' : '1px solid #E6EAF2',
+                                                borderRadius: isFullBleed ? 0 : 3,
+                                                height: isSingleColumn ? visualPanelHeight : 'calc(100% - 35.1px)',
+                                                width: '100%',
+                                                bgcolor: isFullBleed ? 'transparent' : '#F9FAFB',
+                                                display: isActive ? 'flex' : 'none',
+                                                alignItems: isFullBleed ? 'stretch' : 'center',
+                                                justifyContent: isFullBleed ? 'stretch' : 'center',
+                                                p: isFullBleed ? 0 : 2,
+                                            }}
+                                        >
+                                            {tab.content ? (
+                                                typeof tab.content === 'string' ? (
+                                                    <BodyText text={tab.content} graphData={data?.graphData} />
+                                                ) : React.isValidElement(tab.content) ? (
+                                                    typeof tab.content.type === 'function'
+                                                        ? React.cloneElement(tab.content, {
+                                                            isVisible: visualTabs.length === 1 || visualTab === idx,
+                                                        })
+                                                        : tab.content
+                                                ) : (
+                                                    tab.content
+                                                )
+                                            ) : (
+                                                <Typography sx={{ fontSize: 13, color: '#94A3B8', fontWeight: 700 }}>
+                                                    No visual material for this answer.
+                                                </Typography>
+                                            )}
+                                        </Paper>
+                                    );
+                                })
+                            ) : (
+                                <Paper
+                                    elevation={0}
+                                    sx={{
+                                        border: '1px solid #E6EAF2',
+                                        borderRadius: 3,
+                                        height: isSingleColumn ? visualPanelHeight : 'calc(100% - 35.1px)',
+                                        width: '100%',
+                                        bgcolor: '#F9FAFB',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        p: 2,
+                                    }}
+                                >
+                                    <Typography sx={{ fontSize: 13, color: '#94A3B8', fontWeight: 700 }}>
+                                        No visual material for this answer.
+                                    </Typography>
+                                </Paper>
+                            )}
+                        </SectionCard>
+                    </Grid>
+                </Grid>
+
+                <Divider sx={{ my: 2.5, borderColor: '#E2E8F0' }} />
+                <Button
+                    id={buildAnchorId('plan-proceed-button')}
+                    type="button"
+                    variant="contained"
+                    startIcon={<CheckIcon sx={{ fontSize: 20 }} />}
+                    onClick={handleProceed}
+                    disabled={isProceedDisabled}
+                    sx={{
+                        width: '100%',
+                        textTransform: 'none',
+                        fontWeight: 700,
+                        fontSize: 17,
+                        letterSpacing: '0.01em',
+                        color: '#FFFFFF',
+                        backgroundColor: '#4E98A0',
+                        borderRadius: '14px',
+                        boxShadow: '0px 8px 18px -10px #1F4D5338',
+                        py: 1.8,
+                        '&:hover': {
+                            backgroundColor: '#3F848B',
+                        },
+                    }}
+                >
+                    Run These Steps
+                </Button>
+            </Box>
+        </ThemeProvider>
+    );
+}
+
+export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
+    const [visualTab, setVisualTab] = React.useState(0);
+    const [evidenceTab, setEvidenceTab] = React.useState(0);
+    const [activeReference, setActiveReference] = React.useState(null);
+    const [hoveredReference, setHoveredReference] = React.useState(null);
+    const aiOverviewRef = React.useRef(null);
+    const pageRootRef = React.useRef(null);
+    const [aiOverviewHeight, setAiOverviewHeight] = React.useState(0);
+    const isSingleColumn = useMediaQuery("(max-width:1199.95px)");
+    const visualTabs = data?.visualMaterial?.tabs ?? [];
+    const normalizedVisualIndex = visualTab < visualTabs.length ? visualTab : 0;
+    const activeVisualMinHeight = visualTabs[normalizedVisualIndex]?.minHeight;
+    const singleColumnHeight = (minPx, vw, maxPx) => `clamp(${minPx}px, ${vw}vw, ${maxPx}px)`;
+    const desktopClamp = "clamp(260px, 28vw, 420px)";
+    const maxAiOverviewHeight = 520;
+    const baseSingleHeight = singleColumnHeight(400, 55, 520);
+    const cappedAiOverviewHeight = aiOverviewHeight
+        ? Math.min(aiOverviewHeight, maxAiOverviewHeight)
+        : 0;
+    const baseDesktopHeight = cappedAiOverviewHeight
+        ? `max(${desktopClamp}, ${cappedAiOverviewHeight}px)`
+        : desktopClamp;
+    const visualPanelHeight = activeVisualMinHeight
+        ? `max(${activeVisualMinHeight}px, ${isSingleColumn ? baseSingleHeight : baseDesktopHeight})`
+        : (isSingleColumn ? baseSingleHeight : baseDesktopHeight);
+    const visualPanelMaxWidth = isSingleColumn ? 640 : "100%";
+
+    const handleVisualTabChange = (newTab) => {
+        setVisualTab(newTab);
+        data?.visualMaterial?.onTabChange?.(newTab);
+    };
+
+    const handleEvidenceTabChange = (newTab) => {
+        setEvidenceTab(newTab);
+        data?.evidences?.onTabChange?.(newTab);
+    };
+
+    const referencesTabIndex = React.useMemo(
+        () => data?.evidences?.tabs?.findIndex(tab => tab.label?.toLowerCase() === "references") ?? -1,
+        [data?.evidences?.tabs]
+    );
+
+    const handlePmidClick = React.useCallback((pmid) => {
+        setActiveReference(pmid);
+        if (referencesTabIndex >= 0) {
+            setEvidenceTab(referencesTabIndex);
+        }
+    }, [referencesTabIndex]);
+
+    const isPmidEventForCurrentPage = React.useCallback((detail) => {
+        if (!detail || !pageRootRef.current) return false;
+        const anchorId = String(detail.anchorId || '');
+        if (!anchorId) return false;
+        const target = document.getElementById(anchorId);
+        return Boolean(target && pageRootRef.current.contains(target));
+    }, []);
+
+    React.useEffect(() => {
+        const handleHover = (event) => {
+            const detail = event?.detail || {};
+            if (!isPmidEventForCurrentPage(detail)) return;
+            setHoveredReference(String(detail.pmid || '').trim() || null);
+        };
+
+        const handleHoverClear = (event) => {
+            const detail = event?.detail || {};
+            if (!isPmidEventForCurrentPage(detail)) return;
+            setHoveredReference((current) => {
+                const next = String(detail.pmid || '').trim();
+                return !current || !next || current === next ? null : current;
+            });
+        };
+
+        const handleClick = (event) => {
+            const detail = event?.detail || {};
+            if (!isPmidEventForCurrentPage(detail)) return;
+            const pmid = String(detail.pmid || '').trim();
+            if (!pmid) return;
+            setHoveredReference(null);
+            setActiveReference(pmid);
+            if (referencesTabIndex >= 0) {
+                setEvidenceTab(referencesTabIndex);
+            }
+        };
+
+        window.addEventListener(PMID_HOVER_EVENT, handleHover);
+        window.addEventListener(PMID_HOVER_CLEAR_EVENT, handleHoverClear);
+        window.addEventListener(PMID_CLICK_EVENT, handleClick);
+
+        return () => {
+            window.removeEventListener(PMID_HOVER_EVENT, handleHover);
+            window.removeEventListener(PMID_HOVER_CLEAR_EVENT, handleHoverClear);
+            window.removeEventListener(PMID_CLICK_EVENT, handleClick);
+        };
+    }, [isPmidEventForCurrentPage, referencesTabIndex]);
+
+    const referenceTimeoutRef = React.useRef(null);
+    React.useEffect(() => {
+        if (!activeReference) return undefined;
+        if (referencesTabIndex < 0 || evidenceTab !== referencesTabIndex) return undefined;
+
+        const el =
+            document.getElementById(`reference-item-${activeReference}`)
+            || document.querySelector(`[data-pmid="${activeReference}"]`);
+        if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
+            if (referenceTimeoutRef.current) {
+                clearTimeout(referenceTimeoutRef.current);
+            }
+            referenceTimeoutRef.current = setTimeout(() => {
+                setActiveReference(null);
+                referenceTimeoutRef.current = null;
+            }, 1200);
+        }
+
+        return () => {
+            if (referenceTimeoutRef.current) {
+                clearTimeout(referenceTimeoutRef.current);
+            }
+        };
+    }, [activeReference, evidenceTab, referencesTabIndex]);
+
+    const evidenceTabs = data?.evidences?.tabs ?? [];
+    const showVisualSection = Boolean(data?.visualMaterial);
+    const showEvidenceSection = Boolean(data?.evidences);
+    const showFollowUpSection = Boolean(data?.followUp);
+    const hasRenderableVisualTabs = visualTabs.length > 0;
+    const preferFollowUpBeforeVisual = Boolean(
+        showFollowUpSection
+        && (
+            !showVisualSection
+            || (data?.visualMaterial?.noGraph && !hasRenderableVisualTabs)
+        )
+    );
+    const anchorPrefix = React.useMemo(() => {
+        if (contentAnchorPrefix) return contentAnchorPrefix;
+        if (data?.questionId) {
+            return `result-${String(data.questionId).replace(/[^a-zA-Z0-9-_]/g, "-")}`;
+        }
+        return "result";
+    }, [contentAnchorPrefix, data?.questionId]);
+    const buildAnchorId = React.useCallback(
+        (suffix) => `${anchorPrefix}-${suffix}`,
+        [anchorPrefix]
+    );
+
+    React.useEffect(() => {
+        if (visualTab > 0 && visualTab >= visualTabs.length) {
+            setVisualTab(0);
+        }
+    }, [visualTab, visualTabs.length]);
+
+    React.useEffect(() => {
+        if (evidenceTab > 0 && evidenceTab >= evidenceTabs.length) {
+            setEvidenceTab(0);
+        }
+    }, [evidenceTab, evidenceTabs.length]);
+
+    React.useEffect(() => {
+        const element = aiOverviewRef.current;
+        if (!element || typeof ResizeObserver === "undefined") return;
+
+        const observer = new ResizeObserver((entries) => {
+            entries.forEach((entry) => {
+                setAiOverviewHeight(Math.ceil(entry.contentRect.height));
+            });
+        });
+
+        observer.observe(element);
+        return () => observer.disconnect();
+    }, [data?.aiOverview?.sections]);
+
+    // Handle scroll to top signal from parent
+    React.useEffect(() => {
+        if (data?.scrollToTop && aiOverviewRef.current) {
+            requestAnimationFrame(() => {
+                aiOverviewRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+    }, [data?.scrollToTop]);
+
+    const getItemLabel = (item) => {
+        if (typeof item === "string") return item;
+        return item?.label || item?.question || item?.title || "";
+    };
+    const isFollowUpDisabled = Boolean(data?.followUp?.disabled);
+    const isFollowUpLoading = Boolean(data?.followUp?.loading);
+    const followUpInputValue = data?.followUp?.inputValue ?? "";
+    const showFollowUpComposer = Boolean(data?.followUp?.showComposer);
+    const isPank1Style = data?.styleVariant === 'pank1';
+    const isPank1FollowUpStyle = isPank1Style || data?.followUp?.styleVariant === 'pank1';
+    const handleFollowUpSubmit = () => {
+        if (isFollowUpDisabled) return;
+        const submit = data?.followUp?.onSubmit;
+        if (typeof submit === "function") {
+            submit(followUpInputValue);
+        }
+    };
+
+    return (
+        <ThemeProvider theme={theme}>
+            <CssBaseline />
+
+            <Box ref={pageRootRef} sx={{ px: { xs: 2, md: 4 }, pt: { xs: 2.5, md: 3.5 }, pb: { xs: 0.5, md: 1 }, maxWidth: 1344, width: "100%", mx: "auto" }}>
+                {/* Header */}
+                <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    spacing={1.5}
+                    alignItems={{ xs: "flex-start", sm: "center" }}
+                    sx={{ mb: '62px', columnGap: '17px' }}
+                >
+                    <Chip
+                        label={data.questionId || "Q1"}
+                        sx={{
+                            bgcolor: "#0F766E",
+                            color: "#fff",
+                            fontWeight: 700,
+                            borderRadius: 1.5,
+                            fontFamily: isPank1Style ? '"Open Sans", Inter, sans-serif' : 'inherit',
+                            fontSize: isPank1Style ? 12 : 14,
+                            height: 30,
+                        }}
+                    />
+                    <Typography
+                        sx={{
+                            fontSize: { xs: 24, sm: isPank1Style ? 24 : 32 },
+                            fontWeight: 700,
+                            letterSpacing: "-0.02em",
+                            color: "#1E293B",
+                            lineHeight: 1.15,
+                            fontFamily: isPank1Style ? '"Open Sans", Inter, sans-serif' : 'inherit',
+                        }}
+                    >
+                        {data.title}
+                    </Typography>
+                </Stack>
+
+                {/* Main two-column area (AI Overview + Visual Material) */}
+                <Grid container columnSpacing={4.5} rowSpacing={2.5} alignItems="stretch">
+                    {/* AI Overview */}
+                    <Grid item xs={12} md={12} lg={7} order={{ xs: 1, md: 1, lg: 1 }} id={buildAnchorId("ai-overview")}>
+                        <SectionCard title="AI Overview" variant={isPank1Style ? 'pank1' : 'default'}>
+                            <Box
+                                sx={{
+                                    height: 520,
+                                    minHeight: 520,
+                                    maxHeight: 520,
+                                    overflowY: "auto",
+                                    overflowX: "hidden",
+                                    pr: { xs: 0, lg: 1 },
+                                }}
+                                ref={aiOverviewRef}
+                            >
+                                <Stack spacing={1.5}>
+                                    {(data?.aiOverview?.sections ?? []).map((sec, idx) => (
+                                        <Box key={`${sec.heading}-${idx}`} id={buildAnchorId(`ai-overview-${idx + 1}`)}>
+                                            {sec.heading && !(typeof sec.body === "string" && sec.body.includes("###")) ? (
+                                                <Typography sx={{ fontSize: 14, fontWeight: 600, color: "#3A838B", mb: 0.6 }}>
+                                                    <span style={{ marginRight: '6px' }}>✨</span>
+                                                    {sec.heading}
+                                                </Typography>
+                                            ) : null}
+                                            {sec.content ? sec.content : <MarkdownBody text={sec.body} graphData={data?.graphData} onPmidClick={handlePmidClick} />}
+                                        </Box>
+                                    ))}
+                                </Stack>
+                            </Box>
+                        </SectionCard>
+                    </Grid>
+
+                    {/* Visual Material */}
+                    {showVisualSection ? (
+                        <Grid item xs={12} md={12} lg={5} order={{ xs: 2, md: 2, lg: preferFollowUpBeforeVisual ? 4 : 2 }} id={buildAnchorId("visual-material")}>
+                            <SectionCard title={visualTabs.length > 1 ? null : (data?.visualMaterial?.title || "Visual Material")} sx={{ height: "100%" }} variant={isPank1Style ? 'pank1' : 'default'}>
+                                {visualTabs.length > 1 ? (
+                                    <Box sx={{ mb: 1.2 }}>
+                                        <ContentTabs
+                                            tabs={visualTabs}
+                                            value={visualTab}
+                                            onChange={(_, v) => handleVisualTabChange(v)}
+                                            variant={isPank1Style ? 'pank1' : 'default'}
+                                        />
+                                    </Box>
+                                ) : null}
+
+                                {visualTabs.length ? (
+                                    visualTabs.map((tab, idx) => {
+                                        const isActive = visualTabs.length === 1 || visualTab === idx;
+                                        const isFullBleed = Boolean(tab.fullBleed);
+
+                                        return (
+                                            <Paper
+                                                key={`visual-tab-${idx}`}
+                                                elevation={0}
+                                                sx={{
+                                                    border: isFullBleed ? "none" : "1px solid #E6EAF2",
+                                                    borderRadius: isFullBleed ? 0 : 3,
+                                                    height: visualPanelHeight,
+                                                    width: "100%",
+                                                    maxWidth: visualPanelMaxWidth,
+                                                    mx: isSingleColumn ? "auto" : 0,
+                                                    bgcolor: isFullBleed ? "transparent" : "#F9FAFB",
+                                                    display: isActive ? "flex" : "none",
+                                                    alignItems: isFullBleed ? "stretch" : "center",
+                                                    justifyContent: isFullBleed ? "stretch" : "center",
+                                                    p: isFullBleed ? 0 : 2,
+                                                }}
+                                            >
+                                                {tab.content ? (
+                                                    typeof tab.content === "string" ? (
+                                                        <BodyText
+                                                            text={tab.content}
+                                                            graphData={data?.graphData}
+                                                            onPmidClick={handlePmidClick}
+                                                        />
+                                                    ) : React.isValidElement(tab.content) ? (
+                                                        typeof tab.content.type === "function"
+                                                            ? React.cloneElement(tab.content, {
+                                                                isVisible: visualTabs.length === 1 || visualTab === idx,
+                                                            })
+                                                            : tab.content
+                                                    ) : (
+                                                        tab.content
+                                                    )
+                                                ) : (
+                                                    <Typography sx={{ fontSize: 13, color: "#94A3B8", fontWeight: 700 }}>
+                                                        Visual content goes here
+                                                    </Typography>
+                                                )}
+                                            </Paper>
+                                        );
+                                    })
+                                ) : (
+                                    <Paper
+                                        elevation={0}
+                                        sx={{
+                                            border: "1px solid #E6EAF2",
+                                            borderRadius: 3,
+                                            height: visualPanelHeight,
+                                            width: "100%",
+                                            maxWidth: visualPanelMaxWidth,
+                                            mx: isSingleColumn ? "auto" : 0,
+                                            bgcolor: "#F9FAFB",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            p: 2,
+                                        }}
+                                    >
+                                        <Typography sx={{ fontSize: 13, color: "#94A3B8", fontWeight: 700 }}>
+                                            No visual material for this answer.
+                                        </Typography>
+                                    </Paper>
+                                )}
+                            </SectionCard>
+                        </Grid>
+                    ) : null}
+
+                    {/* Evidences */}
+                    {showEvidenceSection ? (
+                        <Grid item xs={12} md={12} lg={7} order={{ xs: 3, md: 3, lg: 3 }} id={buildAnchorId("evidences")}>
+                            <SectionCard title={isSingleColumn ? (data?.evidences?.title || "Evidences") : null} variant={isPank1Style ? 'pank1' : 'default'}>
+                                {evidenceTabs.length > 0 ? (
+                                    <Box sx={{ mb: 1.2 }}>
+                                        <ContentTabs
+                                            tabs={evidenceTabs}
+                                            value={evidenceTab}
+                                            onChange={(_, v) => handleEvidenceTabChange(v)}
+                                            variant={isPank1Style ? 'pank1' : 'default'}
+                                        />
+                                    </Box>
+                                ) : null}
+
+                                <Stack spacing={0}>
+                                    {evidenceTabs.length ? (
+                                        evidenceTabs.map((tab, tabIdx) => (
+                                            <Box
+                                                key={`evidence-tab-${tabIdx}`}
+                                                sx={{ display: evidenceTabs.length === 1 || evidenceTab === tabIdx ? "block" : "none" }}
+                                            >
+                                                {tab.content ? (
+                                                    tab.content
+                                                ) : tab.items && tab.items.length ? (
+                                                    <Stack spacing={1.25}>
+                                                        {tab.items.map((it) => {
+                                                            const matchesActive = Boolean(activeReference) && (String(it?.pmid || '') === String(activeReference) || it.anchorId === `reference-item-${activeReference}`);
+                                                            const matchesHover = Boolean(hoveredReference) && (String(it?.pmid || '') === String(hoveredReference) || it.anchorId === `reference-item-${hoveredReference}`);
+                                                            return (
+                                                            <EvidenceItem
+                                                                key={`${it.id}-${it.title}`}
+                                                                item={it}
+                                                                onSelect={data?.evidences?.onSelect}
+                                                                isActive={matchesActive}
+                                                                isHovered={!matchesActive && matchesHover}
+                                                                variant={isPank1Style ? 'pank1' : 'default'}
+                                                            />
+                                                            );
+                                                        })}
+                                                    </Stack>
+                                                ) : (
+                                                    <Typography sx={{ fontSize: 13, color: "#94A3B8", fontWeight: 700, py: 2 }}>
+                                                        No evidence items for this tab.
+                                                    </Typography>
+                                                )}
+                                            </Box>
+                                        ))
+                                    ) : (
+                                        <Typography sx={{ fontSize: 13, color: "#94A3B8", fontWeight: 700, py: 2 }}>
+                                            No evidence items for this answer.
+                                        </Typography>
+                                    )}
+                                </Stack>
+                            </SectionCard>
+                        </Grid>
+                    ) : null}
+
+                    {/* Follow Up */}
+                    {showFollowUpSection ? (
+                        <Grid item xs={12} md={12} lg={5} order={{ xs: 4, md: 4, lg: preferFollowUpBeforeVisual ? 2 : 4 }} id={buildAnchorId("follow-up")}>
+                            <SectionCard title={data?.followUp?.title ?? "Follow Up"} sx={{ height: "100%" }} variant={isPank1Style ? 'pank1' : 'default'}>
+                                <Stack spacing={3}>
+                                    {showFollowUpComposer && typeof data?.followUp?.onSubmit === "function" ? (
+                                        <Box
+                                            component="form"
+                                            onSubmit={(event) => {
+                                                event.preventDefault();
+                                                handleFollowUpSubmit();
+                                            }}
+                                            sx={{
+                                                border: "1px solid #ECF0F5",
+                                                borderRadius: "12px",
+                                                p: 1,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: 1,
+                                                backgroundColor: "#FFFFFF",
+                                                boxShadow: "0px 2px 8px -3px #64646F40",
+                                            }}
+                                        >
+                                            <TextField
+                                                value={followUpInputValue}
+                                                onChange={(event) => data?.followUp?.onChange?.(event.target.value || "")}
+                                                disabled={isFollowUpDisabled}
+                                                onKeyDown={(event) => {
+                                                    if (event.key === "Enter" && !event.shiftKey) {
+                                                        event.preventDefault();
+                                                        handleFollowUpSubmit();
+                                                    }
+                                                }}
+                                                placeholder={data?.followUp?.inputPlaceholder || "Ask a follow-up question..."}
+                                                variant="standard"
+                                                fullWidth
+                                                InputProps={{
+                                                    disableUnderline: true,
+                                                    startAdornment: (
+                                                        <InputAdornment position="start">
+                                                            <ChatBubbleOutlineIcon sx={{ color: "#94A3B8", fontSize: 20, marginLeft: "4px" }} />
+                                                        </InputAdornment>
+                                                    ),
+                                                }}
+                                                sx={{
+                                                    "& .MuiInputBase-input": {
+                                                        fontSize: 14,
+                                                        color: "#334155",
+                                                    },
+                                                }}
+                                            />
+                                            <IconButton
+                                                type="submit"
+                                                aria-label="send follow up"
+                                                disabled={isFollowUpDisabled || Boolean(data?.followUp?.submitting) || !String(followUpInputValue || "").trim()}
+                                                sx={{
+                                                    borderRadius: "999px",
+                                                    color: "#3A838B",
+                                                    width: 34,
+                                                    height: 34,
+                                                    "&:hover": {
+                                                        backgroundColor: "#F0FAFB",
+                                                    },
+                                                }}
+                                            >
+                                                {data?.followUp?.submitting ? <Skeleton variant="circular" width={20} height={20} /> : <SendIcon sx={{ fontSize: 20 }} />}
+                                            </IconButton>
+                                        </Box>
+                                    ) : null}
+                                    {(data?.followUp?.items ?? []).map((item, idx) => {
+                                            const label = getItemLabel(item);
+                                            const isLink = Boolean(item?.href);
+                                            const clickable = Boolean(!isFollowUpDisabled && (isLink || item?.onClick || data?.followUp?.onSelect));
+                                            const Component = isLink ? "a" : clickable ? "button" : "div";
+                                            const handleClick = (event) => {
+                                                if (isFollowUpDisabled) {
+                                                    event?.preventDefault?.();
+                                                    return;
+                                                }
+                                                item?.onClick?.(item, event);
+                                                data?.followUp?.onSelect?.(item, event);
+                                            };
+
+                                            return (
+                                                <Paper
+                                                    key={`${idx}-${label}`}
+                                                    elevation={0}
+                                                    component={Component}
+                                                    href={isLink ? item.href : undefined}
+                                                    target={isLink ? item.target || "_blank" : undefined}
+                                                    rel={isLink ? "noreferrer" : undefined}
+                                                    onClick={clickable ? handleClick : undefined}
+                                                    type={Component === "button" ? "button" : undefined}
+                                                    sx={{
+                                                        bgcolor: (isFollowUpDisabled || isFollowUpLoading) ? "#EDF2F7" : "#FFFFFF",
+                                                        py: isPank1Style ? 1.25 : 2,
+                                                        px: isPank1Style ? 1.5 : 3,
+                                                        borderRadius: isPank1FollowUpStyle ? "10px" : "16px",
+                                                        border: isPank1FollowUpStyle ? "1px solid #E7EBEF" : "none",
+                                                        outline: "none",
+                                                        appearance: "none",
+                                                        cursor: clickable ? "pointer" : "not-allowed",
+                                                        transition: clickable ? "all 0.2s ease" : "none",
+                                                        textAlign: "left",
+                                                        textDecoration: "none",
+                                                        "&:hover": clickable
+                                                            ? {
+                                                                bgcolor: isPank1FollowUpStyle ? "#F0F4F4" : "#EFF6FF",
+                                                                borderColor: isPank1FollowUpStyle ? "#2EA7A7" : undefined,
+                                                            }
+                                                            : undefined,
+                                                        opacity: (isFollowUpDisabled || isFollowUpLoading) ? 0.7 : 1,
+                                                    }}
+                                                >
+                                                    <Typography sx={{ fontSize: isPank1Style ? 12 : 13.5, fontWeight: isPank1Style ? 600 : 700, color: "#1E293B" }}>{label}</Typography>
+                                                </Paper>
+                                            );
+                                        })}
+
+                                    {!data?.followUp?.items?.length ? (
+                                        <Typography sx={{ fontSize: 13, color: "#94A3B8", fontWeight: 700, py: 2 }}>
+                                            {isFollowUpLoading ? 'Loading follow-up questions...' : 'No follow-up questions.'}
+                                        </Typography>
+                                    ) : null}
+                                </Stack>
+                            </SectionCard>
+                        </Grid>
+                    ) : null}
+                </Grid>
+
+                {/* Note:
+            Responsive behavior requirement:
+            On small widths, the Grid `order` makes the layout become one column in this exact order:
+            AI overview -> visual material -> evidences -> follow up.
+            On md+ widths it becomes a 2-column layout like the screenshot.
+        */}
+            </Box>
+        </ThemeProvider>
+    );
+}
+
+/* ------------------ Example usage ------------------
+
+import React from "react";
+import QuestionAnswerPage from "./QuestionAnswerPage";
+
+const pageData = {
+  questionId: "Q1",
+  title: "How Does The SNP Rs2402203 Influence The Expression Of CFTR In Pancreas Tissue, As Reported By GTEx?",
+  aiOverview: {
+    sections: [
+      {
+        heading: "Gene Function:",
+        body:
+          "The gene CFTR ... (your text here)",
+      },
+      {
+        heading: "QTL Link:",
+        body:
+          "The SNP rs2402203 ... (your text here)",
+      },
+      {
+        heading: "Specific Relation To Type 1 Diabetes:",
+        body:
+          "The gene CFTR ... (your text here)",
+      },
+    ],
+  },
+  visualMaterial: {
+    title: "VISUAL MATERIAL",
+    tabs: [
+      { label: "Knowledge Graph", content: "" }, // can be JSX too
+      { label: "Provenance", content: "" },
+    ],
+  },
+  evidences: {
+    title: "Evidences",
+    tabs: [
+      {
+        label: "References",
+        items: [
+          { id: 1, title: "Fine-Mapping, Trans-Ancestral And Genomic Analyses Identify Causal Variants...", subtitle: "NATURE GENETICS, 2021 • PMID: 34127860" },
+          { id: 2, title: "Fine-Mapping, Trans-Ancestral And Genomic Analyses Identify Causal Variants...", subtitle: "NATURE GENETICS, 2021 • PMID: 34127860" },
+          { id: 3, title: "Fine-Mapping, Trans-Ancestral And Genomic Analyses Identify Causal Variants...", subtitle: "NATURE GENETICS, 2021 • PMID: 34127860" },
+          { id: 4, title: "Fine-Mapping, Trans-Ancestral And Genomic Analyses Identify Causal Variants...", subtitle: "NATURE GENETICS, 2021 • PMID: 34127860" },
+        ],
+      },
+      { label: "Provenance", items: [] },
+      { label: "Pankbase Links", items: [] },
+      { label: "External Links", items: [] },
+    ],
+  },
+  followUp: {
+    title: "Follow Up",
+    items: [
+      "What are the target cells for CFTR in the pancreas?",
+      "How Does CFTR Interact With CSK In Autoimmune Processes?",
+      "Are There Other SNPs In The Same Locus Linked To T1D?",
+    ],
+  },
+};
+
+export default function App() {
+  return <QuestionAnswerPage data={pageData} />;
+}
+
+---------------------------------------------------- */

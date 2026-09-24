@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PanKgraph · HIRN Literature QA</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#" aria-label="PanKgraph home">
+        <span class="brand-mark">P</span>
+        <span>PanKgraph</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="#">Search</a><a href="#">Analysis</a><a href="#">Data</a><a href="#">Resources</a>
+      </nav>
+      <span class="environment">LOCAL DEMO</span>
+    </header>
+
+    <div class="app-shell">
+      <aside>
+        <div class="network-name"><span class="network-icon">H</span><div><strong>HIRN</strong><small>Literature tools</small></div></div>
+        <button class="side-button">＋ New search</button>
+        <p class="side-label">TOOLS</p>
+        <a class="side-link active" href="#">▤ HIRN Literature QA</a>
+        <p class="side-label">ABOUT THIS SEARCH</p>
+        <p class="side-copy">Answers are restricted to the closed HIRN article library. No PubMed or model-knowledge fallback is used.</p>
+      </aside>
+
+      <main>
+        <section class="hero">
+          <a class="back" href="#">← Back to Tools</a>
+          <div class="title-row"><span class="book-icon">▤</span><div><h1>HIRN Literature QA</h1><p>Human Islet Research Network</p></div></div>
+          <p class="lede">Ask a biomedical question and receive a direct answer grounded only in the HIRN literature library. If the library cannot support an answer, it says so directly.</p>
+          <div class="pills"><span>Closed HIRN corpus</span><span>Source-linked answers</span><span>Single-turn search</span></div>
+        </section>
+
+        <section id="composer" class="card composer" aria-labelledby="question-label">
+          <h2 id="question-label">Ask a question about HIRN literature</h2>
+          <p>Use plain language. Typical searches take 10–20 seconds.</p>
+          <textarea id="question" rows="5" placeholder="For example: What happens to alpha cells when the glucagon receptor is inactivated in zebrafish?"></textarea>
+          <div class="composer-footer"><small>Press Ctrl/⌘ + Enter to submit</small><div><button id="cancel" class="secondary hidden">Cancel</button><button id="ask">Ask HIRN Literature <span>➤</span></button></div></div>
+        </section>
+
+        <section id="progress" class="status-card hidden" role="status" aria-live="polite"><span class="spinner"></span><div><strong>Searching HIRN literature</strong><p id="progress-label">Connecting to the HIRN literature service…</p></div></section>
+        <section id="error" class="error-card hidden" role="alert"><strong>Unable to complete the literature search</strong><p id="error-message"></p></section>
+
+        <section id="result" class="hidden">
+          <div class="question-summary"><div><small>YOUR QUESTION</small><p id="submitted-question"></p></div><button id="ask-another" class="secondary">↻ Ask another question</button></div>
+          <article id="answer-card" class="card answer-card"><div class="answer-heading"><span id="answer-icon">✓</span><h2 id="answer-title">Direct answer</h2><small id="execution-time"></small></div><div id="answer"></div></article>
+          <div id="refusal-note" class="info-card hidden">ⓘ This is a successful closed-corpus result, not a service error. No outside source or fallback search was used.</div>
+          <section id="references-section"><div class="references-heading"><h2>References</h2><span id="reference-count"></span></div><div id="references"></div></section>
+        </section>
+      </main>
+    </div>
+    <script src="./app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "id": "tool-gwas",
+  "title": "GWAS explorer",
+  "route": "/gwas-explorer",
+  "group": "Tools",
+  "parent": "tools",
+  "source": "src/skills/GWASExplorerPage.js",
+  "description": "Current GWAS explorer configuration and supporting content.",
+  "kind": "current UI",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+}

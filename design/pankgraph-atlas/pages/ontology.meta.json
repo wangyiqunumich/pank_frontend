@@ -1,0 +1,15 @@
+{
+  "id": "ontology",
+  "title": "Ontology browser",
+  "route": "/ontology",
+  "group": "Documentation & resources",
+  "parent": "documentation",
+  "source": "src/pages/Ontology.js",
+  "description": "Current standalone ontology page. The root is expanded for inspection.",
+  "kind": "current UI",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "captureNote": "Rendered from current local build. Remote APIs and telemetry blocked; no inference or private data used."
+}

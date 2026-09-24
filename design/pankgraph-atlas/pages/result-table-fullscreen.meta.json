@@ -1,0 +1,10 @@
+{
+  "id": "result-table-fullscreen",
+  "title": "Answer table \u00b7 full screen",
+  "description": "Current Markdown table expanded for review. Synthetic display rows.",
+  "source": "src/components/ResultComponent.js",
+  "route": "/result-new2",
+  "group": "Result details",
+  "parent": "agent-result",
+  "kind": "Current UI + synthetic fixture"
+}

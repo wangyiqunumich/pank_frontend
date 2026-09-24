@@ -1,0 +1,15 @@
+{
+  "id": "result-functional-expanded",
+  "title": "Functional result \u00b7 expanded plot",
+  "description": "Current Functional Data plot dialog with illustrative synthetic chart and Close plot control.",
+  "source": "src/vnext/FunctionalVisual.js",
+  "route": "/result-new2?run_id=design-run",
+  "group": "Result details",
+  "parent": "agent-result",
+  "kind": "Current UI + synthetic fixture",
+  "synthetic": true,
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  }
+}

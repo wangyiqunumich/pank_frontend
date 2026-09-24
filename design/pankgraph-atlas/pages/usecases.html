@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="design-snapshot" content="Current PanKgraph source; synthetic content where labeled">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#000000">
+<meta name="description" content="Web site created using create-react-app">
+<title>Use cases · PanKgraph reference</title>
+<meta name="description" content="PanKgraph is a T1D knowledge graph that integrates multi-omic and curated biological data into a unified framework for discovery, visualization, and reproducible diabetes research.">
+<meta name="robots" content="noindex,nofollow">
+<meta name="twitter:title" content="PanKBase – Pan-genome Knowledge Base | pankgraph.org">
+<meta name="twitter:description" content="PanKgraph is a T1D knowledge graph that integrates multi-omic and curated biological data into a unified framework for discovery, visualization, and reproducible diabetes research.">
+<link rel="stylesheet" href="../styles/3236a1e235e21b5aebab.css">
+<link rel="stylesheet" href="../styles/3981213a885f4a4cbe9d.css"></head>
+<body>
+<div id="root">
+<div class="MuiContainer-root MuiContainer-disableGutters css-1h4exh5">
+<div style="min-height: 100vh; display: flex; flex-direction: column;">
+<div style="position: relative; z-index: 1300;">
+<div class="pkb-nav"><button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall mobile-context-button css-1j7qk7u" tabindex="0" type="button" aria-label="Open context navigation"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1k33q06" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="MenuRoundedIcon"><path d="M4 18h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1m0-5h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1M3 7c0 .55.45 1 1 1h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1"></path></svg><span class="MuiTouchRipple-root css-w0pj6f"></span></button>
+<div class="logo"><a href="https://pankbase.org"><img class="logo-img" src="../assets/external/5c6802d3c71c.svg" alt="PanKbase Logo"></a></div>
+<div class="nav-right">
+<div class="menu-wrapper">
+<div class="topmenu"><a class="topmenu-item" href="https://pankbase.org/funding.html"><span>Funding Opportunities</span><img src="../assets/external/818074359b9e.svg" alt="Funding Icon" style="height: 15px; width: 15px;"></a><span class="topmenu-item topmenu-item-disabled"><span>Search</span><img src="../assets/external/a204b8f9dfa0.svg" alt="Search Icon" style="height: 15px; width: 15px;"></span><span class="topmenu-item topmenu-item-disabled"><span>Analysis</span></span><span class="topmenu-item topmenu-item-disabled"><span>Login</span><img src="../assets/external/23291bcd3e16.svg" alt="User Icon" style="height: 15px; width: 15px;"></span></div>
+<div class="menu">
+<div class="main-menu-items">
+<div class="menu-item-wrapper"><a class="menu-item menu-item-main menu-item-main-highlighted" href="landing.html" data-atlas-target="landing">PanKgraph</a>
+<div class="submenu"><a class="submenu-item" href="landing.html" data-atlas-target="landing">Chat</a><a class="submenu-item" href="tools.html" data-atlas-target="tools">Tools</a>
+<div class="submenu-divider"></div>
+<a class="submenu-item" href="documentation.html" data-atlas-target="documentation">KG API Doc</a><a class="submenu-item" href="documentation.html" data-atlas-target="documentation">Literature API Doc</a><a class="submenu-item" href="documentation.html" data-atlas-target="documentation">Ontology</a><a class="submenu-item" href="documentation.html" data-atlas-target="documentation">Use cases</a><a class="submenu-item" href="documentation.html" data-atlas-target="documentation">Tutorials</a><a class="submenu-item" href="documentation.html" data-atlas-target="documentation">Statistics</a></div>
+</div>
+<div class="menu-item-wrapper"><a class="menu-item menu-item-main" href="https://pankbase.org/single-cell.html">Integrated Cell Browser</a></div>
+</div>
+<div class="menu-item-wrapper"><button type="button" class="menu-item menu-trigger">Data</button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org/donors.html">Donor Summary</a><a class="submenu-item" href="https://data.pankbase.org">Data Library</a><a class="submenu-item" href="https://pankbase.org/apis.html">APIs</a></div>
+</div>
+<div class="menu-item-wrapper"><button type="button" class="menu-item menu-trigger">Resources</button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org/single-cell.html">Integrated Cell Browser</a><a class="submenu-item" href="https://pankbase.org/atacseq.html">Genome Browser</a><a class="submenu-item" href="https://pankbase.org/diff-exp.html">Differential Gene Expression Browser</a><a class="submenu-item" href="https://pankbase.org/gene.html">Gene Browser</a><a class="submenu-item" href="https://pankbase.org/functional.html">Functional Browser</a><a class="submenu-item" href="https://pankbase.org/pca-explorer.html">PCA Explorer</a><a class="submenu-item" href="https://pankbase.org/analytical-library.html">Analytical Library</a><a class="submenu-item" href="https://pankbase.org/metadata-data-standards.html">Data and Metadata Standards</a><a class="submenu-item" href="https://pankbase.org/tools-pipelines.html">Tools | Pipelines</a><a class="submenu-item" href="https://pankbase.org/publications.html">Publications</a></div>
+</div>
+<div class="menu-item-wrapper"><button type="button" class="menu-item menu-trigger">About</button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org/projects.html">PanKbase Program</a><a class="submenu-item" href="https://pankbase.org/people.html">People</a><a class="submenu-item" href="https://pankbase.org/policies.html">Policies</a><a class="submenu-item" href="https://pankbase.org/programs.html">Related Programs</a><a class="submenu-item" href="https://pankbase.org/collaborate.html">Collaborate</a><a class="submenu-item" href="https://pankbase.org/funding.html">Funding Opportunities</a></div>
+</div>
+<div class="menu-item-wrapper"><button type="button" class="menu-item menu-trigger">Help</button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org/contact.html">Contact | Feedback</a><a class="submenu-item" href="https://pankbase.org/tutorials.html">Tutorials</a><a class="submenu-item">GitHub</a><a class="submenu-item" href="https://pankbase.org/news.html">News</a></div>
+</div>
+</div>
+</div>
+<div class="logo hirn-logo"><a href="https://hirnetwork.org/" target="_blank" rel="noreferrer"><img class="logo-img" src="../assets/static/media/logo-hirn.198e6858a62155bf2a47d86f3b88473b.svg" alt="HIRN Logo"></a></div>
+</div>
+</div>
+<p class="MuiTypography-root MuiTypography-body1 css-7wf5jr">beta</p>
+</div>
+<div style="flex: 1 1 0%; display: flex; flex-direction: column;">
+<div class="App">
+<div class="MuiContainer-root MuiContainer-maxWidthLg css-1oifrf6">
+<div class="markdown-body MuiBox-root css-1v430nd">
+<div class="post-markdown">
+<h3>Use Case: Asking T1D Questions in PanKgraph</h3>
+
+<p>PanKgraph is built for researchers who want to ask practical questions about Type 1 Diabetes (T1D) and pancreas biology without first translating those questions into graph query syntax. A user can ask in ordinary language, and PanKagent helps find the relevant genes, variants, cell types, pathways, disease links, and supporting evidence in the knowledge graph.</p>
+
+<p>The graph brings together several kinds of data that are commonly needed in T1D research. It includes gene and variant information, fine-mapped QTL and GWAS signals, gene-disease colocalization evidence, gene expression and differential expression across pancreatic cell types, chromatin accessibility and gene activity from single-cell ATAC data, pathway and ontology annotations, protein or genetic interaction evidence, donor and sample metadata from HPAP, and links back to PanKbase or external resources.</p>
+
+<h4>Supported Question Types</h4>
+
+<p>Because these data are connected in one graph, PanKgraph can support questions that cross data modalities. For example, a researcher can ask whether a T1D GWAS signal also has molecular QTL support for a nearby gene, whether a candidate gene is active in a relevant pancreatic cell type, whether a gene is part of an immune or endocrine pathway, or whether the evidence points more toward a beta-cell, ductal, immune, or broader pancreatic mechanism.</p>
+
+<p>PanKagent is useful when the question is not a single table lookup. It can break a natural-language question into the graph searches needed to answer it, retrieve the supporting records, and return an answer with references and provenance. Example questions include:</p>
+
+<h5>Example Questions</h5>
+<ul>
+<li>For ADCY3, does the T1D-associated GWAS signal rs13393590 colocalize with ADCY3 molecular QTL evidence?</li>
+
+<li>Is PLEKHM1 a T1D effector gene or key marker gene in pancreatic cell types?</li>
+
+<li>What pathways and interaction partners connect HLA-DRA to antigen presentation in T1D?</li>
+
+<li>Is CFTR specifically enriched in ductal cells?</li>
+
+<li>For CFTR, does the T1D GWAS signal colocalize with a pancreas splicing QTL?</li>
+
+</ul>
+
+<h4>Direct Tools for Focused Queries</h4>
+
+<p>PanKgraph also includes direct tools for users who already know which data type they want to inspect. These tools are useful for fast, focused access to QTL, GWAS, or functional islet data without going through the full question-answer workflow. For example, the Pancreatic Islet Functional Data Tool supports interactive filtering of HIPP pancreatic islet function data and can use the agent to help explain selected feature plots.</p>
+
+<h4>Future Direction</h4>
+
+<p>In the future, PanKgraph can become more useful as additional data modalities, stronger provenance, and better agent planning are added. The goal should remain conservative: PanKagent should help researchers navigate complex connected data, but its answers should stay grounded in graph evidence, source records, and traceable links rather than unsupported model interpretation.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="pkb-footer" style="min-height: fit-content; height: auto; position: relative;">
+<div class="menu">
+<div class="main-menu-items">
+<div class="menu-item-wrapper"><a class="menu-item menu-item-main" href="landing.html" data-atlas-target="landing" style="font-weight: 600;">PanKgraph</a></div>
+<div class="menu-item-wrapper"><a class="menu-item menu-item-main" href="https://data.pankbase.org" style="font-weight: 600;">Data Library</a></div>
+<div class="menu-item-wrapper"><a class="menu-item menu-item-main" href="https://pankbase.org:8000/single-cell.html" style="font-weight: 600;">Integrated Cell Browser</a></div>
+</div>
+<div class="menu-item-wrapper"><span class="menu-item menu-item-label" style="font-weight: 600;">Data</span><button type="button" class="submenu-toggle" aria-label="Toggle Data submenu" aria-expanded="false"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1k33q06" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="KeyboardArrowDownIcon"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"></path></svg></button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org:8000/data-browser.html">Data Browser</a><a class="submenu-item" href="http://tools.cmdga.org:3838/metadata_analysis_assays/">Donor Metadata</a><a class="submenu-item" href="https://pankbase.org:8000/apis.html">APIs</a></div>
+</div>
+<div class="menu-item-wrapper"><span class="menu-item menu-item-label" style="font-weight: 600;">Resources</span><button type="button" class="submenu-toggle" aria-label="Toggle Resources submenu" aria-expanded="false"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1k33q06" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="KeyboardArrowDownIcon"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"></path></svg></button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org:8000/single-cell.html">Integrated Cell Browser</a><a class="submenu-item" href="https://pankbase.org:8000/analytical-library.html">Analytical Library</a><a class="submenu-item" href="https://pankbase.org:8000/publications.html">Publications</a></div>
+</div>
+<div class="menu-item-wrapper"><span class="menu-item menu-item-label" style="font-weight: 600;">About</span><button type="button" class="submenu-toggle" aria-label="Toggle About submenu" aria-expanded="false"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1k33q06" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="KeyboardArrowDownIcon"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"></path></svg></button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org:8000/projects.html">Project</a><a class="submenu-item" href="https://pankbase.org:8000/people.html">People</a><a class="submenu-item" href="https://pankbase.org:8000/policies.html">Policies</a><a class="submenu-item" href="https://pankbase.org:8000/programs.html">Programs</a><a class="submenu-item" href="https://pankbase.org:8000/collaborate.html">Collaborate</a></div>
+</div>
+<div class="menu-item-wrapper"><span class="menu-item menu-item-label" style="font-weight: 600;">Help</span><button type="button" class="submenu-toggle" aria-label="Toggle Help submenu" aria-expanded="false"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1k33q06" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="KeyboardArrowDownIcon"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"></path></svg></button>
+<div class="submenu"><a class="submenu-item" href="https://pankbase.org:8000/contact.html">Contact</a><a class="submenu-item" href="https://pankbase.org:8000/metadata-data-standards.html">Metadata | Data Standards</a><a class="submenu-item" href="https://pankbase.org:8000/tools-pipelines.html">Tools | Pipelines</a><a class="submenu-item" href="https://pankbase.org:8000/tutorials.html">Tutorials</a><a class="submenu-item" href="https://pankbase.org:8000/news.html">News</a></div>
+</div>
+</div>
+<div class="info-rows">
+<div class="logo info-logo-1"><a href="landing-classic.html" data-atlas-target="landing-classic"><img class="footer-logo-img" src="../assets/external/e5089d68fc14.svg" alt="PanKbase Logo"></a></div>
+<div class="f-row-text info-text-1">Supported by <strong>National Institutes of Health (NIH)</strong> grants <strong>U24 DK138515</strong>, <strong>U24 DK138512</strong><br>Supplemental funds from the <strong>NIH Office of Data Science Strategies</strong></div>
+<div class="logo info-logo-2"><a href="https://hirnetwork.org/"><img class="footer-logo-img" src="../assets/external/837e9c5067b9.svg" alt="Hirn Logo"></a></div>
+<div class="f-row-text info-text-2">Check out the latest developments from the Human Islet Resource Network (HIRN) through its newsletter detailing research advancements, funding opportunities, job openings, and more.</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script src="../page-index.js"></script>
+
+<script>window.PAGE_META = {id: "usecases", availableIds: window.PAGE_IDS};</script>
+
+<script src="../page-runtime.js"></script>
+</body>
+</html>

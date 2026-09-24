@@ -1,0 +1,15 @@
+{
+  "id": "tool-functional-table",
+  "title": "Functional donor table overlay",
+  "route": "/functional-data",
+  "group": "Tools",
+  "parent": "tool-functional-populated",
+  "description": "Full donor table overlay opened through Show more. All six rows are explicit synthetic design placeholders.",
+  "source": "src/skills/FunctionalDataPage.js",
+  "kind": "static fixture",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "captureNote": "Current source rendered using explicitly synthetic local API responses. DEMO rows are invented UI placeholders, not actual donors; chart areas contain no biological data."
+}

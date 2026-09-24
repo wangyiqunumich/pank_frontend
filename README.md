@@ -16,6 +16,71 @@ Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 The page will reload when you make changes.\
 You may also see any lint errors in the console.
 
+### Local HIRN Literature QA demo
+
+The `/hirn-literature` page implements the closed-corpus HIRN SSE contract in
+`docs/FRONTEND_HANDOFF.md` from the `hirn-agent` service. It deliberately treats
+an empty-reference `Complete` frame as a successful refusal, supports sources
+without PMIDs or URLs, and never renders `Processing` frames or verbatim evidence.
+
+The checked-in browser default targets the public published-literature endpoint:
+
+```text
+https://jieliulab3.dcmb.med.umich.edu/hirn-literature-api/published
+```
+
+For the local demo, `.env.local` points the browser to an SSH tunnel on port
+18100. Start the tunnel and the React development server together with:
+
+```bash
+npm run start:hirn-demo
+```
+
+Then open <http://localhost:3001/hirn-literature>. Override `HIRN_SSH_HOST`,
+`HIRN_LOCAL_PORT`, or `PORT` when needed.
+
+For an immediate zero-build demo with the same live SSE behavior, run:
+
+```bash
+npm run start:hirn-standalone
+```
+
+Open <http://localhost:3002>. This is useful when the legacy Create React App
+bundle is slow to compile; the integrated `/hirn-literature` implementation
+remains the production handoff target.
+
+The browser client intentionally sends no API key or authorization header. Do
+not place secrets in `REACT_APP_*` variables: Create React App embeds those
+values in the public JavaScript bundle. The current HIRN service has no API-key
+authentication and is exposed locally only through the SSH tunnel. If a future
+deployment adds authentication, put the credential in a server-side proxy.
+
+### Conversational and Agent search demo
+
+The local `/hirn-literature` page keeps Standard search selected by default and
+adds follow-up questions below completed answers. Follow-ups are converted into
+standalone contextual questions in the browser, so the HIRN backend contract is
+unchanged.
+
+Agent search uses the public orchestration endpoint:
+
+```text
+https://jieliulab3.dcmb.med.umich.edu/hirn-literature-api/agent
+```
+
+Claude Haiku plans and audits retrieval queries there, while every displayed
+scientific answer is the unchanged `Complete` result from the HIRN literature
+API. Agent mode runs four queries in parallel: two fact-check the main
+mechanism implied by the question and two independently search for competing
+mechanisms, limitations, or unresolved explanations. The best grounded raw
+HIRN result for each perspective is displayed in its own section; additional
+raw results remain expandable. This presents both evidence tracks without
+asking Claude to synthesize a biomedical answer or implying equal evidence.
+The Anthropic key and usage database stay on the server.
+
+Run the integrated local page with `npm run start:hirn-demo` and open
+<http://localhost:3001/hirn-literature>.
+
 ### `npm test`
 
 Launches the test runner in the interactive watch mode.\
@@ -70,3 +135,8 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+
+## Designer reference
+
+The [PanKgraph designer atlas](design/pankgraph-atlas/README.md) contains 66 linked page/state snapshots and a source-backed error library. Download or clone the repository and open `design/pankgraph-atlas/START-HERE.html` to review it offline. Edit the HTML, metadata, styles or message catalog through normal Git commits; this reference does not change the running application.

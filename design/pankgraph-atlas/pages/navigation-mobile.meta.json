@@ -1,0 +1,15 @@
+{
+  "id": "navigation-mobile",
+  "title": "Mobile navigation drawer",
+  "route": "/",
+  "group": "Entry & navigation",
+  "parent": "landing-mobile",
+  "description": "Current global navigation drawer opened at 390px viewport.",
+  "source": "src/NavBar/index.js",
+  "kind": "current UI",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "captureNote": "Source UI navigation interaction captured locally; APIs blocked."
+}

@@ -1,0 +1,16 @@
+{
+  "id": "functional-populated",
+  "title": "Functional Data \u00b7 populated synthetic cohort",
+  "route": "/functional-data",
+  "group": "Tools",
+  "parent": "tool-functional",
+  "states": [
+    "Cohort filters",
+    "response plot",
+    "trait plot",
+    "metadata preview"
+  ],
+  "synthetic": true,
+  "fixture": "Synthetic source-shaped values; all service APIs intercepted; no live requests",
+  "source": "pank_frontend_vnext/src/skills/FunctionalDataPage.js"
+}

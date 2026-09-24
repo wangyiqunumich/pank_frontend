@@ -24,3 +24,10 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# local HIRN agent runtime
+__pycache__/
+*.py[cod]
+/hirn_agent_api/.venv/
+/hirn_agent_api/var/
+/hirn_agent_api/secrets/

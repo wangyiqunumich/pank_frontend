@@ -1,0 +1,10 @@
+{
+  "id": "result-feedback",
+  "title": "Feedback \u00b7 form",
+  "description": "Reachable form. Submission is unavailable in the current demo. The question selector currently shows source fallback question text; this is a current UI gap.",
+  "source": "src/SearchResult/AgentResult.js",
+  "route": "/result-new2",
+  "group": "Result details",
+  "parent": "agent-result",
+  "kind": "Current UI + synthetic fixture"
+}

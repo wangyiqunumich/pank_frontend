@@ -1,0 +1,10 @@
+{
+  "id": "result-plot-lightbox",
+  "title": "Empirical plot \u00b7 lightbox",
+  "description": "Current plot lightbox. The image contains synthetic values.",
+  "source": "src/vnext/Resources.js",
+  "route": "/result-new2",
+  "group": "Result details",
+  "parent": "agent-result",
+  "kind": "Current UI + synthetic fixture"
+}

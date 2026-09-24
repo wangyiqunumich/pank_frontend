@@ -3,6 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import ExtensionOutlinedIcon from '@mui/icons-material/ExtensionOutlined';
+import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
 import {
   Box,
   Button,
@@ -11,6 +12,8 @@ import {
 } from '@mui/material';
 
 import AgentSidebar from '../components/AgentSidebar';
+import { getDevConfig } from '../vnext/runtimeConfig';
+import BubbleChartOutlinedIcon from '@mui/icons-material/BubbleChartOutlined';
 import {
   ReactComponent as FunctionalDataSkillLogo,
 } from '../image/new_logos/functional-data-icon.svg';
@@ -149,7 +152,7 @@ export default function SkillsPage() {
             sx={{
               mt: 8,
               display: 'grid',
-              gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' },
+              gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' },
               gap: { xs: 3, md: 4 },
             }}
           >
@@ -191,6 +194,18 @@ export default function SkillsPage() {
               actionHoverBg="#ECF8EE"
             />
 
+            {getDevConfig().colocEnabled && <SkillCard
+              icon={<BubbleChartOutlinedIcon sx={{ fontSize: 44 }} />}
+              title="Coloc Explorer"
+              description="Browse recorded T1D colocalization evidence and compare signal probabilities, credible-set variants, and genomic tracks."
+              actionLabel="Launch"
+              onAction={() => navigate('/coloc-explorer')}
+              accent="#0F766E"
+              iconBg="#E5F4F1"
+              cardBg="#F5FBFA"
+              actionHoverBg="#E5F4F1"
+            />}
+
             <SkillCard
               icon={<SkillLogo SvgIcon={FunctionalDataSkillLogo} size={50} color="#4e0f9e" />}
               title="Pancreatic Islet Functional Data Tool"
@@ -202,6 +217,19 @@ export default function SkillsPage() {
               iconShadow="0 8px 18px rgba(105, 46, 156, 0.28)"
               cardBg="#FAF7FC"
               actionHoverBg="#F3ECFA"
+            />
+
+            <SkillCard
+              icon={<MenuBookOutlinedIcon sx={{ fontSize: 44 }} />}
+              title="HIRN Literature QA Tool"
+              description="Ask plain-language questions about HIRN literature and receive direct, evidence-grounded answers with PubMed references."
+              actionLabel="Launch"
+              onAction={() => navigate('/hirn-literature')}
+              accent="#B45309"
+              iconBg="#FFF3D6"
+              iconShadow="0 8px 18px rgba(180, 83, 9, 0.24)"
+              cardBg="#FFFBF2"
+              actionHoverBg="#FFF3D6"
             />
           </Box>
 

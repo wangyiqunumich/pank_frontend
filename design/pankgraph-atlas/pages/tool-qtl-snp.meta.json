@@ -1,0 +1,15 @@
+{
+  "id": "tool-qtl-snp",
+  "title": "QTL explorer \u2014 SNP",
+  "route": "/qtl-explorer",
+  "group": "Tools",
+  "parent": "tool-qtl-gene",
+  "description": "SNP mode selected through the current tool controls.",
+  "source": "src/skills/QTLExplorerPage.js",
+  "kind": "current UI",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "captureNote": "Rendered current source locally. APIs blocked; synthetic fixtures are labeled. No inference or private donor data."
+}

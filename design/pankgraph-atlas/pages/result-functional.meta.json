@@ -1,0 +1,10 @@
+{
+  "id": "result-functional",
+  "title": "Result \u00b7 functional data plot",
+  "route": "/result-new2?run_id=design-run",
+  "group": "Result views",
+  "parent": "agent-result",
+  "kind": "Current UI + synthetic fixture",
+  "description": "Rendered current components with synthetic display content. No live query was submitted.",
+  "source": "src/vnext/ResultView.js"
+}

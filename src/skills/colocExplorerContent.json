@@ -1,0 +1,80 @@
+{
+  "header": {
+    "backText": "Back to Subagent Library",
+    "title": "Coloc Explorer",
+    "version": "v1.0",
+    "badges": [
+      "Recorded T1D analyses",
+      "GWAS + QTL evidence"
+    ],
+    "descriptionLines": [
+      "Explore recorded colocalization between T1D GWAS and QTL signals.",
+      "Filter the catalog, then open one comparison to inspect its probabilities, variants, and sources."
+    ]
+  },
+  "configureSection": {
+    "title": "Configure your Coloc question",
+    "subtitle": "Filter recorded analyses by gene, dataset, tissue, or QTL type"
+  },
+  "selectionSection": {
+    "title": "Recorded colocalizations",
+    "subtitle": "Select a mark in the matrix to inspect one GWAS–QTL signal pair."
+  },
+  "shared": {
+    "infoBar": "This catalog contains recorded T1D comparisons. Each comparison retains its dataset and exact signal identities.",
+    "whatNextTitle": "What happens next?",
+    "whatNextDescription": "Open a comparison to view recorded H0–H4 probabilities, credible-set members, and source provenance. An AI summary interprets the selected evidence.",
+    "workflow": [
+      {
+        "title": "Filter the catalog",
+        "text": "Find the gene or study context of interest"
+      },
+      {
+        "title": "Select a comparison",
+        "text": "Open one recorded GWAS–QTL signal pair"
+      },
+      {
+        "title": "Inspect the evidence",
+        "text": "Review probabilities, membership, coverage, and sources"
+      }
+    ]
+  },
+  "rightPanel": {
+    "aboutTitle": "About Coloc Explorer",
+    "aboutBody": "Coloc Explorer brings together recorded T1D colocalization, GWAS/QTL credible-set membership, and linked PanKgraph evidence.",
+    "importantTitle": "Important",
+    "importantBodyLines": [
+      "This tool explores existing results; it does not rerun colocalization or fine-mapping.",
+      "Support for a shared signal does not prove a causal gene, variant, or mechanism.",
+      "Coverage varies by source. Credible-set members do not represent every variant tested in the original analysis."
+    ],
+    "whyTitle": "Why use this tool?",
+    "whyItems": [
+      "Inspect recorded posteriors with their study context",
+      "Explore GWAS and QTL members with explicit coverage",
+      "See shared variants without treating overlap as a new coloc result",
+      "Trace evidence to source files and graph provenance"
+    ],
+    "examplesTitle": "Example questions",
+    "examples": [
+      {
+        "text": "Which recorded T1D colocalization analyses involve ADCY3?",
+        "fill": {
+          "gene": "ADCY3"
+        }
+      },
+      {
+        "text": "What colocalization evidence is recorded for GSDMB?",
+        "fill": {
+          "gene": "GSDMB"
+        }
+      },
+      {
+        "text": "Which recorded T1D comparisons use exonQTL data?",
+        "fill": {
+          "qtl_type": "exonQTL"
+        }
+      }
+    ]
+  }
+}

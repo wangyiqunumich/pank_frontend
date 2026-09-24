@@ -1,0 +1,15 @@
+{
+  "id": "functional-chart-error",
+  "title": "Functional Data \u00b7 chart service unavailable",
+  "route": "/functional-data",
+  "group": "Empty & error states",
+  "parent": "functional-populated",
+  "states": [
+    "Trace plot failure",
+    "trait plot failure",
+    "preserved filters and metadata"
+  ],
+  "synthetic": true,
+  "fixture": "Synthetic source-shaped values; all service APIs intercepted; no live requests",
+  "source": "pank_frontend_vnext/src/skills/FunctionalDataPage.js"
+}

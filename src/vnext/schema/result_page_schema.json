@@ -1,0 +1,128 @@
+{
+  "schema": {
+    "id": "pankgraph.result_page",
+    "version": "0.2.0",
+    "description": "Three sections for inserted answer elements, main visuals and supporting materials. Markdown text and native Markdown tables remain owned by AnswerMarkdown.",
+    "selector": "src/vnext/resultPageSchema.js",
+    "selection_order": ["state parameters", "allowlisted agent keywords", "deterministic KG and resource rules"],
+    "selection_rule": "State and keywords rank eligible content; they cannot create data, change scientific context or enable a hidden component.",
+    "state_input": "location.state.result_page or result.result_page_state: { main_visual, keywords }",
+    "agent_input": "result.result_page_keywords or run.evidence.result_page_keywords: an array of exact registered tokens, separate from answer Markdown",
+    "kg_input": "Returned graph nodes/edges, recorded functional measurements, answer-profile rule IDs, and validated resource manifests",
+    "unknown_keyword": "Ignore and record in selector decisions; never scan free-form answer text for component names.",
+    "follow_up": "The existing Follow Up controls remain outside this schema."
+  },
+  "ai_summary": {
+    "title": "AI Overview",
+    "text_renderer": "AnswerMarkdown",
+    "description": "The agent writes the answer in Markdown. This section defines only extra elements inserted alongside that text.",
+    "insertion_position": "after_summary",
+    "insertions": {
+      "raw_data_download": {
+        "title": "Source data",
+        "renderer": "SummaryInsertions",
+        "description": "Download the available source data or explicitly labeled metadata used in this answer.",
+        "format": "A compact box with one labeled download link per available data asset.",
+        "requires": ["downloadable_data_assets"],
+        "agent_keywords": ["raw_data", "download_data", "source_data"],
+        "kg_relation_types": ["part_of_QTL_signal", "part_of_GWAS_signal", "has_sample", "has_donor"],
+        "data_binding": "result.resources.assets, joined to resource_groups by asset ID or URL",
+        "asset_kinds": {
+          "association_tsv": {"label": "Download source association data", "content": "Original downloaded association table"},
+          "donor_index": {"label": "Download donor/sample metadata", "content": "Retrieved metadata index; not sequencing files"}
+        },
+        "allowed_media_types": ["text/tab-separated-values", "text/csv", "application/csv"],
+        "link_fields": ["asset_id", "url", "kind", "media_type", "download_name", "context"],
+        "wording": "Preserve source, credible-set and cohort labels. A plot image is not raw data. Cohort means are not original donor-level traces.",
+        "when_unavailable": "omit"
+      }
+    }
+  },
+  "main_visuals": {
+    "title": "Visual Material",
+    "format": "Existing main visual panel with one tab per eligible view.",
+    "default_order": ["graph_viewer", "functional_data", "genome_browser"],
+    "state_parameter": "main_visual",
+    "items": {
+      "graph_viewer": {
+        "title": "Knowledge Graph",
+        "renderer": "KnowledgeGraph",
+        "enabled": true,
+        "requires": ["graph_projection_or_expected"],
+        "state_values": ["graph_viewer", "knowledge_graph", "graph"],
+        "agent_keywords": ["graph", "knowledge_graph", "kg_view"],
+        "kg_rule": "Select when a graph projection exists or the recorded graph query is pending, empty or failed; retain its actual status.",
+        "data_binding": ["combined_query_result", "xy_json", "edge_routes", "display", "completeness"],
+        "appearance_schema": "graph_viewer_schema.json",
+        "format": "Keep existing network/list modes, zoom, legend, full-screen and evidence inspection.",
+        "wording": "Separate displayed counts from retrieved counts and retrieval completeness."
+      },
+      "functional_data": {
+        "title": "Functional Data",
+        "renderer": "FunctionalVisual",
+        "enabled": true,
+        "requires": ["functional_context_or_measurements"],
+        "state_values": ["functional_data", "functional_traces"],
+        "agent_keywords": ["functional_data", "functional_traces", "perifusion"],
+        "kg_rule": "A functional intent must match recorded functional filters/measurements or the backend functional result type. An assay name on a KG node alone is insufficient.",
+        "data_binding": ["evidence.functional_filters", "evidence.steps[].functional_metadata", "resources_tabs.empirical_evidence.image_url", "component_status.resources"],
+        "format": "Existing cohort-response plot with expand/download controls and an explicit pending or unavailable state.",
+        "wording": "Keep selected cohort, hormone, units, normalization and aggregation. Do not infer donor variability from a cohort mean."
+      },
+      "genome_browser": {
+        "title": "Genome Browser",
+        "renderer": "GenomeBrowserEmbed",
+        "enabled": false,
+        "hidden": true,
+        "requires": ["genome_runtime_ready", "verified_genome_tracks"],
+        "state_values": ["genome_browser"],
+        "agent_keywords": ["genome_browser", "genomic_tracks"],
+        "data_binding": ["verified genome build", "resolved locus", "registered tracks with source context"],
+        "format": "Existing embedded genome-browser component, reserved for later activation.",
+        "wording": "Remain hidden. The current demo has a disabled IGV adapter; state parameters and agent keywords cannot enable it."
+      }
+    }
+  },
+  "supporting_materials": {
+    "title": "Supporting Material",
+    "format": "Keep existing reference cards, resource links and empirical-evidence panels.",
+    "order": ["references", "links", "empirical_evidence"],
+    "items": {
+      "references": {
+        "title": "References",
+        "renderer": "useResourcePanels",
+        "requires": ["references_or_pending"],
+        "agent_keywords": ["references", "literature"],
+        "data_binding": "resources_tabs.references plus supplied literature references",
+        "tab_id": "references",
+        "format": "Reference cards with title, available authors/journal/year, PMID or DOI and source link.",
+        "wording": "Preserve reference identity and source type. A background reference is not automatically evidence supporting the conclusion."
+      },
+      "links": {
+        "title": "Links",
+        "renderer": "useResourcePanels",
+        "requires": ["registered_links"],
+        "agent_keywords": ["links", "datasets", "methods"],
+        "data_binding": "Backend-approved resources_tabs.pankbase_links and resources_tabs.external_link_groups (legacy external_links supported)",
+        "kg_rule": "Use only links returned by the backend resource registry for actual entity/relation context; never invent URLs from keywords.",
+        "groups": {
+          "pankbase_links": {"title": "PanKbase Links", "format": "Existing [title, URL] entries"},
+          "external_links": {"title": "External Links", "format": "Collapsed source cards with unique-link counts and up to three node previews. Expand to linked node names and identifiers; show ten entries before Show all. Search above ten total links. Structured external_link_groups contain source_key, display_name, entries[{url,label,entities[{id,name,types}],provenance}]; legacy [title,description,URL] entries are grouped with exact saved-evidence URL matching."}
+        },
+        "wording": "Label dataset, method, code, portal or entity record. A navigation link does not establish a measured finding."
+      },
+      "empirical_evidence": {
+        "title": "Empirical Evidence",
+        "renderer": "useResourcePanels",
+        "requires": ["empirical_content_or_failure"],
+        "agent_keywords": ["empirical_evidence", "association_evidence", "functional_evidence"],
+        "kg_relation_types": ["part_of_QTL_signal", "part_of_GWAS_signal", "signal_COLOC_with"],
+        "data_binding": "resources_tabs.empirical_evidence and independent resources.resource_groups",
+        "tab_id": "empirical_evidence",
+        "format": "Source-scoped plot, description and download links; retain independent source groups.",
+        "wording": "Describe actual rendered measurements, source and context. Do not assume LD colors or tracks exist. Metadata-only indexes retain their metadata label.",
+        "deduplication": "Do not repeat the main functional plot asset here; preserve independent empirical sources and their availability states."
+      }
+    }
+  }
+}

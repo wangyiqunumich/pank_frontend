@@ -8,22 +8,20 @@ import React, {
 
 import Slider from 'react-slick';
 
-import {
-  ArrowBackIos,
-  ArrowForwardIos,
-  CheckCircle,
-  Close,
-  Description,
-  Equalizer,
-  Error,
-  FiberManualRecord,
-  Info,
-  KeyboardArrowDown,
-  KeyboardArrowUp,
-  Link,
-  Notifications,
-  Warning,
-} from '@mui/icons-material';
+import ArrowBackIos from '@mui/icons-material/ArrowBackIos';
+import ArrowForwardIos from '@mui/icons-material/ArrowForwardIos';
+import CheckCircle from '@mui/icons-material/CheckCircle';
+import Close from '@mui/icons-material/Close';
+import Description from '@mui/icons-material/Description';
+import Equalizer from '@mui/icons-material/Equalizer';
+import Error from '@mui/icons-material/Error';
+import FiberManualRecord from '@mui/icons-material/FiberManualRecord';
+import Info from '@mui/icons-material/Info';
+import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUp from '@mui/icons-material/KeyboardArrowUp';
+import Link from '@mui/icons-material/Link';
+import Notifications from '@mui/icons-material/Notifications';
+import Warning from '@mui/icons-material/Warning';
 import {
   Box,
   Alert,

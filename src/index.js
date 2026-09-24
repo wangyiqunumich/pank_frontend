@@ -1,4 +1,8 @@
 import './index.css';
+import AgentPage from './vnext/AgentPage';
+import AgentRoute from './vnext/AgentRoute';
+import ConventionalRoute from './vnext/ConventionalRoute';
+import { loadDevConfig, getDevConfig } from './vnext/runtimeConfig';
 
 import React from 'react';
 
@@ -38,7 +42,10 @@ import ResultPageNew from './SearchResult/index_new';
 import ResultPageNew2 from './SearchResult/resultpage_new';
 import FunctionalDataPage from './skills/FunctionalDataPage';
 import GWASExplorerPage from './skills/GWASExplorerPage';
+import HIRNLiteraturePage from './skills/HIRNLiteraturePage';
 import QTLExplorerPage from './skills/QTLExplorerPage';
+import ColocExplorerPage from './skills/ColocExplorerPage';
+import ColocDetailPage from './skills/ColocDetailPage';
 
 const isDevelopmentStage =
   (process.env.REACT_APP_API_GATEWAY_STAGE_NAME || '').toLowerCase() === 'development';
@@ -65,7 +72,7 @@ const cognitoAuthConfig = {
 };
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
+loadDevConfig().then(() => root.render(
   <AuthProvider {...cognitoAuthConfig}>
     <Provider store={store}>
       <Container disableGutters maxWidth={false} sx={{
@@ -77,6 +84,7 @@ root.render(
             <NavBar />
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
               <Routes>
+                <Route path="/agent-vnext" element={<AgentPage />} />
                 <Route path="/pipeline" element={<Pipeline />} />
                 <Route path="/qtldatasource" element={<QTLDataSource />} />
                 <Route path="/intermediate" element={<IntermediatePage />} />
@@ -87,20 +95,23 @@ root.render(
                 <Route path="/result" element={<ResultPage />} />
                 <Route
                   path="/result-new"
-                  element={<AgentResultLayout ResultView={ResultPageNew} allowSearch={false} />}
+                  element={<ConventionalRoute><AgentResultLayout ResultView={ResultPageNew} allowSearch={false} /></ConventionalRoute>}
                 />
                 <Route
                   path="/result-new2"
-                  element={<AgentResultLayout ResultView={ResultPageNew2} allowSearch={true} showFloatingSearchBar={true} />}
+                  element={<AgentRoute><AgentResultLayout ResultView={ResultPageNew2} allowSearch={true} showFloatingSearchBar={true} /></AgentRoute>}
                 />
                 <Route path="/usecases" element={<UsecasesPage />} />
                 <Route path="/docs/*" element={<DocPage />} />
                 <Route path="/match" element={<MatchPage />} />
                 <Route path="/review/*" element={<ReviewPage />} />
                 <Route path="/skills" element={<SkillsPage />} />
+                <Route path="/coloc-explorer" element={getDevConfig().colocEnabled ? <ColocExplorerPage /> : <Navigate to="/skills" replace />} />
+                <Route path="/coloc-explorer/:recordId" element={getDevConfig().colocEnabled ? <ColocDetailPage /> : <Navigate to="/skills" replace />} />
                 <Route path="/qtl-explorer" element={<QTLExplorerPage />} />
                 <Route path="/gwas-explorer" element={<GWASExplorerPage />} />
                 <Route path="/functional-data" element={<FunctionalDataPage />} />
+                <Route path="/hirn-literature" element={<HIRNLiteraturePage />} />
                 <Route path="/agent-landing" element={<Navigate to="/" replace />} />
                 <Route path="/old-landing" element={<LandingPage />} />
                 <Route path="/callback" element={<AgentLandingPage />} />
@@ -120,4 +131,4 @@ root.render(
       </Container>
     </Provider>
   </AuthProvider>
-);
+));
