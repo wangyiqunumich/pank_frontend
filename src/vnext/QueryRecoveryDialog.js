@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, TextField, Button, Box, Alert } from '@mui/material';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, TextField, Button, Box, Alert, IconButton } from '@mui/material';
+import './QueryRecoveryDialog.css';
 
 const FALLBACK_FAILURE = {
   category: 'service_or_retrieval_failure', title: 'The search could not finish',
@@ -85,22 +87,149 @@ export function queryRecovery(run, error = '') {
   return null;
 }
 
+const OPERATOR_CATEGORIES = new Set(['authentication', 'authorization', 'billing', 'budget_exhausted', 'graph_identity']);
+const RELEASE_MISMATCH_CATEGORIES = new Set(['release_mismatch', 'graph_release_mismatch']);
+const NON_EDITABLE_CATEGORIES = new Set(['rate_limited', 'release_mismatch', 'graph_release_mismatch']);
+const SUPPORT_EMAILS = 'wyq@umich.edu, runbomao@umich.edu, drjieliu@umich.edu, fan.feng@vumc.org, help@pankbase.org';
+
+function recoveryEyebrow(category = '') {
+  const labels = {
+    authentication: 'Authentication', authorization: 'Authorization', billing: 'Billing',
+    budget_exhausted: 'Budget exhausted', clarification_required: 'Clarification required',
+    graph_identity: 'Graph identity', graph_release_mismatch: 'Graph release mismatch', release_mismatch: 'Graph release mismatch',
+    planning_failure: 'Planning failure', query_validation: 'Query validation', rate_limited: 'Rate limited',
+    timeout: 'Timeout', service_or_retrieval_failure: 'Unknown failure',
+  };
+  return labels[category] || 'Search recovery';
+}
+
 export default function QueryRecoveryDialog({issue, question, busy, onRevise, onRetry, onCancel}) {
-  const [instruction,setInstruction]=useState('');
-  useEffect(()=>setInstruction(''),[question,issue?.category]);
-  return <Dialog open={Boolean(issue)} maxWidth="lg" fullWidth aria-labelledby="query-recovery-title" PaperProps={{sx:{width:'90vw',maxWidth:1100,minHeight:'65vh',borderRadius:3}}}>
-    <DialogTitle id="query-recovery-title" sx={{fontSize:28,fontWeight:700}}>{issue?.title}</DialogTitle>
-    <DialogContent sx={{display:'flex',flexDirection:'column',gap:3}}>
-      <Box sx={{p:3,bgcolor:'#f0f7f8',borderRadius:2}}><Typography variant="overline">Your original question</Typography><Typography sx={{fontSize:20,whiteSpace:'pre-wrap'}}>{question}</Typography></Box>
-      <Box><Typography variant="h6">Why it didn’t work</Typography><Typography sx={{mt:1}}>{issue?.message}</Typography></Box>
-      {issue?.suggestions?.length > 0 && <Box><Typography sx={{mb:1}}>Suggested changes — select one to edit before submitting:</Typography>{issue.suggestions.map(s=><Button key={typeof s === 'string' ? s : s.instruction} variant="outlined" onClick={()=>setInstruction(typeof s === 'string' ? s : s.instruction)} disabled={busy} sx={{mr:1,mb:1,textTransform:'none',textAlign:'left'}}>{typeof s === 'string' ? s : s.label}</Button>)}</Box>}
-      <TextField label="Tell us what to change" placeholder="Describe only the change. We’ll keep the rest of your question." multiline minRows={3} value={instruction} onChange={e=>setInstruction(e.target.value)} disabled={busy} fullWidth />
-      {busy && <Alert severity="info">Updating your search…</Alert>}
+  const [instruction, setInstruction] = useState('');
+  const [countdown, setCountdown] = useState(0);
+  const category = issue?.category || '';
+  const isOperatorIssue = OPERATOR_CATEGORIES.has(category);
+  const isReleaseMismatch = RELEASE_MISMATCH_CATEGORIES.has(category);
+  const editRequired = category === 'clarification_required';
+  const editable = issue?.editable ?? (!NON_EDITABLE_CATEGORIES.has(category));
+  const countDownSeconds = ['rate_limited', 'timeout'].includes(category) ? 12 : 0;
+
+  useEffect(() => {
+    setInstruction('');
+    setCountdown(countDownSeconds);
+  }, [question, category, countDownSeconds]);
+
+  useEffect(() => {
+    if (!countdown) return undefined;
+    const timer = window.setTimeout(() => setCountdown(value => Math.max(0, value - 1)), 1000);
+    return () => window.clearTimeout(timer);
+  }, [countdown]);
+
+  const contactOperator = () => {
+    const body = [
+      'Hello PanKgraph team,', '',
+      `I need help with a search recovery issue (${recoveryEyebrow(category)}).`, '',
+      `Original question: ${question || 'Unavailable'}`,
+      `Details: ${issue?.message || ''}`,
+      instruction.trim() ? `Additional context: ${instruction.trim()}` : '', '',
+      'Please check the search service configuration.',
+    ].filter(Boolean).join('\n');
+    window.location.href = `mailto:${SUPPORT_EMAILS}?subject=${encodeURIComponent(`PanKgraph: ${recoveryEyebrow(category)} recovery`)}&body=${encodeURIComponent(body)}`;
+  };
+
+  const primaryLabel = countdown > 0
+    ? `Try again in ${countdown}s`
+    : isOperatorIssue
+      ? 'Contact operator'
+      : isReleaseMismatch
+        ? 'Start a fresh search'
+        : editRequired
+          ? 'Send clarification'
+          : instruction.trim()
+            ? 'Apply changes'
+            : issue?.retryable
+              ? 'Try again'
+              : 'Apply changes';
+
+  const handlePrimary = () => {
+    if (busy || countdown > 0 || (editRequired && !instruction.trim())) return;
+    if (isOperatorIssue) return contactOperator();
+    if (countdown === 0 && countDownSeconds > 0 && !instruction.trim() && issue?.retryable) return onRetry?.();
+    if (isReleaseMismatch || (!editable && issue?.retryable)) return onRetry?.();
+    if (instruction.trim()) return onRevise?.(instruction.trim());
+    if (issue?.retryable) return onRetry?.();
+  };
+
+  return <Dialog
+    className="query-recovery-dialog"
+    open={Boolean(issue)}
+    onClose={onCancel}
+    aria-labelledby="query-recovery-title"
+    aria-describedby="query-recovery-description"
+    maxWidth={false}
+    scroll="paper"
+    PaperProps={{ className: 'query-recovery-paper', role: 'alertdialog' }}
+  >
+    <DialogTitle className="query-recovery-title" id="query-recovery-title">
+      <span className="query-recovery-eyebrow">{recoveryEyebrow(category)}</span>
+      <span>{issue?.title}</span>
+    </DialogTitle>
+    <IconButton className="query-recovery-close" aria-label="Close and cancel query" onClick={onCancel} disabled={busy}>
+      <CloseRoundedIcon />
+    </IconButton>
+
+    <DialogContent className="query-recovery-content">
+      <Typography className="query-recovery-description" id="query-recovery-description">{issue?.message}</Typography>
+      <Box className="query-recovery-original" aria-label="Your original question">
+        <Typography className="query-recovery-supporting">Your original question</Typography>
+        <Typography>{question}</Typography>
+      </Box>
+      {issue?.suggestions?.length > 0 && <Box className="query-recovery-section">
+        <Typography className="query-recovery-section-label">Suggested changes — select one to edit before submitting:</Typography>
+        <Box className="query-recovery-options">
+          {issue.suggestions.map(s => {
+            const suggestionText = typeof s === 'string' ? s : s.instruction;
+            const isSelected = instruction === suggestionText;
+            return <Button
+              key={suggestionText}
+              className={`query-recovery-option${isSelected ? ' is-selected' : ''}`}
+              aria-pressed={isSelected}
+              onClick={() => setInstruction(suggestionText)}
+              disabled={busy}
+            >
+              <span className="query-recovery-radio" aria-hidden="true" />
+              <span>{typeof s === 'string' ? s : s.label}</span>
+            </Button>;
+          })}
+        </Box>
+      </Box>}
+      {editable && <Box className="query-recovery-section">
+        <Typography component="label" htmlFor="query-recovery-instruction" className="query-recovery-section-label">
+          Tell us what to change{!editRequired && <span className="query-recovery-tag">Optional</span>}
+        </Typography>
+        <TextField
+          id="query-recovery-instruction"
+          className="query-recovery-edit"
+          placeholder="Describe only the change. We’ll keep the rest of your question."
+          multiline
+          minRows={3}
+          value={instruction}
+          onChange={event => setInstruction(event.target.value)}
+          disabled={busy}
+          required={editRequired}
+          inputProps={{ 'aria-label': 'Tell us what to change', 'aria-required': editRequired }}
+          fullWidth
+        />
+        <Typography className="query-recovery-helper">Describe only the change. We’ll keep the rest of your question.</Typography>
+      </Box>}
+      {busy && <Alert className="query-recovery-busy" severity="info">Updating your search…</Alert>}
     </DialogContent>
-    <DialogActions sx={{p:3,gap:1}}>
-      <Button onClick={onCancel} disabled={busy}>Cancel query</Button>
-      {issue?.retryable && <Button variant="outlined" onClick={onRetry} disabled={busy}>Retry original question</Button>}
-      <Button variant="contained" onClick={()=>onRevise(instruction.trim())} disabled={busy || !instruction.trim()}>Apply changes</Button>
+
+    <DialogActions className="query-recovery-actions">
+      <Button className="query-recovery-cancel" onClick={onCancel} disabled={busy}>Cancel query</Button>
+      {issue?.retryable && !isReleaseMismatch && !isOperatorIssue && !countDownSeconds && <Button className="query-recovery-retry" onClick={onRetry} disabled={busy}>Retry original question</Button>}
+      <Button className="query-recovery-primary" variant="contained" onClick={handlePrimary} disabled={busy || countdown > 0 || (editRequired && !instruction.trim()) || (!issue?.retryable && !isOperatorIssue && !isReleaseMismatch && !instruction.trim())}>
+        {primaryLabel}
+      </Button>
     </DialogActions>
   </Dialog>;
 }

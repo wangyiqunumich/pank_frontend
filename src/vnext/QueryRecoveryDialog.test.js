@@ -6,7 +6,7 @@ test('empty plan explains internal failure; original question retained and retry
  const run={question:'How many HPAP stage 3 islet donors?',status:'awaiting_confirmation',plan:{steps:[],clarification:'Please provide a concrete entity or graph question.'}};
  const retry=jest.fn(),revise=jest.fn(),cancel=jest.fn();
  render(<QueryRecoveryDialog issue={queryRecovery(run,'graph_release_mismatch')} question={run.question} onRetry={retry} onRevise={revise} onCancel={cancel}/>);
- expect(screen.getByRole('dialog')).toBeTruthy();expect(screen.getByText(run.question)).toBeTruthy();
+ expect(screen.getByRole('alertdialog')).toBeTruthy();expect(screen.getByText(run.question)).toBeTruthy();
  fireEvent.click(screen.getByRole('button',{name:'Retry original question'}));expect(retry).toHaveBeenCalledTimes(1);expect(revise).not.toHaveBeenCalled();
  fireEvent.change(screen.getByLabelText('Tell us what to change'),{target:{value:'Use spleen instead'}});
  fireEvent.click(screen.getByRole('button',{name:'Apply changes'}));expect(revise).toHaveBeenCalledWith('Use spleen instead');
