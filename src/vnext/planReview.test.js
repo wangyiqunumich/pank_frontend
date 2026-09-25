@@ -74,7 +74,7 @@ test('saved result literature is visible when the run wrapper has no literature 
 
 
 test('literature-only answers do not retain the graph-writing placeholder', () => {
-  render(<ResultSection run={{status:'completed',plan:{plan_mode:'literature_only',steps:[],literature:true},literature:{sources:{hirn:{status:'complete',answer:'HIRN evidence',references:[]},glkb:{status:'complete',answer:'Broader evidence',references:[]}}}} anchorPrefix="literature-only" />);
+  render(<ResultSection run={{status:'completed',plan:{plan_mode:'literature_only',steps:[],literature:true},literature:{sources:{hirn:{status:'complete',answer:'HIRN evidence',references:[]},glkb:{status:'complete',answer:'Broader evidence',references:[]}}}}} anchorPrefix="literature-only" />);
   expect(screen.queryByText('Writing the grounded answer…')).toBeNull();
   expect(screen.getByText('HIRN evidence')).toBeTruthy();
   expect(screen.getByText('Broader evidence')).toBeTruthy();
