@@ -160,7 +160,7 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
     disableRevise: busy, disableProceed: busy || !run?.preview || run?.preview?.confirmation_eligible === false || Boolean(run?.plan?.clarification) || run?.status !== 'awaiting_confirmation',
     onSendFeedback: onRevise, onProceed: onConfirm, graphData, visualMaterial,
   };
-  const sections = [{ content: <AnswerMarkdown answer={run?.graph_answer || result?.answer?.text || result?.answer || (run?.error?.message || 'Writing the grounded answer…')} references={resources.references} /> }];
+  const sections = run?.plan?.plan_mode === 'literature_only' && !run?.graph_answer ? [] : [{ content: <AnswerMarkdown answer={run?.graph_answer || result?.answer?.text || result?.answer || (run?.error?.message || 'Writing the grounded answer…')} references={resources.references} /> }];
   if (page.insertions.length) sections.push({ content: <SummaryInsertions insertions={page.insertions} /> });
   const literatureStatus = literatureNotice(run, literature);
   if (!literature?.sources && !literature?.perspectives?.length && literatureStatus) sections.push({ content: <AnswerMarkdown answer={literatureStatus} references={resources.references} /> });
