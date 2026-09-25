@@ -43,7 +43,7 @@ function recoveryFor(run, error = '') {
     const issue = structuredRecovery(value);
     if (issue) return issue;
   }
-  const empty = plan && !(plan.steps || []).length && !plan.answer_mode;
+  const empty = plan && !(plan.steps || []).length && !plan.answer_mode && !['literature_only', 'session_summary'].includes(plan.plan_mode);
   const generic = /provide a concrete entity|could not prepare|planning.*fail/i.test(plan?.clarification || '');
   if (empty && (!plan.clarification || generic)) return {
     category: 'planning_failure', title: 'We couldn’t prepare this search',
