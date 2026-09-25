@@ -13,11 +13,12 @@ import ConnectionNotice from './ConnectionNotice';
 import QueryRecoveryDialog, { queryRecovery } from './QueryRecoveryDialog';
 import Diagnostics, { diagnosticsFor } from './Diagnostics';
 import AnswerMarkdown from './AnswerMarkdown';
+import LiteratureSections from './LiteratureSections';
 import FunctionalVisual from './FunctionalVisual';
 import SummaryInsertions from './SummaryInsertions';
 import { resolveResultPage } from './resultPageSchema';
 import { useResourcePanels } from './Resources';
-import { applyRunEvent, groundedLiterature, literatureNotice, liveProgress, planMarkdown, projectionForRun, templateRequest, withLiteratureReferences } from './contracts';
+import { canFollowUp, applyRunEvent, groundedLiterature, literatureNotice, liveProgress, planMarkdown, projectionForRun, templateRequest, withLiteratureReferences } from './contracts';
 import { cancelRun, confirmPlan, createPlanOnce, createResultOnce, getRun, getResult, pollResult, revisePlan, sitePath, TERMINAL_RUNS, watchRun } from './api';
 
 import { recordInteraction, referenceKey } from './telemetry';
@@ -33,7 +34,7 @@ export async function readPriorConversation(ids, currentId, options = {}) {
   const saved = await Promise.all(ids.filter(id => id !== currentId).slice(-19).map(async (id) => {
     try {
       const run = await getRun(id, options);
-      if (!['completed', 'complete', 'partial'].includes(run.status)) return null;
+      if (!['completed', 'complete', 'partial'].includes(run.status) && !run.followup_ready) return null;
       const resultId = readLocal(resultKey(id, 'final')) || readLocal(resultKey(id, 'preview'));
       let result = null;
       if (resultId) { try { result = await getResult(resultId, options); } catch (_) { unavailable += 1; } }
@@ -131,7 +132,7 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
     if (link) recordInteraction(runId, 'resource_accessed', referenceKey(link.getAttribute('href')), trackingScope);
   }, [runId, trackingScope]);
   const literature = groundedLiterature(run, result);
-  const resourceTabs = withLiteratureReferences(result?.resources_tabs, literature);
+  const resourceTabs = withLiteratureReferences(result?.resources_tabs, literature, runId);
   const page = resolveResultPage({ result, run, state: presentationState, resourceTabs });
   const resources = useResourcePanels(page.resourceTabs, page.resourceStatus, { tabs: page.supportingTabs });
   const graphData = result?.combined_query_result || null;
@@ -162,8 +163,8 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
   const sections = [{ content: <AnswerMarkdown answer={run?.graph_answer || result?.answer?.text || result?.answer || (run?.error?.message || 'Writing the grounded answer…')} references={resources.references} /> }];
   if (page.insertions.length) sections.push({ content: <SummaryInsertions insertions={page.insertions} /> });
   const literatureStatus = literatureNotice(run, literature);
-  if (literatureStatus) sections.push({ content: <AnswerMarkdown answer={literatureStatus} references={resources.references} /> });
-  (literature?.perspectives || []).forEach((perspective) => sections.push({ heading: perspective.label || 'Literature perspective', content: <AnswerMarkdown answer={perspective.answer || ''} references={resources.references} /> }));
+  if (!literature?.sources && !literature?.perspectives?.length && literatureStatus) sections.push({ content: <AnswerMarkdown answer={literatureStatus} references={resources.references} /> });
+  if (literature?.sources || literature?.perspectives?.length) sections.push({ content: <LiteratureSections literature={literature} references={resources.references} /> });
   const display = result?.display;
   const completeness = result?.completeness || run?.evidence?.completeness;
   const evidenceNotice = run?.rerun_advisory || (typeof display?.notice === 'string' ? display.notice : (['partial', 'failed', 'unavailable'].includes(completeness) ? `Graph evidence is ${completeness}.` : ''));
@@ -174,7 +175,7 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
     // answers update in place and must not interrupt the user's reading.
     aiOverview: { title: page.summaryTitle, sections, isLoading: !run?.graph_answer && !result?.answer, scrollToTop: false },
     graphData, visualMaterial, evidences: resources.tabs.length ? { title: page.supportingTitle, tabs: resources.tabs } : undefined,
-    followUp: { title: 'Follow Up', onSelect: onFollowUp ? (item) => onFollowUp(item.label) : undefined, items: (run?.evidence?.follow_up_questions || result?.evidence?.follow_up_questions || []).map((question) => ({ label: question })), loading: !TERMINAL_RUNS.has(run?.status), disabled: !TERMINAL_RUNS.has(run?.status) },
+    followUp: { title: 'Follow Up', onSelect: onFollowUp ? (item) => onFollowUp(item.label) : undefined, items: (run?.evidence?.follow_up_questions || result?.evidence?.follow_up_questions || []).map((question) => ({ label: question })), loading: !canFollowUp(run), disabled: !canFollowUp(run) },
   };
   return <>{resources.popup}<Box ref={sectionRef} onClickCapture={onResourceAccess} id={`${anchorPrefix}-question-1`}>{planning ? <PlanConfirmationPage data={planData} contentAnchorPrefix={anchorPrefix} /> : <QuestionAnswerPage data={data} contentAnchorPrefix={anchorPrefix} />}</Box></>;
 }
@@ -191,6 +192,7 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
   const [historyError, setHistoryError] = useState('');
   const [failedFollowUp, setFailedFollowUp] = useState(null);
   const streamRef = useRef(null);
+  const backgroundStreams = useRef(new Map());
   const runRef = useRef(null);
   const mounted = useRef(true);
   const metaRef = useRef('');
@@ -247,6 +249,26 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     return () => { stopped = true; mounted.current = false; loadVersion.current += 1; readController.current?.abort(); streamRef.current?.(); };
   }, [route, attachRun]);
 
+  useEffect(() => {
+    const pending = new Set(previous.filter(item => !TERMINAL_RUNS.has(item.run?.status)).map(item => item.run.run_id));
+    for (const [id, close] of backgroundStreams.current) {
+      if (!pending.has(id)) { close(); backgroundStreams.current.delete(id); }
+    }
+    previous.forEach(item => {
+      const id = item.run?.run_id;
+      if (!pending.has(id) || backgroundStreams.current.has(id)) return;
+      const close = watchRun(id, item.run.event_sequence, event => {
+        if (!mounted.current) return;
+        setPrevious(items => items.map(saved => saved.run.run_id === id ? { ...saved, run: applyRunEvent(saved.run, event) } : saved));
+        if (event.type === 'terminal') getRun(id).then(snapshot => {
+          if (mounted.current) setPrevious(items => items.map(saved => saved.run.run_id === id ? { ...saved, run: snapshot } : saved));
+        }).catch(() => {});
+      }, () => {});
+      backgroundStreams.current.set(id, close);
+    });
+  }, [previous]);
+  useEffect(() => () => { backgroundStreams.current.forEach(close => close()); backgroundStreams.current.clear(); }, []);
+
   const isPlanning = run?.status === 'awaiting_confirmation' || (run?.status === 'planning' && run?.plan?.review_ready);
   const projectionPayload = projectionForRun(run);
   const [result, resultError, resultConnection] = useProjectedResult(projectionPayload);
@@ -272,13 +294,13 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     streamRef.current?.(); navigate('/');
   }, [navigate]);
   const followUp = useCallback(async (question) => {
-    if (!question?.trim() || followUpPending.current || !TERMINAL_RUNS.has(runRef.current?.status)) return false;
+    if (!question?.trim() || followUpPending.current || !canFollowUp(runRef.current)) return false;
     const inputError = questionInputError(question);
     if (inputError) { setFailedFollowUp({ question, message: inputError }); return false; }
     const current = runRef.current;
     followUpPending.current = true; setBusy(true); setFailedFollowUp(null);
     try {
-      const created = await createPlanOnce(question.trim(), current.session_id, `${current.run_id}:${question.trim()}`);
+      const created = await createPlanOnce(question.trim(), current.session_id, `${current.run_id}:${question.trim()}`, current.run_id);
       if (!mounted.current) return;
       setPrevious((items) => [...items, { run: current, result: projectionRef.current, presentationState: location.state?.result_page }]);
       setRun(null); await attachRun(created.run_id);
@@ -288,10 +310,10 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
   }, [attachRun, location.state?.result_page]);
   useEffect(() => {
     if (!onContentMeta) return;
-    const page = resolveResultPage({ result, run, state: location.state?.result_page, resourceTabs: withLiteratureReferences(result?.resources_tabs, groundedLiterature(run, result)) });
+    const page = resolveResultPage({ result, run, state: location.state?.result_page, resourceTabs: withLiteratureReferences(result?.resources_tabs, groundedLiterature(run, result), run?.run_id || result?.result_id) });
     const questions = [...previous.map((item, index) => ({ id: item.run.run_id, query: item.run.question, anchorPrefix: `${contentAnchorPrefix}-previous-${index}`, anchorId: `${contentAnchorPrefix}-previous-${index}-question-1` })), ...(run ? [{ id: run.run_id, query: run.question, anchorPrefix: contentAnchorPrefix, anchorId: `${contentAnchorPrefix}-question-1` }] : [])];
     const meta = { anchorPrefix: contentAnchorPrefix, questions, aiHeadings: [], hasVisual: page.mainVisuals.length > 0, hasEvidences: page.supportingTabs.length > 0, hasFollowUp: !isPlanning,
-      isQuestionComplete: TERMINAL_RUNS.has(run?.status) && !busy, isPlanning, hideFloatingSearchBar: !TERMINAL_RUNS.has(run?.status),
+      isQuestionComplete: canFollowUp(run) && !busy, isPlanning, hideFloatingSearchBar: !canFollowUp(run),
       planProceedAnchorId: isPlanning ? `${contentAnchorPrefix}-plan-proceed-button` : '', feedbackSessionId: run?.session_id || '', metaRouteKey: `${location.pathname}${location.search}` };
     const signature = JSON.stringify(meta);
     if (metaRef.current === signature) return;
@@ -343,7 +365,7 @@ export function ConventionalResultView({ contentAnchorPrefix = 'result-1', onCon
   const metaRef = useRef('');
   const run = useMemo(() => ({ question: result?.question || result?.answer?.title || '', status: result?.status === 'ready' ? 'completed' : 'running', graph_answer: typeof result?.answer === 'string' ? result.answer : result?.answer?.text }), [result]);
   useEffect(() => {
-    const page = resolveResultPage({ result, run, state: location.state?.result_page, resourceTabs: withLiteratureReferences(result?.resources_tabs, groundedLiterature(run, result)) });
+    const page = resolveResultPage({ result, run, state: location.state?.result_page, resourceTabs: withLiteratureReferences(result?.resources_tabs, groundedLiterature(run, result), run?.run_id || result?.result_id) });
     const meta = { anchorPrefix: contentAnchorPrefix, questions: [{ id: result?.result_id || 'tool', query: run.question || 'Search results', anchorPrefix: contentAnchorPrefix, anchorId: `${contentAnchorPrefix}-question-1` }], aiHeadings: [], hasVisual: page.mainVisuals.length > 0, hasEvidences: page.supportingTabs.length > 0, isQuestionComplete: Boolean(result), isPlanning: false, hideFloatingSearchBar: true, metaRouteKey: `${location.pathname}${location.search}` };
     const signature = JSON.stringify(meta);
     if (metaRef.current !== signature) { metaRef.current = signature; onContentMeta?.(meta); }

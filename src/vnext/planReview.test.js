@@ -62,7 +62,7 @@ test('existing answer sections show pending and unavailable literature while ret
   const perspective = { id: 'm', label: 'Mechanism', answer: 'Available literature context.', references: [{ pmid: '12345678', title: 'Supplied paper title', journal: 'Supplied journal' }] };
   rerender(<ResultSection run={{ ...run, status: 'partial', literature: { status: 'unavailable', perspectives: [perspective] } }} anchorPrefix="test" />);
   expect(screen.getByText('Graph answer remains visible.')).toBeTruthy();
-  expect(screen.getByText(/Literature evidence is unavailable/)).toBeTruthy();
+  expect(screen.getByText(/HIRN literature is unavailable/)).toBeTruthy();
   expect(screen.getByText('Available literature context.')).toBeTruthy();
   expect(screen.getByRole('link', { name: /Supplied paper title/ }).getAttribute('href')).toBe('https://pubmed.ncbi.nlm.nih.gov/12345678/');
 });

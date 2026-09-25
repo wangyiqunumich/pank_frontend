@@ -12,7 +12,7 @@ export function useResourcePanels(referenceData = {}, resourceStatus, options) {
     if (!referenceData.empirical_evidence && ['partial', 'unavailable', 'failed'].includes(resourceStatus)) {
         referenceData = { ...referenceData, empirical_evidence: { status: 'unavailable', title: 'Supplementary resources unavailable', description: 'Some source files or plots could not be retrieved. This is a resource-availability limit, not evidence of biological absence.' } };
     }
-    const referencesItems = Object.values(referenceData.references || {}).map((ref, i) => ({ ...ref, id: i + 1, href: /^https?:\/\//i.test(ref.href || ref.url || '') ? (ref.href || ref.url) : undefined, anchorId: ref.anchorId || `reference-item-main-${ref.pmid || ref.id || i}-${i + 1}` }));
+    const referencesItems = Object.values(referenceData.references || {}).map((ref, i) => ({ ...ref, id: ref.citation_number || i + 1, href: /^https?:\/\//i.test(ref.href || ref.url || '') ? (ref.href || ref.url) : undefined, anchorId: ref.anchorId || `reference-item-main-${ref.pmid || ref.id || i}-${i + 1}` }));
     // Groups already exclude the main functional asset; the compatibility first
     // item must not be rendered a second time when a complete group list exists.
     const empiricalGroups = Array.isArray(referenceData.empirical_evidence_groups) && referenceData.empirical_evidence_groups.length

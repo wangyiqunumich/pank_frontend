@@ -10,7 +10,7 @@ export function groundedLiterature(run, result) {
   const steps = Array.isArray(evidence?.steps) ? evidence.steps : evidence?.steps && Object.values(evidence.steps);
   const usable = steps?.some((s) => s.purpose !== 'context' && ['complete', 'partial'].includes(s.status)
     && ((s.nodes?.length || s.edges?.length) || (s.rows || []).some((row) => Object.values(row || {}).some((v) => typeof v === 'number' && Number.isFinite(v) && v !== 0))));
-  if (noNewGraph || (steps && !usable)) return {status:'not_requested', perspectives:[], reason:'no_usable_graph_evidence'};
+  if (!saved?.sources && plan?.plan_mode !== 'literature_only' && plan?.literature_intent?.reason !== 'explicit_request' && (noNewGraph || (steps && !usable))) return {status:'not_requested', perspectives:[], reason:'no_usable_graph_evidence'};
   return saved;
 }
 
@@ -44,11 +44,12 @@ export function projectionForRun(run) {
   if (run.preview && run.preview.status !== 'not_requested' && run.preview.evidence?.graph_version && !pending.length && ['awaiting_confirmation', 'queued', 'running', 'completed', 'complete', 'partial'].includes(run.status)) return { run_id: run.run_id, phase: 'preview' };
   return null;
 }
-export function withLiteratureReferences(tabs = {}, literature) {
+export function withLiteratureReferences(tabs = {}, literature, runId = 'main') {
   const references = {};
   const keyFor = (ref) => ref.pmid ? `pmid:${ref.pmid}` : ref.doi ? `doi:${String(ref.doi).toLowerCase()}` : String(ref.id || ref.document_id || ref.href || ref.url || ref.link || '');
   Object.values(tabs.references || {}).forEach((ref) => { const key = keyFor(ref); if (key) references[key] = { ...ref }; });
-  (literature?.perspectives || []).forEach((perspective) => (perspective.references || []).forEach((ref) => {
+  const units = literature?.sources ? Object.entries(literature.sources).flatMap(([source, value]) => (value.perspectives || [value]).map(unit => ({ ...unit, source }))) : (literature?.perspectives || []).map(unit => ({ ...unit, source: 'hirn' }));
+  units.forEach((perspective) => (perspective.references || []).forEach((ref) => {
     const key = keyFor(ref);
     if (!key) return;
     const previous = references[key] || {};
@@ -61,9 +62,23 @@ export function withLiteratureReferences(tabs = {}, literature) {
     references[key] = { ...merged, id: key, href,
       title: ref.title || previous.title || (ref.pmid ? `PubMed ${ref.pmid}` : ref.document_id || ref.id),
       perspective_labels: perspectiveLabels, subtitle,
+      sources: [...new Set([...(previous.sources || []), perspective.source].filter(Boolean))],
     };
   }));
-  return { ...tabs, references };
+  const registry = literature?.references || [];
+  registry.forEach(ref => {
+    const key = keyFor(ref) || ref.keys?.[0];
+    if (key) references[key] = { ...references[key], ...ref, id: key,
+      title: references[key]?.title || ref.title || (ref.pmid ? `PubMed ${ref.pmid}` : ref.document_id || ref.id),
+      href: references[key]?.href || ref.url || (ref.pmid ? `https://pubmed.ncbi.nlm.nih.gov/${ref.pmid}/` : undefined),
+      sources: [...new Set([...(references[key]?.sources || []), ...(ref.sources || [])])], citation_number: ref.number };
+  });
+  let next = Math.max(0, ...registry.map(ref => ref.number || 0));
+  Object.values(references).forEach(ref => {
+    if (!ref.citation_number) ref.citation_number = ++next;
+    ref.anchorId = `${runId}-reference-${ref.citation_number}`;
+  });
+  return { ...tabs, references: Object.fromEntries(Object.entries(references).sort((a,b) => a[1].citation_number - b[1].citation_number)) };
 }
 
 export function selectedResultParams(searchState, item) {
@@ -118,6 +133,8 @@ export function applyRunEvent(state, event) {
     next.graph_answer = payload.delta ? (state.graph_answer || '') + (payload.text || '') : (payload.answer ?? payload.text ?? state.graph_answer);
     if (!payload.delta) { next.evidence = payload.evidence; next.graph_complete = true; }
   }
+  if (event.type === 'followup_ready') { next.followup_ready = payload.followup_ready === true; if (payload.references) next.literature = { ...next.literature, references: payload.references }; }
+  if (event.type === 'literature_sources') next.literature = payload;
   if (event.type === 'literature_perspective') {
     const perspectives = [...(state.literature?.perspectives || [])];
     const index = perspectives.findIndex((p) => p.id === payload.id);
@@ -177,3 +194,5 @@ export function liveProgress(run, connection) {
     indeterminate: true, useFakeTimer: false,
     tip: `${connection === 'reconnecting' ? 'Reconnecting to the saved investigation. ' : ''}${Math.floor((run?.elapsed_ms || 0) / 1000)} seconds elapsed. Progress reflects current activity.`, cancel: 'Cancel and ask a new question' };
 }
+
+export const canFollowUp = run => Boolean(run?.followup_ready || ['completed', 'complete', 'partial', 'failed', 'cancelled', 'interrupted'].includes(run?.status));

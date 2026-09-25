@@ -67,14 +67,14 @@ export const revisePlan = (id, question, includeContext = true) => post(`/agent/
 export const cancelRun = (id) => post(`/agent/v2/runs/${encodeURIComponent(id)}/cancel`);
 
 // Re-render/StrictMode/reload resumes a saved run; uncertainty never repeats inference.
-export function createPlanOnce(question, sessionId = '', intentKey = question) {
+export function createPlanOnce(question, sessionId = '', intentKey = question, parentRunId = null) {
   const key = `pank-vnext:plan:${JSON.stringify([sessionId, intentKey])}`;
   if (inFlight.has(key)) return inFlight.get(key);
   const previous = readSaved(key);
   if (identity(previous?.run_id)) return Promise.resolve(previous);
   if (previous?.pending) return Promise.reject(new Error('Plan creation was interrupted. Open the saved conversation if available, or start a new question.'));
   save(key, { pending: true });
-  const task = post('/agent/v2/plans', { question, include_context: true, ...(sessionId ? { session_id: sessionId } : {}) })
+  const task = post('/agent/v2/plans', { question, include_context: true, ...(parentRunId ? { parent_run_id: parentRunId } : {}), ...(sessionId ? { session_id: sessionId } : {}) })
     .then((created) => { validateIdentity(created, 'run_id'); save(key, created); return created; })
     .catch((error) => { if (error.status >= 400 && !error.protocol) save(key, null); throw error; })
     .finally(() => inFlight.delete(key));

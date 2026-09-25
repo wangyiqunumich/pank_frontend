@@ -518,6 +518,7 @@ function EvidenceItem({ item, onSelect, isActive, isHovered = false, variant = '
                     )}
                 </Box>
             </Stack>
+            {item.sources?.includes('hirn') && <Typography component="div" sx={{ textAlign: 'right', fontSize: 11, color: '#64748B', mt: 0.5 }}>HIRN</Typography>}
         </Paper>
     );
 }
@@ -1385,8 +1386,8 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                                 ) : tab.items && tab.items.length ? (
                                                     <Stack spacing={1.25}>
                                                         {tab.items.map((it) => {
-                                                            const matchesActive = Boolean(activeReference) && (String(it?.pmid || '') === String(activeReference) || it.anchorId === `reference-item-${activeReference}`);
-                                                            const matchesHover = Boolean(hoveredReference) && (String(it?.pmid || '') === String(hoveredReference) || it.anchorId === `reference-item-${hoveredReference}`);
+                                                            const matchesActive = Boolean(activeReference) && (String(it?.pmid || '') === String(activeReference) || (it.anchorId === activeReference || it.anchorId === `reference-item-${activeReference}`));
+                                                            const matchesHover = Boolean(hoveredReference) && (String(it?.pmid || '') === String(hoveredReference) || (it.anchorId === hoveredReference || it.anchorId === `reference-item-${hoveredReference}`));
                                                             return (
                                                             <EvidenceItem
                                                                 key={`${it.id}-${it.title}`}
