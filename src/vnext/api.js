@@ -1,5 +1,5 @@
 import { safeSessionStorage } from '../utils/safeStorage';
-import { abortError, browserPaused, readWithRecovery, retryDelay, waitDelay, waitForBrowser } from './readRecovery';
+import { abortError, readWithRecovery, waitDelay } from './readRecovery';
 import { getDevConfig } from './runtimeConfig';
 // UI routes live at the dev root; API assets keep their separate namespace.
 export const BASE_PATH = '';
@@ -110,49 +110,27 @@ export async function pollResult(id, onUpdate, { signal, interval = 1000, ...rec
   }
 }
 
-export function watchRun(runId, sequence, onEvent, onConnection = () => {}, { maxRetries = 4, baseDelay = 750, idleTimeout = 45000, random = Math.random } = {}) {
-  let lastSequence = Number(sequence || 0);
-  let source, failures = 0, idleTimer, reconnecting = false;
-  const controller = new AbortController();
-  const closeSource = () => { clearTimeout(idleTimer); source?.close(); source = null; };
-  const stop = () => { controller.abort(); closeSource(); window.removeEventListener('offline', pause); document.removeEventListener('visibilitychange', pause); };
-  const touch = () => { clearTimeout(idleTimer); idleTimer = setTimeout(reconnect, idleTimeout); };
+export function watchRun(runId, sequence, onEvent, onConnection = () => {}) {
+  let lastSequence = Number(sequence || 0), stopped = false;
+  // EventSource handles transport recovery and Last-Event-ID replay natively.
+  // Switching tabs does not close the stream or interrupt backend execution.
+  const source = new EventSource(apiPath(`/agent/v2/runs/${encodeURIComponent(runId)}/events?after=${lastSequence}`), { withCredentials: true });
+  const stop = () => { stopped = true; source.close(); };
   const handle = (message) => {
+    if (stopped) return;
     let event;
     try { event = JSON.parse(message.data); } catch (_) { return; }
     if (!object(event)) return;
     const seq = Number(event.seq ?? event.sequence ?? message.lastEventId);
-    if (!Number.isSafeInteger(seq) || seq < 0) return;
-    touch();
-    if (seq <= lastSequence) return;
+    if (!Number.isSafeInteger(seq) || seq < 0 || seq <= lastSequence) return;
     lastSequence = seq;
-    failures = 0;
     onEvent({ ...event, seq });
     if (event.type === 'terminal') stop();
   };
-  function connect() {
-    if (controller.signal.aborted) return;
-    if (browserPaused()) { reconnect(true); return; }
-    const active = new EventSource(apiPath(`/agent/v2/runs/${encodeURIComponent(runId)}/events?after=${lastSequence}`), { withCredentials: true });
-    source = active;
-    ['progress', 'heartbeat', 'plan_validated', 'plan_ready', 'preview_step', 'preview_reused', 'graph_step', 'graph_answer', 'literature_progress', 'literature_perspective', 'literature_complete', 'terminal'].forEach(type => active.addEventListener(type, message => { if (source === active) handle(message); }));
-    active.onopen = () => { if (source === active) { onConnection('connected'); touch(); } };
-    active.onerror = () => { if (source === active) reconnect(); };
-    touch();
-  }
-  async function reconnect(paused = false) {
-    if (controller.signal.aborted || reconnecting) return;
-    closeSource();
-    if (!paused && failures >= maxRetries) { onConnection('exhausted'); stop(); return; }
-    reconnecting = true;
-    try {
-      if (!paused) { onConnection('reconnecting'); await waitDelay(retryDelay(failures++, baseDelay, random), controller.signal); }
-      await waitForBrowser(controller.signal, onConnection);
-      reconnecting = false; connect();
-    } catch (_) { reconnecting = false; /* Explicit stop cancels delayed reconnection. */ }
-  }
-  function pause() { if (browserPaused()) reconnect(true); }
-  window.addEventListener('offline', pause); document.addEventListener('visibilitychange', pause);
-  connect();
+  ['progress', 'heartbeat', 'plan_validated', 'plan_ready', 'preview_step', 'preview_reused', 'graph_step', 'graph_answer', 'literature_progress', 'literature_perspective', 'literature_complete', 'terminal'].forEach(type => source.addEventListener(type, handle));
+  source.onopen = () => { if (!stopped) onConnection('connected'); };
+  source.onerror = () => {
+    if (!stopped && source.readyState === 2) { stop(); onConnection('exhausted'); }
+  };
   return stop;
 }

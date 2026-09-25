@@ -92,7 +92,7 @@ test('manual result reconnect reads the existing result and preserves its graph'
     return <><ConnectionNotice status={connection.status} onReconnect={connection.reconnect} />{result && <div data-testid="saved-graph">{result.combined_query_result.nodes[0]['~id']}</div>}</>;
   }
   render(<Probe />);
-  const reconnect = await screen.findByRole('button', { name: 'Reconnect' });
+  const reconnect = await screen.findByRole('button', { name: 'Retry' });
   const graph = screen.getByTestId('saved-graph');
   fireEvent.click(reconnect);
   await waitFor(() => expect(api.pollResult).toHaveBeenCalledTimes(2));
@@ -104,7 +104,7 @@ test('manual result reconnect reads the existing result and preserves its graph'
 test('a failed saved-run read offers read-only reconnect instead of a new query', async () => {
   api.getRun.mockRejectedValueOnce(new Error('Read unavailable')).mockResolvedValue(snapshot());
   mount();
-  fireEvent.click(await screen.findByRole('button', { name: 'Reconnect' }));
+  fireEvent.click(await screen.findByRole('button', { name: 'Retry' }));
   await screen.findByTestId('graph');
   expect(api.getRun).toHaveBeenCalledTimes(2);
   expect(api.createPlanOnce).not.toHaveBeenCalled();
