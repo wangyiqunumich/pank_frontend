@@ -2,7 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import ConnectionNotice, { ConnectionNoticeGroup } from './ConnectionNotice';
 
-test('connection notices share a floating top banner above the header and paused status stays silent', () => {
+test('exhausted connection notices use a floating banner above the header', () => {
   const reconnect = jest.fn();
   render(<ConnectionNoticeGroup notices={[
     { status: 'paused' },
@@ -13,13 +13,13 @@ test('connection notices share a floating top banner above the header and paused
   expect(window.getComputedStyle(container).position).toBe('fixed');
   expect(window.getComputedStyle(container).zIndex).toBe('1900');
   expect(screen.queryByText('Updates are paused while this page is offline or hidden.')).toBeNull();
-  expect(screen.getByText('Live updates stopped. Your available result is preserved. Reconnect to read the saved result.')).toBeTruthy();
-  fireEvent.click(screen.getByRole('button', { name: 'Reconnect' }));
+  expect(screen.getByText('Unable to load updates. Your available result is preserved.')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
   expect(reconnect).toHaveBeenCalledTimes(1);
 });
 
 test('single connection notices use the same top banner and connected state stays hidden', () => {
-  const { rerender } = render(<ConnectionNotice status="reconnecting" />);
+  const { rerender } = render(<ConnectionNotice status="exhausted" />);
   expect(window.getComputedStyle(screen.getByTestId('connection-notice-container')).position).toBe('fixed');
   rerender(<ConnectionNotice status="connected" />);
   expect(screen.queryByTestId('connection-notice-container')).toBeNull();

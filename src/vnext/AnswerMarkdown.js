@@ -80,7 +80,8 @@ export default function AnswerMarkdown({ answer = '', references = [], reference
     };
 
     const renderPmidPill = (pmid, keyPrefix, referenceAnchorByPmid = {}) => {
-        const anchorId = referenceAnchorByPmid?.[pmid] || `reference-item-${pmid}`;
+        const reference = referenceItems.find(ref => String(ref.pmid || '') === String(pmid) || ref.anchorId === pmid);
+        const anchorId = referenceAnchorByPmid?.[pmid] || reference?.anchorId || `reference-item-${pmid}`;
         const href = `#${anchorId}`;
         const pmidText = String(pmid || '').trim();
         return (
@@ -126,7 +127,7 @@ export default function AnswerMarkdown({ answer = '', references = [], reference
                         whiteSpace: 'nowrap',
                     }}
                 >
-                    {`PMID ${pmid}`}
+                    {reference?.citation_number || (typeof reference?.id === 'number' ? reference.id : `PMID ${pmid}`)}
                 </Box>
             </Link>
         );
@@ -693,6 +694,9 @@ export default function AnswerMarkdown({ answer = '', references = [], reference
                     p: ({ children }) => <Typography component="p" sx={{ fontSize: bodyFontSize, fontWeight: 400, color: '#475569' }}>{renderChildrenWithPmids(children, 'p', false, mainReferenceAnchorByPmid)}</Typography>,
                     li: ({ children }) => <Typography component="li" sx={{ fontSize: bodyFontSize, fontWeight: 400, color: '#475569' }}>{renderChildrenWithPmids(children, 'li', false, mainReferenceAnchorByPmid)}</Typography>,
                     a: ({ href, children }) => {
+                        const number = href?.match(/^#citation-(\d+)$/)?.[1];
+                        const ref = number && referenceItems.find(item => String(item.citation_number || item.id) === number);
+                        if (ref) return renderPmidPill(ref.pmid || ref.anchorId, 'citation-a', mainReferenceAnchorByPmid);
                         const pmid = extractPubmedIdFromHref(href);
                         if (pmid) {
                             return renderPmidPill(pmid, 'main-a', mainReferenceAnchorByPmid);

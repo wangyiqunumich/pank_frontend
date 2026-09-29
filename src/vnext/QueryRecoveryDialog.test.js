@@ -105,3 +105,12 @@ test('an active preview is not interrupted by a failure popup before remaining a
  run.preview.preparation_complete=true;
  expect(queryRecovery(run).category).toBe('service_or_retrieval_failure');
 });
+
+
+test('valid literature-only and saved summary plans are not missing-step failures', () => {
+  for (const plan_mode of ['literature_only', 'session_summary']) {
+    for (const status of ['awaiting_confirmation', 'running', 'completed']) {
+      expect(queryRecovery({status,plan:{plan_mode,steps:[],clarification:null}})).toBeNull();
+    }
+  }
+});

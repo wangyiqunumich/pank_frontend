@@ -107,7 +107,7 @@ test('manual result reconnect reads the existing result and preserves its graph'
     return <><ConnectionNotice status={connection.status} onReconnect={connection.reconnect} />{result && <div data-testid="saved-graph">{result.combined_query_result.nodes[0]['~id']}</div>}</>;
   }
   render(<Probe />);
-  const reconnect = await screen.findByRole('button', { name: 'Reconnect' });
+  const reconnect = await screen.findByRole('button', { name: 'Retry' });
   const graph = screen.getByTestId('saved-graph');
   fireEvent.click(reconnect);
   await waitFor(() => expect(api.pollResult).toHaveBeenCalledTimes(2));
@@ -119,7 +119,7 @@ test('manual result reconnect reads the existing result and preserves its graph'
 test('a failed saved-run read offers read-only reconnect instead of a new query', async () => {
   api.getRun.mockRejectedValueOnce(new Error('Read unavailable')).mockResolvedValue(snapshot());
   mount();
-  fireEvent.click(await screen.findByRole('button', { name: 'Reconnect' }));
+  fireEvent.click(await screen.findByRole('button', { name: 'Retry' }));
   await screen.findByTestId('graph');
   expect(api.getRun).toHaveBeenCalledTimes(2);
   expect(api.createPlanOnce).not.toHaveBeenCalled();
@@ -185,7 +185,7 @@ test('native follow-up handler keeps the previous answer visible until new plan 
   api.createPlanOnce.mockResolvedValueOnce({run_id:'r2'});
   fireEvent.click(screen.getByRole('button',{name:'Retry follow-up'}));
   await waitFor(() => expect(api.createPlanOnce).toHaveBeenCalledTimes(2));
-  expect(api.createPlanOnce.mock.calls[1]).toEqual(['What about SST?', 's1', 'r1:What about SST?']);
+  expect(api.createPlanOnce.mock.calls[1]).toEqual(['What about SST?', 's1', 'r1:What about SST?', 'r1']);
   expect(api.createPlanOnce.mock.calls[1][0]).not.toBe('Which cells express INS?');
 });
 
@@ -223,4 +223,24 @@ test('follow-up loading keeps earlier answers outside the loading body through p
   act(() => emit({ sequence: 41, type: 'plan_ready', payload: { plan: { ...snapshot('r2', 'What about SST?').plan, review_ready: true }, plan_id: 'p-r2' } }));
   await waitFor(() => expect(screen.queryByRole('status', { name: 'Loading current question' })).toBeNull());
   expect(screen.getByText('Earlier answer remains readable')).toBeTruthy();
+});
+
+
+test('follow-up while literature loads retains and updates the earlier run', async () => {
+  const first = {...snapshot(),status:'running',stage:'searching_literature',followup_ready:true,graph_answer:'Earlier graph answer',evidence:{graph_version:'test'},graph_complete:true};
+  api.getRun.mockImplementation(async id => id === 'r1' ? first : {...snapshot('r2'),status:'planning'});
+  api.createPlanOnce.mockResolvedValue({run_id:'r2'});
+  const meta=jest.fn();
+  const {unmount}=render(<MemoryRouter initialEntries={['/result-new2?run_id=r1']}><AgentResultView onContentMeta={meta} /></MemoryRouter>);
+  await screen.findByText('Earlier graph answer');
+  await waitFor(() => expect(meta.mock.calls.at(-1)[0].isQuestionComplete).toBe(true));
+  await act(async () => { await meta.mock.calls.at(-1)[0].followUpHandler('What about it?'); });
+  await waitFor(() => expect(api.watchRun.mock.calls.filter(call => call[0]==='r1').length).toBeGreaterThan(1));
+  const background=api.watchRun.mock.calls.filter(call=>call[0]==='r1').at(-1)[2];
+  act(() => background({seq:41,type:'literature_sources',payload:{sources:{hirn:{status:'complete',answer:'Late HIRN answer',references:[]},glkb:{status:'running'}}}}));
+  await screen.findByText('Late HIRN answer');
+  expect(screen.getByText('Earlier graph answer')).toBeTruthy();
+  expect(api.createPlanOnce.mock.calls[0][3]).toBe('r1');
+  unmount();
+  expect(api.watchRun.mock.results.every(result=>result.value.mock.calls.length>0)).toBe(true);
 });

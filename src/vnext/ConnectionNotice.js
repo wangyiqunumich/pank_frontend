@@ -1,9 +1,6 @@
 import React from 'react';
 import { Alert, Box, Button } from '@mui/material';
 
-const messageFor = status => status === 'exhausted' ? 'Live updates stopped. Your available result is preserved. Reconnect to read the saved result.'
-    : 'Reconnecting to the saved result. Your available result is preserved.';
-
 const floatingNoticeSx = {
   position: 'fixed', top: { xs: 54, sm: 58 }, left: '50%', transform: 'translateX(-50%)',
   width: 'calc(100% - 32px)', maxWidth: 960, zIndex: 1900, pointerEvents: 'none',
@@ -12,13 +9,13 @@ const floatingNoticeSx = {
 };
 
 function NoticeAlert({ status, onReconnect }) {
-  return <Alert severity="info" action={status === 'exhausted' && onReconnect ? <Button color="inherit" onClick={onReconnect}>Reconnect</Button> : undefined}>
-    {messageFor(status)}
+  return <Alert severity="warning" action={onReconnect ? <Button color="inherit" onClick={onReconnect}>Retry</Button> : undefined}>
+    Unable to load updates. Your available result is preserved.
   </Alert>;
 }
 
 export function ConnectionNoticeGroup({ notices = [] }) {
-  const visible = notices.filter(({ status }) => status && !['connected', 'paused'].includes(status));
+  const visible = notices.filter(({ status }) => status === 'exhausted');
   if (!visible.length) return null;
   return <Box data-testid="connection-notice-container" sx={floatingNoticeSx}>
     {visible.map(({ status, onReconnect }, index) => <NoticeAlert key={`${status}-${index}`} status={status} onReconnect={onReconnect} />)}

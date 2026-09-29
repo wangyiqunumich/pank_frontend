@@ -139,3 +139,12 @@ test.each(['default', 'compact'])('%s clipped cells retain full identifiers and 
   fireEvent.click(screen.getByRole('button', { name: 'Full Screen' }));
   expect(container.querySelector('.MuiBackdrop-root tbody td .answer-table-cell').textContent).toBe(signal);
 });
+
+
+test('numbered citations and PubMed links use the same run-scoped reference', () => {
+    render(<AnswerMarkdown answer="Paper [1](#citation-1) and [12345678](https://pubmed.ncbi.nlm.nih.gov/12345678/)." references={[{pmid:'12345678',citation_number:1,anchorId:'runA-reference-1'}]} />);
+    const links = screen.getAllByRole('link', {name:'1'});
+    expect(links).toHaveLength(2);
+    expect(links.every(link => link.getAttribute('href') === '#runA-reference-1')).toBe(true);
+    expect(screen.queryByText('PMID 12345678')).toBeNull();
+});

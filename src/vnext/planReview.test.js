@@ -62,7 +62,7 @@ test('existing answer sections show pending and unavailable literature while ret
   const perspective = { id: 'm', label: 'Mechanism', answer: 'Available literature context.', references: [{ pmid: '12345678', title: 'Supplied paper title', journal: 'Supplied journal' }] };
   rerender(<ResultSection run={{ ...run, status: 'partial', literature: { status: 'unavailable', perspectives: [perspective] } }} anchorPrefix="test" />);
   expect(screen.getByText('Graph answer remains visible.')).toBeTruthy();
-  expect(screen.getByText(/Literature evidence is unavailable/)).toBeTruthy();
+  expect(screen.getByText(/HIRN literature is unavailable/)).toBeTruthy();
   expect(screen.getByText('Available literature context.')).toBeTruthy();
   expect(screen.getByRole('link', { name: /Supplied paper title/ }).getAttribute('href')).toBe('https://pubmed.ncbi.nlm.nih.gov/12345678/');
 });
@@ -70,4 +70,12 @@ test('saved result literature is visible when the run wrapper has no literature 
   render(<ResultSection run={{ status: 'completed', question: 'CFTR?', graph_answer: 'Graph answer.' }} result={{ literature: { status: 'complete', perspectives: [{ id: 'm', label: 'Mechanism', answer: 'Saved literature context.' }] } }} anchorPrefix="test" />);
   expect(screen.getByText('Saved literature context.')).toBeTruthy();
   expect(screen.queryByText('Literature evidence is pending.')).toBeNull();
+});
+
+
+test('literature-only answers do not retain the graph-writing placeholder', () => {
+  render(<ResultSection run={{status:'completed',plan:{plan_mode:'literature_only',steps:[],literature:true},literature:{sources:{hirn:{status:'complete',answer:'HIRN evidence',references:[]},glkb:{status:'complete',answer:'Broader evidence',references:[]}}}}} anchorPrefix="literature-only" />);
+  expect(screen.queryByText('Writing the grounded answer…')).toBeNull();
+  expect(screen.getByText('HIRN evidence')).toBeTruthy();
+  expect(screen.getByText('Broader evidence')).toBeTruthy();
 });
