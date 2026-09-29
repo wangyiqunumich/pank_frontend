@@ -13,6 +13,15 @@ test('empty plan explains internal failure; original question retained and retry
  fireEvent.click(screen.getByRole('button',{name:'Apply changes'}));expect(revise).toHaveBeenCalledWith('Use spleen instead');
  fireEvent.click(screen.getByRole('button',{name:'Cancel query'}));expect(cancel).toHaveBeenCalledTimes(1);
 });
+test('cancel remains available while a recovery retry is in flight',()=>{
+ const cancel=jest.fn();
+ const run={question:'Which cells express INS?',status:'failed',plan:{steps:[{}]}};
+ render(<QueryRecoveryDialog issue={queryRecovery(run,'request_failed')} question={run.question} busy onCancel={cancel}/>);
+ fireEvent.click(screen.getByRole('button',{name:'Cancel query'}));
+ expect(cancel).toHaveBeenCalledTimes(1);
+ fireEvent.click(screen.getByRole('button',{name:'Close and cancel query'}));
+ expect(cancel).toHaveBeenCalledTimes(2);
+});
 test('retryable failures show one original-question retry action',()=>{
  const issue=queryRecovery({status:'failed',plan:{steps:[{}]},error:{category:'service_or_retrieval_failure'}});
  render(<QueryRecoveryDialog issue={issue} question="Find islet donors" onRetry={jest.fn()} onRevise={jest.fn()}/>);

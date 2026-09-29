@@ -197,6 +197,7 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
   const mounted = useRef(true);
   const metaRef = useRef('');
   const bootstrapRef = useRef(null);
+  const mutationTask = useRef(null);
   const projectionRef = useRef(null);
   const followUpPending = useRef(false);
   const loadVersion = useRef(0);
@@ -277,17 +278,20 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     const current = runRef.current;
     if (!current || busy) return;
     setBusy(true); setError('');
-    try { const created = await revisePlan(current.plan_id, question, current.include_context ?? true); setRun(null); await attachRun(created.run_id); }
-    catch (err) { setError(err.message); } finally { setBusy(false); }
+    const task = revisePlan(current.plan_id, question, current.include_context ?? true); mutationTask.current = task;
+    try { const created = await task; if (!mounted.current) return; setRun(null); await attachRun(created.run_id); }
+    catch (err) { if (mounted.current) setError(err.message); } finally { if (mutationTask.current === task) mutationTask.current = null; if (mounted.current) setBusy(false); }
   }, [attachRun, busy]);
   const onConfirm = useCallback(async () => {
     if (!runRef.current || busy) return;
     setBusy(true); setError('');
-    try { const started = await confirmPlan(runRef.current.plan_id); await attachRun(started.run_id); }
-    catch (err) { setError(err.message); } finally { setBusy(false); }
+    const task = confirmPlan(runRef.current.plan_id); mutationTask.current = task;
+    try { const started = await task; if (!mounted.current) return; await attachRun(started.run_id); }
+    catch (err) { if (mounted.current) setError(err.message); } finally { if (mutationTask.current === task) mutationTask.current = null; if (mounted.current) setBusy(false); }
   }, [attachRun, busy]);
   const cancel = useCallback(async () => {
     const currentRun = runRef.current;
+    const pendingMutation = mutationTask.current;
     // Leave immediately; the bootstrap/create request may still be pending.
     // Once it yields an id, best-effort cancel the server-side run as well.
     streamRef.current?.(); streamRef.current = null;
@@ -295,7 +299,7 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     loadVersion.current += 1;
     navigate('/');
     try {
-      const pending = currentRun?.run_id ? currentRun : await bootstrapRef.current;
+      const pending = pendingMutation ? await pendingMutation : (currentRun?.run_id ? currentRun : await bootstrapRef.current);
       if (pending?.run_id) await cancelRun(pending.run_id);
     } catch (_) { /* Leaving the page must not wait on a failed or slow cancel request. */ }
   }, [navigate]);
@@ -305,14 +309,15 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     if (inputError) { setFailedFollowUp({ question, message: inputError }); return false; }
     const current = runRef.current;
     followUpPending.current = true; setBusy(true); setFailedFollowUp(null);
+    const task = createPlanOnce(question.trim(), current.session_id, `${current.run_id}:${question.trim()}`, current.run_id); mutationTask.current = task;
     try {
-      const created = await createPlanOnce(question.trim(), current.session_id, `${current.run_id}:${question.trim()}`, current.run_id);
+      const created = await task;
       if (!mounted.current) return;
       setPrevious((items) => [...items, { run: current, result: projectionRef.current, presentationState: location.state?.result_page }]);
       setRun(null); await attachRun(created.run_id);
       return true;
     } catch (err) { if (mounted.current) setFailedFollowUp({ question, message: err.message }); return false; }
-    finally { followUpPending.current = false; if (mounted.current) setBusy(false); }
+    finally { if (mutationTask.current === task) mutationTask.current = null; followUpPending.current = false; if (mounted.current) setBusy(false); }
   }, [attachRun, location.state?.result_page]);
   useEffect(() => {
     if (!onContentMeta) return;
@@ -337,12 +342,14 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
       return onRevise(instruction || 'Retry the original question without changing any entities, filters, or scope.');
     }
     setBusy(true); setError('');
+    const original = current?.question || decodeQuestion(route.get('question'));
+    const question = instruction ? `${original}\nRequested change: ${instruction}` : original;
+    const task = createPlanOnce(question, current?.session_id || '', `recovery:${current?.run_id || 'initial'}:${Date.now()}`); mutationTask.current = task;
     try {
-      const original = current?.question || decodeQuestion(route.get('question'));
-      const question = instruction ? `${original}\nRequested change: ${instruction}` : original;
-      const created = await createPlanOnce(question, current?.session_id || '', `recovery:${current?.run_id || 'initial'}:${Date.now()}`);
+      const created = await task;
+      if (!mounted.current) return;
       setRun(null); await attachRun(created.run_id);
-    } catch (err) { setError(err.message); } finally { setBusy(false); }
+    } catch (err) { if (mounted.current) setError(err.message); } finally { if (mutationTask.current === task) mutationTask.current = null; if (mounted.current) setBusy(false); }
   };
   const initialLoading = !run?.plan || (run?.status === 'planning' && !run?.plan?.review_ready);
   const progress = liveProgress(run, connection);

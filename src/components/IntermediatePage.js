@@ -554,12 +554,14 @@ function IntermediatePage({ onContinue }) {
 
       setIsNeptune(!searchState.sourceTerm.includes("snp@"));
 
-      dispatch(queryQueryResult({
+      const task = dispatch(queryQueryResult({
         query: processedCypher,
         // query rds if sourceTerm is a SNP
         // otherwise query neptune db
         isNeptune: !searchState.sourceTerm.includes("snp@"),
-      })).unwrap();
+      }));
+      task.unwrap().catch(() => {});
+      return () => { task?.abort(); };
     }
   }, [viewSchema, searchState.sourceTerm, searchState.targetTerm, searchState.relationship, vnextEnabled, searchAttempt]);
 

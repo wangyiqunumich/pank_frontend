@@ -618,6 +618,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     const followUpRequestRunIdRef = useRef(0);
     const followUpBlockSeqRef = useRef(0);
     const followUpUnmountedRef = useRef(false);
+    const activeCancelControllersRef = useRef(new Set());
     const planSummaryRef = useRef('');
     const aiAnswerRef = useRef('');
     const planFunctionalImagePreloadRef = useRef('');
@@ -1430,6 +1431,8 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         }
 
         let chunkTimer = null;
+        const controller = new AbortController();
+        activeCancelControllersRef.current.add(controller);
         setStreamedEvents([]);
         setThinkingLines([]);
         setStreamAnswer('');
@@ -1449,6 +1452,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({ question: question || '', agent_name: 'pankbase' }),
+                    signal: controller.signal,
                 });
 
                 if (!response.ok) {
@@ -1505,10 +1509,14 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 }
 
                 // Mark stream as complete
-                setStreamComplete(true);
+                if (!controller.signal.aborted) setStreamComplete(true);
             } catch (error) {
-                console.error('[Stream API] Error:', error);
-                setStreamComplete(true);
+                if (!controller.signal.aborted) {
+                    console.error('[Stream API] Error:', error);
+                    setStreamComplete(true);
+                }
+            } finally {
+                activeCancelControllersRef.current.delete(controller);
             }
         };
 
@@ -1736,6 +1744,8 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         callStreamingAPI();
 
         return () => {
+            controller.abort();
+            activeCancelControllersRef.current.delete(controller);
             if (chunkTimer) {
                 clearInterval(chunkTimer);
             }
@@ -1950,11 +1960,15 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
     }, [parseChatResponseContent, currentQuestion, question, chatSessionId, extractPayloadCypherQueries, fetchGraphFromCypher, fetchLiteratureMarkdown, appendLiteratureBlock]);
 
     const callChatStreamEndpoint = React.useCallback(async ({ path, body, requestLabel }) => {
+        const controller = new AbortController();
+        activeCancelControllersRef.current.add(controller);
+        try {
         await ensurePlannerAgentBaseUrl();
         const response = await fetch(`${PLANNER_AGENT_BASE_URL}${path}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body || {}),
+            signal: controller.signal,
         });
 
         if (!response.ok) {
@@ -2049,9 +2063,15 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         }
 
         return resultPayload;
+        } finally {
+            activeCancelControllersRef.current.delete(controller);
+        }
     }, []);
 
     const confirmChatPlanStream = React.useCallback(async ({ chatSessionId: targetChatSessionId, planSessionId, revisionPrompt = null, onHeartbeat }) => {
+        const controller = new AbortController();
+        activeCancelControllersRef.current.add(controller);
+        try {
         await ensurePlannerAgentBaseUrl();
         const response = await fetch(`${PLANNER_AGENT_BASE_URL}/chat/plan/confirm/stream`, {
             method: 'POST',
@@ -2061,6 +2081,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
                 plan_session_id: planSessionId,
                 revision_prompt: revisionPrompt,
             }),
+            signal: controller.signal,
         });
 
         if (!response.ok) {
@@ -2145,6 +2166,9 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         }
 
         return resultPayload;
+        } finally {
+            activeCancelControllersRef.current.delete(controller);
+        }
     }, []);
 
     const handleConfirmPendingPlan = React.useCallback(async (blockId) => {
@@ -3084,6 +3108,9 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
             planInactivityTimerRef.current = null;
         }
         chatBootstrapRunIdRef.current += 1;
+        followUpRequestRunIdRef.current += 1;
+        activeCancelControllersRef.current.forEach((controller) => controller.abort());
+        activeCancelControllersRef.current.clear();
         if (thunkref.current) thunkref.current.abort();
         navigate('/');
     }, [navigate, trackResultNewEvent, terminalPhase]);

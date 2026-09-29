@@ -179,7 +179,7 @@ export default function QueryRecoveryDialog({issue, question, busy, onRevise, on
       <span className="query-recovery-eyebrow">{recoveryEyebrow(category)}</span>
       <span>{issue?.title}</span>
     </DialogTitle>
-    <IconButton className="query-recovery-close" aria-label="Close and cancel query" onClick={onCancel} disabled={busy}>
+    <IconButton className="query-recovery-close" aria-label="Close and cancel query" onClick={onCancel}>
       <CloseRoundedIcon />
     </IconButton>
 
@@ -231,7 +231,7 @@ export default function QueryRecoveryDialog({issue, question, busy, onRevise, on
     </DialogContent>
 
     <DialogActions className="query-recovery-actions">
-      <Button className="query-recovery-cancel" onClick={onCancel} disabled={busy}>Cancel query</Button>
+      <Button className="query-recovery-cancel" onClick={onCancel}>Cancel query</Button>
       <Button className="query-recovery-primary" variant={primaryLabel === 'Retry original question' ? 'outlined' : 'contained'} onClick={handlePrimary} disabled={busy || countdown > 0 || (editRequired && !instruction.trim()) || (!issue?.retryable && !isOperatorIssue && !isReleaseMismatch && !instruction.trim())}>
         {primaryLabel}
       </Button>
