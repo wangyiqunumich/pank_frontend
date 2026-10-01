@@ -48,7 +48,7 @@ export function withLiteratureReferences(tabs = {}, literature, runId = 'main') 
   const references = {};
   const keyFor = (ref) => ref.pmid ? `pmid:${ref.pmid}` : ref.doi ? `doi:${String(ref.doi).toLowerCase()}` : String(ref.id || ref.document_id || ref.href || ref.url || ref.link || '');
   Object.values(tabs.references || {}).forEach((ref) => { const key = keyFor(ref); if (key) references[key] = { ...ref }; });
-  const units = literature?.sources ? Object.entries(literature.sources).flatMap(([source, value]) => (value.perspectives || [value]).map(unit => ({ ...unit, source }))) : (literature?.perspectives || []).map(unit => ({ ...unit, source: 'hirn' }));
+  const units = literature?.sources ? Object.entries(literature.sources).flatMap(([source, value]) => (value.perspectives?.length ? value.perspectives : [value]).map(unit => ({ ...unit, source }))) : (literature?.perspectives || []).map(unit => ({ ...unit, source: 'hirn' }));
   units.forEach((perspective) => (perspective.references || []).forEach((ref) => {
     const key = keyFor(ref);
     if (!key) return;

@@ -20,7 +20,7 @@ export default function LiteratureSections({ literature, references }) {
   const sources = literature.sources || { hirn: { ...literature, perspectives: literature.perspectives || [] } };
   return <Box>{['hirn', 'glkb'].filter(source => sources[source]).map(source => {
     const value = sources[source];
-    const units = value.perspectives || (value.answer ? [value] : []);
+    const units = value.perspectives?.length ? value.perspectives : ((value.display_answer || value.answer) ? [value] : []);
     const pending = ['pending', 'queued', 'running'].includes(value.status);
     const failed = ['unavailable', 'failed', 'timeout', 'interrupted', 'cancelled'].includes(value.status);
     return <Box key={source} sx={{ mt: 2 }} data-literature-source={source}>
@@ -29,6 +29,7 @@ export default function LiteratureSections({ literature, references }) {
       {failed && <Typography role="status" sx={{ fontSize: 14, color: '#64748B' }}>{source.toUpperCase()} literature {value.status === 'interrupted' ? 'was interrupted' : 'is unavailable'}. Available answers are preserved.</Typography>}
       {value.status === 'partial' && <Typography role="status" sx={{ fontSize: 14, color: '#64748B' }}>Some literature evidence or references are incomplete.</Typography>}
       {value.status === 'no_evidence' && <Typography role="status" sx={{ fontSize: 14, color: '#64748B' }}>No directly supported literature evidence was returned.</Typography>}
+      {!pending && !failed && value.status !== 'no_evidence' && !units.some(unit => (unit.display_answer || unit.answer || '').trim()) && <Typography role="status" sx={{ fontSize: 14, color: '#64748B' }}>No literature answer text was returned.</Typography>}
       {units.map((unit, index) => <Box key={unit.id || index}>{units.length > 1 && unit.label && <Typography component="h4" sx={{ fontSize: 14, fontWeight: 600 }}>{unit.label}</Typography>}<AnswerMarkdown answer={unit.display_answer || unit.answer || ''} references={references} /></Box>)}
     </Box>;
   })}</Box>;

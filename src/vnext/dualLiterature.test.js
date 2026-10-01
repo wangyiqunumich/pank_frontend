@@ -51,3 +51,16 @@ test('HIRN label belongs to the reference item', () => {
   expect(paper.textContent).toContain('HIRN');
   expect(paper.id).toBe('runA-reference-1');
 });
+
+
+test('single HIRN answer survives an empty legacy perspectives array', () => {
+  const single = { status: 'complete', sources: { hirn: {status: 'complete', perspectives: [], answer: 'Original HIRN prose', display_answer: 'Cited HIRN prose [1]', references: [{pmid:'12345678',title:'HIRN paper'}]} } };
+  render(<LiteratureSections literature={single} references={[]} />);
+  expect(screen.getByText('Cited HIRN prose [1]')).toBeTruthy();
+  expect(Object.values(withLiteratureReferences({}, single, 'single').references)).toEqual(expect.arrayContaining([expect.objectContaining({pmid:'12345678'})]));
+});
+
+test('completed source with missing answer shows an explicit message', () => {
+  render(<LiteratureSections literature={{sources:{hirn:{status:'complete',perspectives:[],references:[]}}}} references={[]} />);
+  expect(screen.getByRole('status').textContent).toBe('No literature answer text was returned.');
+});
