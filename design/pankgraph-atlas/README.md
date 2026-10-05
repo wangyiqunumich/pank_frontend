@@ -50,6 +50,7 @@ Redesigned screens follow **Material Design 3** with one shared token sheet, [`s
 | Design tokens (type, spacing, shape, color, dimensions) | `styles/design-tokens.css`; rules in `DESIGN-SYSTEM.md` |
 | Recovery dialogs (all 12 states) | one component: `recovery-dialog.js` + per-variant `recovery-dialog-config.js`; styles `styles/recovery-dialog.css` (tokens only) |
 | Alerts, empty/error panels, inline errors — Empty & error states (3 screens) | `styles/message-states.css` (tokens only) |
+| Source data file table + Table 1 (answer page) | `source-data.js`, `styles/source-data.css` |
 | Shared screen controls | `page-runtime.js` |
 | Images and fonts | `assets/`; original public URLs are in `assets/source-provenance.json` |
 

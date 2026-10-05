@@ -186,6 +186,62 @@
   --md-comp-recovery-focus-ring-width:   3px;
   --md-comp-recovery-spinner-size:       16px;
   --md-comp-recovery-snackbar-bg:        rgb(32, 58, 72);
+  /* ---- Source data / Table 1 component scope (handoff 2026-10-05, high fidelity: values final) ---- */
+  --md-comp-source-font:            -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --md-comp-source-text-primary:    rgb(31, 39, 51);    /* #1F2733 */
+  --md-comp-source-text-secondary:  rgb(95, 107, 120);  /* #5F6B78 header + secondary text */
+  --md-comp-source-text-tag:        rgb(74, 85, 98);    /* #4A5562 */
+  --md-comp-source-card-border:     rgb(223, 228, 234); /* #DFE4EA */
+  --md-comp-source-row-divider:     rgb(232, 236, 240); /* #E8ECF0 */
+  --md-comp-source-tag-border:      rgb(225, 229, 234); /* #E1E5EA */
+  --md-comp-source-button-border:   rgb(214, 220, 226); /* #D6DCE2 */
+  --md-comp-source-button-border-hover: rgb(184, 202, 205); /* #B8CACD */
+  --md-comp-source-header-bg:       rgb(246, 248, 250); /* #F6F8FA */
+  --md-comp-source-row-hover:       rgb(250, 251, 252); /* #FAFBFC */
+  --md-comp-source-button-hover:    rgb(243, 247, 248); /* #F3F7F8 */
+  --md-comp-source-tag-bg:          rgb(241, 244, 247); /* #F1F4F7 */
+  --md-comp-source-accent:          rgb(43, 122, 128);  /* #2B7A80 icons, progress */
+  --md-comp-source-progress-bg:     rgb(247, 249, 250); /* #F7F9FA */
+  --md-comp-source-success-text:    rgb(33, 104, 109);  /* #21686D */
+  --md-comp-source-success-bg:      rgb(238, 246, 246); /* #EEF6F6 */
+  --md-comp-source-success-bg-hover:rgb(227, 240, 240); /* #E3F0F0 */
+  --md-comp-source-success-border:  rgb(188, 216, 217); /* #BCD8D9 */
+  --md-comp-source-spinner-track:   rgb(207, 225, 226); /* #CFE1E2 */
+  --md-comp-source-disabled-text:   rgb(154, 163, 173); /* #9AA3AD */
+  --md-comp-source-disabled-name:   rgb(152, 161, 171); /* #98A1AB */
+  --md-comp-source-disabled-desc:   rgb(163, 171, 180); /* #A3ABB4 */
+  --md-comp-source-disabled-border: rgb(230, 233, 237); /* #E6E9ED */
+  --md-comp-source-disabled-bg:     rgb(248, 249, 250); /* #F8F9FA */
+  --md-comp-source-disabled-tag-bg: rgb(247, 248, 249); /* #F7F8F9 */
+  --md-comp-source-card-radius:     12px;
+  --md-comp-source-button-height:   28px;
+  --md-comp-source-button-radius:   14px;
+  --md-comp-source-button-width:    124px;   /* row action, fixed */
+  --md-comp-source-button-width-icon: 32px;  /* icon-only below 340px */
+  --md-comp-source-tag-height:      20px;
+  --md-comp-source-tag-radius:      4px;
+  --md-comp-source-icon:            16px;
+  --md-comp-source-icon-gap:        6px;
+  --md-comp-source-spinner:         14px;
+  --md-comp-source-cell-inset-left: 14px;
+  --md-comp-source-cell-inset-right:8px;
+  --md-comp-source-column-gap:      16px;
+  --md-comp-source-header-row:      36px;
+  --md-comp-source-title-bar:       44px;
+  --md-comp-source-file-row:        56px;
+  --md-comp-source-name-max:        280px;
+  --md-comp-source-section-top:     28px;
+  --md-comp-source-header-gap:      10px;
+  --md-comp-source-row-pad-y:       10px;
+  --md-comp-source-file-pad-y:      8px;
+  --md-comp-source-compact-width:   340px;
+  --md-comp-source-type-col:        64px;
+  --md-comp-source-tag-pad-x:       6px;
+  --md-comp-source-text-gap:        2px;
+  --md-comp-source-spin-duration:   800ms;
+  --md-comp-source-body-size:       13px;    /* cell text, file name, table title, lede */
+  --md-comp-source-tag-size:        10.5px;
+  --md-comp-source-tag-tracking:    0.04em;
 }
 
 /* Reusable typography classes — apply instead of restating sizes. */

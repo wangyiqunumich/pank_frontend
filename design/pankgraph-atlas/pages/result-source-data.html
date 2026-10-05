@@ -12,7 +12,9 @@
 <meta name="twitter:title" content="PanKBase – Pan-genome Knowledge Base | pankgraph.org">
 <meta name="twitter:description" content="PanKgraph is a T1D knowledge graph that integrates multi-omic and curated biological data into a unified framework for discovery, visualization, and reproducible diabetes research.">
 <link rel="stylesheet" href="../styles/e10cb5f07dae5e0aa81d.css">
-<link rel="stylesheet" href="../styles/3981213a885f4a4cbe9d.css"></head>
+<link rel="stylesheet" href="../styles/3981213a885f4a4cbe9d.css">
+<link rel="stylesheet" href="../styles/design-tokens.css">
+<link rel="stylesheet" href="../styles/source-data.css"></head>
 <body>
 <div id="root">
 <div class="MuiContainer-root MuiContainer-disableGutters css-1h4exh5">
@@ -98,23 +100,12 @@
 <p class="MuiTypography-root MuiTypography-body1 css-1tke7mm">This example shows the current answer layout, with links to retrieved evidence and supporting materials.</p>
 
 <div class="MuiBox-root css-1qzwrnv">
-<div class="MuiBox-root css-1d1z26w">
-<div class="MuiBox-root css-1v04mmd">
-<p class="MuiTypography-root MuiTypography-body1 css-1gay58j">Table 1</p>
-<div class="MuiBox-root css-axw7ok"><button class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary css-1hiuq95" tabindex="0" type="button">Download CSV<span class="MuiTouchRipple-root css-w0pj6f"></span></button><button class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary css-1hiuq95" tabindex="0" type="button"><span class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeSmall css-u0g51i"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1yls13q" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="OpenInFullIcon"><path d="M21 11V3h-8l3.29 3.29-10 10L3 13v8h8l-3.29-3.29 10-10z"></path></svg></span>Full Screen<span class="MuiTouchRipple-root css-w0pj6f"></span></button></div>
+<div class="MuiBox-root pk-src-card pk-table1">
+<div class="pk-table1__bar"><p class="MuiTypography-root pk-table1__title">Table 1</p>
+<div class="pk-table1__actions"><button class="MuiButton-root pk-src-btn" type="button"><svg class="pk-src-icon" viewBox="0 -960 960 960" aria-hidden="true"><path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/></svg>Download CSV</button><a class="MuiButton-root pk-src-btn" role="button" href="result-table-fullscreen.html" data-atlas-target="result-table-fullscreen"><svg class="pk-src-icon" viewBox="0 -960 960 960" aria-hidden="true"><path d="M120-120v-320h80v184l504-504H520v-80h320v320h-80v-184L256-200h184v80H120Z"/></svg>Full screen</a></div>
 </div>
-<div class="MuiBox-root css-1ygdrb6">
-<table>
-<thead>
-<tr><th>Evidence type</th><th>Example context</th><th>Review note</th></tr>
-</thead>
-<tbody>
-<tr><td>Expression</td><td>Beta cell</td><td>Synthetic display record</td></tr>
-<tr><td>Pathway</td><td>Example pathway</td><td>Check the linked source</td></tr>
-<tr><td>Genetic association</td><td>Example credible set</td><td>Association does not establish causality</td></tr>
-</tbody>
-</table>
-</div>
+<div class="pk-table1__head" role="row"><div>Evidence type</div><div>Example context</div><div>Review note</div></div>
+<div class="pk-table1__row" role="row"><div>Expression</div><div>Beta cell</div><div>Synthetic display record</div></div><div class="pk-table1__row" role="row"><div>Pathway</div><div>Example pathway</div><div>Check the linked source</div></div><div class="pk-table1__row" role="row"><div>Genetic association</div><div>Example credible set</div><div>Association does not establish causality</div></div>
 </div>
 <div aria-hidden="true" class="MuiBackdrop-root css-1jfx3rx" style="opacity: 0; visibility: hidden;">
 <div class="MuiBox-root css-1xk79jh">
@@ -142,14 +133,21 @@
 </div>
 </div>
 <div class="MuiBox-root css-0" id="result-1-ai-overview-2">
-<section class="MuiBox-root css-xfe2id" aria-label="Source data">
-<h3 class="MuiTypography-root MuiTypography-body1 css-1ua37ht">Source data</h3>
-<p class="MuiTypography-root MuiTypography-body1 css-1eq42hl">Download the available source data or explicitly labeled metadata used in this answer.</p>
-<div class="MuiBox-root css-l87k16">
-<div class="MuiBox-root css-0"><a class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary css-100i4s6" tabindex="0" href="../assets/designer-source-data.tsv" target="_blank" rel="noopener noreferrer" download="">Download source association data — Synthetic design fixture · EXAMPLE set · EXAMPLE tissue<span class="MuiTouchRipple-root css-w0pj6f"></span></a>
-<p class="MuiTypography-root MuiTypography-body1 css-pz8uxp">Original downloaded association table · designer-source-data.tsv</p>
+<section class="MuiBox-root pk-src" aria-labelledby="src-data-h">
+<div class="pk-src__head">
+<div class="pk-src__text"><h3 class="MuiTypography-root pk-src__title" id="src-data-h">Source data</h3>
+<p class="MuiTypography-root pk-src__lede">Download the source data or explicitly labeled metadata used in this answer.</p></div>
+<button class="MuiButton-root pk-src-btn pk-src__bulk" type="button" data-atlas-interactive hidden></button>
 </div>
-</div>
+<div data-source-files data-atlas-interactive></div>
+<script>window.SOURCE_FILES = [
+  { id: 'assoc', name: 'designer-source-data.tsv', type: 'TSV', description: 'Source association data · original downloaded table', available: true },
+  { id: 'expr', name: 'expression-data.csv', type: 'CSV', description: 'Expression evidence · beta cell', available: true, status: 'progress' },
+  { id: 'path', name: 'pathway-evidence.json', type: 'JSON', description: 'Pathway relationships', available: true, status: 'done' },
+  { id: 'cred', name: 'INS_genetic-association_credible-set_example-tissue_synthetic-design-fixture_v2026-03.tsv', type: 'TSV', description: 'Genetic association credible set', available: true },
+  { id: 'donor', name: 'donor-metadata.csv', type: 'CSV', description: 'Donor metadata · restricted access', available: false, unavailableReason: 'Restricted under the data use agreement — request access through PanKbase' }
+];</script>
+<script src="../source-data.js"></script>
 </section>
 </div>
 <div class="MuiBox-root css-0" id="result-1-ai-overview-3">

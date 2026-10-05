@@ -109,6 +109,22 @@ Aligned with the PanKgraph homepage's rounded language, translated into Material
 
 Buttons, chips and icon buttons are fully rounded, matching the homepage's Search button and suggestion chips; containers and fields keep 12px so the hierarchy dialog → card/input → button/chip stays legible.
 
+## Source data file table + Table 1 (answer page)
+
+Handoff of 2026-10-05, high fidelity; applied only to the "AI Overview · source data download" screen. One component, [`source-data.js`](source-data.js), renders the file table from `window.SOURCE_FILES`; styles live in [`styles/source-data.css`](styles/source-data.css) on `--md-comp-source-*` tokens.
+
+| Element | Spec |
+| --- | --- |
+| Card (Table 1 and file table) | 1px `#DFE4EA`, 12px radius, white, no shadow |
+| Table 1 title bar | 44px, white, 13px/20px 600 title, `[Download CSV] [Full screen]` secondary pills |
+| Column header row | 36px, `#F6F8FA`, 12px/16px 600 `#5F6B78`, sentence case |
+| Table 1 body row | 10 × 14px padding, 13px/20px, hover `#FAFBFC` |
+| File row | 56px, columns `1fr / 64px / 124px`, name 13px 500 (ellipsis at 280px, tooltip), description 12px `#5F6B78` under the name, TSV/CSV/JSON tag 20px 10.5px 600 |
+| Secondary pill button | 28px, 14px radius, 1px `#D6DCE2`, 12px/16px 500, 16px teal `#2B7A80` icon, hover `#F3F7F8` / `#B8CACD` |
+| Row action states | Idle "Download" → In progress (14px spinner, "Downloading…", disabled) → Done (check, `#EEF6F6`/`#21686D`, click downloads again); Unavailable (greyed, tooltip with reason) |
+| Download all | Only with 2+ available files: "Download all (N)" → "Downloading X of N…" → "All downloaded"; rows start 350ms apart |
+| Compact (< 340px container) | Icon-only 32px action, columns `1fr / 64px / 32px`, no horizontal scroll |
+
 ## Spacing, shape, elevation
 
 | Token | Value | Use |

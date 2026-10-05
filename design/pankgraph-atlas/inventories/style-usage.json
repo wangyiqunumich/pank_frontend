@@ -92,6 +92,7 @@
     "error-budget_exhausted.html",
     "error-empty-plan.html",
     "functional-chart-error.html",
+    "result-source-data.html",
     "error-clarification.html",
     "error-graph_identity.html",
     "error-unknown_failure.html"
@@ -255,6 +256,9 @@
     "tool-functional-table.html"
   ],
   "styles/e10cb5f07dae5e0aa81d.css": [
+    "result-source-data.html"
+  ],
+  "styles/source-data.css": [
     "result-source-data.html"
   ],
   "styles/0781d0cabe8bd5507912.css": [
