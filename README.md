@@ -113,9 +113,10 @@ site-stage variable is required before running `npm run build`:
 | --- | --- | --- |
 | `REACT_APP_API_GATEWAY_STAGE_NAME` | `development` | `production` |
 
-Both IDs receive development-site analytics. GA4 only initializes when the
-existing API stage is `development`. Production, unknown, or missing stages leave
-analytics disabled: no GA script is loaded and no GA events are sent.
+Both IDs receive development-site analytics. With the API stage `production`,
+only the existing ID `G-F1RRRLLMKP` is loaded and configured; the new dev ID is
+not used. Unknown or missing stages leave analytics disabled: no GA script is
+loaded and no GA events are sent.
 Site detection uses the API stage, not hostname or `NODE_ENV` (a dev deployment
 also runs `npm run build` in production mode). No separate GA environment variable
 is needed. Rebuild and redeploy after changing the stage; changing only the static

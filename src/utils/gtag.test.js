@@ -20,7 +20,15 @@ test('development configures both tags with one loader and preserves interaction
   expect(window.dataLayer).toHaveLength(4);
 });
 
-test.each(['production', ' PRODUCTION ', '', null])('stage %s leaves GA4 off', stage => {
+test.each(['production', ' PRODUCTION '])('stage %s enables only the legacy tag', stage => {
+  initializeGtag({ stage });
+  expect(document.getElementById('pankgraph-ga4').src).toBe('https://www.googletagmanager.com/gtag/js?id=G-F1RRRLLMKP');
+  expect(window.dataLayer.map(command => Array.from(command)).slice(1)).toEqual([['config', 'G-F1RRRLLMKP']]);
+  trackGtagEvent('query_submitted');
+  expect(Array.from(window.dataLayer[2])).toEqual(['event', 'query_submitted', { page_path: '/' }]);
+});
+
+test.each(['unknown', '', null])('stage %s leaves GA4 off', stage => {
   initializeGtag({ stage });
   trackGtagEvent('query_submitted');
   expect(document.getElementById('pankgraph-ga4')).toBeNull();

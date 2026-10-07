@@ -7,19 +7,21 @@ export const initializeGtag = ({
   if (typeof window === 'undefined' || typeof document === 'undefined') return;
   // The existing API stage identifies the site, independently of NODE_ENV:
   // a deployed development site also uses an optimized production build.
-  if (typeof stage !== 'string' || stage.trim().toLowerCase() !== 'development') return;
+  const siteStage = typeof stage === 'string' ? stage.trim().toLowerCase() : '';
+  if (!['development', 'production'].includes(siteStage)) return;
+  const isDevelopment = siteStage === 'development';
   if (document.getElementById('pankgraph-ga4')) return;
 
   window.dataLayer = window.dataLayer || [];
   window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
   window.gtag('js', new Date());
   window.gtag('config', LEGACY_GA4_MEASUREMENT_ID);
-  window.gtag('config', DEV_GA4_MEASUREMENT_ID);
+  if (isDevelopment) window.gtag('config', DEV_GA4_MEASUREMENT_ID);
 
   const script = document.createElement('script');
   script.id = 'pankgraph-ga4';
   script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${DEV_GA4_MEASUREMENT_ID}`;
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${isDevelopment ? DEV_GA4_MEASUREMENT_ID : LEGACY_GA4_MEASUREMENT_ID}`;
   document.head.appendChild(script);
 };
 
