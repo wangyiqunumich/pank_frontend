@@ -105,14 +105,15 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 
 ### GA4 environment configuration
 
-GA4 uses the fixed frontend measurement ID `G-BEWL9F8CW7`. Only the existing
+GA4 uses the fixed frontend measurement IDs `G-F1RRRLLMKP` (existing) and
+`G-BEWL9F8CW7` (new), configured through one Google tag loader. Only the existing
 site-stage variable is required before running `npm run build`:
 
 | Variable | dev | production |
 | --- | --- | --- |
 | `REACT_APP_API_GATEWAY_STAGE_NAME` | `development` | `production` |
 
-The new ID replaces the previous Google tag. GA4 only initializes when the
+Both IDs receive development-site analytics. GA4 only initializes when the
 existing API stage is `development`. Production, unknown, or missing stages leave
 analytics disabled: no GA script is loaded and no GA events are sent.
 Site detection uses the API stage, not hostname or `NODE_ENV` (a dev deployment

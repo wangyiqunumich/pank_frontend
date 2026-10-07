@@ -1,4 +1,5 @@
 const DEV_GA4_MEASUREMENT_ID = 'G-BEWL9F8CW7';
+const LEGACY_GA4_MEASUREMENT_ID = 'G-F1RRRLLMKP';
 
 export const initializeGtag = ({
   stage = process.env.REACT_APP_API_GATEWAY_STAGE_NAME,
@@ -12,6 +13,7 @@ export const initializeGtag = ({
   window.dataLayer = window.dataLayer || [];
   window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
   window.gtag('js', new Date());
+  window.gtag('config', LEGACY_GA4_MEASUREMENT_ID);
   window.gtag('config', DEV_GA4_MEASUREMENT_ID);
 
   const script = document.createElement('script');
