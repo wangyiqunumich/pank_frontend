@@ -5,6 +5,7 @@ import AgentPage from './vnext/AgentPage';
 import AgentRoute from './vnext/AgentRoute';
 import ConventionalRoute from './vnext/ConventionalRoute';
 import { loadDevConfig, getDevConfig } from './vnext/runtimeConfig';
+import { initializeGtag } from './utils/gtag';
 
 import React from 'react';
 
@@ -73,6 +74,7 @@ const cognitoAuthConfig = {
   },
 };
 
+initializeGtag();
 const root = ReactDOM.createRoot(document.getElementById('root'));
 loadDevConfig().then(() => root.render(
   <AuthProvider {...cognitoAuthConfig}>

@@ -103,6 +103,27 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
+### GA4 environment configuration
+
+Set these public, build-time variables before running `npm run build`:
+
+| Variable | dev | production |
+| --- | --- | --- |
+| `REACT_APP_API_GATEWAY_STAGE_NAME` | `development` | `production` |
+| `REACT_APP_GA4_MEASUREMENT_ID` | `G-BEWL9F8CW7` | `disabled` |
+
+The new ID replaces the previous Google tag. GA4 only initializes when the
+existing API stage is `development` and the measurement ID is valid. All other
+stages, `disabled`, or an absent/invalid ID leave analytics disabled: no GA script
+is loaded and no GA events are sent. Production stays disabled even if a valid ID
+is accidentally supplied. Site detection uses the API stage, not hostname or
+`NODE_ENV` (a dev deployment also runs `npm run build` in production mode).
+The checked-in `.env.development` supplies the local dev ID; `.env.production`
+defaults to `disabled`. For a deployed dev build, explicitly set both dev values
+in the build environment to override that default.
+Rebuild and redeploy after changing these values; changing only the static
+web server's runtime environment does not modify an existing CRA build.
+
 ### `npm run eject`
 
 **Note: this is a one-way operation. Once you `eject`, you can't go back!**
