@@ -1,5 +1,17 @@
 # THIS IS DEVLOPMENT BRANCH
 
+## Maintenance switch
+
+`src/config/maintenance.js` contains the frontend `MAINTENANCE_MODE` switch,
+currently set to `true` on the production branch. Every URL renders the same
+maintenance page, including nested routes, query links, and authentication
+callbacks. Normal pages, navigation, and authentication providers are not mounted
+while maintenance is enabled. The notice says the site will be back before
+October 14, 2026.
+
+Set `MAINTENANCE_MODE` to `false`, rebuild, and redeploy to restore all normal
+routes. The switch does not automatically expire on the announced date.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

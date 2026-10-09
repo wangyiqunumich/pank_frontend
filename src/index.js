@@ -20,6 +20,7 @@ import IgvPage from './components/GeDebug';
 import IntermediatePage from './components/IntermediatePage';
 import LandingPage from './components/LandingPage';
 import MatchPage from './components/MatchPage';
+import MaintenanceGate from './components/MaintenanceGate';
 import PkbFooter from './Footer/footer';
 import NavBar from './NavBar';
 import DocPage from './pages/DocPage';
@@ -66,6 +67,7 @@ const cognitoAuthConfig = {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
+  <MaintenanceGate>
   <AuthProvider {...cognitoAuthConfig}>
     <Provider store={store}>
       <Container disableGutters maxWidth={false} sx={{
@@ -120,4 +122,5 @@ root.render(
       </Container>
     </Provider>
   </AuthProvider>
+  </MaintenanceGate>
 );
