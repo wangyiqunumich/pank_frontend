@@ -29,12 +29,8 @@ export default function MaintenancePage() {
           We&apos;ll be back before <time dateTime="2026-10-14">October 14</time>.
         </p>
         <p className="pk-maintenance-note">Thank you for your patience. Please check back soon.</p>
-        <a href="https://pankbase.org/contact.html" className="pk-maintenance-contact">Contact us</a>
+        <a href="mailto:wyq@umich.edu, runbomao@umich.edu, drjieliu@umich.edu, fan.feng@vumc.org, help@pankbase.org" className="pk-maintenance-contact">Contact us</a>
       </main>
-      <footer className="pk-maintenance-footer">
-        <p>© {new Date().getFullYear()} PanKgraph · pankgraph.org</p>
-        <p>Developed and maintained by the <a href="https://jieliu6.github.io/" target="_blank" rel="noopener noreferrer">Jie Liu Lab</a>, University of Michigan.</p>
-      </footer>
     </div>
   );
 }

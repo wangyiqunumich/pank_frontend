@@ -72,28 +72,9 @@
   background: #066F83;
 }
 
-.pk-maintenance-contact:focus-visible,
-.pk-maintenance-footer a:focus-visible {
+.pk-maintenance-contact:focus-visible {
   outline: 3px solid #078AA3;
   outline-offset: 4px;
-}
-
-.pk-maintenance-footer {
-  padding: 0 24px 24px;
-  text-align: center;
-  color: #757575;
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-.pk-maintenance-footer p {
-  margin: 4px 0 0;
-}
-
-.pk-maintenance-footer a {
-  color: inherit;
-  font-weight: 600;
-  text-underline-offset: 2px;
 }
 
 @media (max-width: 480px) {

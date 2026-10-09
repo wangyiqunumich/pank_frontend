@@ -17,6 +17,12 @@ test.each([
   expect(document.querySelector('time').getAttribute('datetime')).toBe('2026-10-14');
   expect(mountApplication).not.toHaveBeenCalled();
   expect(document.title).toBe('Maintenance | PanKgraph');
+  expect(screen.queryByRole('contentinfo')).toBeNull();
+  expect(screen.queryByText(/Developed and maintained/)).toBeNull();
+  expect(screen.queryByText(/©/)).toBeNull();
+  expect(screen.getByRole('link', { name: 'Contact us' }).getAttribute('href')).toBe(
+    'mailto:wyq@umich.edu, runbomao@umich.edu, drjieliu@umich.edu, fan.feng@vumc.org, help@pankbase.org'
+  );
 });
 
 test('turning maintenance off restores the application and its page metadata', () => {
