@@ -3,7 +3,8 @@
 ## Maintenance switch
 
 `src/config/maintenance.js` contains the frontend `MAINTENANCE_MODE` switch,
-currently set to `true` on the production branch. Every URL renders the same
+currently set to `false` on the production branch (normal routes enabled).
+When set to `true`, every URL renders the same
 maintenance page, including nested routes, query links, and authentication
 callbacks. Normal pages, navigation, and authentication providers are not mounted
 while maintenance is enabled. The notice says the site will be back before

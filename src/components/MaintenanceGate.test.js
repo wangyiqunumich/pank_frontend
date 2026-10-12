@@ -11,7 +11,7 @@ test.each([
   window.history.replaceState({}, '', path);
   const mountApplication = jest.fn();
   function NormalApplication() { mountApplication(); return <div>Normal application</div>; }
-  render(<MaintenanceGate><NormalApplication /></MaintenanceGate>);
+  render(<MaintenanceGate enabled><NormalApplication /></MaintenanceGate>);
   expect(screen.getByRole('heading', { name: 'PanKgraph is under maintenance.' })).toBeTruthy();
   expect(screen.getByText(/We.ll be back before/).textContent).toContain('October 14');
   expect(document.querySelector('time').getAttribute('datetime')).toBe('2026-10-14');
@@ -23,6 +23,12 @@ test.each([
   expect(screen.getByRole('link', { name: 'Contact us' }).getAttribute('href')).toBe(
     'mailto:wyq@umich.edu, runbomao@umich.edu, drjieliu@umich.edu, fan.feng@vumc.org, help@pankbase.org'
   );
+});
+
+test('the configured default renders the normal application without maintenance', () => {
+  render(<MaintenanceGate><div>Normal application</div></MaintenanceGate>);
+  expect(screen.getByText('Normal application')).toBeTruthy();
+  expect(screen.queryByRole('heading', { name: /under maintenance/ })).toBeNull();
 });
 
 test('turning maintenance off restores the application and its page metadata', () => {
