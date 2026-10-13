@@ -43,14 +43,16 @@ No browser credentials are sent to BioIndex. No new backend/model work is starte
 
 The build runs `prepare-atlas.mjs`: catalog, full metadata and coordinates are
 read once on the build host, validated, and projected in original cell order into
-little-endian Float32 X/Y plus one cell-type byte per cell. The gzip asset is named
+little-endian Float32 X/Y plus one cell-type byte per cell. The JSON asset is named
 by SHA-256 and its manifest records source hashes, dataset, count and retrieval
 time. No sampling, cell IDs, donor metadata or unused annotations enter the asset.
 Generated assets are ignored by Git; deployments generate them during prebuild.
 `node prepare-atlas.mjs --refresh` explicitly refreshes the build snapshot.
 
-Measured 2026-10-13: 448,935 cells; compact gzip 2,971,257 bytes; decoded envelope
-5,387,453 bytes, versus 109,644,935 bytes of source metadata alone. The browser
+Measured 2026-10-13: 448,935 cells; compact JSON 5,387,453 bytes (95% smaller
+than 109,644,935 bytes of source metadata alone). Hosting may compress it further;
+the build records an estimated gzip size. A .json extension preserves existing
+Amplify SPA routing; .json.gz is rewritten to HTML on the current host. The browser
 fetches only this same-origin map and the requested BioIndex gene vector; it never
 requests the full fields, catalog or coordinate files. The thumbnail also loads
 and colors the selected gene. Gene vectors are checked for dataset identity,

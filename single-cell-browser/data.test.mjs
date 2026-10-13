@@ -6,7 +6,7 @@ const coords = 'X\tY\n0\t1\n2\t3\n4\t5\n';
 const bytes = Buffer.alloc(27);
 [0, 2, 4].forEach((x, i) => { bytes.writeFloatLE(x, i * 9); bytes.writeFloatLE(x + 1, i * 9 + 4); bytes[i * 9 + 8] = i ? 1 : 0; });
 const packed = { version: 1, datasetId: DATASET, labels: fields.metadata_labels[FIELD], cells: bytes.toString('base64') };
-const manifest = { version: 1, datasetId: DATASET, count: 3, asset: `map-${'a'.repeat(64)}.json.gz`, retrievedAt: '2026-10-13T00:00:00Z' };
+const manifest = { version: 1, datasetId: DATASET, count: 3, asset: `map-${'a'.repeat(64)}.json`, retrievedAt: '2026-10-13T00:00:00Z' };
 const payload = { data: [{ dataset: DATASET, gene: 'INS', expression: [0, 2, 4] }] };
 test('preserves alignment and includes zeros in cell denominators', () => {
   const atlas = validateAtlas(fields, coords, 3);
