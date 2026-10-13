@@ -1,0 +1,20 @@
+{
+  "name": "pankgraph-single-cell-browser",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "test": "node --test data.test.mjs render.test.mjs",
+    "prebuild": "node prepare-atlas.mjs"
+  },
+  "dependencies": {
+    "vue": "2.7.16",
+    "d3": "7.9.0",
+    "dompurify": "3.2.7"
+  },
+  "devDependencies": {
+    "vite": "6.4.1",
+    "@vitejs/plugin-vue2": "2.3.3"
+  }
+}
