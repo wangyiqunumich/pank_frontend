@@ -35,3 +35,10 @@ URLs to index.html, despite successful build/deploy checks. The follow-up serves
 the compact envelope as ordinary .json, preserving the hosting configuration.
 Its payload is 5,387,453 bytes, 95% below source metadata; CDN compression is an
 additional transport optimization rather than a required client contract.
+
+Automatic-context follow-up: RNA edges from older/different source datasets now
+show the matching gene in the registered atlas as related context. The original
+dataset remains in edgeDatasetId and is disclosed in the card and source pane.
+ATAC remains unavailable. All 28 vNext suites / 273 tests and production build
+pass. This intentionally replaces earlier dataset-mismatch suppression; it does
+not claim source/cohort equivalence.

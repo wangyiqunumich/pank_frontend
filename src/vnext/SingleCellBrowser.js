@@ -33,7 +33,7 @@ export function ExpressionCard({ context, graph, onSelect, minimized, onMinimize
         <Typography sx={{ fontSize: 11, color: '#60777d', mt: 0.25 }}>{context.evidenceLabel} · {context.assay}</Typography>
         <Box sx={{ bgcolor: '#f4f8f8', border: '1px solid #e1ebec', borderRadius: '7px', p: 0.8, my: 1 }}>
           <Typography sx={{ fontSize: 11, fontWeight: 600, color: '#3b7075' }}>{context.available ? `PanKbase scRNAseq ${context.release}` : 'Viewer unavailable'}</Typography>
-          <Typography sx={{ fontSize: 10, lineHeight: 1.5, color: '#63747b' }}>{context.available ? 'Related atlas context' : context.reason}</Typography>
+          <Typography sx={{ fontSize: 10, lineHeight: 1.5, color: '#63747b' }}>{context.available ? `Related atlas context${context.edgeDatasetId && context.edgeDatasetId !== context.datasetId ? ` · KG source: ${context.edgeDatasetId}` : ''}` : context.reason}</Typography>
         </Box>
         {context.preview.length > 0 && <Typography sx={{ fontSize: 10, color: '#60777d', mb: 0.5 }}>{context.preview.map(item => `${item.label.replaceAll('_', ' ')}: ${item.value}`).join(' · ')}</Typography>}
         <Button variant="contained" disableElevation fullWidth disabled={!context.available} onClick={onOpen} sx={{ justifyContent: 'space-between', px: 1.5, py: 1.1, fontSize: 12, textTransform: 'none', bgcolor: '#287780', color: '#fff', borderRadius: '7px', fontWeight: 700, '&:hover': { bgcolor: '#1d5e66' } }} aria-label="Open in scBrowser →">Open interactive UMAP <span>→</span></Button>

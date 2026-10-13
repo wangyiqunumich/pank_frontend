@@ -37,15 +37,15 @@ export function expressionContext(graph, edgeId) {
   }
   const atac = relation === 'gene_activity_score_in' || /atac/i.test(text(p.assay || p.data_modality));
   const validGene = /^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/.test(geneSymbol);
-  const available = !atac && validGene && (!recordedDataset || recordedDataset === SC_DATASET);
+  const available = !atac && validGene;
   // Dataset identity alone cannot establish cohort / analysis equivalence.
   const match = available ? 'related' : 'unavailable';
-  const datasetId = recordedDataset || SC_DATASET;
+  const datasetId = SC_DATASET;
   const reason = atac ? 'ATAC gene activity is not scRNA expression.' : !validGene ? 'No unambiguous gene symbol is recorded.'
-    : recordedDataset && recordedDataset !== SC_DATASET ? `The recorded dataset ${recordedDataset} is not registered in this browser. No replacement was selected.`
+    : recordedDataset && recordedDataset !== SC_DATASET ? `The graph records ${recordedDataset}; this map shows related ${SC_DATASET} context, not the original source analysis.`
       : 'Related atlas context; the edge analysis and cohort have not been verified as an exact match.';
   return { version: 1, edgeId, relation, evidenceLabel: SC_RELATIONS[relation], geneId: id(gene), geneSymbol,
-    cellType, mappedCellType: cellLabel(cellType), assay: atac ? 'snATAC-seq' : 'scRNA-seq', datasetId,
+    edgeDatasetId: recordedDataset, cellType, mappedCellType: cellLabel(cellType), assay: atac ? 'snATAC-seq' : 'scRNA-seq', datasetId,
     release: datasetId === SC_DATASET ? 'v3.4' : 'Unverified', edgeRelease: text(p.data_version || p.release),
     condition: text(p.condition), match, available, reason,
     sourceUrl: /^https:\/\//.test(source) ? source : '',
