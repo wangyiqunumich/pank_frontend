@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen, fireEvent, within, waitFor } from '@testing-library/react';
 import { ResultSection } from './ResultView';
 import { expressionContext } from './singleCellContext';
 import SingleCellBrowser from './SingleCellBrowser';
@@ -8,6 +8,8 @@ jest.mock('react-markdown', () => ({ __esModule: true, default: ({ children }) =
 jest.mock('remark-gfm', () => ({ __esModule: true, default: () => {} }));
 jest.mock('react-slick', () => ({ __esModule: true, default: ({ children }) => <div>{children}</div> }));
 jest.mock('./AnswerMarkdown', () => () => <div>Answer</div>);
+beforeEach(() => { global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ version: 1, html: '<!doctype html><html><head></head><body></body></html>' }) }); });
+afterEach(() => { delete global.fetch; });
 const graph = { nodes: [{ '~id': 'g', '~labels': ['Gene'], '~properties': { gene_symbol: 'INS' } }, { '~id': 'c', '~labels': ['Cell_type'], '~properties': { name: 'Beta' } }], edges: [{ '~id': 'edge-1', '~start': 'g', '~end': 'c', '~type': 'gene_detected_in', '~properties': {} }] };
 const result = { result_id: 'result-1', combined_query_result: graph, answer: 'Test', resources_tabs: {} };
 test('card minimize/restore/close and tab round trips preserve the graph and browser', () => {
@@ -91,4 +93,13 @@ test('older KG release still shows the gene, with original dataset disclosed', (
   render(<ResultSection result={{ ...result, combined_query_result: kg }} anchorPrefix="older" />);
   expect(screen.getByText('INS · Beta')).toBeTruthy();
   expect(screen.getByText('Related atlas context · KG source: older-rna-source')).toBeTruthy();
+});
+
+test('browser uses a same-origin build manifest and srcdoc to avoid HTML rewrites', async () => {
+  render(<SingleCellBrowser context={expressionContext(graph, 'edge-1')} isVisible preview />);
+  const frame = screen.getByTitle('PanKbase atlas preview');
+  await waitFor(() => expect(frame.getAttribute('srcdoc')).toContain('pankgraph-preview'));
+  expect(global.fetch).toHaveBeenCalledWith('/scbrowser/embed.json', { credentials: 'same-origin' });
+  expect(frame.getAttribute('srcdoc')).toContain(`<base href="${window.location.origin}/scbrowser/">`);
+  expect(frame.getAttribute('src')).toBeNull();
 });

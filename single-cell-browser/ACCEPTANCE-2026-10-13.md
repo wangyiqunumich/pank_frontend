@@ -42,3 +42,11 @@ dataset remains in edgeDatasetId and is disclosed in the card and source pane.
 ATAC remains unavailable. All 28 vNext suites / 273 tests and production build
 pass. This intentionally replaces earlier dataset-mismatch suppression; it does
 not claim source/cohort equivalence.
+
+The hosting rule also rewrites .html entry pages. The final embed loads a fixed
+same-origin embed.json build manifest into iframe srcdoc, with an explicit base
+URL and preview meta flag. The child uses its inherited parent origin for the
+existing message checks. No shared hosting rules change. All 28 suites / 274
+frontend tests and production build pass. Local Chrome acceptance passes for
+real INS/GCG expression, navigation to an older-source HGNC marker gene, source
+disclosure, map/violin rendering and mobile layout, without full metadata reads.
