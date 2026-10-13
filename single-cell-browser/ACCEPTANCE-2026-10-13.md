@@ -29,3 +29,9 @@ catalog requests from the browser. This does not establish independent barcode
 alignment, exact KG cohort equivalence or general biological coverage.
 
 Deployment status is reported separately; these checks are loopback acceptance.
+
+Hosted acceptance found that the existing Amplify SPA rule rewrites .json.gz
+URLs to index.html, despite successful build/deploy checks. The follow-up serves
+the compact envelope as ordinary .json, preserving the hosting configuration.
+Its payload is 5,387,453 bytes, 95% below source metadata; CDN compression is an
+additional transport optimization rather than a required client contract.

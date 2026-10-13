@@ -10,7 +10,7 @@ if (!process.argv.includes('--refresh')) {
   try {
     const manifest = JSON.parse(await readFile(new URL('manifest.json', directory)));
     const bytes = await readFile(new URL(manifest.asset, directory));
-    if (manifest.datasetId === DATASET && manifest.asset === `map-${digest(bytes)}.json.gz`) {
+    if (manifest.datasetId === DATASET && manifest.asset === `map-${digest(bytes)}.json`) {
       console.log(`Using verified compact atlas: ${bytes.length} bytes, ${manifest.count} cells.`);
       process.exit(0);
     }
@@ -30,9 +30,9 @@ const packed = { version: 1, datasetId: DATASET, labels: atlas.labels, cells: ce
 validateCompact(packed, entry.totalCells);
 const json = JSON.stringify(packed), bytes = gzipSync(json, { level: 9 });
 if (bytes.length > 8 * 1024 * 1024 || Buffer.byteLength(json) > 16 * 1024 * 1024) throw new Error('Compact atlas exceeds delivery budget.');
-const asset = `map-${digest(bytes)}.json.gz`;
-const manifest = { version: 1, datasetId: DATASET, count: entry.totalCells, title: entry.datasetName, asset, retrievedAt: new Date().toISOString(), source: paths.map((path, i) => ({ path, sha256: digest([catalog, fields, coordinates][i]) })), compressedBytes: bytes.length, decodedBytes: Buffer.byteLength(json), originalMetadataBytes: Buffer.byteLength(fields) };
-await writeFile(new URL(asset, directory), bytes);
+const asset = `map-${digest(json)}.json`;
+const manifest = { version: 1, datasetId: DATASET, count: entry.totalCells, title: entry.datasetName, asset, retrievedAt: new Date().toISOString(), source: paths.map((path, i) => ({ path, sha256: digest([catalog, fields, coordinates][i]) })), estimatedGzipBytes: bytes.length, assetBytes: Buffer.byteLength(json), decodedBytes: Buffer.byteLength(json), originalMetadataBytes: Buffer.byteLength(fields) };
+await writeFile(new URL(asset, directory), json);
 await writeFile(new URL('manifest.json.tmp', directory), JSON.stringify(manifest, null, 2));
 await rename(new URL('manifest.json.tmp', directory), new URL('manifest.json', directory));
 console.log(JSON.stringify(manifest, null, 2));

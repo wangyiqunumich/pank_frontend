@@ -57,7 +57,7 @@ export function createLoader(read = readPublic, cache = atlasCache, refresh = fa
     if (!atlasPromise) atlasPromise = (async () => {
       const manifest = JSON.parse(await read('./atlas/manifest.json'));
       if (manifest.version !== 1 || manifest.datasetId !== DATASET || !Number.isInteger(manifest.count)
-        || manifest.count < 1 || !/^map-[a-f0-9]{64}\.json\.gz$/.test(manifest.asset)) throw new Error('Invalid compact atlas manifest.');
+        || manifest.count < 1 || !/^map-[a-f0-9]{64}\.json$/.test(manifest.asset)) throw new Error('Invalid compact atlas manifest.');
       const cacheKey = `${DATASET}:${manifest.asset}`;
       const cached = refresh ? null : await cache.get(cacheKey);
       if (cached) {
