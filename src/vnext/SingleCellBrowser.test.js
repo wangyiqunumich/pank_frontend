@@ -72,7 +72,7 @@ test('resource card appears automatically and inspecting a matching edge reopens
   expect(screen.getByRole('region', { name: 'Expression evidence' })).toBeTruthy();
 });
 test('no automatic resource card when no matched browser resource exists', () => {
-  const unavailable = { ...graph, edges: [{ ...graph.edges[0], '~properties': { dataset_id: 'unregistered' } }] };
+  const unavailable = { ...graph, edges: [{ ...graph.edges[0], '~type': 'gene_activity_score_in' }] };
   render(<ResultSection result={{ ...result, combined_query_result: unavailable }} anchorPrefix="unavailable" />);
   expect(screen.queryByRole('region', { name: 'Expression evidence' })).toBeNull();
 });
@@ -84,4 +84,11 @@ test('KG inspection switches automatically to the matching gene', () => {
   expect(screen.getByText('GCG · Beta')).toBeTruthy();
   fireEvent.click(screen.getByTestId('graph'));
   expect(screen.getByText('INS · Beta')).toBeTruthy();
+});
+
+test('older KG release still shows the gene, with original dataset disclosed', () => {
+  const kg = { ...graph, edges: [{ ...graph.edges[0], '~properties': { dataset_id: 'older-rna-source' } }] };
+  render(<ResultSection result={{ ...result, combined_query_result: kg }} anchorPrefix="older" />);
+  expect(screen.getByText('INS · Beta')).toBeTruthy();
+  expect(screen.getByText('Related atlas context · KG source: older-rna-source')).toBeTruthy();
 });

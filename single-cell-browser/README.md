@@ -29,9 +29,9 @@ this implementation does not deploy, modify nginx, or restart any service.
 
 `src/vnext/singleCellContext.js` resolves registered expression relationships from
 returned graph records. Only a validated gene symbol and the registered public
-scRNA v3.4 atlas may enter the loader. Recorded older/unknown dataset IDs are
-unavailable, never silently substituted. Without a recorded dataset identity,
-v3.4 is explicitly related atlas context. All current mappings remain `related`:
+scRNA v3.4 atlas may enter the loader. Recorded source dataset IDs remain in edgeDatasetId and are disclosed in the
+card and source pane. The matching RNA gene is shown in the registered v3.4
+reference atlas as related context even when the source dataset differs. All current mappings remain `related`:
 none have enough cohort/analysis provenance to assert exact evidence equivalence.
 The edge's original release and condition remain visible. ATAC gene activity
 is explicitly unavailable in this scRNA viewer.
@@ -66,8 +66,8 @@ requests. Requests have a 90-second timeout and 16 MiB decoded limit.
 
 The first available RNA expression relationship initializes the card automatically.
 Inspecting a detection, enrichment or marker edge in the KG updates the matching
-gene/cell context and reopens the card. ATAC stays unavailable; unregistered
-source datasets are not silently replaced. Expression is cell-level source
+gene/cell context and reopens the card. ATAC stays unavailable; differing source datasets remain explicitly disclosed
+as related atlas context. Expression is cell-level source
 log-normalized RNA, including zeros, not a reconstruction of the edge statistic.
 
 ## Verification
