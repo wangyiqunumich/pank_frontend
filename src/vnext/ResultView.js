@@ -15,6 +15,8 @@ import Diagnostics, { diagnosticsFor } from './Diagnostics';
 import AnswerMarkdown from './AnswerMarkdown';
 import LiteratureSections from './LiteratureSections';
 import FunctionalVisual from './FunctionalVisual';
+import SingleCellBrowser, { ExpressionCard } from './SingleCellBrowser';
+import { expressionContext, firstAvailableExpression, expressionEdges } from './singleCellContext';
 import SummaryInsertions from './SummaryInsertions';
 import { resolveResultPage } from './resultPageSchema';
 import { useResourcePanels } from './Resources';
@@ -92,7 +94,7 @@ export function useProjectedResult(payload, savedId = '') {
   return [result, error, { status: connection, reconnect: createdRef.current?.key === key ? reconnect : undefined }];
 }
 
-function GraphPanel({ result, error, onEvidenceInspect }) {
+function GraphPanel({ result, error, onEvidenceInspect, expressionCard }) {
   const graphStatus = typeof result?.component_status?.graph === 'string'
     ? result.component_status.graph : result?.component_status?.graph?.status;
   const pending = value => ['preparing', 'pending', 'queued', 'running', 'processing'].includes(value);
@@ -101,7 +103,8 @@ function GraphPanel({ result, error, onEvidenceInspect }) {
     ? 'Graph retrieval could not finish. Available answer sections are preserved.' : '');
   const waiting = !graphError && (!result || pending(result.status) || pending(graphStatus));
   const empty = !waiting && (graphStatus === 'empty' || (result?.status === 'ready' && Array.isArray(result?.combined_query_result?.nodes) && !result.combined_query_result.nodes.length));
-  if (result?.combined_query_result?.nodes?.length) return <Box sx={{ width: '100%', height: '100%' }}>
+  if (result?.combined_query_result?.nodes?.length) return <Box sx={{ width: '100%', height: '100%', position: 'relative' }}>
+    {expressionCard}
     <KnowledgeGraph onEvidenceInspect={onEvidenceInspect} graphData={result.combined_query_result} coordData={result.xy_json} edgeRoutes={result.edge_routes} sx={{ height: '100%' }} containerHeight="100%" />
   </Box>;
   return <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -113,8 +116,17 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
   const sectionRef = useRef(null);
   const visualOrderRef = useRef({ scope: null, preference: null, ids: [] });
   const runId = run?.run_id || result?.result_id;
+  const [expressionState, setExpressionState] = useState(null);
+  const [visualRequest, setVisualRequest] = useState(null);
+  const scopedExpressionState = expressionState?.scope === runId ? expressionState : null;
+  const defaultExpression = useMemo(() => firstAvailableExpression(result?.combined_query_result), [result?.combined_query_result]);
+  const expression = scopedExpressionState?.context || defaultExpression;
+  const selectExpression = useCallback((edgeId) => {
+    const context = expressionContext(result?.combined_query_result, edgeId);
+    if (context) setExpressionState({ scope: runId, context, minimized: false, closed: false });
+  }, [result?.combined_query_result, runId]);
   const trackingScope = run?.run_id ? 'run' : 'result';
-  const onEvidenceInspect = useCallback((id) => { recordInteraction(runId, 'graph_evidence_inspected', referenceKey(id), trackingScope); }, [runId, trackingScope]);
+  const onEvidenceInspect = useCallback((id) => { selectExpression(id); recordInteraction(runId, 'graph_evidence_inspected', referenceKey(id), trackingScope); }, [runId, trackingScope, selectExpression]);
   useEffect(() => {
     if (!runId || !sectionRef.current || typeof IntersectionObserver === 'undefined') return;
     const observer = new IntersectionObserver((entries) => entries.forEach((entry) => {
@@ -138,10 +150,12 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
   const graphData = result?.combined_query_result || null;
   const graphError = error || (planning && run?.plan?.clarification) || (planning && run?.preview?.status === 'failed' ? 'The initial graph retrieval failed. Revise the plan before continuing; this failure does not indicate biological absence.' : '');
   const visualRenderers = {
-    graph_viewer: <GraphPanel onEvidenceInspect={onEvidenceInspect} result={result} error={graphError} />,
+    graph_viewer: <GraphPanel onEvidenceInspect={onEvidenceInspect} result={result} error={graphError} expressionCard={<ExpressionCard graph={graphData} onSelect={selectExpression} context={scopedExpressionState?.closed ? null : expression} minimized={scopedExpressionState?.minimized} onMinimize={minimized => setExpressionState({ scope: runId, context: expression, minimized, closed: false })} onClose={() => setExpressionState({ scope: runId, context: expression, minimized: false, closed: true })} onOpen={() => setVisualRequest({ scope: runId, id: 'single_cell_browser', nonce: Date.now() })} />} />,
+    single_cell_browser: <SingleCellBrowser key={runId} graph={graphData} onSelect={selectExpression} context={expression} />,
     functional_data: <FunctionalVisual result={result} />,
   };
   const selectedVisuals = page.mainVisuals.filter((visual) => Object.prototype.hasOwnProperty.call(visualRenderers, visual.id));
+  if (expressionEdges(graphData).length && selectedVisuals.some(visual => visual.id === 'graph_viewer')) selectedVisuals.push({ id: 'single_cell_browser', label: 'scBrowser' });
   const selectedIds = selectedVisuals.map((visual) => visual.id);
   const visualScope = runId || anchorPrefix;
   const visualPreference = (presentationState || result?.result_page_state)?.main_visual;
@@ -153,7 +167,7 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
     : selectedIds;
   visualOrderRef.current = { scope: visualScope, preference: visualPreference, ids: visualIds };
   const visualTabs = visualIds.map((id) => ({ id, label: selectedVisuals.find((visual) => visual.id === id).label, content: visualRenderers[id] }));
-  const visualMaterial = visualTabs.length ? { title: page.mainVisualTitle, tabs: visualTabs } : undefined;
+  const visualMaterial = visualTabs.length ? { title: page.mainVisualTitle, tabs: visualTabs, scopeKey: runId, requestedTab: visualRequest?.scope === runId ? visualRequest : null } : undefined;
   const planData = {
     questionId: 'PLAN', title: 'Confirm Query & Execution Steps', originalQuestion: run?.plan?.original_question || run?.question || '', parsedTitle: run?.plan?.interpreted_question || '',
     agentPlan: planMarkdown(run), revisionQuestion: run?.question || '', revisionKey: run?.plan_id,

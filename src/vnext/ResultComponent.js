@@ -529,6 +529,15 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
     React.useEffect(() => { setFeedbackText(''); }, [data?.revisionQuestion, data?.revisionKey]);
     const isSingleColumn = useMediaQuery("(max-width:1199.95px)");
     const visualTabs = data?.visualMaterial?.tabs ?? [];
+    React.useEffect(() => { setVisualTab(0); }, [data?.visualMaterial?.scopeKey]);
+    const requestedVisualTab = data?.visualMaterial?.requestedTab;
+    const visualTabIds = visualTabs.map(tab => tab.id).join('|');
+    React.useEffect(() => {
+        if (!requestedVisualTab) return;
+        const index = visualTabIds.split('|').indexOf(requestedVisualTab.id);
+        if (index >= 0) setVisualTab(index);
+    }, [requestedVisualTab, visualTabIds]);
+
     const normalizedVisualIndex = visualTab < visualTabs.length ? visualTab : 0;
     const activeVisualMinHeight = visualTabs[normalizedVisualIndex]?.minHeight;
     const anchorPrefix = React.useMemo(() => {
@@ -1011,6 +1020,15 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
     const [aiOverviewHeight, setAiOverviewHeight] = React.useState(0);
     const isSingleColumn = useMediaQuery("(max-width:1199.95px)");
     const visualTabs = data?.visualMaterial?.tabs ?? [];
+    React.useEffect(() => { setVisualTab(0); }, [data?.visualMaterial?.scopeKey]);
+    const requestedVisualTab = data?.visualMaterial?.requestedTab;
+    const visualTabIds = visualTabs.map(tab => tab.id).join('|');
+    React.useEffect(() => {
+        if (!requestedVisualTab) return;
+        const index = visualTabIds.split('|').indexOf(requestedVisualTab.id);
+        if (index >= 0) setVisualTab(index);
+    }, [requestedVisualTab, visualTabIds]);
+
     const normalizedVisualIndex = visualTab < visualTabs.length ? visualTab : 0;
     const activeVisualMinHeight = visualTabs[normalizedVisualIndex]?.minHeight;
     const singleColumnHeight = (minPx, vw, maxPx) => `clamp(${minPx}px, ${vw}vw, ${maxPx}px)`;

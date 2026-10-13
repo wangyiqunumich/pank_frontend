@@ -1,0 +1,22 @@
+{
+  "repository": "https://github.com/broadinstitute/dig-dug-portal",
+  "branch": "pankbase-main",
+  "commit": "15ce7e948f226ab9010def31cece912c53436da4",
+  "original_sha256": {
+    "ResearchUmapPlotGL.vue": "6d8a442600ccc67b6d7347981cb10b7d2d1707c4b0203836dc41e2a946da1e69",
+    "ResearchViolinPlot.vue": "f05c249248c1774a4b2b28d4b65160c02d0f24b4f67dd2a029fba68d2eccc593",
+    "sharedUmapData.js": "e90ad0c8492231027e50154230e34a7e9e6a4f2abc9bdd545bd953323e94a5e8",
+    "ResearchMouseTooltip.vue": "5025ed77972f781748657dcd9a52857497e45dd775247cc4617aacd0b0273e2a",
+    "mouseTooltip.js": "991b6c814725fc3accfa778eeffca27c5b4d1aee651270e7e6e22c4d3b78e838",
+    "llog.js": "a8ab456e2f1397f02054e9cb5f4f6e2d20b74ba60444f0379914e0e627373b02",
+    "LICENSE": "d6676ae41e018b64e66cff8dc131ba6fe7dbbb02c930b303649e6ac8fceac80f"
+  },
+  "local_changes": [
+    "Sanitize tooltip HTML",
+    "Disable verbose data logging",
+    "Remove cell ID display",
+    "Accessible map controls",
+    "Preserve camera on resize and cancel unmount timer",
+    "Correct normal violin axis labels"
+  ]
+}

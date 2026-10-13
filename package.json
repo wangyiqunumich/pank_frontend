@@ -44,7 +44,10 @@
     "start:hirn-standalone": "bash scripts/start-hirn-standalone.sh",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "build:scbrowser": "npm --prefix single-cell-browser ci --no-audit --no-fund && npm --prefix single-cell-browser run build",
+    "prebuild": "npm run build:scbrowser",
+    "prestart": "npm run build:scbrowser"
   },
   "eslintConfig": {
     "extends": [

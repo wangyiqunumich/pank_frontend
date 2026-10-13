@@ -31,3 +31,7 @@ __pycache__/
 /hirn_agent_api/.venv/
 /hirn_agent_api/var/
 /hirn_agent_api/secrets/
+
+/single-cell-browser/node_modules/
+/single-cell-browser/public/atlas/
+/public/scbrowser/
