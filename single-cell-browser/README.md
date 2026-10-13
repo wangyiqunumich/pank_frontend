@@ -1,7 +1,10 @@
 # Focused PanKbase browser for PanKgraph
 
 The React result view owns one fixed expression card and a persistent scBrowser tab.
-The tab hosts this Vue 2 page on the same origin. This reuses the actual PanKbase
+The tab loads a fixed same-origin `scbrowser/embed.json` build manifest and
+renders its bundled HTML with iframe srcdoc. A base URL resolves scripts/styles
+to scbrowser, and a meta flag selects the thumbnail. The child validates messages
+against the inherited parent origin. This avoids Amplify rewriting HTML URLs. This reuses the actual PanKbase
 UMAP and violin components, pinned at `15ce7e948f226ab9010def31cece912c53436da4` from
 Broad Institute’s upstream `pankbase-main` (August 21, 2026).
 See `vendor/UPSTREAM.json` for original hashes and local adaptations, and

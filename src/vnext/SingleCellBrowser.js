@@ -48,10 +48,25 @@ export default function SingleCellBrowser({ context, isVisible, graph, onSelect,
   contextRef.current = context;
   const [started, setStarted] = useState(false);
   const [status, setStatus] = useState('');
+  const [pageHtml, setPageHtml] = useState('');
   const send = () => { const current = contextRef.current; if (current?.available) frame.current?.contentWindow?.postMessage({ protocol: SC_PROTOCOL, type: 'context', context: current }, window.location.origin); };
   useEffect(() => {
     if (context?.available && isVisible) setStarted(true);
   }, [context, isVisible]);
+  useEffect(() => {
+    if (!started) return undefined;
+    let cancelled = false;
+    // The host rewrites HTML URLs. Load only our fixed same-origin build manifest.
+    Promise.resolve().then(() => fetch(sitePath('/scbrowser/embed.json'), { credentials: 'same-origin' }))
+      .then(response => { if (!response.ok) throw new Error('Browser entry is unavailable.'); return response.json(); })
+      .then(page => {
+        if (page.version !== 1 || typeof page.html !== 'string' || page.html.length > 8000 || !/^<!doctype html/i.test(page.html)) throw new Error('Invalid browser entry.');
+        const base = `${window.location.origin}${sitePath('/scbrowser/')}`;
+        const html = page.html.replace('<head>', `<head><base href="${base}"><meta name="pankgraph-preview" content="${preview ? '1' : '0'}">`);
+        if (!cancelled) setPageHtml(html);
+      }).catch(() => { if (!cancelled) setStatus('The cell browser could not start. Reload this result or open PanKbase.'); });
+    return () => { cancelled = true; };
+  }, [started, preview]);
   useEffect(() => {
     const receive = event => {
       if (event.origin !== window.location.origin || event.source !== frame.current?.contentWindow || event.data?.protocol !== SC_PROTOCOL) return;
@@ -74,6 +89,6 @@ export default function SingleCellBrowser({ context, isVisible, graph, onSelect,
       <span role="status" style={{ padding: status ? 8 : 0, fontSize: 12 }}>{status}</span>
       {status && context.available && <Button component="a" href={context.browserUrl} target="_blank" rel="noopener noreferrer">Open PanKbase ↗</Button>}
     </>)}
-    {started && <iframe ref={frame} title={preview ? "PanKbase atlas preview" : "PanKgraph single-cell browser"} src={sitePath('/scbrowser/index.html') + (preview ? '?preview=1' : '')} onLoad={send} style={{ border: 0, width: '100%', flex: 1, minHeight: preview ? 0 : 300, pointerEvents: preview ? 'none' : 'auto', display: context?.available ? 'block' : 'none' }} />}
+    {started && <iframe ref={frame} title={preview ? "PanKbase atlas preview" : "PanKgraph single-cell browser"} srcDoc={pageHtml || undefined} onLoad={send} style={{ border: 0, width: '100%', flex: 1, minHeight: preview ? 0 : 300, pointerEvents: preview ? 'none' : 'auto', display: context?.available ? 'block' : 'none' }} />}
   </Box>;
 }

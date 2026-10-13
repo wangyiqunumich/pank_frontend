@@ -47,10 +47,11 @@ import ResearchUmapPlotGL from './vendor/ResearchUmapPlotGL.vue';
 import ResearchViolinPlot from './vendor/ResearchViolinPlot.vue';
 import { FIELD } from './data.mjs';
 import { SC_PROTOCOL, validBrowserContext } from '../src/vnext/singleCellContext.js';
+const EMBED_ORIGIN = window.parent.location.origin;
 const palette = ['#007bff','#048845','#8490c8','#bf61a5','#ee3124','#b08d00','#5555ff','#7a9c1c','#bd505f','#9f78ac','#ab6684','#78a550'];
 export default {
   components: { ResearchUmapPlotGL, ResearchViolinPlot },
-  data: () => ({ viewportHeight: window.innerHeight, preview: new URLSearchParams(window.location.search).get('preview') === '1', context: null, gene: '', geneInput: '', loading: false, error: '', loaded: null, view: null, tab: 'Cell map', visitedExpression: false, filtered: false, highlighted: '', request: 0, field: FIELD, webgl: true }),
+  data: () => ({ viewportHeight: window.innerHeight, preview: document.querySelector('meta[name="pankgraph-preview"]')?.content === '1' || new URLSearchParams(window.location.search).get('preview') === '1', context: null, gene: '', geneInput: '', loading: false, error: '', loaded: null, view: null, tab: 'Cell map', visitedExpression: false, filtered: false, highlighted: '', request: 0, field: FIELD, webgl: true }),
   computed: {
     plotHeight() { return Math.max(150, this.viewportHeight - 190); },
     cellTypes() { return this.loaded?.atlas.labels || []; },
@@ -72,13 +73,13 @@ export default {
     this.resizeViewport = () => { this.viewportHeight = window.innerHeight; };
     window.addEventListener('resize', this.resizeViewport);
     window.addEventListener('message', this.receive);
-    window.parent.postMessage({ protocol: SC_PROTOCOL, type: 'ready' }, window.location.origin);
+    window.parent.postMessage({ protocol: SC_PROTOCOL, type: 'ready' }, EMBED_ORIGIN);
   },
   beforeDestroy() { window.removeEventListener('resize', this.resizeViewport); window.removeEventListener('message', this.receive); this.worker?.terminate(); },
   errorCaptured(error) { this.error = `Plot unavailable: ${error.message}`; this.notify(this.error); return false; },
   methods: {
     receive(event) {
-      if (event.origin !== window.location.origin || event.source !== window.parent || event.data?.protocol !== SC_PROTOCOL) return;
+      if (event.origin !== EMBED_ORIGIN || event.source !== window.parent || event.data?.protocol !== SC_PROTOCOL) return;
       if (event.data.type === 'resize') { this.$nextTick(() => window.dispatchEvent(new Event('resize'))); return; }
       if (event.data.type !== 'context' || !validBrowserContext(event.data.context)) return;
       const context = event.data.context;
@@ -86,7 +87,7 @@ export default {
       this.context = Object.freeze(context); this.filtered = false; this.highlighted = context.mappedCellType || ''; this.geneInput = context.geneSymbol;
       this.load(context.geneSymbol);
     },
-    notify(message) { window.parent.postMessage({ protocol: SC_PROTOCOL, type: 'status', edgeId: this.context?.edgeId, message }, window.location.origin); },
+    notify(message) { window.parent.postMessage({ protocol: SC_PROTOCOL, type: 'status', edgeId: this.context?.edgeId, message }, EMBED_ORIGIN); },
     load(gene, refresh = false) { this.gene = gene.toUpperCase(); this.geneInput = this.gene; this.loading = true; this.error = ''; if (this.loaded) { this.loaded = Object.freeze({ atlas: this.loaded.atlas, expression: null, stats: [] }); this.updateView(); } this.request += 1; this.worker.postMessage({ request: this.request, gene: this.gene, refresh, preview: this.preview }); },
     search() { this.load(this.geneInput.trim()); },
     selectTab(tab) { this.tab = tab; if (tab === 'Expression') this.visitedExpression = true; this.$nextTick(() => window.dispatchEvent(new Event('resize'))); },
