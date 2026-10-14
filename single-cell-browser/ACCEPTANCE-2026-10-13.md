@@ -82,3 +82,12 @@ All 31 vNext suites / 288 tests and the production build pass. Browser inspectio
 verified all atlas cluster names in the small preview, the one-line opening hint,
 and its activation of the existing scBrowser tab. Local screenshot:
 /tmp/scmap-preview-labels-detail.jpg. No extra visualization component is added.
+
+Compact full-browser follow-up: smaller header/controls/navigation, short violin
+explanation, no separate expression badge, and no pair-navigation row for a single
+pair. The V3.3 header now has an inline PanKbase link using schema-configured
+PKBdatasetId/PKBgene plus compatibility aliases. Browser checks confirm the
+external portal opens CFTR expression in the correct 448,935-cell atlas and the
+embedded link changes to GCG when exploring GCG. All 31 suites / 288 frontend
+tests, eleven data/render tests and production build pass. Screenshot:
+/tmp/scbrowser-compact-detail.jpg.

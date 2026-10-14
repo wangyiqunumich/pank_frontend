@@ -40,3 +40,13 @@ test('compact labels wrap names, stay inside a narrow canvas and avoid overlap',
     assert.ok(a.x+a.w<=b.x || b.x+b.w<=a.x || a.y+a.h<=b.y || b.y+b.h<=a.y);
   }
 });
+
+import { integratedBrowserLink } from './browserLink.mjs';
+test('integrated browser link configures dataset and current explored gene with encoded parameters', () => {
+  const config = {url:'https://pankbase.org/single-cell.html',parameters:{dataset:'PKBdatasetId',gene:'PKBgene',dataset_aliases:['datasetId'],gene_aliases:['gene']}};
+  const url = new URL(integratedBrowserLink(config,'islet_of_Langerhans_scRNA_v3-4','HLA-DRA'));
+  assert.equal(url.searchParams.get('PKBdatasetId'),'islet_of_Langerhans_scRNA_v3-4');
+  assert.equal(url.searchParams.get('PKBgene'),'HLA-DRA');
+  assert.equal(url.searchParams.get('gene'),'HLA-DRA');
+  assert.equal(new URL(integratedBrowserLink(config,'atlas','CFTR')).searchParams.get('PKBgene'),'CFTR');
+});

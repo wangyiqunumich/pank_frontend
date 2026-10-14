@@ -1,5 +1,5 @@
 <template>
-  <main :class="{ 'atlas-preview': preview }">
+  <main :class="{ 'atlas-preview': preview, 'compact-browser': !preview && fullView.compact }">
     <div v-if="preview" class="preview-map">
       <ResearchUmapPlotGL v-if="view && webgl" :key="view.key" :group="view.key" :points="view.points" :labels="view.fields" :colors="colors" :cell-type-field="field" :color-by-field="field" :highlight-label="null" :hover-fields="[field]" :expression="view.expression" :height="previewHeight" :preview-labels="previewLabels" />
       <p v-else role="status">{{ error ? copy.preview_unavailable : loading ? copy.loading_preview : copy.preview_idle }}</p>
@@ -8,7 +8,7 @@
     <p v-else-if="!context" role="status">Select an expression relationship in the graph to explore single cells.</p>
     <template v-else>
       <div class="browser-content">
-      <div class="context-note"><strong>{{ copy.atlas_label }}</strong><span>{{ copy.context_note }}</span><span v-if="gene !== context.geneSymbol">Graph gene: {{ context.geneSymbol }}. Now exploring: {{ gene }}.</span></div>
+      <div class="context-note"><strong>{{ copy.atlas_label }}</strong><a v-if="fullView.external_browser.enabled" :href="sourceLink" target="_blank" rel="noopener noreferrer">{{ copy.header_browser_link }}</a><span v-if="fullView.show_context_note">{{ copy.context_note }}</span><span v-if="gene !== context.geneSymbol">Graph gene: {{ context.geneSymbol }}. Now exploring: {{ gene }}.</span></div>
       <form class="explore-controls" @submit.prevent="search">
         <label>{{ copy.gene_label }} <div class="gene-search"><input v-model="geneInput" aria-label="Atlas gene" placeholder="e.g. INS" maxlength="80" autocomplete="off" spellcheck="false"><button class="primary" :disabled="loading">{{ copy.view_gene }}</button></div></label>
         <label>{{ copy.cell_label }} <select v-model="highlighted" @change="updateView" :disabled="!loaded"><option value="">{{ copy.all_cells }}</option><option v-for="label in cellTypes" :key="label" :value="label">{{ label }}</option></select></label>
@@ -25,7 +25,7 @@
           <p v-if="view.expression" class="plot-caption">Gray = no detected expression · Blue = higher source log-normalized expression. Overlapping cells can hide individual dots.</p>
         </section>
         <section v-show="tab === 'Expression'" aria-label="Expression distribution" class="plot-card">
-          <div class="plot-heading"><div><h2>{{ gene }} expression by cell type</h2><p>The width of each violin shows how many cells have similar expression. The box marks the middle 50% of cells.</p></div><span class="pill">Cell-level · Includes zeros</span></div>
+          <div class="plot-heading"><div><h2>{{ gene }} expression by cell type</h2><p>{{ copy.expression_description }}</p></div><span v-if="fullView.show_expression_badge" class="pill">{{ copy.expression_badge }}</span></div>
           <p v-if="!view.expression">{{ error ? 'Choose another gene or retry above.' : 'Expression will appear here when loading finishes.' }}</p>
           <template v-else><div class="plot-scroll"><div class="violin"><ResearchViolinPlot v-if="visitedExpression" :key="view.key + gene" :data="view.stats" :primary-key="field" :colors="colors[field]" :highlight-key="highlighted" :height="340" x-axis-label="Cell type" y-axis-label="Log-normalized expression" :range="[0, maximum || 1]" /></div></div>
           <p class="plot-caption">Source log-normalized expression, including cells with zero detected expression. These distributions summarize cells, not donors; they do not establish differential expression.</p>
@@ -47,18 +47,19 @@ import ResearchUmapPlotGL from './vendor/ResearchUmapPlotGL.vue';
 import ResearchViolinPlot from './vendor/ResearchViolinPlot.vue';
 import { SC_CONFIG, SC_WORDING } from '../src/vnext/scBrowserConfig.js';
 import { FIELD } from './data.mjs';
+import { integratedBrowserLink } from './browserLink.mjs';
 import { SC_PROTOCOL, validBrowserContext } from '../src/vnext/singleCellContext.js';
 const EMBED_ORIGIN = window.parent.location.origin;
 const palette = ['#007bff','#048845','#8490c8','#bf61a5','#ee3124','#b08d00','#5555ff','#7a9c1c','#bd505f','#9f78ac','#ab6684','#78a550'];
 export default {
   components: { ResearchUmapPlotGL, ResearchViolinPlot },
-  data: () => ({ viewportHeight: window.innerHeight, preview: document.querySelector('meta[name="pankgraph-preview"]')?.content === '1' || new URLSearchParams(window.location.search).get('preview') === '1', context: null, gene: '', geneInput: '', loading: false, error: '', loaded: null, view: null, tab: 'Cell map', visitedExpression: false, filtered: false, highlighted: '', request: 0, field: FIELD, copy: SC_WORDING, previewHeight: SC_CONFIG.preview.height, previewLabels: SC_CONFIG.preview.labels, previewCaption: SC_CONFIG.preview.show_caption, webgl: true }),
+  data: () => ({ viewportHeight: window.innerHeight, preview: document.querySelector('meta[name="pankgraph-preview"]')?.content === '1' || new URLSearchParams(window.location.search).get('preview') === '1', context: null, gene: '', geneInput: '', loading: false, error: '', loaded: null, view: null, tab: 'Cell map', visitedExpression: false, filtered: false, highlighted: '', request: 0, field: FIELD, copy: SC_WORDING, fullView: SC_CONFIG.full_view, previewHeight: SC_CONFIG.preview.height, previewLabels: SC_CONFIG.preview.labels, previewCaption: SC_CONFIG.preview.show_caption, webgl: true }),
   computed: {
-    plotHeight() { return Math.max(150, this.viewportHeight - 190); },
+    plotHeight() { return Math.max(150, this.viewportHeight - this.fullView.plot_reserved_height); },
     cellTypes() { return this.loaded?.atlas.labels || []; },
     colors() { return { [FIELD]: Object.fromEntries((this.loaded?.atlas.labels || []).map((label, index) => [label, palette[index % palette.length]])) }; },
     maximum() { return this.view ? Math.max(...this.view.stats.map(row => row.max)) : 0; },
-    sourceLink() { return `https://pankbase.org/single-cell.html?datasetId=${encodeURIComponent(this.context.datasetId)}&gene=${encodeURIComponent(this.gene)}`; },
+    sourceLink() { return integratedBrowserLink(this.fullView.external_browser, this.context.datasetId, this.gene); },
   },
   mounted() {
     const canvas = document.createElement('canvas'); const gl = canvas.getContext('webgl'); this.webgl = !!gl; gl?.getExtension('WEBGL_lose_context')?.loseContext();

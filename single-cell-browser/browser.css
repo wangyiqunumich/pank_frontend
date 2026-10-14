@@ -30,3 +30,18 @@ main>nav button[aria-pressed=true]{border-top-color:#3a838b}
 .umap-container{overflow:hidden!important}.plot-card{margin-bottom:4px}
 @media(max-width:360px){.gene-search input{width:60px}.gene-search button{padding:5px}.explore-controls{gap:5px}}
 .filters label{display:flex;align-items:center;gap:5px;margin-left:auto;font-size:10px}.filters label select{margin:0;padding:3px 5px;min-height:26px;font-size:11px}.filters button{margin-left:0}.filters{flex-wrap:wrap}
+
+/* Compact result-tab controls; the map/violin remains the primary content. */
+.compact-browser .browser-content{padding:6px 8px}
+.compact-browser .context-note{align-items:center;gap:4px 8px;margin-bottom:4px;padding-bottom:4px;font-size:10px}
+.compact-browser .context-note a{white-space:nowrap;font-weight:500}
+.compact-browser .explore-controls{gap:6px;margin-bottom:4px}
+.compact-browser .explore-controls label{font-size:10px}
+.compact-browser input,.compact-browser select,.compact-browser button{min-height:27px;padding:4px 6px;font-size:11px}
+.compact-browser .gene-search{gap:4px}.compact-browser .gene-search input{width:68px}
+.compact-browser .filters{gap:4px 8px;margin-bottom:3px;font-size:10px}
+.compact-browser .filters button{min-height:23px;padding:2px 5px;font-size:10px}
+.compact-browser h2{font-size:12px;margin-bottom:2px}
+.compact-browser .plot-heading p{font-size:10px;line-height:1.35;margin:2px 0}
+.compact-browser main>nav button,.compact-browser>nav button{min-height:28px;padding:5px 4px;font-size:10px}
+@media(max-width:320px){.compact-browser .explore-controls{flex-wrap:wrap}.compact-browser .explore-controls>label:last-child{width:100%}}

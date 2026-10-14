@@ -1,7 +1,7 @@
 {
   "schema": {
     "id": "pankgraph.result_page",
-    "version": "0.4.1",
+    "version": "0.4.2",
     "description": "Three sections for inserted answer elements, main visuals and supporting materials. Markdown text and native Markdown tables remain owned by AnswerMarkdown.",
     "selector": "src/vnext/resultPageSchema.js",
     "selection_order": ["state parameters", "allowlisted agent keywords", "deterministic KG and resource rules"],
@@ -113,6 +113,27 @@
           "show_metadata": false,
           "load_expression": false
         },
+        "full_view": {
+          "compact": true,
+          "show_context_note": false,
+          "show_expression_badge": false,
+          "hide_single_pair_navigation": true,
+          "plot_reserved_height": 145,
+          "external_browser": {
+            "enabled": true,
+            "url": "https://pankbase.org/single-cell.html",
+            "parameters": {
+              "dataset": "PKBdatasetId",
+              "gene": "PKBgene",
+              "dataset_aliases": [
+                "datasetId"
+              ],
+              "gene_aliases": [
+                "gene"
+              ]
+            }
+          }
+        },
         "wording": {
           "card_title": "Single cell browser",
           "atlas_label": "PanKbase scRNAseq {display_release}",
@@ -130,6 +151,9 @@
           "no_resource": "No single-cell browser resource is available for this result.",
           "start_failed": "The cell browser could not start. Reload this result or open PanKbase.",
           "external_browser": "Open PanKbase \u2197",
+          "header_browser_link": "Open in PanKbase ↗",
+          "expression_description": "Width shows cell density; box shows the middle 50%.",
+          "expression_badge": "Cell-level · Includes zeros",
           "gene_label": "Gene symbol",
           "view_gene": "View gene",
           "cell_label": "Cell type to highlight",

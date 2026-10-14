@@ -64,3 +64,10 @@ set `font_size` and collision `gap`, and customize wrapped display names through
 white text outlines and short leader lines when shifted to avoid overlap.
 `preview.show_open_hint` controls one footer hint using `wording.preview_open_hint`.
 These settings add no legend, statistics or extra visual tab.
+
+`single_cell_browser.full_view` controls the compact browser tab: compact styling,
+context-note/badge visibility, single-pair navigation and space reserved above the
+plot. Its `external_browser` owns the Integrated Cell Browser URL and query-parameter
+names/aliases. The inline header link follows the current explored gene and the
+actual atlas ID. `wording.header_browser_link`, `expression_description` and
+`expression_badge` own the associated text. Display V3.3 does not alter dataset identity.

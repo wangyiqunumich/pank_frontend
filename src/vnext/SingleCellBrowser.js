@@ -6,7 +6,7 @@ import { sitePath } from './api';
 
 export function ExpressionNavigation({ graph, context, onSelect }) {
   const edges = expressionEdges(graph);
-  if (!edges.length || !onSelect) return null;
+  if (!edges.length || !onSelect || (SC_CONFIG.full_view.hide_single_pair_navigation && edges.length === 1)) return null;
   const index = edges.findIndex(edge => (edge['~id'] || edge.id) === context?.edgeId);
   const move = step => { const next = edges[index < 0 ? 0 : (index + step + edges.length) % edges.length]; onSelect(next['~id'] || next.id); };
   return <Box role="group" aria-label="Expression browser navigation" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
