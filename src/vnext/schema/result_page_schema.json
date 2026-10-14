@@ -160,7 +160,7 @@
           "compact": true,
           "show_context_note": false,
           "show_expression_badge": false,
-          "hide_single_pair_navigation": true,
+          "pair_navigation": "none",
           "plot_reserved_height": 145,
           "external_browser": {
             "enabled": true,
@@ -194,7 +194,7 @@
           "no_resource": "No single-cell browser resource is available for this result.",
           "start_failed": "The cell browser could not start. Reload this result or open PanKbase.",
           "external_browser": "Open PanKbase \u2197",
-          "header_browser_link": "Open in PanKbase ↗",
+          "header_browser_link": "PanKbase single cell browser →",
           "expression_description": "Width shows cell density; box shows the middle 50%.",
           "expression_badge": "Cell-level · Includes zeros",
           "gene_label": "Gene symbol",
