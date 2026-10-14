@@ -40,9 +40,9 @@ test('result composition calls the schema with explicit state and merged literat
   expect(answer.textContent).toBe(result.answer);
   const rawData = screen.getByRole('region', { name: 'Raw data' });
   expect(answer.compareDocumentPosition(rawData) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-  const link = screen.getByRole('link', { name: 'Download source data' });
-  expect(link.getAttribute('href')).toBe('/pankgraph-vnext/api/resources/source.tsv');
-  expect(link.hasAttribute('download')).toBe(true);
+  expect(screen.getByRole('table', { name: 'Source data files' })).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Download Download source data' })).toBeTruthy();
+  expect(screen.getByText('Recorded association data (TSV).')).toBeTruthy();
 });
 
 test('schema-selected functional visual retains independent empirical evidence and supplies tab labels', () => {

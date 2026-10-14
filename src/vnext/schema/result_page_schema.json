@@ -1,7 +1,7 @@
 {
   "schema": {
     "id": "pankgraph.result_page",
-    "version": "0.4.2",
+    "version": "0.4.3",
     "description": "Three sections for inserted answer elements, main visuals and supporting materials. Markdown text and native Markdown tables remain owned by AnswerMarkdown.",
     "selector": "src/vnext/resultPageSchema.js",
     "selection_order": ["state parameters", "allowlisted agent keywords", "deterministic KG and resource rules"],
@@ -22,7 +22,50 @@
         "title": "Source data",
         "renderer": "SummaryInsertions",
         "description": "Download the available source data or explicitly labeled metadata used in this answer.",
-        "format": "A compact box with one labeled download link per available data asset.",
+        "format": "A compact source-file table with filename, source context, media-type tag and a per-file download action.",
+        "file_table": {
+          "design_reference": "design/atlas-edits@138cac43f12ae2f47deacf43bbd21c5fbb729f19:design/pankgraph-atlas/pages/result-source-data.html",
+          "columns": [
+            "File",
+            "Type",
+            "Action"
+          ],
+          "filename_binding": "asset.download_name",
+          "context_binding": "asset kind content, data_source, credible_set and recorded cohort context",
+          "bulk_min_files": 2,
+          "timeout_ms": 60000,
+          "object_url_lifetime_ms": 60000,
+          "fallback_filename": "source-data",
+          "fallback_tag": "DATA",
+          "media_type_tags": {
+            "text/tab-separated-values": "TSV",
+            "text/csv": "CSV",
+            "application/csv": "CSV"
+          },
+          "response_media_types": [
+            "text/tab-separated-values",
+            "text/csv",
+            "application/csv",
+            "text/plain",
+            "application/octet-stream"
+          ],
+          "labels": {
+            "table": "Source data files",
+            "idle": "Download",
+            "progress": "Downloading\u2026",
+            "done": "Downloaded",
+            "error": "Download failed. Please retry.",
+            "retry": "Retry",
+            "again": "Download again",
+            "bulk": "Download all ({count})",
+            "bulk_done": "All downloaded",
+            "bulk_progress": "Downloading {current} of {count}\u2026",
+            "download_accessible": "Download {name}",
+            "ready_notice": "{name}: download ready.",
+            "error_notice": "Could not download {name}. Please retry."
+          },
+          "behavior": "Fetch only resolver-approved same-origin resources. Mark done only after a successful file response and browser download handoff; this does not confirm saving to disk. Failed files remain retryable. Bulk downloads are sequential; browser multiple-download settings apply. Unavailable assets remain omitted."
+        },
         "requires": ["downloadable_data_assets"],
         "agent_keywords": ["raw_data", "download_data", "source_data"],
         "kg_relation_types": ["part_of_QTL_signal", "part_of_GWAS_signal", "has_sample", "has_donor"],

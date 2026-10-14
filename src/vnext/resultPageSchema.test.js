@@ -49,6 +49,9 @@ test('data download retains source context and rejects unavailable, unsafe and d
   const page = resolveResultPage({ result });
   expect(page.insertions[0].links).toHaveLength(1);
   expect(page.insertions[0].links[0].label).toContain('Islet');
+  expect(page.insertions[0].links[0].filename).toBe(asset.download_name);
+  expect(page.insertions[0].links[0].mediaType).toBe('text/tab-separated-values');
+  expect(page.insertions[0].links[0].contextLabel).toContain('Islet');
   expect(page.decisions.find(d => d.component === 'raw_data_download').by).toBe('kg_rule');
 });
 

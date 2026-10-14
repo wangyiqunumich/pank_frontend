@@ -47,6 +47,8 @@ function dataDownloads(result, groups) {
     seen.add(asset.url);
     const context = sourceLabel(asset, group);
     links.push({ id: asset.asset_id || asset.url, url: asset.url,
+      filename: asset.download_name || '', mediaType: media,
+      contextLabel: [kind.content, context].filter(Boolean).join(' · '),
       label: context ? `${kind.label} — ${context}` : kind.label,
       description: [kind.content, asset.download_name].filter(Boolean).join(' · ') });
   }
