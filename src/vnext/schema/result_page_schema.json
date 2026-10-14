@@ -224,7 +224,7 @@
           "expand": "View full-size fine-mapping plot",
           "close": "Close fine-mapping plot",
           "download": "Download the raw QTL data ↗",
-          "loading": "Loading production fine-mapping plot…",
+          "loading": "Loading fine-mapping plot…",
           "failed": "The production plot could not be loaded. The source data remains available below.",
           "retry": "Retry",
           "unsupported_source": "This QTL source does not have a registered production plot.",
