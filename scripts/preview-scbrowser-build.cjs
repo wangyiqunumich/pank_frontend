@@ -2,7 +2,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const demo = process.argv.includes('--cftr') ? require('./scbrowser-cftr-demo-data.cjs') : process.argv.includes('--demo') ? require('./scbrowser-demo-data.cjs') : null;
+const demo = process.argv.includes('--qtl') ? require('./qtl-visual-demo-data.cjs') : process.argv.includes('--cftr') ? require('./scbrowser-cftr-demo-data.cjs') : process.argv.includes('--demo') ? require('./scbrowser-demo-data.cjs') : null;
 const root = path.resolve(__dirname, '../build');
 const types = { '.js':'text/javascript', '.html':'text/html', '.css':'text/css', '.png':'image/png', '.svg':'image/svg+xml', '.json':'application/json', '.txt':'text/plain' };
 http.createServer((req,res)=>{

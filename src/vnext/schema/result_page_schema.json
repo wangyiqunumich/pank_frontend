@@ -1,7 +1,7 @@
 {
   "schema": {
     "id": "pankgraph.result_page",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "description": "Three sections for inserted answer elements, main visuals and supporting materials. Markdown text and native Markdown tables remain owned by AnswerMarkdown.",
     "selector": "src/vnext/resultPageSchema.js",
     "selection_order": ["state parameters", "allowlisted agent keywords", "deterministic KG and resource rules"],
@@ -41,7 +41,7 @@
   "main_visuals": {
     "title": "Visual Material",
     "format": "Existing main visual panel with one tab per eligible view.",
-    "default_order": ["graph_viewer", "single_cell_browser", "functional_data", "genome_browser"],
+    "default_order": ["graph_viewer", "single_cell_browser", "qtl_fine_mapping", "functional_data", "genome_browser"],
     "state_parameter": "main_visual",
     "items": {
       "graph_viewer": {
@@ -128,6 +128,113 @@
         },
         "format": "A map-only graph-adjacent preview opens the persistent interactive scBrowser tab. Preserve graph controls and camera.",
         "source_identity": "Display labels are editable copy; datasetId, source hashes, recorded edge release and conditions remain technical provenance, unchanged by wording edits."
+      },
+      "qtl_fine_mapping": {
+        "title": "QTL Fine-Mapping",
+        "renderer": "QtlFineMapping",
+        "enabled": true,
+        "requires": [
+          "qtl_edges"
+        ],
+        "state_values": [
+          "qtl_fine_mapping",
+          "qtl",
+          "fine_mapping"
+        ],
+        "agent_keywords": [
+          "qtl_fine_mapping",
+          "fine_mapping"
+        ],
+        "kg_relation_types": [
+          "PART_OF_QTL_SIGNAL",
+          "PART_OF_QTL"
+        ],
+        "selection": {
+          "default": "first_in_graph_order",
+          "deduplicate": "source_and_credible_set"
+        },
+        "supporting_material": "main_visual_only",
+        "context_fields": [
+          "tissue_name",
+          "tissue",
+          "cell_type",
+          "condition",
+          "disease",
+          "data_version",
+          "method"
+        ],
+        "sources": [
+          {
+            "key": "gtex_eqtl",
+            "label": "Pancreatic eQTL",
+            "aliases": [
+              "GTEx; SusieR"
+            ],
+            "folder": "1_eQTL-gtex-susie"
+          },
+          {
+            "key": "inspire_eqtl",
+            "label": "Islet eQTL",
+            "aliases": [
+              "INSPIRE; SusieR"
+            ],
+            "folder": "1_eQTL-inspire-susie"
+          },
+          {
+            "key": "gtex_sqtl",
+            "label": "Pancreatic splicing QTL",
+            "aliases": [
+              "splicing; GTEx"
+            ],
+            "folder": "1_sQTL-gtex-susie"
+          },
+          {
+            "key": "inspire_exonqtl",
+            "label": "Islet exon QTL",
+            "aliases": [
+              "exon; INSPIRE"
+            ],
+            "folder": "1_exonQTL-inspire-susie"
+          }
+        ],
+        "request": {
+          "endpoint": "https://vcr7lwcrnh.execute-api.us-east-1.amazonaws.com/production/typeToImage",
+          "image_type": "manhattan",
+          "timeout_ms": 90000,
+          "max_base64_chars": 32000000,
+          "cache_entries": 8
+        },
+        "download_origin": "https://pank-s3-to-share.s3.us-east-1.amazonaws.com",
+        "plot": {
+          "max_height": 360,
+          "renderer": "existing_production_aws",
+          "tracks": [
+            "negative_log10_p",
+            "pip",
+            "lbf"
+          ],
+          "color": "production_ld_r_squared",
+          "lead_marker": "production_red_dashed_line"
+        },
+        "wording": {
+          "title": "Regional Fine-Mapping Plot",
+          "source_picker": "QTL source and credible set",
+          "unrecorded_set": "Credible set not recorded",
+          "image_alt": "Production regional QTL fine-mapping plot",
+          "expand": "View full-size fine-mapping plot",
+          "close": "Close fine-mapping plot",
+          "download": "Download the raw QTL data ↗",
+          "loading": "Loading production fine-mapping plot…",
+          "failed": "The production plot could not be loaded. The source data remains available below.",
+          "retry": "Retry",
+          "unsupported_source": "This QTL source does not have a registered production plot.",
+          "missing_credible_set": "A valid credible-set identifier is required to load this source's plot.",
+          "gene_mismatch": "The recorded credible set does not match the gene on this QTL edge.",
+          "no_context": "No QTL context is available for this result.",
+          "description": "This plot integrates multiple fine-mapping statistics (−log₁₀P, PIP, LBF) across a genomic region. The three-row scatter view condenses QTL evidence.\nRow 1 shows −log₁₀ P for classical association strength.\nRow 2 reports the posterior inclusion probability (PIP) from Bayesian fine-mapping.\nRow 3 displays the log Bayes factor (LBF) for complementary Bayes support.\nPoint colour encodes LD R² relative to the lead SNP (red dashed line), allowing you to gauge how neighbouring variants track the core signal.\nTogether these layers highlight candidate causal variants and their statistical weight at a glance.",
+          "provenance": "Uses the existing production AWS renderer for the recorded source and credible set. Track values, LD colors and lead markers are supplied by that renderer; this page does not calculate them."
+        },
+        "source_identity": "Use exact returned source and credible set; do not substitute a gene, source, LD panel or coordinate plot."
       },
       "functional_data": {
         "title": "Functional Data",

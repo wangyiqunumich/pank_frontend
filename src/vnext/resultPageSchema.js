@@ -1,3 +1,4 @@
+import { qtlContexts, qtlEdges, isQtlEmpirical, QTL_CONFIG } from './qtlContext';
 import { firstAvailableExpression } from './singleCellContext';
 import { normalizeExternalLinks } from './externalLinks';
 import schema from './schema/result_page_schema.json';
@@ -113,7 +114,9 @@ export function resolveResultPage({ result, run, state, agentKeywords, resourceT
     || (Array.isArray(run?.plan?.steps) && run.plan.steps.length === 0);
   const graphExpected = projectionExists || (!functionalContext && !noGraphPlan
     && (!result || object(projection) || Boolean(evidence.graph_version) || Boolean(result?.component_status?.graph) || Boolean(run?.plan)));
-  const empirical = independentEmpirical(tabs, groups, functionalContext && isResultAssetUrl(functionalImage) ? functionalImage : null);
+  const qtl = qtlContexts(result);
+  const qtlSelected = QTL_CONFIG.enabled !== false && !QTL_CONFIG.hidden && qtlEdges(projection).length > 0;
+  const empirical = independentEmpirical(tabs, groups, functionalContext && isResultAssetUrl(functionalImage) ? functionalImage : null).filter(entry => !(qtlSelected && QTL_CONFIG.supporting_material === 'main_visual_only' && isQtlEmpirical(entry, qtl)));
   const referencesPending = !functionalContext && pending(resourceStatus);
   const empiricalFailure = !functionalContext && failure(resourceStatus);
   if (!empirical.length && empiricalFailure) empirical.push({ status: 'unavailable',
@@ -121,6 +124,7 @@ export function resolveResultPage({ result, run, state, agentKeywords, resourceT
   const facts = {
     downloadable_data_assets: rawLinks.length > 0,
     graph_projection_or_expected: graphExpected,
+    qtl_edges: qtlEdges(projection).length > 0,
     rna_expression_pair: Boolean(firstAvailableExpression(projection)),
     functional_context_or_measurements: functionalContext,
     // The existing genome component uses a disabled IGV adapter in this demo.
@@ -143,7 +147,7 @@ export function resolveResultPage({ result, run, state, agentKeywords, resourceT
     .map(([id, definition]) => ({ id, title: definition.title, description: definition.description, links: rawLinks }));
   let mainVisuals = schema.main_visuals.default_order.filter(id => select(id, schema.main_visuals.items[id])).map(id => ({
     id, label: schema.main_visuals.items[id].title,
-    status: id === 'functional_data' ? (isResultAssetUrl(functionalImage) ? 'available' : pending(resourceStatus) ? 'pending' : 'unavailable')
+    status: id === 'qtl_fine_mapping' ? (qtl.some(context => context.available) ? 'available' : 'unavailable') : id === 'functional_data' ? (isResultAssetUrl(functionalImage) ? 'available' : pending(resourceStatus) ? 'pending' : 'unavailable')
       : projectionExists ? 'available' : !result || pending(result?.component_status?.graph) ? 'pending' : failure(result?.component_status?.graph) || failure(result?.completeness) ? 'unavailable' : 'empty',
   }));
   const requested = token(states[schema.main_visuals.state_parameter]);
@@ -169,7 +173,7 @@ export function resolveResultPage({ result, run, state, agentKeywords, resourceT
   tabs.empirical_evidence_groups = selectedSupporting.has('empirical_evidence') ? empirical : [];
   return { schemaVersion: schema.schema.version,
     summaryTitle: schema.ai_summary.title, mainVisualTitle: schema.main_visuals.title, supportingTitle: schema.supporting_materials.title,
-    insertions, mainVisuals, scBrowser: schema.main_visuals.items.single_cell_browser, resourceTabs: tabs,
+    insertions, mainVisuals, qtlContexts: qtl, scBrowser: schema.main_visuals.items.single_cell_browser, resourceTabs: tabs,
     resourceStatus: functionalContext && !empiricalFailure ? undefined : resourceStatus,
     supportingTabs, decisions };
 }

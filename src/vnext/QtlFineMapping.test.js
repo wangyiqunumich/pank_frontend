@@ -1,0 +1,42 @@
+import React from 'react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import QtlFineMapping from './QtlFineMapping';
+import { loadQtlPlot } from './qtlPlotApi';
+import { QTL_CONFIG } from './qtlContext';
+jest.mock('./qtlPlotApi', () => ({ loadQtlPlot: jest.fn() }));
+const first = { key: 'folder/set1', available: true, credibleSet: 'set1', sourceLabel: 'First QTL', downloadUrl: 'https://example.org/set1.txt', context: { tissue_name: 'Pancreas' } };
+const second = { ...first, key: 'folder/set2', credibleSet: 'set2', sourceLabel: 'Second QTL' };
+beforeEach(() => { loadQtlPlot.mockReset(); });
+test('requests the production plot on tab activation and uses schema wording', async () => {
+  loadQtlPlot.mockResolvedValue('data:image/png;base64,iVBORw0KGgo=');
+  const { rerender } = render(<QtlFineMapping contexts={[first]} isVisible={false} />);
+  expect(loadQtlPlot).not.toHaveBeenCalled();
+  rerender(<QtlFineMapping contexts={[first]} isVisible />);
+  expect(await screen.findByAltText(QTL_CONFIG.wording.image_alt)).toBeTruthy();
+  expect(loadQtlPlot).toHaveBeenCalledWith({ key: first.key, available: true });
+  expect(screen.getByRole('link', { name: QTL_CONFIG.wording.download }).getAttribute('href')).toBe(first.downloadUrl);
+  fireEvent.click(screen.getByRole('button', { name: QTL_CONFIG.wording.expand }));
+  expect(screen.getAllByAltText(QTL_CONFIG.wording.image_alt)).toHaveLength(2);
+  fireEvent.click(screen.getByRole('button', { name: QTL_CONFIG.wording.close }));
+  expect(screen.getAllByAltText(QTL_CONFIG.wording.image_alt)).toHaveLength(1);
+});
+test('changing source ignores stale image responses and revalidates selected set', async () => {
+  let resolveFirst;
+  loadQtlPlot.mockImplementation(context => context.key === first.key ? new Promise(resolve => { resolveFirst = resolve; }) : Promise.resolve('data:image/png;base64,iVBORw0KGgosecond'));
+  const { rerender } = render(<QtlFineMapping contexts={[first, second]} isVisible />);
+  fireEvent.change(screen.getByRole('combobox'), { target: { value: second.key } });
+  const image = await screen.findByAltText(QTL_CONFIG.wording.image_alt);
+  resolveFirst('data:image/png;base64,iVBORw0KGgofirst');
+  await waitFor(() => expect(image.getAttribute('src')).toContain('second'));
+  rerender(<QtlFineMapping contexts={[{ ...first, available: false, reason: 'missing_credible_set' }]} isVisible />);
+  expect(screen.queryByAltText(QTL_CONFIG.wording.image_alt)).toBeNull();
+  expect(screen.getByText(QTL_CONFIG.wording.missing_credible_set)).toBeTruthy();
+});
+test('network failure retains source download and permits retry', async () => {
+  loadQtlPlot.mockRejectedValueOnce(new Error('Failed')).mockResolvedValueOnce('data:image/png;base64,iVBORw0KGgo=');
+  render(<QtlFineMapping contexts={[first]} isVisible />);
+  await screen.findByRole('alert');
+  expect(screen.getByRole('link', { name: QTL_CONFIG.wording.download })).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: QTL_CONFIG.wording.retry }));
+  await screen.findByAltText(QTL_CONFIG.wording.image_alt);
+});
