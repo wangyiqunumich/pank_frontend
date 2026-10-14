@@ -1,3 +1,5 @@
+import { resolveScWordings } from './scBrowserConfig';
+import { SC_DATASET } from './singleCellContext';
 import { isResultAssetUrl, resolveResultPage } from './resultPageSchema';
 
 const graph = () => ({ status: 'ready', combined_query_result: { nodes: [{ '~id': 'GENE1' }], edges: [{ '~type': 'part_of_QTL_signal' }] }, component_status: { graph: 'available', resources: 'available' } });
@@ -129,4 +131,16 @@ test('asset recognition permits only the two exact same-origin resource namespac
   expect(isResultAssetUrl('/api/resources/plot_1')).toBe(true);
   expect(isResultAssetUrl('/pankgraph-vnext/api/resources/plot_1')).toBe(true);
   for (const path of ['https://other.test/api/resources/plot','//other.test/api/resources/plot','/pankgraph-vnext/api/resources/../secret','/pankgraph-vnext/api/resources/%2fsecret','/pankgraph-vnext/api/resources/plot?url=other','/other/api/resources/plot']) expect(isResultAssetUrl(path)).toBe(false);
+});
+
+test('scmap selection is owned by the result schema and requires an actual RNA pair', () => {
+ const graph = { nodes: [{ '~id': 'g', '~labels': ['Gene'], '~properties': { HGNC_symbol: 'CFTR' } }, { '~id': 'c', '~labels': ['anatomical_structure'], '~properties': { name: 'ductal cell' } }], edges: [{ '~id': 'e', '~type': 'GENE_ENRICHED_IN', '~start': 'g', '~end': 'c' }] };
+ const page = resolveResultPage({ result: { combined_query_result: graph } });
+ expect(page.mainVisuals.map(item => item.id)).toContain('single_cell_browser');
+ expect(resolveScWordings(page.scBrowser.wording).atlas_label).toBe('PanKbase scRNAseq V3.3');
+ expect(resolveScWordings({ ...page.scBrowser.wording, display_release: 'V7.0' }).atlas_label).toBe('PanKbase scRNAseq V7.0');
+ expect(SC_DATASET).toBe('islet_of_Langerhans_scRNA_v3-4');
+ expect(page.scBrowser.preview).toMatchObject({ content: 'full_atlas_map', show_metadata: false, load_expression: false });
+ const absent = resolveResultPage({ result: { combined_query_result: { ...graph, edges: [] }, result_page_keywords: ['scmap'] }, state: { main_visual: 'scmap' } });
+ expect(absent.mainVisuals.map(item => item.id)).not.toContain('single_cell_browser');
 });

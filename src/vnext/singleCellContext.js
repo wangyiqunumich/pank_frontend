@@ -1,3 +1,4 @@
+import { SC_CONFIG } from './scBrowserConfig';
 // Browser targets are explicitly registered, never inferred from arbitrary URLs.
 export const SC_PROTOCOL = 'pankgraph.scbrowser.v1';
 export const SC_DATASET = 'islet_of_Langerhans_scRNA_v3-4';
@@ -9,10 +10,10 @@ export const SC_RELATIONS = {
 const text = value => typeof value === 'string' ? value.trim().slice(0, 500) : '';
 const props = item => item?.['~properties'] || item?.properties || {};
 const id = item => text(item?.['~id'] || item?.id);
-const RELATION_KEYS = Object.fromEntries(Object.keys(SC_RELATIONS).map(key => [key.toLowerCase(), key]));
+const RELATION_KEYS = new Map(Object.keys(SC_RELATIONS).map(key => [key.toLowerCase(), key]));
 const rawRelation = edge => text(edge?.['~type'] || edge?.raw_type || edge?.type);
-export const expressionRelation = edge => RELATION_KEYS[rawRelation(edge).toLowerCase()] || null;
-export const expressionEdges = graph => (graph?.edges || []).filter(edge => expressionRelation(edge));
+export const expressionRelation = edge => RELATION_KEYS.get(rawRelation(edge).toLowerCase()) || null;
+export const expressionEdges = graph => (graph?.edges || []).filter(edge => { const relation = expressionRelation(edge); return relation && SC_CONFIG.kg_relation_types.some(type => type.toLowerCase() === relation.toLowerCase()); });
 const CELLS = ['Ductal', 'Active Stellate', 'Alpha', 'Acinar', 'MUC5B+ Ductal', 'Beta', 'Endothelial', 'Gamma + Epsilon', 'Delta', 'Immune', 'Quiescent Stellate', 'Cycling Alpha'];
 export function cellLabel(value) {
   const normal = text(value).toLowerCase().replace(/[_-]/g, ' ').replace(/ cells?$/, '').trim();

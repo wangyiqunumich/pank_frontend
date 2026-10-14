@@ -59,3 +59,16 @@ still unavailable. A CFTR uppercase-enrichment fixture with HGNC_symbol and the
 recorded anatomical labels verifies the automatic card/tab and real atlas
 expression, including Ductal and MUC5B+ Ductal highlights. All 28 suites / 283
 frontend tests and production build pass.
+
+Schema integration follow-up: the result-page schema owns scBrowser eligibility,
+registered relations, preview options and shared React/Vue wording. Expression
+keywords alone cannot activate it; a registered RNA gene/cell pair must exist.
+The first eligible pair in graph order initializes the full browser. The default
+preview shows the complete cell-type atlas without statistics, metadata or a
+gene request. Pair navigation stays in the full browser. Display release is V3.3;
+the technical atlas ID remains islet_of_Langerhans_scRNA_v3-4.
+
+All 28 suites / 279 frontend tests, nine loader/renderer tests and the production
+build pass. Updated tests replace the previous verbose-card assertions. Browser
+inspection verified map-only preview, CFTR/Ductal autofill, actual CFTR expression
+and V3.3 header wording. Screenshot: /tmp/scmap-schema-preview.jpg.

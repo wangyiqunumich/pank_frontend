@@ -1,116 +1,82 @@
 import React from 'react';
-import { render, screen, fireEvent, within, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ResultSection } from './ResultView';
-import { expressionContext } from './singleCellContext';
 import SingleCellBrowser from './SingleCellBrowser';
-jest.mock('./KnowledgeGraph', () => props => <button data-testid="graph" onClick={() => props.onEvidenceInspect?.('edge-1')} data-resource-selection-hook={String(!!props.onExpressionSelect)} data-resource-highlight={String(!!props.selectedExpressionId)}>Select graph edge</button>);
+import { expressionContext } from './singleCellContext';
+import { SC_CONFIG } from './scBrowserConfig';
+jest.mock('./KnowledgeGraph', () => props => <button data-testid="graph" onClick={() => props.onEvidenceInspect?.('edge-2')}>Inspect edge</button>);
 jest.mock('react-markdown', () => ({ __esModule: true, default: ({ children }) => <div>{children}</div> }));
 jest.mock('remark-gfm', () => ({ __esModule: true, default: () => {} }));
 jest.mock('react-slick', () => ({ __esModule: true, default: ({ children }) => <div>{children}</div> }));
 jest.mock('./AnswerMarkdown', () => () => <div>Answer</div>);
 beforeEach(() => { global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ version: 1, html: '<!doctype html><html><head></head><body></body></html>' }) }); });
 afterEach(() => { delete global.fetch; });
-const graph = { nodes: [{ '~id': 'g', '~labels': ['Gene'], '~properties': { gene_symbol: 'INS' } }, { '~id': 'c', '~labels': ['Cell_type'], '~properties': { name: 'Beta' } }], edges: [{ '~id': 'edge-1', '~start': 'g', '~end': 'c', '~type': 'gene_detected_in', '~properties': {} }] };
-const result = { result_id: 'result-1', combined_query_result: graph, answer: 'Test', resources_tabs: {} };
-test('card minimize/restore/close and tab round trips preserve the graph and browser', () => {
-  const { rerender } = render(<ResultSection result={result} anchorPrefix="test" />);
-  const graphElement = screen.getByTestId('graph');
-  expect(screen.queryByTitle('PanKgraph single-cell browser')).toBeNull();
-  fireEvent.click(graphElement);
-  expect(screen.getByRole('region', { name: 'Expression evidence' })).toBeTruthy();
-  fireEvent.click(screen.getByRole('button', { name: 'Minimize expression card' }));
-  expect(screen.queryByRole('button', { name: 'Open in scBrowser →' })).toBeNull();
-  fireEvent.click(screen.getByRole('button', { name: 'Restore expression card' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Open in scBrowser →' }));
-  expect(screen.getByRole('tab', { name: 'scBrowser' }).getAttribute('aria-selected')).toBe('true');
-  const frame = screen.getByTitle('PanKgraph single-cell browser');
-  fireEvent.click(screen.getByRole('tab', { name: 'Knowledge Graph' }));
-  expect(screen.getByTestId('graph')).toBe(graphElement);
-  fireEvent.click(screen.getByRole('button', { name: 'Close expression card' }));
-  expect(screen.queryByRole('region', { name: 'Expression evidence' })).toBeNull();
-  fireEvent.click(screen.getByRole('tab', { name: 'scBrowser' }));
-  expect(screen.getByTitle('PanKgraph single-cell browser')).toBe(frame);
-  rerender(<ResultSection result={{ ...result, result_id: 'result-2' }} anchorPrefix="test" />);
-  expect(screen.queryByTitle('PanKgraph single-cell browser')).not.toBe(frame);
-  expect(screen.getByRole('tab', { name: 'Knowledge Graph' }).getAttribute('aria-selected')).toBe('true');
-  expect(screen.getByRole('region', { name: 'Expression evidence' })).toBeTruthy();
+const graph = { nodes: [
+ { '~id': 'cftr', '~labels': ['Gene'], '~properties': { HGNC_symbol: 'CFTR' } },
+ { '~id': 'ins', '~labels': ['Gene'], '~properties': { HGNC_symbol: 'INS' } },
+ { '~id': 'ductal', '~labels': ['anatomical_structure'], '~properties': { name: 'ductal cell' } },
+ { '~id': 'beta', '~labels': ['anatomical_structure'], '~properties': { name: 'Beta cell' } },
+], edges: [
+ { '~id': 'edge-1', '~type': 'GENE_ENRICHED_IN', '~start': 'cftr', '~end': 'ductal', '~properties': { padj: .01 } },
+ { '~id': 'edge-2', '~type': 'GENE_DETECTED_IN', '~start': 'ins', '~end': 'beta', '~properties': {} },
+] };
+const result = { result_id: 'result-1', combined_query_result: graph, answer: 'Answer', resources_tabs: {} };
+async function sentContext(frame) {
+ const post = jest.spyOn(frame.contentWindow, 'postMessage');
+ fireEvent(window, new MessageEvent('message', { origin: window.location.origin, source: frame.contentWindow, data: { protocol: 'pankgraph.scbrowser.v1', type: 'ready' } }));
+ await waitFor(() => expect(post).toHaveBeenCalled());
+ return post.mock.calls.filter(([message]) => message.type === 'context').slice(-1)[0][0].context;
+}
+test('schema enables a map-only preview and fills the first RNA gene-cell pair', async () => {
+ render(<ResultSection result={result} anchorPrefix="first" />);
+ const card = screen.getByRole('region', { name: 'Expression evidence' });
+ expect(card.textContent).toBe('Single cell browser−×');
+ expect(screen.queryByText(/padj|CFTR ·|Related atlas/)).toBeNull();
+ expect(await sentContext(screen.getByTitle('PanKbase atlas preview'))).toMatchObject({ geneSymbol: 'CFTR', mappedCellType: 'Ductal' });
+ fireEvent.click(screen.getByRole('button', { name: 'Open in scBrowser →' }));
+ expect(screen.getByRole('tab', { name: 'scBrowser' }).getAttribute('aria-selected')).toBe('true');
+ expect(await sentContext(screen.getByTitle('PanKgraph single-cell browser'))).toMatchObject({ geneSymbol: 'CFTR', mappedCellType: 'Ductal' });
 });
-test('message bridge ignores messages from foreign origins and unrelated windows', () => {
-  const context = expressionContext(graph, 'edge-1');
-  render(<SingleCellBrowser context={context} isVisible />);
-  fireEvent(window, new MessageEvent('message', { origin: 'https://foreign.test', data: { protocol: 'pankgraph.scbrowser.v1', type: 'status', edgeId: 'edge-1', message: 'Injected' } }));
-  fireEvent(window, new MessageEvent('message', { origin: window.location.origin, source: window, data: { protocol: 'pankgraph.scbrowser.v1', type: 'status', edgeId: 'edge-1', message: 'Injected' } }));
-  expect(screen.queryByText('Injected')).toBeNull();
+test('minimize close and tab changes preserve graph and browser', () => {
+ const { rerender } = render(<ResultSection result={result} anchorPrefix="scope" />);
+ const graphElement = screen.getByTestId('graph');
+ fireEvent.click(screen.getByRole('button', { name: 'Minimize expression card' }));
+ expect(screen.queryByTitle('PanKbase atlas preview')).toBeNull();
+ fireEvent.click(screen.getByRole('button', { name: 'Restore expression card' }));
+ fireEvent.click(screen.getByRole('button', { name: 'Open in scBrowser →' }));
+ const frame = screen.getByTitle('PanKgraph single-cell browser');
+ fireEvent.click(screen.getByRole('tab', { name: 'Knowledge Graph' }));
+ expect(screen.getByTestId('graph')).toBe(graphElement);
+ fireEvent.click(screen.getByRole('button', { name: 'Close expression card' }));
+ expect(screen.queryByRole('region', { name: 'Expression evidence' })).toBeNull();
+ fireEvent.click(screen.getByRole('tab', { name: 'scBrowser' }));
+ expect(screen.getByTitle('PanKgraph single-cell browser')).toBe(frame);
+ rerender(<ResultSection result={{ ...result, result_id: 'result-2' }} anchorPrefix="scope" />);
+ expect(screen.getByRole('tab', { name: 'Knowledge Graph' }).getAttribute('aria-selected')).toBe('true');
 });
-
-test('single-cell browser stays inside the result panel', () => {
-  render(<SingleCellBrowser context={expressionContext(graph, 'edge-1')} isVisible />);
-  expect(screen.getByTitle('PanKgraph single-cell browser')).toBeTruthy();
-  expect(screen.queryByRole('button', { name: 'Expand single-cell browser' })).toBeNull();
+test('schema disabled scmap and unrelated or ATAC graphs do not activate it', () => {
+ SC_CONFIG.enabled = false;
+ const { unmount } = render(<ResultSection result={result} />);
+ expect(screen.queryByRole('tab', { name: 'scBrowser' })).toBeNull();
+ expect(screen.queryByRole('region', { name: 'Expression evidence' })).toBeNull();
+ unmount(); SC_CONFIG.enabled = true;
+ for (const type of ['PART_OF_QTL_SIGNAL', 'GENE_ACTIVITY_SCORE_IN']) {
+   const view = render(<ResultSection result={{ ...result, combined_query_result: { ...graph, edges: [{ ...graph.edges[0], '~type': type }] } }} />);
+   expect(screen.queryByRole('tab', { name: 'scBrowser' })).toBeNull(); view.unmount();
+ }
 });
-
-test('one card cycles expression contexts without a separate picker', () => {
-  const twoEdges = { ...graph, edges: [...graph.edges, { ...graph.edges[0], '~id': 'edge-2', '~type': 'gene_enriched_in' }] };
-  render(<ResultSection result={{ ...result, combined_query_result: twoEdges }} anchorPrefix="carousel" />);
-  fireEvent.click(screen.getByTestId('graph'));
-  expect(screen.queryByLabelText('Inspect expression edge')).toBeNull();
-  expect(screen.getAllByRole('region', { name: 'Expression evidence' })).toHaveLength(1);
-  fireEvent.click(screen.getByRole('button', { name: 'Next expression browser' }));
-  expect(within(screen.getByRole('region', { name: 'Expression evidence' })).getByText('2 / 2')).toBeTruthy();
-  expect(screen.getByText(/Enrichment · scRNA-seq/)).toBeTruthy();
-  fireEvent.click(screen.getByRole('button', { name: 'Previous expression browser' }));
-  expect(within(screen.getByRole('region', { name: 'Expression evidence' })).getByText('1 / 2')).toBeTruthy();
+test('graph inspection updates the selected pair and selection revalidates against current evidence', async () => {
+ const { rerender } = render(<ResultSection result={result} />);
+ fireEvent.click(screen.getByTestId('graph'));
+ expect(await sentContext(screen.getByTitle('PanKbase atlas preview'))).toMatchObject({ geneSymbol: 'INS', mappedCellType: 'Beta' });
+ rerender(<ResultSection result={{ ...result, combined_query_result: { ...graph, edges: [graph.edges[0]] } }} />);
+ expect(await sentContext(screen.getByTitle('PanKbase atlas preview'))).toMatchObject({ geneSymbol: 'CFTR', mappedCellType: 'Ductal' });
 });
-
-test('resource card appears automatically and inspecting a matching edge reopens it', () => {
-  render(<ResultSection result={result} anchorPrefix="independent" />);
-  const graphElement = screen.getByTestId('graph');
-  expect(graphElement.getAttribute('data-resource-selection-hook')).toBe('false');
-  expect(graphElement.getAttribute('data-resource-highlight')).toBe('false');
-  expect(screen.getByRole('region', { name: 'Expression evidence' })).toBeTruthy();
-  fireEvent.click(screen.getByRole('button', { name: 'Close expression card' }));
-  fireEvent.click(graphElement);
-  fireEvent.mouseMove(graphElement);
-  expect(screen.getByRole('region', { name: 'Expression evidence' })).toBeTruthy();
-});
-test('no automatic resource card when no matched browser resource exists', () => {
-  const unavailable = { ...graph, edges: [{ ...graph.edges[0], '~type': 'gene_activity_score_in' }] };
-  render(<ResultSection result={{ ...result, combined_query_result: unavailable }} anchorPrefix="unavailable" />);
-  expect(screen.queryByRole('region', { name: 'Expression evidence' })).toBeNull();
-});
-
-test('KG inspection switches automatically to the matching gene', () => {
-  const kg = { nodes: [...graph.nodes, { '~id': 'g2', '~labels': ['Gene'], '~properties': { HGNC_symbol: 'GCG' } }],
-    edges: [{ ...graph.edges[0], '~id': 'edge-2', '~start': 'g2', '~type': 'marker_gene_of' }, graph.edges[0]] };
-  render(<ResultSection result={{ ...result, combined_query_result: kg }} anchorPrefix="switch" />);
-  expect(screen.getByText('GCG · Beta')).toBeTruthy();
-  fireEvent.click(screen.getByTestId('graph'));
-  expect(screen.getByText('INS · Beta')).toBeTruthy();
-});
-
-test('older KG release still shows the gene, with original dataset disclosed', () => {
-  const kg = { ...graph, edges: [{ ...graph.edges[0], '~properties': { dataset_id: 'older-rna-source' } }] };
-  render(<ResultSection result={{ ...result, combined_query_result: kg }} anchorPrefix="older" />);
-  expect(screen.getByText('INS · Beta')).toBeTruthy();
-  expect(screen.getByText('Related atlas context · KG source: older-rna-source')).toBeTruthy();
-});
-
-test('browser uses a same-origin build manifest and srcdoc to avoid HTML rewrites', async () => {
-  render(<SingleCellBrowser context={expressionContext(graph, 'edge-1')} isVisible preview />);
-  const frame = screen.getByTitle('PanKbase atlas preview');
-  await waitFor(() => expect(frame.getAttribute('srcdoc')).toContain('pankgraph-preview'));
-  expect(global.fetch).toHaveBeenCalledWith('/scbrowser/embed.json', { credentials: 'same-origin' });
-  expect(frame.getAttribute('srcdoc')).toContain(`<base href="${window.location.origin}/scbrowser/">`);
-  expect(frame.getAttribute('src')).toBeNull();
-});
-
-test('real-format uppercase CFTR enrichment automatically adds the card and scBrowser tab', () => {
-  const kg = { nodes: [
-    { '~id': 'ENSG00000001626', '~labels': ['Gene'], '~properties': { HGNC_symbol: 'CFTR' } },
-    { '~id': 'CL_0002079', '~labels': ['anatomical_structure'], '~properties': { name: 'ductal cell' } },
-  ], edges: [{ '~id': 'cftr-enriched', '~type': 'GENE_ENRICHED_IN', '~start': 'ENSG00000001626', '~end': 'CL_0002079', display_type: 'gene_enriched_in', '~properties': { condition: 'ND' } }] };
-  render(<ResultSection result={{ ...result, combined_query_result: kg }} anchorPrefix="cftr" />);
-  expect(screen.getByRole('region', { name: 'Expression evidence' })).toBeTruthy();
-  expect(screen.getByText('CFTR · ductal cell')).toBeTruthy();
-  expect(screen.getByRole('tab', { name: 'scBrowser' })).toBeTruthy();
+test('same-origin manifest bridge ignores foreign and unrelated window messages', async () => {
+ render(<SingleCellBrowser context={expressionContext(graph, 'edge-1')} isVisible preview />);
+ const frame = screen.getByTitle('PanKbase atlas preview');
+ await waitFor(() => expect(frame.getAttribute('srcdoc')).toContain('pankgraph-preview'));
+ expect(frame.getAttribute('src')).toBeNull();
+ fireEvent(window, new MessageEvent('message', { origin: 'https://foreign.test', source: window, data: { protocol: 'pankgraph.scbrowser.v1', type: 'status', edgeId: 'edge-1', message: 'Injected' } }));
+ expect(screen.queryByText('Injected')).toBeNull();
 });

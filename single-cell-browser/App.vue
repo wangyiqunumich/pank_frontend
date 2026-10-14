@@ -1,17 +1,17 @@
 <template>
   <main :class="{ 'atlas-preview': preview }">
     <div v-if="preview" class="preview-map">
-      <ResearchUmapPlotGL v-if="view && webgl" :key="view.key" :group="view.key" :points="view.points" :labels="view.fields" :colors="colors" :cell-type-field="field" :color-by-field="field" :highlight-label="highlighted" :hover-fields="[field]" :expression="view.expression" :height="88" />
-      <p v-else role="status">{{ error ? 'Preview unavailable' : loading ? 'Loading atlas preview…' : 'Atlas preview' }}</p>
-      <span class="preview-caption">{{ view ? view.count.toLocaleString() + ' cells · ' + gene + (view.expression ? ' expression' : ' loading…') : 'PanKbase scRNA-seq' }}</span>
+      <ResearchUmapPlotGL v-if="view && webgl" :key="view.key" :group="view.key" :points="view.points" :labels="view.fields" :colors="colors" :cell-type-field="field" :color-by-field="field" :highlight-label="null" :hover-fields="[field]" :expression="view.expression" :height="previewHeight" />
+      <p v-else role="status">{{ error ? copy.preview_unavailable : loading ? copy.loading_preview : copy.preview_idle }}</p>
+      <span v-if="previewCaption" class="preview-caption">{{ view ? view.count.toLocaleString() + ' ' + copy.preview_cells_label : 'PanKbase scRNA-seq' }}</span>
     </div>
     <p v-else-if="!context" role="status">Select an expression relationship in the graph to explore single cells.</p>
     <template v-else>
       <div class="browser-content">
-      <div class="context-note"><strong>PanKbase scRNAseq {{ context.release }}</strong><span>Related context · See Source & methods</span><span v-if="gene !== context.geneSymbol">Graph gene: {{ context.geneSymbol }}. Now exploring: {{ gene }}.</span></div>
+      <div class="context-note"><strong>{{ copy.atlas_label }}</strong><span>{{ copy.context_note }}</span><span v-if="gene !== context.geneSymbol">Graph gene: {{ context.geneSymbol }}. Now exploring: {{ gene }}.</span></div>
       <form class="explore-controls" @submit.prevent="search">
-        <label>Gene symbol <div class="gene-search"><input v-model="geneInput" aria-label="Atlas gene" placeholder="e.g. INS" maxlength="80" autocomplete="off" spellcheck="false"><button class="primary" :disabled="loading">View gene</button></div></label>
-        <label>Cell type to highlight <select v-model="highlighted" @change="updateView" :disabled="!loaded"><option value="">All cell types</option><option v-for="label in cellTypes" :key="label" :value="label">{{ label }}</option></select></label>
+        <label>{{ copy.gene_label }} <div class="gene-search"><input v-model="geneInput" aria-label="Atlas gene" placeholder="e.g. INS" maxlength="80" autocomplete="off" spellcheck="false"><button class="primary" :disabled="loading">{{ copy.view_gene }}</button></div></label>
+        <label>{{ copy.cell_label }} <select v-model="highlighted" @change="updateView" :disabled="!loaded"><option value="">{{ copy.all_cells }}</option><option v-for="label in cellTypes" :key="label" :value="label">{{ label }}</option></select></label>
         
       </form>
       <div v-if="loading" class="load-state" role="status"><span class="spinner" aria-hidden="true"></span><div><strong>{{ loaded ? `Loading ${gene} expression…` : 'Preparing the cell atlas…' }}</strong><small>{{ loaded ? 'The map will appear with expression colors when loading finishes.' : 'Loads a compact map containing coordinates and cell types, then expression for the selected gene.' }}</small></div></div>
@@ -34,24 +34,25 @@
       </template>
       <section v-show="tab === 'Source'" aria-label="Source provenance" class="plot-card provenance">
         <h2>Understand the source</h2><p>This atlas is related context, not a verified match to the graph’s source analysis. The atlas combines pancreatic islet cells from HPAP, IIDP and Prodo. Your graph’s condition is not automatically applied to these cells.</p>
-        <dl><dt>Atlas release</dt><dd>PanKbase scRNAseq {{ context.release }}</dd><dt>Source dataset identifier</dt><dd>{{ context.datasetId }}</dd><dt>Graph source dataset</dt><dd>{{ context.edgeDatasetId || 'Not recorded' }}</dd><dt>Graph relationship</dt><dd>{{ context.geneSymbol }} → {{ context.cellType }} · {{ context.evidenceLabel }}</dd><dt>Graph evidence release</dt><dd>{{ context.edgeRelease || 'Not recorded' }}</dd><dt>Graph condition</dt><dd>{{ context.condition || 'Not recorded' }}</dd><dt>Expression values</dt><dd>Source log-normalized RNA expression. No conversion to donor CPM or inference of differential expression.</dd><dt>Cell alignment</dt><dd>Source positional-vector contract. Coordinate, cell-type and expression lengths are checked against the catalog. The compact map preserves every source cell in original order; no cells are sampled. Coordinates do not include cell IDs for an independent barcode join.</dd><dt>Atlas retrieved</dt><dd>{{ loaded ? loaded.atlas.retrievedAt : 'Not loaded' }}</dd><dt>Local cache</dt><dd>{{ loaded && loaded.atlas.cacheHit ? 'Using a compact map saved in this browser.' : 'Compact map prepared from PanKbase.' }} Public coordinates and cell-type codes are cached for up to 24 hours. Donor metadata and cell IDs are not saved.</dd></dl>
+        <dl><dt>Atlas release</dt><dd>{{ copy.atlas_label }}</dd><dt>Source dataset identifier</dt><dd>{{ context.datasetId }}</dd><dt>Graph source dataset</dt><dd>{{ context.edgeDatasetId || 'Not recorded' }}</dd><dt>Graph relationship</dt><dd>{{ context.geneSymbol }} → {{ context.cellType }} · {{ context.evidenceLabel }}</dd><dt>Graph evidence release</dt><dd>{{ context.edgeRelease || 'Not recorded' }}</dd><dt>Graph condition</dt><dd>{{ context.condition || 'Not recorded' }}</dd><dt>Expression values</dt><dd>Source log-normalized RNA expression. No conversion to donor CPM or inference of differential expression.</dd><dt>Cell alignment</dt><dd>Source positional-vector contract. Coordinate, cell-type and expression lengths are checked against the catalog. The compact map preserves every source cell in original order; no cells are sampled. Coordinates do not include cell IDs for an independent barcode join.</dd><dt>Atlas retrieved</dt><dd>{{ loaded ? loaded.atlas.retrievedAt : 'Not loaded' }}</dd><dt>Local cache</dt><dd>{{ loaded && loaded.atlas.cacheHit ? 'Using a compact map saved in this browser.' : 'Compact map prepared from PanKbase.' }} Public coordinates and cell-type codes are cached for up to 24 hours. Donor metadata and cell IDs are not saved.</dd></dl>
         <div class="source-actions"><button :disabled="loading" @click="load(gene, true)">Refresh atlas data</button><a :href="sourceLink" target="_blank" rel="noopener noreferrer">Open PanKbase ↗</a><a href="https://data.pankbase.org/analysis-sets/PKBDS1349YHGQ/" target="_blank" rel="noopener noreferrer">Atlas analysis lineage ↗</a><a href="./THIRD_PARTY_NOTICES.txt" target="_blank" rel="noopener noreferrer">Code & licenses</a></div>
       </section>
       </div>
-      <nav aria-label="Single-cell views"><button v-for="name in ['Cell map','Expression','Source']" :key="name" :aria-label="name" :aria-pressed="tab === name" @click="selectTab(name)">{{ name === 'Source' ? 'Source & methods' : name === 'Expression' ? 'Expression by cell type' : name }}</button></nav>
+      <nav aria-label="Single-cell views"><button v-for="name in ['Cell map','Expression','Source']" :key="name" :aria-label="name" :aria-pressed="tab === name" @click="selectTab(name)">{{ name === 'Source' ? copy.source_tab : name === 'Expression' ? copy.expression_tab : copy.map_tab }}</button></nav>
     </template>
   </main>
 </template>
 <script>
 import ResearchUmapPlotGL from './vendor/ResearchUmapPlotGL.vue';
 import ResearchViolinPlot from './vendor/ResearchViolinPlot.vue';
+import { SC_CONFIG, SC_WORDING } from '../src/vnext/scBrowserConfig.js';
 import { FIELD } from './data.mjs';
 import { SC_PROTOCOL, validBrowserContext } from '../src/vnext/singleCellContext.js';
 const EMBED_ORIGIN = window.parent.location.origin;
 const palette = ['#007bff','#048845','#8490c8','#bf61a5','#ee3124','#b08d00','#5555ff','#7a9c1c','#bd505f','#9f78ac','#ab6684','#78a550'];
 export default {
   components: { ResearchUmapPlotGL, ResearchViolinPlot },
-  data: () => ({ viewportHeight: window.innerHeight, preview: document.querySelector('meta[name="pankgraph-preview"]')?.content === '1' || new URLSearchParams(window.location.search).get('preview') === '1', context: null, gene: '', geneInput: '', loading: false, error: '', loaded: null, view: null, tab: 'Cell map', visitedExpression: false, filtered: false, highlighted: '', request: 0, field: FIELD, webgl: true }),
+  data: () => ({ viewportHeight: window.innerHeight, preview: document.querySelector('meta[name="pankgraph-preview"]')?.content === '1' || new URLSearchParams(window.location.search).get('preview') === '1', context: null, gene: '', geneInput: '', loading: false, error: '', loaded: null, view: null, tab: 'Cell map', visitedExpression: false, filtered: false, highlighted: '', request: 0, field: FIELD, copy: SC_WORDING, previewHeight: SC_CONFIG.preview.height, previewCaption: SC_CONFIG.preview.show_caption, webgl: true }),
   computed: {
     plotHeight() { return Math.max(150, this.viewportHeight - 190); },
     cellTypes() { return this.loaded?.atlas.labels || []; },
@@ -88,7 +89,7 @@ export default {
       this.load(context.geneSymbol);
     },
     notify(message) { window.parent.postMessage({ protocol: SC_PROTOCOL, type: 'status', edgeId: this.context?.edgeId, message }, EMBED_ORIGIN); },
-    load(gene, refresh = false) { this.gene = gene.toUpperCase(); this.geneInput = this.gene; this.loading = true; this.error = ''; if (this.loaded) { this.loaded = Object.freeze({ atlas: this.loaded.atlas, expression: null, stats: [] }); this.updateView(); } this.request += 1; this.worker.postMessage({ request: this.request, gene: this.gene, refresh, preview: this.preview }); },
+    load(gene, refresh = false) { this.gene = gene.toUpperCase(); this.geneInput = this.gene; this.loading = true; this.error = ''; if (this.loaded) { this.loaded = Object.freeze({ atlas: this.loaded.atlas, expression: null, stats: [] }); this.updateView(); } this.request += 1; this.worker.postMessage({ request: this.request, gene: this.gene, refresh, preview: this.preview && !SC_CONFIG.preview.load_expression }); },
     search() { this.load(this.geneInput.trim()); },
     selectTab(tab) { this.tab = tab; if (tab === 'Expression') this.visitedExpression = true; this.$nextTick(() => window.dispatchEvent(new Event('resize'))); },
     toggleFilter() { this.filtered = !this.filtered; this.updateView(); },
