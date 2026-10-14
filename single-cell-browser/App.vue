@@ -1,7 +1,7 @@
 <template>
   <main :class="{ 'atlas-preview': preview }">
     <div v-if="preview" class="preview-map">
-      <ResearchUmapPlotGL v-if="view && webgl" :key="view.key" :group="view.key" :points="view.points" :labels="view.fields" :colors="colors" :cell-type-field="field" :color-by-field="field" :highlight-label="null" :hover-fields="[field]" :expression="view.expression" :height="previewHeight" />
+      <ResearchUmapPlotGL v-if="view && webgl" :key="view.key" :group="view.key" :points="view.points" :labels="view.fields" :colors="colors" :cell-type-field="field" :color-by-field="field" :highlight-label="null" :hover-fields="[field]" :expression="view.expression" :height="previewHeight" :preview-labels="previewLabels" />
       <p v-else role="status">{{ error ? copy.preview_unavailable : loading ? copy.loading_preview : copy.preview_idle }}</p>
       <span v-if="previewCaption" class="preview-caption">{{ view ? view.count.toLocaleString() + ' ' + copy.preview_cells_label : 'PanKbase scRNA-seq' }}</span>
     </div>
@@ -52,7 +52,7 @@ const EMBED_ORIGIN = window.parent.location.origin;
 const palette = ['#007bff','#048845','#8490c8','#bf61a5','#ee3124','#b08d00','#5555ff','#7a9c1c','#bd505f','#9f78ac','#ab6684','#78a550'];
 export default {
   components: { ResearchUmapPlotGL, ResearchViolinPlot },
-  data: () => ({ viewportHeight: window.innerHeight, preview: document.querySelector('meta[name="pankgraph-preview"]')?.content === '1' || new URLSearchParams(window.location.search).get('preview') === '1', context: null, gene: '', geneInput: '', loading: false, error: '', loaded: null, view: null, tab: 'Cell map', visitedExpression: false, filtered: false, highlighted: '', request: 0, field: FIELD, copy: SC_WORDING, previewHeight: SC_CONFIG.preview.height, previewCaption: SC_CONFIG.preview.show_caption, webgl: true }),
+  data: () => ({ viewportHeight: window.innerHeight, preview: document.querySelector('meta[name="pankgraph-preview"]')?.content === '1' || new URLSearchParams(window.location.search).get('preview') === '1', context: null, gene: '', geneInput: '', loading: false, error: '', loaded: null, view: null, tab: 'Cell map', visitedExpression: false, filtered: false, highlighted: '', request: 0, field: FIELD, copy: SC_WORDING, previewHeight: SC_CONFIG.preview.height, previewLabels: SC_CONFIG.preview.labels, previewCaption: SC_CONFIG.preview.show_caption, webgl: true }),
   computed: {
     plotHeight() { return Math.max(150, this.viewportHeight - 190); },
     cellTypes() { return this.loaded?.atlas.labels || []; },

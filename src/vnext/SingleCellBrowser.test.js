@@ -30,7 +30,7 @@ async function sentContext(frame) {
 test('schema enables a map-only preview and fills the first RNA gene-cell pair', async () => {
  render(<ResultSection result={result} anchorPrefix="first" />);
  const card = screen.getByRole('region', { name: 'Expression evidence' });
- expect(card.textContent).toBe('Single cell browser−×');
+ expect(card.textContent).toBe('Single cell browser−×Open scBrowser →');
  expect(screen.queryByText(/padj|CFTR ·|Related atlas/)).toBeNull();
  expect(await sentContext(screen.getByTitle('PanKbase atlas preview'))).toMatchObject({ geneSymbol: 'CFTR', mappedCellType: 'Ductal' });
  fireEvent.click(screen.getByRole('button', { name: 'Open in scBrowser →' }));

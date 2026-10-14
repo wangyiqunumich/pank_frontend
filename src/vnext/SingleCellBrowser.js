@@ -23,9 +23,9 @@ export function ExpressionCard({ context, minimized, onMinimize, onClose, onOpen
       <Button size="small" sx={{ minWidth: 24, p: 0.25, color: '#3A838B' }} aria-label={minimized ? 'Restore expression card' : 'Minimize expression card'} onClick={() => onMinimize(!minimized)}>{minimized ? '↗' : '−'}</Button>
       <Button size="small" sx={{ minWidth: 24, p: 0.25, color: '#3A838B' }} aria-label="Close expression card" onClick={onClose}>×</Button>
     </Box>
-    {!minimized && <Box sx={{ height: SC_CONFIG.preview.height, position: 'relative', bgcolor: '#fafcfc' }}>
-      <SingleCellBrowser context={context} isVisible preview />
-      <Button title={SC_WORDING.preview_open_hint} aria-label="Open in scBrowser →" onClick={onOpen} sx={{ position: 'absolute', inset: 0, width: '100%', borderRadius: 0, '&:hover': { bgcolor: '#3a838b08' } }} />
+    {!minimized && <Box sx={{ height: SC_CONFIG.preview.height + (SC_CONFIG.preview.show_open_hint ? 22 : 0), position: 'relative', bgcolor: '#fafcfc' }}>
+      <Box sx={{ height: SC_CONFIG.preview.height }}><SingleCellBrowser context={context} isVisible preview /></Box>
+      <Button title={SC_WORDING.preview_open_hint} aria-label="Open in scBrowser →" onClick={onOpen} sx={{ position: 'absolute', inset: 0, width: '100%', borderRadius: 0, '&:hover': { bgcolor: '#3a838b08' } }}>{SC_CONFIG.preview.show_open_hint && <Box component="span" sx={{ position: 'absolute', bottom: 0, height: 22, lineHeight: '22px', width: '100%', borderTop: '1px solid #e4eff0', bgcolor: '#f6fafb', color: '#28636a', fontSize: 10, fontWeight: 600, textTransform: 'none' }}>{SC_WORDING.preview_open_hint}</Box>}</Button>
     </Box>}
     {!minimized && SC_CONFIG.preview.show_metadata && <Box sx={{ p: 1 }}><Typography sx={{ fontSize: 11 }}>{context.geneSymbol} · {context.cellType}</Typography><Typography sx={{ fontSize: 10 }}>{SC_WORDING.atlas_label} · {SC_WORDING.related_context}</Typography></Box>}
   </Box>;

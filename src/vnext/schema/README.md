@@ -57,3 +57,10 @@ Validate with the vNext schema and browser tests. Rebuild to publish schema edit
 The frontend displays the original AWS image rather than reconstructing its
 statistics, LD or axes. The previous vNext coordinate-based two-track image remains
 in the saved resource payload but is not shown for the promoted QTL source/set.
+
+The scBrowser preview also supports `preview.labels`: enable/disable labels,
+set `font_size` and collision `gap`, and customize wrapped display names through
+`names` (use `\n` for line breaks). Labels use the actual cluster projections,
+white text outlines and short leader lines when shifted to avoid overlap.
+`preview.show_open_hint` controls one footer hint using `wording.preview_open_hint`.
+These settings add no legend, statistics or extra visual tab.

@@ -67,6 +67,7 @@
 
 <script>
 import * as d3 from 'd3';
+import { layoutPreviewLabels } from '../previewLabels.mjs';
 import Vue from 'vue';
 import EventBus from "@/utils/eventBus";
 import sharedUmapData from "@/components/researchPortal/singleCellBrowser/sharedUmapData.js";
@@ -216,6 +217,7 @@ function colorToRgba(color, alpha = 255) {
 
 export default Vue.component('research-umap-plot-gl', {
     props: {
+        previewLabels: { type: Object, default: null },
         group: {
             type: String,
             required: true,
@@ -1451,6 +1453,30 @@ export default Vue.component('research-umap-plot-gl', {
             if (!this.showLabels) return;
             if (this.is3dMode && this.interactionMode) return;
 
+            if (this.previewLabels) {
+                if (!this.previewLabels.enabled) return;
+                const ratio = window.devicePixelRatio || 1;
+                const size = this.previewLabels.font_size;
+                ctx.save();
+                ctx.scale(ratio, ratio);
+                ctx.font = `600 ${size}px Arial`;
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                const clusters = this.projectedLabels.map(cluster => ({ ...cluster, projection: { x: cluster.projection.x / ratio, y: cluster.projection.y / ratio } }));
+                const labels = layoutPreviewLabels(clusters, labelCanvas.width / ratio, labelCanvas.height / ratio, value => ctx.measureText(value).width, this.previewLabels);
+                ctx.lineWidth = 0.6; ctx.strokeStyle = '#64748b';
+                labels.forEach(label => {
+                    if (Math.hypot(label.x - label.projection.x, label.y - label.projection.y) > 12) {
+                        ctx.beginPath(); ctx.moveTo(label.projection.x, label.projection.y); ctx.lineTo(label.x, label.y); ctx.stroke();
+                    }
+                });
+                ctx.strokeStyle = 'white'; ctx.lineWidth = 2.5; ctx.fillStyle = '#182d35';
+                labels.forEach(label => label.lines.forEach((line, index) => {
+                    const y = label.y + (index - (label.lines.length - 1) / 2) * label.lineHeight;
+                    ctx.strokeText(line, label.x, y); ctx.fillText(line, label.x, y);
+                }));
+                ctx.restore();
+                return;
+            }
             ctx.font = `${14 * (window.devicePixelRatio || 1)}px Arial`;
             ctx.fillStyle = "black";
             ctx.textAlign = "center";

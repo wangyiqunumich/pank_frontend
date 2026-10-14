@@ -17,6 +17,7 @@
     "Remove cell ID display",
     "Accessible map controls",
     "Preserve camera on resize and cancel unmount timer",
-    "Correct normal violin axis labels"
+    "Correct normal violin axis labels",
+    "Preview-only compact wrapped cluster labels with collision placement and thin leader lines"
   ]
 }

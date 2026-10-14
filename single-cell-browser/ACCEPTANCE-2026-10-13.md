@@ -72,3 +72,13 @@ All 28 suites / 279 frontend tests, nine loader/renderer tests and the productio
 build pass. Updated tests replace the previous verbose-card assertions. Browser
 inspection verified map-only preview, CFTR/Ductal autofill, actual CFTR expression
 and V3.3 header wording. Screenshot: /tmp/scmap-schema-preview.jpg.
+
+Compact preview labeling follow-up: the existing label canvas now draws preview
+cluster names with 8px outlined text, wrapped long names, bounded collision placement
+and leader lines. Full-browser labels keep their existing style. One schema-owned
+Open scBrowser hint returns below the preview; metadata/captions remain disabled.
+Ten loader/render tests pass, including narrow-window label bounds and collisions.
+All 31 vNext suites / 288 tests and the production build pass. Browser inspection
+verified all atlas cluster names in the small preview, the one-line opening hint,
+and its activation of the existing scBrowser tab. Local screenshot:
+/tmp/scmap-preview-labels-detail.jpg. No extra visualization component is added.

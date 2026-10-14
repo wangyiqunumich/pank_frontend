@@ -24,3 +24,19 @@ test('map redraws after replacing data while a frame is pending', () => {
   for (const callback of frames.values()) callback();
   assert.equal(rendered, 1);
 });
+
+import { layoutPreviewLabels } from './previewLabels.mjs';
+test('compact labels wrap names, stay inside a narrow canvas and avoid overlap', () => {
+  const clusters = ['Alpha', 'Ductal', 'Active Stellate', 'Beta'].map(label => ({label, projection:{x:80,y:70}}));
+  const labels = layoutPreviewLabels(clusters, 200, 160, text => text.length * 4, { font_size:8, names:{'Active Stellate':'Active\nStellate'} });
+  assert.equal(labels.length,4);
+  assert.deepEqual(labels[2].lines,['Active','Stellate']);
+  for (const label of labels) {
+    assert.ok(label.box.x >= 0 && label.box.x + label.box.w <= 200);
+    assert.ok(label.box.y >= 0 && label.box.y + label.box.h <= 160);
+  }
+  for (let i=0;i<labels.length;i++) for (let j=0;j<i;j++) {
+    const a=labels[i].box,b=labels[j].box;
+    assert.ok(a.x+a.w<=b.x || b.x+b.w<=a.x || a.y+a.h<=b.y || b.y+b.h<=a.y);
+  }
+});
