@@ -9,15 +9,19 @@ export const SC_RELATIONS = {
 const text = value => typeof value === 'string' ? value.trim().slice(0, 500) : '';
 const props = item => item?.['~properties'] || item?.properties || {};
 const id = item => text(item?.['~id'] || item?.id);
-export const expressionEdges = graph => (graph?.edges || []).filter(edge => SC_RELATIONS[edge['~type'] || edge.type]);
+const RELATION_KEYS = Object.fromEntries(Object.keys(SC_RELATIONS).map(key => [key.toLowerCase(), key]));
+const rawRelation = edge => text(edge?.['~type'] || edge?.raw_type || edge?.type);
+export const expressionRelation = edge => RELATION_KEYS[rawRelation(edge).toLowerCase()] || null;
+export const expressionEdges = graph => (graph?.edges || []).filter(edge => expressionRelation(edge));
 const CELLS = ['Ductal', 'Active Stellate', 'Alpha', 'Acinar', 'MUC5B+ Ductal', 'Beta', 'Endothelial', 'Gamma + Epsilon', 'Delta', 'Immune', 'Quiescent Stellate', 'Cycling Alpha'];
 export function cellLabel(value) {
   const normal = text(value).toLowerCase().replace(/[_-]/g, ' ').replace(/ cells?$/, '').trim();
-  return CELLS.find(label => label.toLowerCase() === normal) || null;
+  const aliases = { 'pancreatic ductal': 'Ductal', 'pancreatic ductal cell muc5b+': 'MUC5B+ Ductal', 'pancreatic ductal muc5b+': 'MUC5B+ Ductal' };
+  return CELLS.find(label => label.toLowerCase() === normal) || aliases[normal] || null;
 }
 export function expressionContext(graph, edgeId) {
   const edge = (graph?.edges || []).find(item => id(item) === edgeId);
-  const relation = edge?.['~type'] || edge?.type;
+  const relation = expressionRelation(edge);
   if (!SC_RELATIONS[relation]) return null;
   const p = props(edge);
   const nodes = (graph.nodes || []).filter(n => [edge['~start'] || edge.source, edge['~end'] || edge.target].includes(id(n)));
@@ -44,7 +48,7 @@ export function expressionContext(graph, edgeId) {
   const reason = atac ? 'ATAC gene activity is not scRNA expression.' : !validGene ? 'No unambiguous gene symbol is recorded.'
     : recordedDataset && recordedDataset !== SC_DATASET ? `The graph records ${recordedDataset}; this map shows related ${SC_DATASET} context, not the original source analysis.`
       : 'Related atlas context; the edge analysis and cohort have not been verified as an exact match.';
-  return { version: 1, edgeId, relation, evidenceLabel: SC_RELATIONS[relation], geneId: id(gene), geneSymbol,
+  return { version: 1, edgeId, relation, rawRelation: rawRelation(edge), evidenceLabel: SC_RELATIONS[relation], geneId: id(gene), geneSymbol,
     edgeDatasetId: recordedDataset, cellType, mappedCellType: cellLabel(cellType), assay: atac ? 'snATAC-seq' : 'scRNA-seq', datasetId,
     release: datasetId === SC_DATASET ? 'v3.4' : 'Unverified', edgeRelease: text(p.data_version || p.release),
     condition: text(p.condition), match, available, reason,

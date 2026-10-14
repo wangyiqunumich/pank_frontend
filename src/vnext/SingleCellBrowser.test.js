@@ -103,3 +103,14 @@ test('browser uses a same-origin build manifest and srcdoc to avoid HTML rewrite
   expect(frame.getAttribute('srcdoc')).toContain(`<base href="${window.location.origin}/scbrowser/">`);
   expect(frame.getAttribute('src')).toBeNull();
 });
+
+test('real-format uppercase CFTR enrichment automatically adds the card and scBrowser tab', () => {
+  const kg = { nodes: [
+    { '~id': 'ENSG00000001626', '~labels': ['Gene'], '~properties': { HGNC_symbol: 'CFTR' } },
+    { '~id': 'CL_0002079', '~labels': ['anatomical_structure'], '~properties': { name: 'ductal cell' } },
+  ], edges: [{ '~id': 'cftr-enriched', '~type': 'GENE_ENRICHED_IN', '~start': 'ENSG00000001626', '~end': 'CL_0002079', display_type: 'gene_enriched_in', '~properties': { condition: 'ND' } }] };
+  render(<ResultSection result={{ ...result, combined_query_result: kg }} anchorPrefix="cftr" />);
+  expect(screen.getByRole('region', { name: 'Expression evidence' })).toBeTruthy();
+  expect(screen.getByText('CFTR · ductal cell')).toBeTruthy();
+  expect(screen.getByRole('tab', { name: 'scBrowser' })).toBeTruthy();
+});
