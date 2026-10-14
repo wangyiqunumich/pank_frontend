@@ -2,7 +2,7 @@ import { resolveScWordings } from './scBrowserConfig';
 import { SC_DATASET } from './singleCellContext';
 import { isResultAssetUrl, resolveResultPage } from './resultPageSchema';
 
-const graph = () => ({ status: 'ready', combined_query_result: { nodes: [{ '~id': 'GENE1' }], edges: [{ '~type': 'part_of_QTL_signal' }] }, component_status: { graph: 'available', resources: 'available' } });
+const graph = () => ({ status: 'ready', combined_query_result: { nodes: [{ '~id': 'GENE1' }], edges: [{ '~type': 'physical_interaction' }] }, component_status: { graph: 'available', resources: 'available' } });
 const functional = () => ({ status: 'ready', visual_material_kind: 'functional_traces',
   evidence: { functional_filters: { trace_type: 'ins_ieq', disease: 'ND' }, rows: [{ time_minutes: 0, mean_response: 1.2 }] },
   component_status: { resources: 'available' }, resources_tabs: { empirical_evidence: { title: 'Cohort response', image_url: '/api/resources/functionalplot', download_url: '/api/resources/functionalplot' } } });
@@ -45,6 +45,7 @@ test('data download retains source context and rejects unavailable, unsafe and d
   const result = { ...graph(), resources: { assets: [asset, asset, { ...asset, url: 'https://example.org/table' },
     { ...asset, url: '/api/resources/failed', status: 'unavailable' }, { ...asset, url: '/api/resources/rawimage', media_type: 'image/png' }],
     resource_groups: [{ asset_id: asset.asset_id, status: 'available', context: { tissue_name: 'Islet' } }] } };
+  result.combined_query_result.edges = [{ '~type': 'part_of_QTL_signal' }];
   const page = resolveResultPage({ result });
   expect(page.insertions[0].links).toHaveLength(1);
   expect(page.insertions[0].links[0].label).toContain('Islet');

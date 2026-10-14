@@ -15,6 +15,7 @@ import Diagnostics, { diagnosticsFor } from './Diagnostics';
 import AnswerMarkdown from './AnswerMarkdown';
 import LiteratureSections from './LiteratureSections';
 import FunctionalVisual from './FunctionalVisual';
+import QtlFineMapping from './QtlFineMapping';
 import SingleCellBrowser, { ExpressionCard } from './SingleCellBrowser';
 import { expressionContext, firstAvailableExpression } from './singleCellContext';
 import SummaryInsertions from './SummaryInsertions';
@@ -152,6 +153,7 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
   const visualRenderers = {
     graph_viewer: <GraphPanel onEvidenceInspect={onEvidenceInspect} result={result} error={graphError} expressionCard={page.mainVisuals.some(visual => visual.id === 'single_cell_browser') && page.scBrowser?.preview.enabled !== false ? <ExpressionCard graph={graphData} onSelect={selectExpression} context={scopedExpressionState?.closed ? null : expression} minimized={scopedExpressionState?.minimized} onMinimize={minimized => setExpressionState({ scope: runId, context: expression, minimized, closed: false })} onClose={() => setExpressionState({ scope: runId, context: expression, minimized: false, closed: true })} onOpen={() => setVisualRequest({ scope: runId, id: 'single_cell_browser', nonce: Date.now() })} /> : null} />,
     single_cell_browser: <SingleCellBrowser key={runId} graph={graphData} onSelect={selectExpression} context={expression} />,
+    qtl_fine_mapping: <QtlFineMapping key={runId} contexts={page.qtlContexts} />,
     functional_data: <FunctionalVisual result={result} />,
   };
   const selectedVisuals = page.mainVisuals.filter((visual) => Object.prototype.hasOwnProperty.call(visualRenderers, visual.id));
