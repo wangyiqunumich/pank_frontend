@@ -16,7 +16,7 @@ import AnswerMarkdown from './AnswerMarkdown';
 import LiteratureSections from './LiteratureSections';
 import FunctionalVisual from './FunctionalVisual';
 import SingleCellBrowser, { ExpressionCard } from './SingleCellBrowser';
-import { expressionContext, firstAvailableExpression, expressionEdges } from './singleCellContext';
+import { expressionContext, firstAvailableExpression } from './singleCellContext';
 import SummaryInsertions from './SummaryInsertions';
 import { resolveResultPage } from './resultPageSchema';
 import { useResourcePanels } from './Resources';
@@ -120,7 +120,7 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
   const [visualRequest, setVisualRequest] = useState(null);
   const scopedExpressionState = expressionState?.scope === runId ? expressionState : null;
   const defaultExpression = useMemo(() => firstAvailableExpression(result?.combined_query_result), [result?.combined_query_result]);
-  const expression = scopedExpressionState?.context || defaultExpression;
+  const expression = expressionContext(result?.combined_query_result, scopedExpressionState?.context?.edgeId) || defaultExpression;
   const selectExpression = useCallback((edgeId) => {
     const context = expressionContext(result?.combined_query_result, edgeId);
     if (context) setExpressionState({ scope: runId, context, minimized: false, closed: false });
@@ -150,12 +150,12 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
   const graphData = result?.combined_query_result || null;
   const graphError = error || (planning && run?.plan?.clarification) || (planning && run?.preview?.status === 'failed' ? 'The initial graph retrieval failed. Revise the plan before continuing; this failure does not indicate biological absence.' : '');
   const visualRenderers = {
-    graph_viewer: <GraphPanel onEvidenceInspect={onEvidenceInspect} result={result} error={graphError} expressionCard={<ExpressionCard graph={graphData} onSelect={selectExpression} context={scopedExpressionState?.closed ? null : expression} minimized={scopedExpressionState?.minimized} onMinimize={minimized => setExpressionState({ scope: runId, context: expression, minimized, closed: false })} onClose={() => setExpressionState({ scope: runId, context: expression, minimized: false, closed: true })} onOpen={() => setVisualRequest({ scope: runId, id: 'single_cell_browser', nonce: Date.now() })} />} />,
+    graph_viewer: <GraphPanel onEvidenceInspect={onEvidenceInspect} result={result} error={graphError} expressionCard={page.mainVisuals.some(visual => visual.id === 'single_cell_browser') && page.scBrowser?.preview.enabled !== false ? <ExpressionCard graph={graphData} onSelect={selectExpression} context={scopedExpressionState?.closed ? null : expression} minimized={scopedExpressionState?.minimized} onMinimize={minimized => setExpressionState({ scope: runId, context: expression, minimized, closed: false })} onClose={() => setExpressionState({ scope: runId, context: expression, minimized: false, closed: true })} onOpen={() => setVisualRequest({ scope: runId, id: 'single_cell_browser', nonce: Date.now() })} /> : null} />,
     single_cell_browser: <SingleCellBrowser key={runId} graph={graphData} onSelect={selectExpression} context={expression} />,
     functional_data: <FunctionalVisual result={result} />,
   };
   const selectedVisuals = page.mainVisuals.filter((visual) => Object.prototype.hasOwnProperty.call(visualRenderers, visual.id));
-  if (expressionEdges(graphData).length && selectedVisuals.some(visual => visual.id === 'graph_viewer')) selectedVisuals.push({ id: 'single_cell_browser', label: 'scBrowser' });
+
   const selectedIds = selectedVisuals.map((visual) => visual.id);
   const visualScope = runId || anchorPrefix;
   const visualPreference = (presentationState || result?.result_page_state)?.main_visual;

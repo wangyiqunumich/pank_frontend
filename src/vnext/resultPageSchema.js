@@ -1,3 +1,4 @@
+import { firstAvailableExpression } from './singleCellContext';
 import { normalizeExternalLinks } from './externalLinks';
 import schema from './schema/result_page_schema.json';
 
@@ -120,6 +121,7 @@ export function resolveResultPage({ result, run, state, agentKeywords, resourceT
   const facts = {
     downloadable_data_assets: rawLinks.length > 0,
     graph_projection_or_expected: graphExpected,
+    rna_expression_pair: Boolean(firstAvailableExpression(projection)),
     functional_context_or_measurements: functionalContext,
     // The existing genome component uses a disabled IGV adapter in this demo.
     genome_runtime_ready: false, verified_genome_tracks: false,
@@ -167,7 +169,7 @@ export function resolveResultPage({ result, run, state, agentKeywords, resourceT
   tabs.empirical_evidence_groups = selectedSupporting.has('empirical_evidence') ? empirical : [];
   return { schemaVersion: schema.schema.version,
     summaryTitle: schema.ai_summary.title, mainVisualTitle: schema.main_visuals.title, supportingTitle: schema.supporting_materials.title,
-    insertions, mainVisuals, resourceTabs: tabs,
+    insertions, mainVisuals, scBrowser: schema.main_visuals.items.single_cell_browser, resourceTabs: tabs,
     resourceStatus: functionalContext && !empiricalFailure ? undefined : resourceStatus,
     supportingTabs, decisions };
 }

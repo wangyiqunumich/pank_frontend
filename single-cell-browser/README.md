@@ -33,7 +33,7 @@ this implementation does not deploy, modify nginx, or restart any service.
 `src/vnext/singleCellContext.js` resolves registered expression relationships from
 returned graph records. Only a validated gene symbol and the registered public
 scRNA v3.4 atlas may enter the loader. Recorded source dataset IDs remain in edgeDatasetId and are disclosed in the
-card and source pane. The matching RNA gene is shown in the registered v3.4
+full browser source pane. The matching RNA gene is shown in the registered v3.4
 reference atlas as related context even when the source dataset differs. All current mappings remain `related`:
 none have enough cohort/analysis provenance to assert exact evidence equivalence.
 The edge's original release and condition remain visible. ATAC gene activity
@@ -57,8 +57,8 @@ than 109,644,935 bytes of source metadata alone). Hosting may compress it furthe
 the build records an estimated gzip size. A .json extension preserves existing
 Amplify SPA routing; .json.gz is rewritten to HTML on the current host. The browser
 fetches only this same-origin map and the requested BioIndex gene vector; it never
-requests the full fields, catalog or coordinate files. The thumbnail also loads
-and colors the selected gene. Gene vectors are checked for dataset identity,
+requests the full fields, catalog or coordinate files. The default preview loads only the whole atlas, colored by cell type; gene expression
+is fetched when the full browser opens. Gene vectors are checked for dataset identity,
 restriction/continuation, length and finite nonnegative values. Vector row order
 follows the source positional contract, not an independent barcode join.
 
@@ -78,7 +78,6 @@ log-normalized RNA, including zeros, not a reconstruction of the edge statistic.
 ```sh
 npm --prefix single-cell-browser test
 CI=true npm test -- --watchAll=false --runInBand --testPathPattern=vnext
-node scripts/validate-result-page-schema.cjs --self-test
 ```
 
 Browser acceptance must include a real public gene vector, UMAP and violin
@@ -102,8 +101,16 @@ browser. It makes no requests to deployed PanKgraph services. The browser uses o
 
 ## Biologist-facing navigation
 
-The card separates the graph relationship from related atlas context. The browser
+The preview contains the whole atlas map with header controls. Pair navigation and
+source context remain in the full browser. The browser
 provides a gene search, a cell-type picker and clickable legend, plain-language
 plot explanations, explicit filtering, and Source & methods. The browser stays inside the existing Visual Material tab panel. It has no
 separate page header or full-page expansion. Graph and browser tab switching
 preserves selection and loaded data.
+
+## Result-page schema
+
+`src/vnext/schema/result_page_schema.json` owns the scBrowser visual at
+`main_visuals.items.single_cell_browser`. It controls eligibility, registered KG
+relations, preview height/content, and wording shared by React and Vue. See
+`src/vnext/schema/README.md` for editable fields and source-identity boundaries.

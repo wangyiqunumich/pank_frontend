@@ -1,7 +1,7 @@
 {
   "schema": {
     "id": "pankgraph.result_page",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "Three sections for inserted answer elements, main visuals and supporting materials. Markdown text and native Markdown tables remain owned by AnswerMarkdown.",
     "selector": "src/vnext/resultPageSchema.js",
     "selection_order": ["state parameters", "allowlisted agent keywords", "deterministic KG and resource rules"],
@@ -41,7 +41,7 @@
   "main_visuals": {
     "title": "Visual Material",
     "format": "Existing main visual panel with one tab per eligible view.",
-    "default_order": ["graph_viewer", "functional_data", "genome_browser"],
+    "default_order": ["graph_viewer", "single_cell_browser", "functional_data", "genome_browser"],
     "state_parameter": "main_visual",
     "items": {
       "graph_viewer": {
@@ -56,6 +56,78 @@
         "appearance_schema": "graph_viewer_schema.json",
         "format": "Keep existing network/list modes, zoom, legend, full-screen and evidence inspection.",
         "wording": "Separate displayed counts from retrieved counts and retrieval completeness."
+      },
+      "single_cell_browser": {
+        "title": "scBrowser",
+        "renderer": "SingleCellBrowser",
+        "enabled": true,
+        "requires": [
+          "rna_expression_pair"
+        ],
+        "state_values": [
+          "single_cell_browser",
+          "scbrowser",
+          "scmap"
+        ],
+        "agent_keywords": [
+          "single_cell_browser",
+          "scbrowser",
+          "scmap"
+        ],
+        "kg_relation_types": [
+          "GENE_DETECTED_IN",
+          "GENE_ENRICHED_IN",
+          "EXPRESS_IN",
+          "EXPRESSED_IN",
+          "MARKER_GENE_OF",
+          "HUBMAP_MARKER_GENE_OF",
+          "T1D_DEG_IN"
+        ],
+        "kg_rule": "Activate only for a returned supported RNA expression edge with a valid gene. ATAC activity is not RNA expression.",
+        "data_binding": [
+          "combined_query_result.nodes",
+          "combined_query_result.edges"
+        ],
+        "selection": {
+          "default_pair": "first_available_in_graph_order",
+          "description": "Use the first eligible gene-cell pair as the initial gene and cell highlight; do not reshuffle on rerender."
+        },
+        "preview": {
+          "enabled": true,
+          "content": "full_atlas_map",
+          "height": 160,
+          "show_caption": false,
+          "show_metadata": false,
+          "load_expression": false
+        },
+        "wording": {
+          "card_title": "Single cell browser",
+          "atlas_label": "PanKbase scRNAseq {display_release}",
+          "display_release": "V3.3",
+          "related_context": "Related atlas context",
+          "context_note": "Related context \u00b7 See Source & methods",
+          "open_browser": "Open interactive UMAP",
+          "preview_open_hint": "Open interactive UMAP",
+          "loading_preview": "Loading atlas preview\u2026",
+          "preview_unavailable": "Preview unavailable",
+          "preview_idle": "Atlas preview",
+          "choose_pair": "Choose",
+          "previous_pair": "Previous expression browser",
+          "next_pair": "Next expression browser",
+          "no_resource": "No single-cell browser resource is available for this result.",
+          "start_failed": "The cell browser could not start. Reload this result or open PanKbase.",
+          "external_browser": "Open PanKbase \u2197",
+          "gene_label": "Gene symbol",
+          "view_gene": "View gene",
+          "cell_label": "Cell type to highlight",
+          "all_cells": "All cell types",
+          "map_tab": "Cell map",
+          "expression_tab": "Expression by cell type",
+          "source_tab": "Source & methods",
+          "preview_cells_label": "cells \u00b7 Atlas UMAP"
+        },
+        "format": "A map-only graph-adjacent preview opens the persistent interactive scBrowser tab. Preserve graph controls and camera.",
+        "source_identity": "Display labels are editable copy; datasetId, source hashes, recorded edge release and conditions remain technical provenance, unchanged by wording edits."
       },
       "functional_data": {
         "title": "Functional Data",

@@ -50,6 +50,7 @@ test.each(['GENE_ENRICHED_IN', 'GENE_DETECTED_IN', 'MARKER_GENE_OF', 'HUBMAP_MAR
 test('uppercase ATAC stays unavailable and unrelated edges do not match', () => {
   expect(expressionContext(graph({}, 'GENE_ACTIVITY_SCORE_IN'), 'edge-1')).toMatchObject({ available: false, assay: 'snATAC-seq' });
   expect(expressionEdges(graph({}, 'GENE_ENRICHED_IN_OTHER'))).toHaveLength(0);
+  expect(expressionEdges(graph({}, 'constructor'))).toHaveLength(0);
 });
 test('CFTR canonical enrichment maps ductal labels and retains ND condition', () => {
   const kg = { nodes: [
