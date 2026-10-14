@@ -50,3 +50,12 @@ existing message checks. No shared hosting rules change. All 28 suites / 274
 frontend tests and production build pass. Local Chrome acceptance passes for
 real INS/GCG expression, navigation to an older-source HGNC marker gene, source
 disclosure, map/violin rendering and mobile layout, without full metadata reads.
+
+Canonical KG format repair: the backend preserves uppercase raw ~type and exposes
+lowercase display_type separately. Lowercase navigation fixtures missed that
+contract. The detector now matches registered types case-insensitively, retains
+rawRelation and never changes KG records. Unknown types are rejected and ATAC is
+still unavailable. A CFTR uppercase-enrichment fixture with HGNC_symbol and the
+recorded anatomical labels verifies the automatic card/tab and real atlas
+expression, including Ductal and MUC5B+ Ductal highlights. All 28 suites / 283
+frontend tests and production build pass.
