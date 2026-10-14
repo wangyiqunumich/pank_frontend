@@ -66,7 +66,7 @@ white text outlines and short leader lines when shifted to avoid overlap.
 These settings add no legend, statistics or extra visual tab.
 
 `single_cell_browser.full_view` controls the compact browser tab: compact styling,
-context-note/badge visibility, single-pair navigation and space reserved above the
+context-note/badge visibility, no pair-navigation row and space reserved above the
 plot. Its `external_browser` owns the Integrated Cell Browser URL and query-parameter
 names/aliases. The inline header link follows the current explored gene and the
 actual atlas ID. `wording.header_browser_link`, `expression_description` and
@@ -89,3 +89,7 @@ filename. Failed requests are retryable. “Downloaded” means browser handoff,
 confirmed saving to disk. Download all appears for two or more files and fetches
 sequentially; browser multiple-download restrictions still apply. No atlas demo
 files, simulated delays, inferred source URLs or extra retrieval are used.
+
+The scBrowser shows one initialized gene/cell context. `full_view.pair_navigation`
+is `none`; there is no pair carousel, even when several expression edges exist.
+The header label is controlled by `wording.header_browser_link`.

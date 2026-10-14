@@ -35,6 +35,7 @@ test('schema enables a map-only preview and fills the first RNA gene-cell pair',
  expect(await sentContext(screen.getByTitle('PanKbase atlas preview'))).toMatchObject({ geneSymbol: 'CFTR', mappedCellType: 'Ductal' });
  fireEvent.click(screen.getByRole('button', { name: 'Open in scBrowser →' }));
  expect(screen.getByRole('tab', { name: 'scBrowser' }).getAttribute('aria-selected')).toBe('true');
+ expect(screen.queryByRole('group', { name: 'Expression browser navigation' })).toBeNull();
  expect(await sentContext(screen.getByTitle('PanKgraph single-cell browser'))).toMatchObject({ geneSymbol: 'CFTR', mappedCellType: 'Ductal' });
 });
 test('minimize close and tab changes preserve graph and browser', () => {
