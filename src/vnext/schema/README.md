@@ -71,3 +71,21 @@ plot. Its `external_browser` owns the Integrated Cell Browser URL and query-para
 names/aliases. The inline header link follows the current explored gene and the
 actual atlas ID. `wording.header_browser_link`, `expression_description` and
 `expression_badge` own the associated text. Display V3.3 does not alter dataset identity.
+
+## Source-data downloads
+
+`ai_summary.insertions.raw_data_download.file_table` owns the file-table columns,
+format tags, action/status labels, bulk threshold, request timeout and response
+media types. It records Zhiyuan's October 5 atlas design as its reference.
+`resultPageSchema.js` passes the original `download_name` as `filename`, the
+validated media type as `mediaType`, and source/cohort context as `contextLabel`.
+Long names and descriptions are truncated with full-text tooltips. Styling lives
+in the scoped `SourceData.css`, including compact icon actions below 340px.
+
+Existing availability, asset-kind, media-type and URL gates remain authoritative;
+unavailable assets are omitted. Download actions fetch the registered same-origin
+resource and hand its successful file response to the browser with the original
+filename. Failed requests are retryable. “Downloaded” means browser handoff, not
+confirmed saving to disk. Download all appears for two or more files and fetches
+sequentially; browser multiple-download restrictions still apply. No atlas demo
+files, simulated delays, inferred source URLs or extra retrieval are used.

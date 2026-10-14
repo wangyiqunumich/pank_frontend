@@ -1,0 +1,34 @@
+/* Scoped implementation of the atlas source-data file table, 138cac4. */
+.pk-source { container-type: inline-size; min-width: 0; font-family: "Open Sans", sans-serif; color: #263238; }
+.pk-source-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+.pk-source-text { min-width: 0; }
+.pk-source h3 { margin: 0; font-size: 14px; line-height: 20px; font-weight: 600; }
+.pk-source p { margin: 4px 0 0; font-size: 13px; line-height: 20px; color: #5F6B78; }
+.pk-source-table { container-type: inline-size; border: 1px solid #DFE4EA; border-radius: 12px; overflow: hidden; background: #fff; }
+.pk-source-columns, .pk-source-row { display: grid; grid-template-columns: minmax(0, 1fr) 64px 124px; gap: 16px; align-items: center; padding: 0 14px; }
+.pk-source-columns { min-height: 36px; background: #F6F8FA; color: #5F6B78; font-size: 12px; line-height: 16px; font-weight: 600; }
+.pk-source-row { min-height: 56px; box-sizing: border-box; padding-top: 8px; padding-bottom: 8px; border-top: 1px solid #DFE4EA; }
+.pk-source-row:hover { background: #FAFBFC; }
+.pk-source-file { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.pk-source-name, .pk-source-description { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pk-source-name { max-width: 280px; font-size: 13px; line-height: 20px; font-weight: 500; }
+.pk-source-description { font-size: 12px; line-height: 16px; color: #5F6B78; }
+.pk-source-tag { display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border: 1px solid #DFE4EA; border-radius: 4px; background: #F6F8FA; color: #5F6B78; font-size: 10.5px; font-weight: 600; }
+.pk-source-button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 28px; padding: 0 12px; border: 1px solid #D6DCE2; border-radius: 14px; background: #fff; color: #263238; font: 500 12px/16px "Open Sans", sans-serif; white-space: nowrap; cursor: pointer; }
+.pk-source-button svg { width: 16px; height: 16px; color: #2B7A80; flex-shrink: 0; }
+.pk-source-button:hover { background: #F3F7F8; border-color: #B8CACD; }
+.pk-source-button:focus-visible { outline: 2px solid #2B7A80; outline-offset: 2px; }
+.pk-source-button:disabled { opacity: .65; cursor: progress; }
+.pk-source-action { width: 124px; padding: 0; }
+.pk-source-bulk { flex-shrink: 0; }
+.pk-source-done { background: #EEF6F6; color: #21686D; }
+.pk-source-error { color: #B42318; font-size: 12px; line-height: 16px; }
+.pk-source-announcement { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+@container (max-width: 339px) {
+  .pk-source-head { align-items: flex-start; flex-direction: column; gap: 8px; }
+  .pk-source-columns, .pk-source-row { grid-template-columns: minmax(0, 1fr) 40px 32px; gap: 8px; padding-left: 10px; padding-right: 10px; }
+  .pk-source-action { width: 32px; height: 32px; padding: 0; }
+  .pk-source-action span { display: none; }
+  .pk-source-columns [role="columnheader"]:last-child { font-size: 0; }
+}
+@media (max-width: 480px) { .pk-source-head { align-items: flex-start; flex-direction: column; gap: 8px; } }
