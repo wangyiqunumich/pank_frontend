@@ -10,7 +10,7 @@ nav{gap:3px;margin-bottom:10px}nav button{padding:8px;font-size:11px}nav button[
 .load-state{background:#f4f8f8;border-radius:5px}.provenance{padding-top:6px}.cell-legend button{border-radius:4px}a{color:#3a838b}
 @media(max-width:620px){main{padding:10px}.plot-card{padding:0}.explore-controls{gap:10px}.context-note{font-size:11px}}
 
-main.atlas-preview{padding:0;height:100%;overflow:hidden}.preview-map{height:100%;position:relative}.preview-map .umap-container{border:0!important;overflow:hidden!important}.preview-map .umap-container>div,.preview-map .umap-label-canvas{display:none!important}.preview-map p{font-size:11px;text-align:center;margin:36px 0 0;color:#708a90}.preview-caption{position:absolute;bottom:4px;left:8px;background:#ffffffe0;color:#517279;border-radius:3px;padding:2px 4px;font-size:9px;pointer-events:none}
+main.atlas-preview{padding:0;height:100%;overflow:hidden}.preview-map{height:100%;position:relative}.preview-map .umap-container{border:0!important;overflow:hidden!important}.preview-map .umap-container>div{display:none!important}.preview-map p{font-size:11px;text-align:center;margin:36px 0 0;color:#708a90}.preview-caption{position:absolute;bottom:4px;left:8px;background:#ffffffe0;color:#517279;border-radius:3px;padding:2px 4px;font-size:9px;pointer-events:none}
 
 /* Fit the original KG viewport; navigation belongs to the bottom of this frame. */
 html,body,#app{height:100%;overflow:hidden}

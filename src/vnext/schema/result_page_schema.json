@@ -1,7 +1,7 @@
 {
   "schema": {
     "id": "pankgraph.result_page",
-    "version": "0.4.0",
+    "version": "0.4.1",
     "description": "Three sections for inserted answer elements, main visuals and supporting materials. Markdown text and native Markdown tables remain owned by AnswerMarkdown.",
     "selector": "src/vnext/resultPageSchema.js",
     "selection_order": ["state parameters", "allowlisted agent keywords", "deterministic KG and resource rules"],
@@ -97,6 +97,19 @@
           "content": "full_atlas_map",
           "height": 160,
           "show_caption": false,
+          "show_open_hint": true,
+          "labels": {
+            "enabled": true,
+            "font_size": 8,
+            "gap": 2,
+            "names": {
+              "Gamma + Epsilon": "Gamma +\nEpsilon",
+              "Cycling Alpha": "Cycling\nAlpha",
+              "MUC5B+ Ductal": "MUC5B+\nDuctal",
+              "Active Stellate": "Active\nStellate",
+              "Quiescent Stellate": "Quiescent\nStellate"
+            }
+          },
           "show_metadata": false,
           "load_expression": false
         },
@@ -107,7 +120,7 @@
           "related_context": "Related atlas context",
           "context_note": "Related context \u00b7 See Source & methods",
           "open_browser": "Open interactive UMAP",
-          "preview_open_hint": "Open interactive UMAP",
+          "preview_open_hint": "Open scBrowser →",
           "loading_preview": "Loading atlas preview\u2026",
           "preview_unavailable": "Preview unavailable",
           "preview_idle": "Atlas preview",
