@@ -1,6 +1,7 @@
 // QuestionAnswerPage.jsx
 // Requires: @mui/material @mui/icons-material @emotion/react @emotion/styled @fontsource/open-sans
 import * as React from 'react';
+import visualSchema from './schema/result_page_schema.json';
 
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -149,7 +150,8 @@ function ContentTabs({ tabs, value, onChange, variant = 'default' }) {
             value={value}
             onChange={onChange}
             variant="scrollable"
-            scrollButtons={false}
+            aria-label={visualSchema.main_visuals.tab_switch.accessible_label}
+            scrollButtons={visualSchema.main_visuals.tab_switch.scroll_buttons}
             sx={{
                 minHeight: 0,
                 "& .MuiTab-root": {

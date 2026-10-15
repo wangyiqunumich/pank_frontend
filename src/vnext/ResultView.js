@@ -16,7 +16,9 @@ import AnswerMarkdown from './AnswerMarkdown';
 import LiteratureSections from './LiteratureSections';
 import FunctionalVisual from './FunctionalVisual';
 import QtlFineMapping from './QtlFineMapping';
-import SingleCellBrowser, { ExpressionCard } from './SingleCellBrowser';
+import VisualPreview from './VisualPreview';
+import visualSchema from './schema/result_page_schema.json';
+import SingleCellBrowser from './SingleCellBrowser';
 import { expressionContext, firstAvailableExpression } from './singleCellContext';
 import SummaryInsertions from './SummaryInsertions';
 import { resolveResultPage } from './resultPageSchema';
@@ -119,12 +121,13 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
   const runId = run?.run_id || result?.result_id;
   const [expressionState, setExpressionState] = useState(null);
   const [visualRequest, setVisualRequest] = useState(null);
+  const [previewRequest, setPreviewRequest] = useState(null);
   const scopedExpressionState = expressionState?.scope === runId ? expressionState : null;
   const defaultExpression = useMemo(() => firstAvailableExpression(result?.combined_query_result), [result?.combined_query_result]);
   const expression = expressionContext(result?.combined_query_result, scopedExpressionState?.context?.edgeId) || defaultExpression;
   const selectExpression = useCallback((edgeId) => {
     const context = expressionContext(result?.combined_query_result, edgeId);
-    if (context) setExpressionState({ scope: runId, context, minimized: false, closed: false });
+    if (context) { setExpressionState({ scope: runId, context, minimized: false, closed: false }); setPreviewRequest({ id: 'single_cell_browser', scope: runId }); }
   }, [result?.combined_query_result, runId]);
   const trackingScope = run?.run_id ? 'run' : 'result';
   const onEvidenceInspect = useCallback((id) => { selectExpression(id); recordInteraction(runId, 'graph_evidence_inspected', referenceKey(id), trackingScope); }, [runId, trackingScope, selectExpression]);
@@ -151,13 +154,26 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
   const graphData = result?.combined_query_result || null;
   const graphError = error || (planning && run?.plan?.clarification) || (planning && run?.preview?.status === 'failed' ? 'The initial graph retrieval failed. Revise the plan before continuing; this failure does not indicate biological absence.' : '');
   const visualRenderers = {
-    graph_viewer: <GraphPanel onEvidenceInspect={onEvidenceInspect} result={result} error={graphError} expressionCard={page.mainVisuals.some(visual => visual.id === 'single_cell_browser') && page.scBrowser?.preview.enabled !== false ? <ExpressionCard graph={graphData} onSelect={selectExpression} context={scopedExpressionState?.closed ? null : expression} minimized={scopedExpressionState?.minimized} onMinimize={minimized => setExpressionState({ scope: runId, context: expression, minimized, closed: false })} onClose={() => setExpressionState({ scope: runId, context: expression, minimized: false, closed: true })} onOpen={() => setVisualRequest({ scope: runId, id: 'single_cell_browser', nonce: Date.now() })} /> : null} />,
+    graph_viewer: null,
     single_cell_browser: <SingleCellBrowser key={runId} graph={graphData} onSelect={selectExpression} context={expression} />,
     qtl_fine_mapping: <QtlFineMapping key={runId} contexts={page.qtlContexts} />,
     functional_data: <FunctionalVisual result={result} />,
   };
   const selectedVisuals = page.mainVisuals.filter((visual) => Object.prototype.hasOwnProperty.call(visualRenderers, visual.id));
 
+  const previewItems = selectedVisuals.filter(visual => !visualSchema.main_visuals.preview_standard.exclude.includes(visual.id) && (visualSchema.main_visuals.items[visual.id]?.preview?.enabled ?? visualSchema.main_visuals.preview_standard.default_for_new_visuals)).map(visual => {
+    const definition = visualSchema.main_visuals.items[visual.id];
+    return { ...visual, title: definition.wording?.card_title || visual.label,
+      openLabel: definition.wording?.preview_open_hint || visualSchema.main_visuals.preview_standard.wording.open.replace('{title}', visual.label),
+      height: definition.preview?.height,
+      content: React.cloneElement(visualRenderers[visual.id], { isVisible: true, preview: true }) };
+  });
+  const preview = <VisualPreview key={runId} items={previewItems} requestedId={previewRequest?.scope === runId ? previewRequest : null} minimized={scopedExpressionState?.minimized} closed={scopedExpressionState?.closed}
+    onMinimize={minimized => setExpressionState({ scope: runId, context: expression, minimized, closed: false })}
+    onClose={() => setExpressionState({ scope: runId, context: expression, minimized: false, closed: true })}
+    onRestore={() => setExpressionState({ scope: runId, context: expression, minimized: false, closed: false })}
+    onOpen={id => setVisualRequest({ scope: runId, id, nonce: Date.now() })} />;
+  visualRenderers.graph_viewer = <GraphPanel onEvidenceInspect={onEvidenceInspect} result={result} error={graphError} expressionCard={preview} />;
   const selectedIds = selectedVisuals.map((visual) => visual.id);
   const visualScope = runId || anchorPrefix;
   const visualPreference = (presentationState || result?.result_page_state)?.main_visual;
