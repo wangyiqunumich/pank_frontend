@@ -67,3 +67,23 @@ test('cancel is explicit and run-scoped', async () => {
   expect(fetch.mock.calls[0][0]).toBe('/pankgraph-vnext/api/agent/v2/runs/safe-id/cancel');
   expect(fetch.mock.calls[0][1].method).toBe('POST');
 });
+
+test('SSE delivers follow-up readiness and independent literature source updates', () => {
+  let source;
+  global.EventSource = jest.fn().mockImplementation(() => {
+    source = { addEventListener: jest.fn((type, callback) => { source[type] = callback; }), close: jest.fn() };
+    return source;
+  });
+  const onEvent = jest.fn();
+  const stop = watchRun('r1', 8, onEvent);
+  expect(source.followup_ready).toEqual(expect.any(Function));
+  expect(source.literature_sources).toEqual(expect.any(Function));
+  const event = (seq, type, payload) => ({ data: JSON.stringify({ seq, type, payload }) });
+  source.followup_ready(event(9, 'followup_ready', { followup_ready: true }));
+  source.literature_sources(event(10, 'literature_sources', { sources: { hirn: { status: 'complete' }, glkb: { status: 'running' } } }));
+  source.literature_sources(event(10, 'literature_sources', { sources: {} }));
+  expect(onEvent.mock.calls.map(([item]) => item.type)).toEqual(['followup_ready', 'literature_sources']);
+  expect(onEvent.mock.calls[1][0].payload.sources.hirn.status).toBe('complete');
+  expect(source.close).not.toHaveBeenCalled();
+  stop();
+});

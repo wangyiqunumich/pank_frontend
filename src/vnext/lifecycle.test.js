@@ -18,9 +18,31 @@ beforeEach(() => {
   api.createResultOnce.mockImplementation(async ({ run_id, phase }) => ({ result_id: `${run_id}-${phase}` }));
   api.pollResult.mockImplementation(async (id, update) => { const result = { status: 'ready', component_status: { resources: 'not_applicable' }, combined_query_result: { nodes: [{ '~id': id }], edges: [] }, resources_tabs: {} }; update(result); return result; });
   api.watchRun.mockReturnValue(jest.fn());
+  api.cancelRun.mockResolvedValue({ status: 'cancelled' });
 });
 const mount = () => render(<MemoryRouter initialEntries={['/result-new2?run_id=r1']}><AgentResultView contentAnchorPrefix="lifecycle" onContentMeta={jest.fn()} /></MemoryRouter>);
 function RouteProbe() { return <div data-testid="current-route">{useLocation().pathname}</div>; }
+
+test('follow-ups are numbered in conversation order and retain their numbers after reopening', async () => {
+  api.getRun.mockImplementation(async id => ({ ...snapshot(id, `Question ${id}`), status: 'completed', graph_answer: `Answer ${id}`, graph_complete: true, evidence: { graph_version: 'test' } }));
+  api.getResult.mockImplementation(async id => ({ result_id: id, status: 'ready', combined_query_result: { nodes: [], edges: [] } }));
+  api.createPlanOnce.mockResolvedValueOnce({ run_id: 'r2' }).mockResolvedValueOnce({ run_id: 'r3' });
+  const meta = jest.fn();
+  const first = render(<MemoryRouter initialEntries={['/result-new2?run_id=r1']}><AgentResultView contentAnchorPrefix="numbering" onContentMeta={meta} /></MemoryRouter>);
+  await screen.findByText('Answer r1');
+  expect(screen.getAllByText(/^Q\d+$/).map(chip => chip.textContent)).toEqual(['Q1']);
+  await act(async () => { await meta.mock.calls.at(-1)[0].followUpHandler('Second question'); });
+  await screen.findByText('Answer r2');
+  expect(screen.getAllByText(/^Q\d+$/).map(chip => chip.textContent)).toEqual(['Q1', 'Q2']);
+  await act(async () => { await meta.mock.calls.at(-1)[0].followUpHandler('Third question'); });
+  await screen.findByText('Answer r3');
+  expect(screen.getAllByText(/^Q\d+$/).map(chip => chip.textContent)).toEqual(['Q1', 'Q2', 'Q3']);
+  first.unmount();
+  render(<MemoryRouter initialEntries={['/result-new2?run_id=r3&session_id=s1']}><AgentResultView contentAnchorPrefix="reopened" /></MemoryRouter>);
+  await screen.findByText('Answer r1');
+  await screen.findByText('Answer r3');
+  expect(screen.getAllByText(/^Q\d+$/).map(chip => chip.textContent)).toEqual(['Q1', 'Q2', 'Q3']);
+});
 
 test('saved run hydrates preview, resumes cursor, and does not create a model call', async () => {
   const { unmount } = mount();
@@ -45,6 +67,47 @@ test('cancel leaves immediately while plan creation is still pending, then cance
   finishCreation({ run_id: 'created-run' });
   await waitFor(() => expect(api.cancelRun).toHaveBeenCalledWith('created-run'));
 });
+
+test('cancel still cancels the current run when an in-flight confirmation fails', async () => {
+  let rejectConfirm;
+  api.confirmPlan.mockReturnValue(new Promise((_, reject) => { rejectConfirm = reject; }));
+  render(<MemoryRouter initialEntries={['/result-new2?run_id=r1']}>
+    <AgentResultView contentAnchorPrefix="lifecycle" />
+    <RouteProbe />
+  </MemoryRouter>);
+  await screen.findByTestId('graph');
+  fireEvent.click(document.getElementById('lifecycle-plan-proceed-button'));
+  await waitFor(() => expect(api.confirmPlan).toHaveBeenCalledWith('p-r1'));
+  // Exercise cancel from a recovery dialog while the confirmation is uncertain.
+  const emit = api.watchRun.mock.calls[0][2];
+  act(() => emit({ seq: 41, type: 'terminal', payload: { status: 'failed', error: { message: 'Confirmation failed' } } }));
+  fireEvent.click(await screen.findByRole('button', { name: 'Cancel query' }));
+  expect(screen.getByTestId('current-route').textContent).toBe('/');
+  expect(api.cancelRun).toHaveBeenCalledWith('r1');
+  await act(async () => rejectConfirm(new Error('Confirmation connection lost')));
+  await waitFor(() => expect(api.cancelRun).toHaveBeenCalledWith('r1'));
+});
+
+test('cancel also cleans up a late replacement run even when cancelling the current run fails', async () => {
+  let finishRevision;
+  api.revisePlan.mockReturnValue(new Promise(resolve => { finishRevision = resolve; }));
+  api.cancelRun.mockRejectedValueOnce(new Error('Temporary cancel outage')).mockResolvedValue({ status: 'cancelled' });
+  render(<MemoryRouter initialEntries={['/result-new2?run_id=r1']}>
+    <AgentResultView contentAnchorPrefix="lifecycle" />
+    <RouteProbe />
+  </MemoryRouter>);
+  await screen.findByTestId('graph');
+  fireEvent.change(screen.getByPlaceholderText('e.g. Use spleen instead, keeping the same donor filters'), { target: { value: 'Use SST instead' } });
+  fireEvent.click(screen.getByRole('button', { name: 'send' }));
+  await waitFor(() => expect(api.revisePlan).toHaveBeenCalled());
+  act(() => api.watchRun.mock.calls[0][2]({ seq: 41, type: 'terminal', payload: { status: 'failed', error: { message: 'Revision interrupted' } } }));
+  fireEvent.click(await screen.findByRole('button', { name: 'Cancel query' }));
+  expect(screen.getByTestId('current-route').textContent).toBe('/');
+  expect(api.cancelRun).toHaveBeenCalledWith('r1');
+  await act(async () => finishRevision({ run_id: 'replacement' }));
+  await waitFor(() => expect(api.cancelRun).toHaveBeenCalledWith('replacement'));
+});
+
 test('revision creates a fresh run and graph while preserving the edited biological question', async () => {
   api.revisePlan.mockResolvedValue({ run_id: 'r2' });
   api.getRun.mockImplementation(async (id) => snapshot(id, id === 'r2' ? 'Which cells express SST?' : 'Which cells express INS?'));

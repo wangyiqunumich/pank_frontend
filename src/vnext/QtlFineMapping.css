@@ -1,0 +1,94 @@
+.pk-qtl-panel {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 16px;
+  overflow: auto;
+  font-family: "Open Sans", Inter, sans-serif;
+  color: #263238;
+}
+
+.pk-qtl-panel > * { flex-shrink: 0; }
+.pk-qtl-header { padding-bottom: 12px; border-bottom: 1px solid #DFE4EA; }
+.pk-qtl-header h2 { margin: 0; font: 600 14px/1.5 "Open Sans", Inter, sans-serif; color: #263238; }
+.pk-qtl-header .pk-qtl-signal { margin-top: 6px; font: 600 13px/1.6 "Open Sans", Inter, sans-serif; color: #3A838B; overflow-wrap: anywhere; }
+.pk-qtl-header .pk-qtl-metadata { margin-top: 3px; font: 400 12px/1.6 "Open Sans", Inter, sans-serif; color: #5F6B78; overflow-wrap: anywhere; }
+
+.pk-qtl-picker { display: block; min-width: 0; font-size: 12px; font-weight: 600; line-height: 1.6; color: #5F6B78; }
+.pk-qtl-picker select {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+  margin-top: 6px;
+  padding: 8px 10px;
+  border: 1px solid #DFE4EA;
+  border-radius: 8px;
+  background: #fff;
+  color: #263238;
+  font: 400 12px/1.5 "Open Sans", Inter, sans-serif;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.pk-qtl-picker select:hover { border-color: #8EBDC1; }
+
+.pk-qtl-panel .pk-qtl-plot {
+  flex: 1 1 220px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 180px;
+  padding: 8px;
+  overflow: hidden;
+  border: 1px solid #DFE4EA;
+  border-radius: 12px;
+  background: #fff;
+}
+.pk-qtl-panel .pk-qtl-plot:hover { border-color: #8EBDC1; background: #fff; }
+.pk-qtl-image { display: block; width: 100%; height: 100%; min-width: 0; object-fit: contain; background: #fff; }
+.pk-qtl-panel .pk-qtl-description { font: 400 12px/1.65 "Open Sans", Inter, sans-serif; color: #5F6B78; }
+
+.pk-qtl-details { box-sizing: border-box; min-width: 0; padding: 10px 12px; border: 1px solid #DFE4EA; border-radius: 10px; background: #F6F8FA; }
+.pk-qtl-details summary { cursor: pointer; font-size: 12px; font-weight: 600; line-height: 1.6; color: #3A838B; }
+.pk-qtl-details[open] summary { margin-bottom: 8px; }
+.pk-qtl-details p { margin: 6px 0 0; font: 400 12px/1.65 "Open Sans", Inter, sans-serif; color: #5F6B78; overflow-wrap: anywhere; }
+
+.pk-qtl-action.MuiButton-root {
+  min-width: 0;
+  min-height: 32px;
+  padding: 5px 12px;
+  border: 1px solid #BED6D9;
+  border-radius: 8px;
+  background: #fff;
+  color: #3A838B;
+  font: 600 12px/1.5 "Open Sans", Inter, sans-serif;
+  text-transform: none;
+}
+.pk-qtl-action.MuiButton-root:hover { border-color: #3A838B; background: #F0F7F8; }
+.pk-qtl-download { align-self: flex-start; max-width: 100%; }
+.pk-qtl-state, .pk-qtl-state.MuiTypography-root { box-sizing: border-box; padding: 16px; font: 400 12px/1.65 "Open Sans", Inter, sans-serif; color: #5F6B78; }
+.pk-qtl-loading { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.pk-qtl-error { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+
+.pk-qtl-dialog.MuiDialog-paper { max-width: 95vw; max-height: 95vh; margin: 16px; border: 1px solid #DFE4EA; border-radius: 16px; }
+.pk-qtl-fullsize { position: relative; box-sizing: border-box; max-width: 100%; padding: 48px 16px 16px; background: #fff; }
+.pk-qtl-fullsize img { display: block; max-width: 100%; max-height: calc(95vh - 96px); object-fit: contain; }
+.pk-qtl-fullsize .pk-qtl-close { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; border: 1px solid #DFE4EA; border-radius: 8px; color: #5F6B78; }
+.pk-qtl-fullsize .pk-qtl-close:hover { background: #F0F7F8; color: #3A838B; }
+
+.pk-qtl-picker select:focus-visible,
+.pk-qtl-details summary:focus-visible,
+.pk-qtl-action.MuiButton-root:focus-visible,
+.pk-qtl-panel .pk-qtl-plot:focus-visible,
+.pk-qtl-fullsize .pk-qtl-close:focus-visible { outline: 2px solid #3A838B; outline-offset: 3px; }
+
+@media (max-width: 480px) {
+  .pk-qtl-panel { gap: 10px; padding: 12px; }
+  .pk-qtl-fullsize { padding: 48px 8px 8px; }
+}

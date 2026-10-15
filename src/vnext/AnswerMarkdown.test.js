@@ -10,7 +10,7 @@ jest.mock('#minproc', () => jest.requireActual('vfile/lib/minproc.browser.js'), 
 jest.mock('#minurl', () => jest.requireActual('vfile/lib/minurl.browser.js'), { virtual: true });
 
 // Exercise the real GFM/HTML pipeline, including the React table nodes used by CSV.
-// CRA/Jest needs --transformIgnorePatterns='^$' for these ESM markdown dependencies.
+// package.json allows Jest to transform the ESM markdown dependency tree.
 const table = `| Gene | Evidence |
 | --- | --- |
 | **ADCY3** | shared, limited |

@@ -115,7 +115,7 @@ function GraphPanel({ result, error, onEvidenceInspect, expressionCard }) {
   </Box>;
 }
 
-export function ResultSection({ run, result, error, planning, busy, onRevise, onConfirm, onFollowUp, anchorPrefix, presentationState }) {
+export function ResultSection({ run, result, error, planning, busy, onRevise, onConfirm, onFollowUp, anchorPrefix, presentationState, questionNumber = 1 }) {
   const sectionRef = useRef(null);
   const visualOrderRef = useRef({ scope: null, preference: null, ids: [] });
   const runId = run?.run_id || result?.result_id;
@@ -202,7 +202,7 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
   const evidenceNotice = run?.rerun_advisory || (typeof display?.notice === 'string' ? display.notice : (['partial', 'failed', 'unavailable'].includes(completeness) ? `Graph evidence is ${completeness}.` : ''));
   if (evidenceNotice) sections.push({ content: <Typography sx={{ fontSize: 14, color: '#64748B' }}>{evidenceNotice}</Typography> });
   const data = {
-    styleVariant: 'pank1', questionId: 'Q1', title: run?.plan?.interpreted_question || run?.question || result?.question || '',
+    styleVariant: 'pank1', questionId: `Q${questionNumber}`, title: run?.plan?.interpreted_question || run?.question || result?.question || '',
     // Completion-triggered scroll reset is not needed anymore: streamed
     // answers update in place and must not interrupt the user's reading.
     aiOverview: { title: page.summaryTitle, sections, isLoading: !run?.graph_answer && !result?.answer, scrollToTop: false },
@@ -330,9 +330,12 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     readController.current?.abort(); readController.current = null;
     loadVersion.current += 1;
     navigate('/');
+    // A pending confirm/revision can fail or never settle. Do not let it
+    // prevent cancellation of the run whose identity we already know.
+    if (currentRun?.run_id) void cancelRun(currentRun.run_id).catch(() => {});
     try {
-      const pending = pendingMutation ? await pendingMutation : (currentRun?.run_id ? currentRun : await bootstrapRef.current);
-      if (pending?.run_id) await cancelRun(pending.run_id);
+      const pending = await (pendingMutation || bootstrapRef.current);
+      if (pending?.run_id && pending.run_id !== currentRun?.run_id) await cancelRun(pending.run_id);
     } catch (_) { /* Leaving the page must not wait on a failed or slow cancel request. */ }
   }, [navigate]);
   const followUp = useCallback(async (question) => {
@@ -397,9 +400,9 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     <AlertMessage type="warning" content={error || resultError} open={!recovery && Boolean(error || resultError)} onClose={() => setError('')} />
     <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', px: { xs: 2, md: 3 }, py: 3 }}><Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 3 }}>
         {historyError && <Box role="status"><Typography>{historyError}</Typography><Button onClick={() => attachRun(readRunId.current)}>Refresh history</Button></Box>}
-        {previous.map((item, index) => <ResultSection key={item.run.run_id} {...item} anchorPrefix={`${contentAnchorPrefix}-previous-${index}`} />)}
+        {previous.map((item, index) => <ResultSection key={item.run.run_id} {...item} questionNumber={index + 1} anchorPrefix={`${contentAnchorPrefix}-previous-${index}`} />)}
         {initialLoading ? <Box role="status" aria-label="Loading current question" sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px' }}><SearchResultLoading streamProgress={progress} handleClose={cancel} /></Box> :
-          <ResultSection run={run} result={result} error={resultError} planning={isPlanning} busy={busy || connection !== 'connected'} onRevise={onRevise} onConfirm={onConfirm} onFollowUp={followUp} anchorPrefix={contentAnchorPrefix} presentationState={location.state?.result_page} />}
+          <ResultSection run={run} result={result} error={resultError} planning={isPlanning} busy={busy || connection !== 'connected'} onRevise={onRevise} onConfirm={onConfirm} onFollowUp={followUp} questionNumber={previous.length + 1} anchorPrefix={contentAnchorPrefix} presentationState={location.state?.result_page} />}
       </Box></Box>
   </>;
 }

@@ -49,6 +49,9 @@
     "prebuild": "npm run build:scbrowser",
     "prestart": "npm run build:scbrowser"
   },
+  "jest": {
+    "transformIgnorePatterns": []
+  },
   "eslintConfig": {
     "extends": [
       "react-app",

@@ -127,7 +127,7 @@ export function watchRun(runId, sequence, onEvent, onConnection = () => {}) {
     onEvent({ ...event, seq });
     if (event.type === 'terminal') stop();
   };
-  ['progress', 'heartbeat', 'plan_validated', 'plan_ready', 'preview_step', 'preview_reused', 'graph_step', 'graph_answer', 'literature_progress', 'literature_perspective', 'literature_complete', 'terminal'].forEach(type => source.addEventListener(type, handle));
+  ['progress', 'heartbeat', 'plan_validated', 'plan_ready', 'preview_step', 'preview_reused', 'graph_step', 'graph_answer', 'followup_ready', 'literature_sources', 'literature_progress', 'literature_perspective', 'literature_complete', 'terminal'].forEach(type => source.addEventListener(type, handle));
   source.onopen = () => { if (!stopped) onConnection('connected'); };
   source.onerror = () => {
     if (!stopped && source.readyState === 2) { stop(); onConnection('exhausted'); }

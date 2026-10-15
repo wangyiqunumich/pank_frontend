@@ -48,3 +48,27 @@ test('preview uses the same AWS plot without metadata or plot controls', async (
   expect(screen.queryByRole('combobox')).toBeNull();
   expect(screen.queryByRole('link')).toBeNull();
 });
+
+test('panel styling preserves the full source context, explanatory text and original plot', async () => {
+  const url = 'data:image/png;base64,iVBORw0KGgo=';
+  const context = { ...first, geneLabel: 'CFTR', credibleSet: 'ENSG00000001626__CFTR__credibleSet1' };
+  loadQtlPlot.mockResolvedValue(url);
+  const { container } = render(<QtlFineMapping contexts={[context, second]} isVisible />);
+  const plot = await screen.findByAltText(QTL_CONFIG.wording.image_alt);
+  expect(plot.getAttribute('src')).toBe(url);
+  expect(screen.getByRole('heading', { name: QTL_CONFIG.wording.title })).toBeTruthy();
+  expect(screen.getByText('CFTR · First QTL · Credible set 1')).toBeTruthy();
+  expect(screen.getByText('Pancreas')).toBeTruthy();
+  const selector = screen.getByRole('combobox', { name: QTL_CONFIG.wording.source_picker });
+  expect(selector.value).toBe(context.key);
+  expect(selector.options[0].textContent).toContain(context.credibleSet);
+  expect(screen.getByText(QTL_CONFIG.wording.description)).toBeTruthy();
+  const details = container.querySelector('details');
+  expect(details.querySelector('summary').textContent).toBe(QTL_CONFIG.wording.details);
+  expect(details.textContent).toContain(context.credibleSet);
+  expect(details.textContent).toContain(QTL_CONFIG.wording.legend);
+  expect(details.textContent).toContain(QTL_CONFIG.wording.provenance);
+  expect(screen.getByRole('link', { name: QTL_CONFIG.wording.download }).getAttribute('href')).toBe(context.downloadUrl);
+  fireEvent.click(screen.getByRole('button', { name: QTL_CONFIG.wording.expand }));
+  expect(screen.getAllByAltText(QTL_CONFIG.wording.image_alt).every(image => image.getAttribute('src') === url)).toBe(true);
+});
