@@ -394,6 +394,7 @@
         },
         "layout": {
           "metadata": "compact_header_and_expandable_details",
+          "min_height": 520,
           "image_fit": "contain",
           "preserve_plot": true
         }

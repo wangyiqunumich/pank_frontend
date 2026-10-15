@@ -184,7 +184,7 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
     ? [...previousOrder.ids.filter((id) => selectedIds.includes(id)), ...selectedIds.filter((id) => !previousOrder.ids.includes(id))]
     : selectedIds;
   visualOrderRef.current = { scope: visualScope, preference: visualPreference, ids: visualIds };
-  const visualTabs = visualIds.map((id) => ({ id, label: selectedVisuals.find((visual) => visual.id === id).label, content: visualRenderers[id] }));
+  const visualTabs = visualIds.map((id) => ({ id, label: selectedVisuals.find((visual) => visual.id === id).label, content: visualRenderers[id], minHeight: visualSchema.main_visuals.items[id]?.layout?.min_height }));
   const visualMaterial = visualTabs.length ? { title: page.mainVisualTitle, tabs: visualTabs, scopeKey: runId, requestedTab: visualRequest?.scope === runId ? visualRequest : null } : undefined;
   const planData = {
     questionId: 'PLAN', title: 'Confirm Query & Execution Steps', originalQuestion: run?.plan?.original_question || run?.question || '', parsedTitle: run?.plan?.interpreted_question || '',
