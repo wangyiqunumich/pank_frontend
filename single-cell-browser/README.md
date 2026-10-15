@@ -56,9 +56,9 @@ Measured 2026-10-13: 448,935 cells; compact JSON 5,387,453 bytes (95% smaller
 than 109,644,935 bytes of source metadata alone). Hosting may compress it further;
 the build records an estimated gzip size. A .json extension preserves existing
 Amplify SPA routing; .json.gz is rewritten to HTML on the current host. The browser
-fetches only this same-origin map and the requested BioIndex gene vector; it never
-requests the full fields, catalog or coordinate files. The default preview loads only the whole atlas, colored by cell type; gene expression
-is fetched when the full browser opens. Gene vectors are checked for dataset identity,
+fetches only this same-origin map and the requested validated gene vector through the same-origin cache (BioIndex fallback); it never
+requests the full fields, catalog or coordinate files. The default preview loads only the whole atlas, colored by cell type; the default gene is prefetched through the same-origin expression cache while
+the preview is visible. The full browser reuses it. See `DATA-PROCESSING.md`. Gene vectors are checked for dataset identity,
 restriction/continuation, length and finite nonnegative values. Vector row order
 follows the source positional contract, not an independent barcode join.
 
