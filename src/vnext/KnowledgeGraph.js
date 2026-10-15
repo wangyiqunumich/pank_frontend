@@ -10,7 +10,7 @@ import React, {
 } from 'react';
 
 import cytoscape from 'cytoscape';
-import { applyGraphRoutes, graphElements, observeGraphViewport } from '../vnext/graphBindings';
+import { applyGraphRoutes, graphElements, updateGraphElements, observeGraphViewport } from '../vnext/graphBindings';
 import JSON5 from 'json5';
 import {
   useDispatch,
@@ -1129,9 +1129,9 @@ export default function KnowledgeGraph({ onEvidenceInspect, selectable = false, 
       return undefined;
     }
     if (cyRef.current) {
-      viewportRef.current?.dispose();
-      cyRef.current.destroy();
-      cyRef.current = null;
+      updateGraphElements(cyRef.current, nodes, edges, edgeStyles);
+      setSelectedID(previous => previous.filter(id => cyRef.current.getElementById(id).nonempty()));
+      return undefined;
     }
 
     cyRef.current = cytoscape({
@@ -1244,16 +1244,21 @@ export default function KnowledgeGraph({ onEvidenceInspect, selectable = false, 
       });
     }
 
-    return () => {
+    cy._disposeGraphPane = () => {
       viewport.dispose();
-      if (viewportRef.current === viewport) viewportRef.current = null;
-      document.body.style.cursor = "default";
       cy.removeAllListeners();
-      cy.container()?.removeEventListener("mouseleave", handleLeave);
-      cy.destroy();
-      if (cyRef.current === cy) cyRef.current = null;
+      cy.container()?.removeEventListener('mouseleave', handleLeave);
     };
   }, [graphInputKey, review, selectable]);
+
+  useEffect(() => () => {
+    const cy = cyRef.current;
+    cy?._disposeGraphPane?.();
+    cy?.destroy();
+    cyRef.current = null;
+    viewportRef.current = null;
+    document.body.style.cursor = 'default';
+  }, []);
 
   useEffect(() => {
     // update setSelectedNode() to include all nodes and edges in selectedID, plus all edges connecting 2 selected nodes

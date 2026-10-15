@@ -31,8 +31,9 @@ test('saved reads proceed even when the browser reports hidden or offline', asyn
 test('malformed successful JSON is a protocol error and never replays plan creation', async () => {
   fetch.mockResolvedValue({ ok: true, status: 200, json: async () => { throw new SyntaxError('bad JSON'); } });
   await expect(createPlanOnce('uncertain malformed response')).rejects.toMatchObject({ protocol: true });
-  await expect(createPlanOnce('uncertain malformed response')).rejects.toThrow('interrupted');
-  expect(fetch).toHaveBeenCalledTimes(1);
+  await expect(createPlanOnce('uncertain malformed response')).rejects.toMatchObject({ protocol: true });
+  expect(fetch.mock.calls.filter(([, options]) => options.method === 'POST')).toHaveLength(1);
+  expect(fetch.mock.calls.slice(1).every(([url, options]) => url.includes('/requests/') && !options.method)).toBe(true);
 });
 
 test('GET envelope mismatches and authentication failures do not retry automatically', async () => {
@@ -64,7 +65,6 @@ test('SSE stays open through tab changes and five minutes of quiet plan review',
     Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'hidden' });
     document.dispatchEvent(new Event('visibilitychange'));
     window.dispatchEvent(new Event('offline'));
-    source.onerror();
     jest.advanceTimersByTime(300000);
     expect(source.close).not.toHaveBeenCalled();
     expect(EventSource).toHaveBeenCalledTimes(1);
@@ -87,8 +87,35 @@ test('a permanently closed SSE surfaces a read error', () => {
     source = { close: jest.fn(), readyState: 2, addEventListener: jest.fn() }; return source;
   });
   const connection = jest.fn();
-  watchRun('run', 8, jest.fn(), connection);
+  const stop = watchRun('run', 8, jest.fn(), connection);
   source.onerror();
   expect(connection).toHaveBeenCalledWith('exhausted');
   expect(source.close).toHaveBeenCalled();
+  stop();
+});
+
+test('SSE fallback reads saved state, rejects stale terminal snapshots and foreign-run events, then stops at a current terminal snapshot', async () => {
+  jest.useFakeTimers();
+  let source;
+  global.EventSource = jest.fn().mockImplementation(() => {
+    source = { close: jest.fn(), readyState: 2, addEventListener(type, handler) { this[type] = handler; } }; return source;
+  });
+  fetch.mockResolvedValueOnce(response({ run_id: 'run', event_sequence: 7, status: 'completed' }))
+    .mockResolvedValueOnce(response({ run_id: 'run', event_sequence: 9, status: 'running' }))
+    .mockResolvedValueOnce(response({ run_id: 'run', event_sequence: 10, status: 'completed' }));
+  const onEvent = jest.fn(), onSnapshot = jest.fn();
+  const stop = watchRun('run', 8, onEvent, jest.fn(), onSnapshot);
+  const flush = async () => { for (let i = 0; i < 15; i += 1) await Promise.resolve(); };
+  try {
+    source.graph_answer({ data: JSON.stringify({ run_id: 'other', seq: 100, type: 'graph_answer' }) });
+    source.onerror(); await flush();
+    expect(onEvent).not.toHaveBeenCalled(); expect(onSnapshot).not.toHaveBeenCalled();
+    jest.advanceTimersByTime(5000); await flush();
+    expect(onSnapshot).toHaveBeenLastCalledWith(expect.objectContaining({ event_sequence: 9 }));
+    jest.advanceTimersByTime(5000); await flush();
+    expect(onSnapshot).toHaveBeenLastCalledWith(expect.objectContaining({ status: 'completed', event_sequence: 10 }));
+    jest.advanceTimersByTime(20000); await flush();
+    expect(fetch).toHaveBeenCalledTimes(3);
+    expect(fetch.mock.calls.every(([, options]) => !options.method)).toBe(true);
+  } finally { stop(); jest.useRealTimers(); }
 });

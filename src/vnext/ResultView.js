@@ -1,3 +1,5 @@
+import { newIntent, ensureIntent } from '../utils/agentIdentity';
+import { useStableGraphPane } from './StableGraphPane';
 import '../SearchResult/scoped.css';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -23,8 +25,8 @@ import { expressionContext, firstAvailableExpression } from './singleCellContext
 import SummaryInsertions from './SummaryInsertions';
 import { resolveResultPage } from './resultPageSchema';
 import { useResourcePanels } from './Resources';
-import { canFollowUp, applyRunEvent, groundedLiterature, literatureNotice, liveProgress, planMarkdown, projectionForRun, templateRequest, withLiteratureReferences } from './contracts';
-import { cancelRun, confirmPlan, createPlanOnce, createResultOnce, getRun, getResult, pollResult, revisePlan, sitePath, TERMINAL_RUNS, watchRun } from './api';
+import { canFollowUp, applyRunEvent, groundedLiterature, literatureNotice, liveProgress, planMarkdown, projectionForRun, normalizeRun, templateRequest, withLiteratureReferences } from './contracts';
+import { cancelRequest, retryFormatter, cancelRun, confirmPlan, createPlanOnce, createResultOnce, getRun, getResult, pollResult, revisePlan, sitePath, TERMINAL_RUNS, watchRun } from './api';
 
 import { recordInteraction, referenceKey } from './telemetry';
 import { questionInputError } from './questionInput';
@@ -32,6 +34,7 @@ import { questionInputError } from './questionInput';
 const readLocal = (key) => { try { return JSON.parse(safeLocalStorage.getItem(key)); } catch (_) { return null; } };
 const writeLocal = (key, value) => safeLocalStorage.setItem(key, JSON.stringify(value));
 const decodeQuestion = (value) => { try { return decodeURIComponent(escape(atob(value))); } catch (_) { return value || ''; } };
+const routeQuestion = params => params.get('question_encoding') === 'plain' ? (params.get('question') || '') : decodeQuestion(params.get('question'));
 const sessionKey = (id) => `pank-vnext:session:${id}`;
 const resultKey = (id, phase) => `pank-vnext:presentation:${id}:${phase}`;
 export async function readPriorConversation(ids, currentId, options = {}) {
@@ -61,7 +64,9 @@ export function useProjectedResult(payload, savedId = '') {
   const [connection, setConnection] = useState('connected');
   const [readAttempt, setReadAttempt] = useState(0);
   const createdRef = useRef(null);
-  const reconnect = useCallback(() => { if (createdRef.current?.key === key) setReadAttempt(value => value + 1); }, [key]);
+  const agentProjection = Boolean(payload?.run_id);
+  const expectedRevision = payload?.graph_revision;
+  const reconnect = useCallback(() => { if (createdRef.current?.key === key || agentProjection) setReadAttempt(value => value + 1); }, [key, agentProjection]);
   useEffect(() => {
     // setStoredResult(null); // Not needed anymore: causes a graph teardown
     // and a page-refresh-like flash during same-run progressive updates.
@@ -83,18 +88,21 @@ export function useProjectedResult(payload, savedId = '') {
       }
       if (!controller.signal.aborted) return pollResult(created.result_id, (value) => {
         if (controller.signal.aborted) return;
+        if (expectedRevision !== undefined && value.graph_revision !== expectedRevision && !['pending', 'queued', 'running', 'processing'].includes(value.status)) throw new Error('The saved graph revision does not match this investigation. Reconnect to read it again.');
         setError('');
         setStoredResult((previous) => {
           // A queued projection is not a replacement for a visible graph.
+          if (previous?.scope === scope && Number(previous.value?.graph_revision || 0) > Number(value.graph_revision || 0)) return previous;
+          if (expectedRevision !== undefined && value.graph_revision !== expectedRevision) return previous;
           if (previous?.scope === scope && previous.value?.combined_query_result
               && !value.combined_query_result && !['ready', 'failed', 'cancelled'].includes(value.status)) return previous;
           return { key, scope, value };
         });
-      }, { signal: controller.signal, onConnection: state => { if (!controller.signal.aborted) setConnection(state); } });
-    }).catch((err) => { if (!controller.signal.aborted) { setError(err.message); if (createdRef.current?.key === key) setConnection('exhausted'); } });
+      }, { signal: controller.signal, graph_revision: expectedRevision, onConnection: state => { if (!controller.signal.aborted) setConnection(state); } });
+    }).catch((err) => { if (!controller.signal.aborted) { setError(err.message); setConnection('exhausted'); } });
     return () => controller.abort();
-  }, [key, scope, readAttempt, savedId]);
-  return [result, error, { status: connection, reconnect: createdRef.current?.key === key ? reconnect : undefined }];
+  }, [key, scope, readAttempt, savedId, expectedRevision]);
+  return [result, error, { status: connection, reconnect: createdRef.current?.key === key || agentProjection ? reconnect : undefined }];
 }
 
 function GraphPanel({ result, error, onEvidenceInspect, expressionCard }) {
@@ -173,7 +181,8 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
     onClose={() => setExpressionState({ scope: runId, context: expression, minimized: false, closed: true })}
     onRestore={() => setExpressionState({ scope: runId, context: expression, minimized: false, closed: false })}
     onOpen={id => setVisualRequest({ scope: runId, id, nonce: Date.now() })} />;
-  visualRenderers.graph_viewer = <GraphPanel onEvidenceInspect={onEvidenceInspect} result={result} error={graphError} expressionCard={preview} />;
+  const stableGraph = useStableGraphPane(<GraphPanel key={runId} onEvidenceInspect={onEvidenceInspect} result={result} error={graphError} expressionCard={preview} />);
+  visualRenderers.graph_viewer = stableGraph.slot;
   const selectedIds = selectedVisuals.map((visual) => visual.id);
   const visualScope = runId || anchorPrefix;
   const visualPreference = (presentationState || result?.result_page_state)?.main_visual;
@@ -209,7 +218,7 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
     graphData, visualMaterial, evidences: resources.tabs.length ? { title: page.supportingTitle, tabs: resources.tabs } : undefined,
     followUp: { title: 'Follow Up', onSelect: onFollowUp ? (item) => onFollowUp(item.label) : undefined, items: (run?.evidence?.follow_up_questions || result?.evidence?.follow_up_questions || []).map((question) => ({ label: question })), loading: !canFollowUp(run), disabled: !canFollowUp(run) },
   };
-  return <>{resources.popup}<Box ref={sectionRef} onClickCapture={onResourceAccess} id={`${anchorPrefix}-question-1`}>{planning ? <PlanConfirmationPage data={planData} contentAnchorPrefix={anchorPrefix} /> : <QuestionAnswerPage data={data} contentAnchorPrefix={anchorPrefix} />}</Box></>;
+  return <>{resources.popup}{stableGraph.portal}<Box ref={sectionRef} onClickCapture={onResourceAccess} id={`${anchorPrefix}-question-1`}>{planning ? <PlanConfirmationPage data={planData} contentAnchorPrefix={anchorPrefix} /> : <QuestionAnswerPage data={data} contentAnchorPrefix={anchorPrefix} />}</Box></>;
 }
 
 export default function AgentResultView({ contentAnchorPrefix = 'result-1', onContentMeta } = {}) {
@@ -231,6 +240,8 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
   const bootstrapRef = useRef(null);
   const mutationTask = useRef(null);
   const projectionRef = useRef(null);
+  const intentRef = useRef(null);
+  const pendingAdmission = useRef(null);
   const followUpPending = useRef(false);
   const loadVersion = useRef(0);
   const readController = useRef(null);
@@ -250,7 +261,7 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     catch (err) { if (!controller.signal.aborted && mounted.current && version === loadVersion.current) setConnection('exhausted'); return; }
     if (!mounted.current || version !== loadVersion.current) return;
     if (runRef.current?.run_id === runId && runRef.current.event_sequence > snapshot.event_sequence) snapshot = runRef.current;
-    setRun(snapshot); setError('');
+    setRun(normalizeRun(snapshot)); setError('');
     setConnection('connected');
     const ids = readLocal(sessionKey(snapshot.session_id)) || [];
     writeLocal(sessionKey(snapshot.session_id), [...ids.filter((id) => id !== runId), runId].slice(-20));
@@ -265,20 +276,26 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     if (!TERMINAL_RUNS.has(snapshot.status)) streamRef.current = watchRun(runId, snapshot.event_sequence, (event) => {
       if (!mounted.current || version !== loadVersion.current) return;
       setRun((value) => applyRunEvent(value || snapshot, event));
-      if (event.type === 'terminal') getRun(runId, { signal: controller.signal, onConnection }).then((value) => { if (mounted.current && version === loadVersion.current) setRun(value); }).catch(() => { if (!controller.signal.aborted) onConnection('exhausted'); });
-    }, onConnection);
+      if (event.type === 'terminal') getRun(runId, { signal: controller.signal, onConnection }).then((value) => { if (mounted.current && version === loadVersion.current) setRun(current => Number(value.event_sequence || 0) >= Number(current?.event_sequence || 0) ? normalizeRun(value) : current); }).catch(() => { if (!controller.signal.aborted) onConnection('exhausted'); });
+    }, onConnection, value => { if (mounted.current && version === loadVersion.current) setRun(current => Number(value.event_sequence || 0) >= Number(current?.event_sequence || 0) ? normalizeRun(value) : current); });
   }, []);
 
   useEffect(() => {
     mounted.current = true;
     let stopped = false;
-    const sessionId = route.get('session_id') || '';
+    const intent = intentRef.current || ensureIntent(route);
+    intentRef.current = intent;
+    const sessionId = route.get('session_id') || intent.session_id;
     const savedIds = readLocal(sessionKey(sessionId)) || [];
-    const runId = route.get('run_id') || savedIds[savedIds.length - 1];
-    const question = decodeQuestion(route.get('question'));
-    const task = runId ? Promise.resolve({ run_id: runId }) : (!sessionId && question ? createPlanOnce(question, '', route.get('intent') || question) : Promise.reject(new Error(sessionId ? 'This saved investigation is not available in this browser. Open its saved run link; no new work was started.' : 'Open a saved investigation or enter a question.')));
+    const question = routeQuestion(route);
+    const savedSession = route.has('session_id') && !route.has('request_id');
+    const runId = route.get('run_id') || (savedSession || !question ? savedIds[savedIds.length - 1] : null);
+    const revisionOf = route.get('revision_of');
+    const task = revisionOf ? revisePlan(revisionOf, route.get('instruction') || question, true, intent.request_id) : runId ? Promise.resolve({run_id:runId}) : question && !savedSession ? createPlanOnce(question,sessionId,intent.request_id,route.get('parent_run_id')) : Promise.reject(new Error(savedSession ? 'This saved investigation is not available in this browser. Open its saved run link; no new work was started.' : 'Open a saved investigation or enter a question.'));
+    if (!runId && question && !savedSession) { const params = new URLSearchParams(route); params.set('session_id',sessionId); params.set('request_id',intent.request_id); window.history.replaceState({},'',sitePath(`/result-new2?${params}`)); }
+    if (revisionOf || (!runId && question && !savedSession)) pendingAdmission.current = () => revisionOf ? revisePlan(revisionOf,route.get('instruction') || question,true,intent.request_id) : createPlanOnce(question,sessionId,intent.request_id,route.get('parent_run_id'));
     bootstrapRef.current = task;
-    task.then((created) => { if (!stopped) return attachRun(created.run_id); }).catch((err) => { if (!stopped) setError(err.message); });
+    task.then(created => { if (!stopped) { pendingAdmission.current = null; return attachRun(created.run_id); } }).catch(err => { if (!stopped) { if (err.outcomeUnknown || !err.status) setConnection('exhausted'); else pendingAdmission.current = null; setError(err.message); } });
     return () => { stopped = true; mounted.current = false; loadVersion.current += 1; readController.current?.abort(); streamRef.current?.(); };
   }, [route, attachRun]);
 
@@ -294,9 +311,9 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
         if (!mounted.current) return;
         setPrevious(items => items.map(saved => saved.run.run_id === id ? { ...saved, run: applyRunEvent(saved.run, event) } : saved));
         if (event.type === 'terminal') getRun(id).then(snapshot => {
-          if (mounted.current) setPrevious(items => items.map(saved => saved.run.run_id === id ? { ...saved, run: snapshot } : saved));
+          if (mounted.current) setPrevious(items => items.map(saved => saved.run.run_id === id && Number(snapshot.event_sequence || 0) >= Number(saved.run.event_sequence || 0) ? { ...saved, run: normalizeRun(snapshot) } : saved));
         }).catch(() => {});
-      }, () => {});
+      }, () => {}, snapshot => { if (mounted.current) setPrevious(items => items.map(saved => saved.run.run_id === id && Number(snapshot.event_sequence || 0) >= Number(saved.run.event_sequence || 0) ? { ...saved, run: normalizeRun(snapshot) } : saved)); });
       backgroundStreams.current.set(id, close);
     });
   }, [previous]);
@@ -310,26 +327,32 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     const current = runRef.current;
     if (!current || busy) return;
     setBusy(true); setError('');
-    const task = revisePlan(current.plan_id, question, current.include_context ?? true); mutationTask.current = task;
-    try { const created = await task; if (!mounted.current) return; setRun(null); await attachRun(created.run_id); }
-    catch (err) { if (mounted.current) setError(err.message); } finally { if (mutationTask.current === task) mutationTask.current = null; if (mounted.current) setBusy(false); }
+    const intent = newIntent(current.session_id); intentRef.current = intent;
+    window.history.replaceState({}, '', sitePath(`/result-new2?${new URLSearchParams({ provider: 'vnext', ...intent, revision_of: current.plan_id, instruction: question })}`));
+    pendingAdmission.current = () => revisePlan(current.plan_id, question, current.include_context ?? true, intent.request_id);
+    const task = pendingAdmission.current(); mutationTask.current = task;
+    try { const created = await task; if (!mounted.current) return; pendingAdmission.current = null; setRun(null); await attachRun(created.run_id); }
+    catch (err) { if (mounted.current) { if (err.outcomeUnknown || !err.status) setConnection('exhausted'); else pendingAdmission.current = null; setError(err.message); } } finally { if (mutationTask.current === task) mutationTask.current = null; if (mounted.current) setBusy(false); }
   }, [attachRun, busy]);
   const onConfirm = useCallback(async () => {
     if (!runRef.current || busy) return;
     setBusy(true); setError('');
-    const task = confirmPlan(runRef.current.plan_id); mutationTask.current = task;
+    const task = confirmPlan(runRef.current.plan_id, runRef.current.run_id); mutationTask.current = task;
     try { const started = await task; if (!mounted.current) return; await attachRun(started.run_id); }
     catch (err) { if (mounted.current) setError(err.message); } finally { if (mutationTask.current === task) mutationTask.current = null; if (mounted.current) setBusy(false); }
   }, [attachRun, busy]);
   const cancel = useCallback(async () => {
     const currentRun = runRef.current;
     const pendingMutation = mutationTask.current;
+    const pendingRequestId = pendingAdmission.current ? intentRef.current?.request_id : null;
     // Leave immediately; the bootstrap/create request may still be pending.
     // Once it yields an id, best-effort cancel the server-side run as well.
     streamRef.current?.(); streamRef.current = null;
     readController.current?.abort(); readController.current = null;
     loadVersion.current += 1;
     navigate('/');
+    // Cancel by durable request identity even before admission returns a run id.
+    if (pendingRequestId) void cancelRequest(pendingRequestId).catch(() => {});
     // A pending confirm/revision can fail or never settle. Do not let it
     // prevent cancellation of the run whose identity we already know.
     if (currentRun?.run_id) void cancelRun(currentRun.run_id).catch(() => {});
@@ -338,20 +361,24 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
       if (pending?.run_id && pending.run_id !== currentRun?.run_id) await cancelRun(pending.run_id);
     } catch (_) { /* Leaving the page must not wait on a failed or slow cancel request. */ }
   }, [navigate]);
-  const followUp = useCallback(async (question) => {
+  const followUp = useCallback(async (question, retryIntent = null) => {
     if (!question?.trim() || followUpPending.current || !canFollowUp(runRef.current)) return false;
     const inputError = questionInputError(question);
     if (inputError) { setFailedFollowUp({ question, message: inputError }); return false; }
     const current = runRef.current;
     followUpPending.current = true; setBusy(true); setFailedFollowUp(null);
-    const task = createPlanOnce(question.trim(), current.session_id, `${current.run_id}:${question.trim()}`, current.run_id); mutationTask.current = task;
+    const intent = retryIntent || newIntent(current.session_id); intentRef.current = intent;
+    window.history.replaceState({}, '', sitePath(`/result-new2?${new URLSearchParams({ provider: 'vnext', ...intent, question: question.trim(), question_encoding: 'plain', parent_run_id: current.run_id })}`));
+    pendingAdmission.current = () => createPlanOnce(question.trim(), intent.session_id, intent.request_id, current.run_id);
+    const task = pendingAdmission.current(); mutationTask.current = task;
     try {
       const created = await task;
       if (!mounted.current) return;
+      pendingAdmission.current = null;
       setPrevious((items) => [...items, { run: current, result: projectionRef.current, presentationState: location.state?.result_page }]);
       setRun(null); await attachRun(created.run_id);
       return true;
-    } catch (err) { if (mounted.current) setFailedFollowUp({ question, message: err.message }); return false; }
+    } catch (err) { if (mounted.current) { if (!err.outcomeUnknown && err.status) pendingAdmission.current = null; setFailedFollowUp({ question, message: err.message, intent }); } return false; }
     finally { if (mutationTask.current === task) mutationTask.current = null; followUpPending.current = false; if (mounted.current) setBusy(false); }
   }, [attachRun, location.state?.result_page]);
   useEffect(() => {
@@ -369,34 +396,44 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
   // Read-transport failures reconnect to saved state; only recorded execution
   // failures or explicit mutation failures belong in the query-recovery dialog.
   const missingSavedSession = !run && Boolean(route.get('session_id')) && !route.get('run_id') && Boolean(error);
-  const recovery = missingSavedSession ? null : queryRecovery(run, error);
+  const recovery = pendingAdmission.current || missingSavedSession ? null : queryRecovery(run, error);
   const retryRecovery = async (instruction = '') => {
     if (busy) return;
     const current = runRef.current;
+    if (queryRecovery(current)?.category === 'formatter' && !instruction) {
+      setBusy(true);
+      try { await retryFormatter(current.run_id); await attachRun(current.run_id); } catch (err) { setError(err.message); } finally { setBusy(false); }
+      return;
+    }
     if (current?.plan_id && ['planning','awaiting_confirmation'].includes(current.status)) {
       return onRevise(instruction || 'Retry the original question without changing any entities, filters, or scope.');
     }
     setBusy(true); setError('');
-    const original = current?.question || decodeQuestion(route.get('question'));
+    const original = current?.question || routeQuestion(route);
     const question = instruction ? `${original}\nRequested change: ${instruction}` : original;
-    const task = createPlanOnce(question, current?.session_id || '', `recovery:${current?.run_id || 'initial'}:${Date.now()}`); mutationTask.current = task;
+    const intent = newIntent(current?.session_id || intentRef.current?.session_id); intentRef.current = intent;
+    window.history.replaceState({},'',sitePath(`/result-new2?${new URLSearchParams({provider:'vnext',...intent,question,question_encoding:'plain'})}`));
+    pendingAdmission.current = () => createPlanOnce(question,intent.session_id,intent.request_id);
+    const task = pendingAdmission.current(); mutationTask.current = task;
     try {
       const created = await task;
       if (!mounted.current) return;
+      pendingAdmission.current = null;
       setRun(null); await attachRun(created.run_id);
-    } catch (err) { if (mounted.current) setError(err.message); } finally { if (mutationTask.current === task) mutationTask.current = null; if (mounted.current) setBusy(false); }
+    } catch (err) { if (mounted.current) { if (err.outcomeUnknown || !err.status) setConnection('exhausted'); else pendingAdmission.current = null; setError(err.message); } } finally { if (mutationTask.current === task) mutationTask.current = null; if (mounted.current) setBusy(false); }
   };
   const initialLoading = !run?.plan || (run?.status === 'planning' && !run?.plan?.review_ready);
   const progress = liveProgress(run, connection);
-  if (!recovery && ((!run && error) || (TERMINAL_RUNS.has(run?.status) && !run?.plan))) return <ErrorComponent errorTitle="Investigation could not finish" errorMessage={error || run?.error?.message || `Investigation ${run.status}.`} />;
+  if (!recovery && !pendingAdmission.current && ((!run && error) || (TERMINAL_RUNS.has(run?.status) && !run?.plan))) return <ErrorComponent errorTitle="Investigation could not finish" errorMessage={error || run?.error?.message || `Investigation ${run.status}.`} />;
   return <>
     <ConnectionNoticeGroup notices={[
-      { status: connection, onReconnect: () => { if (readRunId.current) attachRun(readRunId.current); } },
+      { status: connection, onReconnect: async () => { if (pendingAdmission.current) { try { const created=await pendingAdmission.current(); pendingAdmission.current=null; await attachRun(created.run_id); } catch (err) { setError(err.message); } } else if (readRunId.current) attachRun(readRunId.current); } },
       { status: resultConnection.status, onReconnect: resultConnection.reconnect },
     ]} />
     {!recovery && ['partial','completed'].includes(run?.status) && <Diagnostics items={diagnosticsFor(run)} />}
-    <QueryRecoveryDialog issue={recovery} question={run?.plan?.original_question || run?.question || decodeQuestion(route.get('question'))} busy={busy} onRevise={retryRecovery} onRetry={()=>retryRecovery()} onCancel={cancel} />
-    {failedFollowUp && <Box role="alert" sx={{ p: 2 }}><Typography>Could not submit follow-up: {failedFollowUp.message}</Typography><Typography>{failedFollowUp.question}</Typography><Button disabled={busy} onClick={() => followUp(failedFollowUp.question)}>Retry follow-up</Button></Box>}
+    <QueryRecoveryDialog issue={recovery} question={run?.plan?.original_question || run?.question || routeQuestion(route)} busy={busy} onRevise={retryRecovery} onRetry={()=>retryRecovery()} onCancel={cancel} />
+    {pendingAdmission.current && !initialLoading && <Box sx={{ display: 'flex', justifyContent: 'center' }}><Button onClick={cancel}>Cancel query</Button></Box>}
+    {failedFollowUp && <Box role="alert" sx={{ p: 2 }}><Typography>Could not submit follow-up: {failedFollowUp.message}</Typography><Typography>{failedFollowUp.question}</Typography><Button disabled={busy} onClick={() => followUp(failedFollowUp.question, failedFollowUp.intent)}>Retry follow-up</Button></Box>}
     <AlertMessage type="warning" content={error || resultError} open={!recovery && Boolean(error || resultError)} onClose={() => setError('')} />
     <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', px: { xs: 2, md: 3 }, py: 3 }}><Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 3 }}>
         {historyError && <Box role="status"><Typography>{historyError}</Typography><Button onClick={() => attachRun(readRunId.current)}>Refresh history</Button></Box>}

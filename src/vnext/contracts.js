@@ -39,9 +39,9 @@ export function literatureNotice(run, literature = run?.literature) {
 export function projectionForRun(run) {
   if (!run?.run_id) return null;
   const terminal = ['completed', 'complete', 'partial', 'failed', 'cancelled', 'interrupted'].includes(run.status);
-  if (run.evidence?.graph_version && (run.graph_complete || terminal || run.stage === 'searching_literature')) return { run_id: run.run_id, phase: 'final' };
+  if (run.evidence?.graph_version && (run.graph_complete || (terminal && run.preview?.evidence?.graph_revision === undefined) || run.stage === 'searching_literature')) return { run_id: run.run_id, phase: 'final', ...(run.graph_revision !== undefined ? { graph_revision: run.graph_revision } : {}) };
   const pending = run.preview?.pending_step_ids || run.preview?.evidence?.pending_step_ids || [];
-  if (run.preview && run.preview.status !== 'not_requested' && run.preview.evidence?.graph_version && !pending.length && ['awaiting_confirmation', 'queued', 'running', 'completed', 'complete', 'partial'].includes(run.status)) return { run_id: run.run_id, phase: 'preview' };
+  if (run.preview && run.preview.status !== 'not_requested' && run.preview.evidence?.graph_version && !pending.length && ['awaiting_confirmation', 'queued', 'running', 'completed', 'complete', 'partial', 'cancelled', 'interrupted', 'superseded'].includes(run.status)) return { run_id: run.run_id, phase: 'preview', ...(run.preview.evidence.graph_revision !== undefined ? { graph_revision: run.preview.evidence.graph_revision } : {}) };
   return null;
 }
 export function withLiteratureReferences(tabs = {}, literature, runId = 'main') {
@@ -123,18 +123,19 @@ export function templateRequest(input) {
 
 export function applyRunEvent(state, event) {
   const sequence = Number(event.seq ?? event.sequence);
-  if (!Number.isFinite(sequence) || sequence <= Number(state.event_sequence || 0)) return state;
+  if ((event.run_id && event.run_id !== state.run_id) || !Number.isFinite(sequence) || sequence <= Number(state.event_sequence || 0)) return state;
   const payload = event.payload || {};
-  const next = { ...state, event_sequence: sequence, elapsed_ms: event.elapsed_ms, stage: event.stage || state.stage, status: event.status || state.status };
+  const next = { ...state, event_sequence: sequence, elapsed_ms: event.elapsed_ms, stage: event.stage || state.stage, queue_elapsed_ms: event.queue_elapsed_ms ?? state.queue_elapsed_ms, status: event.status || state.status };
   if (event.type === 'plan_validated') Object.assign(next, { plan: payload.plan, plan_id: payload.plan_id });
-  if (event.type === 'plan_ready') Object.assign(next, { plan: payload.plan, plan_id: payload.plan_id, preview: payload.preview, status: 'awaiting_confirmation' });
+  if (event.type === 'plan_ready') Object.assign(next, { plan: payload.plan, plan_id: payload.plan_id, preview: payload.preview, graph_revision: payload.graph_revision ?? state.graph_revision, kg_release: payload.kg_release ?? state.kg_release, status: 'awaiting_confirmation' });
   if (event.type === 'preview_step') next.preview = payload.preview;
+  if (event.type === 'graph_step' && Number(payload.graph_revision || 0) >= Number(state.graph_revision || 0)) Object.assign(next, payload);
+  if (event.type === 'followup_ready') { next.followup_ready = payload.followup_ready === true; if (payload.references) next.literature = { ...next.literature, references: payload.references }; }
+  if (event.type === 'literature_sources') next.literature = payload;
   if (event.type === 'graph_answer') {
     next.graph_answer = payload.delta ? (state.graph_answer || '') + (payload.text || '') : (payload.answer ?? payload.text ?? state.graph_answer);
     if (!payload.delta) { next.evidence = payload.evidence; next.graph_complete = true; }
   }
-  if (event.type === 'followup_ready') { next.followup_ready = payload.followup_ready === true; if (payload.references) next.literature = { ...next.literature, references: payload.references }; }
-  if (event.type === 'literature_sources') next.literature = payload;
   if (event.type === 'literature_perspective') {
     const perspectives = [...(state.literature?.perspectives || [])];
     const index = perspectives.findIndex((p) => p.id === payload.id);
@@ -143,8 +144,12 @@ export function applyRunEvent(state, event) {
   }
   if (event.type === 'literature_progress') next.literature = { ...state.literature, status: state.literature?.perspectives?.length ? 'partial' : 'running' };
   if (event.type === 'literature_complete') { next.literature = payload; next.literature_complete = true; }
-  if (event.type === 'terminal') Object.assign(next, { status: payload.status || event.status, error: payload.error || state.error, replacement_run_id: payload.replacement_run_id });
+  if (event.type === 'terminal') Object.assign(next, { status: payload.status || event.status, errors: payload.errors || state.errors, error: payload.error || payload.errors?.[0] || state.error, replacement_run_id: payload.replacement_run_id });
   return next;
+}
+
+export function normalizeRun(run) {
+  return run ? { ...run, error: run.error || run.errors?.[0] } : run;
 }
 
 export function planMarkdown(run) {
@@ -184,7 +189,7 @@ export function planMarkdown(run) {
   return `${text}\n\n${literature}\n\n${notice}`;
 }
 
-const STAGES = { queued: 'Waiting for capacity', planning: 'Preparing the plan', preparing_preview: 'Checking initial graph evidence', resolving_entities: 'Resolving graph entities', generating_cypher: 'Preparing the graph query', validating: 'Checking the graph query', querying_graph: 'Checking graph evidence', preparing_execution: 'Preparing the investigation', reusing_preview: 'Using the checked graph evidence', writing_answer: 'Writing the grounded answer', searching_literature: 'Searching literature', awaiting_confirmation: 'Awaiting confirmation' };
+const STAGES = { queued: 'Waiting for capacity', planning: 'Preparing the plan', preparing_preview: 'Checking initial graph evidence', resolving_entities: 'Resolving graph entities', generating_cypher: 'Preparing the graph query', validating: 'Checking the graph query', enriching_graph: 'Retrieving linked graph context', querying_graph: 'Checking graph evidence', preparing_execution: 'Preparing the investigation', reusing_preview: 'Using the checked graph evidence', writing_answer: 'Writing the grounded answer', searching_literature: 'Searching literature', awaiting_confirmation: 'Awaiting confirmation' };
 export function stageLabel(stage) { return STAGES[stage] || 'Preparing the investigation'; }
 export function liveProgress(run, connection) {
   const graphPreparation = ['preparing_preview', 'resolving_entities', 'generating_cypher', 'validating', 'querying_graph'].includes(run?.stage);

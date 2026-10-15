@@ -5,14 +5,15 @@ import AgentResultView from './ResultView';
 import { getDevConfig } from './runtimeConfig';
 
 // Explicit v2 identities remain readable even when new work is rolled back.
-// Unversioned saved sessions always retain the legacy reader.
+// Unversioned saved sessions retain the legacy reader; request IDs mark new intents.
 export const shouldUseVnextForNewQuestion = (search, enabled) => {
   const params = new URLSearchParams(search);
-  return enabled === true && Boolean(params.get('question')) && !params.get('session_id');
+  return enabled === true && Boolean(params.get('question')) && (!params.get('session_id') || Boolean(params.get('request_id')));
 };
 export const shouldUseVnextAgent = (search, enabled) => {
   const params = new URLSearchParams(search);
   return params.get('provider') === 'vnext' || Boolean(params.get('run_id'))
+    || (enabled === true && Boolean(params.get('request_id')))
     || shouldUseVnextForNewQuestion(search, enabled);
 };
 export default function AgentRoute({ children }) {

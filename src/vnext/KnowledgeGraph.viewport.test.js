@@ -2,7 +2,7 @@ import React, { act } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import cytoscape from 'cytoscape';
-import { observeGraphViewport } from './graphBindings';
+import { observeGraphViewport, updateGraphElements } from './graphBindings';
 import KnowledgeGraph from './KnowledgeGraph';
 
 let mockState = { queryResultPage: { queryResultPage: null } };
@@ -11,6 +11,7 @@ jest.mock('react-redux', () => ({ useSelector: (selector) => selector(mockState)
 jest.mock('cytoscape', () => ({ __esModule: true, default: jest.fn() }));
 jest.mock('./graphBindings', () => ({ ...jest.requireActual('./graphBindings'),
   observeGraphViewport: jest.fn(),
+  updateGraphElements: jest.fn(),
 }));
 const graph = { nodes: [{ '~id': 'g1', '~labels': ['Gene'], display_type: 'gene', '~properties': { name: 'CFTR' } }], edges: [] };
 const positions = { g1: { x: 1, y: 2, Level: 'Core' } };
@@ -30,7 +31,7 @@ beforeEach(() => {
   });
 });
 
-test('result polling with unchanged graph content preserves the renderer and user zoom; changed coordinates rebuild it', () => {
+test('result polling and changed server coordinates preserve the renderer and user zoom until unmount', () => {
   const { rerender, unmount } = render(view());
   expect(cytoscape).toHaveBeenCalledTimes(1);
   const cy = cytoscape.mock.results[0].value;
@@ -42,11 +43,14 @@ test('result polling with unchanged graph content preserves the renderer and use
   expect(cy.zoom()).toBe(2);
   expect(controller.dispose).not.toHaveBeenCalled();
   rerender(view(graph, { g1: { ...positions.g1, x: 10 } }));
-  expect(cytoscape).toHaveBeenCalledTimes(2);
+  expect(cytoscape).toHaveBeenCalledTimes(1);
+  expect(updateGraphElements).toHaveBeenCalledTimes(1);
+  expect(cy.zoom()).toBe(2);
+  expect(controller.dispose).not.toHaveBeenCalled();
+  expect(cy.destroy).not.toHaveBeenCalled();
+  unmount();
   expect(controller.dispose).toHaveBeenCalledTimes(1);
   expect(cy.destroy).toHaveBeenCalledTimes(1);
-  unmount();
-  expect(observeGraphViewport.mock.results[1].value.dispose).toHaveBeenCalledTimes(1);
 });
 
 test('fitted viewport starts at 100%, enables zoom-out below0.6, and recenter refits the current pane', () => {

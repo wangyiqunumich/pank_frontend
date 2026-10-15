@@ -1,5 +1,5 @@
 import cytoscape from 'cytoscape';
-import { applyGraphRoutes, calculateGraphViewport, graphElements, observeGraphViewport, spreadCompactLayout } from './graphBindings';
+import { applyGraphRoutes, calculateGraphViewport, graphElements, observeGraphViewport, spreadCompactLayout, updateGraphElements } from './graphBindings';
 
 const graph = {
   nodes: ['gene', 'cell'].map((id) => ({ '~id': id, '~labels': [id], '~properties': { name: id } })),
@@ -151,7 +151,7 @@ test('viewport ignores hidden/invalid panels and caps a single-node fit at the e
   expect(calculateGraphViewport({ x1: 0, y1: 0, x2: 20, y2: 16 }, { width: 600, height: 630 }).zoom).toBe(4);
 });
 
-test('resize observer waits for visibility, refits real size changes, preserves user zoom on unchanged size, and cleans up', () => {
+test('resize observer waits for visibility, preserves user zoom on size changes, allows explicit fit, and cleans up', () => {
   let size = { width: 0, height: 0 }, callback, frame, destroyed = false, zoom = 1;
   const bounds = { x1: 0, y1: 0, x2: 1000, y2: 400 };
   const cy = { destroyed: () => destroyed, resize: jest.fn(), nodes: () => ({ length: 100 }),
@@ -171,11 +171,11 @@ test('resize observer waits for visibility, refits real size changes, preserves 
   zoom = 2; callback(); frame();
   expect(zoom).toBe(2);
   size = { width: 1440, height: 800 }; callback(); frame();
-  expect(zoom).toBeCloseTo(1.332);
+  expect(zoom).toBe(2);
   size = { width: 600, height: 630 }; controller.fit();
   expect(zoom).toBeCloseTo(0.492);
   callback(); const lastFrame = frame; controller.dispose(); destroyed = true; lastFrame();
-  expect(onFit).toHaveBeenCalledTimes(3);
+  expect(onFit).toHaveBeenCalledTimes(2);
   expect(disconnect).toHaveBeenCalledTimes(1);
   expect(host.cancelAnimationFrame).toHaveBeenCalledWith(1);
   expect(controller.fit()).toBeNull();
@@ -208,4 +208,22 @@ test('lists retain centered native fit and native wheel zoom', () => {
   expect(cy.panBy).not.toHaveBeenCalled();
   controller.dispose();
   expect(container.removeEventListener).not.toHaveBeenCalled();
+});
+
+test('incremental graph updates preserve dragged positions, selection, pan and zoom', () => {
+  const first = graphElements(graph, positions, routes);
+  const cy = cytoscape({ headless: true, styleEnabled: true, elements: { nodes: first.nodes, edges: first.edges }, layout: { name: 'preset' } });
+  try {
+    const node = cy.getElementById('gene');
+    node.position({ x: 400, y: 300 }); node.select();
+    cy.zoom(2); cy.pan({ x: 17, y: 29 });
+    const revised = graphElements({ ...graph, nodes: [...graph.nodes, { '~id': 'new', '~properties': { name: 'New' } }], edges: graph.edges.slice(0, 1) }, positions);
+    updateGraphElements(cy, revised.nodes, revised.edges);
+    expect(cy.getElementById('gene')[0]).toBe(node[0]);
+    expect(node.position()).toEqual({ x: 400, y: 300 });
+    expect(node.selected()).toBe(true);
+    expect(cy.zoom()).toBe(2); expect(cy.pan()).toEqual({ x: 17, y: 29 });
+    expect(cy.getElementById('new').nonempty()).toBe(true);
+    expect(cy.getElementById('detection').empty()).toBe(true);
+  } finally { cy.destroy(); }
 });

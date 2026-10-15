@@ -2,6 +2,19 @@ import { groundedLiterature } from './contracts';
 import { applyRunEvent, literatureNotice, liveProgress, planMarkdown, projectionForRun, selectedResultParams, stageLabel, templateRequest, withLiteratureReferences } from './contracts';
 import { graphElements, routeStyle } from './graphBindings';
 
+test('projection requests pin graph revisions and cancelled runs retain checked previews', () => {
+  const preview = { status: 'complete', evidence: { graph_version: 'v1', graph_revision: 2 } };
+  expect(projectionForRun({ run_id: 'r1', status: 'cancelled', preview })).toEqual({ run_id: 'r1', phase: 'preview', graph_revision: 2 });
+  expect(projectionForRun({ run_id: 'r1', status: 'running', graph_complete: true, evidence: { graph_version: 'v1' }, graph_revision: 3, preview })).toEqual({ run_id: 'r1', phase: 'final', graph_revision: 3 });
+});
+
+test('events from another run or an older graph revision cannot replace current evidence', () => {
+  const run = { run_id: 'r1', event_sequence: 8, graph_revision: 3, evidence: { graph_version: 'current' } };
+  expect(applyRunEvent(run, { run_id: 'other', seq: 100, type: 'graph_step', payload: { graph_revision: 4 } })).toBe(run);
+  const next = applyRunEvent(run, { run_id: 'r1', seq: 9, type: 'graph_step', payload: { graph_revision: 2, evidence: { graph_version: 'old' } } });
+  expect(next.graph_revision).toBe(3); expect(next.evidence).toEqual(run.evidence);
+});
+
 test.each([
   ['snp', 'gene@ENSG1', 'QTL', 'qtl_by_gene'],
   ['snp@rs1', 'gene@ENSG1', 'QTL', 'qtl_by_variant_gene'],

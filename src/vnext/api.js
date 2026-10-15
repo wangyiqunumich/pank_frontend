@@ -1,3 +1,4 @@
+import { newId } from '../utils/agentIdentity';
 import { safeSessionStorage } from '../utils/safeStorage';
 import { abortError, readWithRecovery, waitDelay } from './readRecovery';
 import { getDevConfig } from './runtimeConfig';
@@ -30,7 +31,7 @@ const validateIdentity = (body, field, expected, snapshot = false) => {
 };
 
 export async function request(path, options = {}) {
-  const { timeoutMs = options.method && options.method !== 'GET' ? 0 : 15000, signal, ...fetchOptions } = options;
+  const { timeoutMs = options.method && options.method !== 'GET' ? 10000 : 15000, signal, ...fetchOptions } = options;
   const controller = new AbortController();
   const cancel = () => controller.abort();
   if (signal?.aborted) throw abortError();
@@ -47,13 +48,15 @@ export async function request(path, options = {}) {
     if (!response.ok) {
       const error = new Error(typeof body?.detail === 'string' ? body.detail : `Request failed (${response.status}).`);
       error.status = response.status;
+      if (fetchOptions.method && fetchOptions.method !== 'GET' && response.status >= 500) error.outcomeUnknown = true;
       throw error;
     }
     if (!object(body)) throw protocolError();
     return body;
   } catch (error) {
     if (signal?.aborted) throw abortError();
-    if (timedOut) throw Object.assign(new Error('Reading the saved result timed out.'), { status: 408 });
+    if (timedOut) throw Object.assign(new Error(fetchOptions.method && fetchOptions.method !== 'GET' ? 'The request timed out; its outcome is unknown. Reading saved state will recover it.' : 'Reading the saved result timed out.'), { status: 408, outcomeUnknown: true });
+    if (fetchOptions.method && fetchOptions.method !== 'GET' && (!error.status || error.protocol)) error.outcomeUnknown = true;
     throw error;
   } finally {
     clearTimeout(timer); signal?.removeEventListener('abort', cancel);
@@ -62,24 +65,69 @@ export async function request(path, options = {}) {
 
 const post = (path, body, options = {}) => request(path, { method: 'POST', body: JSON.stringify(body || {}), ...options });
 export const getRun = (id, options = {}) => readWithRecovery(async () => validateIdentity(await request(`/agent/v2/runs/${encodeURIComponent(id)}`, { signal: options.signal }), 'run_id', id, true), options);
-export const confirmPlan = (id) => post(`/agent/v2/plans/${encodeURIComponent(id)}/confirm`).then(body => validateIdentity(body, 'run_id'));
-export const revisePlan = (id, question, includeContext = true) => post(`/agent/v2/plans/${encodeURIComponent(id)}/revise`, { question, include_context: includeContext, revision_instruction: question, revision_mode: 'instruction' }).then(body => validateIdentity(body, 'run_id'));
-export const cancelRun = (id) => post(`/agent/v2/runs/${encodeURIComponent(id)}/cancel`);
+export const getRequest = async (id, options = {}) => validateIdentity(await request(`/agent/v2/requests/${encodeURIComponent(id)}`, options), 'request_id', id);
+export const cancelRequest = async (id) => {
+  try { return await post(`/agent/v2/requests/${encodeURIComponent(id)}/cancel`); }
+  catch (error) { if (!error.outcomeUnknown) throw error; let saved; try { saved = await getRequest(id); } catch (_) { throw error; } if (saved.cancel_requested || TERMINAL_RUNS.has(saved.status)) return saved; throw error; }
+};
+async function recoverControl(path, runId, body, accepted) {
+  try { return validateIdentity(await post(path, body), 'run_id', runId); }
+  catch (error) {
+    if (error.protocol) error.outcomeUnknown = true;
+    if (!error.outcomeUnknown) throw error;
+    let saved;
+    try { saved = validateIdentity(await request(`/agent/v2/runs/${encodeURIComponent(runId)}`), 'run_id', runId, true); } catch (_) { throw error; }
+    if (accepted(saved)) return saved;
+    throw error;
+  }
+}
+export const confirmPlan = (id, runId = id) => recoverControl(`/agent/v2/plans/${encodeURIComponent(id)}/confirm`, runId, {}, run => run.status !== 'awaiting_confirmation');
+export const retryFormatter = (id) => recoverControl(`/agent/v2/runs/${encodeURIComponent(id)}/retry-format`, id, {}, run => run.status === 'running' || !run.errors?.some(error => error.component === 'formatter'));
+export const cancelRun = (id) => recoverControl(`/agent/v2/runs/${encodeURIComponent(id)}/cancel`, id, {}, run => TERMINAL_RUNS.has(run.status));
 
-// Re-render/StrictMode/reload resumes a saved run; uncertainty never repeats inference.
-export function createPlanOnce(question, sessionId = '', intentKey = question, parentRunId = null) {
-  const key = `pank-vnext:plan:${JSON.stringify([sessionId, intentKey])}`;
-  if (inFlight.has(key)) return inFlight.get(key);
+async function admit(path, payload, key) {
   const previous = readSaved(key);
-  if (identity(previous?.run_id)) return Promise.resolve(previous);
-  if (previous?.pending) return Promise.reject(new Error('Plan creation was interrupted. Open the saved conversation if available, or start a new question.'));
-  save(key, { pending: true });
-  const task = post('/agent/v2/plans', { question, include_context: true, ...(parentRunId ? { parent_run_id: parentRunId } : {}), ...(sessionId ? { session_id: sessionId } : {}) })
-    .then((created) => { validateIdentity(created, 'run_id'); save(key, created); return created; })
-    .catch((error) => { if (error.status >= 400 && !error.protocol) save(key, null); throw error; })
-    .finally(() => inFlight.delete(key));
-  inFlight.set(key, task);
-  return task;
+  if (identity(previous?.run_id)) return previous;
+  if (previous?.pending) {
+    try {
+      const saved = await getRequest(payload.request_id);
+      if (identity(saved.run_id)) { save(key, saved); return saved; }
+      if (saved.cancel_requested || TERMINAL_RUNS.has(saved.status)) throw Object.assign(new Error('This request ended before admission.'), { status: 409 });
+      throw Object.assign(new Error('This request is still pending. Reconnect to read its saved state.'), { outcomeUnknown: true });
+    } catch (error) { if (error.status !== 404) throw error; }
+  }
+  save(key, { pending: true, request_id: payload.request_id });
+  try {
+    const created = validateIdentity(await post(path, payload), 'run_id');
+    save(key, created); return created;
+  } catch (error) {
+    if (error.protocol) error.outcomeUnknown = true;
+    if (error.outcomeUnknown) {
+      try {
+        const recovered = await getRequest(payload.request_id);
+        if (identity(recovered.run_id)) { save(key, recovered); return recovered; }
+      } catch (_) { /* Preserve pending intent for explicit reconnect/reload. */ }
+    } else if (error.status >= 400) save(key, null);
+    throw error;
+  }
+}
+export function createPlanOnce(question, sessionId = '', requestId = null, parentRunId = null) {
+  // Legacy call sites retain a stable locally mapped intent; current UI passes UUIDs.
+  const legacyKey = `pank-vnext:intent:${JSON.stringify([sessionId, requestId || question])}`;
+  const previousIntent = readSaved(legacyKey);
+  const id = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId || '') ? requestId : previousIntent?.request_id || newId();
+  const durableSessionId = sessionId || previousIntent?.session_id || newId();
+  save(legacyKey, { request_id: id, session_id: durableSessionId });
+  const key = `pank-vnext:request:${id}`;
+  if (inFlight.has(key)) return inFlight.get(key);
+  const task = admit('/agent/v2/plans', { question, session_id: durableSessionId, request_id: id, include_context: true, ...(parentRunId ? { parent_run_id: parentRunId } : {}) }, key).finally(() => inFlight.delete(key));
+  inFlight.set(key, task); return task;
+}
+export function revisePlan(id, question, includeContext = true, requestId = newId()) {
+  const key = `pank-vnext:request:${requestId}`;
+  if (inFlight.has(key)) return inFlight.get(key);
+  const task = admit(`/agent/v2/plans/${encodeURIComponent(id)}/revise`, { question, request_id: requestId, include_context: includeContext, revision_instruction: question, revision_mode: 'instruction' }, key).finally(() => inFlight.delete(key));
+  inFlight.set(key, task); return task;
 }
 
 export function createResultOnce(payload) {
@@ -91,7 +139,7 @@ export function createResultOnce(payload) {
   inFlight.set(key, task);
   return task;
 }
-export const getResult = (id, options = {}) => readWithRecovery(async () => validateIdentity(await request(`/results/${encodeURIComponent(id)}`, { signal: options.signal }), 'result_id', id, true), options);
+export const getResult = (id, options = {}) => readWithRecovery(async () => validateIdentity(await request(`/results/${encodeURIComponent(id)}${options.graph_revision !== undefined ? `?graph_revision=${options.graph_revision}` : ''}`, { signal: options.signal }), 'result_id', id, true), options);
 export function searchEntities(parameters, options = {}) {
   const query = new URLSearchParams(Object.entries(parameters).filter(([, value]) => value !== undefined && value !== null && value !== '').map(([key, value]) => [key, String(value)]));
   return request(`/search?${query}`, options);
@@ -110,17 +158,32 @@ export async function pollResult(id, onUpdate, { signal, interval = 1000, ...rec
   }
 }
 
-export function watchRun(runId, sequence, onEvent, onConnection = () => {}) {
+export function watchRun(runId, sequence, onEvent, onConnection = () => {}, onSnapshot = () => {}) {
   let lastSequence = Number(sequence || 0), stopped = false;
   // EventSource handles transport recovery and Last-Event-ID replay natively.
   // Switching tabs does not close the stream or interrupt backend execution.
   const source = new EventSource(apiPath(`/agent/v2/runs/${encodeURIComponent(runId)}/events?after=${lastSequence}`), { withCredentials: true });
-  const stop = () => { stopped = true; source.close(); };
+  let polling = null, reading = false;
+  const controller = new AbortController();
+  const refresh = async () => {
+    if (stopped || reading) return;
+    reading = true;
+    try {
+      const saved = await getRun(runId, { signal: controller.signal });
+      if (stopped) return;
+      if (Number(saved.event_sequence || 0) >= lastSequence) {
+        lastSequence = Number(saved.event_sequence || 0); onSnapshot(saved);
+        if (TERMINAL_RUNS.has(saved.status)) stop();
+      }
+    } catch (_) { /* Keep the saved UI and try a read at the next polling tick. */ }
+    finally { reading = false; }
+  };
+  const stop = () => { stopped = true; clearInterval(polling); controller.abort(); source.close(); };
   const handle = (message) => {
     if (stopped) return;
     let event;
     try { event = JSON.parse(message.data); } catch (_) { return; }
-    if (!object(event)) return;
+    if (!object(event) || (event.run_id && event.run_id !== runId)) return;
     const seq = Number(event.seq ?? event.sequence ?? message.lastEventId);
     if (!Number.isSafeInteger(seq) || seq < 0 || seq <= lastSequence) return;
     lastSequence = seq;
@@ -128,9 +191,13 @@ export function watchRun(runId, sequence, onEvent, onConnection = () => {}) {
     if (event.type === 'terminal') stop();
   };
   ['progress', 'heartbeat', 'plan_validated', 'plan_ready', 'preview_step', 'preview_reused', 'graph_step', 'graph_answer', 'followup_ready', 'literature_sources', 'literature_progress', 'literature_perspective', 'literature_complete', 'terminal'].forEach(type => source.addEventListener(type, handle));
-  source.onopen = () => { if (!stopped) onConnection('connected'); };
+  source.onopen = () => { if (!stopped) { clearInterval(polling); polling = null; onConnection('connected'); refresh(); } };
   source.onerror = () => {
-    if (!stopped && source.readyState === 2) { stop(); onConnection('exhausted'); }
+    if (!stopped) {
+      if (source.readyState === 2) source.close();
+      onConnection(source.readyState === 2 ? 'exhausted' : 'reconnecting');
+      if (!polling) { refresh(); polling = setInterval(refresh, 5000); }
+    }
   };
   return stop;
 }

@@ -89,7 +89,10 @@ export function observeGraphViewport(cy, container, onFit = () => {}, host = win
       frame = null;
       if (disposed || cy.destroyed()) return;
       const box = container.getBoundingClientRect();
-      if (`${box.width}:${box.height}` !== lastSize) fit();
+      if (`${box.width}:${box.height}` !== lastSize) {
+        if (!lastSize) fit();
+        else { cy.resize(); lastSize = `${box.width}:${box.height}`; }
+      }
     });
   };
   const observer = host.ResizeObserver ? new host.ResizeObserver(schedule) : null;
@@ -201,4 +204,26 @@ export function applyGraphRoutes(cy, edgeStyles) {
       if (edge.nonempty() && edge.isEdge()) edge.style(style);
     });
   });
+}
+
+
+export function updateGraphElements(cy, nodes, edges) {
+  const desired = new Set([...nodes, ...edges].map(element => element.data.id));
+  cy.batch(() => {
+    cy.elements().filter(element => !desired.has(element.id())).remove();
+    nodes.forEach(node => {
+      const existing = cy.getElementById(node.data.id);
+      if (existing.nonempty()) existing.data(node.data);
+      else cy.add(node);
+    });
+    edges.forEach(edge => {
+      const existing = cy.getElementById(edge.data.id);
+      if (existing.nonempty()) existing.data(edge.data);
+      else cy.add(edge);
+    });
+  });
+  // Server routes were computed for server positions. They must not override a
+  // user's retained positions; preserve native curves on incremental updates.
+  cy.edges().removeStyle('curve-style control-point-weights control-point-distances segment-weights segment-distances source-endpoint target-endpoint');
+  cy.resize();
 }

@@ -1,3 +1,4 @@
+import { newIntent } from '../utils/agentIdentity';
 import React, {
   useEffect,
   useMemo,
@@ -143,7 +144,8 @@ function AgentLandingPage() {
             query_length: normalized.length,
         });
         const encodedQuery = encodeURIComponent(utf8ToBase64(normalized));
-        navigate(`/result-new2?question=${encodedQuery}`);
+        const intent = getDevConfig().vnextEnabled ? { provider: 'vnext', ...newIntent() } : {};
+        navigate(`/result-new2?question=${encodedQuery}&${new URLSearchParams(intent)}`);
     };
 
     const handleExampleClick = (example) => {

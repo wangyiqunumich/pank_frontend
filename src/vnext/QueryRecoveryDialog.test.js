@@ -2,6 +2,15 @@ import React from 'react';
 import {render,screen,fireEvent} from '@testing-library/react';
 import QueryRecoveryDialog,{queryRecovery} from './QueryRecoveryDialog';
 import {projectionForRun} from './contracts';
+test('formatter-only recovery offers one answer retry without changing the question or graph', () => {
+ const retry = jest.fn();
+ const issue = queryRecovery({ status: 'partial', errors: [{ component: 'formatter', message: 'Formatting failed' }] });
+ render(<QueryRecoveryDialog issue={issue} question="INS" onRetry={retry} />);
+ fireEvent.click(screen.getByRole('button', { name: 'Retry answer' }));
+ expect(retry).toHaveBeenCalledTimes(1);
+ expect(screen.queryByRole('button', { name: 'Retry original question' })).toBeNull();
+ expect(screen.queryByLabelText('Tell us what to change')).toBeNull();
+});
 test('empty plan explains internal failure; original question retained and retry does not revise',()=>{
  const run={question:'How many HPAP stage 3 islet donors?',status:'awaiting_confirmation',plan:{steps:[],clarification:'Please provide a concrete entity or graph question.'}};
  const retry=jest.fn(),revise=jest.fn(),cancel=jest.fn();

@@ -31,6 +31,7 @@ test('only dev boolean enables new requests while unversioned sessions retain th
   expect(shouldUseVnextForNewQuestion('?question=INS', false)).toBe(false);
   expect(shouldUseVnextForNewQuestion('?question=INS', true)).toBe(true);
   expect(shouldUseVnextAgent('?question=INS&session_id=old', true)).toBe(false);
+  expect(shouldUseVnextAgent('?question=INS&session_id=new&request_id=new-request', true)).toBe(true);
   expect(shouldUseVnextAgent('?provider=vnext&session_id=new', false)).toBe(true);
   expect(shouldUseVnextAgent('?run_id=saved', false)).toBe(true);
 });

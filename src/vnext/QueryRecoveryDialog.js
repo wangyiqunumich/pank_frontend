@@ -35,6 +35,7 @@ function errorCode(error) {
 
 function recoveryFor(run, error = '') {
   if (['cancelled', 'superseded'].includes(run?.status)) return null;
+  if (run?.status === 'partial' && run.errors?.some(item => item.component === 'formatter')) return { category: 'formatter', title: 'The answer could not finish', message: 'The retrieved graph is preserved. Retry formatting using the same evidence.', retryable: true, retryLabel: 'Retry answer', suggestions: [] };
   const plan = run?.plan;
   const terminalFailure = ['failed', 'interrupted'].includes(run?.status);
   // The latest structured diagnosis includes verified suggestions. A downstream
@@ -90,7 +91,7 @@ function recoveryFor(run, error = '') {
 
 const OPERATOR_CATEGORIES = new Set(['authentication', 'authorization', 'billing', 'budget_exhausted', 'graph_identity']);
 const RELEASE_MISMATCH_CATEGORIES = new Set(['release_mismatch', 'graph_release_mismatch']);
-const NON_EDITABLE_CATEGORIES = new Set(['rate_limited', 'release_mismatch', 'graph_release_mismatch']);
+const NON_EDITABLE_CATEGORIES = new Set(['rate_limited', 'release_mismatch', 'graph_release_mismatch', 'formatter']);
 const SUPPORT_EMAILS = 'wyq@umich.edu, runbomao@umich.edu, drjieliu@umich.edu, fan.feng@vumc.org, help@pankbase.org';
 
 function recoveryEyebrow(category = '') {
@@ -153,7 +154,7 @@ export default function QueryRecoveryDialog({issue, question, busy, onRevise, on
           : instruction.trim()
             ? 'Apply changes'
             : issue?.retryable
-              ? 'Retry original question'
+              ? issue?.retryLabel || 'Retry original question'
               : 'Apply changes';
 
   const handlePrimary = () => {

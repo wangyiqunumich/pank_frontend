@@ -65,3 +65,29 @@ streaming from the actual dev origin; unit tests/build do not establish it.
   its browser requests alone cannot establish server-side cancellation.
 
 These checks and fixes do not change the skills pages or deploy a backend.
+
+## Communication patch migration, October 15, 2026
+
+The former Amplify preBuild command unpacked a base64/gzip patch and ran
+`git apply`. It failed before dependency installation because its source context
+no longer matched the repository. Its communication changes now live in source:
+durable request/session UUIDs, request lookup and pre-admission cancellation,
+same-run formatter retry, graph revision pinning, saved-state SSE fallback, and
+stable graph rendering through plan/answer transitions. The existing question
+numbering, fine-mapping styles, and known-run/late-run cancellation fixes remain.
+
+The root `amplify.yml` retains the supplied install/build commands, artifact
+directory, and npm cache settings, with only the injected patch command removed.
+Amplify uses this branch's repository build specification in preference to the
+console specification. Remove the obsolete command from console settings too
+so a future branch without this file cannot accidentally reintroduce it.
+
+The live dev API accepted a UUID request ID for plan admission, request lookup,
+and request cancellation; the corresponding run was confirmed cancelled. This
+checks the backend contract, not the deployment status of this frontend commit.
+
+Validation after migration: all 43 test suites (380 tests) passed with
+`npm test -- --watchAll=false --runInBand --silent`. A deployment-mode build
+with `REACT_APP_API_GATEWAY_STAGE_NAME=development` completed, retaining the
+project's existing lint/dependency warnings. The supplied build settings were
+parsed and compared to confirm the patch command was the only removed setting.

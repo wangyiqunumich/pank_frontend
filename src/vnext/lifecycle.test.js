@@ -9,7 +9,7 @@ jest.mock('react-markdown', () => ({ __esModule: true, default: ({ children }) =
 jest.mock('remark-gfm', () => ({ __esModule: true, default: () => {} }));
 jest.mock('react-slick', () => ({ __esModule: true, default: ({ children }) => <div>{children}</div> }));
 jest.mock('./KnowledgeGraph', () => ({ __esModule: true, default: ({ graphData }) => <div data-testid="graph">{graphData.nodes.map((node) => node['~id']).join(',')}</div> }));
-jest.mock('./api', () => ({ ...jest.requireActual('./api'), getRun: jest.fn(), getResult: jest.fn(), createPlanOnce: jest.fn(), createResultOnce: jest.fn(), pollResult: jest.fn(), watchRun: jest.fn(), revisePlan: jest.fn(), confirmPlan: jest.fn(), cancelRun: jest.fn() }));
+jest.mock('./api', () => ({ ...jest.requireActual('./api'), getRun: jest.fn(), getResult: jest.fn(), createPlanOnce: jest.fn(), createResultOnce: jest.fn(), pollResult: jest.fn(), watchRun: jest.fn(), revisePlan: jest.fn(), confirmPlan: jest.fn(), cancelRun: jest.fn(), cancelRequest: jest.fn(), retryFormatter: jest.fn() }));
 
 const snapshot = (id = 'r1', question = 'Which cells express INS?') => ({ run_id: id, plan_id: `p-${id}`, session_id: 's1', question, status: 'awaiting_confirmation', event_sequence: 40, plan: { interpreted_question: question, steps: [{ id: 's1', title: 'Check expression', question }] }, preview: { status: 'complete', evidence: {graph_version:'test'} }, include_context: true });
 beforeEach(() => {
@@ -19,6 +19,8 @@ beforeEach(() => {
   api.pollResult.mockImplementation(async (id, update) => { const result = { status: 'ready', component_status: { resources: 'not_applicable' }, combined_query_result: { nodes: [{ '~id': id }], edges: [] }, resources_tabs: {} }; update(result); return result; });
   api.watchRun.mockReturnValue(jest.fn());
   api.cancelRun.mockResolvedValue({ status: 'cancelled' });
+  api.cancelRequest.mockResolvedValue({ cancel_requested: true });
+  api.retryFormatter.mockResolvedValue({ run_id: 'r1', status: 'running' });
 });
 const mount = () => render(<MemoryRouter initialEntries={['/result-new2?run_id=r1']}><AgentResultView contentAnchorPrefix="lifecycle" onContentMeta={jest.fn()} /></MemoryRouter>);
 function RouteProbe() { return <div data-testid="current-route">{useLocation().pathname}</div>; }
@@ -48,10 +50,33 @@ test('saved run hydrates preview, resumes cursor, and does not create a model ca
   const { unmount } = mount();
   await waitFor(() => expect(screen.getByTestId('graph').textContent).toBe('r1-preview'));
   expect(api.createPlanOnce).not.toHaveBeenCalled();
-  expect(api.watchRun).toHaveBeenCalledWith('r1', 40, expect.any(Function), expect.any(Function));
+  expect(api.watchRun).toHaveBeenCalledWith('r1', 40, expect.any(Function), expect.any(Function), expect.any(Function));
   expect(api.createResultOnce).toHaveBeenCalledTimes(1);
   unmount();
   expect(api.watchRun.mock.results[0].value).toHaveBeenCalled();
+});
+
+test('formatter failure retries only formatting on the existing run', async () => {
+  api.getRun.mockResolvedValueOnce({ ...snapshot(), status: 'partial', graph_complete: true, evidence: { graph_version: 'test' }, errors: [{ component: 'formatter', message: 'Formatting failed' }] }).mockResolvedValue({ ...snapshot(), status: 'running' });
+  mount();
+  fireEvent.click(await screen.findByRole('button', { name: 'Retry answer' }));
+  await waitFor(() => expect(api.retryFormatter).toHaveBeenCalledWith('r1'));
+  expect(api.createPlanOnce).not.toHaveBeenCalled(); expect(api.revisePlan).not.toHaveBeenCalled();
+});
+
+test('failed projection admission reconnects without creating another investigation', async () => {
+  api.createResultOnce.mockRejectedValueOnce(new Error('Projection unavailable')).mockResolvedValue({ result_id: 'projection' });
+  function Probe() {
+    const [result, , connection] = useProjectedResult({ run_id: 'r1', phase: 'preview', graph_revision: 2 });
+    return <><ConnectionNotice status={connection.status} onReconnect={connection.reconnect} /><output>{result?.graph_revision}</output></>;
+  }
+  api.pollResult.mockImplementation(async (_, update) => update({ status: 'ready', graph_revision: 2 }));
+  render(<Probe />);
+  fireEvent.click(await screen.findByRole('button', { name: 'Retry' }));
+  await waitFor(() => expect(screen.getByRole('status').textContent).toBe('2'));
+  expect(api.createResultOnce).toHaveBeenCalledTimes(2);
+  expect(api.createPlanOnce).not.toHaveBeenCalled();
+  expect(api.pollResult).toHaveBeenCalledWith('projection', expect.any(Function), expect.objectContaining({ graph_revision: 2 }));
 });
 test('cancel leaves immediately while plan creation is still pending, then cancels the created run', async () => {
   let finishCreation;
@@ -64,6 +89,7 @@ test('cancel leaves immediately while plan creation is still pending, then cance
   const cancel = await screen.findByRole('button', { name: 'Cancel and ask a new question' });
   fireEvent.click(cancel);
   expect(screen.getByTestId('current-route').textContent).toBe('/');
+  expect(api.cancelRequest).toHaveBeenCalledWith(api.createPlanOnce.mock.calls[0][2]);
   finishCreation({ run_id: 'created-run' });
   await waitFor(() => expect(api.cancelRun).toHaveBeenCalledWith('created-run'));
 });
@@ -77,7 +103,7 @@ test('cancel still cancels the current run when an in-flight confirmation fails'
   </MemoryRouter>);
   await screen.findByTestId('graph');
   fireEvent.click(document.getElementById('lifecycle-plan-proceed-button'));
-  await waitFor(() => expect(api.confirmPlan).toHaveBeenCalledWith('p-r1'));
+  await waitFor(() => expect(api.confirmPlan).toHaveBeenCalledWith('p-r1', 'r1'));
   // Exercise cancel from a recovery dialog while the confirmation is uncertain.
   const emit = api.watchRun.mock.calls[0][2];
   act(() => emit({ seq: 41, type: 'terminal', payload: { status: 'failed', error: { message: 'Confirmation failed' } } }));
@@ -117,7 +143,7 @@ test('revision creates a fresh run and graph while preserving the edited biologi
   fireEvent.change(screen.getByPlaceholderText('e.g. Use spleen instead, keeping the same donor filters'), { target: { value: 'Which cells express SST?' } });
   fireEvent.click(screen.getByRole('button', { name: 'send' }));
   await waitFor(() => expect(screen.getByTestId('graph').textContent).toBe('r2-preview'));
-  expect(api.revisePlan).toHaveBeenCalledWith('p-r1', 'Which cells express SST?', true);
+  expect(api.revisePlan).toHaveBeenCalledWith('p-r1', 'Which cells express SST?', true, expect.any(String));
   expect(screen.getByPlaceholderText('e.g. Use spleen instead, keeping the same donor filters').value).toBe('');
   expect(api.createPlanOnce).not.toHaveBeenCalled();
 });
@@ -248,7 +274,8 @@ test('native follow-up handler keeps the previous answer visible until new plan 
   api.createPlanOnce.mockResolvedValueOnce({run_id:'r2'});
   fireEvent.click(screen.getByRole('button',{name:'Retry follow-up'}));
   await waitFor(() => expect(api.createPlanOnce).toHaveBeenCalledTimes(2));
-  expect(api.createPlanOnce.mock.calls[1]).toEqual(['What about SST?', 's1', 'r1:What about SST?', 'r1']);
+  expect(api.createPlanOnce.mock.calls[1]).toEqual(['What about SST?', 's1', expect.any(String), 'r1']);
+  expect(api.createPlanOnce.mock.calls[1][2]).toBe(api.createPlanOnce.mock.calls[0][2]);
   expect(api.createPlanOnce.mock.calls[1][0]).not.toBe('Which cells express INS?');
 });
 
