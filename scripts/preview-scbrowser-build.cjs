@@ -7,6 +7,9 @@ const root = path.resolve(__dirname, '../build');
 const types = { '.js':'text/javascript', '.html':'text/html', '.css':'text/css', '.png':'image/png', '.svg':'image/svg+xml', '.json':'application/json', '.txt':'text/plain' };
 http.createServer((req,res)=>{
   const name=decodeURIComponent(new URL(req.url,'http://localhost').pathname).replace(/^\/(?:pankgraph-vnext\/?)?/,'');
+  if (name === 'api/scbrowser/expression' && demo) {
+    require('https').get('https://dev.pankgraph.org/pankgraph-vnext/'+new URL(req.url,'http://localhost').pathname.replace(/^\/(?:pankgraph-vnext\/)?/,'')+new URL(req.url,'http://localhost').search, upstream=>{res.writeHead(upstream.statusCode, {'Content-Type':'application/json', ...(upstream.headers['content-encoding'] ? {'Content-Encoding':upstream.headers['content-encoding']} : {})});upstream.pipe(res);}).on('error',()=>res.writeHead(502).end()); return;
+  }
   if (name.startsWith('api/')) {
     if (!demo) { res.writeHead(503, {'Content-Type':'application/json'}).end(JSON.stringify({message:'Static preview only. Start with --demo for the single-cell navigation demo.'})); return; }
     let body;

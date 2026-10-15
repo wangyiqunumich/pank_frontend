@@ -8,7 +8,7 @@ export async function readPublic(path, limit = 16 * 1024 * 1024) {
   try {
     // Workers live under assets/ in production, while atlas/ is beside index.html.
     const localBase = globalThis.location ? `${location.origin}${location.pathname.replace(/\/(?:assets\/)?[^/]*$/, '/')}` : import.meta.url;
-    const response = await fetch(path.startsWith('./atlas/') ? new URL(path, localBase) : `${ORIGIN}${path}`, { credentials: 'omit', signal: controller.signal });
+    const response = await fetch(path.startsWith('./atlas/') ? new URL(path, localBase) : path.startsWith('/pankgraph-vnext/') ? `${location.origin}${path}` : `${ORIGIN}${path}`, { credentials: 'omit', signal: controller.signal });
     if (!response.ok) throw new Error(`Atlas request failed (${response.status}).`);
     const reader = response.body.getReader(); const chunks = []; let size = 0;
     for (;;) { const { done, value } = await reader.read(); if (done) break; size += value.length; if (size > limit) { controller.abort(); throw new Error('Atlas response exceeds the browser size limit.'); } chunks.push(value); }
@@ -51,7 +51,7 @@ export function summaries(atlas, expression, gene) {
     return [{ [FIELD]: atlas.labels[index], gene, count: list.length, min: list[0], max: list[list.length - 1], q1: quantile(list, .25), median: quantile(list, .5), q3: quantile(list, .75), exprValues: list }];
   });
 }
-export function createLoader(read = readPublic, cache = atlasCache, refresh = false) {
+export function createLoader(read = readPublic, cache = atlasCache, refresh = false, config = { enabled: true, endpoint: '/pankgraph-vnext/api/scbrowser/expression' }) {
   let atlasPromise; const genes = new Map();
   async function atlas() {
     if (!atlasPromise) atlasPromise = (async () => {
@@ -61,35 +61,49 @@ export function createLoader(read = readPublic, cache = atlasCache, refresh = fa
       const cacheKey = `${DATASET}:${manifest.asset}`;
       const cached = refresh ? null : await cache.get(cacheKey);
       if (cached) {
-        try { return { ...validateCompact(cached, manifest.count), title: manifest.title, retrievedAt: manifest.retrievedAt, cacheHit: true }; }
+        try { return { ...validateCompact(cached, manifest.count), asset: manifest.asset, title: manifest.title, retrievedAt: manifest.retrievedAt, cacheHit: true }; }
         catch (_) { await cache.clear(cacheKey); }
       }
       const packed = JSON.parse(await read(`./atlas/${manifest.asset}`));
-      const atlas = { ...validateCompact(packed, manifest.count), title: manifest.title, retrievedAt: manifest.retrievedAt };
+      const atlas = { ...validateCompact(packed, manifest.count), asset: manifest.asset, title: manifest.title, retrievedAt: manifest.retrievedAt };
       await cache.set(cacheKey, packed);
       return { ...atlas, cacheHit: false };
     })().catch(error => { atlasPromise = null; throw error; });
     return atlasPromise;
   }
-  const load = async (gene, onAtlas = () => {}) => {
+  async function expression(gene) {
     if (!/^[A-Z0-9][A-Z0-9._-]{0,79}$/.test(gene)) throw new Error('Invalid gene symbol.');
-    // Start expression alongside the shared atlas. Wrap errors immediately to avoid
-    // unhandled rejections while the larger first atlas request is still in flight.
+    const data = await atlas();
+    const key = `expression:${DATASET}:${data.asset}:${gene}`;
     if (!genes.has(gene)) {
       if (genes.size >= 3) genes.delete(genes.keys().next().value);
-      genes.set(gene, read(`/api/bio/query/single-cell-lognorm?q=${DATASET},${encodeURIComponent(gene)}`)
-        .then(text => ({ payload: JSON.parse(text) })).catch(error => { genes.delete(gene); return { error }; }));
+      genes.set(gene, (async () => {
+        const saved = refresh ? null : await cache.get(key);
+        if (saved) { try { return decodeExpression(saved,gene,data.points.count,data.asset); } catch (_) { await cache.clear?.(key); } }
+        let vector;
+        if (config.enabled) {
+          try {
+            const packed = JSON.parse(await read(`${config.endpoint}?${new URLSearchParams({dataset:DATASET,atlas:data.asset,gene})}`));
+            vector = decodeExpression(packed,gene,data.points.count,data.asset);
+            await cache.set(key,packed);
+          } catch (error) {
+            if (config.fallback === false) throw error;
+          }
+        }
+        if (!vector) vector = validateExpression(JSON.parse(await read(`/api/bio/query/single-cell-lognorm?q=${DATASET},${encodeURIComponent(gene)}`)),gene,data.points.count);
+        return vector;
+      })().catch(error => { genes.delete(gene); throw error; }));
     }
-    const pending = genes.get(gene);
-    const data = await atlas();
-    onAtlas(data);
+    return genes.get(gene);
+  }
+  const load = async (gene, onAtlas = () => {}) => {
+    const pending = expression(gene).then(vector => ({vector}),error => ({error}));
+    const data = await atlas(); onAtlas(data);
     const result = await pending;
     if (result.error) throw result.error;
-    let expression;
-    try { expression = validateExpression(result.payload, gene, data.points.count); }
-    catch (error) { genes.delete(gene); throw error; }
-    return { atlas: data, expression, stats: summaries(data, expression, gene) };
+    return { atlas:data, expression:result.vector, stats:summaries(data,result.vector,gene) };
   };
+  load.prefetch = expression;
   load.atlas = atlas;
   return load;
 }
@@ -112,4 +126,19 @@ export function validateCompact(value, count) {
     if (!Number.isFinite(X[i]) || !Number.isFinite(Y[i]) || codes[i] >= labels.length) throw new Error('Compact atlas coordinate/metadata alignment failed.');
   }
   return { points: { count, X, Y, Z: null }, labels, codes };
+}
+
+export function decodeExpression(value,gene,count,atlas) {
+  if (value?.version !== 1 || value.datasetId !== DATASET || value.gene !== gene || value.count !== count || value.atlas !== atlas || value.encoding !== 'sparse-u32-f64-le') throw new Error('Cached expression identity mismatch.');
+  const indices = Uint8Array.from(atob(value.indices),char=>char.charCodeAt(0));
+  const values = Uint8Array.from(atob(value.values),char=>char.charCodeAt(0));
+  if (indices.length % 4 || values.length !== indices.length*2) throw new Error('Invalid sparse expression length.');
+  const ix = new DataView(indices.buffer), vx = new DataView(values.buffer), vector = new Array(count).fill(0);
+  let previous = -1;
+  for (let i=0;i<indices.length/4;i++) {
+    const index = ix.getUint32(i*4,true), value = vx.getFloat64(i*8,true);
+    if (index <= previous || index >= count || !Number.isFinite(value) || value <= 0) throw new Error('Invalid sparse expression alignment.');
+    vector[index] = value; previous=index;
+  }
+  return vector;
 }

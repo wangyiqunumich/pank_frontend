@@ -158,6 +158,7 @@
         },
         "full_view": {
           "compact": true,
+          "expression_cache": {"enabled": true, "endpoint": "/pankgraph-vnext/api/scbrowser/expression", "prefetch_default_gene": true, "fallback": true},
           "show_context_note": false,
           "show_expression_badge": false,
           "pair_navigation": "none",

@@ -31,7 +31,7 @@ test('caches shared atlas reads and gene vectors, evicts failed gene requests', 
     if (path.includes(',MISSING')) throw new Error('offline');
     return JSON.stringify(payload);
   };
-  const load = createLoader(read);
+  const load = createLoader(read,undefined,false,{enabled:false});
   await Promise.all([load('INS'), load('INS')]);
   assert.equal(calls.length, 3);
   await assert.rejects(load('MISSING')); await assert.rejects(load('MISSING'));
@@ -45,7 +45,7 @@ test('packed map retains source order and skips large metadata on a return visit
   const cached = packed;
   const calls = [];
   const read = async path => { calls.push(path); return path.endsWith('manifest.json') ? JSON.stringify(manifest) : JSON.stringify(payload); };
-  const load = createLoader(read, { get: async () => cached, set: async () => {} });
+  const load = createLoader(read, { get: async () => cached, set: async () => {} },false,{enabled:false});
   let atlasShown = false;
   const result = await load('INS', atlas => { atlasShown = true; assert.equal(atlas.cacheHit, true); });
   assert.equal(atlasShown, true); assert.equal(result.stats[1].median, 3);
@@ -61,10 +61,10 @@ test('starts expression before atlas completes and presents the map before expre
     if (path.endsWith('manifest.json')) return JSON.stringify(manifest);
     return JSON.stringify(packed);
   };
-  const load = createLoader(read, { get: async () => undefined, set: async () => {} });
+  const load = createLoader(read, { get: async () => undefined, set: async () => {} },false,{enabled:false});
   const result = load('INS', () => { events.push('atlas-visible'); finishExpression(JSON.stringify(payload)); });
   await result;
-  assert.deepEqual(events, ['expression-start', 'atlas-visible']);
+  assert.deepEqual(events, ['atlas-visible', 'expression-start']);
 });
 test('compact atlas never fetches full upstream metadata or coordinates', async () => {
   const paths = [];
@@ -72,7 +72,7 @@ test('compact atlas never fetches full upstream metadata or coordinates', async 
     if (path.endsWith('manifest.json')) return JSON.stringify(manifest);
     return JSON.stringify(packed);
   };
-  const load = createLoader(read, { get: async () => undefined, set: async () => {} });
+  const load = createLoader(read, { get: async () => undefined, set: async () => {} },false,{enabled:false});
   const atlas = await load.atlas();
   assert.equal(atlas.points.count, 3);
   assert.equal(paths.length, 2);
@@ -87,7 +87,7 @@ test('compact projection preserves all cells, order and aligned gene coloring', 
   assert.throws(() => validateCompact({ ...packed, labels: ['Alpha'] }, 3), /alignment/);
   assert.throws(() => validateCompact({ ...packed, cells: 'malformed' }, 3), /alignment/);
   const reads = [];
-  const load = createLoader(async path => { reads.push(path); return JSON.stringify(path.endsWith('manifest.json') ? manifest : path.startsWith('./atlas/') ? packed : payload); }, { get: async () => undefined, set: async () => {} });
+  const load = createLoader(async path => { reads.push(path); return JSON.stringify(path.endsWith('manifest.json') ? manifest : path.startsWith('./atlas/') ? packed : payload); }, { get: async () => undefined, set: async () => {} },false,{enabled:false});
   const result = await load('INS');
   assert.deepEqual(result.expression, [0, 2, 4]);
   assert.ok(reads.every(path => !/fields.json|coordinates.tsv|dataset_metadata/.test(path)));
@@ -105,4 +105,26 @@ test('worker asset path resolves to the atlas beside index.html', async () => {
     globalThis.fetch = originalFetch;
     if (originalLocation === undefined) delete globalThis.location; else globalThis.location = originalLocation;
   }
+});
+
+import { decodeExpression } from './data.mjs';
+const sparse = () => { const ix=Buffer.alloc(8),v=Buffer.alloc(16);ix.writeUInt32LE(1,0);ix.writeUInt32LE(2,4);v.writeDoubleLE(2,0);v.writeDoubleLE(4,8);return {version:1,datasetId:DATASET,atlas:manifest.asset,gene:'INS',count:3,encoding:'sparse-u32-f64-le',indices:ix.toString('base64'),values:v.toString('base64')}; };
+test('sparse cached vectors preserve exact values and reject atlas/order mismatches',()=>{
+  const decoded=decodeExpression(sparse(),'INS',3,manifest.asset);
+  assert.ok(Array.isArray(decoded)); assert.doesNotThrow(()=>Object.freeze(decoded));
+  assert.deepEqual(decoded,[0,2,4]);
+  assert.throws(()=>decodeExpression(sparse(),'INS',3,'other'),/identity/);
+  const bad=sparse();bad.indices=Buffer.from([2,0,0,0,1,0,0,0]).toString('base64');
+  assert.throws(()=>decodeExpression(bad,'INS',3,manifest.asset),/alignment/);
+});
+test('prefetch persists the shared compact gene and a new worker avoids expression requests',async()=>{
+  const stored=new Map(),calls=[];
+  const cache={get:async k=>stored.get(k),set:async(k,v)=>stored.set(k,v)};
+  const read=async path=>{calls.push(path);return JSON.stringify(path.endsWith('manifest.json')?manifest:path.startsWith('./atlas/')?packed:sparse());};
+  const config={enabled:true,endpoint:'/pankgraph-vnext/api/scbrowser/expression',fallback:false};
+  await createLoader(read,cache,false,config).prefetch('INS');
+  calls.length=0;
+  const result=await createLoader(read,cache,false,config)('INS');
+  assert.deepEqual([...result.expression],[0,2,4]);
+  assert.deepEqual(calls,['./atlas/manifest.json']);
 });
