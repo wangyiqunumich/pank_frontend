@@ -1,4 +1,4 @@
-// Only the public, projected embedding is persisted. No donor metadata or cell IDs.
+// Public atlas and sparse expression vectors are persisted, scoped by atlas hash. No donor metadata or cell IDs.
 const DB = 'pankgraph-public-atlas-v2';
 const TTL = 24 * 60 * 60 * 1000;
 async function access(mode, action) {

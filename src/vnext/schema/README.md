@@ -93,3 +93,8 @@ files, simulated delays, inferred source URLs or extra retrieval are used.
 The scBrowser shows one initialized gene/cell context. `full_view.pair_navigation`
 is `none`; there is no pair carousel, even when several expression edges exist.
 The header label is controlled by `wording.header_browser_link`.
+
+`full_view.expression_cache` controls the same-origin gene-vector endpoint,
+enablement, default-gene prefetch and upstream fallback. See
+`single-cell-browser/DATA-PROCESSING.md` for version preparation, cache provenance,
+refresh behavior and prewarming. Preview gene prefetch does not alter its colors.

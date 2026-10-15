@@ -91,3 +91,11 @@ external portal opens CFTR expression in the correct 448,935-cell atlas and the
 embedded link changes to GCG when exploring GCG. All 31 suites / 288 frontend
 tests, eleven data/render tests and production build pass. Screenshot:
 /tmp/scbrowser-compact-detail.jpg.
+
+Expression-cache follow-up (2026-10-14): same-origin sparse Float64 vectors,
+atlas-hash identity checks, preview prefetch and persistent browser reuse. All 32
+vNext suites / 292 tests, thirteen data/render tests and production build pass.
+Four backend cache/route tests pass. Cached CFTR/GCG/INS data was prewarmed;
+public cached CFTR checks took 0.34–0.46 seconds. Browser verification renders
+actual CFTR expression colors and violin plots after prefetch. The renderer
+continues to receive freeze-safe ordinary arrays with exact source values.
