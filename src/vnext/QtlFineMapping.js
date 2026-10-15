@@ -3,7 +3,7 @@ import { Box, Button, Typography, CircularProgress, Dialog } from '@mui/material
 import { QTL_CONFIG } from './qtlContext';
 import { loadQtlPlot } from './qtlPlotApi';
 const copy = QTL_CONFIG.wording;
-export default function QtlFineMapping({ contexts = [], isVisible }) {
+export default function QtlFineMapping({ contexts = [], isVisible, preview = false }) {
   const [selected, setSelected] = useState('');
   const [loaded, setLoaded] = useState(null);
   const [retry, setRetry] = useState(0);
@@ -23,17 +23,32 @@ export default function QtlFineMapping({ contexts = [], isVisible }) {
   }, [started, currentKey, currentAvailable, retry]);
   const state = loaded?.key === current?.key ? loaded : null;
   const url = currentAvailable ? state?.url : null;
-  return <Box component="section" aria-label={copy.title} sx={{ p: { xs: 1, sm: 2 }, width: '100%', height: '100%', overflow: 'auto' }}>
-    <Typography component="h2" sx={{ fontSize: 18, fontWeight: 700 }}>{copy.title}</Typography>
-    {contexts.length > 1 && <Box component="label" sx={{ display: 'block', my: 1 }}>{copy.source_picker}<select aria-label={copy.source_picker} value={current?.key || ''} onChange={event => { setSelected(event.target.value); setExpanded(false); }} style={{ display: 'block', width: '100%', padding: 8 }}>
-      {contexts.map(context => <option key={context.key} value={context.key}>{context.sourceLabel} · {context.credibleSet || copy.unrecorded_set}</option>)}
+  const setNumber = /credibleSet(\d+)$/i.exec(current?.credibleSet || '')?.[1];
+  const shortSet = setNumber ? copy.set_number.replace('{number}', setNumber) : copy.credible_set_label;
+  const metadata = QTL_CONFIG.context_fields.map(field => current?.context?.[field]).filter(value => typeof value === 'string').filter((value, i, values) => values.indexOf(value) === i).join(' · ');
+  const plot = !current?.available ? <Typography role="status" sx={{ p: 2, fontSize: 12 }}>{copy[current?.reason] || copy.no_context}</Typography>
+    : state?.status === 'unavailable' ? <Box role="alert" sx={{ p: 2, fontSize: 12 }}>{copy.failed}<Button onClick={() => setRetry(value => value + 1)}>{copy.retry}</Button></Box>
+    : !url ? <Box role="status" sx={{ minHeight: preview ? 100 : 200, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, fontSize: 12 }}><CircularProgress size={20} />{copy.loading}</Box>
+    : <Box component="img" src={url} alt={copy.image_alt} onError={() => setLoaded({ key: currentKey, status: 'unavailable' })} sx={{ width: '100%', height: '100%', maxHeight: preview ? '100%' : QTL_CONFIG.plot.max_height, objectFit: 'contain', bgcolor: '#fff' }} />;
+  if (preview) return <Box sx={{ width: '100%', height: '100%', p: 0.5, boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>{plot}</Box>;
+  return <Box component="section" aria-label={copy.title} sx={{ p: { xs: 1, sm: 1.5 }, width: '100%', height: '100%', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: 1, overflow: 'auto', minWidth: 0 }}>
+    <Box sx={{ borderBottom: '1px solid #dce8e9', pb: 1 }}>
+      <Typography component="h2" sx={{ fontSize: 16, fontWeight: 700, color: '#244a51' }}>{copy.title}</Typography>
+      <Typography sx={{ fontSize: 13, mt: 0.5, fontWeight: 600 }}>{[current?.geneLabel || copy.gene_fallback, current?.sourceLabel, shortSet].filter(Boolean).join(' · ')}</Typography>
+      {metadata && <Typography sx={{ fontSize: 11, color: '#64748b', mt: 0.25 }}>{metadata}</Typography>}
+    </Box>
+    {contexts.length > 1 && <Box component="label" sx={{ display: 'block', fontSize: 11, color: '#526d77' }}>{copy.source_picker}<select aria-label={copy.source_picker} value={current?.key || ''} onChange={event => { setSelected(event.target.value); setExpanded(false); }} style={{ display: 'block', width: '100%', padding: 6, marginTop: 4, border: '1px solid #c6dadd', borderRadius: 6, background: 'white' }}>
+      {contexts.map(context => <option key={context.key} value={context.key}>{[context.geneLabel, context.sourceLabel, context.credibleSet || copy.unrecorded_set].filter(Boolean).join(' · ')}</option>)}
     </select></Box>}
-    {current && <Typography sx={{ fontSize: 12, mt: 1, overflowWrap: 'anywhere' }}>{current.sourceLabel} · {current.credibleSet}</Typography>}
-    {current && <Typography sx={{ fontSize: 12, color: '#64748b' }}>{QTL_CONFIG.context_fields.map(field => current.context[field]).filter(value => typeof value === 'string').filter((value, i, values) => values.indexOf(value) === i).join(' · ')}</Typography>}
-    {!current?.available ? <Typography role="status" sx={{ my: 2 }}>{copy[current?.reason] || copy.no_context}</Typography> : state?.status === 'unavailable' ? <Box role="alert" sx={{ my: 2 }}>{copy.failed}<Button onClick={() => setRetry(value => value + 1)}>{copy.retry}</Button></Box> : !url ? <Box role="status" sx={{ minHeight: 260, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}><CircularProgress size={24} />{copy.loading}</Box> : <Button aria-label={copy.expand} onClick={() => setExpanded(true)} sx={{ width: '100%', p: 0, my: 1 }}><Box component="img" src={url} alt={copy.image_alt} sx={{ width: '100%', maxHeight: QTL_CONFIG.plot.max_height, objectFit: 'contain' }} /></Button>}
-    <Typography sx={{ fontSize: 13, whiteSpace: 'pre-line', my: 1 }}>{copy.description}</Typography>
-    <Typography sx={{ fontSize: 11, color: '#64748b', mb: 1 }}>{copy.provenance}</Typography>
-    {current?.downloadUrl && <Button component="a" href={current.downloadUrl} target="_blank" rel="noopener noreferrer" sx={{ bgcolor: '#219197', color: 'white', px: 2, '&:hover': { bgcolor: '#287d84' } }}>{copy.download}</Button>}
+    {url ? <Button aria-label={copy.expand} onClick={() => setExpanded(true)} sx={{ width: '100%', p: 0.5, flex: '1 1 220px', minHeight: 180, overflow: 'hidden', bgcolor: '#fff', border: '1px solid #edf1f2', borderRadius: 1 }}>{plot}</Button> : plot}
+    <Typography sx={{ fontSize: 12, color: '#526d77', lineHeight: 1.5 }}>{copy.description}</Typography>
+    <Box component="details" sx={{ fontSize: 11, color: '#64748b', '& summary': { cursor: 'pointer', color: '#357b83', fontWeight: 600 }, '& p': { my: 0.75 } }}>
+      <summary>{copy.details}</summary>
+      <Typography sx={{ fontSize: 'inherit', overflowWrap: 'anywhere' }}>{copy.credible_set_label}: {current?.credibleSet || copy.unrecorded_set}</Typography>
+      <Typography sx={{ fontSize: 'inherit' }}>{copy.legend}</Typography>
+      <Typography sx={{ fontSize: 'inherit' }}>{copy.provenance}</Typography>
+    </Box>
+    {current?.downloadUrl && <Button component="a" href={current.downloadUrl} target="_blank" rel="noopener noreferrer" sx={{ alignSelf: 'flex-start', fontSize: 12, color: '#287d84', p: 0, textTransform: 'none' }}>{copy.download}</Button>}
     {expanded && url && <Dialog open onClose={() => setExpanded(false)} aria-label={copy.expand} maxWidth={false} PaperProps={{ sx: { maxWidth: '95vw', maxHeight: '95vh' } }}><Box sx={{ position: 'relative', maxWidth: '100%', maxHeight: '100%' }}><Button aria-label={copy.close} onClick={() => setExpanded(false)} sx={{ position: 'absolute', right: 0, top: 0, bgcolor: 'white' }}>×</Button><Box component="img" src={url} alt={copy.image_alt} sx={{ maxWidth: '100%', maxHeight: '90vh', objectFit: 'contain', bgcolor: 'white' }} /></Box></Dialog>}
   </Box>;
 }

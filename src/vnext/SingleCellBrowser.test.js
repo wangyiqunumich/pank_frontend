@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { ResultSection } from './ResultView';
 import SingleCellBrowser from './SingleCellBrowser';
 import { expressionContext } from './singleCellContext';
@@ -80,4 +80,20 @@ test('same-origin manifest bridge ignores foreign and unrelated window messages'
  expect(frame.getAttribute('src')).toBeNull();
  fireEvent(window, new MessageEvent('message', { origin: 'https://foreign.test', source: window, data: { protocol: 'pankgraph.scbrowser.v1', type: 'status', edgeId: 'edge-1', message: 'Injected' } }));
  expect(screen.queryByText('Injected')).toBeNull();
+});
+test('mixed QTL and RNA evidence shares one preview card with tab switching and persistent graph', async () => {
+ const qtlGraph = { nodes: [...graph.nodes, { '~id': 'rs2402203', '~labels': ['sequence_variant'], '~properties': { name: 'rs2402203' } }], edges: [...graph.edges, { '~id': 'qtl', '~type': 'PART_OF_QTL_SIGNAL', '~start': 'rs2402203', '~end': 'cftr', '~properties': { data_source: 'splicing; GTEx', credible_set: 'test_credibleSet1' } }] };
+ render(<ResultSection result={{ ...result, combined_query_result: qtlGraph }} />);
+ const graphElement = screen.getByTestId('graph');
+ const card = screen.getByRole('region', { name: 'Visualization preview' });
+ expect(screen.queryByRole('region', { name: 'Expression evidence' })).toBeNull();
+ fireEvent.click(within(card).getByRole('tab', { name: 'QTL Fine-Mapping' }));
+ expect(within(card).queryByTitle('PanKbase atlas preview')).toBeNull();
+ fireEvent.click(within(card).getByRole('button', { name: 'Open QTL fine-mapping →' }));
+ expect(screen.getByRole('tablist', { name: 'Result visualizations' }).querySelector('[aria-selected="true"]').textContent).toBe('QTL Fine-Mapping');
+ fireEvent.click(within(screen.getByRole('tablist', { name: 'Result visualizations' })).getByRole('tab', { name: 'Knowledge Graph' }));
+ expect(screen.getByTestId('graph')).toBe(graphElement);
+ fireEvent.click(within(card).getByRole('button', { name: 'Close visualization preview' }));
+ fireEvent.click(screen.getByRole('button', { name: 'Show visualization preview' }));
+ expect(screen.getByRole('region', { name: 'Visualization preview' })).toBeTruthy();
 });

@@ -98,3 +98,22 @@ The header label is controlled by `wording.header_browser_link`.
 enablement, default-gene prefetch and upstream fallback. See
 `single-cell-browser/DATA-PROCESSING.md` for version preparation, cache provenance,
 refresh behavior and prewarming. Preview gene prefetch does not alter its colors.
+
+## Shared visualization previews (v0.5)
+
+`main_visuals.preview_standard` defines a single graph-adjacent preview card for
+all eligible non-graph visuals, including future registered renderers by default.
+The card preserves the graph camera and offers scrollable preview tabs when more
+than one visual is available. Minimize, close, restore and open labels, card size,
+and the default open-action template are schema owned. Opening a preview selects
+its persistent main visual tab. New renderers must support `preview` and
+`isVisible`; previews must fit the card without interactive controls or duplicate
+headings. Set an item's `preview.enabled` to false only for an explicit exception.
+
+`main_visuals.tab_switch` owns the main switcher accessibility label and documents
+scrollable tabs with automatic overflow buttons. QTL `preview` uses the same AWS
+image/cache as the main panel; it never recreates the plot. QTL `layout` records
+compact headers, contained image scaling, and expandable source details. Its
+`wording` owns the short title, description, legend, detail/download labels and
+credible-set display template. The full source/set identity remains in details
+and the source picker; compact gene labels do not change request keys.
