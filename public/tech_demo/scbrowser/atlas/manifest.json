@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "datasetId": "islet_of_Langerhans_scRNA_v3-4",
+  "count": 448935,
+  "title": "Single cell expression map of pancreatic islets using data from HPAP, IIDP and Prodo",
+  "asset": "map-c2f6511c24dca057e7d2287a3547c10122e70697bb03c902c62e6f9026e32138.json",
+  "retrievedAt": "2026-10-13T19:41:07.908Z",
+  "source": [
+    {
+      "path": "/api/raw/file/single_cell_all_metadata/dataset_metadata.json.gz",
+      "sha256": "1acac2af1a7877eeec085abf0c91a5020f5219e2a8ca5cd1ea9739874048f100"
+    },
+    {
+      "path": "/api/raw/file/single_cell/islet_of_Langerhans_scRNA_v3-4/fields.json.gz",
+      "sha256": "7163d67cb0368450b86f1ce3475fe78ade4256abd7f9d29178c2b2f3071b2f13"
+    },
+    {
+      "path": "/api/raw/file/single_cell/islet_of_Langerhans_scRNA_v3-4/coordinates.tsv.gz",
+      "sha256": "8912f92e52580a100e30713fa8e9f6fa53a86fc2bba618f64f6430a94139ba73"
+    }
+  ],
+  "estimatedGzipBytes": 2971257,
+  "assetBytes": 5387453,
+  "decodedBytes": 5387453,
+  "originalMetadataBytes": 109644935
+}

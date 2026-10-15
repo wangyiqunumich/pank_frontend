@@ -1,0 +1,27 @@
+{
+  "files": {
+    "main.css": "/tech_demo/static/css/main.cac7dd47.css",
+    "main.js": "/tech_demo/static/js/main.2f8a83bb.js",
+    "static/media/not_relevant.png": "/tech_demo/static/media/not_relevant.bf166cf6f66419d9f88d.png",
+    "static/media/datanotfound.png": "/tech_demo/static/media/datanotfound.cd1d7cf3da61554ceddb.png",
+    "static/media/slick.svg": "/tech_demo/static/media/slick.2630a3e3eab21c607e21.svg",
+    "static/media/slick.eot": "/tech_demo/static/media/slick.a4e97f5a2a64f0ab1323.eot",
+    "static/media/slick.ttf": "/tech_demo/static/media/slick.c94f7671dcc99dce43e2.ttf",
+    "static/media/hover_disabled1.svg": "/tech_demo/static/media/hover_disabled1.c7349bc2d40245cb372029d73a86b525.svg",
+    "static/media/loading.svg": "/tech_demo/static/media/loading.fa45ad54e48970bad18fc71cdc6f2515.svg",
+    "static/media/hover.svg": "/tech_demo/static/media/hover.d05b7e9ad3836c487c4b5bde5a398b7b.svg",
+    "static/media/slick.woff": "/tech_demo/static/media/slick.295183786cd8a1389865.woff",
+    "static/media/mynaui_send.svg": "/tech_demo/static/media/mynaui_send.3c64cf99c6c381c94a18193bf6e99a58.svg",
+    "static/media/download.svg": "/tech_demo/static/media/download.82199bf0332851cee3adf839539ef01b.svg",
+    "static/media/zoom-plus.svg": "/tech_demo/static/media/zoom-plus.4c15c5b789e10278f17889953d7ebe75.svg",
+    "static/media/zoom-minus.svg": "/tech_demo/static/media/zoom-minus.0e2af98629783562ea428ce5a2c99af4.svg",
+    "static/media/quit_fullscreen.svg": "/tech_demo/static/media/quit_fullscreen.515f8609b3c1f8106bba5048323d574a.svg",
+    "static/media/recenter.svg": "/tech_demo/static/media/recenter.e8bccd549361afbc85eec5c2abc378c0.svg",
+    "static/media/fullscreen.svg": "/tech_demo/static/media/fullscreen.3c45e416c35a6846547b5ca22b4a3d63.svg",
+    "index.html": "/tech_demo/index.html"
+  },
+  "entrypoints": [
+    "static/css/main.cac7dd47.css",
+    "static/js/main.2f8a83bb.js"
+  ]
+}
