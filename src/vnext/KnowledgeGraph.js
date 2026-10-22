@@ -16,11 +16,11 @@ import {
   useDispatch,
   useSelector,
 } from 'react-redux';
-import { useLocation } from 'react-router-dom';
+import PersistentGraphViewport from '../components/PersistentGraphViewport';
+import GraphToolbar from './GraphToolbar';
+import legendChevron from '../image/graph-toolbar/expanded-download-chevron.svg';
 
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {
   Box,
@@ -31,14 +31,6 @@ import {
 } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 
-import downloadIcon from '../image/download.svg';
-import fullscreenIcon from '../image/fullscreen.svg';
-import InfoEnableIcon from '../image/hover.svg';
-import InfoDisableIcon from '../image/hover_disabled1.svg';
-import fullscreenExitIcon from '../image/quit_fullscreen.svg';
-import recenterIcon from '../image/recenter.svg';
-import zoomInIcon from '../image/zoom-minus.svg';
-import zoomOutIcon from '../image/zoom-plus.svg';
 import {
   setHoverId,
   setHoverState,
@@ -828,13 +820,13 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
 }
 
 // Main KnowledgeGraph component
-export default function KnowledgeGraph({ onEvidenceInspect, selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, edgeRoutes = null, review = false, containerHeight = "600px", defaultLegendVisible = false }) {
+export default function KnowledgeGraph({ overlay, onEvidenceInspect, selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, edgeRoutes = null, review = false, containerHeight = "600px", defaultLegendVisible = false }) {
   const cyRef = useRef(null);
   const containerRef = useRef(null);
   const infocardRef = useRef(null);
   const activeNodeRef = useRef(null);
   const [activeNode, setActiveNode] = useState(null);
-  const location = useLocation();
+
 
   // hover functions
   const [hoveredId, setHoveredId] = useState(null);
@@ -932,7 +924,10 @@ export default function KnowledgeGraph({ onEvidenceInspect, selectable = false, 
   const SearchBox = () => {
     return (
       <input
-        defaultValue=""
+        aria-label="Search graph"
+        placeholder="Search graph…"
+        defaultValue={inputRef.current}
+        style={{ width: '100%', boxSizing: 'border-box', border: '1px solid #e2e8f0', borderRadius: 8, padding: '8px 12px', font: '12px Inter, Open Sans, sans-serif', background: '#fff', color: '#334155', boxShadow: '0 1px 2px #0000000d' }}
         onInput={(e) => {
           inputRef.current = e.target.value;
         }}
@@ -1022,61 +1017,23 @@ export default function KnowledgeGraph({ onEvidenceInspect, selectable = false, 
     setInfocardPosition({ x: left, y: top });
   }, [hoveredId, nodeHovered, infocardEnabled, activeNode]);
 
-  const toggleExpand = () => {
-    const url = new URL(
-      window.location.origin + location.pathname + location.search + location.hash
-    );
-    if (expanded) {
-      url.searchParams.delete("fullscreen");
-    } else {
-      url.searchParams.set("fullscreen", "true");
-    }
-    window.history.pushState({}, '', url);
-    window.dispatchEvent(new PopStateEvent("popstate", { state: {} }));
-  }
+  const toggleExpand = () => setExpanded(value => !value);
 
-  // useEffect(() => {
-  //   // set overflow: clip for the html if expanded
-  //   if (expanded) {
-  //     document.documentElement.style.overflow = "clip";
-  //   } else {
-  //     document.documentElement.style.overflow = "auto";
-  //   }
-  //   const url = new URL(
-  //     window.location.origin + location.pathname + location.search + location.hash
-  //   );
-  //   const isFullscreen = url.searchParams.get("fullscreen") === "true";
-  //   if (isFullscreen !== expanded) {
-  //     if (expanded) {
-  //       url.searchParams.set("fullscreen", "true");
-  //     } else {
-  //       url.searchParams.delete("fullscreen");
-  //     }
-  //     window.history.pushState({}, '', url);
-  //   }
-  //   const timeoutId = setTimeout(() => {
-  //     if (cyRef.current) {
-  //       handleRecenter();
-  //     }
-  //   }, 200);
-  //   return () => clearTimeout(timeoutId);
-  // }, [expanded, location]);
-
-  // listen to url change for fullscreen parameter
-  useEffect(() => {
-    const previousHtmlOverflow = document.documentElement.style.overflow;
-    const params = new URLSearchParams(location.search);
-    const isFullscreen = params.get("fullscreen") === "true";
-    if (isFullscreen !== expanded) setExpanded(isFullscreen);
-    if (!expanded) {
-      document.documentElement.style.overflow = "auto";
-    } else {
-      document.documentElement.style.overflow = "clip";
-    }
-    return () => {
-      document.documentElement.style.overflow = previousHtmlOverflow || "auto";
-    };
-  }, [location, expanded]);
+  const handleReset = () => {
+    const cy = cyRef.current;
+    if (!cy) return;
+    const [result, positions, routes] = JSON.parse(graphInputKey);
+    const bound = graphElements(result, positions, routes, { review, graphInfocard, edgeIsInverted, edgeLabels, spreadCompact: true });
+    cy.batch(() => {
+      bound.nodes.forEach(node => cy.getElementById(node.data.id).position(node.position));
+      cy.elements().unselect();
+      cy.elements().removeClass('highlight');
+    });
+    applyGraphRoutes(cy, bound.edgeStyles);
+    setSelectedID([]);
+    setInfocardVisible(false);
+    handleRecenter();
+  };
 
   useEffect(() => {
     if (infocardVisible && activeNode?.isEdge?.()) onEvidenceInspect?.(activeNode.id());
@@ -1277,13 +1234,9 @@ export default function KnowledgeGraph({ onEvidenceInspect, selectable = false, 
   }, [selectedID]);
 
   return (
-    <div style={
-      !expanded ?
-        { display: "flex", flexDirection: "column", position: "relative", justifyContent: "flex-start", width: "100%", height: "100%", ...sx }
-        // position whole page, on top
-        : { position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "white", display: "flex", flexDirection: "column", gap: "16px", padding: "0px", ...sx, zIndex: 9999 }
-    }>
-      {expanded && <SearchBox />}
+    <PersistentGraphViewport fullscreen={expanded} onExit={() => setExpanded(false)}>
+    <div className="graph-viewer" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', ...sx, position: 'relative', width: '100%', height: '100%', minHeight: 0, borderRadius: expanded ? 0 : 16 }}>
+      {expanded && <Box sx={{ position: 'absolute', top: 16, left: '50%', transform: 'translateX(-50%)', width: 'min(360px, calc(100% - 210px))', zIndex: 15 }}><SearchBox /></Box>}
       <div
         ref={containerRef}
         style={{
@@ -1300,89 +1253,14 @@ export default function KnowledgeGraph({ onEvidenceInspect, selectable = false, 
         }}
       >
       </div>
-      <Box sx={{
-        position: "absolute",
-        top: "8px",
-        right: "8px",
-        padding: "7px",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        background: "white",
-        borderRadius: "8px",
-        boxShadow: "0px 4px 15px -3px rgba(100,100,100,0.25)",
-      }}>
-        <IconButton
-          onClick={() => { toggleExpand(); }}
-          style={{ padding: "8px", background: "none", borderRadius: "4px" }}
-        >
-          <img src={expanded ? fullscreenExitIcon : fullscreenIcon}
-            alt="Enter/Exit Fullscreen" width={20} height={20} />
-        </IconButton>
-        {/* button for zooming */}
-        <IconButton
-          onClick={handleZoomOut}
-          style={{ padding: "5px", background: "none", borderRadius: "4px", opacity: zoomLevel >= 4 ? 0.5 : 1 }}
-          disabled={zoomLevel >= 4}
-        >
-          <img src={zoomOutIcon} alt="Zoom Out" width={26} height={26} />
-        </IconButton>
-        <IconButton
-          onClick={handleZoomIn}
-          style={{ padding: "5px", background: "none", borderRadius: "4px", opacity: zoomLevel <= minimumZoom ? 0.5 : 1 }}
-          disabled={zoomLevel <= minimumZoom}
-        >
-          <img src={zoomInIcon} alt="Zoom In" width={26} height={26} />
-        </IconButton>
-        <IconButton
-          onClick={handleRecenter}
-          style={{ padding: "7px", background: "none", borderRadius: "4px" }}
-        >
-          <img src={recenterIcon} alt="Recenter" width={22} height={22} />
-        </IconButton>
-        {
-          infocardEnabled ?
-            (
-              <IconButton
-                onClick={() => setInfocardEnabled(false)}
-                style={{ padding: "7px", background: "none", borderRadius: "4px" }}
-              >
-                <img src={InfoEnableIcon}
-                  alt="Disable Info Card" width={22} height={22} />
-              </IconButton>
-            ) : (<IconButton
-              onClick={() => setInfocardEnabled(true)}
-              style={{ padding: "7px", background: "none", borderRadius: "4px" }}
-            >
-              <img src={InfoDisableIcon}
-                alt="Enable Info Card" width={22} height={22} />
-            </IconButton>)
-        }
-        <IconButton
-          onClick={handleDownload}
-          style={{ padding: "6px", background: "none", borderRadius: "4px" }}
-        >
-          <img src={downloadIcon} alt="Download" width={24} height={24} />
-        </IconButton>
-      </Box>
-      <Box sx={{
-        position: "absolute",
-        bottom: "8px",
-        right: "8px",
-        height: "40px",
-        width: "60px",
-        display: "flex",
-        background: "white",
-        borderRadius: "6px",
-        alignItems: "center",
-        justifyContent: "center",
-        boxShadow: "0px 4px 15px -3px rgba(100,100,100,0.25)",
-      }}>
-        <Typography sx={{ fontSize: "16px", color: "#333" }}>
-          {Math.round(zoomLevel / initZoom * 100)}%
-        </Typography>
-      </Box>
+      {React.isValidElement(overlay) ? React.cloneElement(overlay, { onOpen: id => { setExpanded(false); overlay.props.onOpen?.(id); } }) : overlay}
+      <GraphToolbar fullscreen={expanded} onFullscreen={toggleExpand}
+        zoomPercent={Math.round(zoomLevel / initZoom * 100)} canZoomIn={zoomLevel < 4} canZoomOut={zoomLevel > minimumZoom}
+        onZoomIn={handleZoomOut} onZoomOut={handleZoomIn} onFit={handleRecenter}
+        hoverEnabled={infocardEnabled} onHover={() => { setInfocardEnabled(value => !value); if (infocardEnabled) setInfocardVisible(false); }}
+        onDownload={handleDownload} onReset={handleReset}
+        modeLabel={(graphData || queryResultPage?.combined_query_result)?.presentation_mode === 'relationship_list' ? 'List mode' : 'KG mode'} />
+      <div className="graph-zoom-indicator" aria-label="Graph zoom">{Math.round(zoomLevel / initZoom * 100)}%</div>
       <div
         ref={infocardRef}
         onMouseEnter={() => {
@@ -1423,44 +1301,50 @@ export default function KnowledgeGraph({ onEvidenceInspect, selectable = false, 
         <div
           style={{
             position: "absolute",
-            bottom: "8px",
-            left: "8px",
+            top: "24px",
+            left: "16px",
+            maxWidth: "calc(100% - 88px)",
             display: "flex",
             flexDirection: "column",
             background: "#fff",
-            padding: "12px",
+            padding: legendVisible ? "12px" : "6px 12px",
             borderRadius: "8px",
             boxShadow: "0px 4px 15px -3px rgba(100,100,100,0.25)",
             zIndex: 10,
             userSelect: "none",
             height: "fit-content",
-            width: legendVisible ? "380px" : "110px",
+            width: legendVisible ? "350px" : "88px",
+            boxSizing: "border-box",
+            border: "1px solid #e2e8f0",
             transition: "width 0.3s, height 0.3s, opacity 0.3s, box-shadow 0.3s",
           }}
         >
           {/* Title */}
           <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-            <div style={{ fontSize: "14px", fontWeight: 700, color: "#172A3A", fontFamily: "Open Sans" }}>
+            <div style={{ fontSize: "12px", fontWeight: 600, color: "#334155", fontFamily: "Inter, Open Sans, sans-serif", lineHeight: "16px" }}>
               Legend
             </div>
             <IconButton
+              aria-label={legendVisible ? "Collapse legend" : "Expand legend"}
+              aria-expanded={legendVisible}
               onClick={() => setLegendVisible(!legendVisible)}
               style={{
                 padding: "4px",
-                width: "28px",
-                height: "28px",
+                width: "16px",
+                height: "16px",
+                marginLeft: "4px",
                 borderRadius: "50%",
               }}
             >
               {legendVisible ? (
-                <KeyboardArrowLeftIcon style={{ color: "#172A3A", fontSize: "20px" }} />
+                <img src={legendChevron} alt="" style={{ transform: 'scaleX(-1)' }} />
               ) : (
-                <KeyboardArrowRightIcon style={{ color: "#172A3A", fontSize: "20px" }} />
+                <img src={legendChevron} alt="" />
               )}
             </IconButton>
           </div>
           <Collapse in={legendVisible} timeout="auto">
-            <div style={{ width: "350px", paddingTop: "6px", fontSize: "14px", fontFamily: "Open Sans", fontWeight: 400 }}>
+            <div style={{ width: "100%", paddingTop: "6px", fontSize: "14px", fontFamily: "Open Sans", fontWeight: 400 }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingBottom: "2px", fontSize: "12px" }}>
                 <LegendItem label="　　　　" sx={{ backgroundColor: "#E9E9E9", color: "black", border: "1.5px solid #E9E9E9", height: "8px" }} />
                 Core Nodes
@@ -1488,6 +1372,7 @@ export default function KnowledgeGraph({ onEvidenceInspect, selectable = false, 
           </Collapse>
         </div>
       </div>
-    </div >
+    </div>
+    </PersistentGraphViewport>
   );
 }

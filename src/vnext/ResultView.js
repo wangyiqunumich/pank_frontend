@@ -115,8 +115,7 @@ function GraphPanel({ result, error, onEvidenceInspect, expressionCard }) {
   const waiting = !graphError && (!result || pending(result.status) || pending(graphStatus));
   const empty = !waiting && (graphStatus === 'empty' || (result?.status === 'ready' && Array.isArray(result?.combined_query_result?.nodes) && !result.combined_query_result.nodes.length));
   if (result?.combined_query_result?.nodes?.length) return <Box sx={{ width: '100%', height: '100%', position: 'relative' }}>
-    {expressionCard}
-    <KnowledgeGraph onEvidenceInspect={onEvidenceInspect} graphData={result.combined_query_result} coordData={result.xy_json} edgeRoutes={result.edge_routes} sx={{ height: '100%' }} containerHeight="100%" />
+    <KnowledgeGraph overlay={expressionCard} onEvidenceInspect={onEvidenceInspect} graphData={result.combined_query_result} coordData={result.xy_json} edgeRoutes={result.edge_routes} sx={{ height: '100%' }} containerHeight="100%" />
   </Box>;
   return <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
     {waiting ? <Box role="status" aria-label="Loading graph" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}><CircularProgress size={28} /><Typography sx={{ fontSize: 14, color: '#64748B' }}>Loading graph…</Typography></Box> : <Typography sx={{ fontSize: 14, color: '#64748B', textAlign: 'center', px: 2 }}>{graphError || (empty ? 'No matching graph evidence was returned.' : 'The graph presentation is unavailable. Available answer sections are preserved.')}</Typography>}

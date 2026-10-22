@@ -8,7 +8,7 @@ jest.mock('./AnswerMarkdown', () => ({ __esModule: true, default: ({ answer }) =
 jest.mock('react-markdown', () => ({ __esModule: true, default: ({ children }) => <div>{children}</div> }));
 jest.mock('remark-gfm', () => ({ __esModule: true, default: () => {} }));
 jest.mock('react-slick', () => ({ __esModule: true, default: ({ children }) => <div>{children}</div> }));
-jest.mock('./KnowledgeGraph', () => ({ __esModule: true, default: ({ graphData }) => <div data-testid="schema-graph">{graphData.nodes.map((node) => node['~id']).join(',')}</div> }));
+jest.mock('./KnowledgeGraph', () => ({ __esModule: true, default: ({ graphData, overlay }) => <>{overlay}<div data-testid="schema-graph">{graphData.nodes.map((node) => node['~id']).join(',')}</div></> }));
 
 const result = {
   result_id: 'schema-result', status: 'ready', answer: '| Gene | Value |\n| --- | --- |\n| INS | 1 |',

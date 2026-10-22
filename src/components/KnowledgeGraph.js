@@ -14,7 +14,7 @@ import {
   useDispatch,
   useSelector,
 } from 'react-redux';
-import { useLocation } from 'react-router-dom';
+import PersistentGraphViewport from './PersistentGraphViewport';
 
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
@@ -800,7 +800,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
   const infocardRef = useRef(null);
   const activeNodeRef = useRef(null);
   const [activeNode, setActiveNode] = useState(null);
-  const location = useLocation();
+
 
   // hover functions
   const [hoveredId, setHoveredId] = useState(null);
@@ -981,67 +981,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
     setInfocardPosition({ x: left, y: top });
   }, [hoveredId, nodeHovered, infocardEnabled, activeNode]);
 
-  const toggleExpand = () => {
-    const url = new URL(
-      window.location.origin + location.pathname + location.search + location.hash
-    );
-    if (expanded) {
-      url.searchParams.delete("fullscreen");
-    } else {
-      url.searchParams.set("fullscreen", "true");
-    }
-    window.history.pushState({}, '', url);
-    window.dispatchEvent(new PopStateEvent("popstate", { state: {} }));
-  }
-
-  // useEffect(() => {
-  //   // set overflow: clip for the html if expanded
-  //   if (expanded) {
-  //     document.documentElement.style.overflow = "clip";
-  //   } else {
-  //     document.documentElement.style.overflow = "auto";
-  //   }
-  //   const url = new URL(
-  //     window.location.origin + location.pathname + location.search + location.hash
-  //   );
-  //   const isFullscreen = url.searchParams.get("fullscreen") === "true";
-  //   if (isFullscreen !== expanded) {
-  //     if (expanded) {
-  //       url.searchParams.set("fullscreen", "true");
-  //     } else {
-  //       url.searchParams.delete("fullscreen");
-  //     }
-  //     window.history.pushState({}, '', url);
-  //   }
-  //   const timeoutId = setTimeout(() => {
-  //     if (cyRef.current) {
-  //       handleRecenter();
-  //     }
-  //   }, 200);
-  //   return () => clearTimeout(timeoutId);
-  // }, [expanded, location]);
-
-  // listen to url change for fullscreen parameter
-  useEffect(() => {
-    const previousHtmlOverflow = document.documentElement.style.overflow;
-    const params = new URLSearchParams(location.search);
-    const isFullscreen = params.get("fullscreen") === "true";
-    if (isFullscreen !== expanded) setExpanded(isFullscreen);
-    if (!expanded) {
-      document.documentElement.style.overflow = "auto";
-    } else {
-      document.documentElement.style.overflow = "clip";
-    }
-    const timeoutId = setTimeout(() => {
-      if (cyRef.current) {
-        handleRecenter();
-      }
-    }, 200);
-    return () => {
-      clearTimeout(timeoutId);
-      document.documentElement.style.overflow = previousHtmlOverflow || "auto";
-    };
-  }, [location, expanded]);
+  const toggleExpand = () => setExpanded(value => !value);
 
   const appearTimeoutRef = useRef(null);
   const appearNodeIdRef = useRef(null);
@@ -1307,12 +1247,8 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
   }, [selectedID]);
 
   return (
-    <div style={
-      !expanded ?
-        { display: "flex", flexDirection: "column", position: "relative", justifyContent: "flex-start", width: "100%", height: "100%", ...sx }
-        // position whole page, on top
-        : { position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "white", display: "flex", flexDirection: "column", gap: "16px", padding: "0px", ...sx, zIndex: 9999 }
-    }>
+    <PersistentGraphViewport fullscreen={expanded} onExit={() => setExpanded(false)}>
+    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', ...sx, position: 'relative', width: '100%', height: '100%', minHeight: 0, background: 'white' }}>
       {expanded && <SearchBox />}
       <div
         ref={containerRef}
@@ -1516,6 +1452,7 @@ export default function KnowledgeGraph({ selectable = false, setSelectedNode = (
           </Collapse>
         </div>
       </div>
-    </div >
+    </div>
+    </PersistentGraphViewport>
   );
 }

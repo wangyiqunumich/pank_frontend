@@ -4,7 +4,7 @@ import { ResultSection } from './ResultView';
 import SingleCellBrowser from './SingleCellBrowser';
 import { expressionContext } from './singleCellContext';
 import { SC_CONFIG } from './scBrowserConfig';
-jest.mock('./KnowledgeGraph', () => props => <button data-testid="graph" onClick={() => props.onEvidenceInspect?.('edge-2')}>Inspect edge</button>);
+jest.mock('./KnowledgeGraph', () => props => <>{props.overlay}<button data-testid="graph" onClick={() => props.onEvidenceInspect?.('edge-2')}>Inspect edge</button></>);
 jest.mock('react-markdown', () => ({ __esModule: true, default: ({ children }) => <div>{children}</div> }));
 jest.mock('remark-gfm', () => ({ __esModule: true, default: () => {} }));
 jest.mock('react-slick', () => ({ __esModule: true, default: ({ children }) => <div>{children}</div> }));
@@ -30,7 +30,7 @@ async function sentContext(frame) {
 test('schema enables a map-only preview and fills the first RNA gene-cell pair', async () => {
  render(<ResultSection result={result} anchorPrefix="first" />);
  const card = screen.getByRole('region', { name: 'Expression evidence' });
- expect(card.textContent).toBe('Single cell browser−×Open scBrowser →');
+ expect(card.textContent).toBe('Single cell browser×Open scBrowser ');
  expect(screen.queryByText(/padj|CFTR ·|Related atlas/)).toBeNull();
  expect(await sentContext(screen.getByTitle('PanKbase atlas preview'))).toMatchObject({ geneSymbol: 'CFTR', mappedCellType: 'Ductal' });
  fireEvent.click(screen.getByRole('button', { name: 'Open in scBrowser →' }));
@@ -38,12 +38,12 @@ test('schema enables a map-only preview and fills the first RNA gene-cell pair',
  expect(screen.queryByRole('group', { name: 'Expression browser navigation' })).toBeNull();
  expect(await sentContext(screen.getByTitle('PanKgraph single-cell browser'))).toMatchObject({ geneSymbol: 'CFTR', mappedCellType: 'Ductal' });
 });
-test('minimize close and tab changes preserve graph and browser', () => {
+test('close, restore and tab changes preserve graph and main browser', () => {
  const { rerender } = render(<ResultSection result={result} anchorPrefix="scope" />);
  const graphElement = screen.getByTestId('graph');
- fireEvent.click(screen.getByRole('button', { name: 'Minimize expression card' }));
+ fireEvent.click(screen.getByRole('button', { name: 'Close expression card' }));
  expect(screen.queryByTitle('PanKbase atlas preview')).toBeNull();
- fireEvent.click(screen.getByRole('button', { name: 'Restore expression card' }));
+ fireEvent.click(screen.getByRole('button', { name: 'Show visualization preview' }));
  fireEvent.click(screen.getByRole('button', { name: 'Open in scBrowser →' }));
  const frame = screen.getByTitle('PanKgraph single-cell browser');
  fireEvent.click(screen.getByRole('tab', { name: 'Knowledge Graph' }));

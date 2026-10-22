@@ -192,7 +192,7 @@
         "preview": {
           "enabled": true,
           "content": "full_atlas_map",
-          "height": 160,
+          "height": 144,
           "show_caption": false,
           "show_open_hint": true,
           "labels": {

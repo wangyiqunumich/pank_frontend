@@ -56,12 +56,27 @@ test('result polling and changed server coordinates preserve the renderer and us
 test('fitted viewport starts at 100%, enables zoom-out below0.6, and recenter refits the current pane', () => {
   const { unmount } = render(view());
   expect(screen.getByText('100%')).toBeTruthy();
-  // The existing minus control is named "Zoom In" in the legacy icon assets.
-  expect(screen.getByRole('button', { name: 'Zoom In' }).disabled).toBe(false);
-  fireEvent.click(screen.getByRole('button', { name: 'Recenter' }));
+  // The minus control now uses its correct accessible zoom-out label.
+  expect(screen.getByRole('button', { name: 'Zoom out' }).disabled).toBe(false);
+  fireEvent.click(screen.getByRole('button', { name: 'Fit to view' }));
   expect(observeGraphViewport.mock.results[0].value.fit).toHaveBeenCalledTimes(1);
   expect(cytoscape.mock.calls[0][0].layout).toEqual({ name: 'preset', fit: false });
   unmount();
+});
+
+test('fullscreen keeps the original renderer and camera, leaves the route untouched and exits with Escape', () => {
+  const history = jest.spyOn(window.history, 'pushState');
+  const { unmount } = render(view());
+  const cy = cytoscape.mock.results[0].value;
+  cy.zoom(2);
+  fireEvent.click(screen.getByRole('button', { name: 'Open in full screen' }));
+  expect(screen.getByRole('dialog', { name: 'Fullscreen graph viewer' })).toBeTruthy();
+  expect(cytoscape).toHaveBeenCalledTimes(1); expect(cy.zoom()).toBe(2);
+  expect(history).not.toHaveBeenCalled(); expect(cy.destroy).not.toHaveBeenCalled();
+  fireEvent.keyDown(screen.getByRole('dialog', { name: 'Fullscreen graph viewer' }), { key: 'Escape' });
+  expect(screen.queryByRole('dialog', { name: 'Fullscreen graph viewer' })).toBeNull();
+  expect(cytoscape).toHaveBeenCalledTimes(1); expect(cy.zoom()).toBe(2);
+  unmount(); history.mockRestore();
 });
 
 test('hover on a visible offset edge label opens its scientific evidence without a midpoint-distance gate', () => {
