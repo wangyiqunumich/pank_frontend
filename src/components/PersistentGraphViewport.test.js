@@ -38,3 +38,33 @@ test('unmounting a fullscreen pane restores page scrolling', () => {
   view.unmount();
   expect(document.body.style.overflow).toBe(overflow);
 });
+
+test('restores the native top layer after a plan/answer slot moves an open dialog', () => {
+  let frame;
+  const frames = jest.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => { frame = callback; return 1; });
+  const modal = new Set();
+  const nativeMatches = Element.prototype.matches;
+  const matches = jest.spyOn(Element.prototype, 'matches').mockImplementation(function match(selector) {
+    return selector === ':modal' ? modal.has(this) : nativeMatches.call(this, selector);
+  });
+  const show = jest.fn(function showModal() { this.setAttribute('open', ''); modal.add(this); });
+  const close = jest.fn(function closeModal() { this.removeAttribute('open'); modal.delete(this); });
+  const oldShow = HTMLDialogElement.prototype.showModal, oldClose = HTMLDialogElement.prototype.close;
+  HTMLDialogElement.prototype.showModal = show; HTMLDialogElement.prototype.close = close;
+  try {
+    const view = render(<PersistentGraphViewport fullscreen onExit={() => {}}><canvas data-testid="retained" /><iframe title="retained preview" /></PersistentGraphViewport>);
+    const dialog = screen.getByRole('dialog'), canvas = screen.getByTestId('retained'), preview = screen.getByTitle('retained preview');
+    expect(show).toHaveBeenCalledTimes(1);
+    // Browser behavior when GraphSlot reattaches the host after layout effects.
+    modal.delete(dialog);
+    expect(dialog.open).toBe(true);
+    frame();
+    expect(close).toHaveBeenCalledTimes(1); expect(show).toHaveBeenCalledTimes(2);
+    expect(modal.has(dialog)).toBe(true);
+    expect(screen.getByTestId('retained')).toBe(canvas); expect(screen.getByTitle('retained preview')).toBe(preview);
+    view.unmount();
+  } finally {
+    frames.mockRestore(); matches.mockRestore();
+    HTMLDialogElement.prototype.showModal = oldShow; HTMLDialogElement.prototype.close = oldClose;
+  }
+});

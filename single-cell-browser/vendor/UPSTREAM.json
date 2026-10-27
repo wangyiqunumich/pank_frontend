@@ -16,6 +16,7 @@
     "Disable verbose data logging",
     "Remove cell ID display",
     "Accessible map controls",
+    "Optional host-owned controls and expression legend label; emit viewport zoom for the result UI without changing rendering or camera math",
     "Preserve camera on resize and cancel unmount timer",
     "Correct normal violin axis labels",
     "Preview-only compact wrapped cluster labels with collision placement and thin leader lines"

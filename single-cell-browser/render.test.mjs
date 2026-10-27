@@ -25,6 +25,19 @@ test('map redraws after replacing data while a frame is pending', () => {
   assert.equal(rendered, 1);
 });
 
+test('host zoom readout reports the real camera scale without mutating camera or points', () => {
+  const emitted = [], shared = [];
+  const sandbox = { Vue: { component: (_, options) => options }, EventBus: { $emit: (...args) => shared.push(args) } };
+  vm.runInNewContext(source, sandbox);
+  const camera = { target: [4, 5, 0], distance: 0.5, yaw: 0, pitch: 0 };
+  const before = JSON.stringify(camera);
+  sandbox.component.methods.updateViewTransform.call({ group: 'fixture', camera, resetCamera: { distance: 1 }, is3dMode: false, $emit: (...args) => emitted.push(args) });
+  assert.equal(emitted[0][0], 'viewport-change'); assert.equal(emitted[0][1].zoom, 200);
+  assert.equal(shared[0][0], 'view-transform-change'); assert.equal(shared[0][1].camera.distance, 0.5);
+  assert.equal(JSON.stringify(camera), before);
+  assert.equal(sandbox.component.props.showControls.default, true);
+});
+
 import { layoutPreviewLabels } from './previewLabels.mjs';
 test('compact labels wrap names, stay inside a narrow canvas and avoid overlap', () => {
   const clusters = ['Alpha', 'Ductal', 'Active Stellate', 'Beta'].map(label => ({label, projection:{x:80,y:70}}));

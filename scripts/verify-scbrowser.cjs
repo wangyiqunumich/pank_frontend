@@ -1,43 +1,156 @@
+// Isolated local-build acceptance. Never attach to an existing user browser.
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
-const fs=require('fs');
-(async()=>{
-const browser=await chromium.launch({headless:true,...(process.env.CHROME_EXECUTABLE ? {executablePath:process.env.CHROME_EXECUTABLE} : {}),args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']});
-const page=await browser.newPage({viewport:{width:1440,height:1000}});const requests=[],errors=[];page.on('request',r=>requests.push(r.url()));page.on('pageerror',e=>errors.push(e.message));
-const demo=require('./scbrowser-demo-data.cjs');
-await page.context().route('**/api/**', async route=>{ const path=new URL(route.request().url()).pathname; if(new URL(route.request().url()).hostname==='bioindex.pankbase.org') return route.continue(); let data={}; if(path.includes('/agent/v2/runs/'))data=demo.run; else if(path.endsWith('/results'))data={result_id:demo.result.result_id}; else if(path.includes('/results/'))data=demo.result; await route.fulfill({json:data}); });
-await page.goto(`${process.env.SC_QA_URL || 'http://127.0.0.1:4187'}/result-new2?run_id=11111111-1111-4111-8111-111111111111`);
-await page.getByRole('region',{name:'Expression evidence'}).waitFor({timeout:30000});
-const preview=page.frameLocator('iframe[title="PanKbase atlas preview"]');
-await preview.locator('.preview-map canvas').first().waitFor({timeout:90000});
-if(await preview.locator('.preview-caption').count())throw Error('Preview must contain only the whole atlas map');
-await preview.locator('canvas').first().waitFor();
-await page.screenshot({path:'/tmp/scmap-card.png'});
-await page.getByRole('button',{name:'Open in scBrowser →'}).click();
-const frame=page.frameLocator('iframe[title="PanKgraph single-cell browser"]');
-await frame.getByText('448,935 cells',{exact:false}).first().waitFor({timeout:90000});
-await frame.getByRole('button',{name:'View gene',exact:true}).waitFor();
-await frame.locator('.load-state').waitFor({state:'hidden',timeout:90000});
-await frame.locator('canvas').first().waitFor();
-await page.screenshot({path:'/tmp/scmap-map.png'});
-if(await frame.getByLabel('Atlas gene').inputValue()!=='INS')throw Error('First eligible gene was not autofilled');
-await frame.getByText('PanKbase scRNAseq V3.3',{exact:true}).first().waitFor();
-await frame.getByRole('button',{name:'Expression',exact:true}).click();
-await frame.getByRole('region',{name:'Expression distribution'}).locator('svg').first().waitFor();
-await frame.getByLabel('Atlas gene').fill('GCG');await frame.getByRole('button',{name:'View gene',exact:true}).click();
-await frame.locator('.load-state').waitFor({state:'hidden',timeout:90000});
-await frame.getByRole('heading',{name:'GCG expression by cell type'}).waitFor();
-await page.getByRole('button',{name:'Next expression browser'}).click();
-if(await frame.locator('select').inputValue()!=='Ductal')throw Error('Second pair did not select Ductal');
-await page.getByRole('button',{name:'Next expression browser'}).click();
-await frame.locator('.load-state').waitFor({state:'hidden',timeout:90000});
-if(await frame.getByLabel('Atlas gene').inputValue()!=='GCG')throw Error('Marker edge did not select GCG');
-await frame.getByRole('button',{name:'Source',exact:true}).click();
-await frame.getByText('older-rna-fixture',{exact:false}).first().waitFor();
-await page.getByRole('tab',{name:'Knowledge Graph',exact:true}).click();
-await preview.locator('canvas').first().waitFor();
-await page.setViewportSize({width:390,height:844});await page.screenshot({path:'/tmp/scmap-mobile.png'});
-if(requests.some(url=>/fields.json|coordinates.tsv|dataset_metadata/.test(url)))throw Error('Full metadata reached browser');
-if(errors.length)throw Error(JSON.stringify(errors));
-fs.writeFileSync('/tmp/scmap-browser-qa.json',JSON.stringify({requests,errors,passed:true},null,2));
-console.log('PASS: map-only preview, first INS autofill, V3.3 label, real expression map/violin, GCG switch, edge navigation, compact requests only, mobile render');await browser.close();
-})().catch(e=>{console.error(e);process.exit(1)});
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const os = require('node:os');
+const schema = require('../src/vnext/schema/result_page_schema.json');
+const wording = schema.main_visuals.items.single_cell_browser.wording;
+const copy = Object.fromEntries(Object.entries(wording).map(([key, value]) => [key, typeof value === 'string' ? value.replaceAll('{display_release}', wording.display_release) : value]));
+const base = new URL(process.env.SC_QA_URL || 'http://127.0.0.1:4187');
+assert(['127.0.0.1', 'localhost', '[::1]'].includes(base.hostname), 'UI acceptance is loopback-only');
+const output = process.env.SC_QA_OUTPUT || path.join(os.tmpdir(), 'pankgraph-scbrowser-qa');
+fs.mkdirSync(output, { recursive: true });
+const snapshot = (page, name) => page.screenshot({ path: path.join(output, name + '.png'), fullPage: false });
+(async () => {
+  const browser = await chromium.launch({ headless: true, ...(process.env.CHROME_EXECUTABLE ? { executablePath: process.env.CHROME_EXECUTABLE } : {}), args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  const requests = [], errors = [], assertions = [];
+  page.on('request', request => requests.push(request.url()));
+  page.on('pageerror', error => errors.push(error.message));
+  try {
+    // Use the preview server's explicitly labeled graph fixture. Exercise real
+    // public expression fallback, not the authenticated dev backend or inference.
+    await page.route('**/api/scbrowser/expression?**', route => route.fulfill({ status: 503, json: { message: 'Local QA: exercise the existing public fallback.' } }));
+    await page.route(/https:\/\/(www\.)?(google-analytics|googletagmanager)\.com\//, route => route.abort());
+    await page.goto(new URL('/result-new2?run_id=11111111-1111-4111-8111-111111111111', base).href);
+    await page.getByRole('tab', { name: 'scBrowser', exact: true }).waitFor({ timeout: 30000 });
+    assert.equal(await page.locator('iframe[title="PanKbase atlas preview"]').count(), 0);
+    assert.equal(await page.getByRole('region', { name: 'Expression evidence' }).count(), 0);
+    assertions.push('No duplicate scBrowser preview');
+
+    async function graphGeometry() {
+      const geometry = await page.locator('.graph-viewer').evaluate(viewer => {
+        const box = viewer.getBoundingClientRect();
+        const legend = viewer.querySelector('.graph-legend').getBoundingClientRect();
+        const zoom = viewer.querySelector('.graph-zoom-indicator').getBoundingClientRect();
+        const toolbar = viewer.querySelector('.graph-toolbar');
+        const dock = toolbar.getBoundingClientRect();
+        return { legendBottom: box.bottom - legend.bottom, zoomBottom: box.bottom - zoom.bottom,
+          scroll: toolbar.scrollHeight > toolbar.clientHeight + 1,
+          toolbarInside: dock.top >= box.top - 1 && dock.bottom <= box.bottom + 1 };
+      });
+      assert(Math.abs(geometry.legendBottom - 16) < 1, JSON.stringify(geometry));
+      assert(Math.abs(geometry.zoomBottom - 16) < 1, JSON.stringify(geometry));
+      assert(!geometry.scroll && geometry.toolbarInside, JSON.stringify(geometry));
+      return geometry;
+    }
+    const graphCanvas = await page.locator('.graph-viewer canvas').first().elementHandle();
+    await page.locator('.graph-toolbar').getByRole('button', { name: 'Expand graph toolbar' }).click();
+    await graphGeometry();
+    await page.locator('.graph-viewer').screenshot({ path: path.join(output, 'graph-panel.png') });
+    await page.locator('.graph-toolbar').getByRole('button', { name: 'Open in full screen' }).click();
+    await page.locator('dialog:modal').waitFor();
+    assert(await graphCanvas.evaluate(canvas => canvas.isConnected && !!canvas.closest('dialog')?.matches(':modal')));
+    await page.setViewportSize({ width: 844, height: 320 });
+    await graphGeometry();
+    await snapshot(page, 'graph-short-fullscreen');
+    await page.keyboard.press('Escape');
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.locator('dialog:modal').waitFor({ state: 'hidden' });
+    assertions.push('Graph footer corners, expanded dock without scrolling, retained fullscreen canvas and Escape');
+
+    await page.getByRole('tab', { name: 'scBrowser', exact: true }).click();
+    const iframe = await page.locator('iframe[title="PanKgraph single-cell browser"]').elementHandle();
+    const frame = await iframe.contentFrame();
+    await frame.getByRole('button', { name: copy.view_gene, exact: true }).waitFor({ timeout: 30000 });
+    await frame.getByText('448,935 cells', { exact: false }).first().waitFor({ timeout: 90000 });
+    await frame.locator('.load-state').waitFor({ state: 'hidden', timeout: 90000 });
+    await frame.locator('canvas').first().waitFor({ timeout: 90000 });
+    assert.equal(await frame.getByLabel('Atlas gene').inputValue(), 'INS');
+    await frame.getByText(copy.atlas_label, { exact: true }).first().waitFor();
+    assertions.push('Actual public INS expression, all 448935 cells, schema release label');
+
+    async function scGeometry() {
+      await frame.waitForFunction(() => {
+        const stage = document.querySelector('.browser-stage')?.getBoundingClientRect();
+        const dock = document.querySelector('.map-toolbar')?.getBoundingClientRect();
+        return stage && dock && dock.top >= stage.top - 1 && dock.bottom <= stage.bottom + 1;
+      }, null, { timeout: 10000 });
+      const geometry = await frame.evaluate(() => {
+        const stage = document.querySelector('.browser-stage').getBoundingClientRect();
+        const toolbar = document.querySelector('.map-toolbar').getBoundingClientRect();
+        const root = document.querySelector('main').getBoundingClientRect();
+        const images = [...document.querySelectorAll('img')].map(image => ({ width: image.getBoundingClientRect().width, height: image.getBoundingClientRect().height, naturalWidth: image.naturalWidth, naturalHeight: image.naturalHeight }));
+        return { stage: stage.toJSON(), toolbar: toolbar.toJSON(), toolbarInside: toolbar.top >= stage.top - 1 && toolbar.bottom <= stage.bottom + 1,
+          rootInside: root.width <= innerWidth + 1, horizontalOverflow: document.body.scrollWidth > innerWidth + 1, images };
+      });
+      assert(geometry.toolbarInside && geometry.rootInside && !geometry.horizontalOverflow, JSON.stringify(geometry));
+      geometry.images.forEach(image => { assert(image.naturalWidth > 0 && image.naturalHeight > 0, JSON.stringify(image)); assert(Math.abs(image.width - image.naturalWidth) < 1 && Math.abs(image.height - image.naturalHeight) < 1, JSON.stringify(image)); });
+      return geometry;
+    }
+    await scGeometry();
+    await snapshot(page, 'scbrowser-map');
+    const retainedMap = await frame.locator('canvas').first().elementHandle();
+    await frame.getByRole('button', { name: copy.fullscreen, exact: true }).click();
+    await page.locator('dialog:modal').waitFor();
+    assert(await iframe.evaluate(element => element.isConnected && !!element.closest('dialog')?.matches(':modal')));
+    await frame.getByRole('button', { name: copy.exit_fullscreen, exact: true }).waitFor();
+    await snapshot(page, 'scbrowser-fullscreen');
+    await frame.getByRole('button', { name: copy.zoom_in, exact: true }).click();
+    await frame.waitForFunction(() => !document.querySelector('.navigation-hint').textContent.startsWith('100%'));
+    await frame.getByRole('button', { name: copy.exit_fullscreen, exact: true }).click();
+    await page.locator('dialog:modal').waitFor({ state: 'hidden' });
+    await frame.getByRole('button', { name: copy.fullscreen, exact: true }).click();
+    await page.locator('dialog:modal').waitFor();
+    await page.keyboard.press('Escape');
+    await page.locator('dialog:modal').waitFor({ state: 'hidden' });
+    assert(await retainedMap.evaluate(canvas => canvas.isConnected));
+    assertions.push('Persistent scBrowser fullscreen iframe and functional zoom readout');
+
+    const map = await frame.locator('canvas').first().elementHandle();
+    await frame.getByRole('button', { name: copy.expression_tab, exact: true }).click();
+    await frame.getByRole('region', { name: 'Expression distribution' }).locator('svg').first().waitFor();
+    await snapshot(page, 'scbrowser-expression');
+    await frame.getByRole('button', { name: copy.source_tab, exact: true }).click();
+    await frame.getByText('Understand the source', { exact: true }).waitFor();
+    await frame.getByRole('button', { name: copy.map_tab, exact: true }).click();
+    assert(await map.evaluate(canvas => canvas.isConnected));
+    await frame.locator('select').selectOption('Ductal');
+    await frame.getByRole('button', { name: copy.selected_cells, exact: true }).click();
+    const count = await frame.locator('.browser-footer strong').textContent();
+    assert(count && !count.includes('448,935') && !count.startsWith('0 '), count);
+    await frame.getByRole('button', { name: copy.all_cells, exact: true }).click();
+    await frame.getByText('448,935 cells', { exact: false }).first().waitFor();
+    await frame.getByLabel('Atlas gene').fill('GCG');
+    await frame.getByRole('button', { name: copy.view_gene, exact: true }).click();
+    await frame.locator('.load-state').waitFor({ state: 'hidden', timeout: 90000 });
+    await frame.locator('canvas').first().waitFor({ timeout: 90000 });
+    assertions.push('Real violin, source tab, persistent map, selected-cell mask and GCG search');
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.locator('iframe[title="PanKgraph single-cell browser"]').scrollIntoViewIfNeeded();
+    await scGeometry();
+    await frame.getByRole('button', { name: copy.fullscreen, exact: true }).click();
+    await page.locator('dialog:modal').waitFor();
+    await scGeometry();
+    await snapshot(page, 'scbrowser-mobile');
+    await frame.getByRole('button', { name: copy.exit_fullscreen, exact: true }).click();
+    await page.locator('dialog:modal').waitFor({ state: 'hidden' });
+    await page.getByRole('tab', { name: 'Knowledge Graph', exact: true }).click();
+    await graphGeometry();
+    await page.locator('.graph-viewer').screenshot({ path: path.join(output, 'graph-mobile.png') });
+    await page.getByRole('tab', { name: 'scBrowser', exact: true }).click();
+    assert.equal(await frame.getByLabel('Atlas gene').inputValue(), 'GCG');
+    assertions.push('Narrow schema copy stays inside unchanged panel; mobile fullscreen and graph/browser round trips preserve state');
+
+    assert(!requests.some(url => /fields.json|coordinates.tsv|dataset_metadata/.test(url)), 'Full metadata must not reach the browser');
+    assert.deepEqual(errors, []);
+    fs.writeFileSync(path.join(output, 'report.json'), JSON.stringify({ passed: true, assertions, requests, errors }, null, 2));
+    console.log(JSON.stringify({ passed: true, output, assertions }, null, 2));
+  } catch (error) {
+    await snapshot(page, 'failure').catch(() => {});
+    fs.writeFileSync(path.join(output, 'report.json'), JSON.stringify({ passed: false, assertions, requests, errors, failure: error.stack }, null, 2));
+    throw error;
+  } finally { await browser.close(); }
+})().catch(error => { console.error(error); process.exitCode = 1; });

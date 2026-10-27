@@ -9,16 +9,15 @@
 }
 .graph-toolbar {
   position: absolute;
-  top: 50%;
+  top: 16px;
+  bottom: 64px;
   right: 16px;
-  transform: translateY(-50%);
+  height: max-content;
+  margin-block: auto;
   z-index: 30;
   box-sizing: border-box;
   width: 42px;
-  max-height: calc(100% - 100px);
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-width: none;
+  overflow: visible;
   padding: 9px 4px;
   display: flex;
   flex-direction: column;
@@ -32,9 +31,8 @@
   font-family: Inter, 'Open Sans', sans-serif;
   color: var(--graph-text);
 }
-.graph-toolbar::-webkit-scrollbar { width: 0; height: 0; }
 .graph-toolbar.is-expanded { width: 224px; padding: 11px; border-radius: 12px; align-items: stretch; gap: 10px; box-shadow: 0 20px 25px -5px #0000001a, 0 8px 10px -6px #0000001a; }
-.graph-toolbar .graph-toolbar-toggle { width: 32px; height: 32px; min-height: 32px; border-radius: 50%; background: #eef6f8; }
+.graph-toolbar .graph-toolbar-toggle { width: 32px; height: 32px; min-height: 32px; flex-shrink: 0; border-radius: 50%; background: #eef6f8; }
 .graph-toolbar.is-expanded .graph-toolbar-toggle { position: absolute; top: 5px; right: 6px; width: 24px; min-height: 24px; height: 24px; }
 .graph-toolbar-action-wrapper { display: block; width: 100%; }
 .graph-toolbar .graph-toolbar-action { width: 32px; height: 32px; border-radius: 50%; display: flex; gap: 8px; color: inherit; }
@@ -57,7 +55,19 @@
 .graph-toolbar-switch > span { width: 12px; height: 12px; border-radius: 50%; background: white; }
 .graph-toolbar-mode { display: flex; align-items: center; gap: 8px; padding: 6px 8px; min-height: 28px; box-sizing: border-box; }
 .graph-toolbar-mode-value { font-size: 10px; font-weight: 600; line-height: 16px; color: #0f766e; white-space: nowrap; }
-.graph-viewer .graph-zoom-indicator { position: absolute; top: 24px; right: 16px; min-width: 55px; height: 30px; box-sizing: border-box; padding: 6px 12px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--graph-border); border-radius: 8px; background: #ffffffed; box-shadow: 0 1px 2px #0000000d; font: 500 12px/16px 'JetBrains Mono', monospace; color: #334155; z-index: 15; }
+/* Use the actual pane height, including short landscape fullscreen viewports.
+   Keep every action visible rather than introducing a nested scroll region. */
+.graph-toolbar.is-short { gap: 2px; padding: 6px; }
+.graph-toolbar.is-short .graph-toolbar-toggle { width: 24px; height: 24px; min-height: 24px; }
+.graph-toolbar.is-short .graph-toolbar-action { width: 24px; height: 24px; }
+.graph-toolbar.is-short.is-expanded { gap: 1px; padding: 7px; }
+.graph-toolbar.is-short.is-expanded .graph-toolbar-action { width: 100%; padding: 4px 8px; }
+.graph-toolbar.is-short .graph-toolbar-mode { min-height: 24px; }
+.graph-toolbar.is-short .graph-toolbar-section { gap: 1px; }
+.graph-toolbar.is-short .graph-toolbar-section + .graph-toolbar-section { padding-top: 3px; }
+.graph-toolbar.is-short .graph-toolbar-section h3 { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.graph-toolbar.is-short.is-expanded .graph-toolbar-section:first-of-type { padding-top: 16px; }
+.graph-viewer .graph-zoom-indicator { position: absolute; bottom: 16px; right: 16px; min-width: 55px; height: 32px; box-sizing: border-box; padding: 7px 13px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--graph-border); border-radius: 8px; background: rgba(255,255,255,.95); backdrop-filter: blur(2px); box-shadow: 0 1px 2px #0000000d; font: 500 12px/16px 'JetBrains Mono', monospace; color: #334155; z-index: 15; }
 @media (max-width: 480px) {
   .graph-toolbar { right: 8px; }
   .graph-toolbar.is-expanded { max-width: calc(100% - 24px); }

@@ -27,28 +27,25 @@ async function sentContext(frame) {
  await waitFor(() => expect(post).toHaveBeenCalled());
  return post.mock.calls.filter(([message]) => message.type === 'context').slice(-1)[0][0].context;
 }
-test('schema enables a map-only preview and fills the first RNA gene-cell pair', async () => {
+test('scBrowser uses its own tab without a duplicate graph preview and fills the first RNA gene-cell pair', async () => {
  render(<ResultSection result={result} anchorPrefix="first" />);
- const card = screen.getByRole('region', { name: 'Expression evidence' });
- expect(card.textContent).toBe('Single cell browser×Open scBrowser ');
+ expect(SC_CONFIG.preview.enabled).toBe(false);
+ expect(screen.queryByRole('region', { name: 'Expression evidence' })).toBeNull();
+ expect(screen.queryByTitle('PanKbase atlas preview')).toBeNull();
  expect(screen.queryByText(/padj|CFTR ·|Related atlas/)).toBeNull();
- expect(await sentContext(screen.getByTitle('PanKbase atlas preview'))).toMatchObject({ geneSymbol: 'CFTR', mappedCellType: 'Ductal' });
- fireEvent.click(screen.getByRole('button', { name: 'Open in scBrowser →' }));
+ fireEvent.click(screen.getByRole('tab', { name: 'scBrowser' }));
  expect(screen.getByRole('tab', { name: 'scBrowser' }).getAttribute('aria-selected')).toBe('true');
  expect(screen.queryByRole('group', { name: 'Expression browser navigation' })).toBeNull();
  expect(await sentContext(screen.getByTitle('PanKgraph single-cell browser'))).toMatchObject({ geneSymbol: 'CFTR', mappedCellType: 'Ductal' });
 });
-test('close, restore and tab changes preserve graph and main browser', () => {
+test('tab changes preserve graph and main browser', () => {
  const { rerender } = render(<ResultSection result={result} anchorPrefix="scope" />);
  const graphElement = screen.getByTestId('graph');
- fireEvent.click(screen.getByRole('button', { name: 'Close expression card' }));
  expect(screen.queryByTitle('PanKbase atlas preview')).toBeNull();
- fireEvent.click(screen.getByRole('button', { name: 'Show visualization preview' }));
- fireEvent.click(screen.getByRole('button', { name: 'Open in scBrowser →' }));
+ fireEvent.click(screen.getByRole('tab', { name: 'scBrowser' }));
  const frame = screen.getByTitle('PanKgraph single-cell browser');
  fireEvent.click(screen.getByRole('tab', { name: 'Knowledge Graph' }));
  expect(screen.getByTestId('graph')).toBe(graphElement);
- fireEvent.click(screen.getByRole('button', { name: 'Close expression card' }));
  expect(screen.queryByRole('region', { name: 'Expression evidence' })).toBeNull();
  fireEvent.click(screen.getByRole('tab', { name: 'scBrowser' }));
  expect(screen.getByTitle('PanKgraph single-cell browser')).toBe(frame);
@@ -69,9 +66,10 @@ test('schema disabled scmap and unrelated or ATAC graphs do not activate it', ()
 test('graph inspection updates the selected pair and selection revalidates against current evidence', async () => {
  const { rerender } = render(<ResultSection result={result} />);
  fireEvent.click(screen.getByTestId('graph'));
- expect(await sentContext(screen.getByTitle('PanKbase atlas preview'))).toMatchObject({ geneSymbol: 'INS', mappedCellType: 'Beta' });
+ expect(screen.getByRole('tab', { name: 'scBrowser' }).getAttribute('aria-selected')).toBe('true');
+ expect(await sentContext(screen.getByTitle('PanKgraph single-cell browser'))).toMatchObject({ geneSymbol: 'INS', mappedCellType: 'Beta' });
  rerender(<ResultSection result={{ ...result, combined_query_result: { ...graph, edges: [graph.edges[0]] } }} />);
- expect(await sentContext(screen.getByTitle('PanKbase atlas preview'))).toMatchObject({ geneSymbol: 'CFTR', mappedCellType: 'Ductal' });
+ expect(await sentContext(screen.getByTitle('PanKgraph single-cell browser'))).toMatchObject({ geneSymbol: 'CFTR', mappedCellType: 'Ductal' });
 });
 test('same-origin manifest bridge ignores foreign and unrelated window messages', async () => {
  render(<SingleCellBrowser context={expressionContext(graph, 'edge-1')} isVisible preview />);
@@ -81,13 +79,29 @@ test('same-origin manifest bridge ignores foreign and unrelated window messages'
  fireEvent(window, new MessageEvent('message', { origin: 'https://foreign.test', source: window, data: { protocol: 'pankgraph.scbrowser.v1', type: 'status', edgeId: 'edge-1', message: 'Injected' } }));
  expect(screen.queryByText('Injected')).toBeNull();
 });
-test('mixed QTL and RNA evidence shares one preview card with tab switching and persistent graph', async () => {
+
+test('only this browser frame can request fullscreen, preserving its iframe and exiting with Escape', async () => {
+ const { unmount } = render(<SingleCellBrowser context={expressionContext(graph, 'edge-1')} isVisible />);
+ const frame = await screen.findByTitle('PanKgraph single-cell browser');
+ const send = (source, origin = window.location.origin) => fireEvent(window, new MessageEvent('message', { source, origin, data: { protocol: 'pankgraph.scbrowser.v1', type: 'toggle-fullscreen' } }));
+ send(window); send(frame.contentWindow, 'https://foreign.test');
+ expect(screen.queryByRole('dialog')).toBeNull();
+ send(frame.contentWindow);
+ const dialog = screen.getByRole('dialog', { name: SC_CONFIG.wording.fullscreen_title });
+ expect(dialog.contains(frame)).toBe(true);
+ expect(screen.getByTitle('PanKgraph single-cell browser')).toBe(frame);
+ fireEvent.keyDown(dialog, { key: 'Escape' });
+ expect(screen.queryByRole('dialog')).toBeNull();
+ expect(screen.getByTitle('PanKgraph single-cell browser')).toBe(frame);
+ unmount();
+});
+test('mixed QTL and RNA evidence retains the unrelated QTL preview but no cell preview', async () => {
  const qtlGraph = { nodes: [...graph.nodes, { '~id': 'rs2402203', '~labels': ['sequence_variant'], '~properties': { name: 'rs2402203' } }], edges: [...graph.edges, { '~id': 'qtl', '~type': 'PART_OF_QTL_SIGNAL', '~start': 'rs2402203', '~end': 'cftr', '~properties': { data_source: 'splicing; GTEx', credible_set: 'test_credibleSet1' } }] };
  render(<ResultSection result={{ ...result, combined_query_result: qtlGraph }} />);
  const graphElement = screen.getByTestId('graph');
  const card = screen.getByRole('region', { name: 'Visualization preview' });
  expect(screen.queryByRole('region', { name: 'Expression evidence' })).toBeNull();
- fireEvent.click(within(card).getByRole('tab', { name: 'QTL Fine-Mapping' }));
+ expect(within(card).queryByRole('tab', { name: 'scBrowser' })).toBeNull();
  expect(within(card).queryByTitle('PanKbase atlas preview')).toBeNull();
  fireEvent.click(within(card).getByRole('button', { name: 'Open QTL fine-mapping →' }));
  expect(screen.getByRole('tablist', { name: 'Result visualizations' }).querySelector('[aria-selected="true"]').textContent).toBe('QTL Fine-Mapping');

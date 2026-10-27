@@ -13,12 +13,12 @@
         style="width:100%; position:relative; overflow-x:hidden;"
     >
         <div v-if="expression" style="display:flex; flex-direction: column; position:absolute; top:4px; left:5px;" class="legend">
-            <div class="label">Expression</div>
+            <div class="label">{{ legendLabel }}</div>
             <div class="gradient" :style="`background: linear-gradient(to right, ${colorScaleArray()}); height:5px;`"></div>
             <div style="display:flex" class="marks"><div>{{ minExpressionValue() }}</div><div>{{ maxExpressionValue() }}</div></div>
         </div>
         <div
-            v-if="points"
+            v-if="points && showControls"
             style="display:flex; align-items: center; justify-content: flex-end; gap:5px; position: absolute; right: 5px; top: 5px; z-index: 1"
         >
             <button @click="showTooltips = !showTooltips" v-b-tooltip.hover.bottom title="toggle cell info" aria-label="Toggle cell information" :style="!showTooltips ? 'background:#ddd' : 'background:white'">
@@ -217,6 +217,8 @@ function colorToRgba(color, alpha = 255) {
 
 export default Vue.component('research-umap-plot-gl', {
     props: {
+        showControls: { type: Boolean, default: true },
+        legendLabel: { type: String, default: 'Expression' },
         previewLabels: { type: Object, default: null },
         group: {
             type: String,
@@ -1702,6 +1704,7 @@ export default Vue.component('research-umap-plot-gl', {
         },
 
         updateViewTransform() {
+            this.$emit('viewport-change', { zoom: Math.round(100 * this.resetCamera.distance / this.camera.distance) });
             EventBus.$emit('view-transform-change', {
                 id: this.group,
                 viewMode: this.is3dMode ? '3d' : '2d',

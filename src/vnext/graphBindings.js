@@ -74,13 +74,13 @@ export function fitGraphViewport(cy, listMode = false) {
 }
 
 export function observeGraphViewport(cy, container, onFit = () => {}, host = window, listMode = false) {
-  let disposed = false, frame = null, lastSize = '';
+  let disposed = false, frame = null, lastSize = null;
   const fit = () => {
     if (disposed || cy.destroyed()) return null;
     const box = container.getBoundingClientRect();
     if (box.width <= 0 || box.height <= 0) return null;
     const viewport = fitGraphViewport(cy, listMode);
-    if (viewport) { lastSize = `${box.width}:${box.height}`; onFit(viewport); }
+    if (viewport) { lastSize = { width: box.width, height: box.height }; onFit(viewport); }
     return viewport;
   };
   const schedule = () => {
@@ -89,9 +89,18 @@ export function observeGraphViewport(cy, container, onFit = () => {}, host = win
       frame = null;
       if (disposed || cy.destroyed()) return;
       const box = container.getBoundingClientRect();
-      if (`${box.width}:${box.height}` !== lastSize) {
+      // Hidden visual tabs must not replace the last visible camera geometry.
+      if (box.width <= 0 || box.height <= 0) return;
+      if (box.width !== lastSize?.width || box.height !== lastSize?.height) {
         if (!lastSize) fit();
-        else { cy.resize(); lastSize = `${box.width}:${box.height}`; }
+        else {
+          cy.resize();
+          // Resize the viewport around its model-space center, not its top-left.
+          // This preserves user zoom/pan through fullscreen and back, without
+          // refitting the graph or resetting dragged nodes and selections.
+          cy.panBy({ x: (box.width - lastSize.width) / 2, y: (box.height - lastSize.height) / 2 });
+          lastSize = { width: box.width, height: box.height };
+        }
       }
     });
   };

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import { ButtonBase, Tooltip } from '@mui/material';
 import FullscreenExitRoundedIcon from '@mui/icons-material/FullscreenExitRounded';
 import compactChevron from '../image/graph-toolbar/compact-chevron.svg';
@@ -24,6 +24,20 @@ import './GraphToolbar.css';
 export default function GraphToolbar({ fullscreen, onFullscreen, zoomPercent, canZoomIn, canZoomOut, onZoomIn, onZoomOut, onFit, hoverEnabled, onHover, onDownload, onReset, modeLabel = 'KG mode' }) {
   const [expanded, setExpanded] = useState(false);
   const toolbarRef = useRef(null);
+  const [short, setShort] = useState(false);
+  useLayoutEffect(() => {
+    const viewer = toolbarRef.current?.parentElement;
+    if (!viewer) return undefined;
+    const measure = () => {
+      const height = viewer.getBoundingClientRect().height;
+      if (height > 0) setShort(height < 420);
+    };
+    measure();
+    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
+    observer?.observe(viewer);
+    window.addEventListener('resize', measure);
+    return () => { observer?.disconnect(); window.removeEventListener('resize', measure); };
+  }, []);
   // Native fullscreen dialogs live above body portals; keep tips in that layer.
   const tooltipProps = { placement: 'left', PopperProps: { container: () => toolbarRef.current?.closest('dialog') || document.body } };
   const actions = {
@@ -44,7 +58,7 @@ export default function GraphToolbar({ fullscreen, onFullscreen, zoomPercent, ca
       </ButtonBase>
     </span></Tooltip>;
   };
-  return <div ref={toolbarRef} className={`graph-toolbar${expanded ? ' is-expanded' : ''}`} role="toolbar" aria-label="Graph controls" aria-orientation="vertical">
+  return <div ref={toolbarRef} className={`graph-toolbar${expanded ? ' is-expanded' : ''}${short ? ' is-short' : ''}`} role="toolbar" aria-label="Graph controls" aria-orientation="vertical">
     <ButtonBase className="graph-toolbar-toggle" aria-label={expanded ? 'Collapse graph toolbar' : 'Expand graph toolbar'} aria-expanded={expanded} onClick={() => setExpanded(value => !value)}>
       <img src={compactChevron} alt="" style={{ transform: expanded ? 'none' : 'scaleX(-1)' }} />
     </ButtonBase>

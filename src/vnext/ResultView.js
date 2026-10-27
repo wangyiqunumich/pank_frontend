@@ -128,13 +128,12 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
   const runId = run?.run_id || result?.result_id;
   const [expressionState, setExpressionState] = useState(null);
   const [visualRequest, setVisualRequest] = useState(null);
-  const [previewRequest, setPreviewRequest] = useState(null);
   const scopedExpressionState = expressionState?.scope === runId ? expressionState : null;
   const defaultExpression = useMemo(() => firstAvailableExpression(result?.combined_query_result), [result?.combined_query_result]);
   const expression = expressionContext(result?.combined_query_result, scopedExpressionState?.context?.edgeId) || defaultExpression;
   const selectExpression = useCallback((edgeId) => {
     const context = expressionContext(result?.combined_query_result, edgeId);
-    if (context) { setExpressionState({ scope: runId, context, minimized: false, closed: false }); setPreviewRequest({ id: 'single_cell_browser', scope: runId }); }
+    if (context) { setExpressionState({ scope: runId, context, minimized: false, closed: false }); setVisualRequest({ id: 'single_cell_browser', scope: runId, nonce: Date.now() }); }
   }, [result?.combined_query_result, runId]);
   const trackingScope = run?.run_id ? 'run' : 'result';
   const onEvidenceInspect = useCallback((id) => { selectExpression(id); recordInteraction(runId, 'graph_evidence_inspected', referenceKey(id), trackingScope); }, [runId, trackingScope, selectExpression]);
@@ -175,7 +174,7 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
       height: definition.preview?.height,
       content: React.cloneElement(visualRenderers[visual.id], { isVisible: true, preview: true }) };
   });
-  const preview = <VisualPreview key={runId} items={previewItems} requestedId={previewRequest?.scope === runId ? previewRequest : null} minimized={scopedExpressionState?.minimized} closed={scopedExpressionState?.closed}
+  const preview = <VisualPreview key={runId} items={previewItems} minimized={scopedExpressionState?.minimized} closed={scopedExpressionState?.closed}
     onMinimize={minimized => setExpressionState({ scope: runId, context: expression, minimized, closed: false })}
     onClose={() => setExpressionState({ scope: runId, context: expression, minimized: false, closed: true })}
     onRestore={() => setExpressionState({ scope: runId, context: expression, minimized: false, closed: false })}

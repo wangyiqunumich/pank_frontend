@@ -71,12 +71,27 @@ test('fullscreen keeps the original renderer and camera, leaves the route untouc
   cy.zoom(2);
   fireEvent.click(screen.getByRole('button', { name: 'Open in full screen' }));
   expect(screen.getByRole('dialog', { name: 'Fullscreen graph viewer' })).toBeTruthy();
+  expect(document.activeElement).toBe(screen.getByRole('dialog', { name: 'Fullscreen graph viewer' }));
   expect(cytoscape).toHaveBeenCalledTimes(1); expect(cy.zoom()).toBe(2);
   expect(history).not.toHaveBeenCalled(); expect(cy.destroy).not.toHaveBeenCalled();
   fireEvent.keyDown(screen.getByRole('dialog', { name: 'Fullscreen graph viewer' }), { key: 'Escape' });
   expect(screen.queryByRole('dialog', { name: 'Fullscreen graph viewer' })).toBeNull();
   expect(cytoscape).toHaveBeenCalledTimes(1); expect(cy.zoom()).toBe(2);
   unmount(); history.mockRestore();
+});
+
+test('fullscreen search retains its DOM and focus while zoom updates rerender the graph', () => {
+  const { unmount } = render(view());
+  fireEvent.click(screen.getByRole('button', { name: 'Open in full screen' }));
+  const search = screen.getByRole('textbox', { name: 'Search graph' });
+  fireEvent.input(search, { target: { value: 'CFTR' } }); search.focus();
+  const cy = cytoscape.mock.results[0].value;
+  const zoomChanged = cy.on.mock.calls.find(([event]) => event === 'zoom')[1];
+  act(() => { cy.zoom(2); zoomChanged(); });
+  expect(screen.getByRole('textbox', { name: 'Search graph' })).toBe(search);
+  expect(document.activeElement).toBe(search);
+  expect(search.value).toBe('CFTR');
+  unmount();
 });
 
 test('hover on a visible offset edge label opens its scientific evidence without a midpoint-distance gate', () => {

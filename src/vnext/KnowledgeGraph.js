@@ -18,7 +18,7 @@ import {
 } from 'react-redux';
 import PersistentGraphViewport from '../components/PersistentGraphViewport';
 import GraphToolbar from './GraphToolbar';
-import legendChevron from '../image/graph-toolbar/expanded-download-chevron.svg';
+import GraphLegend from './GraphLegend';
 
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -42,8 +42,6 @@ import { SEARCH_TARGETS } from '../components/data/node_schema';
 import {
   edgeIsInverted,
   edgeLabels,
-  getContrastingColor,
-  legendSchema,
   nodeStyle,
 } from '../components/style.js';
 
@@ -82,21 +80,6 @@ const formatScientificNotation = (rawValue, significanceNumber = 3) => {
 
   return `${mantissa} × 10${toSuperscript(normalizedExponent)}`;
 };
-
-const LegendItem = ({ label, color, sx }) => (
-  <span
-    style={{
-      padding: "2px 6px",
-      borderRadius: "6px",
-      backgroundColor: color || "white",
-      fontSize: "12px",
-      color: getContrastingColor(color) || "black",
-      ...sx,
-    }}
-  >
-    {label}
-  </span>
-);
 
 export const formatEvidenceValue = (value) => typeof value === 'object' && value !== null ? JSON.stringify(value) : String(value);
 
@@ -819,6 +802,15 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
   );
 }
 
+// A stable component type keeps focus while Cytoscape emits zoom updates.
+function GraphSearch({ inputRef, onSearch }) {
+  return <input aria-label="Search graph" placeholder="Search graph…"
+    defaultValue={inputRef.current}
+    style={{ width: '100%', boxSizing: 'border-box', border: '1px solid #e2e8f0', borderRadius: 8, padding: '8px 12px', font: '12px Inter, Open Sans, sans-serif', background: '#fff', color: '#334155', boxShadow: '0 1px 2px #0000000d' }}
+    onInput={event => { inputRef.current = event.target.value; }}
+    onKeyDown={event => { if (event.key === 'Enter') { event.preventDefault(); onSearch(inputRef.current.trim()); } }} />;
+}
+
 // Main KnowledgeGraph component
 export default function KnowledgeGraph({ overlay, onEvidenceInspect, selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, edgeRoutes = null, review = false, containerHeight = "600px", defaultLegendVisible = false }) {
   const cyRef = useRef(null);
@@ -850,7 +842,6 @@ export default function KnowledgeGraph({ overlay, onEvidenceInspect, selectable 
   const viewportRef = useRef(null);
 
   // toggle buttons & graph state
-  const [legendVisible, setLegendVisible] = useState(defaultLegendVisible);
   const [zoomLevel, setZoomLevel] = useState(1.5);
   const [initZoom, setInitZoom] = useState(1.5); // default zoom scale
   const [minimumZoom, setMinimumZoom] = useState(0.6);
@@ -920,26 +911,6 @@ export default function KnowledgeGraph({ overlay, onEvidenceInspect, selectable 
   };
 
 
-
-  const SearchBox = () => {
-    return (
-      <input
-        aria-label="Search graph"
-        placeholder="Search graph…"
-        defaultValue={inputRef.current}
-        style={{ width: '100%', boxSizing: 'border-box', border: '1px solid #e2e8f0', borderRadius: 8, padding: '8px 12px', font: '12px Inter, Open Sans, sans-serif', background: '#fff', color: '#334155', boxShadow: '0 1px 2px #0000000d' }}
-        onInput={(e) => {
-          inputRef.current = e.target.value;
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            focusElementByKey(inputRef.current.trim());
-          }
-        }}
-      />
-    );
-  };
 
   const handleZoomIn = () =>
     cyRef.current && cyRef.current.zoom({ level: cyRef.current.zoom() / 1.2, renderedPosition: center });
@@ -1236,7 +1207,7 @@ export default function KnowledgeGraph({ overlay, onEvidenceInspect, selectable 
   return (
     <PersistentGraphViewport fullscreen={expanded} onExit={() => setExpanded(false)}>
     <div className="graph-viewer" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', ...sx, position: 'relative', width: '100%', height: '100%', minHeight: 0, borderRadius: expanded ? 0 : 16 }}>
-      {expanded && <Box sx={{ position: 'absolute', top: 16, left: '50%', transform: 'translateX(-50%)', width: 'min(360px, calc(100% - 210px))', zIndex: 15 }}><SearchBox /></Box>}
+      {expanded && <Box sx={{ position: 'absolute', top: 16, left: '50%', transform: 'translateX(-50%)', width: 'min(360px, calc(100% - 210px))', zIndex: 15 }}><GraphSearch inputRef={inputRef} onSearch={focusElementByKey} /></Box>}
       <div
         ref={containerRef}
         style={{
@@ -1296,82 +1267,7 @@ export default function KnowledgeGraph({ overlay, onEvidenceInspect, selectable 
       >
         <InfocardMenu hoveredData={activeNode?.data()} review={review} />
       </div>
-      <div style={{ display: review ? "none" : "flex", flexDirection: "row", gap: "200px" }}>
-        {/* Legend */}
-        <div
-          style={{
-            position: "absolute",
-            top: "24px",
-            left: "16px",
-            maxWidth: "calc(100% - 88px)",
-            display: "flex",
-            flexDirection: "column",
-            background: "#fff",
-            padding: legendVisible ? "12px" : "6px 12px",
-            borderRadius: "8px",
-            boxShadow: "0px 4px 15px -3px rgba(100,100,100,0.25)",
-            zIndex: 10,
-            userSelect: "none",
-            height: "fit-content",
-            width: legendVisible ? "350px" : "88px",
-            boxSizing: "border-box",
-            border: "1px solid #e2e8f0",
-            transition: "width 0.3s, height 0.3s, opacity 0.3s, box-shadow 0.3s",
-          }}
-        >
-          {/* Title */}
-          <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-            <div style={{ fontSize: "12px", fontWeight: 600, color: "#334155", fontFamily: "Inter, Open Sans, sans-serif", lineHeight: "16px" }}>
-              Legend
-            </div>
-            <IconButton
-              aria-label={legendVisible ? "Collapse legend" : "Expand legend"}
-              aria-expanded={legendVisible}
-              onClick={() => setLegendVisible(!legendVisible)}
-              style={{
-                padding: "4px",
-                width: "16px",
-                height: "16px",
-                marginLeft: "4px",
-                borderRadius: "50%",
-              }}
-            >
-              {legendVisible ? (
-                <img src={legendChevron} alt="" style={{ transform: 'scaleX(-1)' }} />
-              ) : (
-                <img src={legendChevron} alt="" />
-              )}
-            </IconButton>
-          </div>
-          <Collapse in={legendVisible} timeout="auto">
-            <div style={{ width: "100%", paddingTop: "6px", fontSize: "14px", fontFamily: "Open Sans", fontWeight: 400 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingBottom: "2px", fontSize: "12px" }}>
-                <LegendItem label="　　　　" sx={{ backgroundColor: "#E9E9E9", color: "black", border: "1.5px solid #E9E9E9", height: "8px" }} />
-                Core Nodes
-                <LegendItem label="　　　　" sx={{ backgroundColor: "white", color: "black", border: "1.5px solid #E9E9E9", height: "8px", marginLeft: "16px" }} />
-                Neighbor
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  flexWrap: "wrap",
-                  paddingTop: "4px",
-                }}
-              >
-                {legendSchema.map(({ label, color }) => (
-                  <LegendItem
-                    key={label}
-                    label={label}
-                    color={color}
-                  />
-                ))}
-              </div>
-            </div>
-          </Collapse>
-        </div>
-      </div>
+      {!review && <GraphLegend defaultOpen={defaultLegendVisible} />}
     </div>
     </PersistentGraphViewport>
   );

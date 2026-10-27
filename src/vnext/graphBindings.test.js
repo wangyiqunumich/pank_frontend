@@ -152,11 +152,12 @@ test('viewport ignores hidden/invalid panels and caps a single-node fit at the e
 });
 
 test('resize observer waits for visibility, preserves user zoom on size changes, allows explicit fit, and cleans up', () => {
-  let size = { width: 0, height: 0 }, callback, frame, destroyed = false, zoom = 1;
+  let size = { width: 0, height: 0 }, callback, frame, destroyed = false, zoom = 1, pan = { x: 0, y: 0 };
   const bounds = { x1: 0, y1: 0, x2: 1000, y2: 400 };
   const cy = { destroyed: () => destroyed, resize: jest.fn(), nodes: () => ({ length: 100 }),
     elements: () => ({ boundingBox: jest.fn(() => bounds) }), width: () => size.width, height: () => size.height,
-    minZoom: jest.fn(), maxZoom: jest.fn(), viewport: jest.fn((view) => { zoom = view.zoom; }) };
+    minZoom: jest.fn(), maxZoom: jest.fn(), viewport: jest.fn((view) => { zoom = view.zoom; pan = view.pan; }),
+    panBy: jest.fn(delta => { pan = { x: pan.x + delta.x, y: pan.y + delta.y }; }) };
   const disconnect = jest.fn();
   const host = { ResizeObserver: jest.fn(function Observer(fn) { callback = fn; this.observe = jest.fn(); this.disconnect = disconnect; }),
     requestAnimationFrame: jest.fn((fn) => { frame = fn; return 1; }), cancelAnimationFrame: jest.fn(),
@@ -170,7 +171,18 @@ test('resize observer waits for visibility, preserves user zoom on size changes,
   expect(zoom).toBeCloseTo(0.492);
   zoom = 2; callback(); frame();
   expect(zoom).toBe(2);
+  pan = { x: 17, y: 29 }; // User-selected camera, not the fitted center.
+  const center = { x: (size.width / 2 - pan.x) / zoom, y: (size.height / 2 - pan.y) / zoom };
   size = { width: 1440, height: 800 }; callback(); frame();
+  expect(zoom).toBe(2);
+  expect((size.width / 2 - pan.x) / zoom).toBe(center.x);
+  expect((size.height / 2 - pan.y) / zoom).toBe(center.y);
+  size = { width: 0, height: 0 }; callback(); frame();
+  expect(cy.panBy).toHaveBeenCalledTimes(1);
+  size = { width: 1440, height: 800 }; callback(); frame();
+  expect(cy.panBy).toHaveBeenCalledTimes(1);
+  size = { width: 600, height: 630 }; callback(); frame();
+  expect(pan).toEqual({ x: 17, y: 29 });
   expect(zoom).toBe(2);
   size = { width: 600, height: 630 }; controller.fit();
   expect(zoom).toBeCloseTo(0.492);
