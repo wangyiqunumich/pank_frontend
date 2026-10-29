@@ -93,14 +93,22 @@ test('compact projection preserves all cells, order and aligned gene coloring', 
   assert.ok(reads.every(path => !/fields.json|coordinates.tsv|dataset_metadata/.test(path)));
 });
 
-test('worker asset path resolves to the atlas beside index.html', async () => {
+test('worker atlas and expression requests reuse site authentication without sending it to BioIndex', async () => {
   const originalFetch = globalThis.fetch, originalLocation = globalThis.location;
   const paths = [];
   try {
     globalThis.location = { origin: 'https://local.example', pathname: '/scbrowser/assets/data.worker-123.js' };
-    globalThis.fetch = async url => { paths.push(String(url)); return new Response('{}'); };
+    globalThis.fetch = async (url, options) => { paths.push([String(url), options.credentials]); return new Response('{}'); };
     assert.equal(await readPublic('./atlas/manifest.json'), '{}');
-    assert.deepEqual(paths, ['https://local.example/scbrowser/atlas/manifest.json']);
+    await readPublic('./atlas/map-example.json');
+    await readPublic('/pankgraph-vnext/api/scbrowser/expression?gene=CFTR');
+    await readPublic('/api/bio/query/single-cell-lognorm?q=example,CFTR');
+    assert.deepEqual(paths, [
+      ['https://local.example/scbrowser/atlas/manifest.json', 'same-origin'],
+      ['https://local.example/scbrowser/atlas/map-example.json', 'same-origin'],
+      ['https://local.example/pankgraph-vnext/api/scbrowser/expression?gene=CFTR', 'same-origin'],
+      ['https://bioindex.pankbase.org/api/bio/query/single-cell-lognorm?q=example,CFTR', 'omit'],
+    ]);
   } finally {
     globalThis.fetch = originalFetch;
     if (originalLocation === undefined) delete globalThis.location; else globalThis.location = originalLocation;
