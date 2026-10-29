@@ -14,25 +14,27 @@ a { color: #0f766e; text-decoration: none; }
 a:hover { text-decoration: underline; }
 p { margin: 6px 0 12px; line-height: 1.6; }
 h2 { margin: 0 0 5px; font-size: 14px; color: #334155; font-weight: 600; }
-.explore-controls { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin: 0; padding: 14px; border-bottom: 1px solid #f1f5f9; }
+.browser-header { flex: none; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; padding: 12px; border-bottom: 1px solid #f1f5f9; color: #0f766e; line-height: 16px; }
+.browser-header strong { font-weight: 500; }
+.browser-header > a { display: inline-flex; flex-shrink: 0; align-items: center; gap: 4px; margin-left: auto; font-size: 12px; font-weight: 500; }
+.explore-controls { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 8px clamp(8px, calc(25vw - 96px), 16px); margin: 0; padding: 14px 12px; border-bottom: 1px solid #f1f5f9; }
 .gene-control { display: flex; flex: 0 1 auto; align-items: stretch; min-width: 0; height: 32px; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; background: #fff; }
 .gene-control > span { display: flex; align-items: center; padding: 0 10px; border-right: 1px solid #e2e8f0; color: #94a3b8; white-space: nowrap; font-weight: 400; }
-.gene-control input { display: block; width: 80px; min-width: 36px; margin: 0; padding: 6px 10px; border: 0; border-radius: 0; background: #fff; font-weight: 700; letter-spacing: .3px; }
+.gene-control input { display: block; width: clamp(48px, calc(100vw - 368px), 80px); min-width: 36px; margin: 0; padding: 6px 10px; border: 0; border-radius: 0; background: #fff; font-weight: 700; letter-spacing: .3px; }
 .gene-control .primary { margin: 1px; padding: 4px 14px; border: 0; border-radius: 0 6px 6px 0; background: #0f766e; color: #fff; font-weight: 500; white-space: nowrap; }
 .gene-control .primary:hover:not(:disabled) { background: #115e59; }
-.highlight-control { position: relative; display: flex; flex: 1 1 210px; align-items: center; gap: 6px; min-width: 0; height: 32px; padding: 7px 13px; border: 1px solid #e2e8f0; border-radius: 8px; }
+.highlight-control { position: relative; display: flex; flex: 0 0 119px; align-items: center; gap: 6px; min-width: 119px; height: 32px; padding: 7px 9px; border: 1px solid #e2e8f0; border-radius: 8px; }
 .highlight-control > span { color: #94a3b8; white-space: nowrap; font-weight: 400; }
-.highlight-control select { appearance: none; flex: 1; width: 0; min-width: 36px; margin: 0; padding: 0 18px 0 0; border: 0; border-radius: 0; background: transparent; color: #1e293b; font-weight: 500; text-overflow: ellipsis; }
-.highlight-control > img { position: absolute; right: 13px; pointer-events: none; }
-.cell-scope { display: flex; align-items: center; flex: none; gap: 0; padding: 3px; border: 1px solid #e2e8f0cc; border-radius: 8px; background: #f1f5f9; margin-left: auto; }
-.cell-scope button { border: 0; border-radius: 4px; padding: 4px 12px; font-weight: 500; color: #64748b; white-space: nowrap; background: transparent; }
+.highlight-control select { appearance: none; flex: 1; width: 0; min-width: 36px; margin: 0; padding: 0 10px 0 0; border: 0; border-radius: 0; background: transparent; color: #1e293b; font-weight: 500; text-overflow: ellipsis; }
+.highlight-control > img { position: absolute; right: 9px; pointer-events: none; }
+.cell-scope { display: flex; align-items: center; flex: none; gap: 0; height: 32px; padding: 3px; border: 1px solid #e2e8f0cc; border-radius: 8px; background: #f1f5f9; margin-left: auto; }
+.cell-scope button { border: 0; border-radius: 4px; padding: 4px 12px; font-weight: 500; line-height: 16px; color: #64748b; white-space: nowrap; background: transparent; }
 .cell-scope button[aria-pressed=true] { background: #fff; color: #1e293b; box-shadow: 0 1px 2px #0000000d; }
 .browser-navigation { display: flex; flex: none; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; padding: 10px 14px; border-bottom: 1px solid #f1f5f9; background: #f8fafc80; }
 .browser-navigation nav { display: flex; flex-wrap: nowrap; align-items: center; gap: 4px; min-width: 0; max-width: 100%; overflow-x: auto; scrollbar-width: thin; padding: 5px; border: 1px solid #e2e8f0cc; border-radius: 12px; background: #f1f5f9cc; }
-.browser-navigation nav button { display: flex; flex-shrink: 0; align-items: center; gap: 8px; padding: 7px 12px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: #334155; font-weight: 500; white-space: nowrap; line-height: 16px; }
+.browser-navigation nav button { display: flex; flex-shrink: 0; align-items: center; gap: 8px; padding: 5px 10px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: #334155; font-weight: 500; white-space: nowrap; line-height: 16px; }
 .browser-navigation nav button[aria-pressed=true] { border-color: #e2e8f0cc; background: #fff; color: #134e4a; font-weight: 600; }
 .browser-navigation nav button img { display: block; flex-shrink: 0; }
-.browser-navigation > a { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; font-weight: 500; font-size: 12px; }
 .external-icon { display: inline-flex; align-items: center; justify-content: center; width: 12px; height: 12px; }
 .external-icon img { display: block; }
 .browser-stage { position: relative; flex: 1; min-height: 0; min-width: 0; overflow: hidden; }
@@ -80,15 +82,14 @@ main.atlas-preview { padding: 0; overflow: hidden; }
 .preview-caption { position: absolute; bottom: 4px; left: 8px; background: #ffffffe0; color: #517279; border-radius: 3px; padding: 2px 4px; font-size: 9px; pointer-events: none; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
-@media (max-width: 480px) {
+@media (max-width: 399px) {
   .explore-controls { gap: 6px; padding: 8px 10px; }
-  .gene-control { flex: 1; }
+  .gene-control { flex: 1 1 100%; }
   .gene-control input { flex: 1; width: 50px; }
-  .highlight-control { flex-basis: 100%; }
+  .highlight-control { flex: 1 1 119px; }
   .browser-navigation { padding: 8px 10px; }
   .browser-navigation nav { gap: 2px; }
   .browser-navigation nav button { padding: 6px 8px; gap: 6px; }
-  .browser-navigation > a { font-size: 11px; }
   .browser-footer { padding: 8px 10px; font-size: 10px; }
   .browser-content { padding: 8px 10px; }
   .provenance dl { display: block; }

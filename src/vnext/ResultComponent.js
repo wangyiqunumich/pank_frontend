@@ -80,9 +80,8 @@ const theme = createTheme({
     shape: { borderRadius: 14 },
 });
 
-// Figma 2756:1514: the scBrowser shell is white with a slate outline.
-// Apply only its colors; shared visualization dimensions/spacing stay intact.
-const SC_BROWSER_SURFACE_COLORS = { bgcolor: '#FFFFFF', borderColor: 'rgba(226, 232, 240, 0.9)' };
+// Figma 2772:251: the embedded browser owns its own header and inner spacing.
+const SC_BROWSER_SURFACE_SX = { bgcolor: '#FFFFFF', borderColor: 'rgba(226, 232, 240, 0.9)', p: 0, borderRadius: '12px' };
 
 function SectionCard({ title, children, sx, showTitleDivider = true, variant = 'default' }) {
     const isPank1 = variant === 'pank1';
@@ -935,11 +934,11 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                                 height: isSingleColumn ? visualPanelHeight : 'calc(100% - 35.1px)',
                                                 width: '100%',
                                                 bgcolor: isFullBleed ? 'transparent' : '#F9FAFB',
-                                                ...(!isFullBleed && tab.id === 'single_cell_browser' ? SC_BROWSER_SURFACE_COLORS : {}),
                                                 display: isActive ? 'flex' : 'none',
                                                 alignItems: isFullBleed ? 'stretch' : 'center',
                                                 justifyContent: isFullBleed ? 'stretch' : 'center',
                                                 p: isFullBleed ? 0 : 2,
+                                                ...(!isFullBleed && tab.id === 'single_cell_browser' ? SC_BROWSER_SURFACE_SX : {}),
                                             }}
                                         >
                                             {tab.content ? (
@@ -1328,11 +1327,11 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                                     maxWidth: visualPanelMaxWidth,
                                                     mx: isSingleColumn ? "auto" : 0,
                                                     bgcolor: isFullBleed ? "transparent" : "#F9FAFB",
-                                                    ...(!isFullBleed && tab.id === 'single_cell_browser' ? SC_BROWSER_SURFACE_COLORS : {}),
                                                     display: isActive ? "flex" : "none",
                                                     alignItems: isFullBleed ? "stretch" : "center",
                                                     justifyContent: isFullBleed ? "stretch" : "center",
                                                     p: isFullBleed ? 0 : 2,
+                                                    ...(!isFullBleed && tab.id === 'single_cell_browser' ? SC_BROWSER_SURFACE_SX : {}),
                                                 }}
                                             >
                                                 {tab.content ? (

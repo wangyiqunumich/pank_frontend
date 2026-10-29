@@ -13,7 +13,7 @@ const data = fullBleed => ({ questionId: 'Q1', title: 'Surface color regression'
   ] },
 });
 
-test.each([['answer', QuestionAnswerPage], ['plan', PlanConfirmationPage]])('%s scBrowser shell uses Figma colors without changing other panels or spacing', (_, Page) => {
+test.each([['answer', QuestionAnswerPage], ['plan', PlanConfirmationPage]])('%s scBrowser shell uses Figma colors and lets the embed own its spacing without changing other panels', (_, Page) => {
   render(<Page data={data(false)} />);
   const style = id => getComputedStyle(screen.getByTestId(id).closest('.MuiPaper-root'));
   const sc = style('sc-surface'), graph = style('graph-surface'), functional = style('functional-surface');
@@ -24,8 +24,9 @@ test.each([['answer', QuestionAnswerPage], ['plan', PlanConfirmationPage]])('%s 
     expect(panel.borderTopColor).toBe('#e6eaf2');
   });
   expect(sc.width).toBe(graph.width);
-  expect(sc.padding).toBe(graph.padding);
-  expect(sc.borderRadius).toBe(graph.borderRadius);
+  expect(sc.padding).toBe('0px');
+  expect(sc.borderRadius).toBe('12px');
+  expect(graph.padding).toBe('16px');
 });
 
 test.each([['answer', QuestionAnswerPage], ['plan', PlanConfirmationPage]])('%s full-bleed scBrowser remains transparent and borderless', (_, Page) => {

@@ -16,6 +16,7 @@ const snapshot = (page, name) => page.screenshot({ path: path.join(output, name 
   const browser = await chromium.launch({ headless: true, ...(process.env.CHROME_EXECUTABLE ? { executablePath: process.env.CHROME_EXECUTABLE } : {}), args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   const requests = [], errors = [], assertions = [];
+  await page.addInitScript(() => localStorage.setItem('pank_feedback_auto_prompt_disabled_v1', '1'));
   page.on('request', request => requests.push(request.url()));
   page.on('pageerror', error => errors.push(error.message));
   try {
@@ -78,6 +79,32 @@ const snapshot = (page, name) => page.screenshot({ path: path.join(output, name 
     await frame.getByText(copy.atlas_label, { exact: true }).first().waitFor();
     assertions.push('Actual public INS expression, all 448935 cells, schema release label');
 
+    async function controlLayout() {
+      const layout = await frame.evaluate(() => {
+        const rect = selector => document.querySelector(selector).getBoundingClientRect().toJSON();
+        const select = document.querySelector('.highlight-control select'), style = getComputedStyle(select);
+        const text = document.createElement('canvas').getContext('2d'); text.font = style.font;
+        return { width: innerWidth, header: rect('.browser-header'), atlas: rect('.browser-header strong'),
+          link: rect('.browser-header > a'), gene: rect('.gene-control'), highlight: rect('.highlight-control'),
+          scope: rect('.cell-scope'), nav: rect('.browser-navigation'), stage: rect('.browser-stage'),
+          input: rect('.gene-control input'), buttons: document.querySelectorAll('.cell-scope button').length,
+          selected: select.value, optionWidth: text.measureText(select.selectedOptions[0].text).width,
+          selectWidth: select.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) };
+      });
+      assert.equal(layout.buttons, 1, 'Selected is one reversible toggle');
+      if (layout.selected === 'Beta') assert(layout.selectWidth >= layout.optionWidth, 'The design cell label must fit without truncation: ' + JSON.stringify(layout));
+      assert(layout.header.bottom <= layout.gene.y && layout.nav.bottom <= layout.stage.y + 1);
+      if (layout.width >= 400) {
+        assert(Math.abs(layout.gene.y - layout.highlight.y) < 1 && Math.abs(layout.gene.y - layout.scope.y) < 1, JSON.stringify(layout));
+        assert(Math.abs(layout.highlight.width - 119) < 1, JSON.stringify(layout));
+        assert(Math.abs(layout.gene.height - 32) < 1 && Math.abs(layout.scope.height - 32) < 1);
+        assert(Math.abs(layout.atlas.y - layout.link.y) < 1, JSON.stringify(layout));
+      } else {
+        assert(layout.highlight.y > layout.gene.y && Math.abs(layout.highlight.y - layout.scope.y) < 1, JSON.stringify(layout));
+      }
+      return layout;
+    }
+
     async function scGeometry() {
       await frame.waitForFunction(() => {
         const stage = document.querySelector('.browser-stage')?.getBoundingClientRect();
@@ -97,6 +124,10 @@ const snapshot = (page, name) => page.screenshot({ path: path.join(output, name 
       return geometry;
     }
     await scGeometry();
+    await controlLayout();
+    await page.setViewportSize({ width: 1280, height: 1000 });
+    await controlLayout();
+    await page.setViewportSize({ width: 1440, height: 1000 });
     await snapshot(page, 'scbrowser-map');
     const shell = await iframe.evaluateHandle(element => element.closest('.MuiPaper-root'));
     await shell.asElement().screenshot({ path: path.join(output, 'scbrowser-shell.png') });
@@ -104,6 +135,7 @@ const snapshot = (page, name) => page.screenshot({ path: path.join(output, name 
     const retainedMap = await frame.locator('canvas').first().elementHandle();
     await frame.getByRole('button', { name: copy.fullscreen, exact: true }).click();
     await page.locator('dialog:modal').waitFor();
+    await controlLayout();
     assert(await iframe.evaluate(element => element.isConnected && !!element.closest('dialog')?.matches(':modal')));
     await frame.getByRole('button', { name: copy.exit_fullscreen, exact: true }).waitFor();
     await snapshot(page, 'scbrowser-fullscreen');
@@ -130,7 +162,7 @@ const snapshot = (page, name) => page.screenshot({ path: path.join(output, name 
     await frame.getByRole('button', { name: copy.selected_cells, exact: true }).click();
     const count = await frame.locator('.browser-footer strong').textContent();
     assert(count && !count.includes('448,935') && !count.startsWith('0 '), count);
-    await frame.getByRole('button', { name: copy.all_cells, exact: true }).click();
+    await frame.getByRole('button', { name: copy.selected_cells, exact: true }).click();
     await frame.getByText('448,935 cells', { exact: false }).first().waitFor();
     await frame.getByLabel('Atlas gene').fill('GCG');
     await frame.getByRole('button', { name: copy.view_gene, exact: true }).click();
@@ -141,6 +173,7 @@ const snapshot = (page, name) => page.screenshot({ path: path.join(output, name 
     await page.setViewportSize({ width: 390, height: 844 });
     await page.locator('iframe[title="PanKgraph single-cell browser"]').scrollIntoViewIfNeeded();
     await scGeometry();
+    await controlLayout();
     await frame.getByRole('button', { name: copy.fullscreen, exact: true }).click();
     await page.locator('dialog:modal').waitFor();
     await scGeometry();

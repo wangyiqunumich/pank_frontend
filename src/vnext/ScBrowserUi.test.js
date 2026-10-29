@@ -53,18 +53,25 @@ uiTest('actual scBrowser controls retain schema copy and put the dock inside the
   expect(ui.getByRole('toolbar').parentElement).toBe(stage);
   expect(stage.contains(nav)).toBe(false);
   expect(stage.contains(app.$el.querySelector('footer'))).toBe(false);
+  const header = app.$el.querySelector('.browser-header');
+  expect(within(header).getByText(SC_WORDING.atlas_label)).toBeTruthy();
+  expect(within(header).getByRole('link', { name: SC_WORDING.header_browser_link.replace(/\s*[→↗]\s*$/, '') })).toBeTruthy();
+  expect(header.nextElementSibling).toBe(app.$el.querySelector('.explore-controls'));
   expect(app.$refs.map.showControls).toBe(false);
   expect(app.$refs.map.legendLabel).toBe(SC_WORDING.map_expression_legend.replace('{gene}', 'CFTR'));
 });
 
 uiTest('cell scope buttons operate the original mask and denominators without replacing the canvas', async () => {
   const scope = within(within(app.$el).getByRole('group', { name: SC_WORDING.cell_scope }));
+  expect(scope.getAllByRole('button')).toHaveLength(1);
   const canvas = app.$el.querySelector('canvas');
   fireEvent.click(scope.getByRole('button', { name: SC_WORDING.selected_cells })); await tick();
   expect(app.filtered).toBe(true); expect(app.view.count).toBe(2);
+  expect(scope.getByRole('button', { name: SC_WORDING.selected_cells }).getAttribute('aria-pressed')).toBe('true');
   expect(Array.from(app.view.mask)).toEqual([1, 0, 1]);
-  fireEvent.click(scope.getByRole('button', { name: SC_WORDING.all_cells })); await tick();
+  fireEvent.click(scope.getByRole('button', { name: SC_WORDING.selected_cells })); await tick();
   expect(app.filtered).toBe(false); expect(app.view.count).toBe(3); expect(app.view.mask).toBeNull();
+  expect(scope.getByRole('button', { name: SC_WORDING.selected_cells }).getAttribute('aria-pressed')).toBe('false');
   expect(app.$el.querySelector('canvas')).toBe(canvas);
 });
 

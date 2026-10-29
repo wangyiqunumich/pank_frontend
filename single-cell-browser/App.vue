@@ -7,18 +7,21 @@
     </div>
     <p v-else-if="!context" role="status">Select an expression relationship in the graph to explore single cells.</p>
     <template v-else>
+      <header class="browser-header">
+        <strong>{{ copy.atlas_label }}</strong>
+        <a v-if="fullView.external_browser.enabled" :href="sourceLink" target="_blank" rel="noopener noreferrer"><span>{{ copy.header_browser_link.replace(/\s*[→↗]\s*$/, '') }}</span><span class="external-icon"><img :src="icons.external" alt="" /></span></a>
+      </header>
       <form class="explore-controls" @submit.prevent="search">
         <label class="gene-control"><span>{{ copy.gene_label }}</span><input v-model="geneInput" aria-label="Atlas gene" maxlength="80" autocomplete="off" spellcheck="false"><button class="primary" :disabled="loading || !geneInput.trim()">{{ copy.view_gene }}</button></label>
         <label class="highlight-control"><span>{{ copy.cell_label }}</span><select v-model="highlighted" @change="updateView" :disabled="!loaded"><option value="">{{ copy.all_cells }}</option><option v-for="label in cellTypes" :key="label" :value="label">{{ label }}</option></select><img :src="icons.select" alt="" /></label>
-        <div class="cell-scope" role="group" :aria-label="copy.cell_scope"><button type="button" :aria-pressed="!filtered" @click="setFilter(false)">{{ copy.all_cells }}</button><button type="button" :aria-pressed="filtered" :disabled="!highlighted" @click="setFilter(true)">{{ copy.selected_cells }}</button></div>
+        <div class="cell-scope" role="group" :aria-label="copy.cell_scope"><button type="button" :aria-pressed="filtered ? 'true' : 'false'" :disabled="!highlighted" @click="setFilter(!filtered)">{{ copy.selected_cells }}</button></div>
       </form>
       <div class="browser-navigation">
         <nav :aria-label="copy.views_label"><button v-for="item in tabs" :key="item.id" :aria-label="item.label" :aria-pressed="tab === item.id" @click="selectTab(item.id)"><img :src="item.icon" alt="" /><span>{{ item.label }}</span></button></nav>
-        <a v-if="fullView.external_browser.enabled" :href="sourceLink" target="_blank" rel="noopener noreferrer"><span>{{ copy.header_browser_link.replace(/\s*[→↗]\s*$/, '') }}</span><span class="external-icon"><img :src="icons.external" alt="" /></span></a>
       </div>
       <div class="browser-stage" :class="{ 'is-short': plotAreaHeight > 0 && plotAreaHeight < 160 }">
       <div ref="browserContent" class="browser-content">
-      <div class="context-note"><strong>{{ copy.atlas_label }}</strong><span v-if="fullView.show_context_note">{{ copy.context_note }}</span><span v-if="gene !== context.geneSymbol">Graph gene: {{ context.geneSymbol }}. Now exploring: {{ gene }}.</span></div>
+      <div v-if="fullView.show_context_note || gene !== context.geneSymbol" class="context-note"><span v-if="fullView.show_context_note">{{ copy.context_note }}</span><span v-if="gene !== context.geneSymbol">Graph gene: {{ context.geneSymbol }}. Now exploring: {{ gene }}.</span></div>
       <div v-if="loading" class="load-state" role="status"><span class="spinner" aria-hidden="true"></span><div><strong>{{ loaded ? `Loading ${gene} expression…` : 'Preparing the cell atlas…' }}</strong><small>{{ loaded ? 'The map will appear with expression colors when loading finishes.' : 'Loads a compact map containing coordinates and cell types, then expression for the selected gene.' }}</small></div></div>
       <div v-if="error" class="error-state" role="alert"><strong>Expression could not be loaded</strong><p>{{ error }}</p><button @click="load(gene)">Retry</button></div>
       <template v-if="view">
