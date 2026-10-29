@@ -62,6 +62,13 @@ const snapshot = (page, name) => page.screenshot({ path: path.join(output, name 
 
     await page.getByRole('tab', { name: 'scBrowser', exact: true }).click();
     const iframe = await page.locator('iframe[title="PanKgraph single-cell browser"]').elementHandle();
+    const surface = await iframe.evaluate(element => {
+      const panel = element.closest('.MuiPaper-root');
+      const style = getComputedStyle(panel);
+      return { background: style.backgroundColor, border: style.borderTopColor };
+    });
+    assert.deepEqual(surface, { background: 'rgb(255, 255, 255)', border: 'rgba(226, 232, 240, 0.9)' });
+    assertions.push('scBrowser outer shell matches the white Figma surface and slate outline');
     const frame = await iframe.contentFrame();
     await frame.getByRole('button', { name: copy.view_gene, exact: true }).waitFor({ timeout: 30000 });
     await frame.getByText('448,935 cells', { exact: false }).first().waitFor({ timeout: 90000 });
@@ -91,6 +98,9 @@ const snapshot = (page, name) => page.screenshot({ path: path.join(output, name 
     }
     await scGeometry();
     await snapshot(page, 'scbrowser-map');
+    const shell = await iframe.evaluateHandle(element => element.closest('.MuiPaper-root'));
+    await shell.asElement().screenshot({ path: path.join(output, 'scbrowser-shell.png') });
+    await shell.dispose();
     const retainedMap = await frame.locator('canvas').first().elementHandle();
     await frame.getByRole('button', { name: copy.fullscreen, exact: true }).click();
     await page.locator('dialog:modal').waitFor();

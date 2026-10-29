@@ -32,7 +32,6 @@ import SearchResult from './result';
 
 const FEEDBACK_AUTO_PROMPT_DISABLED_KEY = 'pank_feedback_auto_prompt_disabled_v1';
 const FEEDBACK_AUTO_PROMPT_DELAY_MS = 30 * 1000;
-const AGENT_SIDEBAR_EXPANDED_WIDTH = 264;
 const AGENT_SIDEBAR_COLLAPSED_WIDTH = 80;
 
 const decodeBase64Utf8 = (value) => {
@@ -508,11 +507,6 @@ export function AgentResultLayout({
         return window.localStorage.getItem(FEEDBACK_AUTO_PROMPT_DISABLED_KEY) === '1';
     });
     const [showScrollToPlanConfirmButton, setShowScrollToPlanConfirmButton] = useState(false);
-    const [isAgentSidebarOpen, setIsAgentSidebarOpen] = useState(() => {
-        if (typeof window === 'undefined') return true;
-        const stored = window.localStorage.getItem('pank-sidebar-open');
-        return stored === null ? true : stored === 'true';
-    });
     const menuTimersRef = useRef({ open: null, close: null });
     const feedbackPromptTimerRef = useRef(null);
     const previousQuestionCompleteRef = useRef(false);
@@ -552,15 +546,6 @@ export function AgentResultLayout({
     const isSingleColumn = useMediaQuery("(max-width:1199.95px)");
     const isDesktopSidebarVisible = useMediaQuery("(min-width:1000px)");
     const navigatorMenuVisible = isSingleColumn || menuOpen;
-
-    useEffect(() => {
-        const handleSidebarToggle = (event) => {
-            setIsAgentSidebarOpen(Boolean(event?.detail?.open));
-        };
-
-        window.addEventListener('pank-sidebar-toggle', handleSidebarToggle);
-        return () => window.removeEventListener('pank-sidebar-toggle', handleSidebarToggle);
-    }, []);
 
     const trackAgentEvent = (eventName, params = {}) => {
         trackGtagEvent(eventName, {
@@ -1489,7 +1474,7 @@ export function AgentResultLayout({
                         borderTop: "1px solid #e0e0e0",
                         boxShadow: "0 -2px 12px rgba(0,0,0,0.08)",
                         padding: "16px",
-                        zIndex: 1300,
+                        zIndex: 1000,
                         marginTop: 8,
                         overflow: 'visible',
                     }}
@@ -1615,7 +1600,7 @@ export function AgentResultLayout({
                     sx={{
                         position: 'fixed',
                         left: isDesktopSidebarVisible
-                            ? (isAgentSidebarOpen ? AGENT_SIDEBAR_EXPANDED_WIDTH : AGENT_SIDEBAR_COLLAPSED_WIDTH)
+                            ? AGENT_SIDEBAR_COLLAPSED_WIDTH
                             : 0,
                         right: 0,
                         bottom: 0,

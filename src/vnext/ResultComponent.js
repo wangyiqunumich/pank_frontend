@@ -80,6 +80,10 @@ const theme = createTheme({
     shape: { borderRadius: 14 },
 });
 
+// Figma 2756:1514: the scBrowser shell is white with a slate outline.
+// Apply only its colors; shared visualization dimensions/spacing stay intact.
+const SC_BROWSER_SURFACE_COLORS = { bgcolor: '#FFFFFF', borderColor: 'rgba(226, 232, 240, 0.9)' };
+
 function SectionCard({ title, children, sx, showTitleDivider = true, variant = 'default' }) {
     const isPank1 = variant === 'pank1';
     return (
@@ -115,26 +119,26 @@ export function ResultComponentSkeleton() {
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
-            <Box sx={{ px: { xs: 2, md: 4 }, pt: { xs: 2.5, md: 3.5 }, pb: { xs: 0.5, md: 1 }, maxWidth: 1344, width: "100%", mx: "auto" }}>
+            <Box sx={{ px: { xs: 2, md: 3 }, pt: { xs: 2.5, md: 3.5 }, pb: { xs: 0.5, md: 1 }, maxWidth: 1344, width: "100%", mx: "auto" }}>
                 <Stack direction="row" spacing={0} alignItems="center" sx={{ mb: '62px', columnGap: '30px' }}>
                     <Skeleton variant="rounded" width={48} height={30} />
                     <Skeleton variant="text" width="60%" height={36} />
                 </Stack>
 
-                <Grid container columnSpacing={4.5} rowSpacing={2.5} alignItems="stretch">
-                    <Grid item xs={12} md={12} lg={7}>
+                <Grid container columns={10} columnSpacing={3} rowSpacing={2.5} alignItems="stretch">
+                    <Grid item zeroMinWidth xs={10} md={10} lg={6}>
                         <Skeleton variant="rounded" height={320} sx={{ borderRadius: 3 }} />
                     </Grid>
-                    <Grid item xs={12} md={12} lg={5}>
+                    <Grid item zeroMinWidth xs={10} md={10} lg={4}>
                         <Skeleton variant="rounded" height={320} sx={{ borderRadius: 3 }} />
                     </Grid>
                 </Grid>
 
-                <Grid container spacing={2.5} sx={{ mt: 2.5 }}>
-                    <Grid item xs={12} md={12} lg={7}>
+                <Grid container columns={10} columnSpacing={3} rowSpacing={2.5} sx={{ mt: 2.5 }}>
+                    <Grid item zeroMinWidth xs={10} md={10} lg={6}>
                         <Skeleton variant="rounded" height={260} sx={{ borderRadius: 3 }} />
                     </Grid>
-                    <Grid item xs={12} md={12} lg={5}>
+                    <Grid item zeroMinWidth xs={10} md={10} lg={4}>
                         <Skeleton variant="rounded" height={260} sx={{ borderRadius: 3 }} />
                     </Grid>
                 </Grid>
@@ -591,7 +595,7 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
-            <Box sx={{ px: { xs: 2, md: 4 }, pt: { xs: 2.5, md: 3.5 }, pb: { xs: 0.5, md: 1 }, maxWidth: 1344, width: "100%", mx: "auto" }}>
+            <Box sx={{ px: { xs: 2, md: 3 }, pt: { xs: 2.5, md: 3.5 }, pb: { xs: 0.5, md: 1 }, maxWidth: 1344, width: "100%", mx: "auto" }}>
                 <Typography
                     sx={{
                         fontFamily: 'Open Sans',
@@ -692,8 +696,8 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                     </Box>
                 </Box>
 
-                <Grid container columnSpacing={4.5} rowSpacing={2.5} alignItems="stretch">
-                    <Grid item xs={12} md={12} lg={7} id={buildAnchorId('agent-plan')} sx={{ display: 'flex', height: confirmationColumnsHeight }}>
+                <Grid container columns={10} columnSpacing={3} rowSpacing={2.5} alignItems="stretch">
+                    <Grid item zeroMinWidth xs={10} md={10} lg={6} id={buildAnchorId('agent-plan')} sx={{ display: 'flex', height: confirmationColumnsHeight }}>
                         <Stack spacing={2} sx={{ width: '100%', height: '100%', minWidth: 0 }}>
                             <SectionCard sx={{ width: '100%', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
                                 <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1.5 }}>
@@ -890,7 +894,7 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                         </Stack>
                     </Grid>
 
-                    <Grid item xs={12} md={12} lg={5} id={buildAnchorId('visual-material')} sx={{ display: 'flex', height: confirmationColumnsHeight }}>
+                    <Grid item zeroMinWidth xs={10} md={10} lg={4} id={buildAnchorId('visual-material')} sx={{ display: 'flex', height: confirmationColumnsHeight }}>
                         <SectionCard sx={{ height: '100%', width: '100%', flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
                             {visualTabs.length <= 1 ? (
                                 <Typography
@@ -931,6 +935,7 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                                 height: isSingleColumn ? visualPanelHeight : 'calc(100% - 35.1px)',
                                                 width: '100%',
                                                 bgcolor: isFullBleed ? 'transparent' : '#F9FAFB',
+                                                ...(!isFullBleed && tab.id === 'single_cell_browser' ? SC_BROWSER_SURFACE_COLORS : {}),
                                                 display: isActive ? 'flex' : 'none',
                                                 alignItems: isFullBleed ? 'stretch' : 'center',
                                                 justifyContent: isFullBleed ? 'stretch' : 'center',
@@ -1224,7 +1229,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
         <ThemeProvider theme={theme}>
             <CssBaseline />
 
-            <Box ref={pageRootRef} sx={{ px: { xs: 2, md: 4 }, pt: { xs: 2.5, md: 3.5 }, pb: { xs: 0.5, md: 1 }, maxWidth: 1344, width: "100%", mx: "auto" }}>
+            <Box ref={pageRootRef} sx={{ px: { xs: 2, md: 3 }, pt: { xs: 2.5, md: 3.5 }, pb: { xs: 0.5, md: 1 }, maxWidth: 1344, width: "100%", mx: "auto" }}>
                 {/* Header */}
                 <Stack
                     direction={{ xs: "column", sm: "row" }}
@@ -1259,9 +1264,9 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                 </Stack>
 
                 {/* Main two-column area (AI Overview + Visual Material) */}
-                <Grid container columnSpacing={4.5} rowSpacing={2.5} alignItems="stretch">
+                <Grid container columns={10} columnSpacing={3} rowSpacing={2.5} alignItems="stretch">
                     {/* AI Overview */}
-                    <Grid item xs={12} md={12} lg={7} order={{ xs: 1, md: 1, lg: 1 }} id={buildAnchorId("ai-overview")}>
+                    <Grid item zeroMinWidth xs={10} md={10} lg={6} order={{ xs: 1, md: 1, lg: 1 }} id={buildAnchorId("ai-overview")}>
                         <SectionCard title="AI Overview" variant={isPank1Style ? 'pank1' : 'default'}>
                             <Box
                                 sx={{
@@ -1293,7 +1298,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
 
                     {/* Visual Material */}
                     {showVisualSection ? (
-                        <Grid item xs={12} md={12} lg={5} order={{ xs: 2, md: 2, lg: preferFollowUpBeforeVisual ? 4 : 2 }} id={buildAnchorId("visual-material")}>
+                        <Grid item zeroMinWidth xs={10} md={10} lg={4} order={{ xs: 2, md: 2, lg: preferFollowUpBeforeVisual ? 4 : 2 }} id={buildAnchorId("visual-material")}>
                             <SectionCard title={visualTabs.length > 1 ? null : (data?.visualMaterial?.title || "Visual Material")} sx={{ height: "100%" }} variant={isPank1Style ? 'pank1' : 'default'}>
                                 {visualTabs.length > 1 ? (
                                     <Box sx={{ mb: 1.2 }}>
@@ -1323,6 +1328,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                                     maxWidth: visualPanelMaxWidth,
                                                     mx: isSingleColumn ? "auto" : 0,
                                                     bgcolor: isFullBleed ? "transparent" : "#F9FAFB",
+                                                    ...(!isFullBleed && tab.id === 'single_cell_browser' ? SC_BROWSER_SURFACE_COLORS : {}),
                                                     display: isActive ? "flex" : "none",
                                                     alignItems: isFullBleed ? "stretch" : "center",
                                                     justifyContent: isFullBleed ? "stretch" : "center",
@@ -1381,7 +1387,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
 
                     {/* Evidences */}
                     {showEvidenceSection ? (
-                        <Grid item xs={12} md={12} lg={7} order={{ xs: 3, md: 3, lg: 3 }} id={buildAnchorId("evidences")}>
+                        <Grid item zeroMinWidth xs={10} md={10} lg={6} order={{ xs: 3, md: 3, lg: 3 }} id={buildAnchorId("evidences")}>
                             <SectionCard title={isSingleColumn ? (data?.evidences?.title || "Evidences") : null} variant={isPank1Style ? 'pank1' : 'default'}>
                                 {evidenceTabs.length > 0 ? (
                                     <Box sx={{ mb: 1.2 }}>
@@ -1439,7 +1445,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
 
                     {/* Follow Up */}
                     {showFollowUpSection ? (
-                        <Grid item xs={12} md={12} lg={5} order={{ xs: 4, md: 4, lg: preferFollowUpBeforeVisual ? 2 : 4 }} id={buildAnchorId("follow-up")}>
+                        <Grid item zeroMinWidth xs={10} md={10} lg={4} order={{ xs: 4, md: 4, lg: preferFollowUpBeforeVisual ? 2 : 4 }} id={buildAnchorId("follow-up")}>
                             <SectionCard title={data?.followUp?.title ?? "Follow Up"} sx={{ height: "100%" }} variant={isPank1Style ? 'pank1' : 'default'}>
                                 <Stack spacing={3}>
                                     {showFollowUpComposer && typeof data?.followUp?.onSubmit === "function" ? (

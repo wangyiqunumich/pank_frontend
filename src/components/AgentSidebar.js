@@ -189,6 +189,9 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
 
   return (
     <Box
+      component="aside"
+      aria-label="Main navigation"
+      data-expanded={open}
       sx={{
         position: 'relative',
         zIndex: 1100,
@@ -197,6 +200,11 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
         minHeight: '100%',
         width: open ? SIDEBAR_EXPANDED_WIDTH : SIDEBAR_COLLAPSED_WIDTH,
         minWidth: open ? SIDEBAR_EXPANDED_WIDTH : SIDEBAR_COLLAPSED_WIDTH,
+        flexShrink: 0,
+        // Keep an 80px rail in the layout while the expanded panel covers content.
+        mr: open ? `${SIDEBAR_COLLAPSED_WIDTH - SIDEBAR_EXPANDED_WIDTH}px` : 0,
+        borderRadius: open ? '0 16px 16px 0' : 0,
+        boxShadow: open ? '0 4px 15px rgba(100, 100, 111, 0.25)' : 'none',
         bgcolor: '#F8FBFC',
         borderRight: '1px solid #E2E8F0',
         px: 1,
@@ -207,7 +215,7 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
         flexDirection: 'column',
         overflow: 'hidden',
         boxSizing: 'border-box',
-        transition: 'width 220ms ease, min-width 220ms ease, padding 220ms ease',
+        transition: 'width 220ms ease, min-width 220ms ease, margin-right 220ms ease, padding 220ms ease, box-shadow 220ms ease',
       }}
     >
       <Box sx={{ pt: open ? 4.5 : 4, pb: 1, bgcolor: '#F8FBFC', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
@@ -229,6 +237,8 @@ export default function AgentSidebar({ activeNav = 'new-chat', forceFullHeight: 
           ) : null}
           <Tooltip title={open ? 'Collapse sidebar' : 'Expand sidebar'} placement="right" arrow>
             <IconButton
+              aria-label={open ? 'Collapse sidebar' : 'Expand sidebar'}
+              aria-expanded={open}
               onClick={() => setOpen((v) => !v)}
               size="small"
               sx={{
