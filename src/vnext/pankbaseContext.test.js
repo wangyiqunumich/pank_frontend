@@ -5,7 +5,7 @@ const edge=(id,type,g='g')=>({'~id':id,'~type':type,'~start':g,'~end':'beta','~p
 test('exact node and edge types determine eligibility, preserving context without claiming a cohort match',()=>{
  const result=pankbaseContexts({nodes:[gene('g','CFTR'),cell],edges:[edge('de','T1D_DEG_IN')]});
  expect(result.differential_expression).toMatchObject({recordId:'de',geneSymbol:'CFTR',cellType:'Beta',datasetId:'source-v3.4',match:'related'});
- expect(result.gene_browser).toBeDefined();expect(result.pca_explorer).toBeUndefined();
+ expect(result.genome_browser).toBeDefined();expect(result.gene_browser).toBeUndefined();expect(result.cell_state_browser).toBeUndefined();expect(result.pca_explorer).toBeUndefined();
  expect(pankbaseContexts({nodes:[{'~id':'fake','~labels':['GeneExpression'],'~properties':{name:'PCA CFTR'}}],edges:[]})).toEqual({});
 });
 test('selected evidence selects its gene; stale selection falls back within current graph',()=>{
@@ -22,7 +22,7 @@ test('loci require explicit assembly and coordinate convention; source links omi
  expect(pankbaseContexts({nodes:[gene('g','CFTR',props)]}).genome_browser.locus).toBeNull();
  const c=pankbaseContexts({nodes:[gene('g','CFTR',{...props,coordinate_system:'1-based-inclusive'})]}).genome_browser;
  expect(c.locus).toEqual({chromosome:'7',start:100,end:200,genomeBuild:'GRCh38'});
- expect(pankbaseUrl('gene_browser',{geneSymbol:'CFTR',recordId:'private-donor',datasetId:'private'})).not.toMatch(/private/);
+ expect(pankbaseUrl('genome_browser',{geneSymbol:'CFTR',recordId:'private-donor',datasetId:'private'})).not.toMatch(/private/);
 });
 test('donor node enables related functional and PCA resources without inventing a gene',()=>{
  const result=pankbaseContexts({nodes:[{'~id':'donor','~labels':['Donor'],'~properties':{}}]});

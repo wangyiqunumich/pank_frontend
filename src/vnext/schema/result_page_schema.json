@@ -122,10 +122,8 @@
       "qtl_fine_mapping",
       "functional_data",
       "genome_browser",
-      "gene_browser",
       "differential_expression",
       "functional_browser",
-      "cell_state_browser",
       "pca_explorer"
     ],
     "state_parameter": "main_visual",
@@ -496,48 +494,6 @@
           "source_tab": "Source & methods"
         }
       },
-      "gene_browser": {
-        "title": "Gene Browser",
-        "renderer": "PanKbaseModule",
-        "enabled": true,
-        "requires": [
-          "gene_browser_context"
-        ],
-        "state_values": [
-          "gene_browser"
-        ],
-        "agent_keywords": [
-          "gene_browser"
-        ],
-        "kg_relation_types": [],
-        "pankbase_trigger": {
-          "node_types": [
-            "gene",
-            "HGNC_symbol"
-          ],
-          "edge_types": [],
-          "require_gene": true
-        },
-        "pankbase_resource": {
-          "url": "https://pankbase.org/gene.html",
-          "gene_parameter": "gene"
-        },
-        "preview": {
-          "enabled": true,
-          "content": "context_summary",
-          "load_data": false
-        },
-        "layout": {
-          "min_height": 520
-        },
-        "format": "Compact scBrowser-style controls, persistent main panel, source and methods disclosure. Load runtime and data only when the full view is visible.",
-        "wording": {
-          "loading": "Loading gene browser\u2026",
-          "source_note": "Related PanKbase resource. The graph record and this resource may represent different datasets, cohorts or analyses.",
-          "retry": "Retry",
-          "source_tab": "Source & methods"
-        }
-      },
       "differential_expression": {
         "title": "Differential Expression",
         "renderer": "PanKbaseModule",
@@ -635,60 +591,6 @@
           "source_tab": "Source & methods"
         }
       },
-      "cell_state_browser": {
-        "title": "Cell State Browser",
-        "renderer": "PanKbaseModule",
-        "enabled": true,
-        "requires": [
-          "cell_state_browser_context"
-        ],
-        "state_values": [
-          "cell_state_browser"
-        ],
-        "agent_keywords": [
-          "cell_state_browser"
-        ],
-        "kg_relation_types": [
-          "GENE_ENRICHED_IN",
-          "GENE_DETECTED_IN",
-          "MARKER_GENE_OF",
-          "EXPRESS_IN",
-          "EXPRESSED_IN"
-        ],
-        "pankbase_trigger": {
-          "node_types": [
-            "gene",
-            "HGNC_symbol"
-          ],
-          "edge_types": [
-            "GENE_ENRICHED_IN",
-            "GENE_DETECTED_IN",
-            "MARKER_GENE_OF",
-            "EXPRESS_IN",
-            "EXPRESSED_IN"
-          ],
-          "require_gene": true
-        },
-        "pankbase_resource": {
-          "url": "https://pankbase.org/cell-states.html",
-          "gene_parameter": "gene"
-        },
-        "preview": {
-          "enabled": true,
-          "content": "context_summary",
-          "load_data": false
-        },
-        "layout": {
-          "min_height": 520
-        },
-        "format": "Compact scBrowser-style controls, persistent main panel, source and methods disclosure. Load runtime and data only when the full view is visible.",
-        "wording": {
-          "loading": "Loading cell state browser\u2026",
-          "source_note": "Related PanKbase resource. The graph record and this resource may represent different datasets, cohorts or analyses.",
-          "retry": "Retry",
-          "source_tab": "Source & methods"
-        }
-      },
       "pca_explorer": {
         "title": "PCA Explorer",
         "renderer": "PanKbaseModule",
@@ -741,9 +643,9 @@
       }
     },
     "preview_standard": {
-      "enabled": true,
+      "enabled": false,
       "renderer": "VisualPreview",
-      "default_for_new_visuals": true,
+      "default_for_new_visuals": false,
       "exclude": [
         "graph_viewer"
       ],
@@ -839,5 +741,6 @@
         "deduplication": "Do not repeat the main functional plot asset here; preserve independent empirical sources and their availability states."
       }
     }
-  }
+  },
+  "version": "0.6.1"
 }

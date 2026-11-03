@@ -5,7 +5,7 @@ const path = require('path');
 const zlib = require('zlib');
 const root = path.resolve(__dirname, '../public');
 const requests = [];
-const modules = ['gene_browser','genome_browser','differential_expression','functional_browser','cell_state_browser','pca_explorer'];
+const modules = ['genome_browser','differential_expression','functional_browser','pca_explorer'];
 const html = `<!doctype html><html><head><meta charset="utf-8"><style>body{font:14px system-ui;margin:20px;color:#334155}iframe{width:100%;height:85vh;border:1px solid #dbe4ee;border-radius:12px}button{padding:8px;margin:4px}p{font-size:12px}</style></head><body><h2>PanKbase module acceptance</h2><p>Navigation fixture: CFTR / Beta. Module data comes from pinned public sources. This is not a retrieved biological result.</p><nav>${modules.map(m=>`<button data-module="${m}">${m}</button>`).join('')}</nav><iframe title="Module acceptance view"></iframe><script>
 const frame=document.querySelector('iframe');let moduleId='pca_explorer';
 const context=()=>({moduleId,recordId:'fixture-'+moduleId,geneSymbol:'CFTR',cellType:'Beta',available:true,match:'related',locus:{chromosome:'7',start:117480025,end:117668665,genomeBuild:'GRCh38'}});

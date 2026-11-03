@@ -18,7 +18,6 @@ import AnswerMarkdown from './AnswerMarkdown';
 import LiteratureSections from './LiteratureSections';
 import FunctionalVisual from './FunctionalVisual';
 import QtlFineMapping from './QtlFineMapping';
-import VisualPreview from './VisualPreview';
 import PanKbaseModule from './PanKbaseModule';
 import { pankbaseContexts } from './pankbaseContext';
 import visualSchema from './schema/result_page_schema.json';
@@ -107,7 +106,7 @@ export function useProjectedResult(payload, savedId = '') {
   return [result, error, { status: connection, reconnect: createdRef.current?.key === key || agentProjection ? reconnect : undefined }];
 }
 
-function GraphPanel({ result, error, onEvidenceInspect, expressionCard }) {
+function GraphPanel({ result, error, onEvidenceInspect }) {
   const graphStatus = typeof result?.component_status?.graph === 'string'
     ? result.component_status.graph : result?.component_status?.graph?.status;
   const pending = value => ['preparing', 'pending', 'queued', 'running', 'processing'].includes(value);
@@ -117,7 +116,7 @@ function GraphPanel({ result, error, onEvidenceInspect, expressionCard }) {
   const waiting = !graphError && (!result || pending(result.status) || pending(graphStatus));
   const empty = !waiting && (graphStatus === 'empty' || (result?.status === 'ready' && Array.isArray(result?.combined_query_result?.nodes) && !result.combined_query_result.nodes.length));
   if (result?.combined_query_result?.nodes?.length) return <Box sx={{ width: '100%', height: '100%', position: 'relative' }}>
-    <KnowledgeGraph overlay={expressionCard} onEvidenceInspect={onEvidenceInspect} graphData={result.combined_query_result} coordData={result.xy_json} edgeRoutes={result.edge_routes} sx={{ height: '100%' }} containerHeight="100%" />
+    <KnowledgeGraph onEvidenceInspect={onEvidenceInspect} graphData={result.combined_query_result} coordData={result.xy_json} edgeRoutes={result.edge_routes} sx={{ height: '100%' }} containerHeight="100%" />
   </Box>;
   return <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
     {waiting ? <Box role="status" aria-label="Loading graph" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}><CircularProgress size={28} /><Typography sx={{ fontSize: 14, color: '#64748B' }}>Loading graph…</Typography></Box> : <Typography sx={{ fontSize: 14, color: '#64748B', textAlign: 'center', px: 2 }}>{graphError || (empty ? 'No matching graph evidence was returned.' : 'The graph presentation is unavailable. Available answer sections are preserved.')}</Typography>}
@@ -172,19 +171,7 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
   };
   const selectedVisuals = page.mainVisuals.filter((visual) => Object.prototype.hasOwnProperty.call(visualRenderers, visual.id));
 
-  const previewItems = selectedVisuals.filter(visual => !visualSchema.main_visuals.preview_standard.exclude.includes(visual.id) && (visualSchema.main_visuals.items[visual.id]?.preview?.enabled ?? visualSchema.main_visuals.preview_standard.default_for_new_visuals)).map(visual => {
-    const definition = visualSchema.main_visuals.items[visual.id];
-    return { ...visual, title: definition.wording?.card_title || visual.label,
-      openLabel: definition.wording?.preview_open_hint || visualSchema.main_visuals.preview_standard.wording.open.replace('{title}', visual.label),
-      height: definition.preview?.height,
-      content: React.cloneElement(visualRenderers[visual.id], { isVisible: true, preview: true }) };
-  });
-  const preview = <VisualPreview key={runId} items={previewItems} minimized={scopedExpressionState?.minimized} closed={scopedExpressionState?.closed}
-    onMinimize={minimized => setExpressionState({ scope: runId, context: expression, minimized, closed: false })}
-    onClose={() => setExpressionState({ scope: runId, context: expression, minimized: false, closed: true })}
-    onRestore={() => setExpressionState({ scope: runId, context: expression, minimized: false, closed: false })}
-    onOpen={id => setVisualRequest({ scope: runId, id, nonce: Date.now() })} />;
-  const stableGraph = useStableGraphPane(<GraphPanel key={runId} onEvidenceInspect={onEvidenceInspect} result={result} error={graphError} expressionCard={preview} />);
+  const stableGraph = useStableGraphPane(<GraphPanel key={runId} onEvidenceInspect={onEvidenceInspect} result={result} error={graphError} />);
   visualRenderers.graph_viewer = stableGraph.slot;
   const selectedIds = selectedVisuals.map((visual) => visual.id);
   const visualScope = runId || anchorPrefix;

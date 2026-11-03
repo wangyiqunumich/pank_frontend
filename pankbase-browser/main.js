@@ -3,8 +3,6 @@ import './style.css';
 
 const protocol = 'pankgraph.pankbase.v1';
 const modules = {
-  gene_browser: () => import('./GeneBrowser.vue'),
-  cell_state_browser: () => import('./vendor/liger/LigerBrowser.vue'),
   genome_browser: () => import('./vendor/genome/AtacSeq.vue'),
   differential_expression: () => import('./DifferentialExpression.vue'),
   functional_browser: () => import('./FunctionalBrowser.vue'),
