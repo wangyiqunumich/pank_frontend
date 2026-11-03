@@ -9,7 +9,7 @@ export async function readPublic(path, limit = 16 * 1024 * 1024) {
     // Workers live under assets/ in production, while atlas/ is beside index.html.
     const localBase = globalThis.location ? `${location.origin}${location.pathname.replace(/\/(?:assets\/)?[^/]*$/, '/')}` : import.meta.url;
     const local = path.startsWith('./atlas/') || path.startsWith('/pankgraph-vnext/');
-    const directApi = location.hostname === 'dev.pankgraph.org' && path.startsWith('/pankgraph-vnext/api/');
+    const directApi = globalThis.location?.hostname === 'dev.pankgraph.org' && path.startsWith('/pankgraph-vnext/api/');
     const url = directApi ? `https://jieliulab3.dcmb.med.umich.edu${path}` : path.startsWith('./atlas/') ? new URL(path, localBase) : local ? `${location.origin}${path}` : `${ORIGIN}${path}`;
     // Reuse the site's browser login for local assets; never send it to BioIndex.
     const response = await fetch(url, { credentials: local && !directApi ? 'same-origin' : 'omit', signal: controller.signal });
