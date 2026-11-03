@@ -217,9 +217,9 @@
           "compact": true,
           "expression_cache": {
             "enabled": true,
-            "endpoint": "/pankgraph-vnext/api/scbrowser/expression",
+            "endpoint": "/api/pankbase-data/v1/expression",
             "prefetch_default_gene": true,
-            "fallback": true
+            "fallback": false
           },
           "show_context_note": false,
           "show_expression_badge": false,
@@ -243,7 +243,7 @@
         "wording": {
           "card_title": "Single cell browser",
           "atlas_label": "PanKbase scRNAseq {display_release}",
-          "display_release": "V3.3",
+          "display_release": "V3.4",
           "related_context": "Related atlas context",
           "context_note": "Related context \u00b7 See Source & methods",
           "open_browser": "Open interactive UMAP",
@@ -492,7 +492,8 @@
           "source_note": "Related PanKbase resource. The graph record and this resource may represent different datasets, cohorts or analyses.",
           "retry": "Retry",
           "source_tab": "Source & methods"
-        }
+        },
+        "source_title": "HPAP ATAC \u00b7 GRCh38"
       },
       "differential_expression": {
         "title": "Differential Expression",
@@ -537,7 +538,8 @@
           "source_note": "Related PanKbase resource. The graph record and this resource may represent different datasets, cohorts or analyses.",
           "retry": "Retry",
           "source_tab": "Source & methods"
-        }
+        },
+        "source_title": "PanKbase pseudobulk RNA \u00b7 v3.3"
       },
       "functional_browser": {
         "title": "Functional Browser",
@@ -589,7 +591,8 @@
           "source_note": "Related PanKbase resource. The graph record and this resource may represent different datasets, cohorts or analyses.",
           "retry": "Retry",
           "source_tab": "Source & methods"
-        }
+        },
+        "source_title": "PanKbase dynamic perifusion \u00b7 v1"
       },
       "pca_explorer": {
         "title": "PCA Explorer",
@@ -639,7 +642,8 @@
           "source_note": "Related PanKbase resource. The graph record and this resource may represent different datasets, cohorts or analyses.",
           "retry": "Retry",
           "source_tab": "Source & methods"
-        }
+        },
+        "source_title": "PanKbase pseudobulk PCA \u00b7 v3.3"
       }
     },
     "preview_standard": {

@@ -11,7 +11,7 @@ export default {
   methods: {
     draw() {
       const canvas = this.$refs.canvas; if (!canvas) return;
-      const width = Math.max(280, this.$el.clientWidth), height = 390, dpr = window.devicePixelRatio || 1;
+      const width = Math.max(280, this.$el.clientWidth), height = Math.max(230, Math.min(390, window.innerHeight - 190)), dpr = window.devicePixelRatio || 1;
       this.width = width; canvas.width = width * dpr; canvas.height = height * dpr; canvas.style.width = `${width}px`; canvas.style.height = `${height}px`;
       const ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, width, height);
       const domain = key => { const [min,max] = extent(this.valid, row => row[key]); return min === undefined ? [0,1] : min === max ? [min-1,max+1] : [min,max]; };

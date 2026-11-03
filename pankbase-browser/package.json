@@ -6,7 +6,7 @@
   "scripts": {
     "build": "vite build",
     "test": "node --test data.test.mjs",
-    "prebuild": "python3 prepare-data.py --if-valid"
+    "prepare:data": "python3 prepare-data.py --if-valid"
   },
   "dependencies": {
     "d3": "7.9.0",

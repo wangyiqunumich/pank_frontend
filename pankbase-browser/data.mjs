@@ -1,11 +1,13 @@
 // Bounded public reads, complete BioIndex pages, and retryable session reuse.
+import { dataBase } from './source.mjs';
 const ORIGINS = new Set(['https://bioindex.pankbase.org', 'https://bioindex.hugeamp.org', 'https://rest.uniprot.org', 'https://cfde.hugeampkpnbi.org', 'https://bioindex-dev.hugeamp.org']);
 const cache = new Map();
 const MAX_BYTES = 8 * 1024 * 1024;
 let cachedBytes = 0;
 export async function readPublic(url, { maxBytes = MAX_BYTES, timeout = 30000, fetcher = fetch } = {}) {
   const target = new URL(url);
-  if (!ORIGINS.has(target.origin) || target.username || target.password) throw new Error('Unregistered source.');
+  const local = typeof document !== 'undefined' && target.href.startsWith(dataBase() + '/');
+  if ((!local && !ORIGINS.has(target.origin)) || target.username || target.password) throw new Error('Unregistered source.');
   const existing = cache.get(url);
   if (existing) {
     cache.delete(url); cache.set(url, existing);
@@ -18,7 +20,7 @@ export async function readPublic(url, { maxBytes = MAX_BYTES, timeout = 30000, f
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeout);
     try {
-      const response = await fetcher(target.href, { credentials: 'omit', signal: controller.signal });
+      const response = await fetcher(target.href, { credentials: local ? 'same-origin' : 'omit', signal: controller.signal });
       if (!response.ok) throw new Error(`Source returned HTTP ${response.status}.`);
       const reader = response.body?.getReader();
       let content;

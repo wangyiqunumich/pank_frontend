@@ -52,15 +52,11 @@ export default function PanKbaseModule({ moduleId, context, preview = false, isV
     <Typography sx={{ fontSize: 12, color: '#64748b', mt: 1 }}>{context?.cellType || 'Explore the related PanKbase resource'}</Typography>
     <Typography sx={{ fontSize: 11, color: '#64748b', mt: 1 }}>Data loads when you open this view.</Typography>
   </Box>;
-  return <PersistentGraphViewport fullscreen={expanded} onExit={() => setExpanded(false)} label={definition.title}><Box sx={{ bgcolor: '#fff', height: '100%', minHeight: 480, display: 'flex', flexDirection: 'column' }}>
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', px: 2, py: 1, borderBottom: '1px solid #e2e8f0' }}>
-      <Typography sx={{ fontSize: 14, fontWeight: 600, flex: 1 }}>{context?.geneSymbol || definition.title}</Typography>
-      <Button size="small" onClick={() => setExpanded(value => !value)}>{expanded ? 'Exit full screen' : 'Expand view'}</Button>
-      <Button component="a" href={pankbaseUrl(moduleId, context)} target="_blank" rel="noopener noreferrer" size="small">Open PanKbase ↗</Button>
-      <details style={{ fontSize: 12, width: '100%', color: '#64748b' }}><summary>Source &amp; methods</summary>
-        <p>{definition.wording.source_note}</p>
-        <p>{[context?.source, context?.datasetId, context?.release, context?.comparison, context?.condition].filter(Boolean).join(' · ') || 'The graph does not record an exact matching resource dataset.'}</p>
-      </details>
+  return <PersistentGraphViewport fullscreen={expanded} onExit={() => setExpanded(false)} label={definition.title}><Box sx={{ bgcolor: '#fff', height: '100%', minHeight: 480, minWidth: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+    <Box component="header" sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1.5, py: 1.5, borderBottom: '1px solid #f1f5f9', color: '#0f766e', flexShrink: 0 }}>
+      <Typography sx={{ fontSize: 12, fontWeight: 500, flex: 1 }}>{definition.source_title || definition.title}</Typography>
+      <Button component="a" href={pankbaseUrl(moduleId, context)} target="_blank" rel="noopener noreferrer" size="small" sx={{ fontSize: 11, textTransform: 'none', color: '#0f766e' }}>Original resource ↗</Button>
+      <Button aria-label={expanded ? 'Exit full screen' : 'Expand view'} title={expanded ? 'Exit full screen' : 'Expand view'} size="small" sx={{ minWidth: 28, color: '#64748b' }} onClick={() => setExpanded(value => !value)}>⛶</Button>
     </Box>
     {!ready && !error && <Typography role="status" sx={{ p: 2 }}>{definition.wording.loading}</Typography>}
     {error && <Box role="alert" sx={{ p: 2 }}>{error} <Button onClick={() => { setError(''); setReady(false); setHtml(''); setAttempt(value => value + 1); }}>Retry</Button></Box>}

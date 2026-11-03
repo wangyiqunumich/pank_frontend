@@ -1,73 +1,13 @@
 <template>
     <div class="line-plot">
-        <div class="radio-labels">
-            <label>
-                <input
-                    type="radio"
-                    :name="`${plotId}showContent`"
-                    :value="false"
-                    v-model="showContent"
-                />
-                View by IEQ
-            </label>
-            <label>
-                <input
-                    type="radio"
-                    :name="`${plotId}showContent`"
-                    :value="true"
-                    v-model="showContent"
-                />
-                View by content
-            </label>
+        <div class="controls plot-controls">
+          <label>Normalization <select v-model="showContent"><option :value="false">IEQ</option><option :value="true">Content</option></select></label>
 
-        </div>
-        <div class="radio-labels">
-            <label>
-                <input
-                    type="radio"
-                    value="some"
-                    :name="`${plotId}confidence`"
-                    v-model="showConfidence"
-                />
-                95% confidence ({{donors.length}} filtered donors)
-            </label>
-            <label>
-                <input
-                    type="radio"
-                    value="all"
-                    :name="`${plotId}confidence`"
-                    v-model="showConfidence"
-                />
-                95% confidence (all donors)
-            </label>
-            <label>
-                <input
-                    type="radio"
-                    value="none"
-                    :name="`${plotId}confidence`"
-                    v-model="showConfidence"
-                />
-                {{donors.length}} individual donors
-            </label>
-        </div>
-        <div class="download-images-setting">
-            <div>
-                <span
-                    >Mouse over the plot to highlight an individual donor.</span
-                >
-            </div>
-            <div>
-                <button
-                    class="btn btn-secondary btn-sm"
-                    @click="downloadImage(plotId, `${plotId}_${showContent ? 'content' : 'ieq'}_time_series`, 'svg')"
-                >
-                    Download SVG
-                </button>
-            </div>
         </div>
         <div :id="plotId" class="plot" ref="time-series-line">
             <p>Loading...</p>
         </div>
+        <details class="plot-settings"><summary>Confidence display</summary><div class="controls">          <label>Display <select v-model="showConfidence"><option value="some">Filtered 95% CI ({{donors.length}})</option><option value="all">All donors 95% CI</option><option value="none">Individual donors ({{donors.length}})</option></select></label></div></details><div class="plot-actions"><span>Hover to inspect a donor</span><button @click="downloadImage(plotId, `${plotId}_${showContent ? 'content' : 'ieq'}_time_series`, 'svg')">Download SVG</button></div>
     </div>
 </template>
 <script>
@@ -113,9 +53,11 @@ export default Vue.component("time-series-line-plot", {
     mounted() {
         this.chart = document.getElementById(this.plotId);
         window.addEventListener("resize", this.drawChart);
+        this.sizeObserver = new ResizeObserver(() => this.drawChart());
+        this.sizeObserver.observe(this.chart);
         this.drawChart();
     },
-    beforeDestroy() { window.removeEventListener("resize", this.drawChart); },
+    beforeDestroy() { this.sizeObserver?.disconnect(); window.removeEventListener("resize", this.drawChart); },
     computed: {
         chartData() {
             return this.computeChartData(this.plotData, true);
@@ -310,7 +252,8 @@ export default Vue.component("time-series-line-plot", {
                 left: 55,
             };
             let elementWidth = this.chart.clientWidth;
-            console.log("width:", elementWidth);
+
+            this.chartHeight = Math.max(220, Math.min(420, window.innerHeight - 205));
             let height = this.chartHeight - margin.top - margin.bottom;
             this.innerHeight = height;
 
@@ -419,7 +362,7 @@ export default Vue.component("time-series-line-plot", {
             // add Y-axis
             this.svg
                 .append("g")
-                .call(d3.axisLeft(this.yScale))
+                .call(d3.axisLeft(this.yScale).ticks(Math.max(3, Math.floor(height / 28))))
                 .selectAll("text")
                 .style("font-size", "13px");
         },

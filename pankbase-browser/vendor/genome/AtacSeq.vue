@@ -1,53 +1,19 @@
 <template>
-    <div class="atac-seq">
-        <form class="controls" @submit.prevent="openRegion"><label>GRCh38 region <input v-model="regionInput" placeholder="chr7:start-end" aria-label="GRCh38 region" /></label><button :disabled="isLoading">Open region</button><span class="source">0-based, half-open coordinates · {{manualLocus ? 'User-selected region; gene overlap is not assumed.' : 'Gene locus from source or explicit graph coordinates.'}}</span></form>
-        <div class="row">
-            <div class="col-md-2">
-            <div id="tracklist">
-                <h5>Select cell types</h5>
-                <div>
-                    <label>
-                        <input type="checkbox" v-model="selectAll"
-                            @change="toggleTracks()"></input>
-                        <strong> Select/deselect all</strong>
-                    </label>
-                </div>
-                <div v-for="cellType in cellTypes">
-                    <label>
-                        <input type="checkbox" v-model="selectedCellTypes" :value="cellType"/>
-                        {{ cellType }}
-                    </label>
-                </div>
-                <h5>Select track types</h5>
-                <div v-for="trackType in trackTypes">
-                    <label>
-                        <input type="checkbox" v-model="selectedTrackTypes" :value="trackType"/>
-                        {{ trackType.includes("peaks") ? "ATAC peaks" : trackType }}
-                    </label>
-                </div>
-            <button class="btn-primary btn" @click="updateBrowser">
-                Update browser
-            </button>
-            </div>
-        </div>
-        <div class="col-md-10">
-            <div v-if="loadError" class="alert alert-danger" role="alert">
-            {{ loadError }}
-        </div>
-        <div v-else>
-            <p v-if="isLoading" class="atac-seq__loading">
-                Loading ATAC tracks…
-            </p>
-            <div v-show="!isLoading">
-                <div id="browser"
-                class="atac-seq__browser"
-                aria-live="polite"
-            ></div>
-            </div>
-        </div>
-        </div>
-        </div>
+  <section class="module-view">
+    <div class="tabs"><button v-for="item in ['Genome','Tracks','Source']" :key="item" :aria-pressed="view===item" @click="view=item">{{item}}</button></div>
+    <div class="module-stage">
+      <form class="controls" @submit.prevent="openRegion"><label>GRCh38 <input v-model="regionInput" placeholder="chr7:start-end" aria-label="GRCh38 region" /></label><button class="primary" :disabled="isLoading" type="submit">View</button></form>
+      <p v-if="loadError" role="alert">{{loadError}}</p><p v-if="isLoading" role="status">Loading ATAC tracks…</p>
+      <div v-show="view==='Genome'" class="genome-stage"><div id="browser" class="atac-seq__browser" aria-live="polite"></div></div>
+      <div v-if="view==='Tracks'" class="source-panel">
+        <h2>Cell types</h2><label><input type="checkbox" v-model="selectAll" @change="toggleTracks"/> Select all</label>
+        <div class="track-options"><label v-for="cellType in cellTypes" :key="cellType"><input type="checkbox" v-model="selectedCellTypes" :value="cellType"/>{{cellType}}</label></div>
+        <h2>Track types</h2><div class="track-options"><label v-for="trackType in trackTypes" :key="trackType"><input type="checkbox" v-model="selectedTrackTypes" :value="trackType"/>{{trackType.includes('peaks')?'ATAC peaks':trackType}}</label></div>
+        <button class="primary" @click="view='Genome';$nextTick(updateBrowser)">Apply tracks</button>
+      </div>
+      <div v-if="view==='Source'" class="source-panel"><h2>Source &amp; methods</h2><p>HPAP ATAC signal and peaks · GRCh38. All source cell types and track choices remain available under Tracks.</p><p>Coordinates are 0-based, half-open. {{manualLocus?'User-selected region; gene overlap is not assumed.':'Locus from explicit graph coordinates or a verified source lookup.'}}</p><p>Signal, peak calls and gene annotations are distinct evidence layers.</p></div>
     </div>
+  </section>
 </template>
 <script>
 import Vue from "vue";
@@ -55,9 +21,10 @@ import { fetchTracks } from "./tracks.js";
 import { loadWashUAssets } from "./washU.js";
 import { TRACKS } from "./tracks.js";
 import { readBioIndex } from "../../data.mjs";
-const BIO_INDEX_HOST = "https://bioindex.hugeamp.org";
+import { assetUrl, dataBase } from "../../source.mjs";
 
-const HUGEAMP_GENE_BIOINDEX = `${BIO_INDEX_HOST}/api/bio/query/gene?q=`;
+
+
 const DEFAULT_GENOME = "hg38";
 const DEFAULT_GENOME_BIOINDEX = "GRCh38";
 
@@ -66,6 +33,7 @@ export default Vue.component("AtacSeq", {
     props: ["gene", "locus", "cellType"],
     data() {
         return {
+            view: 'Genome',
             isLoading: true,
             loadError: null,
             tracksJson: TRACKS,
@@ -128,7 +96,7 @@ export default Vue.component("AtacSeq", {
             }
         },
         async loadTracks() {
-            let tracks = await fetchTracks();
+            let tracks = (await fetchTracks()).map(track => ({...track, url: assetUrl("genome/"+new URL(track.url).pathname.split("/").pop())}));
             tracks.forEach(t => {
                 if (t.name.includes("signal")){
                     t.options.yMax = 10;
@@ -150,7 +118,7 @@ export default Vue.component("AtacSeq", {
         },
         async getGene(geneSymbol){
 
-            let fetchUrl = `${HUGEAMP_GENE_BIOINDEX}${geneSymbol},${DEFAULT_GENOME_BIOINDEX}`;
+            let fetchUrl = `${dataBase()}/locus?gene=${encodeURIComponent(geneSymbol)}`;
 
 			let gene = await readBioIndex(fetchUrl);
             if (!Array.isArray(gene.data) || gene.data.length !== 1) throw new Error("No unique GRCh38 gene locus was returned.");
@@ -271,25 +239,7 @@ export default Vue.component("AtacSeq", {
 });
 </script>
 <style scoped>
-.atac-seq {
-    margin-top: 20px;
-    margin-bottom: 20px;
-}
-
-.atac-seq__browser {
-    width: 100%;
-    min-height: 70vh;
-}
-
-.atac-seq__loading {
-    font-style: italic;
-}
-#tracklist {
-    margin-top: 50px;
-    margin-left: 25px;
-    font-size: small;
-}
-#tracklist h5 {
-    margin-bottom: 10px;
-}
+.atac-seq__browser { width: 100%; min-height: 280px; }
+.track-options { display:flex; flex-wrap:wrap; gap:10px 16px; margin:12px 0 20px; }
+.track-options label { display:flex; align-items:center; gap:5px; }
 </style>

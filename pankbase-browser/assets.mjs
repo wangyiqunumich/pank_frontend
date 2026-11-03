@@ -1,3 +1,4 @@
+import { assetUrl } from './source.mjs';
 const entries = new Map();
 export async function localJson(path, maxBytes = 4 * 1024 * 1024) {
   if (!/^data\/(?:manifest|(?:de|pca)-[a-f0-9]{64})\.json$/.test(path)) throw new Error('Unregistered local asset.');
@@ -5,7 +6,7 @@ export async function localJson(path, maxBytes = 4 * 1024 * 1024) {
   const promise = (async () => {
     const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 20000);
     try {
-      const response = await fetch(new URL(path, document.baseURI), { credentials: 'same-origin', signal: controller.signal });
+      const response = await fetch(assetUrl(path), { credentials: 'same-origin', signal: controller.signal });
       if (!response.ok) throw new Error('The prepared source asset is unavailable.');
       const reader = response.body.getReader(); const chunks = []; let size = 0;
       while (true) {

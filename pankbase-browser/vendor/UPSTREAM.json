@@ -56,13 +56,13 @@
       "source": "src/portals/PanKbase/components/AtacSeq.vue",
       "file": "pankbase-browser/vendor/genome/AtacSeq.vue",
       "sha256": "65b7aa88198d3912ee648ae5a9e53cff086d9965ec9745a5f6622a018cf7b4dd",
-      "adaptedSha256": "c92fe09331a260ec6df8f4bb5e09a948264a0dab40cfe36144fb4d3a96c7fb42"
+      "adaptedSha256": "a6bf2446f066cd2c54362277cd00a764464e53caa2c52d6e6a4d2e113246aab0"
     },
     {
       "source": "src/portals/PanKbase/utils/washU.js",
       "file": "pankbase-browser/vendor/genome/washU.js",
       "sha256": "eea5a4cf82ba7260fc771baf50b288e32e5fd2746b3685f05b24c9206d035d46",
-      "adaptedSha256": "55e31fc84c2768b58a1be84eb538e08dd181e0c5f4abd6966e19643038d8d577"
+      "adaptedSha256": "b68ef9963d50f2a975c15f3454b8afef2dd7fd73f186d310342900c3e5d6430f"
     },
     {
       "source": "src/portals/PanKbase/assets/data/pkb-atac-no-abc-uniformed_peaks.json",
@@ -80,7 +80,7 @@
       "source": "src/portals/PanKbase/components/TimeSeriesLinePlot.vue",
       "file": "pankbase-browser/vendor/functional/TimeSeriesLinePlot.vue",
       "sha256": "da605f5380eba271eb9a96e5f0c6c63a9d1dfe5a34f8a9030b148dbf2cea1b86",
-      "adaptedSha256": "126ba7f83fb88f4de71de7b096566af6032187069be3b5f4609ec1b911aaeff9"
+      "adaptedSha256": "63c2bc577f73c42ddb6e15fe9f32c4b08be873ed19e1d6217e76fae1894f8fd8"
     },
     {
       "source": "src/portals/PanKbase/components/FunctionalViolinPlot.vue",
@@ -125,5 +125,11 @@
     "source": "app/app.R",
     "license": "PCA-LICENSE",
     "sha256": "9bc6d92f188c343c12863ca8f60b2176a94d9ce5dbca9ec94f894981199b1e59"
-  }
+  },
+  "localAdaptations20261103": [
+    "Five retained modules; Gene Browser and Cell State Browser are unbundled.",
+    "Source header, scmap-style subtabs, main visualization before secondary controls.",
+    "All data and pinned genome runtime assets use the independent same-origin PanKgraph data service.",
+    "Functional normalization, confidence choices, donor filters and downloads are retained."
+  ]
 }

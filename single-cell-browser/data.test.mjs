@@ -101,12 +101,12 @@ test('worker atlas and expression requests reuse site authentication without sen
     globalThis.fetch = async (url, options) => { paths.push([String(url), options.credentials]); return new Response('{}'); };
     assert.equal(await readPublic('./atlas/manifest.json'), '{}');
     await readPublic('./atlas/map-example.json');
-    await readPublic('/pankgraph-vnext/api/scbrowser/expression?gene=CFTR');
+    await readPublic('/api/pankbase-data/v1/expression?gene=CFTR');
     await readPublic('/api/bio/query/single-cell-lognorm?q=example,CFTR');
     assert.deepEqual(paths, [
-      ['https://local.example/scbrowser/atlas/manifest.json', 'same-origin'],
-      ['https://local.example/scbrowser/atlas/map-example.json', 'same-origin'],
-      ['https://local.example/pankgraph-vnext/api/scbrowser/expression?gene=CFTR', 'same-origin'],
+      ['https://local.example/api/pankbase-data/v1/assets/atlas/manifest.json', 'same-origin'],
+      ['https://local.example/api/pankbase-data/v1/assets/atlas/map-example.json', 'same-origin'],
+      ['https://local.example/api/pankbase-data/v1/expression?gene=CFTR', 'same-origin'],
       ['https://bioindex.pankbase.org/api/bio/query/single-cell-lognorm?q=example,CFTR', 'omit'],
     ]);
   } finally {

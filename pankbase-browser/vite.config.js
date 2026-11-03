@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue2';
 import { readFileSync, writeFileSync, copyFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-export default defineConfig({ base: './', plugins: [vue(), {
+export default defineConfig({ publicDir: false, base: './', plugins: [vue(), {
   name: 'pankbase-embed',
   writeBundle(options) {
     writeFileSync(resolve(options.dir, 'embed.json'), JSON.stringify({ version: 1, html: readFileSync(resolve(options.dir, 'index.html'), 'utf8') }));

@@ -13,8 +13,13 @@ const root = path.resolve(__dirname, '../build');
 const types = { '.js':'text/javascript', '.html':'text/html', '.css':'text/css', '.png':'image/png', '.svg':'image/svg+xml', '.json':'application/json', '.txt':'text/plain' };
 http.createServer((req,res)=>{
   const name=decodeURIComponent(new URL(req.url,'http://localhost').pathname).replace(/^\/(?:pankgraph-vnext\/?)?/,'');
-  if (name === 'api/scbrowser/expression' && demo) {
-    require('https').get('https://dev.pankgraph.org/pankgraph-vnext/'+new URL(req.url,'http://localhost').pathname.replace(/^\/(?:pankgraph-vnext\/)?/,'')+new URL(req.url,'http://localhost').search, upstream=>{res.writeHead(upstream.statusCode, {'Content-Type':'application/json', ...(upstream.headers['content-encoding'] ? {'Content-Encoding':upstream.headers['content-encoding']} : {})});upstream.pipe(res);}).on('error',()=>res.writeHead(502).end()); return;
+  if (name.startsWith('api/pankbase-data/v1/')) {
+    const target = 'http://127.0.0.1:' + (process.env.PANKBASE_DATA_PORT || '18818') + '/' + name + new URL(req.url,'http://localhost').search;
+    const upstream = http.request(target, {method:req.method, headers:{...(req.headers['accept-encoding'] ? {'Accept-Encoding':req.headers['accept-encoding']}:{}), ...(req.headers.range ? {Range:req.headers.range}:{}), ...(req.headers['if-none-match'] ? {'If-None-Match':req.headers['if-none-match']}: {})}}, response => {
+      res.writeHead(response.statusCode, response.headers); response.pipe(res);
+    });
+    upstream.on('error',()=>res.writeHead(502,{'Content-Type':'application/json'}).end(JSON.stringify({message:'The isolated module data service is unavailable.'})));
+    upstream.end(); return;
   }
   if (name.startsWith('api/')) {
     if (!demo) { res.writeHead(503, {'Content-Type':'application/json'}).end(JSON.stringify({message:'Static preview only. Start with --demo for the single-cell navigation demo.'})); return; }
@@ -33,5 +38,5 @@ http.createServer((req,res)=>{
     file=path.join(root,'index.html');
   }
   res.writeHead(200,{'Content-Type':types[path.extname(file)]||'application/octet-stream'});
-  fs.createReadStream(file).pipe(res);
+  fs.createReadStream(file).on('error',()=>res.destroy()).pipe(res);
 }).listen(Number(process.env.SC_PREVIEW_PORT || 4187),'127.0.0.1',()=>console.log(`Preview: http://127.0.0.1:${process.env.SC_PREVIEW_PORT || 4187}/result-new2?run_id=11111111-1111-4111-8111-111111111111`));

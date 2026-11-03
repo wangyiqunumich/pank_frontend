@@ -1,3 +1,4 @@
+import { assetUrl, dataBase } from "../../source.mjs";
 const STYLESHEETS = [
     {
         href: "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css",
@@ -151,9 +152,11 @@ export function loadWashUAssets() {
         return assetPromise;
     }
 
-    const stylesLoaded = Promise.all(STYLESHEETS.map(ensureStylesheetLoaded));
+    window.PANKBASE_DATA_BASE = dataBase();
+    const hosted = value => assetUrl("runtime-source/runtime/" + value.split("/").pop().replace("epgg.js", "epgg-local.js"));
+    const stylesLoaded = Promise.all(STYLESHEETS.map(definition => ensureStylesheetLoaded({...definition, href: hosted(definition.href)})));
     const scriptsLoaded = SCRIPTS.reduce((chain, definition) => {
-        return chain.then(() => ensureScriptLoaded(definition));
+        return chain.then(() => ensureScriptLoaded({...definition, src: hosted(definition.src)}));
     }, Promise.resolve());
 
     assetPromise = stylesLoaded.then(() => scriptsLoaded).then(() => undefined);
