@@ -8,10 +8,14 @@ export async function readPublic(path, limit = 16 * 1024 * 1024) {
   try {
     // Workers live under assets/ in production, while atlas/ is beside index.html.
     const localBase = globalThis.location ? `${location.origin}${location.pathname.replace(/\/(?:assets\/)?[^/]*$/, '/')}` : import.meta.url;
-    const directApi = false; // Fixed-demo data always uses its EC2 same-origin gateway.
+    const fixedDemo = /(?:^|\/)techdemo\//.test(globalThis.location?.pathname || '');
+    const directApi = !fixedDemo && globalThis.location?.hostname === 'dev.pankgraph.org' && path.startsWith('/pankgraph-vnext/api/');
     const local = path.startsWith('./atlas/') || path.startsWith('/pankgraph-vnext/') || path.startsWith('/api/pankbase-data/');
     const serviceBase = globalThis.location ? new URL('../api/pankbase-data/v1/', localBase) : null;
-    const url = path.startsWith('./atlas/') && serviceBase ? new URL('assets/' + path.slice(2), serviceBase) : path.startsWith('/api/pankbase-data/') && serviceBase ? new URL(path.slice('/api/pankbase-data/v1/'.length), serviceBase) : local ? `${location.origin}${path}` : `${ORIGIN}${path}`;
+    const url = directApi ? `https://jieliulab3.dcmb.med.umich.edu${path}`
+      : path.startsWith('./atlas/') ? (fixedDemo && serviceBase ? new URL('assets/' + path.slice(2), serviceBase) : new URL(path, localBase))
+      : path.startsWith('/api/pankbase-data/') && serviceBase ? new URL(path.slice('/api/pankbase-data/v1/'.length), serviceBase)
+      : local ? `${location.origin}${path}` : `${ORIGIN}${path}`;
     // Reuse the site's browser login for local assets; never send it to BioIndex.
     const response = await fetch(url, { credentials: local && !directApi ? 'same-origin' : 'omit', signal: controller.signal });
     if (!response.ok) throw new Error(`Atlas request failed (${response.status}).`);
