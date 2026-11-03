@@ -362,7 +362,7 @@ export default Vue.component("time-series-line-plot", {
             // add Y-axis
             this.svg
                 .append("g")
-                .call(d3.axisLeft(this.yScale).ticks(Math.max(3, Math.floor(height / 28))))
+                .call(d3.axisLeft(this.yScale).ticks(Math.max(3, Math.floor(this.innerHeight / 28))))
                 .selectAll("text")
                 .style("font-size", "13px");
         },
