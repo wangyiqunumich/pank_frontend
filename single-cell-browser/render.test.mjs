@@ -63,3 +63,32 @@ test('integrated browser link configures dataset and current explored gene with 
   assert.equal(url.searchParams.get('gene'),'HLA-DRA');
   assert.equal(new URL(integratedBrowserLink(config,'atlas','CFTR')).searchParams.get('PKBgene'),'CFTR');
 });
+
+
+test('viewport changes resize both canvases and refit without resetting pan or zoom', () => {
+  const sandbox = { Vue: { component: (_, options) => options }, window: { devicePixelRatio: 2 } };
+  vm.runInNewContext(source, sandbox);
+  const canvas = () => ({ width: 1600, height: 1000, style: {} });
+  const camera = { target: [4, 5, 0], distance: 0.5, yaw: 0, pitch: 0 };
+  let renders = 0;
+  const map = { $refs: { umapContainer: { clientWidth: 300, style: {} }, umapCanvas: canvas(), umapLabelCanvas: canvas() },
+    gl: {}, height: 400, projection: {}, pointBounds: { size: [20, 10, 0] }, camera,
+    setupAxisIndicatorCanvas() {}, requestRender() { renders++; } };
+  sandbox.component.methods.handleResize.call(map);
+  for (const c of [map.$refs.umapCanvas, map.$refs.umapLabelCanvas]) {
+    assert.equal(c.width, 600); assert.equal(c.height, 800);
+    assert.equal(c.style.width, '300px'); assert.equal(c.style.height, '400px');
+  }
+  assert.equal(map.projection.aspect, 0.75);
+  assert.ok(map.orthoBaseHalfHeight * map.projection.aspect >= 10, 'full atlas fits at 100% even in portrait');
+  assert.deepEqual(camera, { target: [4, 5, 0], distance: 0.5, yaw: 0, pitch: 0 });
+  sandbox.component.methods.handleResize.call(map);
+  assert.equal(renders, 1, 'unchanged measurements do not redraw');
+  map.$refs.umapContainer.clientWidth = 0;
+  sandbox.component.methods.handleResize.call(map);
+  assert.equal(map.$refs.umapCanvas.width, 600, 'hidden tabs retain their canvas');
+  map.$refs.umapContainer.clientWidth = 300; map.height = 250;
+  sandbox.component.methods.handleResize.call(map);
+  assert.equal(map.$refs.umapCanvas.height, 500, 'height-only toolbar changes resize the viewport');
+  assert.equal(renders, 2);
+});

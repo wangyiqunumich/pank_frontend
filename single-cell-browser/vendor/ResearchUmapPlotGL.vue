@@ -391,6 +391,7 @@ export default Vue.component('research-umap-plot-gl', {
         }
     },
     watch: {
+        height() { this.$nextTick(this.handleResize); },
         points: {
             handler() {
                 this.cleanUp();
@@ -473,11 +474,14 @@ export default Vue.component('research-umap-plot-gl', {
     mounted() {
         EventBus.$on('view-transform-change', this.handleUpdateViewTransform);
         window.addEventListener('resize', this.handleResize);
+        this.viewportObserver = new ResizeObserver(this.handleResize);
+        this.viewportObserver.observe(this.$refs.umapContainer);
         this.init();
     },
     beforeDestroy() {
         EventBus.$off('view-transform-change', this.handleUpdateViewTransform);
         window.removeEventListener('resize', this.handleResize);
+        this.viewportObserver?.disconnect();
         this.cleanUp();
     },
     methods: {
@@ -491,10 +495,27 @@ export default Vue.component('research-umap-plot-gl', {
             return this.expressionExtent.max
         },
         handleResize() {
-            clearTimeout(this.resizeTimeout);
-            this.resizeTimeout = setTimeout(() => {
-                this.init();
-            }, 100);
+            const container = this.$refs.umapContainer;
+            if (!container || !this.gl || container.clientWidth < 1 || this.height < 1) return;
+            const width = container.clientWidth, height = this.height;
+            const dpr = window.devicePixelRatio || 1;
+            const canvas = this.$refs.umapCanvas;
+            const pixelWidth = Math.round(width * dpr), pixelHeight = Math.round(height * dpr);
+            if (canvas.width === pixelWidth && canvas.height === pixelHeight) return;
+            container.style.height = `${height}px`;
+            for (const target of [canvas, this.$refs.umapLabelCanvas]) {
+                target.width = pixelWidth; target.height = pixelHeight;
+                target.style.width = `${width}px`; target.style.height = `${height}px`;
+            }
+            this.projection.aspect = pixelWidth / pixelHeight;
+            // Refit the viewport, preserving the user's zoom ratio and pan target.
+            // No atlas reload, WebGL program replacement or buffer rebuild on resize.
+            if (!this.is3dMode) {
+                const [spanX, spanY] = this.pointBounds.size;
+                this.orthoBaseHalfHeight = Math.max(spanY / 2, spanX / (2 * this.projection.aspect), EPSILON) / (1 - VIEW_PADDING * 2);
+            }
+            this.setupAxisIndicatorCanvas(dpr);
+            this.requestRender(true);
         },
 
         toggleLabels() {

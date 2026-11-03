@@ -4,6 +4,7 @@ import { SC_PROTOCOL } from './singleCellContext';
 import { SC_WORDING } from './scBrowserConfig';
 import { sitePath } from './api';
 import PersistentGraphViewport from '../components/PersistentGraphViewport';
+import { BROWSER_FILL_SX, BROWSER_IFRAME_STYLE } from './browserLayout';
 
 export default function SingleCellBrowser({ context, isVisible, preview = false }) {
   const frame = useRef(null);
@@ -50,12 +51,12 @@ export default function SingleCellBrowser({ context, isVisible, preview = false 
   }, [started]);
   useEffect(() => { setStatus(''); send(); }, [context]);
   useEffect(() => { if (isVisible) frame.current?.contentWindow?.postMessage({ protocol: SC_PROTOCOL, type: 'resize' }, window.location.origin); }, [isVisible]);
-  return <PersistentGraphViewport fullscreen={fullscreen} label={SC_WORDING.fullscreen_title} onExit={() => setFullscreen(false)}><Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', minWidth: 0, bgcolor: '#fff' }}>
+  return <PersistentGraphViewport fullscreen={fullscreen} label={SC_WORDING.fullscreen_title} onExit={() => setFullscreen(false)}><Box sx={BROWSER_FILL_SX}>
     {!preview && (!context ? <Typography sx={{ p: 2 }}>{SC_WORDING.no_resource}</Typography> : <>
       {!context.available ? <Typography sx={{ p: 2 }}>{context.reason}</Typography> : null}
       <span role="status" style={{ padding: status ? 8 : 0, fontSize: 12 }}>{status}</span>
       {status && context.available && <Button component="a" href={context.browserUrl} target="_blank" rel="noopener noreferrer">{SC_WORDING.external_browser}</Button>}
     </>)}
-    {started && <iframe ref={frame} title={preview ? "PanKbase atlas preview" : "PanKgraph single-cell browser"} srcDoc={pageHtml || undefined} onLoad={send} style={{ border: 0, width: '100%', flex: 1, minHeight: preview ? 0 : 300, pointerEvents: preview ? 'none' : 'auto', display: context?.available ? 'block' : 'none' }} />}
+    {started && <iframe ref={frame} title={preview ? "PanKbase atlas preview" : "PanKgraph single-cell browser"} srcDoc={pageHtml || undefined} onLoad={send} style={{ ...BROWSER_IFRAME_STYLE, pointerEvents: preview ? 'none' : 'auto', display: context?.available ? 'block' : 'none' }} />}
   </Box></PersistentGraphViewport>;
 }

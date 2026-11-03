@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import FunctionalVisual from './FunctionalVisual';
 import { sitePath } from './api';
+import { BROWSER_FILL_SX, BROWSER_HEADER_SX } from './browserLayout';
 
 const TRACES = {
   ins_ieq: 'Insulin · per IEQ', ins_content: 'Insulin · % content',
@@ -23,15 +24,15 @@ export default function PanKgraphFunctionalPlot({ isVisible = false }) {
   if (!isVisible) return null;
   const path = `/api/functional/api/charts/cohort-traces.png?trace_type=${trace}&result_page=Yes`;
   const result = { resources_tabs: { empirical_evidence: { image_url: path, title: `PanKgraph functional response · ${TRACES[trace]}` } } };
-  return <Box sx={{ height:'100%', minHeight:520, display:'flex', flexDirection:'column', bgcolor:'#fff' }}>
-    <Box sx={{ p:2, display:'flex', alignItems:'center', gap:2, flexWrap:'wrap' }}>
-      <Box sx={{ flex:1 }}><Typography sx={{ fontSize:14, fontWeight:600, color:'#0f766e' }}>PanKgraph functional plot</Typography>
-        <Typography sx={{ fontSize:12, color:'#64748b' }}>All available donors{count !== null ? ` · ${count} donors` : ''}. Independent functional cohort.</Typography></Box>
+  return <Box sx={BROWSER_FILL_SX}>
+    <Box sx={BROWSER_HEADER_SX}>
+      <Box sx={{ flex:1 }}><Typography sx={{ fontSize:12, fontWeight:500, color:'#0f766e' }}>PanKgraph functional plot</Typography>
+        <Typography sx={{ fontSize:11, color:'#64748b' }}>All available donors{count !== null ? ` · ${count} donors` : ''}. Independent functional cohort.</Typography></Box>
       <FormControl size="small" sx={{ minWidth:200 }}><InputLabel id="functional-response-label">Response</InputLabel>
         <Select labelId="functional-response-label" label="Response" value={trace} onChange={event => setTrace(event.target.value)}>
           {Object.entries(TRACES).map(([value, label]) => <MenuItem key={value} value={value}>{label}</MenuItem>)}
         </Select></FormControl>
     </Box>
-    <Box sx={{ flex:1, minHeight:430 }}><FunctionalVisual key={trace} result={result} /></Box>
+    <Box sx={{ flex:1, minHeight:0, minWidth:0 }}><FunctionalVisual key={trace} result={result} /></Box>
   </Box>;
 }

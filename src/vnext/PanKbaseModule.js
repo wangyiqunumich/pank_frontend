@@ -4,6 +4,7 @@ import PersistentGraphViewport from '../components/PersistentGraphViewport';
 import schema from './schema/result_page_schema.json';
 import { pankbaseUrl } from './pankbaseContext';
 import { sitePath } from './api';
+import { BROWSER_FILL_SX, BROWSER_HEADER_SX, BROWSER_IFRAME_STYLE } from './browserLayout';
 
 const PROTOCOL = 'pankgraph.pankbase.v1';
 let entryPromise;
@@ -52,14 +53,14 @@ export default function PanKbaseModule({ moduleId, context, preview = false, isV
     <Typography sx={{ fontSize: 12, color: '#64748b', mt: 1 }}>{context?.cellType || 'Explore the related PanKbase resource'}</Typography>
     <Typography sx={{ fontSize: 11, color: '#64748b', mt: 1 }}>Data loads when you open this view.</Typography>
   </Box>;
-  return <PersistentGraphViewport fullscreen={expanded} onExit={() => setExpanded(false)} label={definition.title}><Box sx={{ bgcolor: '#fff', height: '100%', minHeight: 480, minWidth: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-    <Box component="header" sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1.5, py: 1.5, borderBottom: '1px solid #f1f5f9', color: '#0f766e', flexShrink: 0 }}>
+  return <PersistentGraphViewport fullscreen={expanded} onExit={() => setExpanded(false)} label={definition.title}><Box sx={{ ...BROWSER_FILL_SX, overflow: 'hidden' }}>
+    <Box component="header" sx={BROWSER_HEADER_SX}>
       <Typography sx={{ fontSize: 12, fontWeight: 500, flex: 1 }}>{definition.source_title || definition.title}</Typography>
       <Button component="a" href={pankbaseUrl(moduleId, context)} target="_blank" rel="noopener noreferrer" size="small" sx={{ fontSize: 11, textTransform: 'none', color: '#0f766e' }}>Original resource ↗</Button>
       <Button aria-label={expanded ? 'Exit full screen' : 'Expand view'} title={expanded ? 'Exit full screen' : 'Expand view'} size="small" sx={{ minWidth: 28, color: '#64748b' }} onClick={() => setExpanded(value => !value)}>⛶</Button>
     </Box>
     {!ready && !error && <Typography role="status" sx={{ p: 2 }}>{definition.wording.loading}</Typography>}
     {error && <Box role="alert" sx={{ p: 2 }}>{error} <Button onClick={() => { setError(''); setReady(false); setHtml(''); setAttempt(value => value + 1); }}>Retry</Button></Box>}
-    {html && <iframe ref={frame} title={definition.title} srcDoc={html} onLoad={send} style={{ width: '100%', border: 0, flex: 1, minHeight: 430 }} />}
+    {html && <iframe ref={frame} title={definition.title} srcDoc={html} onLoad={send} style={BROWSER_IFRAME_STYLE} />}
   </Box></PersistentGraphViewport>;
 }

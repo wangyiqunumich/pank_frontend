@@ -1,17 +1,18 @@
-<template><div class="scatter"><canvas ref="canvas" role="img" :aria-label="`${title}: ${xLabel} versus ${yLabel}; ${valid.length} observations`" @mousemove="hover" @mouseleave="tip=''"/><div class="plot-tip" role="status">{{tip}}</div><button @click="download">Download plot</button><p v-if="omitted">{{omitted}} records have missing or non-finite plotting values.</p></div></template>
+<template><div class="scatter"><div ref="viewport" class="scatter-viewport"><canvas ref="canvas" role="img" :aria-label="`${title}: ${xLabel} versus ${yLabel}; ${valid.length} observations`" @mousemove="hover" @mouseleave="tip=''"/></div><div class="plot-tip" role="status">{{tip}}</div><button @click="download">Download plot</button><p v-if="omitted">{{omitted}} records have missing or non-finite plotting values.</p></div></template>
 <script>
 import { scaleLinear, extent } from 'd3';
 export default {
   props: { rows: Array, xLabel: String, yLabel: String, title: String },
   data: () => ({ tip: '', points: [], width: 700 }),
   computed: { valid() { return (this.rows || []).filter(row => Number.isFinite(row.x) && Number.isFinite(row.y)); }, omitted() { return (this.rows || []).length - this.valid.length; } },
-  mounted() { this.observer = new ResizeObserver(() => this.draw()); this.observer.observe(this.$el); this.draw(); },
+  mounted() { this.observer = new ResizeObserver(() => this.draw()); this.observer.observe(this.$refs.viewport); this.draw(); },
   beforeDestroy() { this.observer?.disconnect(); },
   watch: { rows() { this.draw(); }, xLabel() { this.draw(); }, yLabel() { this.draw(); } },
   methods: {
     draw() {
       const canvas = this.$refs.canvas; if (!canvas) return;
-      const width = Math.max(280, this.$el.clientWidth), height = Math.max(230, Math.min(390, window.innerHeight - 190)), dpr = window.devicePixelRatio || 1;
+      const width = this.$refs.viewport.clientWidth, height = this.$refs.viewport.clientHeight, dpr = window.devicePixelRatio || 1;
+      if (width < 1 || height < 1) return; // Hidden tabs are measured again when shown.
       this.width = width; canvas.width = width * dpr; canvas.height = height * dpr; canvas.style.width = `${width}px`; canvas.style.height = `${height}px`;
       const ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, width, height);
       const domain = key => { const [min,max] = extent(this.valid, row => row[key]); return min === undefined ? [0,1] : min === max ? [min-1,max+1] : [min,max]; };

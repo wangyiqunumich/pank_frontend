@@ -16,6 +16,25 @@ table{border-collapse:collapse;width:100%;font-size:11px}th,td{text-align:left;p
 
 .primary-controls select{max-width:145px}.plot-settings{font-size:11px;margin:4px 0 8px;color:#64748b}.plot-settings summary{cursor:pointer}.plot-settings .controls{margin:8px 0}.controls input[aria-label="GRCh38 region"]{max-width:230px;width:200px}
 
-.module-stage{scrollbar-gutter:stable}.plot{max-width:100%;min-width:0}.plot svg{max-width:100%}.tabs{scrollbar-width:thin}.tabs button{padding:5px 8px}
+.module-stage{scrollbar-width:thin}.plot{max-width:100%;min-width:0}.plot svg{max-width:100%}.tabs{scrollbar-width:thin}.tabs button{padding:5px 8px}
 
 .genome-stage button{border-radius:6px!important;font-family:inherit!important;font-size:11px!important}.genome-stage .btn-primary{background:#0f766e!important;border-color:#0f766e!important}.genome-stage .TrackLegend{font-family:inherit}
+
+/* Geometry contract: one scroll owner per view, plots consume the remainder.
+   Keep controls in normal flow; only genuinely long content needs scrolling. */
+.module-stage.is-plot { display:flex; flex-direction:column; min-width:0; }
+.module-stage.is-plot > :not(.plot-pane) { flex-shrink:0; }
+.plot-pane { display:flex; flex-direction:column; flex:1 0 auto; min-width:0; min-height:0; }
+.plot-pane > :not(.scatter) { flex-shrink:0; }
+.scatter { display:flex; flex-direction:column; flex:1 0 220px; min-width:0; min-height:220px; }
+.scatter-viewport { position:relative; flex:1; min-height:160px; min-width:0; }
+.scatter-viewport canvas { position:absolute; inset:0; }
+.scatter > :not(.scatter-viewport) { flex-shrink:0; }
+.scatter > button { align-self:flex-start; }
+.tabs { flex-wrap:wrap; overflow:visible; }
+.controls { min-width:0; }
+.controls label { max-width:100%; }
+.controls select { min-width:0; }
+.module-view > .tabs { line-height:1.5; }
+
+.module-stage > .controls:last-child { margin-bottom:0; }

@@ -2,6 +2,7 @@
 // Requires: @mui/material @mui/icons-material @emotion/react @emotion/styled @fontsource/open-sans
 import * as React from 'react';
 import visualSchema from './schema/result_page_schema.json';
+import { BROWSER_PANEL_HEIGHT, BROWSER_SURFACE_SX, BROWSER_VISUAL_IDS } from './browserLayout';
 
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -80,8 +81,6 @@ const theme = createTheme({
     shape: { borderRadius: 14 },
 });
 
-// Figma 2772:251: the embedded browser owns its own header and inner spacing.
-const SC_BROWSER_SURFACE_SX = { bgcolor: '#FFFFFF', borderColor: 'rgba(226, 232, 240, 0.9)', p: 0, borderRadius: '12px', overflow: 'hidden' };
 
 function SectionCard({ title, children, sx, showTitleDivider = true, variant = 'default' }) {
     const isPank1 = variant === 'pank1';
@@ -938,7 +937,7 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                                 alignItems: isFullBleed ? 'stretch' : 'center',
                                                 justifyContent: isFullBleed ? 'stretch' : 'center',
                                                 p: isFullBleed ? 0 : 2,
-                                                ...(!isFullBleed && tab.id === 'single_cell_browser' ? SC_BROWSER_SURFACE_SX : {}),
+                                                ...(!isFullBleed && BROWSER_VISUAL_IDS.has(tab.id) ? BROWSER_SURFACE_SX : {}),
                                             }}
                                         >
                                             {tab.content ? (
@@ -1047,10 +1046,12 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
     const baseDesktopHeight = cappedAiOverviewHeight
         ? `max(${desktopClamp}, ${cappedAiOverviewHeight}px)`
         : desktopClamp;
-    const visualPanelHeight = activeVisualMinHeight
+    const visualPanelHeight = BROWSER_VISUAL_IDS.has(visualTabs[normalizedVisualIndex]?.id)
+        ? `max(${activeVisualMinHeight || 0}px, ${BROWSER_PANEL_HEIGHT})`
+        : activeVisualMinHeight
         ? `max(${activeVisualMinHeight}px, ${isSingleColumn ? baseSingleHeight : baseDesktopHeight})`
         : (isSingleColumn ? baseSingleHeight : baseDesktopHeight);
-    const visualPanelMaxWidth = isSingleColumn ? 640 : "100%";
+    const visualPanelMaxWidth = "100%";
 
     const handleVisualTabChange = (newTab) => {
         setVisualTab(newTab);
@@ -1269,9 +1270,9 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                         <SectionCard title="AI Overview" variant={isPank1Style ? 'pank1' : 'default'}>
                             <Box
                                 sx={{
-                                    height: 520,
-                                    minHeight: 520,
-                                    maxHeight: 520,
+                                    height: "auto",
+                                    minHeight: 0,
+                                    maxHeight: isSingleColumn ? "none" : 520,
                                     overflowY: "auto",
                                     overflowX: "hidden",
                                     pr: { xs: 0, lg: 1 },
@@ -1331,7 +1332,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                                     alignItems: isFullBleed ? "stretch" : "center",
                                                     justifyContent: isFullBleed ? "stretch" : "center",
                                                     p: isFullBleed ? 0 : 2,
-                                                    ...(!isFullBleed && tab.id === 'single_cell_browser' ? SC_BROWSER_SURFACE_SX : {}),
+                                                    ...(!isFullBleed && BROWSER_VISUAL_IDS.has(tab.id) ? BROWSER_SURFACE_SX : {}),
                                                 }}
                                             >
                                                 {tab.content ? (
