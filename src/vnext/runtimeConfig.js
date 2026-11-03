@@ -1,5 +1,5 @@
 import { UI_BASE_PATH, TECH_DEMO, uiPath } from './hosting';
-const DEFAULTS = Object.freeze({ vnextEnabled: false, colocEnabled: false, apiBase: TECH_DEMO ? `${UI_BASE_PATH}/api` : '/pankgraph-vnext/api' });
+const DEFAULTS = Object.freeze({ vnextEnabled: TECH_DEMO, colocEnabled: false, apiBase: TECH_DEMO ? `${UI_BASE_PATH}/api` : '/pankgraph-vnext/api' });
 let config = DEFAULTS;
 export const isDevHost = (hostname) => ['dev.pankgraph.org', 'localhost', '127.0.0.1'].includes(hostname) || (Boolean(UI_BASE_PATH) && hostname === 'jieliulab3.dcmb.med.umich.edu');
 export const normalizeDevConfig = (value, hostname) => ({
@@ -10,6 +10,7 @@ export const normalizeDevConfig = (value, hostname) => ({
 });
 export const getDevConfig = () => config;
 export async function loadDevConfig() {
+  if (TECH_DEMO) return config;
   if (!isDevHost(window.location.hostname)) return config;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 3000);

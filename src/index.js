@@ -120,7 +120,7 @@ loadDevConfig().then(() => root.render(
                 <Route path="/agent-landing" element={<Navigate to="/" replace />} />
                 <Route path="/old-landing" element={<LandingPage />} />
                 <Route path="/callback" element={<AgentLandingPage />} />
-                <Route path="/" element={<AgentLandingPage />} />
+                <Route path="/" element={TECH_DEMO ? <Navigate to="/result-new2?provider=vnext&run_id=11111111-1111-4111-8111-111111111111" replace /> : <AgentLandingPage />} />
                 <Route
                   path="/debug"
                   element={isDevelopmentStage ? <DebugPage /> : <Navigate to="/" replace />}

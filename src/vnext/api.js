@@ -2,7 +2,8 @@ import { newId } from '../utils/agentIdentity';
 import { safeSessionStorage } from '../utils/safeStorage';
 import { abortError, readWithRecovery, waitDelay } from './readRecovery';
 import { getDevConfig } from './runtimeConfig';
-import { UI_BASE_PATH, uiPath } from './hosting';
+import { UI_BASE_PATH, TECH_DEMO, uiPath } from './hosting';
+import { techdemoRequest } from './techdemoApi';
 export const BASE_PATH = UI_BASE_PATH;
 export const sitePath = (path = '/') => {
   if (path.startsWith('/api/')) return `${getDevConfig().apiBase}${path.slice(4)}`;
@@ -31,6 +32,7 @@ const validateIdentity = (body, field, expected, snapshot = false) => {
 };
 
 export async function request(path, options = {}) {
+  if (TECH_DEMO) return techdemoRequest(path, options);
   const { timeoutMs = options.method && options.method !== 'GET' ? 10000 : 15000, signal, ...fetchOptions } = options;
   const controller = new AbortController();
   const cancel = () => controller.abort();

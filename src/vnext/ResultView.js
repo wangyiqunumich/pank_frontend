@@ -1,3 +1,4 @@
+import { TECH_DEMO } from './hosting';
 import { newIntent, ensureIntent } from '../utils/agentIdentity';
 import { useStableGraphPane } from './StableGraphPane';
 import '../SearchResult/scoped.css';
@@ -352,7 +353,7 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     } catch (_) { /* Leaving the page must not wait on a failed or slow cancel request. */ }
   }, [navigate]);
   const followUp = useCallback(async (question, retryIntent = null) => {
-    if (!question?.trim() || followUpPending.current || !canFollowUp(runRef.current)) return false;
+    if (TECH_DEMO || !question?.trim() || followUpPending.current || !canFollowUp(runRef.current)) return false;
     const inputError = questionInputError(question);
     if (inputError) { setFailedFollowUp({ question, message: inputError }); return false; }
     const current = runRef.current;
@@ -375,13 +376,13 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     if (!onContentMeta) return;
     const page = resolveResultPage({ result, run, state: location.state?.result_page, resourceTabs: withLiteratureReferences(result?.resources_tabs, groundedLiterature(run, result), run?.run_id || result?.result_id) });
     const questions = [...previous.map((item, index) => ({ id: item.run.run_id, query: item.run.question, anchorPrefix: `${contentAnchorPrefix}-previous-${index}`, anchorId: `${contentAnchorPrefix}-previous-${index}-question-1` })), ...(run ? [{ id: run.run_id, query: run.question, anchorPrefix: contentAnchorPrefix, anchorId: `${contentAnchorPrefix}-question-1` }] : [])];
-    const meta = { anchorPrefix: contentAnchorPrefix, questions, aiHeadings: [], hasVisual: page.mainVisuals.length > 0, hasEvidences: page.supportingTabs.length > 0, hasFollowUp: !isPlanning,
-      isQuestionComplete: canFollowUp(run) && !busy, isPlanning, hideFloatingSearchBar: !canFollowUp(run),
+    const meta = { anchorPrefix: contentAnchorPrefix, questions, aiHeadings: [], hasVisual: page.mainVisuals.length > 0, hasEvidences: page.supportingTabs.length > 0, hasFollowUp: !TECH_DEMO && !isPlanning,
+      isQuestionComplete: canFollowUp(run) && !busy, isPlanning, hideFloatingSearchBar: TECH_DEMO || !canFollowUp(run),
       planProceedAnchorId: isPlanning ? `${contentAnchorPrefix}-plan-proceed-button` : '', feedbackSessionId: run?.session_id || '', metaRouteKey: `${location.pathname}${location.search}` };
     const signature = JSON.stringify(meta);
     if (metaRef.current === signature) return;
     metaRef.current = signature;
-    onContentMeta({ ...meta, followUpHandler: followUp });
+    onContentMeta({ ...meta, followUpHandler: TECH_DEMO ? undefined : followUp });
   }, [onContentMeta, contentAnchorPrefix, run, result, isPlanning, location.pathname, location.search, location.state?.result_page, followUp, busy, previous]);
   // Read-transport failures reconnect to saved state; only recorded execution
   // failures or explicit mutation failures belong in the query-recovery dialog.
@@ -429,7 +430,7 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
         {historyError && <Box role="status"><Typography>{historyError}</Typography><Button onClick={() => attachRun(readRunId.current)}>Refresh history</Button></Box>}
         {previous.map((item, index) => <ResultSection key={item.run.run_id} {...item} questionNumber={index + 1} anchorPrefix={`${contentAnchorPrefix}-previous-${index}`} />)}
         {initialLoading ? <Box role="status" aria-label="Loading current question" sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px' }}><SearchResultLoading streamProgress={progress} handleClose={cancel} /></Box> :
-          <ResultSection run={run} result={result} error={resultError} planning={isPlanning} busy={busy || connection !== 'connected'} onRevise={onRevise} onConfirm={onConfirm} onFollowUp={followUp} questionNumber={previous.length + 1} anchorPrefix={contentAnchorPrefix} presentationState={location.state?.result_page} />}
+          <ResultSection run={run} result={result} error={resultError} planning={isPlanning} busy={busy || connection !== 'connected'} onRevise={onRevise} onConfirm={onConfirm} onFollowUp={TECH_DEMO ? undefined : followUp} questionNumber={previous.length + 1} anchorPrefix={contentAnchorPrefix} presentationState={location.state?.result_page} />}
       </Box></Box>
   </>;
 }
