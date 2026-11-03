@@ -26,6 +26,7 @@ test.each([['answer', QuestionAnswerPage], ['plan', PlanConfirmationPage]])('%s 
   expect(sc.width).toBe(graph.width);
   expect(sc.padding).toBe('0px');
   expect(sc.borderRadius).toBe('12px');
+  expect(sc.overflow).toBe('hidden');
   expect(graph.padding).toBe('16px');
 });
 

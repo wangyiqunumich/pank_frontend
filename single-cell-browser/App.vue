@@ -13,7 +13,7 @@
       </header>
       <form class="explore-controls" @submit.prevent="search">
         <label class="gene-control"><span>{{ copy.gene_label }}</span><input v-model="geneInput" aria-label="Atlas gene" maxlength="80" autocomplete="off" spellcheck="false"><button class="primary" :disabled="loading || !geneInput.trim()">{{ copy.view_gene }}</button></label>
-        <label class="highlight-control"><span>{{ copy.cell_label }}</span><select v-model="highlighted" @change="updateView" :disabled="!loaded"><option value="">{{ copy.all_cells }}</option><option v-for="label in cellTypes" :key="label" :value="label">{{ label }}</option></select><img :src="icons.select" alt="" /></label>
+        <label class="highlight-control"><span>{{ copy.cell_label }}</span><select v-model="highlighted" :title="highlighted || copy.all_cells" @change="updateView" :disabled="!loaded"><option value="">{{ copy.all_cells }}</option><option v-for="label in cellTypes" :key="label" :value="label">{{ label }}</option></select><img :src="icons.select" alt="" /></label>
         <div class="cell-scope" role="group" :aria-label="copy.cell_scope"><button type="button" :aria-pressed="filtered ? 'true' : 'false'" :disabled="!highlighted" @click="setFilter(!filtered)">{{ copy.selected_cells }}</button></div>
       </form>
       <div class="browser-navigation">

@@ -23,6 +23,7 @@ const snapshot = (page, name) => page.screenshot({ path: path.join(output, name 
     // Use the preview server's explicitly labeled graph fixture. Exercise real
     // public expression fallback, not the authenticated dev backend or inference.
     await page.route('**/api/scbrowser/expression?**', route => route.fulfill({ status: 503, json: { message: 'Local QA: exercise the existing public fallback.' } }));
+    await page.route('**/pankgraph-dev-config.json', route => route.fulfill({ json: { vnextEnabled: true, apiBase: '/pankgraph-vnext/api' } }));
     await page.route(/https:\/\/(www\.)?(google-analytics|googletagmanager)\.com\//, route => route.abort());
     await page.goto(new URL('/result-new2?run_id=11111111-1111-4111-8111-111111111111', base).href);
     await page.getByRole('tab', { name: 'scBrowser', exact: true }).waitFor({ timeout: 30000 });
@@ -31,6 +32,13 @@ const snapshot = (page, name) => page.screenshot({ path: path.join(output, name 
     assertions.push('No duplicate scBrowser preview');
 
     async function graphGeometry() {
+      // ResizeObserver updates the compact dock after the viewport resize.
+      await page.waitForFunction(() => {
+        const viewer = document.querySelector('.graph-viewer'), toolbar = viewer?.querySelector('.graph-toolbar');
+        if (!toolbar) return false;
+        const box = viewer.getBoundingClientRect(), dock = toolbar.getBoundingClientRect();
+        return dock.top >= box.top - 1 && dock.bottom <= box.bottom + 1;
+      }, null, { timeout: 10000 });
       const geometry = await page.locator('.graph-viewer').evaluate(viewer => {
         const box = viewer.getBoundingClientRect();
         const legend = viewer.querySelector('.graph-legend').getBoundingClientRect();
@@ -66,9 +74,9 @@ const snapshot = (page, name) => page.screenshot({ path: path.join(output, name 
     const surface = await iframe.evaluate(element => {
       const panel = element.closest('.MuiPaper-root');
       const style = getComputedStyle(panel);
-      return { background: style.backgroundColor, border: style.borderTopColor };
+      return { background: style.backgroundColor, border: style.borderTopColor, overflow: style.overflow };
     });
-    assert.deepEqual(surface, { background: 'rgb(255, 255, 255)', border: 'rgba(226, 232, 240, 0.9)' });
+    assert.deepEqual(surface, { background: 'rgb(255, 255, 255)', border: 'rgba(226, 232, 240, 0.9)', overflow: 'hidden' });
     assertions.push('scBrowser outer shell matches the white Figma surface and slate outline');
     const frame = await iframe.contentFrame();
     await frame.getByRole('button', { name: copy.view_gene, exact: true }).waitFor({ timeout: 30000 });
@@ -96,7 +104,8 @@ const snapshot = (page, name) => page.screenshot({ path: path.join(output, name 
       assert(layout.header.bottom <= layout.gene.y && layout.nav.bottom <= layout.stage.y + 1);
       if (layout.width >= 400) {
         assert(Math.abs(layout.gene.y - layout.highlight.y) < 1 && Math.abs(layout.gene.y - layout.scope.y) < 1, JSON.stringify(layout));
-        assert(Math.abs(layout.highlight.width - 119) < 1, JSON.stringify(layout));
+        assert(layout.highlight.width >= 119 && layout.highlight.width <= 320, JSON.stringify(layout));
+        if (layout.width >= 460) assert(layout.highlight.width > 130, 'Highlight should grow into available width: ' + JSON.stringify(layout));
         assert(Math.abs(layout.gene.height - 32) < 1 && Math.abs(layout.scope.height - 32) < 1);
         assert(Math.abs(layout.atlas.y - layout.link.y) < 1, JSON.stringify(layout));
       } else {
@@ -130,7 +139,24 @@ const snapshot = (page, name) => page.screenshot({ path: path.join(output, name 
     await page.setViewportSize({ width: 1440, height: 1000 });
     await snapshot(page, 'scbrowser-map');
     const shell = await iframe.evaluateHandle(element => element.closest('.MuiPaper-root'));
-    await shell.asElement().screenshot({ path: path.join(output, 'scbrowser-shell.png') });
+    const shellImage = await shell.asElement().screenshot({ path: path.join(output, 'scbrowser-shell.png') });
+    const corners = await page.evaluate(async encoded => {
+      const bitmap = await createImageBitmap(await (await fetch('data:image/png;base64,' + encoded)).blob());
+      const canvas = document.createElement('canvas'); canvas.width = bitmap.width; canvas.height = bitmap.height;
+      const context = canvas.getContext('2d'); context.drawImage(bitmap, 0, 0);
+      const { data } = context.getImageData(0, 0, canvas.width, canvas.height);
+      return [[false, false], [true, false], [false, true], [true, true]].map(([right, bottom]) => {
+        let borderPixels = 0;
+        for (let dx = 2; dx <= 8; dx++) for (let dy = 2; dy <= 8; dy++) {
+          const x = right ? canvas.width - 1 - dx : dx, y = bottom ? canvas.height - 1 - dy : dy;
+          const offset = (y * canvas.width + x) * 4, [r, g, b] = data.slice(offset, offset + 3);
+          if (r >= 220 && r < 250 && g >= r && b >= g) borderPixels++;
+        }
+        return borderPixels;
+      });
+    }, shellImage.toString('base64'));
+    assert(corners.every(count => count > 0), 'Rounded border must remain visible at all four corners: ' + JSON.stringify(corners));
+    assertions.push('Rounded scBrowser border remains visible at all four corners; Highlight expands into available width');
     await shell.dispose();
     const retainedMap = await frame.locator('canvas').first().elementHandle();
     await frame.getByRole('button', { name: copy.fullscreen, exact: true }).click();
