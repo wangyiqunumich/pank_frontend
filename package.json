@@ -47,7 +47,8 @@
     "eject": "react-scripts eject",
     "build:scbrowser": "npm --prefix single-cell-browser ci --no-audit --no-fund && npm --prefix single-cell-browser run build",
     "prebuild": "npm run build:scbrowser",
-    "prestart": "npm run build:scbrowser"
+    "prestart": "npm run build:scbrowser",
+    "postbuild": "node scripts/build-techdemo.cjs"
   },
   "jest": {
     "transformIgnorePatterns": []

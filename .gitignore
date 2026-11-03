@@ -35,3 +35,6 @@ __pycache__/
 /single-cell-browser/node_modules/
 /single-cell-browser/public/atlas/
 /public/scbrowser/
+
+# Disposable isolated Amplify fixed-demo build
+/.techdemo-work/
