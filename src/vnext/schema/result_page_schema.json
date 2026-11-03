@@ -543,7 +543,7 @@
       },
       "functional_browser": {
         "title": "Functional Browser",
-        "renderer": "PanKbaseModule",
+        "renderer": "PanKgraphFunctionalPlot",
         "enabled": true,
         "requires": [
           "functional_browser_context"
@@ -574,11 +574,11 @@
           "require_gene": false
         },
         "pankbase_resource": {
-          "url": "https://pankbase.org/functional.html",
+          "url": "https://functional.pankgraph.org",
           "gene_parameter": null
         },
         "preview": {
-          "enabled": true,
+          "enabled": false,
           "content": "context_summary",
           "load_data": false
         },
@@ -588,11 +588,11 @@
         "format": "Compact scBrowser-style controls, persistent main panel, source and methods disclosure. Load runtime and data only when the full view is visible.",
         "wording": {
           "loading": "Loading functional browser\u2026",
-          "source_note": "Related PanKbase resource. The graph record and this resource may represent different datasets, cohorts or analyses.",
+          "source_note": "Independent PanKgraph functional cohort; no matched cohort with other modules is implied.",
           "retry": "Retry",
           "source_tab": "Source & methods"
         },
-        "source_title": "PanKbase dynamic perifusion \u00b7 v1"
+        "source_title": "PanKgraph functional response"
       },
       "pca_explorer": {
         "title": "PCA Explorer",

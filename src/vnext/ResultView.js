@@ -20,6 +20,7 @@ import LiteratureSections from './LiteratureSections';
 import FunctionalVisual from './FunctionalVisual';
 import QtlFineMapping from './QtlFineMapping';
 import PanKbaseModule from './PanKbaseModule';
+import PanKgraphFunctionalPlot from './PanKgraphFunctionalPlot';
 import { pankbaseContexts } from './pankbaseContext';
 import visualSchema from './schema/result_page_schema.json';
 import SingleCellBrowser from './SingleCellBrowser';
@@ -164,7 +165,7 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
   const graphError = error || (planning && run?.plan?.clarification) || (planning && run?.preview?.status === 'failed' ? 'The initial graph retrieval failed. Revise the plan before continuing; this failure does not indicate biological absence.' : '');
   const moduleContexts = pankbaseContexts(graphData, moduleSelection && moduleSelection.scope === runId ? moduleSelection.id : undefined);
   const visualRenderers = {
-    ...Object.fromEntries(Object.entries(moduleContexts).map(([id, context]) => [id, <PanKbaseModule key={`${runId}-${id}`} moduleId={id} context={context} />])),
+    ...Object.fromEntries(Object.entries(moduleContexts).map(([id, context]) => [id, id === 'functional_browser' ? <PanKgraphFunctionalPlot key={`${runId}-${id}`} /> : <PanKbaseModule key={`${runId}-${id}`} moduleId={id} context={context} />])),
     graph_viewer: null,
     single_cell_browser: <SingleCellBrowser key={runId} graph={graphData} onSelect={selectExpression} context={expression} />,
     qtl_fine_mapping: <QtlFineMapping key={runId} contexts={page.qtlContexts} />,
