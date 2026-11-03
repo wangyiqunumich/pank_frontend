@@ -118,23 +118,30 @@ const snapshot = (page, name) => page.screenshot({ path: path.join(output, name 
       await frame.waitForFunction(() => {
         const stage = document.querySelector('.browser-stage')?.getBoundingClientRect();
         const dock = document.querySelector('.map-toolbar')?.getBoundingClientRect();
-        return stage && dock && dock.top >= stage.top - 1 && dock.bottom <= stage.bottom + 1;
+        const viewport = document.querySelector('.map-viewport'), plot = viewport?.querySelector('.umap-container');
+        return stage && dock && dock.top >= stage.top - 1 && dock.bottom <= stage.bottom + 1
+          && plot && Math.abs(plot.getBoundingClientRect().height - viewport.clientHeight) < 1;
       }, null, { timeout: 10000 });
       const geometry = await frame.evaluate(() => {
         const stage = document.querySelector('.browser-stage').getBoundingClientRect();
         const toolbar = document.querySelector('.map-toolbar').getBoundingClientRect();
         const root = document.querySelector('main').getBoundingClientRect();
+        const content = document.querySelector('.browser-content');
+        const caption = document.querySelector('.map-card > .plot-caption').getBoundingClientRect();
         const images = [...document.querySelectorAll('img')].map(image => ({ width: image.getBoundingClientRect().width, height: image.getBoundingClientRect().height, naturalWidth: image.naturalWidth, naturalHeight: image.naturalHeight }));
         return { stage: stage.toJSON(), toolbar: toolbar.toJSON(), toolbarInside: toolbar.top >= stage.top - 1 && toolbar.bottom <= stage.bottom + 1,
-          rootInside: root.width <= innerWidth + 1, horizontalOverflow: document.body.scrollWidth > innerWidth + 1, images };
+          rootInside: root.width <= innerWidth + 1, horizontalOverflow: document.body.scrollWidth > innerWidth + 1, images,
+          contentHeight: content.clientHeight, scrollHeight: content.scrollHeight, captionBottom: caption.bottom };
       });
       assert(geometry.toolbarInside && geometry.rootInside && !geometry.horizontalOverflow, JSON.stringify(geometry));
+      assert(geometry.scrollHeight <= geometry.contentHeight && geometry.captionBottom <= geometry.stage.bottom, 'Cell map and complete caption must fit without vertical scrolling: ' + JSON.stringify(geometry));
       geometry.images.forEach(image => { assert(image.naturalWidth > 0 && image.naturalHeight > 0, JSON.stringify(image)); assert(Math.abs(image.width - image.naturalWidth) < 1 && Math.abs(image.height - image.naturalHeight) < 1, JSON.stringify(image)); });
       return geometry;
     }
     await scGeometry();
     await controlLayout();
     await page.setViewportSize({ width: 1280, height: 1000 });
+    await scGeometry();
     await controlLayout();
     await page.setViewportSize({ width: 1440, height: 1000 });
     await snapshot(page, 'scbrowser-map');
@@ -164,7 +171,11 @@ const snapshot = (page, name) => page.screenshot({ path: path.join(output, name 
     await controlLayout();
     assert(await iframe.evaluate(element => element.isConnected && !!element.closest('dialog')?.matches(':modal')));
     await frame.getByRole('button', { name: copy.exit_fullscreen, exact: true }).waitFor();
+    await scGeometry();
     await snapshot(page, 'scbrowser-fullscreen');
+    await page.setViewportSize({ width: 844, height: 320 });
+    await scGeometry();
+    await page.setViewportSize({ width: 1440, height: 1000 });
     await frame.getByRole('button', { name: copy.zoom_in, exact: true }).click();
     await frame.waitForFunction(() => !document.querySelector('.navigation-hint').textContent.startsWith('100%'));
     await frame.getByRole('button', { name: copy.exit_fullscreen, exact: true }).click();
@@ -206,12 +217,14 @@ const snapshot = (page, name) => page.screenshot({ path: path.join(output, name 
     await snapshot(page, 'scbrowser-mobile');
     await frame.getByRole('button', { name: copy.exit_fullscreen, exact: true }).click();
     await page.locator('dialog:modal').waitFor({ state: 'hidden' });
+    await scGeometry();
     await page.getByRole('tab', { name: 'Knowledge Graph', exact: true }).click();
     await graphGeometry();
     await page.locator('.graph-viewer').screenshot({ path: path.join(output, 'graph-mobile.png') });
     await page.getByRole('tab', { name: 'scBrowser', exact: true }).click();
     assert.equal(await frame.getByLabel('Atlas gene').inputValue(), 'GCG');
     assertions.push('Narrow schema copy stays inside unchanged panel; mobile fullscreen and graph/browser round trips preserve state');
+    assertions.push('Cell map adapts to wrapped captions/context without vertical overflow on desktop, mobile and short fullscreen');
 
     assert(!requests.some(url => /fields.json|coordinates.tsv|dataset_metadata/.test(url)), 'Full metadata must not reach the browser');
     assert.deepEqual(errors, []);
