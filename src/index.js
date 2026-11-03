@@ -1,4 +1,5 @@
 import './index.css';
+import { UI_BASE_PATH, TECH_DEMO } from './vnext/hosting';
 import './styles/designTokens.css';
 import './styles/messageStates.css';
 import AgentPage from './vnext/AgentPage';
@@ -83,7 +84,7 @@ loadDevConfig().then(() => root.render(
         padding: 0, margin: 0, minHeight: '100vh',
         display: 'flex', flexDirection: 'column'
       }}>
-        <BrowserRouter>
+        <BrowserRouter basename={UI_BASE_PATH || '/'}>
           <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <NavBar />
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -103,7 +104,7 @@ loadDevConfig().then(() => root.render(
                 />
                 <Route
                   path="/result-new2"
-                  element={<AgentRoute><AgentResultLayout ResultView={ResultPageNew2} allowSearch={true} showFloatingSearchBar={true} /></AgentRoute>}
+                  element={<AgentRoute><AgentResultLayout ResultView={ResultPageNew2} allowSearch={!TECH_DEMO} showFloatingSearchBar={!TECH_DEMO} /></AgentRoute>}
                 />
                 <Route path="/usecases" element={<UsecasesPage />} />
                 <Route path="/docs/*" element={<DocPage />} />

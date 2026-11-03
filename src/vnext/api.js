@@ -2,11 +2,11 @@ import { newId } from '../utils/agentIdentity';
 import { safeSessionStorage } from '../utils/safeStorage';
 import { abortError, readWithRecovery, waitDelay } from './readRecovery';
 import { getDevConfig } from './runtimeConfig';
-// UI routes live at the dev root; API assets keep their separate namespace.
-export const BASE_PATH = '';
+import { UI_BASE_PATH, uiPath } from './hosting';
+export const BASE_PATH = UI_BASE_PATH;
 export const sitePath = (path = '/') => {
   if (path.startsWith('/api/')) return `${getDevConfig().apiBase}${path.slice(4)}`;
-  return path.startsWith('/') || /^(https?:|mailto:|#|data:)/.test(path) ? path : `/${path}`;
+  return uiPath(path);
 };
 export const routerPath = (path = '/') => path;
 export const apiPath = (path = '') => `${getDevConfig().apiBase}${path}`;
