@@ -115,3 +115,10 @@ test('coloc explorer requires explicit dev-host activation independently of the 
   expect(normalizeDevConfig({ colocEnabled: true }, 'pankgraph.org').colocEnabled).toBe(false);
   expect(normalizeDevConfig({ colocEnabled: 'true' }, 'dev.pankgraph.org').colocEnabled).toBe(false);
 });
+
+ test('direct API is allowlisted only for dev hosts', () => {
+ const direct = 'https://jieliulab3.dcmb.med.umich.edu/pankgraph-vnext/api';
+ expect(normalizeDevConfig({apiBase:direct}, 'dev.pankgraph.org').apiBase).toBe(direct);
+ expect(normalizeDevConfig({apiBase:direct}, 'pankgraph.org').apiBase).toBe('/pankgraph-vnext/api');
+ for(const apiBase of ['https://attacker.test',direct+'.evil',direct+'/../admin']) expect(normalizeDevConfig({apiBase}, 'dev.pankgraph.org').apiBase).toBe('/pankgraph-vnext/api');
+ });

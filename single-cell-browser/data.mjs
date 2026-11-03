@@ -9,9 +9,10 @@ export async function readPublic(path, limit = 16 * 1024 * 1024) {
     // Workers live under assets/ in production, while atlas/ is beside index.html.
     const localBase = globalThis.location ? `${location.origin}${location.pathname.replace(/\/(?:assets\/)?[^/]*$/, '/')}` : import.meta.url;
     const local = path.startsWith('./atlas/') || path.startsWith('/pankgraph-vnext/');
-    const url = path.startsWith('./atlas/') ? new URL(path, localBase) : local ? `${location.origin}${path}` : `${ORIGIN}${path}`;
+    const directApi = location.hostname === 'dev.pankgraph.org' && path.startsWith('/pankgraph-vnext/api/');
+    const url = directApi ? `https://jieliulab3.dcmb.med.umich.edu${path}` : path.startsWith('./atlas/') ? new URL(path, localBase) : local ? `${location.origin}${path}` : `${ORIGIN}${path}`;
     // Reuse the site's browser login for local assets; never send it to BioIndex.
-    const response = await fetch(url, { credentials: local ? 'same-origin' : 'omit', signal: controller.signal });
+    const response = await fetch(url, { credentials: local && !directApi ? 'same-origin' : 'omit', signal: controller.signal });
     if (!response.ok) throw new Error(`Atlas request failed (${response.status}).`);
     const reader = response.body.getReader(); const chunks = []; let size = 0;
     for (;;) { const { done, value } = await reader.read(); if (done) break; size += value.length; if (size > limit) { controller.abort(); throw new Error('Atlas response exceeds the browser size limit.'); } chunks.push(value); }

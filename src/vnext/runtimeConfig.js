@@ -1,11 +1,12 @@
 const DEFAULTS = Object.freeze({ vnextEnabled: false, colocEnabled: false, apiBase: '/pankgraph-vnext/api' });
+export const DIRECT_API_BASE = 'https://jieliulab3.dcmb.med.umich.edu/pankgraph-vnext/api';
 let config = DEFAULTS;
 export const isDevHost = (hostname) => ['dev.pankgraph.org', 'localhost', '127.0.0.1'].includes(hostname);
 export const normalizeDevConfig = (value, hostname) => ({
   vnextEnabled: isDevHost(hostname) && value?.vnextEnabled === true,
   colocEnabled: isDevHost(hostname) && value?.colocEnabled === true,
-  // Only this same-origin, authenticated namespace is supported by this release.
-  apiBase: DEFAULTS.apiBase,
+  // Only the fixed dev backend is eligible; arbitrary configured URLs are rejected.
+  apiBase: isDevHost(hostname) && value?.apiBase === DIRECT_API_BASE ? DIRECT_API_BASE : DEFAULTS.apiBase,
 });
 export const getDevConfig = () => config;
 export async function loadDevConfig() {
