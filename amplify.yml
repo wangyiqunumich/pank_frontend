@@ -3,6 +3,7 @@ frontend:
   phases:
     preBuild:
       commands:
+        - bash scripts/check-dev-origin.sh
         - npm ci --cache .npm --prefer-offline
     build:
       commands:
