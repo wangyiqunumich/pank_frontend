@@ -136,3 +136,14 @@ test('prefetch persists the shared compact gene and a new worker avoids expressi
   assert.deepEqual([...result.expression],[0,2,4]);
   assert.deepEqual(calls,['./atlas/manifest.json']);
 });
+
+test('dev expression cache bypasses Amplify without sending site credentials', async () => {
+ const originalFetch=globalThis.fetch, originalLocation=globalThis.location; const calls=[];
+ try {
+  globalThis.location={hostname:'dev.pankgraph.org',origin:'https://dev.pankgraph.org',pathname:'/scbrowser/assets/worker.js'};
+  globalThis.fetch=async(url,options)=>{calls.push([String(url),options.credentials]);return new Response('{}');};
+  await readPublic('/pankgraph-vnext/api/scbrowser/expression?gene=CFTR');
+  await readPublic('./atlas/manifest.json');
+  assert.deepEqual(calls,[['https://jieliulab3.dcmb.med.umich.edu/pankgraph-vnext/api/scbrowser/expression?gene=CFTR','omit'],['https://dev.pankgraph.org/scbrowser/atlas/manifest.json','same-origin']]);
+ } finally {globalThis.fetch=originalFetch;if(originalLocation===undefined)delete globalThis.location;else globalThis.location=originalLocation;}
+});

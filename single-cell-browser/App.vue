@@ -16,20 +16,22 @@
       </div>
       <form class="explore-controls" @submit.prevent="search">
         <label class="gene-control"><span>{{ copy.gene_label }}</span><input v-model="geneInput" aria-label="Atlas gene" maxlength="80" autocomplete="off" spellcheck="false"><button class="primary" :disabled="loading || !geneInput.trim()">{{ copy.view_gene }}</button></label>
-        <label class="highlight-control"><span>{{ copy.cell_label }}</span><select v-model="highlighted" @change="updateView" :disabled="!loaded"><option value="">{{ copy.all_cells }}</option><option v-for="label in cellTypes" :key="label" :value="label">{{ label }}</option></select><img :src="icons.select" alt="" /></label>
+        <label class="highlight-control"><span>{{ copy.cell_label }}</span><select v-model="highlighted" :title="highlighted || copy.all_cells" @change="updateView" :disabled="!loaded"><option value="">{{ copy.all_cells }}</option><option v-for="label in cellTypes" :key="label" :value="label">{{ label }}</option></select><img :src="icons.select" alt="" /></label>
         <div class="cell-scope" role="group" :aria-label="copy.cell_scope"><button type="button" :aria-pressed="filtered ? 'true' : 'false'" :disabled="!highlighted" @click="setFilter(!filtered)">{{ copy.selected_cells }}</button></div>
       </form>
       <div class="browser-stage" :class="{ 'is-short': plotAreaHeight > 0 && plotAreaHeight < 160 }">
-      <div ref="browserContent" class="browser-content">
+      <div ref="browserContent" class="browser-content" :class="{ 'is-map': tab === 'Cell map' }">
       <div v-if="fullView.show_context_note || gene !== context.geneSymbol" class="context-note"><span v-if="fullView.show_context_note">{{ copy.context_note }}</span><span v-if="gene !== context.geneSymbol">Graph gene: {{ context.geneSymbol }}. Now exploring: {{ gene }}.</span></div>
       <div v-if="loading" class="load-state" role="status"><span class="spinner" aria-hidden="true"></span><div><strong>{{ loaded ? `Loading ${gene} expression…` : 'Preparing the cell atlas…' }}</strong><small>{{ loaded ? 'The map will appear with expression colors when loading finishes.' : 'Loads a compact map containing coordinates and cell types, then expression for the selected gene.' }}</small></div></div>
       <div v-if="error" class="error-state" role="alert"><strong>Expression could not be loaded</strong><p>{{ error }}</p><button @click="load(gene)">Retry</button></div>
       <template v-if="view">
 
         <section v-show="tab === 'Cell map'" aria-label="Cell map" class="plot-card map-card">
+          <div ref="mapViewport" class="map-viewport">
           <p v-if="!webgl" role="alert">WebGL is unavailable. Expression distributions and source information remain available.</p>
           <ResearchUmapPlotGL ref="map" :show-controls="false" :legend-label="copy.map_expression_legend.replace('{gene}', gene)" @viewport-change="mapZoom = $event.zoom" v-if="webgl && view.expression" :key="view.key" :group="view.key" :points="view.points" :labels="view.fields" :colors="colors" :cell-type-field="field" :color-by-field="field" :highlight-label="highlighted" :visible-mask="view.mask" :hover-fields="[field]" :expression="view.expression" :height="plotHeight" />
 
+          </div>
           <p v-if="view.expression" class="plot-caption">{{ copy.map_expression_caption }}</p>
         </section>
         <section v-show="tab === 'Expression'" aria-label="Expression distribution" class="plot-card">
@@ -77,7 +79,7 @@ export default {
   components: { ResearchUmapPlotGL, ResearchViolinPlot },
   data: () => ({ viewportHeight: window.innerHeight, plotAreaHeight: 0, mapZoom: 100, fullscreen: false, icons: { select: selectIcon, external: externalIcon, fullscreen: fullscreenIcon, zoomIn: zoomInIcon, zoomOut: zoomOutIcon }, preview: document.querySelector('meta[name="pankgraph-preview"]')?.content === '1' || new URLSearchParams(window.location.search).get('preview') === '1', context: null, gene: '', geneInput: '', loading: false, error: '', loaded: null, view: null, tab: 'Cell map', visitedExpression: false, filtered: false, highlighted: '', request: 0, field: FIELD, copy: SC_WORDING, fullView: SC_CONFIG.full_view, previewHeight: SC_CONFIG.preview.height, previewLabels: SC_CONFIG.preview.labels, previewCaption: SC_CONFIG.preview.show_caption, webgl: true }),
   computed: {
-    plotHeight() { return Math.max(100, (this.plotAreaHeight || this.viewportHeight - this.fullView.plot_reserved_height) - 56); },
+    plotHeight() { return Math.max(1, this.plotAreaHeight || this.viewportHeight - this.fullView.plot_reserved_height - 56); },
     tabs() { return [{ id: 'Cell map', label: this.copy.map_tab, icon: mapIcon }, { id: 'Expression', label: this.copy.expression_tab, icon: expressionIcon }, { id: 'Source', label: this.copy.source_tab, icon: sourceIcon }]; },
     cellTypes() { return this.loaded?.atlas.labels || []; },
     colors() { return { [FIELD]: Object.fromEntries((this.loaded?.atlas.labels || []).map((label, index) => [label, palette[index % palette.length]])) }; },
@@ -97,7 +99,8 @@ export default {
     this.worker.onerror = () => { this.loading = false; this.error = 'Atlas worker failed. Reload the viewer to retry.'; this.notify(this.error); };
     this.resizeViewport = () => {
       this.viewportHeight = window.innerHeight;
-      const content = this.$refs.browserContent;
+      // Measure the flex space left after the actual wrapped caption/context.
+      const content = this.$refs.mapViewport;
       if (content && content.clientHeight > 0) this.plotAreaHeight = content.clientHeight;
     };
     this.contentObserver = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(this.resizeViewport) : null;
@@ -105,6 +108,7 @@ export default {
     window.addEventListener('message', this.receive);
     window.parent.postMessage({ protocol: SC_PROTOCOL, type: 'ready' }, EMBED_ORIGIN);
   },
+  updated() { if (this.$refs.mapViewport) this.contentObserver?.observe(this.$refs.mapViewport); },
   beforeDestroy() { window.removeEventListener('resize', this.resizeViewport); window.removeEventListener('message', this.receive); this.contentObserver?.disconnect(); this.worker?.terminate(); },
   errorCaptured(error) { this.error = `Plot unavailable: ${error.message}`; this.notify(this.error); return false; },
   methods: {

@@ -81,7 +81,7 @@ const theme = createTheme({
 });
 
 // Figma 2772:251: the embedded browser owns its own header and inner spacing.
-const SC_BROWSER_SURFACE_SX = { bgcolor: '#FFFFFF', borderColor: 'rgba(226, 232, 240, 0.9)', p: 0, borderRadius: '12px' };
+const SC_BROWSER_SURFACE_SX = { bgcolor: '#FFFFFF', borderColor: 'rgba(226, 232, 240, 0.9)', p: 0, borderRadius: '12px', overflow: 'hidden' };
 
 function SectionCard({ title, children, sx, showTitleDivider = true, variant = 'default' }) {
     const isPank1 = variant === 'pank1';

@@ -49,7 +49,8 @@
     "prebuild": "npm run build:scbrowser && npm run build:pankbase",
     "prestart": "npm run build:scbrowser && npm run build:pankbase",
     "build:pankbase": "npm --prefix pankbase-browser ci --no-audit --no-fund && npm --prefix pankbase-browser run build",
-    "prepare:pankbase": "python3 pankbase-browser/prepare-data.py"
+    "prepare:pankbase": "python3 pankbase-browser/prepare-data.py",
+    "postbuild": "node scripts/build-techdemo.cjs"
   },
   "jest": {
     "transformIgnorePatterns": []
