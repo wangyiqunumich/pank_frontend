@@ -35,3 +35,8 @@ __pycache__/
 /single-cell-browser/node_modules/
 /single-cell-browser/public/atlas/
 /public/scbrowser/
+
+# Generated PanKbase runtime and public source projections
+/public/pankbase-browser/
+/pankbase-browser/node_modules/
+/pankbase-browser/public/data/

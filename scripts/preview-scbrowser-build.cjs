@@ -2,7 +2,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const demo = process.argv.includes('--qtl') ? require('./qtl-visual-demo-data.cjs') : process.argv.includes('--cftr') ? require('./scbrowser-cftr-demo-data.cjs') : process.argv.includes('--demo') ? require('./scbrowser-demo-data.cjs') : null;
+const demo = process.argv.includes('--pankbase') ? require('./pankbase-demo-data.cjs') : process.argv.includes('--qtl') ? require('./qtl-visual-demo-data.cjs') : process.argv.includes('--cftr') ? require('./scbrowser-cftr-demo-data.cjs') : process.argv.includes('--demo') ? require('./scbrowser-demo-data.cjs') : null;
 if (process.argv.includes('--mixed') && demo) {
   const rna = require('./scbrowser-cftr-demo-data.cjs').result.combined_query_result;
   const qtl = demo.result.combined_query_result;

@@ -19,6 +19,8 @@ import LiteratureSections from './LiteratureSections';
 import FunctionalVisual from './FunctionalVisual';
 import QtlFineMapping from './QtlFineMapping';
 import VisualPreview from './VisualPreview';
+import PanKbaseModule from './PanKbaseModule';
+import { pankbaseContexts } from './pankbaseContext';
 import visualSchema from './schema/result_page_schema.json';
 import SingleCellBrowser from './SingleCellBrowser';
 import { expressionContext, firstAvailableExpression } from './singleCellContext';
@@ -127,6 +129,7 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
   const visualOrderRef = useRef({ scope: null, preference: null, ids: [] });
   const runId = run?.run_id || result?.result_id;
   const [expressionState, setExpressionState] = useState(null);
+  const [moduleSelection, setModuleSelection] = useState(null);
   const [visualRequest, setVisualRequest] = useState(null);
   const scopedExpressionState = expressionState?.scope === runId ? expressionState : null;
   const defaultExpression = useMemo(() => firstAvailableExpression(result?.combined_query_result), [result?.combined_query_result]);
@@ -136,7 +139,7 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
     if (context) { setExpressionState({ scope: runId, context, minimized: false, closed: false }); setVisualRequest({ id: 'single_cell_browser', scope: runId, nonce: Date.now() }); }
   }, [result?.combined_query_result, runId]);
   const trackingScope = run?.run_id ? 'run' : 'result';
-  const onEvidenceInspect = useCallback((id) => { selectExpression(id); recordInteraction(runId, 'graph_evidence_inspected', referenceKey(id), trackingScope); }, [runId, trackingScope, selectExpression]);
+  const onEvidenceInspect = useCallback((id) => { setModuleSelection({ scope: runId, id }); selectExpression(id); recordInteraction(runId, 'graph_evidence_inspected', referenceKey(id), trackingScope); }, [runId, trackingScope, selectExpression]);
   useEffect(() => {
     if (!runId || !sectionRef.current || typeof IntersectionObserver === 'undefined') return;
     const observer = new IntersectionObserver((entries) => entries.forEach((entry) => {
@@ -159,7 +162,9 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
   const resources = useResourcePanels(page.resourceTabs, page.resourceStatus, { tabs: page.supportingTabs });
   const graphData = result?.combined_query_result || null;
   const graphError = error || (planning && run?.plan?.clarification) || (planning && run?.preview?.status === 'failed' ? 'The initial graph retrieval failed. Revise the plan before continuing; this failure does not indicate biological absence.' : '');
+  const moduleContexts = pankbaseContexts(graphData, moduleSelection && moduleSelection.scope === runId ? moduleSelection.id : undefined);
   const visualRenderers = {
+    ...Object.fromEntries(Object.entries(moduleContexts).map(([id, context]) => [id, <PanKbaseModule key={`${runId}-${id}`} moduleId={id} context={context} />])),
     graph_viewer: null,
     single_cell_browser: <SingleCellBrowser key={runId} graph={graphData} onSelect={selectExpression} context={expression} />,
     qtl_fine_mapping: <QtlFineMapping key={runId} contexts={page.qtlContexts} />,

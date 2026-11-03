@@ -46,8 +46,10 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "build:scbrowser": "npm --prefix single-cell-browser ci --no-audit --no-fund && npm --prefix single-cell-browser run build",
-    "prebuild": "npm run build:scbrowser",
-    "prestart": "npm run build:scbrowser"
+    "prebuild": "npm run build:scbrowser && npm run build:pankbase",
+    "prestart": "npm run build:scbrowser && npm run build:pankbase",
+    "build:pankbase": "npm --prefix pankbase-browser ci --no-audit --no-fund && npm --prefix pankbase-browser run build",
+    "prepare:pankbase": "python3 pankbase-browser/prepare-data.py"
   },
   "jest": {
     "transformIgnorePatterns": []

@@ -16,10 +16,10 @@ test('state then controlled keywords choose among available views', () => {
   expect(resolveResultPage({ result, agentKeywords: ['kg_view'] }).mainVisuals[0].id).toBe('graph_viewer');
 });
 
-test('hints cannot fabricate functional context or reveal the hidden genome browser', () => {
+test('hints cannot fabricate functional context or a genome-browser context', () => {
   const page = resolveResultPage({ result: graph(), state: { main_visual: 'genome_browser' }, agentKeywords: ['functional_data', 'genome_browser'] });
   expect(page.mainVisuals.map(v => v.id)).toEqual(['graph_viewer']);
-  expect(page.decisions.find(d => d.component === 'genome_browser').reason).toBe('hidden_or_disabled');
+  expect(page.decisions.find(d => d.component === 'genome_browser').reason).toBe('required_data_missing');
 });
 
 test('reads exact keyword arrays without scanning answer prose', () => {

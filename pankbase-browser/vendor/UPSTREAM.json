@@ -1,0 +1,129 @@
+{
+  "repository": "https://github.com/broadinstitute/dig-dug-portal",
+  "panKbaseFork": "https://github.com/PanKbase/dig-dug-portal",
+  "branch": "pankbase-main",
+  "commit": "554859175b9d91dd5d15787e49810be7a5ac23da",
+  "files": [
+    {
+      "source": "src/components/researchPortal/LIGER/CellStateInfographic.vue",
+      "file": "pankbase-browser/vendor/liger/CellStateInfographic.vue",
+      "sha256": "4afdfa5f275854c009a36832a9e3f3da784031f7f4e64cc4dfe1b30997aa12f0",
+      "adaptedSha256": "4afdfa5f275854c009a36832a9e3f3da784031f7f4e64cc4dfe1b30997aa12f0"
+    },
+    {
+      "source": "src/components/researchPortal/LIGER/HeatTable.vue",
+      "file": "pankbase-browser/vendor/liger/HeatTable.vue",
+      "sha256": "68eba912461e48056decabfdd2f2ca65a28a1afacba108629ecddccdb647532f",
+      "adaptedSha256": "68eba912461e48056decabfdd2f2ca65a28a1afacba108629ecddccdb647532f"
+    },
+    {
+      "source": "src/components/researchPortal/LIGER/LigerBrowser.vue",
+      "file": "pankbase-browser/vendor/liger/LigerBrowser.vue",
+      "sha256": "929b01db66685c8667ec830ef00be8d210aaf8367c72d2a55b48c0d858f14ca0",
+      "adaptedSha256": "5b442a59d5dc40d73d855fcc6d27519723a729883923852954441883ef7fddc9"
+    },
+    {
+      "source": "src/components/researchPortal/LIGER/ProgramDetails.vue",
+      "file": "pankbase-browser/vendor/liger/ProgramDetails.vue",
+      "sha256": "565e14bfc35298ab9a5e74f3e443979a0849e8332564d54b79ee11db6fc583f4",
+      "adaptedSha256": "565e14bfc35298ab9a5e74f3e443979a0849e8332564d54b79ee11db6fc583f4"
+    },
+    {
+      "source": "src/components/researchPortal/LIGER/ligerFormat.js",
+      "file": "pankbase-browser/vendor/liger/ligerFormat.js",
+      "sha256": "e59bb24d0938f17665219a7caab8491fc75bb3dee1c2460973db6ff4ecc8df9d",
+      "adaptedSha256": "e59bb24d0938f17665219a7caab8491fc75bb3dee1c2460973db6ff4ecc8df9d"
+    },
+    {
+      "source": "src/components/researchPortal/LIGER/ligerDetails.css",
+      "file": "pankbase-browser/vendor/liger/ligerDetails.css",
+      "sha256": "5a55f7093c5fffd133e364b60f87c635eedd21f90ca96d7144419681d6da9086",
+      "adaptedSha256": "5a55f7093c5fffd133e364b60f87c635eedd21f90ca96d7144419681d6da9086"
+    },
+    {
+      "source": "src/components/researchPortal/LIGER/ligerHeat.js",
+      "file": "pankbase-browser/vendor/liger/ligerHeat.js",
+      "sha256": "fc680d52d4829a896dc975197ddd90ec493098d4f8b38419d397e26fea01c871",
+      "adaptedSha256": "fc680d52d4829a896dc975197ddd90ec493098d4f8b38419d397e26fea01c871"
+    },
+    {
+      "source": "src/components/researchPortal/LIGER/StateDetails.vue",
+      "file": "pankbase-browser/vendor/liger/StateDetails.vue",
+      "sha256": "181d74ffb10b9eb71e67b02cc4a3474b72e15015b2a04a96ddfecdfda14fc4ef",
+      "adaptedSha256": "181d74ffb10b9eb71e67b02cc4a3474b72e15015b2a04a96ddfecdfda14fc4ef"
+    },
+    {
+      "source": "src/portals/PanKbase/components/AtacSeq.vue",
+      "file": "pankbase-browser/vendor/genome/AtacSeq.vue",
+      "sha256": "65b7aa88198d3912ee648ae5a9e53cff086d9965ec9745a5f6622a018cf7b4dd",
+      "adaptedSha256": "c92fe09331a260ec6df8f4bb5e09a948264a0dab40cfe36144fb4d3a96c7fb42"
+    },
+    {
+      "source": "src/portals/PanKbase/utils/washU.js",
+      "file": "pankbase-browser/vendor/genome/washU.js",
+      "sha256": "eea5a4cf82ba7260fc771baf50b288e32e5fd2746b3685f05b24c9206d035d46",
+      "adaptedSha256": "55e31fc84c2768b58a1be84eb538e08dd181e0c5f4abd6966e19643038d8d577"
+    },
+    {
+      "source": "src/portals/PanKbase/assets/data/pkb-atac-no-abc-uniformed_peaks.json",
+      "file": "pankbase-browser/vendor/genome/pkb-atac-no-abc-uniformed_peaks.json",
+      "sha256": "7037a7b3966f6b4fea915accaf5f610923810f8a8001362165004436fcedde1b",
+      "adaptedSha256": "7037a7b3966f6b4fea915accaf5f610923810f8a8001362165004436fcedde1b"
+    },
+    {
+      "source": "public/css/layout.css",
+      "file": "pankbase-browser/vendor/liger/layout.css",
+      "sha256": "a503c950b2e2d54acbbdf923027c916f6c197e827b1d8bcc79f5f652bc238c85",
+      "adaptedSha256": "420a261ff5e054063efb5161c0758ac1e5c45dd19a44e3024ec320ea8a9fd0b1"
+    },
+    {
+      "source": "src/portals/PanKbase/components/TimeSeriesLinePlot.vue",
+      "file": "pankbase-browser/vendor/functional/TimeSeriesLinePlot.vue",
+      "sha256": "da605f5380eba271eb9a96e5f0c6c63a9d1dfe5a34f8a9030b148dbf2cea1b86",
+      "adaptedSha256": "126ba7f83fb88f4de71de7b096566af6032187069be3b5f4609ec1b911aaeff9"
+    },
+    {
+      "source": "src/portals/PanKbase/components/FunctionalViolinPlot.vue",
+      "file": "pankbase-browser/vendor/functional/FunctionalViolinPlot.vue",
+      "sha256": "a091787cef7020705c5466d914be1e8bba09591b30d1b9a06cac7b41954cc6f7",
+      "adaptedSha256": "2a5cea8d71033454396b8ec1d4ea12234c30d02c5b567e30fcd828f5dc9239ff"
+    },
+    {
+      "source": "src/utils/colors.js",
+      "file": "pankbase-browser/vendor/functional/colors.js",
+      "sha256": "53af426c7bd9e386902bed2d62d5723acc596c66077da375b41f996cdff657f1",
+      "adaptedSha256": "53af426c7bd9e386902bed2d62d5723acc596c66077da375b41f996cdff657f1"
+    }
+  ],
+  "changes": [
+    "LIGER: bounded complete-page public requests, session reuse, production source pin, frame-local navigation state, collapsed explanatory figure for compact view",
+    "Genome: deferred runtime, pinned external runtime versions, one relevant cell type initially, no unverified fallback locus, explicit user-region entry on lookup failure",
+    "Functional: dependency paths, metadata prop, frame-safe download, resize cleanup; upstream plotting and confidence algorithm retained, controlled normalization on remount and typed missing measurements",
+    "Vendored text: remove trailing whitespace; original source hashes retained"
+  ],
+  "referenceFiles": [
+    {
+      "source": "src/portals/PanKbase/views/DiffExp/main.js",
+      "sha256": "f6ac2015731894ed79bdd72c7c3c42ed091dada406bce520d59db6d85bd05a72"
+    },
+    {
+      "source": "src/portals/PanKbase/views/DiffExp/store.js",
+      "sha256": "af92bcbbfd8d420f5d07ca3b75455ca6e5b1184027ca8c47d56b7d29e4f793b4"
+    },
+    {
+      "source": "src/portals/PanKbase/views/Functional/main.js",
+      "sha256": "dd80ec3e8fff382d8427a0a151cd2399e819c3371f9e4c118f6e084f42cc1a15"
+    },
+    {
+      "source": "src/portals/PanKbase/views/Functional/store.js",
+      "sha256": "102c81267772fda684b1beb161be5e557374a5b7bc1f481eb67ad17a4abe7057"
+    }
+  ],
+  "pca": {
+    "repository": "https://github.com/PanKbase/PanKbase-RNA-expression-PCA-Explorer",
+    "commit": "bc187eb072b8719e5dd52f93199757e15db63f06",
+    "source": "app/app.R",
+    "license": "PCA-LICENSE",
+    "sha256": "9bc6d92f188c343c12863ca8f60b2176a94d9ce5dbca9ec94f894981199b1e59"
+  }
+}

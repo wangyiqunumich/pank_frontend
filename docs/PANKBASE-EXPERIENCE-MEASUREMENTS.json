@@ -1,0 +1,223 @@
+{
+  "measuredUtcDate": "2026-11-03",
+  "units": "bytes",
+  "gzip": "local estimates for prepared assets, not deployed transfer measurements",
+  "scmap": {
+    "sourceDecodedBytes": 109644935,
+    "preparedDecodedBytes": 5387453,
+    "preparedGzipBytes": 2971257,
+    "cells": 448935
+  },
+  "sourceValidation": {
+    "deComparisons": 6,
+    "deRows": 71265,
+    "pcaCellTypes": 12,
+    "pcaSamples": 1957,
+    "pcaScores": 19570
+  },
+  "prepared": {
+    "version": 1,
+    "de": [
+      {
+        "asset": "de-275103ee8797e4edda2308b9e165674000064d2150b60cfbe1b3cefccef038e5.json",
+        "sha256": "275103ee8797e4edda2308b9e165674000064d2150b60cfbe1b3cefccef038e5",
+        "decodedBytes": 562390,
+        "gzipBytes": 217575,
+        "sourceBytes": 1400990,
+        "dataset": "islet_of_Langerhans_scRNA_v3-3_Pseudobulk_Acinar",
+        "comparison": "dea_comp_1",
+        "label": "T1D vs. control",
+        "rows": 11653,
+        "sourceUrl": "https://bioindex.pankbase.org/api/raw/file/single_cell_bulk/islet_of_Langerhans_scRNA_v3-3_Pseudobulk_Acinar/dea.tsv.gz",
+        "sourceGzipBytes": 235168
+      },
+      {
+        "asset": "de-5a704f9f402c04e3cb6cf5db29960de107bef8abf2d5f2d696e59f362adc78f9.json",
+        "sha256": "5a704f9f402c04e3cb6cf5db29960de107bef8abf2d5f2d696e59f362adc78f9",
+        "decodedBytes": 427388,
+        "gzipBytes": 161695,
+        "sourceBytes": 1264692,
+        "dataset": "islet_of_Langerhans_scRNA_v3-3_Pseudobulk_ActiveStellate",
+        "comparison": "dea_comp_1",
+        "label": "T1D vs. control",
+        "rows": 10621,
+        "sourceUrl": "https://bioindex.pankbase.org/api/raw/file/single_cell_bulk/islet_of_Langerhans_scRNA_v3-3_Pseudobulk_ActiveStellate/dea.tsv.gz",
+        "sourceGzipBytes": 174999
+      },
+      {
+        "asset": "de-306edd1e4c53457dd6a98b642fe99ac4cb15a2dd0c148957bd36e26f7702ee6f.json",
+        "sha256": "306edd1e4c53457dd6a98b642fe99ac4cb15a2dd0c148957bd36e26f7702ee6f",
+        "decodedBytes": 669235,
+        "gzipBytes": 241977,
+        "sourceBytes": 1638042,
+        "dataset": "islet_of_Langerhans_scRNA_v3-3_Pseudobulk_Alpha",
+        "comparison": "dea_comp_1",
+        "label": "T1D vs. control",
+        "rows": 13651,
+        "sourceUrl": "https://bioindex.pankbase.org/api/raw/file/single_cell_bulk/islet_of_Langerhans_scRNA_v3-3_Pseudobulk_Alpha/dea.tsv.gz",
+        "sourceGzipBytes": 259081
+      },
+      {
+        "asset": "de-0399df2f588a81bc5a12e3c1cd3567caa5a07f534025b4db9025dce9cb2c7bb1.json",
+        "sha256": "0399df2f588a81bc5a12e3c1cd3567caa5a07f534025b4db9025dce9cb2c7bb1",
+        "decodedBytes": 640656,
+        "gzipBytes": 252778,
+        "sourceBytes": 1563614,
+        "dataset": "islet_of_Langerhans_scRNA_v3-3_Pseudobulk_Beta",
+        "comparison": "dea_comp_1",
+        "label": "T1D vs. control",
+        "rows": 13191,
+        "sourceUrl": "https://bioindex.pankbase.org/api/raw/file/single_cell_bulk/islet_of_Langerhans_scRNA_v3-3_Pseudobulk_Beta/dea.tsv.gz",
+        "sourceGzipBytes": 273055
+      },
+      {
+        "asset": "de-993408bd79e6efc69d4692ce68a2820edbfa52ba3e5e3182f52789c4b936701c.json",
+        "sha256": "993408bd79e6efc69d4692ce68a2820edbfa52ba3e5e3182f52789c4b936701c",
+        "decodedBytes": 481891,
+        "gzipBytes": 188583,
+        "sourceBytes": 1190947,
+        "dataset": "islet_of_Langerhans_scRNA_v3-3_Pseudobulk_Delta",
+        "comparison": "dea_comp_1",
+        "label": "T1D vs. control",
+        "rows": 9998,
+        "sourceUrl": "https://bioindex.pankbase.org/api/raw/file/single_cell_bulk/islet_of_Langerhans_scRNA_v3-3_Pseudobulk_Delta/dea.tsv.gz",
+        "sourceGzipBytes": 203214
+      },
+      {
+        "asset": "de-fa9d3522a846d399a122207cf3e45c66ae3a6d0e755d5b3217210483c99f63fb.json",
+        "sha256": "fa9d3522a846d399a122207cf3e45c66ae3a6d0e755d5b3217210483c99f63fb",
+        "decodedBytes": 583259,
+        "gzipBytes": 216413,
+        "sourceBytes": 1456301,
+        "dataset": "islet_of_Langerhans_scRNA_v3-3_Pseudobulk_Ductal",
+        "comparison": "dea_comp_1",
+        "label": "T1D vs. control",
+        "rows": 12151,
+        "sourceUrl": "https://bioindex.pankbase.org/api/raw/file/single_cell_bulk/islet_of_Langerhans_scRNA_v3-3_Pseudobulk_Ductal/dea.tsv.gz",
+        "sourceGzipBytes": 232206
+      }
+    ],
+    "pca": [
+      {
+        "asset": "pca-0ed18320620ecf52f531e5e05c6b88b91ed6549bdd5245d1ce0b2d4be7eebcf7.json",
+        "sha256": "0ed18320620ecf52f531e5e05c6b88b91ed6549bdd5245d1ce0b2d4be7eebcf7",
+        "decodedBytes": 82078,
+        "gzipBytes": 18847,
+        "sourceBytes": 731719,
+        "cellType": "Acinar",
+        "rows": 178,
+        "sourceRdsBytes": 14779465
+      },
+      {
+        "asset": "pca-f8ce95cf8c378084a3f2948b1b3541d83e1df051d4793be25138b35f2351c40d.json",
+        "sha256": "f8ce95cf8c378084a3f2948b1b3541d83e1df051d4793be25138b35f2351c40d",
+        "decodedBytes": 76531,
+        "gzipBytes": 17589,
+        "sourceBytes": 637854,
+        "cellType": "Active Stellate",
+        "rows": 165,
+        "sourceRdsBytes": 13871779
+      },
+      {
+        "asset": "pca-dbf9585aa6eeac49312ebe03e4d0587680d6bce26434d5daf65f86fd4b94a530.json",
+        "sha256": "dbf9585aa6eeac49312ebe03e4d0587680d6bce26434d5daf65f86fd4b94a530",
+        "decodedBytes": 85532,
+        "gzipBytes": 19075,
+        "sourceBytes": 792290,
+        "cellType": "Alpha",
+        "rows": 186,
+        "sourceRdsBytes": 15652120
+      },
+      {
+        "asset": "pca-d680e0d5e4e4e4ce791c35f6b50463aef91b059caec3ff2e33a19683b72d1b9d.json",
+        "sha256": "d680e0d5e4e4e4ce791c35f6b50463aef91b059caec3ff2e33a19683b72d1b9d",
+        "decodedBytes": 82162,
+        "gzipBytes": 18305,
+        "sourceBytes": 731928,
+        "cellType": "Beta",
+        "rows": 178,
+        "sourceRdsBytes": 15404497
+      },
+      {
+        "asset": "pca-1d7dea96b0e4064bcd94d9a2fa50052e09109e08f00a5d8ab083cb4ce014a8af.json",
+        "sha256": "1d7dea96b0e4064bcd94d9a2fa50052e09109e08f00a5d8ab083cb4ce014a8af",
+        "decodedBytes": 68438,
+        "gzipBytes": 16004,
+        "sourceBytes": 518594,
+        "cellType": "Cycling Alpha",
+        "rows": 147,
+        "sourceRdsBytes": 13680851
+      },
+      {
+        "asset": "pca-d4f2553971d5338f66dfda24e9f7fc8a4f2ea41c8c090aebe033ceb3d8ae55f2.json",
+        "sha256": "d4f2553971d5338f66dfda24e9f7fc8a4f2ea41c8c090aebe033ceb3d8ae55f2",
+        "decodedBytes": 80292,
+        "gzipBytes": 17915,
+        "sourceBytes": 703788,
+        "cellType": "Delta",
+        "rows": 174,
+        "sourceRdsBytes": 14451195
+      },
+      {
+        "asset": "pca-9c58de8d1adeb78c7f7af046fc92436ec292dbcaaa05a8ac9ffbe48bf0963a41.json",
+        "sha256": "9c58de8d1adeb78c7f7af046fc92436ec292dbcaaa05a8ac9ffbe48bf0963a41",
+        "decodedBytes": 80261,
+        "gzipBytes": 17999,
+        "sourceBytes": 702033,
+        "cellType": "Ductal",
+        "rows": 174,
+        "sourceRdsBytes": 15485083
+      },
+      {
+        "asset": "pca-c8ff64b678a9d3f578c1e8247906c6b385eb9318e550067d952094030417173a.json",
+        "sha256": "c8ff64b678a9d3f578c1e8247906c6b385eb9318e550067d952094030417173a",
+        "decodedBytes": 63729,
+        "gzipBytes": 16043,
+        "sourceBytes": 446592,
+        "cellType": "Endothelial",
+        "rows": 136,
+        "sourceRdsBytes": 11933469
+      },
+      {
+        "asset": "pca-a8fe95b47fcf5775d195dab7beacdb149a1e6df700eae3f7915df64c0c446851.json",
+        "sha256": "a8fe95b47fcf5775d195dab7beacdb149a1e6df700eae3f7915df64c0c446851",
+        "decodedBytes": 80372,
+        "gzipBytes": 18113,
+        "sourceBytes": 702547,
+        "cellType": "Gamma + Epsilon",
+        "rows": 174,
+        "sourceRdsBytes": 14646964
+      },
+      {
+        "asset": "pca-f491346d50f23f64fcc92dddef19551cab974da9411049b6f3e1fa499ab40fae.json",
+        "sha256": "f491346d50f23f64fcc92dddef19551cab974da9411049b6f3e1fa499ab40fae",
+        "decodedBytes": 71140,
+        "gzipBytes": 16211,
+        "sourceBytes": 557674,
+        "cellType": "Immune (Macrophages)",
+        "rows": 153,
+        "sourceRdsBytes": 12897960
+      },
+      {
+        "asset": "pca-fa59415455a2b71515cba0ac0d8923043b04ce8e4d33330e81a7090d1711bdee.json",
+        "sha256": "fa59415455a2b71515cba0ac0d8923043b04ce8e4d33330e81a7090d1711bdee",
+        "decodedBytes": 67214,
+        "gzipBytes": 15956,
+        "sourceBytes": 497925,
+        "cellType": "MUC5B+ Ductal",
+        "rows": 144,
+        "sourceRdsBytes": 12943928
+      },
+      {
+        "asset": "pca-71684acc25b8dda4a6f2890927085d361f68c77d9e862915ec901bc4d8eb0261.json",
+        "sha256": "71684acc25b8dda4a6f2890927085d361f68c77d9e862915ec901bc4d8eb0261",
+        "decodedBytes": 69122,
+        "gzipBytes": 16341,
+        "sourceBytes": 523279,
+        "cellType": "Quiescent Stellate",
+        "rows": 148,
+        "sourceRdsBytes": 13169760
+      }
+    ]
+  }
+}

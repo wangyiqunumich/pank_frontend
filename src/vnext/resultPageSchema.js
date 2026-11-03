@@ -2,6 +2,7 @@ import { qtlContexts, qtlEdges, isQtlEmpirical, QTL_CONFIG } from './qtlContext'
 import { firstAvailableExpression } from './singleCellContext';
 import { normalizeExternalLinks } from './externalLinks';
 import schema from './schema/result_page_schema.json';
+import { pankbaseContexts } from './pankbaseContext';
 
 // Pure presentation selection. No requests, model calls, Markdown parsing or DOM work.
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -123,7 +124,9 @@ export function resolveResultPage({ result, run, state, agentKeywords, resourceT
   const empiricalFailure = !functionalContext && failure(resourceStatus);
   if (!empirical.length && empiricalFailure) empirical.push({ status: 'unavailable',
     title: 'Supplementary resources unavailable', description: 'Some source files or plots could not be retrieved. This is a resource-availability limit, not evidence of biological absence.' });
+  const moduleContexts = pankbaseContexts(projection);
   const facts = {
+    ...Object.fromEntries(Object.keys(moduleContexts).map(id => [id + '_context', true])),
     downloadable_data_assets: rawLinks.length > 0,
     graph_projection_or_expected: graphExpected,
     qtl_edges: qtlEdges(projection).length > 0,
@@ -175,7 +178,7 @@ export function resolveResultPage({ result, run, state, agentKeywords, resourceT
   tabs.empirical_evidence_groups = selectedSupporting.has('empirical_evidence') ? empirical : [];
   return { schemaVersion: schema.schema.version,
     summaryTitle: schema.ai_summary.title, mainVisualTitle: schema.main_visuals.title, supportingTitle: schema.supporting_materials.title,
-    insertions, mainVisuals, qtlContexts: qtl, scBrowser: schema.main_visuals.items.single_cell_browser, resourceTabs: tabs,
+    insertions, mainVisuals, pankbaseContexts: moduleContexts, qtlContexts: qtl, scBrowser: schema.main_visuals.items.single_cell_browser, resourceTabs: tabs,
     resourceStatus: functionalContext && !empiricalFailure ? undefined : resourceStatus,
     supportingTabs, decisions };
 }
