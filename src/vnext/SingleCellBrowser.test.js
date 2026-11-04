@@ -4,7 +4,7 @@ import { ResultSection } from './ResultView';
 import SingleCellBrowser from './SingleCellBrowser';
 import { expressionContext } from './singleCellContext';
 import { SC_CONFIG } from './scBrowserConfig';
-jest.mock('./KnowledgeGraph', () => props => <>{props.overlay}<button data-testid="graph" onClick={() => props.onEvidenceInspect?.('edge-2')}>Inspect edge</button></>);
+jest.mock('./KnowledgeGraph', () => props => <>{props.overlay}<button data-testid="graph" onMouseEnter={() => props.onEvidenceInspect?.('edge-1')} onClick={() => props.onEvidenceInspect?.('edge-2')}>Inspect edge</button></>);
 jest.mock('react-markdown', () => ({ __esModule: true, default: ({ children }) => <div>{children}</div> }));
 jest.mock('remark-gfm', () => ({ __esModule: true, default: () => {} }));
 jest.mock('react-slick', () => ({ __esModule: true, default: ({ children }) => <div>{children}</div> }));
@@ -63,12 +63,14 @@ test('schema disabled scmap and unrelated or ATAC graphs do not activate it', ()
    expect(screen.queryByRole('tab', { name: 'scBrowser' })).toBeNull(); view.unmount();
  }
 });
-test('graph inspection updates the selected pair and selection revalidates against current evidence', async () => {
- const { rerender } = render(<ResultSection result={result} />);
+test('enriched and detected edge inspection preserves the graph tab; scBrowser opens explicitly', async () => {
+ render(<ResultSection result={result} />);
+ fireEvent.mouseEnter(screen.getByTestId('graph'));
+ expect(screen.getByRole('tab', { name: 'Knowledge Graph' }).getAttribute('aria-selected')).toBe('true');
  fireEvent.click(screen.getByTestId('graph'));
- expect(screen.getByRole('tab', { name: 'scBrowser' }).getAttribute('aria-selected')).toBe('true');
- expect(await sentContext(screen.getByTitle('PanKgraph single-cell browser'))).toMatchObject({ geneSymbol: 'INS', mappedCellType: 'Beta' });
- rerender(<ResultSection result={{ ...result, combined_query_result: { ...graph, edges: [graph.edges[0]] } }} />);
+ expect(screen.getByRole('tab', { name: 'Knowledge Graph' }).getAttribute('aria-selected')).toBe('true');
+ expect(screen.getByRole('tab', { name: 'scBrowser' }).getAttribute('aria-selected')).toBe('false');
+ fireEvent.click(screen.getByRole('tab', { name: 'scBrowser' }));
  expect(await sentContext(screen.getByTitle('PanKgraph single-cell browser'))).toMatchObject({ geneSymbol: 'CFTR', mappedCellType: 'Ductal' });
 });
 test('same-origin manifest bridge ignores foreign and unrelated window messages', async () => {

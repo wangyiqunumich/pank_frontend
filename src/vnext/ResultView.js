@@ -140,7 +140,7 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
     if (context) { setExpressionState({ scope: runId, context, minimized: false, closed: false }); setVisualRequest({ id: 'single_cell_browser', scope: runId, nonce: Date.now() }); }
   }, [result?.combined_query_result, runId]);
   const trackingScope = run?.run_id ? 'run' : 'result';
-  const onEvidenceInspect = useCallback((id) => { setModuleSelection({ scope: runId, id }); selectExpression(id); recordInteraction(runId, 'graph_evidence_inspected', referenceKey(id), trackingScope); }, [runId, trackingScope, selectExpression]);
+  const onEvidenceInspect = useCallback((id) => { recordInteraction(runId, 'graph_evidence_inspected', referenceKey(id), trackingScope); }, [runId, trackingScope]);
   useEffect(() => {
     if (!runId || !sectionRef.current || typeof IntersectionObserver === 'undefined') return;
     const observer = new IntersectionObserver((entries) => entries.forEach((entry) => {
