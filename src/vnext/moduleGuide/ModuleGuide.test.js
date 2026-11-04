@@ -20,9 +20,9 @@ test('continuous conversation sends bounded prior turns and shows manual citatio
  const body=JSON.parse(fetch.mock.calls.filter(([,o])=>o?.method==='POST')[1][1].body);
  expect(body.history.map(x=>x.role)).toEqual(['user','assistant']);expect(body.message).toBe('What about signal only?');
  await waitFor(()=>expect(screen.getAllByText('Choose cell types in Tracks, then Apply tracks.')).toHaveLength(2));
- fireEvent.click(screen.getAllByRole('button',{name:'Genome tracks'})[0]);expect(screen.getByRole('heading',{name:'Genome · Choose tracks / 选择轨道'})).toBeTruthy();
+ fireEvent.click(screen.getAllByRole('button',{name:'Genome · Choose tracks'})[0]);expect(screen.getByRole('heading',{name:'Genome · Choose tracks'})).toBeTruthy();
  fireEvent.click(screen.getByRole('button',{name:'New conversation'}));
- expect(JSON.parse(sessionStorage.getItem('pank-module-guide:v1'))).toEqual([]);
+ expect(JSON.parse(sessionStorage.getItem('pank-module-guide:v2-en'))).toEqual([]);
 });
 test('unavailable provider retains manual and does not retry a paid request',async()=>{
  fetch.mockImplementation(async(url,o)=>({ok:!o?.method,json:async()=>o?.method?{detail:'Budget reached'}:{status:'manual-only'}}));
@@ -45,7 +45,7 @@ test('configuration undo survives closing the panel and visiting manual, without
  expect(screen.getByRole('button',{name:'Applied'}).disabled).toBe(true);
  fireEvent.click(screen.getByRole('button',{name:'Close module guide'}));fireEvent.click(screen.getByRole('button',{name:'Open module guide'}));
  expect(screen.getByRole('button',{name:'Undo'})).toBeTruthy();
- fireEvent.click(screen.getByRole('button',{name:'Genome tracks'}));
+ fireEvent.click(screen.getByRole('button',{name:'Genome · Choose tracks'}));
  fireEvent.click(screen.getByRole('button',{name:'Chat',exact:true}));
  fireEvent.click(screen.getByRole('button',{name:'Undo'}));
  await screen.findByText('Previous settings restored.');
