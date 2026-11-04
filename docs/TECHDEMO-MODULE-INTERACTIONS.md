@@ -65,4 +65,4 @@ Moved version/source labels and PanKbase browser links from the top to the final
 
 Chrome local checks: all five source rows are the last element of their module, with no horizontal overflow. 420px full-screen scBrowser and DE were visually verified; the longest DE link wraps to a second line and remains 12px from the right/bottom edge. Ordinary/fullscreen transitions preserve their content. Build and focused existing tests passed. macOS remains locked, so native Safari was unavailable.
 
-Live pin/manifest verification pending.
+Live acceptance: PR 421 merged as `dafec157aecf88ec45d5f5c62ee803de1c9e8b73`; Amplify job 872 succeeded. Authenticated manifest verifies source `1a416241c2d8b5efce90829d686eab4e0221811c`, EC2 origin and fixed/no-agent flags. All five live module footers were read back as the final child; Functional fullscreen screenshot confirms the final layout. Eleven focused existing tests and production build passed.
