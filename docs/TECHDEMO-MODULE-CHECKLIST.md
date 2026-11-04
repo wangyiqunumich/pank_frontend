@@ -1,5 +1,7 @@
 # Goal: consistent, fully usable module browsers
 
+> Superseded acceptance: the user reported additional toolbar and Safari fullscreen issues. The current goal and per-module recheck are in [TECHDEMO-GRAPH-CONTROLS.md](TECHDEMO-GRAPH-CONTROLS.md). Historical checks below describe the preceding release.
+
 User acceptance contract (2026-11-03): source header with right-aligned **PanKbase xxx browser** link → sub-tabs → filters/selection → visualization → fixed basic-information footer. Every visualization uses the scMap-style right-side download/fullscreen/zoom toolbar. No wasted nested frame space or inaccessible controls; retain genuine data and scientific semantics.
 
 Baseline: xuteng/react `ddf6fe4024a143e3e6d14bb3bd8c1dff2b96beb5`.

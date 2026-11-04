@@ -20,3 +20,10 @@ test('fit allocates spare height to native signals without changing source track
   assert.equal(fitSignalTracks(next,1),null);
   assert.equal(fitSignalTracks(tracks,-200),null,'minimum signal height remains readable');
 });
+
+test('transient fullscreen measurements cannot grow a signal beyond its viewport',()=>{
+  const signal={type:'bigwig',options:{height:600},cloneAndSetOption(k,v){return {...this,options:{...this.options,[k]:v}};}};
+  assert.equal(fitSignalTracks([signal],10000,{availableHeight:350})[0].options.height,350);
+  assert.equal(fitSignalTracks([signal],0,{availableHeight:350,fixedHeight:80})[0].options.height,80);
+  assert.equal(fitSignalTracks([signal],NaN),null);
+});

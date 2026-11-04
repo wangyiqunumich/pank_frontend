@@ -48,8 +48,9 @@
         <div class="source-actions"><button :disabled="loading" @click="load(gene, true)">Refresh atlas data</button><a :href="sourceLink" target="_blank" rel="noopener noreferrer">Open PanKbase ↗</a><a href="https://data.pankbase.org/analysis-sets/PKBDS1349YHGQ/" target="_blank" rel="noopener noreferrer">Atlas analysis lineage ↗</a><a href="../api/pankbase-data/v1/manifest" target="_blank" rel="noopener noreferrer">Snapshot metadata</a><a href="./THIRD_PARTY_NOTICES.txt" target="_blank" rel="noopener noreferrer">Code & licenses</a></div>
       </section>
       </div>
-      <BrowserToolbar v-if="tab === 'Cell map'" :fullscreen="fullscreen" :disabled="!view || !view.expression || !webgl" @fullscreen="toggleFullscreen" @zoomIn="zoomMap(-1)" @zoomOut="zoomMap(1)" @fit="$refs.map && $refs.map.resetPanZoom()" @download="$refs.map && $refs.map.download()"/>
-      <BrowserToolbar v-if="tab === 'Expression'" :fullscreen="fullscreen" :disabled="!view || !view.expression" :can-zoom-in="expressionZoom<4" :can-zoom-out="expressionZoom>1" @fullscreen="toggleFullscreen" @zoomIn="expressionZoom=Math.min(4,expressionZoom*1.25)" @zoomOut="expressionZoom=Math.max(1,expressionZoom/1.25)" @fit="expressionZoom=1" @download="downloadExpression"/>
+      <BrowserToolbar v-if="tab === 'Cell map'" :fullscreen="fullscreen" :disabled="!view || !view.expression || !webgl" @fullscreen="toggleFullscreen" @zoomIn="zoomMap(-1)" @zoomOut="zoomMap(1)" :zoom-percent="Math.round(mapZoom)" :info-enabled="mapInfo" @info="mapInfo=!mapInfo;$refs.map.showTooltips=mapInfo" @reset="mapInfo=true;$refs.map.showTooltips=true;$refs.map.resetPanZoom()" @fit="$refs.map && $refs.map.resetPanZoom()" @download="$refs.map && $refs.map.download()"/>
+      <BrowserToolbar v-if="tab === 'Expression'" :fullscreen="fullscreen" :disabled="!view || !view.expression" :can-zoom-in="expressionZoom<4" :can-zoom-out="expressionZoom>1" @fullscreen="toggleFullscreen" @zoomIn="expressionZoom=Math.min(4,expressionZoom*1.25)" @zoomOut="expressionZoom=Math.max(1,expressionZoom/1.25)" :zoom-percent="Math.round(expressionZoom*100)" :info-enabled="expressionInfo" info-label="Plot info" @info="expressionInfo=!expressionInfo" @reset="expressionZoom=1;expressionInfo=false" @fit="expressionZoom=1" @download="downloadExpression"/>
+      <p v-if="expressionInfo && tab==='Expression'" class="browser-plot-info">Each violin shows the source expression distribution within one cell type. Use the selection above to filter cells; zoom changes only the display width.</p>
       <BrowserToolbar v-if="tab === 'Source'" navigation-only :fullscreen="fullscreen" @fullscreen="toggleFullscreen"/>
       </div>
       <footer class="browser-footer"><span><template v-if="view"><strong>{{ view.count.toLocaleString() }} {{ copy.cells_label }}</strong> · </template>{{ tab === 'Cell map' ? copy.map_caption : tab === 'Expression' ? 'Expression by cell type' : 'Source atlas and methods' }}</span><span v-if="tab !== 'Source'" class="navigation-hint">{{ tab === 'Cell map' ? mapZoom : Math.round(expressionZoom*100) }}% · {{ tab === 'Cell map' ? copy.map_navigation : 'Scroll horizontally to explore' }}</span></footer>
@@ -76,7 +77,7 @@ const EMBED_ORIGIN = window.parent.location.origin;
 const palette = ['#007bff','#048845','#8490c8','#bf61a5','#ee3124','#b08d00','#5555ff','#7a9c1c','#bd505f','#9f78ac','#ab6684','#78a550'];
 export default {
   components: { ResearchUmapPlotGL, ResearchViolinPlot, BrowserToolbar },
-  data: () => ({ viewportHeight: window.innerHeight, plotAreaHeight: 0, contentHeight:0, mapZoom: 100, fullscreen: false, expressionZoom:1, icons: { select: selectIcon, external: externalIcon, fullscreen: fullscreenIcon, zoomIn: zoomInIcon, zoomOut: zoomOutIcon }, preview: document.querySelector('meta[name="pankgraph-preview"]')?.content === '1' || new URLSearchParams(window.location.search).get('preview') === '1', context: null, gene: '', geneInput: '', loading: false, error: '', loaded: null, view: null, tab: 'Cell map', visitedExpression: false, filtered: false, highlighted: '', request: 0, field: FIELD, copy: SC_WORDING, fullView: SC_CONFIG.full_view, previewHeight: SC_CONFIG.preview.height, previewLabels: SC_CONFIG.preview.labels, previewCaption: SC_CONFIG.preview.show_caption, webgl: true }),
+  data: () => ({ viewportHeight: window.innerHeight, plotAreaHeight: 0, contentHeight:0, mapZoom: 100, fullscreen: false, expressionZoom:1, mapInfo:true, expressionInfo:false, icons: { select: selectIcon, external: externalIcon, fullscreen: fullscreenIcon, zoomIn: zoomInIcon, zoomOut: zoomOutIcon }, preview: document.querySelector('meta[name="pankgraph-preview"]')?.content === '1' || new URLSearchParams(window.location.search).get('preview') === '1', context: null, gene: '', geneInput: '', loading: false, error: '', loaded: null, view: null, tab: 'Cell map', visitedExpression: false, filtered: false, highlighted: '', request: 0, field: FIELD, copy: SC_WORDING, fullView: SC_CONFIG.full_view, previewHeight: SC_CONFIG.preview.height, previewLabels: SC_CONFIG.preview.labels, previewCaption: SC_CONFIG.preview.show_caption, webgl: true }),
   computed: {
     plotHeight() { return Math.max(1, this.plotAreaHeight || this.viewportHeight - this.fullView.plot_reserved_height - 56); },
     tabs() { return [{ id: 'Cell map', label: this.copy.map_tab, icon: mapIcon }, { id: 'Expression', label: this.copy.expression_tab, icon: expressionIcon }, { id: 'Source', label: this.copy.source_tab, icon: sourceIcon }]; },
@@ -105,11 +106,13 @@ export default {
     };
     this.contentObserver = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(this.resizeViewport) : null;
     window.addEventListener('resize', this.resizeViewport);
+    this.escapeFullscreen=e=>{if(e.key==='Escape'&&this.fullscreen){e.preventDefault();this.toggleFullscreen();}};
+    window.addEventListener('keydown',this.escapeFullscreen);
     window.addEventListener('message', this.receive);
     window.parent.postMessage({ protocol: SC_PROTOCOL, type: 'ready' }, EMBED_ORIGIN);
   },
   updated() { if (this.$refs.mapViewport) this.contentObserver?.observe(this.$refs.mapViewport); },
-  beforeDestroy() { window.removeEventListener('resize', this.resizeViewport); window.removeEventListener('message', this.receive); this.contentObserver?.disconnect(); this.worker?.terminate(); },
+  beforeDestroy() { window.removeEventListener('keydown',this.escapeFullscreen); window.removeEventListener('resize', this.resizeViewport); window.removeEventListener('message', this.receive); this.contentObserver?.disconnect(); this.worker?.terminate(); },
   errorCaptured(error) { this.error = `Plot unavailable: ${error.message}`; this.notify(this.error); return false; },
   methods: {
     receive(event) {

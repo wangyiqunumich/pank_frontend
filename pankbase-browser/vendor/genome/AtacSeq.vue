@@ -1,8 +1,8 @@
 <template><section class="module-view browser-chrome">
   <div class="browser-navigation"><nav class="browser-tabs" aria-label="Genome views"><button v-for="item in ['Genome','Tracks','Source']" :key="item" :aria-pressed="view===item" @click="view=item">{{item}}</button></nav></div>
-  <form class="browser-filters" @submit.prevent="openRegion"><label class="browser-input genome-region"><span>GRCh38</span><input v-model="regionInput" placeholder="chr7:start-end" aria-label="GRCh38 region"/><button :disabled="isLoading" type="submit">View</button></label><button type="button" :aria-pressed="showTools" @click="showTools=!showTools;scheduleFit()">More tools</button></form>
+  <form class="browser-filters" @submit.prevent="openRegion"><label class="browser-input genome-region"><span>GRCh38</span><input v-model="regionInput" placeholder="chr7:start-end" aria-label="GRCh38 region"/><button :disabled="isLoading" type="submit">View</button></label><button type="button" :aria-pressed="showTools" @click="showTools=!showTools;scheduleFit()">More tools</button><label class="genome-height">Track height <select v-model="trackHeight" @change="scheduleFit"><option value="auto">Fit panel</option><option value="80">Compact</option><option value="160">Medium</option><option value="260">Large</option></select></label></form>
   <div class="module-stage genome-content"><p v-if="loadError" role="alert">{{loadError}}</p><p v-if="isLoading" role="status">Loading ATAC tracks…</p>
-    <div v-show="view==='Genome'" ref="viewport" class="genome-viewport"><div class="genome-stage" :class="{'show-tools':showTools}"><div id="browser" class="atac-seq__browser" aria-live="polite"></div></div><BrowserToolbar :fullscreen="fullscreen" :disabled="isLoading || !controlReady" @fullscreen="toggleFullscreen" @zoomIn="zoomGenome(0.5)" @zoomOut="zoomGenome(2)" @fit="resetRegion" @download="downloadPlot"/></div>
+    <div v-show="view==='Genome'" ref="viewport" class="genome-viewport"><div class="genome-stage" :class="{'show-tools':showTools}"><div id="browser" class="atac-seq__browser" aria-live="polite"></div></div></div><BrowserToolbar v-if="view==='Genome'" :fullscreen="fullscreen" :disabled="isLoading || !controlReady" @fullscreen="toggleFullscreen" @zoomIn="zoomGenome(0.5)" @zoomOut="zoomGenome(2)" :info-enabled="plotInfo" info-label="Plot info" @info="plotInfo=!plotInfo" @reset="resetView" @fit="fitView" @download="downloadPlot"/><p v-if="plotInfo && view==='Genome'" class="browser-plot-info">HPAP ATAC signal and peak calls, GRCh38. Drag tracks to pan; zoom changes the genomic range. Track height changes the display only. Click a native feature for its source annotation.</p>
     <div v-if="view==='Tracks'" class="source-panel"><h2>Cell types</h2><label><input type="checkbox" v-model="selectAll" @change="toggleTracks"/> Select all</label><div class="track-options"><label v-for="cellType in cellTypes" :key="cellType"><input type="checkbox" v-model="selectedCellTypes" :value="cellType"/>{{cellType}}</label></div><h2>Track types</h2><div class="track-options"><label v-for="trackType in trackTypes" :key="trackType"><input type="checkbox" v-model="selectedTrackTypes" :value="trackType"/>{{trackType.includes('peaks')?'ATAC peaks':trackType}}</label></div><button class="primary" @click="view='Genome';$nextTick(updateBrowser)">Apply tracks</button></div>
     <div v-if="view==='Source'" class="source-panel"><h2>Source &amp; methods</h2><p>HPAP ATAC signal and peaks · GRCh38. All source cell types and track choices remain available under Tracks.</p><p>Coordinates are 0-based, half-open. {{manualLocus?'User-selected region; gene overlap is not assumed.':'Locus from explicit graph coordinates or a verified source lookup.'}}</p><p>Signal, peak calls and gene annotations are distinct evidence layers. Signal tracks are redrawn to fit available height; genomic coordinates and values are unchanged.</p></div>
     <BrowserToolbar v-if="view!=='Genome'" navigation-only :fullscreen="fullscreen" @fullscreen="toggleFullscreen"/>
@@ -32,7 +32,7 @@ export default Vue.component("AtacSeq", {
     props: ["gene", "locus", "cellType"],
     data() {
         return {
-            view: 'Genome', showTools:false, liveLocus:'', trackCount:0, controlReady:false,
+            view: 'Genome', showTools:false, plotInfo:false, trackHeight:'auto', liveLocus:'', trackCount:0, controlReady:false,
             isLoading: true,
             loadError: null,
             tracksJson: TRACKS,
@@ -50,6 +50,7 @@ export default Vue.component("AtacSeq", {
         this.initializeBrowser();
         this.layoutObserver=new ResizeObserver(()=>this.scheduleFit());
         this.layoutObserver.observe(this.$refs.viewport);
+        this.layoutObserver.observe(document.getElementById('browser'));
     },
     beforeDestroy() { this.unsubscribeBrowser?.(); this.layoutObserver?.disconnect(); cancelAnimationFrame(this.fitFrame); window.ReactDOM?.unmountComponentAtNode(document.getElementById('browser')); },
     computed: {
@@ -62,6 +63,8 @@ export default Vue.component("AtacSeq", {
     },
     methods: {
         zoomGenome(factor) { if(this.browserStore)zoomGenome(this.browserStore,factor); },
+        fitView() { this.trackHeight='auto';this.resetRegion();this.scheduleFit(); },
+        resetView() { this.plotInfo=false;this.showTools=false;this.fitView(); },
         resetRegion() { if(this.browserStore && this.initialRegion)this.browserStore.dispatch({type:'SET_VIEW_REGION',...this.initialRegion}); },
         downloadPlot() { try { exportGenome(document.getElementById('browser'),this.liveLocus); } catch(error) { this.loadError='Plot export failed. Please retry after tracks finish loading.'; } },
         scheduleFit() { cancelAnimationFrame(this.fitFrame); this.fitFrame=requestAnimationFrame(()=>this.fitTracks()); },
@@ -71,7 +74,7 @@ export default Vue.component("AtacSeq", {
             const state=this.browserStore.getState().browser.present;
             const legendWidth=Math.max(85,Math.min(110,Math.round(root.clientWidth*0.24)));
             if(state.trackLegendWidth!==legendWidth)this.browserStore.dispatch({type:'SET_TRACK_LEGEND_WIDTH',width:legendWidth});
-            const next=fitSignalTracks(state.tracks,viewport.clientHeight-root.getBoundingClientRect().height-4);
+            const next=fitSignalTracks(state.tracks,viewport.clientHeight-root.offsetHeight-4, {availableHeight:viewport.clientHeight, fixedHeight:this.trackHeight==='auto'?null:Number(this.trackHeight)});
             if(next)this.browserStore.dispatch({type:'SET_TRACKS',tracks:next});
         },
         openRegion() {

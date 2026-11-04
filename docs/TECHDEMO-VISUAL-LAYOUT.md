@@ -1,3 +1,5 @@
+> Current control standard: Graph viewer. See [TECHDEMO-GRAPH-CONTROLS.md](TECHDEMO-GRAPH-CONTROLS.md) for shared assets, fullscreen and sizing fixes. Earlier scMap-only control descriptions below are superseded.
+
 # Tech demo browser layout handoff
 
 Current acceptance checklist: [TECHDEMO-MODULE-CHECKLIST.md](TECHDEMO-MODULE-CHECKLIST.md).

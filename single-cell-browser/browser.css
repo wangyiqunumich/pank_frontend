@@ -104,4 +104,4 @@ main.atlas-preview { padding: 0; overflow: hidden; }
 /* Keep a single content scrollbar; inline SVG baseline space otherwise creates
    a second five-pixel scroll range inside the upstream violin wrapper. */
 .violin svg { display:block; }
-.browser-content:not(.is-map) { padding-right:60px; }
+.browser-content:not(.is-map) { padding-right:12px; }

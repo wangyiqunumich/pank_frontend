@@ -19,13 +19,17 @@ export function zoomGenome(store,factor) {
   const width=Math.max(5,(end-start)*factor);
   store.dispatch({type:'SET_VIEW_REGION',start:center-width/2,end:center+width/2});
 }
-export function fitSignalTracks(tracks, extraHeight) {
+export function fitSignalTracks(tracks, extraHeight, { availableHeight = 1000, fixedHeight = null } = {}) {
   const signals=tracks.filter(t=>t.type==='bigwig'&&typeof t.cloneAndSetOption==='function');
-  if(!signals.length||Math.abs(extraHeight)<3)return null;
+  if(!signals.length || !Number.isFinite(extraHeight))return null;
+  // Bound each allocation by the actual viewport. Never compound transient
+  // render measurements into an unbounded track height during fullscreen.
+  const ceiling=Math.max(50,Math.floor(availableHeight/signals.length));
+  if(fixedHeight===null&&Math.abs(extraHeight)<3)return null;
   let changed=false;
   const next=tracks.map(track=>{
     if(!signals.includes(track))return track;
-    const old=track.options?.height||50,height=Math.max(50,Math.round(old+extraHeight/signals.length));
+    const old=track.options?.height||50,height=fixedHeight===null?Math.max(50,Math.min(ceiling,Math.round(old+extraHeight/signals.length))):fixedHeight;
     if(height===old)return track;changed=true;return track.cloneAndSetOption('height',height);
   });
   return changed?next:null;
