@@ -18,7 +18,7 @@ import {
 } from 'react-redux';
 import PersistentGraphViewport from '../components/PersistentGraphViewport';
 import GraphToolbar from './GraphToolbar';
-import GraphInfoPanel from './GraphInfoPanel';
+import GraphInfoPanel, { GraphInfoPanelHeader } from './GraphInfoPanel';
 import GraphLegend from './GraphLegend';
 
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -621,23 +621,9 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
       ? (
         <>
           {/* Title Bar */}
-          <Box sx={{
-            display: "flex",
-            paddingY: "17px",
-            textAlign: "center",
-            backgroundColor: "#E4F0F1",
-            alignItems: "center",
-            justifyContent: "center",
-          }}>
-            <Typography sx={{
-              fontFamily: "Open Sans",
-              fontWeight: "700",
-              fontSize: "20px",
-              lineHeight: "20px",
-            }}>
-              <InfocardData value={recordedText(hoveredData[titleColumn?.[1]])} dataKey={titleColumn?.[1]} config={titleDisplayConfig} />
-            </Typography>
-          </Box>
+          <GraphInfoPanelHeader title={recordedText(hoveredData[titleColumn?.[1]])}>
+            <InfocardData value={recordedText(hoveredData[titleColumn?.[1]])} dataKey={titleColumn?.[1]} config={titleDisplayConfig} />
+          </GraphInfoPanelHeader>
           {
             schema.map(([title, content, config]) => {
               const setting = config?.match(/\(([^)]+)\)/)?.[1];
@@ -775,9 +761,9 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
         fontWeight: "600",
         alignContent: "center",
       }}>
-        <div style={{ fontWeight: "bold", marginBottom: "8px" }}>
+        <GraphInfoPanelHeader title={String(hoveredData?.HGNC_symbol || hoveredData?.id || '')}>
           {hoveredData?.HGNC_symbol || hoveredData?.id}
-        </div>
+        </GraphInfoPanelHeader>
         {Object.entries(hoveredData || {})?.map(
           ([key, value]) =>
             key !== "type" &&

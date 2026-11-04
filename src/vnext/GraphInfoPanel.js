@@ -1,6 +1,30 @@
-import React from 'react';
+import React, { createContext, useContext } from 'react';
 import { createPortal } from 'react-dom';
-import { Button } from '@mui/material';
+import { IconButton } from '@mui/material';
+import OpenInFullIcon from '@mui/icons-material/OpenInFull';
+import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
+import CloseIcon from '@mui/icons-material/Close';
+
+const PanelContext = createContext(null);
+
+export function GraphInfoPanelHeader({ children, title }) {
+  const panel = useContext(PanelContext);
+  return <div style={{ position: 'sticky', top: 0, zIndex: 2, display: 'flex', alignItems: 'center', gap: 8,
+    minHeight: 58, boxSizing: 'border-box', padding: '10px 12px', background: '#E4F0F1', borderBottom: '1px solid #d8e6e8' }}>
+    <div title={title} data-testid="graph-info-title" style={{ flex: 1, minWidth: 0, display: '-webkit-box',
+      WebkitBoxOrient: 'vertical', WebkitLineClamp: panel?.large ? 3 : 2, overflow: 'hidden',
+      overflowWrap: 'anywhere', font: '700 16px/1.35 Open Sans, sans-serif', color: '#263238' }}>{children}</div>
+    {panel && <div style={{ display: 'flex', flexShrink: 0, alignSelf: 'flex-start', gap: 2 }}>
+      <IconButton size="small" title={panel.large ? 'Minimize' : 'Enlarge'}
+        aria-label={panel.large ? 'Minimize information panel' : 'Enlarge information panel'}
+        onClick={panel.large ? panel.onMinimize : panel.onEnlarge} sx={{ color: '#37646b', width: 30, height: 30 }}>
+        {panel.large ? <CloseFullscreenIcon fontSize="small" /> : <OpenInFullIcon fontSize="small" />}
+      </IconButton>
+      <IconButton size="small" title="Close" aria-label="Close information panel" onClick={panel.onClose}
+        sx={{ color: '#37646b', width: 30, height: 30 }}><CloseIcon fontSize="small" /></IconButton>
+    </div>}
+  </div>;
+}
 
 // Escape the graph/answer stacking contexts; native fullscreen needs its own host.
 export default function GraphInfoPanel({ children, panelRef, host, visible, mode, position, review,
@@ -15,11 +39,8 @@ export default function GraphInfoPanel({ children, panelRef, host, visible, mode
       maxHeight: large ? 'calc(100dvh - 100px)' : 'calc(100dvh - 24px)',
       background: '#fff', color: '#333', borderRadius: 12, boxShadow: '0 8px 32px #0003',
       fontFamily: 'Open Sans, sans-serif', overflow: 'hidden', overflowWrap: 'anywhere' }}>
-    <div style={{ display: 'flex', flexShrink: 0, justifyContent: 'flex-end', gap: 4, padding: '6px 8px', borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
-      {large ? <Button size="small" onClick={onMinimize} aria-label="Minimize information panel">Minimize</Button>
-        : <Button size="small" onClick={onEnlarge} aria-label="Enlarge information panel">Enlarge</Button>}
-      <Button size="small" onClick={onClose} aria-label="Close information panel">Close</Button>
-    </div>
-    <div style={{ overflowY: 'auto', minHeight: 0, overscrollBehavior: 'contain' }}>{children}</div>
+    <PanelContext.Provider value={{ large, onEnlarge, onMinimize, onClose }}>
+      <div style={{ overflowY: 'auto', minHeight: 0, overscrollBehavior: 'contain' }}>{children}</div>
+    </PanelContext.Provider>
   </section>, host || document.body);
 }

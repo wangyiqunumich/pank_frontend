@@ -1,4 +1,5 @@
 import React, { useLayoutEffect, useRef } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
 
 // A native modal dialog enters the browser's top layer without moving its DOM.
 // Unlike reparenting a portal, this also preserves the iframe browsing context.
@@ -56,9 +57,11 @@ export default function PersistentGraphViewport({ children, fullscreen, onExit, 
     onKeyDown={event => { if (fullscreen && event.key === 'Escape') { event.preventDefault(); onExit(); } }}
     style={{ display: 'block', boxSizing: 'border-box', position: fullscreen ? 'fixed' : 'relative', inset: fullscreen ? 0 : 'auto', width: fullscreen ? '100vw' : '100%', height: fullscreen ? '100dvh' : '100%', minHeight: 0, maxWidth: 'none', maxHeight: 'none', margin: 0, padding: 0, border: 0, background: 'transparent', color: 'inherit', outline: 0 }}>
     {children}
-    {fullscreen && <button type="button" aria-label="Exit fullscreen graph" onClick={onExit}
-      style={{ position: 'fixed', top: 16, right: 16, zIndex: 2147483001, padding: '10px 16px', borderRadius: 8,
-        border: '1px solid #cbd5e1', background: '#fff', color: '#164e63', font: '600 14px Inter, sans-serif',
-        boxShadow: '0 2px 10px #0002', cursor: 'pointer' }}>Exit fullscreen graph ×</button>}
+    {fullscreen && <button type="button" aria-label="Exit fullscreen graph" title="Exit full screen" onClick={onExit}
+      style={{ position: 'fixed', top: 16, right: 16, zIndex: 2147483001, width: 40, height: 40,
+        display: 'grid', placeItems: 'center', borderRadius: '50%', border: '1px solid #d8e6e8',
+        background: '#fff', color: '#37646b', boxShadow: '0 2px 10px #0002', cursor: 'pointer' }}>
+      <CloseIcon aria-hidden="true" />
+    </button>}
   </dialog>;
 }
