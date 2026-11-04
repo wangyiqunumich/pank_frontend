@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor, act, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import PanKbaseModule from './PanKbaseModule';
 const context={moduleId:'genome_browser',recordId:'g',geneSymbol:'CFTR',available:true};
 afterEach(()=>jest.restoreAllMocks());
@@ -13,10 +13,13 @@ test('previews and unopened modules perform no fetch; opening loads one entry an
  await waitFor(()=>expect(screen.getByTitle('Genome Browser')).toBeTruthy());
  const frame=screen.getByTitle('Genome Browser');
  expect(global.fetch).toHaveBeenCalledTimes(1);
- fireEvent.click(screen.getByRole('button',{name:'Expand view'}));
+ const toggle=source=>act(()=>window.dispatchEvent(new MessageEvent('message',{origin:window.location.origin,source,data:{protocol:'pankgraph.pankbase.v1',type:'fullscreen-toggle'}})));
+ toggle(null);
+ expect(screen.queryByRole('dialog',{name:'Genome Browser'})).toBeNull();
+ toggle(frame.contentWindow);
  expect(screen.getByRole('dialog',{name:'Genome Browser'})).toBeTruthy();
  expect(screen.getByTitle('Genome Browser')).toBe(frame);
- fireEvent.click(screen.getByRole('button',{name:'Exit full screen'}));
+ toggle(frame.contentWindow);
  expect(screen.getByTitle('Genome Browser')).toBe(frame);
  rerender(<PanKbaseModule moduleId="genome_browser" context={context} isVisible={false}/>);
  expect(screen.getByTitle('Genome Browser')).toBe(frame);

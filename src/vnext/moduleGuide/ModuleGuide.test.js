@@ -1,6 +1,7 @@
 import React from 'react';
 import {render,screen,fireEvent,waitFor} from '@testing-library/react';
 import ModuleGuide from './ModuleGuide';
+import * as bridge from './bridge';
 
 beforeEach(()=>{
  sessionStorage.clear();Element.prototype.scrollIntoView=jest.fn();
@@ -30,4 +31,25 @@ test('unavailable provider retains manual and does not retry a paid request',asy
  fireEvent.change(screen.getByLabelText('Ask about module usage'),{target:{value:'Explain tracks'}});fireEvent.click(screen.getByRole('button',{name:'Send guide question'}));
  await screen.findByText('Budget reached');expect(fetch.mock.calls.filter(([,o])=>o?.method==='POST')).toHaveLength(1);
  fireEvent.click(screen.getByRole('button',{name:'Use manual'}));expect(screen.getByLabelText('Find a topic')).toBeTruthy();
+});
+
+test('configuration undo survives closing the panel and visiting manual, without overwriting its inverse',async()=>{
+ const action={type:'genome_tracks',module:'genome_browser',params:{cell_types:['beta','alpha'],track_types:['signal'],height:'80'}};
+ const inverse={...action,params:{cell_types:['beta','alpha','ductal'],track_types:['signal','peaks'],height:'auto'}};
+ const apply=jest.spyOn(bridge,'applyGuideAction').mockResolvedValue(inverse);
+ fetch.mockImplementation(async(url,options)=>({ok:true,json:async()=>options?.method==='POST'?{answer:'Preview tracks.',citations:[{id:'genome-tracks',title:'Genome tracks'}],actions:[action]}:{status:'ready'}}));
+ render(<ModuleGuide/>);fireEvent.click(screen.getByRole('button',{name:'Open module guide'}));
+ fireEvent.change(screen.getByLabelText('Ask about module usage'),{target:{value:'Configure beta alpha'}});fireEvent.click(screen.getByRole('button',{name:'Send guide question'}));
+ fireEvent.click(await screen.findByRole('button',{name:'Apply configuration'}));
+ await screen.findByRole('button',{name:'Undo'});
+ expect(screen.getByRole('button',{name:'Applied'}).disabled).toBe(true);
+ fireEvent.click(screen.getByRole('button',{name:'Close module guide'}));fireEvent.click(screen.getByRole('button',{name:'Open module guide'}));
+ expect(screen.getByRole('button',{name:'Undo'})).toBeTruthy();
+ fireEvent.click(screen.getByRole('button',{name:'Genome tracks'}));
+ fireEvent.click(screen.getByRole('button',{name:'Chat',exact:true}));
+ fireEvent.click(screen.getByRole('button',{name:'Undo'}));
+ await screen.findByText('Previous settings restored.');
+ expect(apply.mock.calls.map(([value])=>value)).toEqual([action,inverse]);
+ expect(screen.queryByRole('button',{name:'Undo'})).toBeNull();
+ expect(screen.getByRole('button',{name:'Apply configuration'}).disabled).toBe(false);
 });

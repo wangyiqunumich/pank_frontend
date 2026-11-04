@@ -12,15 +12,24 @@ const storageKey='pank-module-guide:v1';
 const STARTERS=['How do I choose fewer genome tracks?','Highlight 和 Selected 有什么区别？','How do I read the heatmap sample labels?'];
 const examples=[{type:'genome_tracks',module:'genome_browser',params:{cell_types:['beta','alpha','ductal'],track_types:['signal','peaks'],height:'auto'}},{type:'genome_tracks',module:'genome_browser',params:{cell_types:['acinar','alpha','beta','delta','ductal','gamma'],track_types:['signal'],height:'80'}}];
 function readSaved(){try{const saved=JSON.parse(sessionStorage.getItem(storageKey));return Array.isArray(saved)?saved.filter(m=>['user','assistant'].includes(m.role)&&typeof m.content==='string').slice(-24):[];}catch(_){return[];}}
-function ActionCard({action,onApplied}){
-  const [status,setStatus]=useState(''),[busy,setBusy]=useState(false),[undo,setUndo]=useState(null);
+function ActionCard({action,onApplied,state={},onState}){
+  const {status='',busy=false,undo=null}=state;
   if(!validAction(action))return null;
-  const apply=async reverting=>{setBusy(true);setStatus('Opening module…');try{const inverse=await applyGuideAction(reverting?undo:action);setUndo(reverting?null:inverse);setStatus(reverting?'Previous settings restored.':'Settings applied. Check the module for data loading.');onApplied?.(action.module);}catch(error){setStatus(error.message);}finally{setBusy(false);}};
-  return <div className="guide-action"><strong>{MODULE_LABELS[action.module]}</strong><p>{actionSummary(action)}</p><div className="guide-action-buttons"><button disabled={busy} onClick={()=>apply(false)}>Apply configuration</button>{undo&&<button disabled={busy} onClick={()=>apply(true)}>Undo</button>}</div>{status&&<p role="status">{status}</p>}</div>;
+  const apply=async reverting=>{
+    if(busy||(!reverting&&undo))return;
+    onState({busy:true,status:'Opening module…'});
+    try{const inverse=await applyGuideAction(reverting?undo:action);onState({undo:reverting?null:inverse,status:reverting?'Previous settings restored.':'Settings applied. Check the module for data loading.'});onApplied?.(action.module);}
+    catch(error){onState({status:error.message});}
+    finally{onState({busy:false});}
+  };
+  return <div className="guide-action"><strong>{MODULE_LABELS[action.module]}</strong><p>{actionSummary(action)}</p><div className="guide-action-buttons"><button disabled={busy||!!undo} onClick={()=>apply(false)}>{undo?'Applied':'Apply configuration'}</button>{undo&&<button disabled={busy} onClick={()=>apply(true)}>Undo</button>}</div>{status&&<p role="status">{status}</p>}</div>;
 }
 export default function ModuleGuide(){
   const [open,setOpen]=useState(false),[tab,setTab]=useState('Chat'),[module,setModule]=useState(getGuideActiveModule);
   const [messages,setMessages]=useState(readSaved),[input,setInput]=useState(''),[busy,setBusy]=useState(false),[article,setArticle]=useState(null),[search,setSearch]=useState(''),[available,setAvailable]=useState(null),[bottom,setBottom]=useState(88);
+  const [actionStates,setActionStates]=useState({});
+  const actionCard=(action,id)=><ActionCard key={id} action={action} onApplied={setModule} state={actionStates[id]} onState={patch=>setActionStates(previous=>({...previous,[id]:{...previous[id],...patch}}))}/>;
+  const applying=Object.values(actionStates).some(state=>state.busy);
   const launcher=useRef(),panel=useRef(),textarea=useRef(),end=useRef(),abort=useRef(),requestGeneration=useRef(0);
   useEffect(()=>{const changed=e=>setModule(e.detail);window.addEventListener('pank-guide-active',changed);setModule(getGuideActiveModule());return()=>window.removeEventListener('pank-guide-active',changed);},[]);
   useEffect(()=>{try{sessionStorage.setItem(storageKey,JSON.stringify(messages.slice(-24)));}catch(_){}},[messages]);
@@ -48,18 +57,18 @@ export default function ModuleGuide(){
     }catch(error){if(generation===requestGeneration.current)setMessages(previous=>[...previous,{role:'assistant',error:true,content:error.name==='AbortError'?'The reply timed out. It may still be billed; no automatic retry was made. The manual is available.':error.message}]);}
     finally{clearTimeout(timeout);if(generation===requestGeneration.current)setBusy(false);}
   };
-  const clear=()=>{requestGeneration.current++;abort.current?.abort();setMessages([]);setBusy(false);setArticle(null);setInput('');};
+  const clear=()=>{requestGeneration.current++;abort.current?.abort();setMessages([]);setActionStates({});setBusy(false);setArticle(null);setInput('');};
   const section=manual.find(d=>d.id===article);
   return <>
     <button ref={launcher} className="guide-launcher" style={{bottom}} aria-label="Open module guide" aria-expanded={open} aria-controls="pank-module-guide" onClick={()=>setOpen(value=>!value)}><HelpOutlineRoundedIcon/><span>Module guide</span></button>
     {open&&<aside ref={panel} id="pank-module-guide" role="dialog" aria-label="PanKgraph module guide" className="module-guide" style={{bottom,maxHeight:`calc(100dvh - ${bottom+16}px)`}}>
       <header><div><strong>Module guide</strong><small>Learn · Configure · Explore</small></div><IconButton aria-label="Close module guide" onClick={()=>{setOpen(false);launcher.current?.focus();}} size="small"><CloseRoundedIcon/></IconButton></header>
-      <nav aria-label="Guide views"><div>{['Chat','Manual'].map(t=><button key={t} aria-pressed={tab===t&&!article} onClick={()=>{setTab(t);setArticle(null);}}>{t}</button>)}</div><button className="guide-new" onClick={clear} disabled={busy}>New conversation</button></nav>
+      <nav aria-label="Guide views"><div>{['Chat','Manual'].map(t=><button key={t} aria-pressed={tab===t&&!article} onClick={()=>{setTab(t);setArticle(null);}}>{t}</button>)}</div><button className="guide-new" onClick={clear} disabled={busy||applying}>New conversation</button></nav>
       <label className="guide-module">Module<select value={module} onChange={e=>setModule(e.target.value)}>{Object.entries(MODULE_LABELS).map(([id,label])=><option key={id} value={id}>{label}</option>)}</select></label>
       <div className="guide-scroll">
-        {section?<article className="guide-manual-article"><button onClick={()=>setArticle(null)}>← Back</button><h3>{section.title}</h3>{section.body.split('\n').map((p,i)=><p key={i}>{p}</p>)}{section.id==='genome-tracks'&&<><h4>Ready-to-use comparisons</h4>{examples.map((a,i)=><ActionCard key={i} action={a} onApplied={setModule}/>)}</>}</article>:tab==='Manual'?<div className="guide-manual"><label>Find a topic<input value={search} onChange={e=>setSearch(e.target.value)} placeholder="tracks / 缩放 / heatmap"/></label>{manual.filter(d=>(d.title+' '+d.body).toLowerCase().includes(search.toLowerCase())).map(d=><button key={d.id} onClick={()=>setArticle(d.id)}>{d.title}<span>→</span></button>)}{!manual.some(d=>(d.title+' '+d.body).toLowerCase().includes(search.toLowerCase()))&&<p>No matching section. Try a module name or a shorter term.</p>}</div>:<>
+        {section?<article className="guide-manual-article"><button onClick={()=>setArticle(null)}>← Back</button><h3>{section.title}</h3>{section.body.split('\n').map((p,i)=><p key={i}>{p}</p>)}{section.id==='genome-tracks'&&<><h4>Ready-to-use comparisons</h4>{examples.map((a,i)=>actionCard(a,`manual-${i}`))}</>}</article>:tab==='Manual'?<div className="guide-manual"><label>Find a topic<input value={search} onChange={e=>setSearch(e.target.value)} placeholder="tracks / 缩放 / heatmap"/></label>{manual.filter(d=>(d.title+' '+d.body).toLowerCase().includes(search.toLowerCase())).map(d=><button key={d.id} onClick={()=>setArticle(d.id)}>{d.title}<span>→</span></button>)}{!manual.some(d=>(d.title+' '+d.body).toLowerCase().includes(search.toLowerCase()))&&<p>No matching section. Try a module name or a shorter term.</p>}</div>:<>
           {!messages.length&&<div className="guide-welcome"><h3>What would you like to do?</h3><p>Ask how to use a module or describe the configuration you want. 我也可以用中文解释。</p>{STARTERS.map(q=><button key={q} onClick={()=>setInput(q)}>{q}</button>)}<button className="guide-manual-shortcut" onClick={()=>setArticle('genome-tracks')}>Browse the track configuration guide →</button></div>}
-          {messages.map((m,i)=><div key={i} className={`guide-message ${m.role}${m.error?' error':''}`}><strong>{m.role==='user'?'You':'Module guide'}</strong><p>{m.content}</p>{m.citations?.length>0&&<div className="guide-citations" aria-label="Manual sources">{m.citations.filter(c=>manual.some(d=>d.id===c.id)).map(c=><button key={c.id} onClick={()=>setArticle(c.id)}>{c.title}</button>)}</div>}{m.actions?.map((a,j)=><ActionCard key={j} action={a} onApplied={setModule}/>)}</div>)}
+          {messages.map((m,i)=><div key={i} className={`guide-message ${m.role}${m.error?' error':''}`}><strong>{m.role==='user'?'You':'Module guide'}</strong><p>{m.content}</p>{m.citations?.length>0&&<div className="guide-citations" aria-label="Manual sources">{m.citations.filter(c=>manual.some(d=>d.id===c.id)).map(c=><button key={c.id} onClick={()=>setArticle(c.id)}>{c.title}</button>)}</div>}{m.actions?.map((a,j)=>actionCard(a,`message-${i}-${j}`))}</div>)}
           {busy&&<p role="status" className="guide-pending">Reading the module manual…</p>}<div ref={end}/>
         </>}
       </div>
