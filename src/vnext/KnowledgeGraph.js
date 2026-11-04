@@ -18,6 +18,7 @@ import {
 } from 'react-redux';
 import PersistentGraphViewport from '../components/PersistentGraphViewport';
 import GraphToolbar from './GraphToolbar';
+import GraphInfoPanel from './GraphInfoPanel';
 import GraphLegend from './GraphLegend';
 
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -822,7 +823,7 @@ export default function KnowledgeGraph({ overlay, onEvidenceInspect, selectable 
 
   // hover functions
   const [hoveredId, setHoveredId] = useState(null);
-  const [hoverExpand, setHoverExpand] = useState(false);
+  const [panelMode, setPanelMode] = useState('hover');
   // hover id ref
   const hoveredIdRef = useRef(hoveredId);
   const dispatch = useDispatch();
@@ -966,7 +967,7 @@ export default function KnowledgeGraph({ overlay, onEvidenceInspect, selectable 
       console.log(y);
       return;
     }
-    infocard.style.display = "block";
+
     // infocard.style.opacity = "1";
     const { width: infocardWidth, height: infocardHeight } = infocard.getBoundingClientRect();
 
@@ -985,10 +986,11 @@ export default function KnowledgeGraph({ overlay, onEvidenceInspect, selectable 
     // popup inside the window so its scrollable content remains reachable.
     left = Math.max(12 - containerLeft, Math.min(left, window.innerWidth - containerLeft - infocardWidth - 12));
     top = Math.max(12 - containerTop, Math.min(top, window.innerHeight - containerTop - infocardHeight - 12));
-    setInfocardPosition({ x: left, y: top });
-  }, [hoveredId, nodeHovered, infocardEnabled, activeNode]);
+    setInfocardPosition({ x: left + containerLeft, y: top + containerTop });
+  }, [hoveredId, nodeHovered, infocardEnabled, activeNode, expanded, panelMode, infocardVisible]);
 
-  const toggleExpand = () => setExpanded(value => !value);
+  const exitGraphFullscreen = () => { setExpanded(false); if (panelMode === 'expanded') setPanelMode('minimized'); };
+  const toggleExpand = () => expanded ? exitGraphFullscreen() : setExpanded(true);
 
   const handleReset = () => {
     const cy = cyRef.current;
@@ -1014,6 +1016,7 @@ export default function KnowledgeGraph({ overlay, onEvidenceInspect, selectable 
   const appearNodeIdRef = useRef(null);
   const fadeOutTimeoutRef = useRef(null);
   useEffect(() => {
+    if (panelMode !== 'hover') return undefined;
     if (!infocardHovered && !nodeHovered) {
       // console.log("Preparing to hide infocard");
       clearTimeout(appearTimeoutRef.current);
@@ -1039,7 +1042,7 @@ export default function KnowledgeGraph({ overlay, onEvidenceInspect, selectable 
       clearTimeout(fadeOutTimeoutRef.current);
       clearTimeout(appearTimeoutRef.current);
     }
-  }, [infocardHovered, nodeHovered, infocardEnabled, hoveredId]);
+  }, [infocardHovered, nodeHovered, infocardEnabled, hoveredId, panelMode]);
 
 
   useEffect(() => {
@@ -1205,8 +1208,8 @@ export default function KnowledgeGraph({ overlay, onEvidenceInspect, selectable 
   }, [selectedID]);
 
   return (
-    <PersistentGraphViewport fullscreen={expanded} onExit={() => setExpanded(false)}>
-    <div className="graph-viewer" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', ...sx, position: 'relative', width: '100%', height: '100%', minHeight: 0, borderRadius: expanded ? 0 : 16 }}>
+    <PersistentGraphViewport fullscreen={expanded} onExit={exitGraphFullscreen}>
+    <div className="graph-viewer" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', ...sx, position: 'relative', width: '100%', height: '100%', minHeight: 0, borderRadius: expanded ? 0 : 16, background: expanded ? '#f8fafc' : undefined }}>
       {expanded && <Box sx={{ position: 'absolute', top: 16, left: '50%', transform: 'translateX(-50%)', width: 'min(360px, calc(100% - 210px))', zIndex: 15 }}><GraphSearch inputRef={inputRef} onSearch={focusElementByKey} /></Box>}
       <div
         ref={containerRef}
@@ -1232,41 +1235,14 @@ export default function KnowledgeGraph({ overlay, onEvidenceInspect, selectable 
         onDownload={handleDownload} onReset={handleReset}
         modeLabel={(graphData || queryResultPage?.combined_query_result)?.presentation_mode === 'relationship_list' ? 'List mode' : 'KG mode'} />
       <div className="graph-zoom-indicator" aria-label="Graph zoom">{Math.round(zoomLevel / initZoom * 100)}%</div>
-      <div
-        ref={infocardRef}
-        onMouseEnter={() => {
-          setInfocardHovered(true);
-        }}
-        onMouseLeave={() => {
-          setInfocardHovered(false);
-        }}
-        style={{
-          fontFamily: "Open Sans",
-          fontWeight: 400,
-          position: "absolute",
-          left: infocardPosition.x,
-          top: infocardPosition.y,
-          background: "#fff",
-          borderRadius: "8px",
-          overflow: "hidden",
-          overflowY: "auto",
-          maxHeight: "calc(100vh - 24px)",
-          color: "#333",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-          zIndex: 1000,
-          width: review ? "550px" : "280px",
-          pointerEvents: infocardVisible ? "auto" : "none",
-          opacity: infocardVisible ? 1 : 0,
-          display: "block",
-          transform: "translateY(0px)",
-          transition: "opacity 0.15s, display 0.15s, left 0.15s, top 0.15s",
-          transitionBehavior: "allow-discrete",
-          willChange: "transform, opacity",
-          wordWrap: "break-word",
-        }}
-      >
+      <GraphInfoPanel panelRef={infocardRef} host={expanded ? containerRef.current?.closest('dialog') : document.body}
+        visible={infocardVisible} mode={panelMode} position={infocardPosition} review={review}
+        onEnter={() => setInfocardHovered(true)} onLeave={() => setInfocardHovered(false)}
+        onEnlarge={() => { setPanelMode('expanded'); setInfocardVisible(true); setExpanded(true); }}
+        onMinimize={() => setPanelMode('minimized')}
+        onClose={() => { setPanelMode('hover'); setInfocardVisible(false); setNodeHovered(false); setInfocardHovered(false); }}>
         <InfocardMenu hoveredData={activeNode?.data()} review={review} />
-      </div>
+      </GraphInfoPanel>
       {!review && <GraphLegend defaultOpen={defaultLegendVisible} />}
     </div>
     </PersistentGraphViewport>
