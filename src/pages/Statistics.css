@@ -56,7 +56,7 @@
 .stats-table .stats-count { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 550; }
 .stats-sources, .stats-licenses, .stats-library { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
 .stats-license { display: inline-block; color: #46676b; background: #f0f6f5; border: 1px solid #dce9e7; border-radius: 4px; padding: 3px 7px; font-size: 11px; }
-.stats-license-unknown { color: #80622f; background: #faf6ec; border-color: #ece1c9; }
+.stats-terms { color: #63777f; font-size: 12px; }
 .stats-link-kind { color: #657780; font-size: 10px; letter-spacing: .02em; }
 .stats-link-source { color: #33716a; }
 .stats-page summary { cursor: pointer; color: #60777f; font-size: 11px; }

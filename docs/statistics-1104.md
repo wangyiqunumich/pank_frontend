@@ -29,8 +29,11 @@ Relationship groups are type + endpoints; the 34 groups are not 34 unique types.
 The 14 node categories distinguish donor/sample provenance ownership.
 
 Only aggregate metadata is exported. Raw examples, donor-level records, private
-source URLs and filesystem locations are excluded. License values are preserved;
-`unknown` is displayed as “Not yet verified.” Combined terms remain combined.
+source URLs and filesystem locations are excluded. Raw license values are preserved. The public usage-policy column links PanKbase
+source records to https://pankbase.org/policies.html with “Follow PanKbase policy”.
+External sources retain explicit licenses or neutral “See source terms” text.
+Related PanKbase library links alone do not trigger the PanKbase policy label.
+Combined external terms remain combined.
 Source terms are not inferred from related library resources. In particular,
 metadata and CCC are not assigned an open license, and the GWAS summary dataset
 is not represented as the exact fine-mapping source.

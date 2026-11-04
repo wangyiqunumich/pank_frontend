@@ -19,10 +19,15 @@ const licenseLabel = value => ({
 function ExternalLink({ href, children, ...props }) {
   return <a href={href} target="_blank" rel="noopener noreferrer" {...props}>{children}<span aria-hidden="true"> ↗</span></a>;
 }
-function Licenses({ values }) {
-  return <div className="stats-licenses">{values.map(value => value === 'unknown'
-    ? <span className="stats-license stats-license-unknown" key={value}>Not yet verified</span>
-    : <span className="stats-license" key={value}>{value.split(' AND ').map((part, index) => <React.Fragment key={part}>{index > 0 && <span> + </span>}{licenseUrls[part] ? <ExternalLink href={licenseUrls[part]} title={part}>{licenseLabel(part)}</ExternalLink> : part}</React.Fragment>)}</span>)}</div>;
+const PANKBASE_POLICY_URL = 'https://pankbase.org/policies.html';
+const isPanKbaseSource = source => /\bPanKbase\b/.test(source.name);
+const hasPanKbasePolicy = row => row.sources.some(isPanKbaseSource);
+const displayedLicenses = row => row.sources.every(isPanKbaseSource) ? [] : row.licenses.filter(value => value !== 'unknown');
+function Licenses({ row }) {
+  const pankbase = hasPanKbasePolicy(row);
+  const values = displayedLicenses(row);
+  return <div className="stats-licenses">{pankbase && <ExternalLink href={PANKBASE_POLICY_URL}>Follow PanKbase policy</ExternalLink>}{!pankbase && row.licenses.includes('unknown') && <span className="stats-terms">See source terms</span>}{values.map(value =>
+    <span className="stats-license" key={value}>{value.split(' AND ').map((part, index) => <React.Fragment key={part}>{index > 0 && <span> + </span>}{licenseUrls[part] ? <ExternalLink href={licenseUrls[part]} title={part}>{licenseLabel(part)}</ExternalLink> : part}</React.Fragment>)}</span>)}</div>;
 }
 function LibraryLinks({ row }) {
   if (!row.library.length) return <span className="stats-muted">No mapped download</span>;
@@ -38,7 +43,7 @@ export default function StatPage() {
   const [sort, setSort] = useState('count');
   const rows = useMemo(() => data.rows.filter(row => row.kind === kind
     && (!linkedOnly || row.library.length > 0)
-    && (license === 'all' || (license === 'unknown' ? row.licenses.includes('unknown') : row.licenses.every(value => value !== 'unknown')))
+    && (license === 'all' || (license === 'policy' ? hasPanKbasePolicy(row) : license === 'unknown' ? !hasPanKbasePolicy(row) && row.licenses.includes('unknown') : displayedLicenses(row).length > 0))
     && [row.name, row.type, row.endpoints, ...row.sources.map(s => s.name), ...row.licenses, ...row.library.map(l => l.label)].join(' ').toLowerCase().includes(query.trim().toLowerCase()))
     .sort((a, b) => sort === 'count' ? b.count - a.count : a.name.localeCompare(b.name)), [kind, query, license, linkedOnly, sort]);
   const reset = () => { setQuery(''); setLicense('all'); setLinkedOnly(false); setSort('count'); };
@@ -58,24 +63,24 @@ export default function StatPage() {
       <div className="stats-tabs" role="group" aria-label="Record category">{[['nodes', 'Nodes'], ['edges', 'Relationships']].map(([value, label]) => <button type="button" key={value} aria-pressed={kind === value} onClick={() => setKind(value)}>{label}<span>{data.rows.filter(row => row.kind === value).length}</span></button>)}</div>
       <div className="stats-controls">
         <label className="stats-search">Search data<input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Search type, source, license or accession…" /></label>
-        <label>License status<select value={license} onChange={event => setLicense(event.target.value)}><option value="all">All statuses</option><option value="recorded">Terms recorded</option><option value="unknown">Not yet verified</option></select></label>
+        <label>Usage terms<select value={license} onChange={event => setLicense(event.target.value)}><option value="all">All terms</option><option value="policy">PanKbase policy</option><option value="recorded">Source license</option><option value="unknown">See source terms</option></select></label>
         <label>Sort by<select value={sort} onChange={event => setSort(event.target.value)}><option value="count">Record count</option><option value="name">Name (A–Z)</option></select></label>
       </div>
       <div className="stats-results-line"><p role="status">{rows.length} of {data.rows.filter(row => row.kind === kind).length} {kind === 'nodes' ? 'node categories' : 'relationship groups'}</p><label><input type="checkbox" checked={linkedOnly} onChange={event => setLinkedOnly(event.target.checked)} /> With PanKbase links</label><button type="button" onClick={reset}>Reset filters</button></div>
       <div className="stats-table-scroll" role="region" aria-label="Data statistics table" tabIndex="0"><table className="stats-table">
         <caption className="stats-sr-only">{data.release} {kind === 'nodes' ? 'node categories' : 'relationship groups'}, counts, sources, licenses and PanKbase resources</caption>
-        <thead><tr><th scope="col">{kind === 'nodes' ? 'Entity type' : 'Relationship / endpoints'}</th><th scope="col" className="stats-count">Records</th><th scope="col">Source</th><th scope="col">Recorded license</th><th scope="col">PanKbase downloads</th></tr></thead>
+        <thead><tr><th scope="col">{kind === 'nodes' ? 'Entity type' : 'Relationship / endpoints'}</th><th scope="col" className="stats-count">Records</th><th scope="col">Source</th><th scope="col">License / usage policy</th><th scope="col">PanKbase downloads</th></tr></thead>
         <tbody>{rows.map(row => <tr key={row.id}>
           <th scope="row"><span className="stats-row-name">{row.name}</span>{row.endpoints && <small className="stats-endpoints">{row.endpoints}</small>}<details className="stats-record-details"><summary>Type & version</summary><code>{row.type}</code>{row.versions.map(version => <small key={version}>{version}</small>)}</details></th>
           <td className="stats-count">{number(row.count)}</td>
           <td><div className="stats-sources">{row.sources.map(source => <span key={source.name}>{source.url ? <ExternalLink href={source.url}>{source.name}</ExternalLink> : source.name}</span>)}{row.methods && <details><summary>Methods & code</summary>{row.methods.map(method => <div key={method.url}><ExternalLink href={method.url}>{method.label}</ExternalLink></div>)}</details>}</div></td>
-          <td><Licenses values={row.licenses} /></td><td><LibraryLinks row={row} /></td>
+          <td><Licenses row={row} /></td><td><LibraryLinks row={row} /></td>
         </tr>)}</tbody>
       </table>{!rows.length && <div className="stats-empty"><strong>No matching data types</strong><p>Try a different source or clear the filters.</p><button type="button" onClick={reset}>Clear filters</button></div>}</div>
       <p className="stats-table-note">Relationships are grouped by type and endpoint categories. Counts include individual source records; repeated gene pairs may represent distinct experimental evidence.</p>
     </section>
     <section className="stats-reuse" id="stats-reuse" aria-labelledby="stats-reuse-title"><h2 id="stats-reuse-title">Using the data responsibly</h2><div className="stats-reuse-grid">
-      <div><span className="stats-step">01 / LICENSING</span><h3>Check the source terms</h3><p>Licenses are recorded per data type in this version. “Not yet verified” preserves an unknown license; it does not grant permission to reuse or redistribute. Where several terms are shown, review the original records and their source conditions.</p></div>
+      <div><span className="stats-step">01 / LICENSING</span><h3>Check the source terms</h3><p>For PanKbase data, follow the PanKbase data-use policy. For external data, follow the original source’s license and usage terms. Where data combine multiple sources, retain the applicable source-specific conditions.</p></div>
       <div><span className="stats-step">02 / DOWNLOADS</span><h3>Keep dataset identity intact</h3><p>Source dataset links come from the source records. Related resources provide useful context, but may differ in release, cohort or processing. Open each dataset’s Files section for downloads and current availability.</p></div>
       <div><span className="stats-step">03 / INTERPRETATION</span><h3>Retain the biological context</h3><p>Associations, expression differences and inferred ligand–receptor relationships have distinct evidence scopes. Counts do not establish causality or completeness. This version excludes ABC predictions and regulatory-element nodes.</p></div>
     </div></section>
