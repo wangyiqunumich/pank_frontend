@@ -4,7 +4,7 @@ import HelpOutlineRoundedIcon from '@mui/icons-material/HelpOutlineRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import {sitePath} from '../api';
-import {applyGuideAction} from './bridge';
+import {applyGuideAction,getGuideActiveModule} from './bridge';
 import {MODULE_LABELS,validAction,actionSummary} from './actions.mjs';
 import manual from './manual.json';
 import './guide.css';
@@ -19,9 +19,10 @@ function ActionCard({action,onApplied}){
   return <div className="guide-action"><strong>{MODULE_LABELS[action.module]}</strong><p>{actionSummary(action)}</p><div className="guide-action-buttons"><button disabled={busy} onClick={()=>apply(false)}>Apply configuration</button>{undo&&<button disabled={busy} onClick={()=>apply(true)}>Undo</button>}</div>{status&&<p role="status">{status}</p>}</div>;
 }
 export default function ModuleGuide(){
-  const [open,setOpen]=useState(false),[tab,setTab]=useState('Chat'),[module,setModule]=useState('genome_browser');
+  const [open,setOpen]=useState(false),[tab,setTab]=useState('Chat'),[module,setModule]=useState(getGuideActiveModule);
   const [messages,setMessages]=useState(readSaved),[input,setInput]=useState(''),[busy,setBusy]=useState(false),[article,setArticle]=useState(null),[search,setSearch]=useState(''),[available,setAvailable]=useState(null),[bottom,setBottom]=useState(88);
   const launcher=useRef(),panel=useRef(),textarea=useRef(),end=useRef(),abort=useRef(),requestGeneration=useRef(0);
+  useEffect(()=>{const changed=e=>setModule(e.detail);window.addEventListener('pank-guide-active',changed);setModule(getGuideActiveModule());return()=>window.removeEventListener('pank-guide-active',changed);},[]);
   useEffect(()=>{try{sessionStorage.setItem(storageKey,JSON.stringify(messages.slice(-24)));}catch(_){}},[messages]);
   useEffect(()=>()=>abort.current?.abort(),[]);
   useEffect(()=>{

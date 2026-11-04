@@ -1,4 +1,4 @@
-import { validAction } from './actions.mjs';
+import { validAction, MODULE_LABELS } from './actions.mjs';
 const handlers=new Map();
 export function registerGuideModule(id, handler){handlers.set(id,handler);return()=>{if(handlers.get(id)===handler)handlers.delete(id);};}
 export async function applyGuideAction(action){
@@ -11,3 +11,7 @@ export async function applyGuideAction(action){
   while(Date.now()<deadline){const handler=handlers.get(action.module);if(handler)return handler(action);await new Promise(resolve=>setTimeout(resolve,150));}
   throw new Error('The module has not finished loading. Check its error message and try again.');
 }
+
+let activeModule='graph_viewer';
+export const getGuideActiveModule=()=>activeModule;
+export function setGuideActiveModule(id){if(!Object.hasOwn(MODULE_LABELS,id))return;activeModule=id;window.dispatchEvent(new CustomEvent('pank-guide-active',{detail:id}));}

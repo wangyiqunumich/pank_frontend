@@ -1,3 +1,5 @@
+import {TECH_DEMO} from './hosting';
+import {setGuideActiveModule} from './moduleGuide/bridge';
 // QuestionAnswerPage.jsx
 // Requires: @mui/material @mui/icons-material @emotion/react @emotion/styled @fontsource/open-sans
 import * as React from 'react';
@@ -544,6 +546,7 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
     }, [requestedVisualTab, visualTabIds]);
 
     const normalizedVisualIndex = visualTab < visualTabs.length ? visualTab : 0;
+    React.useEffect(()=>{if(TECH_DEMO)setGuideActiveModule(visualTabIds.split('|')[normalizedVisualIndex]);},[visualTabIds,normalizedVisualIndex]);
     const activeVisualMinHeight = visualTabs[normalizedVisualIndex]?.minHeight;
     const anchorPrefix = React.useMemo(() => {
         if (contentAnchorPrefix) return contentAnchorPrefix;
@@ -1036,6 +1039,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
     }, [requestedVisualTab, visualTabIds]);
 
     const normalizedVisualIndex = visualTab < visualTabs.length ? visualTab : 0;
+    React.useEffect(()=>{if(TECH_DEMO)setGuideActiveModule(visualTabIds.split('|')[normalizedVisualIndex]);},[visualTabIds,normalizedVisualIndex]);
     const activeVisualMinHeight = visualTabs[normalizedVisualIndex]?.minHeight;
     const singleColumnHeight = (minPx, vw, maxPx) => `clamp(${minPx}px, ${vw}vw, ${maxPx}px)`;
     const desktopClamp = "clamp(260px, 28vw, 420px)";
