@@ -10,7 +10,7 @@ const PanelContext = createContext(null);
 export function GraphInfoPanelHeader({ children, title }) {
   const panel = useContext(PanelContext);
   return <div style={{ position: 'sticky', top: 0, zIndex: 2, display: 'flex', alignItems: 'center', gap: 8,
-    minHeight: 58, boxSizing: 'border-box', padding: panel ? '10px 78px' : '10px 12px', background: '#E4F0F1', borderBottom: '1px solid #d8e6e8' }}>
+    minHeight: 58, boxSizing: 'border-box', padding: panel ? (panel.large ? '10px 78px' : '10px 46px') : '10px 12px', background: '#E4F0F1', borderBottom: '1px solid #d8e6e8' }}>
     <div title={title} data-testid="graph-info-title" style={{ flex: 1, minWidth: 0, display: '-webkit-box',
       WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, overflow: 'hidden', textAlign: 'center',
       overflowWrap: 'anywhere', font: '700 16px/1.35 Open Sans, sans-serif', color: '#263238' }}>{children}</div>
@@ -20,8 +20,8 @@ export function GraphInfoPanelHeader({ children, title }) {
         onClick={panel.large ? panel.onMinimize : panel.onEnlarge} sx={{ color: '#37646b', width: 30, height: 30 }}>
         {panel.large ? <CloseFullscreenIcon fontSize="small" /> : <OpenInFullIcon fontSize="small" />}
       </IconButton>
-      <IconButton size="small" title="Close" aria-label="Close information panel" onClick={panel.onClose}
-        sx={{ color: '#37646b', width: 30, height: 30 }}><CloseIcon fontSize="small" /></IconButton>
+      {panel.large && <IconButton size="small" title="Close" aria-label="Close information panel" onClick={panel.onClose}
+        sx={{ color: '#37646b', width: 30, height: 30 }}><CloseIcon fontSize="small" /></IconButton>}
     </div>}
   </div>;
 }

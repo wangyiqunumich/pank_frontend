@@ -975,7 +975,7 @@ export default function KnowledgeGraph({ overlay, onEvidenceInspect, selectable 
     setInfocardPosition({ x: left + containerLeft, y: top + containerTop });
   }, [hoveredId, nodeHovered, infocardEnabled, activeNode, expanded, panelMode, infocardVisible]);
 
-  const exitGraphFullscreen = () => { setExpanded(false); if (panelMode === 'expanded') setPanelMode('minimized'); };
+  const exitGraphFullscreen = () => { setExpanded(false); if (panelMode === 'expanded') setPanelMode('hover'); };
   const toggleExpand = () => expanded ? exitGraphFullscreen() : setExpanded(true);
 
   const handleReset = () => {
@@ -1001,6 +1001,20 @@ export default function KnowledgeGraph({ overlay, onEvidenceInspect, selectable 
   const appearTimeoutRef = useRef(null);
   const appearNodeIdRef = useRef(null);
   const fadeOutTimeoutRef = useRef(null);
+  useEffect(() => {
+    if (!infocardVisible || panelMode === 'expanded') return undefined;
+    const dismissOutside = event => {
+      if (infocardRef.current?.contains(event.target)) return;
+      clearTimeout(appearTimeoutRef.current);
+      clearTimeout(fadeOutTimeoutRef.current);
+      setInfocardVisible(false);
+      setNodeHovered(false);
+      setInfocardHovered(false);
+    };
+    document.addEventListener('pointerdown', dismissOutside, true);
+    return () => document.removeEventListener('pointerdown', dismissOutside, true);
+  }, [infocardVisible, panelMode]);
+
   useEffect(() => {
     if (panelMode !== 'hover') return undefined;
     if (!infocardHovered && !nodeHovered) {
@@ -1225,7 +1239,7 @@ export default function KnowledgeGraph({ overlay, onEvidenceInspect, selectable 
         visible={infocardVisible} mode={panelMode} position={infocardPosition} review={review}
         onEnter={() => setInfocardHovered(true)} onLeave={() => setInfocardHovered(false)}
         onEnlarge={() => { setPanelMode('expanded'); setInfocardVisible(true); setExpanded(true); }}
-        onMinimize={() => setPanelMode('minimized')}
+        onMinimize={() => { setPanelMode('hover'); setNodeHovered(false); setInfocardHovered(true); }}
         onClose={() => { setPanelMode('hover'); setInfocardVisible(false); setNodeHovered(false); setInfocardHovered(false); }}>
         <InfocardMenu hoveredData={activeNode?.data()} review={review} />
       </GraphInfoPanel>

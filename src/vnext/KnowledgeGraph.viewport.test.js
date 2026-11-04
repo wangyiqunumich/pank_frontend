@@ -132,6 +132,7 @@ test.each(['gene_enriched_in', 'gene_detected_in', 'anatomical_structure'])('%s 
   const compact = screen.getByRole('region', { name: 'Graph information' });
   expect(compact.parentElement).toBe(document.body);
   expect(compact.style.position).toBe('fixed');
+  expect(screen.queryByRole('button', { name: 'Close information panel' })).toBeNull();
   fireEvent.click(screen.getByRole('button', { name: 'Enlarge information panel' }));
   const dialog = screen.getByRole('dialog', { name: 'Fullscreen graph viewer' });
   const large = screen.getByRole('region', { name: 'Expanded graph information' });
@@ -141,7 +142,17 @@ test.each(['gene_enriched_in', 'gene_detected_in', 'anatomical_structure'])('%s 
   expect(screen.getByRole('region', { name: 'Expanded graph information' })).toBe(large);
   fireEvent.click(screen.getByRole('button', { name: 'Minimize information panel' }));
   expect(screen.getByRole('dialog', { name: 'Fullscreen graph viewer' })).toBe(dialog);
-  expect(screen.getByRole('region', { name: 'Graph information' })).toBeTruthy();
+  const minimized = screen.getByRole('region', { name: 'Graph information' });
+  expect(screen.queryByRole('button', { name: 'Close information panel' })).toBeNull();
+  fireEvent.mouseLeave(minimized);
+  act(() => jest.advanceTimersByTime(600));
+  expect(screen.queryByRole('region', { name: 'Graph information' })).toBeNull();
+  act(() => hover({ target: element }));
+  act(() => jest.advanceTimersByTime(600));
+  fireEvent.pointerDown(document.body);
+  expect(screen.queryByRole('region', { name: 'Graph information' })).toBeNull();
+  act(() => hover({ target: element }));
+  act(() => jest.advanceTimersByTime(600));
   fireEvent.click(screen.getByRole('button', { name: 'Enlarge information panel' }));
   fireEvent.click(screen.getByRole('button', { name: 'Close information panel' }));
   expect(screen.queryByRole('region', { name: 'Expanded graph information' })).toBeNull();
