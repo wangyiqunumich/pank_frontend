@@ -18,6 +18,7 @@ test('continuous conversation sends bounded prior turns and shows manual citatio
  fireEvent.change(screen.getByLabelText('Ask about module usage'),{target:{value:'What about signal only?'}});fireEvent.click(screen.getByRole('button',{name:'Send guide question'}));
  await waitFor(()=>expect(fetch.mock.calls.filter(([,o])=>o?.method==='POST')).toHaveLength(2));
  const body=JSON.parse(fetch.mock.calls.filter(([,o])=>o?.method==='POST')[1][1].body);
+ expect(body).not.toHaveProperty('module');expect(screen.queryByRole('combobox')).toBeNull();
  expect(body.history.map(x=>x.role)).toEqual(['user','assistant']);expect(body.message).toBe('What about signal only?');
  await waitFor(()=>expect(screen.getAllByText('Choose cell types in Tracks, then Apply tracks.')).toHaveLength(2));
  fireEvent.click(screen.getAllByRole('button',{name:'Genome · Choose tracks'})[0]);expect(screen.getByRole('heading',{name:'Genome · Choose tracks'})).toBeTruthy();
