@@ -1,0 +1,62 @@
+/* Panel-scoped styles: leave graph controls and the surrounding page untouched. */
+.xe-expanded-details { color:#263238;font:14px/1.5 'Open Sans',sans-serif;min-width:0; }
+.xe-expanded-details .xe-card-tabs {display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid #dbe6e8;padding:8px 16px;}
+.xe-expanded-details button {font:inherit;cursor:pointer;}
+.xe-expanded-details .xe-card-tabs button {background:transparent;border:0;border-bottom:2px solid transparent;white-space:nowrap;padding:8px;color:#536970;}
+.xe-expanded-details .xe-card-tabs button.active {color:#087d78;border-bottom-color:#087d78;}
+.xe-expanded-details .xe-card-body {padding:16px;min-width:0;}
+.xe-record-view .xe-card-body {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 24px;align-items:start;}
+.xe-expanded-details .xe-card-section {min-width:0;border-bottom:1px solid #e6edef;padding:8px 0;}
+.xe-expanded-details h3 {font-size:13px;color:#61767d;margin:0 0 12px;}
+.xe-expanded-details dl {margin:0;}
+.xe-expanded-details .kg-card-field {display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:10px;margin:8px 0;}
+.xe-expanded-details dt {color:#61767d;overflow-wrap:anywhere;}
+.xe-expanded-details dd {margin:0;overflow-wrap:anywhere;min-width:0;}
+.xe-expanded-details .xe-endpoints,.xe-expanded-details .xe-provenance,.xe-expanded-details .xe-card-note,.xe-expanded-details .xe-complete {grid-column:1/-1;}
+.xe-expanded-details .xe-endpoints,.xe-expanded-details .xe-provenance {display:flex;flex-wrap:wrap;gap:12px;}
+.xe-expanded-details .xe-endpoint-record small {display:block;}
+.xe-expanded-details .xe-table-scroll {overflow:auto;max-height:50vh;}
+.xe-expanded-details table {width:100%;border-collapse:collapse;text-align:left;}
+.xe-expanded-details th,.xe-expanded-details td {padding:8px;border-bottom:1px solid #e0e8eb;overflow-wrap:anywhere;}
+.xe-expanded-details th {background:#f1f6f7;}
+.xe-expanded-details .xe-filters,.xe-expanded-details .xe-download-actions,.xe-expanded-details .xe-pagination {display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;}
+.xe-expanded-details .xe-small,.xe-expanded-details .xe-provenance {font-size:12px;color:#61767d;}
+.xe-expanded-details .xe-warning {background:#fff4e4;padding:12px;}
+.xe-expanded-details a {color:#087d78;overflow-wrap:anywhere;}
+@media(max-width:650px){.xe-record-view .xe-card-body{grid-template-columns:1fr;}}
+.xe-compact-details {padding:8px 14px 12px;font-size:12px;}
+.xe-compact-details .xe-card-section {padding:8px 0;}
+.xe-compact-details .xe-card-section h3 {text-align:center;font-size:11px;letter-spacing:.04em;margin-bottom:6px;}
+.xe-compact-details .kg-card-field {margin:6px 0;line-height:1.4;}
+.xe-compact-details .xe-compact-endpoints {font-size:12px;overflow-wrap:anywhere;padding:6px 0;}
+.xe-compact-details footer {padding-top:8px;border-top:1px solid #e6edef;}
+.xe-compact-details .xe-compact-summary {font-size:11px;margin:8px 0;table-layout:fixed;}
+.xe-compact-details .xe-compact-summary th,.xe-compact-details .xe-compact-summary td {padding:6px 3px;text-align:right;line-height:1.3;}
+.xe-compact-details .xe-compact-summary th:first-child {text-align:left;}
+/* Wide evidence tables scroll locally instead of crushing column headings. */
+.xe-expanded-details .xe-table-scroll table {width:max-content;min-width:100%;}
+.xe-expanded-details .xe-table-scroll th {white-space:nowrap;overflow-wrap:normal;}
+.xe-expanded-details .xe-table-scroll td {min-width:64px;max-width:220px;}
+.xe-expanded-details .xe-table-scroll th:first-child,.xe-expanded-details .xe-table-scroll td:first-child {min-width:28px;width:28px;}
+.xe-expanded-details .xe-evidence {margin-bottom:24px;}
+.xe-expanded-details .xe-evidence button,.xe-expanded-details select,.xe-expanded-details input {font:inherit;color:inherit;background:#fff;border:1px solid #c9dadd;border-radius:6px;padding:6px 10px;min-height:32px;box-sizing:border-box;}
+.xe-expanded-details .xe-evidence button:hover:not(:disabled) {background:#edf6f5;border-color:#699b9b;}
+.xe-expanded-details button:disabled {opacity:.45;cursor:default;}
+.xe-expanded-details .xe-full-sources>span {display:flex;flex-wrap:wrap;align-items:baseline;column-gap:10px;row-gap:4px;margin:6px 0;}
+.xe-expanded-details .xe-full-sources small {flex-basis:100%;color:#61767d;}
+.xe-expanded-details .xe-processing-links {display:flex;flex-wrap:wrap;gap:6px 12px;margin:8px 0;font-size:12px;}
+.xe-expanded-details .xe-set-selector {display:flex;gap:8px;align-items:center;margin:8px 0;}
+/* Shared record widgets keep labels and values separate in either column. */
+.xe-expanded-details .xe-condition-statistics {display:contents;}
+.xe-expanded-details .xe-condition-statistics section {padding:12px;border:1px solid #dfeae7;border-radius:8px;background:#f8fbfa;margin-bottom:10px;}
+.xe-expanded-details .xe-condition-statistics h3 {display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;color:#287d75;margin-bottom:10px;}
+.xe-expanded-details .xe-condition-statistics h3 span {font-size:11px;font-weight:400;color:#61767d;}
+.xe-expanded-details .xe-condition-statistics section>div {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px;}
+.xe-expanded-details .xe-condition-statistics small {display:block;font-size:12px;color:#61767d;margin-bottom:3px;overflow-wrap:anywhere;}
+.xe-expanded-details .xe-condition-statistics strong {display:block;font-size:14px;color:#31576a;overflow-wrap:anywhere;}
+.xe-expanded-details .xe-coloc-posteriors {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-width:0;}
+.xe-expanded-details .xe-coloc-posteriors section {padding:12px;background:#f4f9fa;border:1px solid #e2ecee;border-radius:8px;}
+.xe-expanded-details .xe-coloc-posteriors span {display:block;font-size:12px;color:#61767d;}
+.xe-expanded-details .xe-coloc-posteriors strong {display:block;font-size:22px;color:#25877e;margin:8px 0;}
+.xe-expanded-details .xe-coloc-posteriors section>div {height:4px;background:#deebe8;border-radius:4px;overflow:hidden;}
+.xe-expanded-details .xe-coloc-posteriors i {display:block;height:4px;background:#44ad96;}

@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "complete_record": {
+    "title": "Complete record"
+  },
+  "components": {
+    "chr_index": {
+      "title": "Genomic coordinates"
+    },
+    "node_alt_id": {
+      "title": "Related links"
+    },
+    "expression": {
+      "title": "Expression evidence summary"
+    },
+    "credible_set": {
+      "title": "Credible-set summary"
+    }
+  },
+  "tables": {
+    "placements": {
+      "title": "Genomic coordinates"
+    },
+    "accessions": {
+      "title": "Related links"
+    },
+    "ccc_contexts": {
+      "title": "Cell\u2013cell context summary"
+    },
+    "metadata_donor": {
+      "title": "Source annotations"
+    },
+    "metadata_sample": {
+      "title": "Sample crosswalk"
+    },
+    "metadata_sample_source": {
+      "title": "Source memberships"
+    }
+  },
+  "field_labels": {
+    "start_loc": "Start",
+    "end_loc": "End"
+  },
+  "compact_summaries": {
+    "expression": {
+      "rows": "condition_statistics",
+      "label": "condition",
+      "values": "statistics",
+      "replaces": [
+        "evidence_summary",
+        "supported_conditions"
+      ],
+      "max_columns": 3,
+      "columns": [
+        {
+          "key": "log2fc",
+          "label": "Log2 FC"
+        },
+        {
+          "key": "p_adj",
+          "label": "Adj. P"
+        },
+        {
+          "key": "cpm",
+          "label": "CPM"
+        },
+        {
+          "key": "pct_expr",
+          "label": "Cells (%)"
+        },
+        {
+          "key": "n_donors",
+          "label": "Donors"
+        }
+      ]
+    }
+  },
+  "unit_labels": {
+    "bp; 0-based": "bp",
+    "bp; exclusive": "bp"
+  },
+  "field_descriptions": {
+    "start_loc": "Start coordinate in base pairs, 0-based.",
+    "end_loc": "End coordinate in base pairs, exclusive."
+  }
+}

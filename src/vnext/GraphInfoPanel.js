@@ -5,7 +5,10 @@ import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import CloseIcon from '@mui/icons-material/Close';
 
+import cardLayout from '../schema/card_layout_schema.json';
+
 const PanelContext = createContext(null);
+export const useGraphInfoPanel = () => useContext(PanelContext);
 
 export function GraphInfoPanelHeader({ children, title }) {
   const panel = useContext(PanelContext);
@@ -27,20 +30,24 @@ export function GraphInfoPanelHeader({ children, title }) {
 }
 
 // Escape the graph/answer stacking contexts; native fullscreen needs its own host.
-export default function GraphInfoPanel({ children, panelRef, host, visible, mode, position, review,
+export function GraphInfoPanelSurface({ children, panelRef, visible, mode, position, review,
   onEnter, onLeave, onEnlarge, onMinimize, onClose }) {
   const large = mode === 'expanded';
-  return createPortal(<section ref={panelRef} aria-label={large ? 'Expanded graph information' : 'Graph information'}
+  return <section ref={panelRef} aria-label={large ? 'Expanded graph information' : 'Graph information'}
     onMouseEnter={onEnter} onMouseLeave={onLeave}
     style={{ position: 'fixed', zIndex: 2147483000, display: visible ? 'flex' : 'none', flexDirection: 'column',
       left: large ? '50%' : position.x, top: large ? 76 : position.y,
       transform: large ? 'translateX(-50%)' : undefined,
       width: large ? 'min(900px, calc(100vw - 32px))' : review ? 'min(550px, calc(100vw - 24px))' : 'min(280px, calc(100vw - 24px))',
-      maxHeight: large ? 'calc(100dvh - 100px)' : 'calc(100dvh - 24px)',
+      maxHeight: large ? `min(${cardLayout.height_limits.expanded_px}px, ${cardLayout.height_limits.expanded_vh}dvh, calc(100dvh - 100px))` : `min(${cardLayout.height_limits.compact_px}px, ${cardLayout.height_limits.compact_vh}dvh, calc(100dvh - 24px))`,
       background: '#fff', color: '#333', borderRadius: 12, boxShadow: '0 8px 32px #0003',
       fontFamily: 'Open Sans, sans-serif', overflow: 'hidden', overflowWrap: 'anywhere' }}>
     <PanelContext.Provider value={{ large, onEnlarge, onMinimize, onClose }}>
       <div style={{ overflowY: 'auto', minHeight: 0, overscrollBehavior: 'contain' }}>{children}</div>
     </PanelContext.Provider>
-  </section>, host || document.body);
+  </section>;
+}
+
+export default function GraphInfoPanel({host, ...props}) {
+  return createPortal(<GraphInfoPanelSurface {...props} />, host || document.body);
 }

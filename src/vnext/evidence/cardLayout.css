@@ -1,0 +1,24 @@
+/* Global, content-aware card typography. Never insert arbitrary character breaks. */
+.kg-value { white-space:normal; word-break:normal; overflow-wrap:anywhere; hyphens:manual; }
+.kg-value-prose { white-space:pre-line; text-align:start; text-wrap:pretty; }
+.kg-value-tokens { display:inline-flex; flex-wrap:wrap; gap:.3em .8em; max-width:100%; }
+.kg-value-token { max-width:100%; white-space:normal; word-break:normal; overflow-wrap:anywhere; }
+.kg-number { white-space:nowrap; font-variant-numeric:tabular-nums; }
+.xe-root .kg-infocard { max-height:min(var(--kg-compact-height,520px),var(--kg-compact-vh,72vh),calc(100vh - var(--kg-card-margin,24px))) !important; overflow-y:auto; overscroll-behavior:contain; }
+.xe-root .kg-infocard-expanded { max-height:min(var(--kg-expanded-height,720px),var(--kg-expanded-vh,85vh),calc(100vh - var(--kg-card-margin,24px))) !important; }
+.kg-infocard .kg-card-heading { position:sticky; top:0; z-index:1; }
+.kg-infocard .kg-card-footer { position:sticky; bottom:0; }
+.kg-card-title { text-wrap:balance; line-height:1.2 !important; }
+.kg-card-row { align-items:start !important; }
+.kg-card-row > * { line-height:1.4 !important; margin-top:0 !important; }
+.kg-card-row[data-layout="prose"], .kg-card-row[data-layout="tokens"] { grid-template-columns:minmax(0,1fr); gap:6px; }
+.kg-card-row[data-layout="prose"] > span, .kg-card-row[data-layout="tokens"] > span { text-align:start !important; }
+.kg-card-footer { height:auto !important; min-height:30px; padding:7px 12px; }
+.kg-card-footer-items { display:flex; flex-wrap:wrap; justify-content:center; column-gap:12px; row-gap:3px; min-width:0; line-height:1.5 !important; }
+.kg-card-footer-item { display:inline-flex; flex-wrap:wrap; justify-content:center; gap:0 .25em; max-width:100%; }
+/* Individual overlong provenance items may wrap, while short phrases stay whole. */
+.kg-card-footer-item .kg-value { display:inline-block; max-width:100%; vertical-align:top; text-align:center; }
+.kg-card-field { display:contents; }
+.kg-card-field[data-layout="prose"], .kg-card-field[data-layout="tokens"] { display:block; grid-column:1 / -1; min-width:0; }
+.kg-card-field[data-layout="prose"] dt, .kg-card-field[data-layout="tokens"] dt { margin-bottom:6px; }
+.kg-card-field[data-layout="prose"] dd, .kg-card-field[data-layout="tokens"] dd { text-align:start !important; }

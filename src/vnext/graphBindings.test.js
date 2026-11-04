@@ -239,3 +239,11 @@ test('incremental graph updates preserve dragged positions, selection, pan and z
     expect(cy.getElementById('detection').empty()).toBe(true);
   } finally { cy.destroy(); }
 });
+
+ test('backend profile names cannot bypass registered node presentation styles', () => {
+  const ref = {kind:'node',type_id:'Cell',id:'cell'};
+  const result = graphElements({nodes:[{'~id':'cell','~labels':['anatomical_structure'],'~properties':{name:'beta cell'},display_type:'Cell',ref}],edges:[]},{},{},{graphInfocard:{nodes:{anatomical_structure:{info_panel:{}},coding_elements:{info_panel:{}}}}});
+  expect(result.nodes[0].data.type).toBe('anatomical_structure');
+  expect(result.nodes[0].data.viewer_ref).toEqual(ref);
+  expect(result.nodes[0].data.label).toBe('beta cell');
+ });

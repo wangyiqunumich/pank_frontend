@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, Button, Typography, CircularProgress } from '@mui/material';
 import KnowledgeGraph from './KnowledgeGraph';
+import {useViewerService} from './evidence/viewerService';
 import QuestionAnswerPage, { PlanConfirmationPage } from './ResultComponent';
 import { ErrorComponent } from './ErrorComponent';
 import { AlertMessage } from '../components/SupportingMaterial';
@@ -107,6 +108,9 @@ export function useProjectedResult(payload, savedId = '') {
 }
 
 function GraphPanel({ result, error, onEvidenceInspect, expressionCard }) {
+  const releaseId=result?.kg_release || result?.release_id;
+  const hasTypedRefs=[...(result?.combined_query_result?.nodes || []),...(result?.combined_query_result?.edges || [])].some(item=>item.ref?.kind && item.ref?.type_id && item.ref?.id);
+  const evidenceService=useViewerService(releaseId,hasTypedRefs);
   const graphStatus = typeof result?.component_status?.graph === 'string'
     ? result.component_status.graph : result?.component_status?.graph?.status;
   const pending = value => ['preparing', 'pending', 'queued', 'running', 'processing'].includes(value);
@@ -116,7 +120,7 @@ function GraphPanel({ result, error, onEvidenceInspect, expressionCard }) {
   const waiting = !graphError && (!result || pending(result.status) || pending(graphStatus));
   const empty = !waiting && (graphStatus === 'empty' || (result?.status === 'ready' && Array.isArray(result?.combined_query_result?.nodes) && !result.combined_query_result.nodes.length));
   if (result?.combined_query_result?.nodes?.length) return <Box sx={{ width: '100%', height: '100%', position: 'relative' }}>
-    <KnowledgeGraph overlay={expressionCard} onEvidenceInspect={onEvidenceInspect} graphData={result.combined_query_result} coordData={result.xy_json} edgeRoutes={result.edge_routes} sx={{ height: '100%' }} containerHeight="100%" />
+    <KnowledgeGraph releaseId={releaseId} evidenceService={evidenceService} overlay={expressionCard} onEvidenceInspect={onEvidenceInspect} graphData={result.combined_query_result} coordData={result.xy_json} edgeRoutes={result.edge_routes} sx={{ height: '100%' }} containerHeight="100%" />
   </Box>;
   return <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
     {waiting ? <Box role="status" aria-label="Loading graph" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}><CircularProgress size={28} /><Typography sx={{ fontSize: 14, color: '#64748B' }}>Loading graph…</Typography></Box> : <Typography sx={{ fontSize: 14, color: '#64748B', textAlign: 'center', px: 2 }}>{graphError || (empty ? 'No matching graph evidence was returned.' : 'The graph presentation is unavailable. Available answer sections are preserved.')}</Typography>}

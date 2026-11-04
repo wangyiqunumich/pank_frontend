@@ -1,6 +1,8 @@
 "use client";
 
 import '../components/styles.css';
+import { compactCardModel } from './cardPresentationLayout';
+import cardLayout from '../schema/card_layout_schema.json';
 import { recordedInfocardModel, recordedText } from '../vnext/recordedPresentation';
 
 import React, {
@@ -18,8 +20,9 @@ import {
 } from 'react-redux';
 import PersistentGraphViewport from '../components/PersistentGraphViewport';
 import GraphToolbar from './GraphToolbar';
-import GraphInfoPanel, { GraphInfoPanelHeader } from './GraphInfoPanel';
+import GraphInfoPanel, { GraphInfoPanelHeader, useGraphInfoPanel } from './GraphInfoPanel';
 import GraphLegend from './GraphLegend';
+import ObjectInformationPanel from './evidence/ObjectInformationPanel';
 
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -596,14 +599,16 @@ export function edgeInfocardModel(data, baseSchema) {
 }
 
 export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
+  const panel = useGraphInfoPanel();
   const [openSections, setOpenSections] = useState({});
   useEffect(() => { setOpenSections({}); }, [incomingData?.id]);
   const isEdge = incomingData?.element_kind ? incomingData.element_kind === 'edge' : incomingData?.source && incomingData?.target;
   const baseSchema =
     review ? isEdge ? graphInfocardReview?.edges["relationship"].info_panel : graphInfocardReview?.nodes["All nodes"].info_panel :
       (isEdge ? graphInfocard?.edges : graphInfocard?.nodes)?.[incomingData?.type]?.info_panel;
-  const { data: hoveredData, schema, rawProperties } = !review && incomingData?.evidence_properties ? recordedInfocardModel(incomingData, isEdge) : isEdge && !review ? edgeInfocardModel(incomingData, baseSchema)
+  const fullModel = !review && incomingData?.evidence_properties ? recordedInfocardModel(incomingData, isEdge) : isEdge && !review ? edgeInfocardModel(incomingData, baseSchema)
     : { data: incomingData, schema: baseSchema, rawProperties: {} };
+  const { data: hoveredData, schema, rawProperties, omitted } = panel && !panel.large && !review ? compactCardModel(fullModel) : fullModel;
   const titleColumn = schema?.find(([label, _]) => label === "Title");
   const footerInfo = schema?.find(([label, _]) => label === "Footer")?.[1];
 
@@ -624,6 +629,7 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
           <GraphInfoPanelHeader title={recordedText(hoveredData[titleColumn?.[1]])}>
             <InfocardData value={recordedText(hoveredData[titleColumn?.[1]])} dataKey={titleColumn?.[1]} config={titleDisplayConfig} />
           </GraphInfoPanelHeader>
+          <Box sx={{ display: "grid", gridTemplateColumns: panel?.large ? `repeat(${cardLayout.expanded.columns}, minmax(0, 1fr))` : "1fr", columnGap: panel?.large ? `${cardLayout.expanded.gap_px}px` : 0, alignItems: "start", "@media (max-width: 650px)": {gridTemplateColumns: "1fr"} }}>
           {
             schema.map(([title, content, config]) => {
               const setting = config?.match(/\(([^)]+)\)/)?.[1];
@@ -671,7 +677,7 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
                               {
                                 Array.isArray(content) ? (
                                   content.map(([label, key, config, sourceKey]) => ( // Data Row
-                                    <Box key={key} data-field={sourceKey || key} title={sourceKey ? `Recorded field: ${sourceKey} · Exact value: ${formatEvidenceValue(rawProperties[sourceKey])}` : undefined} sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                                    <Box key={key} data-field={sourceKey || key} title={sourceKey ? `Recorded field: ${sourceKey} · Exact value: ${formatEvidenceValue(rawProperties[sourceKey])}` : undefined} sx={{ display: "grid", gridTemplateColumns: "minmax(0, 0.85fr) minmax(0, 1.15fr)", gap: "10px", alignItems: "start", overflowWrap: "anywhere" }}>
                                       <Typography sx={{
                                         fontFamily: "Open Sans",
                                         fontWeight: "600",
@@ -729,6 +735,8 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
               )
             })
           }
+          </Box>
+          {omitted > 0 && <Typography sx={{padding: "8px 16px", fontSize: 11, color: "#5F7885"}}>Enlarge for complete record</Typography>}
           {/* Footer */}
           {footerInfo && <Box sx={{
             display: "flex",
@@ -799,7 +807,7 @@ function GraphSearch({ inputRef, onSearch }) {
 }
 
 // Main KnowledgeGraph component
-export default function KnowledgeGraph({ overlay, onEvidenceInspect, selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, edgeRoutes = null, review = false, containerHeight = "600px", defaultLegendVisible = false }) {
+export default function KnowledgeGraph({ overlay, onEvidenceInspect, releaseId, evidenceService, selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, edgeRoutes = null, review = false, containerHeight = "600px", defaultLegendVisible = false }) {
   const cyRef = useRef(null);
   const containerRef = useRef(null);
   const infocardRef = useRef(null);
@@ -973,7 +981,9 @@ export default function KnowledgeGraph({ overlay, onEvidenceInspect, selectable 
     left = Math.max(12 - containerLeft, Math.min(left, window.innerWidth - containerLeft - infocardWidth - 12));
     top = Math.max(12 - containerTop, Math.min(top, window.innerHeight - containerTop - infocardHeight - 12));
     setInfocardPosition({ x: left + containerLeft, y: top + containerTop });
-  }, [hoveredId, nodeHovered, infocardEnabled, activeNode, expanded, panelMode, infocardVisible]);
+  // Pointer transfer from the graph to its panel must not reposition the
+    // panel using a newly loaded card height underneath the approaching cursor.
+  }, [infocardEnabled, activeNode, expanded, panelMode, infocardVisible]);
 
   const exitGraphFullscreen = () => { setExpanded(false); if (panelMode === 'expanded') setPanelMode('hover'); };
   const toggleExpand = () => expanded ? exitGraphFullscreen() : setExpanded(true);
@@ -1241,7 +1251,7 @@ export default function KnowledgeGraph({ overlay, onEvidenceInspect, selectable 
         onEnlarge={() => { setPanelMode('expanded'); setInfocardVisible(true); setExpanded(true); }}
         onMinimize={() => { setPanelMode('hover'); setNodeHovered(false); setInfocardHovered(true); }}
         onClose={() => { setPanelMode('hover'); setInfocardVisible(false); setNodeHovered(false); setInfocardHovered(false); }}>
-        <InfocardMenu hoveredData={activeNode?.data()} review={review} />
+        <ObjectInformationPanel data={activeNode?.data()} releaseId={releaseId} service={review ? null : evidenceService} fallback={<InfocardMenu hoveredData={activeNode?.data()} review={review} />} />
       </GraphInfoPanel>
       {!review && <GraphLegend defaultOpen={defaultLegendVisible} />}
     </div>
