@@ -35,7 +35,6 @@ import Pipeline from './pages/Pipeline';
 import QTLDataSource from './pages/QTL_data_source';
 import ReviewPage from './pages/ReviewPage';
 import SkillsPage from './pages/SkillsPage';
-import StatPage from './pages/StatPage';
 import Tutorial from './pages/Tutorial';
 import UsecasesPage from './pages/UsecasePage';
 import { store } from './redux/store';
@@ -93,7 +92,7 @@ loadDevConfig().then(() => root.render(
                 <Route path="/qtldatasource" element={<QTLDataSource />} />
                 <Route path="/intermediate" element={<IntermediatePage />} />
                 <Route path="/ontology" element={<Ontology />} />
-                <Route path="/statistics" element={<StatPage />} />
+                <Route path="/statistics" element={<Navigate to="/docs/statistics" replace />} />
                 {/* <Route path="/api" element={<ApiPage />} /> */}
                 <Route path="/tutorial" element={<Tutorial />} />
                 <Route path="/result" element={<ResultPage />} />
