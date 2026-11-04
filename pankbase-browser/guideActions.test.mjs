@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {validAction} from '../src/vnext/moduleGuide/actions.mjs';
-import {applyGuideAction} from './guideActions.mjs';
+import {applyGuideAction,waitForGuideTarget} from './guideActions.mjs';
 const action={type:'genome_tracks',module:'genome_browser',params:{cell_types:['beta','alpha'],track_types:['signal'],height:'80'}};
 test('track action validates all fields before mutation and preserves an inverse',async()=>{
  let updates=0;
@@ -16,4 +16,13 @@ test('region and scientific axes reject invalid or executable input',()=>{
 test('DE settings apply to display only and can be undone',async()=>{
  const vm={fold:1.5,pvalue:.05,view:'Heatmap'};
  const undo=await applyGuideAction(vm,{type:'de_thresholds',module:'differential_expression',params:{fold:2,pvalue:.01}});assert.equal(vm.fold,2);assert.equal(vm.view,'Volcano');await applyGuideAction(vm,undo);assert.equal(vm.fold,1.5);
+});
+
+test('cold-start actions wait for lazy module import and native initialization',async()=>{
+ const state={moduleId:'',component:null};
+ setTimeout(()=>{state.moduleId='genome_browser';state.component={controlReady:false,isLoading:true};},5);
+ setTimeout(()=>{state.component={controlReady:true,isLoading:false};},15);
+ const target=await waitForGuideTarget(()=>state,'genome_browser',{timeoutMs:200,intervalMs:5});
+ assert.equal(target.controlReady,true);
+ await assert.rejects(()=>waitForGuideTarget(()=>state,'pca_explorer',{timeoutMs:15,intervalMs:5}),/initializing/);
 });

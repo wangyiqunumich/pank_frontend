@@ -24,3 +24,13 @@ export async function applyGuideAction(component, action) {
   } else throw new Error('This configuration is not supported by this module.');
   return validAction(undo)?undo:null;
 }
+
+export async function waitForGuideTarget(readState,moduleId,{timeoutMs=9000,intervalMs=120}={}) {
+  const until=Date.now()+timeoutMs;
+  while(true){
+    const {moduleId:current,component}=readState();
+    if(current===moduleId&&component&&(moduleId!=='genome_browser'||(component.controlReady&&!component.isLoading)))return component;
+    if(Date.now()>=until)throw new Error('The module is still initializing. Please try again when its data appear.');
+    await new Promise(resolve=>setTimeout(resolve,intervalMs));
+  }
+}

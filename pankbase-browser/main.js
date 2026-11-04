@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import './style.css';
-import { applyGuideAction } from './guideActions.mjs';
+import { applyGuideAction, waitForGuideTarget } from './guideActions.mjs';
 
 const protocol = 'pankgraph.pankbase.v1';
 const modules = {
@@ -42,10 +42,9 @@ window.parent.postMessage({ protocol, type: 'ready' }, origin);
 window.addEventListener('message', async event => {
   const data=event.data;
   if(event.origin!==origin||event.source!==window.parent||data?.protocol!==protocol||data.type!=='guide-action'||typeof data.id!=='string'||data.id.length>80)return;
-  if(data.action?.module!==app.moduleId)return;
+  if(!Object.prototype.hasOwnProperty.call(modules,data.action?.module))return;
   try {
-    const until=Date.now()+9000;
-    while(Date.now()<until&&(!app.$refs.guideTarget || (app.moduleId==='genome_browser'&&(!app.$refs.guideTarget.controlReady||app.$refs.guideTarget.isLoading))))await new Promise(resolve=>setTimeout(resolve,120));
-    const undo=await applyGuideAction(app.$refs.guideTarget,data.action);window.parent.postMessage({protocol,type:'guide-result',id:data.id,ok:true,undo},origin); }
+    const component=await waitForGuideTarget(()=>({moduleId:app.moduleId,component:app.$refs.guideTarget}),data.action.module);
+    const undo=await applyGuideAction(component,data.action);window.parent.postMessage({protocol,type:'guide-result',id:data.id,ok:true,undo},origin); }
   catch(error){window.parent.postMessage({protocol,type:'guide-result',id:data.id,ok:false,message:error.message},origin);}
 });
