@@ -4,6 +4,7 @@ import PersistentGraphViewport from '../components/PersistentGraphViewport';
 import schema from './schema/result_page_schema.json';
 import { pankbaseUrl } from './pankbaseContext';
 import { sitePath } from './api';
+import { browserLinks } from './browserChrome';
 import { BROWSER_FILL_SX, BROWSER_HEADER_SX, BROWSER_IFRAME_STYLE } from './browserLayout';
 
 const PROTOCOL = 'pankgraph.pankbase.v1';
@@ -36,6 +37,7 @@ export default function PanKbaseModule({ moduleId, context, preview = false, isV
   useEffect(() => {
     const receive = event => {
       if (event.origin !== window.location.origin || event.source !== frame.current?.contentWindow || event.data?.protocol !== PROTOCOL) return;
+      if (event.data.type === 'fullscreen-toggle') setExpanded(value => !value);
       if (event.data.type === 'ready') { setReady(true); setError(''); send(); }
       if (event.data.type === 'error') setError(String(event.data.message || 'Unable to load this view.').slice(0, 300));
     };
@@ -48,6 +50,7 @@ export default function PanKbaseModule({ moduleId, context, preview = false, isV
     const timer = setTimeout(() => setError('The module did not start. Retry or open PanKbase.'), 15000);
     return () => clearTimeout(timer);
   }, [html, ready]);
+  useEffect(() => { if (ready) frame.current?.contentWindow?.postMessage({ protocol: PROTOCOL, type: 'fullscreen-state', fullscreen: expanded }, window.location.origin); }, [expanded, ready]);
   if (preview) return <Box sx={{ p: 1.5 }}>
     <Typography sx={{ fontWeight: 600, fontSize: 14 }}>{context?.geneSymbol || definition.title}</Typography>
     <Typography sx={{ fontSize: 12, color: '#64748b', mt: 1 }}>{context?.cellType || 'Explore the related PanKbase resource'}</Typography>
@@ -56,8 +59,7 @@ export default function PanKbaseModule({ moduleId, context, preview = false, isV
   return <PersistentGraphViewport fullscreen={expanded} onExit={() => setExpanded(false)} label={definition.title}><Box sx={{ ...BROWSER_FILL_SX, overflow: 'hidden' }}>
     <Box component="header" sx={BROWSER_HEADER_SX}>
       <Typography sx={{ fontSize: 12, fontWeight: 500, flex: 1 }}>{definition.source_title || definition.title}</Typography>
-      <Button component="a" href={pankbaseUrl(moduleId, context)} target="_blank" rel="noopener noreferrer" size="small" sx={{ fontSize: 11, textTransform: 'none', color: '#0f766e' }}>Original resource ↗</Button>
-      <Button aria-label={expanded ? 'Exit full screen' : 'Expand view'} title={expanded ? 'Exit full screen' : 'Expand view'} size="small" sx={{ minWidth: 28, color: '#64748b' }} onClick={() => setExpanded(value => !value)}>⛶</Button>
+      <Button component="a" href={pankbaseUrl(moduleId, context)} target="_blank" rel="noopener noreferrer" size="small" sx={{ fontSize: 11, textTransform: 'none', color: '#0f766e' }}>{browserLinks[moduleId]} ↗</Button>
     </Box>
     {!ready && !error && <Typography role="status" sx={{ p: 2 }}>{definition.wording.loading}</Typography>}
     {error && <Box role="alert" sx={{ p: 2 }}>{error} <Button onClick={() => { setError(''); setReady(false); setHtml(''); setAttempt(value => value + 1); }}>Retry</Button></Box>}

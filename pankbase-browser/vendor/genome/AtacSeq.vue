@@ -1,22 +1,20 @@
-<template>
-  <section class="module-view">
-    <div class="tabs"><button v-for="item in ['Genome','Tracks','Source']" :key="item" :aria-pressed="view===item" @click="view=item">{{item}}</button></div>
-    <div class="module-stage">
-      <form class="controls" @submit.prevent="openRegion"><label>GRCh38 <input v-model="regionInput" placeholder="chr7:start-end" aria-label="GRCh38 region" /></label><button class="primary" :disabled="isLoading" type="submit">View</button></form>
-      <p v-if="loadError" role="alert">{{loadError}}</p><p v-if="isLoading" role="status">Loading ATAC tracks…</p>
-      <div v-show="view==='Genome'" class="genome-stage"><div id="browser" class="atac-seq__browser" aria-live="polite"></div></div>
-      <div v-if="view==='Tracks'" class="source-panel">
-        <h2>Cell types</h2><label><input type="checkbox" v-model="selectAll" @change="toggleTracks"/> Select all</label>
-        <div class="track-options"><label v-for="cellType in cellTypes" :key="cellType"><input type="checkbox" v-model="selectedCellTypes" :value="cellType"/>{{cellType}}</label></div>
-        <h2>Track types</h2><div class="track-options"><label v-for="trackType in trackTypes" :key="trackType"><input type="checkbox" v-model="selectedTrackTypes" :value="trackType"/>{{trackType.includes('peaks')?'ATAC peaks':trackType}}</label></div>
-        <button class="primary" @click="view='Genome';$nextTick(updateBrowser)">Apply tracks</button>
-      </div>
-      <div v-if="view==='Source'" class="source-panel"><h2>Source &amp; methods</h2><p>HPAP ATAC signal and peaks · GRCh38. All source cell types and track choices remain available under Tracks.</p><p>Coordinates are 0-based, half-open. {{manualLocus?'User-selected region; gene overlap is not assumed.':'Locus from explicit graph coordinates or a verified source lookup.'}}</p><p>Signal, peak calls and gene annotations are distinct evidence layers.</p></div>
-    </div>
-  </section>
-</template>
+<template><section class="module-view browser-chrome">
+  <div class="browser-navigation"><nav class="browser-tabs" aria-label="Genome views"><button v-for="item in ['Genome','Tracks','Source']" :key="item" :aria-pressed="view===item" @click="view=item">{{item}}</button></nav></div>
+  <form class="browser-filters" @submit.prevent="openRegion"><label class="browser-input genome-region"><span>GRCh38</span><input v-model="regionInput" placeholder="chr7:start-end" aria-label="GRCh38 region"/><button :disabled="isLoading" type="submit">View</button></label><button type="button" :aria-pressed="showTools" @click="showTools=!showTools;scheduleFit()">More tools</button></form>
+  <div class="module-stage genome-content"><p v-if="loadError" role="alert">{{loadError}}</p><p v-if="isLoading" role="status">Loading ATAC tracks…</p>
+    <div v-show="view==='Genome'" ref="viewport" class="genome-viewport"><div class="genome-stage" :class="{'show-tools':showTools}"><div id="browser" class="atac-seq__browser" aria-live="polite"></div></div><BrowserToolbar :fullscreen="fullscreen" :disabled="isLoading || !controlReady" @fullscreen="toggleFullscreen" @zoomIn="zoomGenome(0.5)" @zoomOut="zoomGenome(2)" @fit="resetRegion" @download="downloadPlot"/></div>
+    <div v-if="view==='Tracks'" class="source-panel"><h2>Cell types</h2><label><input type="checkbox" v-model="selectAll" @change="toggleTracks"/> Select all</label><div class="track-options"><label v-for="cellType in cellTypes" :key="cellType"><input type="checkbox" v-model="selectedCellTypes" :value="cellType"/>{{cellType}}</label></div><h2>Track types</h2><div class="track-options"><label v-for="trackType in trackTypes" :key="trackType"><input type="checkbox" v-model="selectedTrackTypes" :value="trackType"/>{{trackType.includes('peaks')?'ATAC peaks':trackType}}</label></div><button class="primary" @click="view='Genome';$nextTick(updateBrowser)">Apply tracks</button></div>
+    <div v-if="view==='Source'" class="source-panel"><h2>Source &amp; methods</h2><p>HPAP ATAC signal and peaks · GRCh38. All source cell types and track choices remain available under Tracks.</p><p>Coordinates are 0-based, half-open. {{manualLocus?'User-selected region; gene overlap is not assumed.':'Locus from explicit graph coordinates or a verified source lookup.'}}</p><p>Signal, peak calls and gene annotations are distinct evidence layers. Signal tracks are redrawn to fit available height; genomic coordinates and values are unchanged.</p></div>
+    <BrowserToolbar v-if="view!=='Genome'" navigation-only :fullscreen="fullscreen" @fullscreen="toggleFullscreen"/>
+  </div>
+  <footer class="browser-footer"><span>GRCh38 · {{liveLocus || regionInput}}</span><span>{{trackCount}} tracks</span><p class="description">HPAP ATAC signal and peaks · Drag to pan · More tools for native navigation</p></footer>
+</section></template>
 <script>
 import Vue from "vue";
+import BrowserToolbar from '../../BrowserToolbar.vue';
+import browserControls from '../../browserControls.mjs';
+import { mountGenome, zoomGenome, fitSignalTracks } from './browserBridge.mjs';
+import { exportGenome } from './exportGenome.mjs';
 import { fetchTracks } from "./tracks.js";
 import { loadWashUAssets } from "./washU.js";
 import { TRACKS } from "./tracks.js";
@@ -30,10 +28,11 @@ const DEFAULT_GENOME_BIOINDEX = "GRCh38";
 
 
 export default Vue.component("AtacSeq", {
+    components: { BrowserToolbar }, mixins: [browserControls],
     props: ["gene", "locus", "cellType"],
     data() {
         return {
-            view: 'Genome',
+            view: 'Genome', showTools:false, liveLocus:'', trackCount:0, controlReady:false,
             isLoading: true,
             loadError: null,
             tracksJson: TRACKS,
@@ -49,7 +48,10 @@ export default Vue.component("AtacSeq", {
     },
     async mounted() {
         this.initializeBrowser();
+        this.layoutObserver=new ResizeObserver(()=>this.scheduleFit());
+        this.layoutObserver.observe(this.$refs.viewport);
     },
+    beforeDestroy() { this.unsubscribeBrowser?.(); this.layoutObserver?.disconnect(); cancelAnimationFrame(this.fitFrame); window.ReactDOM?.unmountComponentAtNode(document.getElementById('browser')); },
     computed: {
         region(){
             if (!this.geneInfo){
@@ -59,6 +61,19 @@ export default Vue.component("AtacSeq", {
         }
     },
     methods: {
+        zoomGenome(factor) { if(this.browserStore)zoomGenome(this.browserStore,factor); },
+        resetRegion() { if(this.browserStore && this.initialRegion)this.browserStore.dispatch({type:'SET_VIEW_REGION',...this.initialRegion}); },
+        downloadPlot() { try { exportGenome(document.getElementById('browser'),this.liveLocus); } catch(error) { this.loadError='Plot export failed. Please retry after tracks finish loading.'; } },
+        scheduleFit() { cancelAnimationFrame(this.fitFrame); this.fitFrame=requestAnimationFrame(()=>this.fitTracks()); },
+        fitTracks() {
+            const viewport=this.$refs.viewport,root=document.getElementById('browser');
+            if(!this.browserStore||!viewport?.clientWidth||!root?.clientHeight||this.view!=='Genome')return;
+            const state=this.browserStore.getState().browser.present;
+            const legendWidth=Math.max(85,Math.min(110,Math.round(root.clientWidth*0.24)));
+            if(state.trackLegendWidth!==legendWidth)this.browserStore.dispatch({type:'SET_TRACK_LEGEND_WIDTH',width:legendWidth});
+            const next=fitSignalTracks(state.tracks,viewport.clientHeight-root.getBoundingClientRect().height-4);
+            if(next)this.browserStore.dispatch({type:'SET_TRACKS',tracks:next});
+        },
         openRegion() {
             const match = this.regionInput.trim().match(/^chr([1-9]|1[0-9]|2[0-2]|X|Y|M):([0-9]+)-([0-9]+)$/i);
             if (!match || !Number.isSafeInteger(Number(match[3])) || Number(match[3]) <= Number(match[2])) {
@@ -85,7 +100,7 @@ export default Vue.component("AtacSeq", {
                 this.trackTypes = Array.from(new Set(this.allTracks.map(t => t.trackType)));
                 this.selectedTrackTypes = this.trackTypes;
                 const filteredTracks = this.filterTrackNames(this.allTracks);
-                this.renderBrowser(filteredTracks);
+                this.renderBrowser(filteredTracks,this.region);
             } catch (error) {
                 // eslint-disable-next-line no-console
                 console.error("Failed to initialise ATAC browser", error);
@@ -165,14 +180,17 @@ export default Vue.component("AtacSeq", {
                 return typeMatch && cellMatch;
             });
         },
-        renderBrowser(tracks) {
+        renderBrowser(tracks, displayRegion = this.region) {
             //const container = this.$refs.browser;
             const container = document.getElementById("browser");
             if (!container) {
                 throw new Error("Missing WashU browser mount point");
             }
 
-            container.innerHTML = "";
+            this.unsubscribeBrowser?.();
+            window.ReactDOM?.unmountComponentAtNode(container);
+            container.innerHTML = '';
+            this.controlReady=false;
 
             const defaultTracks = [
                 {
@@ -188,8 +206,8 @@ export default Vue.component("AtacSeq", {
 
             const contents = {
                 genomeName: DEFAULT_GENOME,
-                displayRegion: this.region,
-                trackLegendWidth: 150,
+                displayRegion,
+                trackLegendWidth: 110,
                 isShowingNavigator: true,
                 tracks: [...defaultTracks, ...tracks],
                 metadataTerms: ["Sample"],
@@ -199,7 +217,11 @@ export default Vue.component("AtacSeq", {
                 throw new Error("WashU browser script is not available");
             }
 
-            renderBrowserInElement(contents, container);
+            this.browserStore=mountGenome(window,contents,container);
+            this.controlReady=true;
+            this.initialRegion=this.browserStore.getState().browser.present.viewRegion.getContextCoordinates();
+            const sync=()=>{const state=this.browserStore.getState().browser.present;const locus=state.viewRegion?.currentRegionAsString()||'';if(locus!==this.liveLocus){this.liveLocus=locus;this.regionInput=locus;}this.trackCount=state.tracks.length;this.scheduleFit();};
+            this.unsubscribeBrowser=this.browserStore.subscribe(sync);sync();
         },
         filterTrackNames(inputTracks){
             return inputTracks.filter(t => this.selectedCellTypes.includes(t.cellType))
@@ -207,16 +229,9 @@ export default Vue.component("AtacSeq", {
         },
         updateBrowser(){
             this.isLoading = true;
-            let browserdiv = document.getElementById("browser");
-            let newdiv = document.createElement("div");
-            newdiv.id = "browser";
-            newdiv.className = "atac-seq__browser";
-            newdiv.ariaLive = "polite";
-            browserdiv.replaceWith(newdiv);
-
             const filteredTracks =
                 this.filterTrackNames(this.allTracks);
-            this.renderBrowser(filteredTracks);
+            this.renderBrowser(filteredTracks,this.liveLocus || this.region);
             this.isLoading = false;
         },
         toggleTracks(){
@@ -234,12 +249,11 @@ export default Vue.component("AtacSeq", {
             return output;
         }
     },
-    watch: {
-    }
+    watch: { view(){this.$nextTick(this.scheduleFit);} }
 });
 </script>
 <style scoped>
-.atac-seq__browser { width: 100%; min-height: 280px; }
+.atac-seq__browser { width: 100%; }
 .track-options { display:flex; flex-wrap:wrap; gap:10px 16px; margin:12px 0 20px; }
 .track-options label { display:flex; align-items:center; gap:5px; }
 </style>

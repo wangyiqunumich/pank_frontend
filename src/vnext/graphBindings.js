@@ -51,7 +51,7 @@ export function calculateGraphViewport(bounds, size) {
     || ![bounds.x1, bounds.y1, bounds.x2, bounds.y2].every(Number.isFinite)) return null;
   // Reserve the existing controls and collapsed legend, not just the pane edge.
   const insetScale = Math.min(1, size.width / 320, size.height / 240);
-  const left = 24 * insetScale, right = 84 * insetScale, top = 24 * insetScale, bottom = 76 * insetScale;
+  const left = 24 * insetScale, right = 84 * insetScale, top = 64 * insetScale, bottom = 76 * insetScale;
   const width = size.width - left - right, height = size.height - top - bottom;
   const zoom = Math.min(4, width / Math.max(1, bounds.x2 - bounds.x1), height / Math.max(1, bounds.y2 - bounds.y1));
   return { zoom, minZoom: Math.min(0.6, zoom / 2), maxZoom: 4,

@@ -1,0 +1,40 @@
+/* Canonical scMap chrome shared by all browser bundles. */
+.browser-toolbar { position:absolute; right:12px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; align-items:center; gap:4px; padding:9px 5px; border:1px solid #e2e8f0e6; border-radius:999px; background:#fffffff2; box-shadow:0 0 0 2px #f1f5f9,0 12px 20px -8px #0002; z-index:5; }
+.browser-toolbar button { display:flex; align-items:center; justify-content:center; width:32px; height:32px; min-height:32px; padding:0; margin:0; border:0; border-radius:50%; background:transparent; color:#475569; cursor:pointer; flex:none; }
+.browser-toolbar button:hover:not(:disabled) { background:#f1f5f9; }
+.browser-toolbar button:disabled { opacity:.35; cursor:default; }
+.browser-toolbar button:focus-visible { outline:2px solid #0d9488; outline-offset:2px; }
+.browser-toolbar svg { width:16px; height:16px; display:block; }
+.browser-chrome { font:12px/1.5 Inter,'Open Sans',system-ui,sans-serif; color:#334155; }
+.browser-chrome .browser-navigation { flex:none; display:flex; padding:10px 12px; border-bottom:1px solid #f1f5f9; background:#f8fafc80; }
+.browser-chrome .browser-tabs { display:flex; flex-wrap:wrap; align-items:center; gap:4px; width:max-content; max-width:100%; padding:5px; margin:0; border:1px solid #e2e8f0cc; border-radius:12px; background:#f1f5f9cc; }
+.browser-chrome .browser-tabs button { display:flex; align-items:center; gap:8px; flex:none; padding:5px 10px; margin:0; border:1px solid transparent; border-radius:8px; background:transparent; color:#334155; font:500 12px/16px Inter,'Open Sans',system-ui,sans-serif!important; cursor:pointer; }
+.browser-chrome .browser-tabs button[aria-pressed=true] { background:#fff; border-color:#e2e8f0cc; color:#134e4a; font-weight:600!important; }
+.browser-chrome .browser-filters { flex:none; display:flex; align-items:center; flex-wrap:wrap; gap:8px; padding:12px; margin:0; border-bottom:1px solid #f1f5f9; }
+.browser-chrome .browser-filters label { display:flex; align-items:center; gap:6px; min-width:0; max-width:100%; margin:0; color:#94a3b8; font-weight:400; }
+.browser-chrome .browser-select { position:relative; flex:1 1 140px; min-height:32px; padding:6px 9px; border:1px solid #e2e8f0; border-radius:8px; }
+.browser-chrome .browser-select select { appearance:none; min-width:0; width:0; flex:1; height:20px; margin:0; padding:0 20px 0 3px; border:0; border-radius:0; background:transparent; color:#1e293b; font:500 12px/20px Inter,system-ui,sans-serif; text-overflow:ellipsis; cursor:pointer; }
+.browser-chrome .browser-select::after { content:''; position:absolute; right:11px; top:12px; width:6px; height:6px; border-right:1.5px solid #94a3b8; border-bottom:1.5px solid #94a3b8; transform:rotate(45deg); pointer-events:none; }
+.browser-chrome .browser-input { display:flex; align-items:stretch; min-width:0; height:32px; border:1px solid #cbd5e1; border-radius:8px; overflow:hidden; background:#fff; }
+.browser-chrome .browser-input > span { display:flex; align-items:center; padding:0 10px; border-right:1px solid #e2e8f0; color:#94a3b8; white-space:nowrap; }
+.browser-chrome .browser-input input { min-width:0; flex:1; width:100px; padding:6px 10px; border:0; border-radius:0; background:#fff; color:#1e293b; font:500 12px/18px Inter,system-ui,sans-serif; }
+.browser-chrome .browser-input button, .browser-chrome button.browser-primary { padding:4px 14px; margin:1px; border:0; border-radius:0 6px 6px 0; background:#0f766e; color:white; font:500 12px/20px Inter,system-ui,sans-serif; }
+.browser-chrome .browser-filters details { width:100%; margin:0; padding:0; border:0; }
+.browser-chrome .browser-filters summary { color:#64748b; cursor:pointer; font-size:11px; }
+.browser-chrome .browser-filters .filter-detail { display:flex; flex-wrap:wrap; gap:8px; padding-top:8px; }
+.browser-chrome .browser-filters .filter-detail input { width:85px; }
+.browser-chrome .browser-footer { flex:none; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:4px 12px; padding:10px 12px; border-top:1px solid #f1f5f9; color:#94a3b8; font:11px/16px Inter,system-ui,sans-serif; background:white; }
+.browser-chrome .browser-footer p { margin:0; }
+.browser-chrome .browser-footer .description { flex-basis:100%; color:#64748b; font-size:10px; }
+.browser-chrome button:focus-visible,.browser-chrome select:focus-visible,.browser-chrome input:focus-visible,.browser-chrome summary:focus-visible { outline:2px solid #0d9488; outline-offset:2px; }
+@media(max-height:450px) { .browser-toolbar { gap:1px; padding:5px; } .browser-toolbar button { height:25px; min-height:25px; width:25px; } }
+@media(max-width:399px) { .browser-chrome .browser-filters { padding:8px 10px; gap:6px; } .browser-chrome .browser-navigation { padding:8px 10px; } .browser-chrome .browser-tabs button { padding:5px 8px; gap:6px; } .browser-toolbar { right:8px; } }
+.browser-external-link { color:#0f766e; text-decoration:none; font-size:12px; font-weight:500; }
+.browser-external-link:hover { text-decoration:underline; }
+.browser-functional-stage { position:relative; flex:1; min-height:0; overflow:auto; }
+.browser-source { padding:12px 60px 12px 12px; overflow-wrap:anywhere; }
+.browser-source h2 { font-size:14px; }
+.browser-image-plot { flex:1; position:relative; min-width:0; min-height:160px; height:100%; padding:8px 56px 8px 8px; box-sizing:border-box; }
+.browser-image-viewport { height:100%; width:100%; overflow:hidden; touch-action:none; cursor:grab; }
+.browser-image-viewport img { display:block; width:100%; height:100%; object-fit:contain; transform-origin:center; user-select:none; }
+.image-zoom { position:absolute; right:60px; bottom:8px; padding:2px 5px; border-radius:4px; background:#ffffffe0; color:#94a3b8; font:10px/16px ui-monospace,monospace; }

@@ -156,6 +156,7 @@ function ContentTabs({ tabs, value, onChange, variant = 'default' }) {
             scrollButtons={visualSchema.main_visuals.tab_switch.scroll_buttons}
             sx={{
                 minHeight: 0,
+                "& .MuiTabs-scrollButtons.Mui-disabled": { display: "none" },
                 "& .MuiTab-root": {
                     minHeight: 0,
                     pb: 1,

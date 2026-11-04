@@ -37,7 +37,7 @@
         <section v-show="tab === 'Expression'" aria-label="Expression distribution" class="plot-card">
           <div class="plot-heading"><div><h2>{{ gene }} expression by cell type</h2><p>{{ copy.expression_description }}</p></div><span v-if="fullView.show_expression_badge" class="pill">{{ copy.expression_badge }}</span></div>
           <p v-if="!view.expression">{{ error ? 'Choose another gene or retry above.' : 'Expression will appear here when loading finishes.' }}</p>
-          <template v-else><div class="plot-scroll"><div class="violin"><ResearchViolinPlot v-if="visitedExpression" :key="view.key + gene" :data="view.stats" :primary-key="field" :colors="colors[field]" :highlight-key="highlighted" :height="340" x-axis-label="Cell type" y-axis-label="Log-normalized expression" :range="[0, maximum || 1]" /></div></div>
+          <template v-else><div class="plot-scroll"><div class="violin" ref="expressionPlot" :style="{width:expressionZoom*100+'%',minWidth:620*expressionZoom+'px'}"><ResearchViolinPlot v-if="visitedExpression" :key="view.key + gene" :data="view.stats" :primary-key="field" :colors="colors[field]" :highlight-key="highlighted" :height="Math.max(220,contentHeight-135)" x-axis-label="Cell type" y-axis-label="Log-normalized expression" :range="[0, maximum || 1]" /></div></div>
           <p class="plot-caption">Source log-normalized expression, including cells with zero detected expression. These distributions summarize cells, not donors; they do not establish differential expression.</p>
           <details><summary>View expression summary table</summary><div class="plot-scroll"><table><thead><tr><th>Cell type</th><th>Cells</th><th>Median</th><th>Middle 50% (Q1–Q3)</th></tr></thead><tbody><tr v-for="row in view.stats" :key="row[field]"><td>{{ row[field] }}</td><td>{{ row.count.toLocaleString() }}</td><td>{{ row.median.toFixed(3) }}</td><td>{{ row.q1.toFixed(3) }}–{{ row.q3.toFixed(3) }}</td></tr></tbody></table></div></details></template>
         </section>
@@ -48,17 +48,16 @@
         <div class="source-actions"><button :disabled="loading" @click="load(gene, true)">Refresh atlas data</button><a :href="sourceLink" target="_blank" rel="noopener noreferrer">Open PanKbase ↗</a><a href="https://data.pankbase.org/analysis-sets/PKBDS1349YHGQ/" target="_blank" rel="noopener noreferrer">Atlas analysis lineage ↗</a><a href="../api/pankbase-data/v1/manifest" target="_blank" rel="noopener noreferrer">Snapshot metadata</a><a href="./THIRD_PARTY_NOTICES.txt" target="_blank" rel="noopener noreferrer">Code & licenses</a></div>
       </section>
       </div>
-      <div v-if="tab === 'Cell map'" class="map-toolbar" role="toolbar" :aria-label="copy.map_tab">
-        <button :aria-label="fullscreen ? copy.exit_fullscreen : copy.fullscreen" :title="fullscreen ? copy.exit_fullscreen : copy.fullscreen" @click="toggleFullscreen"><img :src="icons.fullscreen" alt="" /></button>
-        <button :aria-label="copy.zoom_in" :title="copy.zoom_in" :disabled="!view || !view.expression || !webgl" @click="zoomMap(-1)"><img :src="icons.zoomIn" alt="" /></button>
-        <button :aria-label="copy.zoom_out" :title="copy.zoom_out" :disabled="!view || !view.expression || !webgl" @click="zoomMap(1)"><img :src="icons.zoomOut" alt="" /></button>
+      <BrowserToolbar v-if="tab === 'Cell map'" :fullscreen="fullscreen" :disabled="!view || !view.expression || !webgl" @fullscreen="toggleFullscreen" @zoomIn="zoomMap(-1)" @zoomOut="zoomMap(1)" @fit="$refs.map && $refs.map.resetPanZoom()" @download="$refs.map && $refs.map.download()"/>
+      <BrowserToolbar v-if="tab === 'Expression'" :fullscreen="fullscreen" :disabled="!view || !view.expression" :can-zoom-in="expressionZoom<4" :can-zoom-out="expressionZoom>1" @fullscreen="toggleFullscreen" @zoomIn="expressionZoom=Math.min(4,expressionZoom*1.25)" @zoomOut="expressionZoom=Math.max(1,expressionZoom/1.25)" @fit="expressionZoom=1" @download="downloadExpression"/>
+      <BrowserToolbar v-if="tab === 'Source'" navigation-only :fullscreen="fullscreen" @fullscreen="toggleFullscreen"/>
       </div>
-      </div>
-      <footer class="browser-footer"><span><template v-if="view"><strong>{{ view.count.toLocaleString() }} {{ copy.cells_label }}</strong> · </template>{{ copy.map_caption }}</span><span class="navigation-hint">{{ mapZoom }}% · {{ copy.map_navigation }}</span></footer>
+      <footer class="browser-footer"><span><template v-if="view"><strong>{{ view.count.toLocaleString() }} {{ copy.cells_label }}</strong> · </template>{{ tab === 'Cell map' ? copy.map_caption : tab === 'Expression' ? 'Expression by cell type' : 'Source atlas and methods' }}</span><span v-if="tab !== 'Source'" class="navigation-hint">{{ tab === 'Cell map' ? mapZoom : Math.round(expressionZoom*100) }}% · {{ tab === 'Cell map' ? copy.map_navigation : 'Scroll horizontally to explore' }}</span></footer>
     </template>
   </main>
 </template>
 <script>
+import BrowserToolbar from '../pankbase-browser/BrowserToolbar.vue';
 import mapIcon from './assets/sc-map-tab.svg';
 import expressionIcon from './assets/sc-expression-tab.svg';
 import sourceIcon from './assets/sc-source-tab.svg';
@@ -76,8 +75,8 @@ import { SC_PROTOCOL, validBrowserContext } from '../src/vnext/singleCellContext
 const EMBED_ORIGIN = window.parent.location.origin;
 const palette = ['#007bff','#048845','#8490c8','#bf61a5','#ee3124','#b08d00','#5555ff','#7a9c1c','#bd505f','#9f78ac','#ab6684','#78a550'];
 export default {
-  components: { ResearchUmapPlotGL, ResearchViolinPlot },
-  data: () => ({ viewportHeight: window.innerHeight, plotAreaHeight: 0, mapZoom: 100, fullscreen: false, icons: { select: selectIcon, external: externalIcon, fullscreen: fullscreenIcon, zoomIn: zoomInIcon, zoomOut: zoomOutIcon }, preview: document.querySelector('meta[name="pankgraph-preview"]')?.content === '1' || new URLSearchParams(window.location.search).get('preview') === '1', context: null, gene: '', geneInput: '', loading: false, error: '', loaded: null, view: null, tab: 'Cell map', visitedExpression: false, filtered: false, highlighted: '', request: 0, field: FIELD, copy: SC_WORDING, fullView: SC_CONFIG.full_view, previewHeight: SC_CONFIG.preview.height, previewLabels: SC_CONFIG.preview.labels, previewCaption: SC_CONFIG.preview.show_caption, webgl: true }),
+  components: { ResearchUmapPlotGL, ResearchViolinPlot, BrowserToolbar },
+  data: () => ({ viewportHeight: window.innerHeight, plotAreaHeight: 0, contentHeight:0, mapZoom: 100, fullscreen: false, expressionZoom:1, icons: { select: selectIcon, external: externalIcon, fullscreen: fullscreenIcon, zoomIn: zoomInIcon, zoomOut: zoomOutIcon }, preview: document.querySelector('meta[name="pankgraph-preview"]')?.content === '1' || new URLSearchParams(window.location.search).get('preview') === '1', context: null, gene: '', geneInput: '', loading: false, error: '', loaded: null, view: null, tab: 'Cell map', visitedExpression: false, filtered: false, highlighted: '', request: 0, field: FIELD, copy: SC_WORDING, fullView: SC_CONFIG.full_view, previewHeight: SC_CONFIG.preview.height, previewLabels: SC_CONFIG.preview.labels, previewCaption: SC_CONFIG.preview.show_caption, webgl: true }),
   computed: {
     plotHeight() { return Math.max(1, this.plotAreaHeight || this.viewportHeight - this.fullView.plot_reserved_height - 56); },
     tabs() { return [{ id: 'Cell map', label: this.copy.map_tab, icon: mapIcon }, { id: 'Expression', label: this.copy.expression_tab, icon: expressionIcon }, { id: 'Source', label: this.copy.source_tab, icon: sourceIcon }]; },
@@ -99,6 +98,7 @@ export default {
     this.worker.onerror = () => { this.loading = false; this.error = 'Atlas worker failed. Reload the viewer to retry.'; this.notify(this.error); };
     this.resizeViewport = () => {
       this.viewportHeight = window.innerHeight;
+      this.contentHeight=this.$refs.browserContent?.clientHeight || 0;
       // Measure the flex space left after the actual wrapped caption/context.
       const content = this.$refs.mapViewport;
       if (content && content.clientHeight > 0) this.plotAreaHeight = content.clientHeight;
@@ -128,6 +128,7 @@ export default {
     search() { this.load(this.geneInput.trim()); },
     selectTab(tab) { this.tab = tab; if (tab === 'Expression') this.visitedExpression = true; this.$nextTick(() => window.dispatchEvent(new Event('resize'))); },
     setFilter(filtered) { this.filtered = Boolean(filtered && this.highlighted); this.updateView(); },
+    downloadExpression() { const svg=this.$refs.expressionPlot?.querySelector('svg');if(!svg)return;const clone=svg.cloneNode(true);clone.setAttribute('xmlns','http://www.w3.org/2000/svg');const blob=new Blob([new XMLSerializer().serializeToString(clone)],{type:'image/svg+xml'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download=this.gene+'-cell-type-expression.svg';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000); },
     zoomMap(direction) { this.$refs.map?.onWheel({ deltaY: direction }); },
     toggleFullscreen() { window.parent.postMessage({ protocol: SC_PROTOCOL, type: 'toggle-fullscreen' }, EMBED_ORIGIN); },
     updateView() {

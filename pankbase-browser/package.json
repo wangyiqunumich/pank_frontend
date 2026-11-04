@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "test": "node --test data.test.mjs",
+    "test": "node --test *.test.mjs",
     "prepare:data": "python3 prepare-data.py --if-valid"
   },
   "dependencies": {

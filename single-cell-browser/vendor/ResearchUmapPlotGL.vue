@@ -1508,8 +1508,14 @@ export default Vue.component('research-umap-plot-gl', {
             ctx.lineWidth = 5;
 
             this.projectedLabels.forEach(cluster => {
-                ctx.strokeText(cluster.label, cluster.projection.x, cluster.projection.y);
-                ctx.fillText(cluster.label, cluster.projection.x, cluster.projection.y);
+                const { x, y } = cluster.projection;
+                if (x < 0 || x > labelCanvas.width || y < 0 || y > labelCanvas.height) return;
+                const padding = 4 * (window.devicePixelRatio || 1);
+                const half = ctx.measureText(cluster.label).width / 2 + padding;
+                const labelX = Math.max(half, Math.min(labelCanvas.width - half, x));
+                const labelY = Math.max(10 + padding, Math.min(labelCanvas.height - 10 - padding, y));
+                ctx.strokeText(cluster.label, labelX, labelY);
+                ctx.fillText(cluster.label, labelX, labelY);
             });
         },
 

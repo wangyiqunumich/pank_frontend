@@ -100,3 +100,8 @@ main.atlas-preview { padding: 0; overflow: hidden; }
   .provenance dl { display: block; }
   dd { margin: 4px 0 12px; }
 }
+
+/* Keep a single content scrollbar; inline SVG baseline space otherwise creates
+   a second five-pixel scroll range inside the upstream violin wrapper. */
+.violin svg { display:block; }
+.browser-content:not(.is-map) { padding-right:60px; }
