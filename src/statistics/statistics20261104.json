@@ -1,5 +1,5 @@
 {
-  "release": "PanKgraph_1104",
+  "release": "PanKgraph 11/04/2026 version",
   "date": "2026-11-04",
   "inputManifestSha256": "2925a97c0226c871ba42105da6b12e8c996f9fcb3b63d8737f742fc876177f2b",
   "schemaSha256": "653065fa07a1f3baa8b2cbde9417965b72a3e0d7cc72699d6f15d6409593ccc8",
@@ -303,7 +303,7 @@
         }
       ],
       "libraryStatus": "Related resource",
-      "libraryNote": "Related donor and biosample resources; exact identity with the 1104 metadata snapshot is not established."
+      "libraryNote": "Related donor and biosample resources; exact identity with this version’s metadata snapshot is not established."
     },
     {
       "id": "sample",
@@ -353,7 +353,7 @@
         }
       ],
       "libraryStatus": "Related resource",
-      "libraryNote": "Related donor and biosample resources; exact identity with the 1104 metadata snapshot is not established."
+      "libraryNote": "Related donor and biosample resources; exact identity with this version’s metadata snapshot is not established."
     },
     {
       "id": "Molecular_complex",
@@ -513,7 +513,7 @@
         }
       ],
       "libraryStatus": "Related resource",
-      "libraryNote": "Related donor and biosample resources; exact identity with the 1104 metadata snapshot is not established."
+      "libraryNote": "Related donor and biosample resources; exact identity with this version’s metadata snapshot is not established."
     },
     {
       "id": "sample_provenance",
@@ -550,7 +550,7 @@
         }
       ],
       "libraryStatus": "Related resource",
-      "libraryNote": "Related donor and biosample resources; exact identity with the 1104 metadata snapshot is not established."
+      "libraryNote": "Related donor and biosample resources; exact identity with this version’s metadata snapshot is not established."
     },
     {
       "id": "FUNCTION_ANNOTATION__Gene__GO_term",
@@ -1343,7 +1343,7 @@
         }
       ],
       "libraryStatus": "Related resource",
-      "libraryNote": "Related donor and biosample resources; exact identity with the 1104 metadata snapshot is not established."
+      "libraryNote": "Related donor and biosample resources; exact identity with this version’s metadata snapshot is not established."
     },
     {
       "id": "HAS_SAMPLE__anatomical_structure__sample",
@@ -1394,7 +1394,7 @@
         }
       ],
       "libraryStatus": "Related resource",
-      "libraryNote": "Related donor and biosample resources; exact identity with the 1104 metadata snapshot is not established."
+      "libraryNote": "Related donor and biosample resources; exact identity with this version’s metadata snapshot is not established."
     },
     {
       "id": "HAS_SAMPLE__data_modality__sample",
@@ -1445,7 +1445,7 @@
         }
       ],
       "libraryStatus": "Related resource",
-      "libraryNote": "Related donor and biosample resources; exact identity with the 1104 metadata snapshot is not established."
+      "libraryNote": "Related donor and biosample resources; exact identity with this version’s metadata snapshot is not established."
     },
     {
       "id": "HAS_STATE__disease__donor",
@@ -1488,7 +1488,7 @@
         }
       ],
       "libraryStatus": "Related resource",
-      "libraryNote": "Related donor and biosample resources; exact identity with the 1104 metadata snapshot is not established."
+      "libraryNote": "Related donor and biosample resources; exact identity with this version’s metadata snapshot is not established."
     },
     {
       "id": "HAS_STATE__disease__sample",
@@ -1531,7 +1531,7 @@
         }
       ],
       "libraryStatus": "Related resource",
-      "libraryNote": "Related donor and biosample resources; exact identity with the 1104 metadata snapshot is not established."
+      "libraryNote": "Related donor and biosample resources; exact identity with this version’s metadata snapshot is not established."
     },
     {
       "id": "ANNOTATED_USING__donor__donor_provenance",
@@ -1570,7 +1570,7 @@
         }
       ],
       "libraryStatus": "Related resource",
-      "libraryNote": "Related donor and biosample resources; exact identity with the 1104 metadata snapshot is not established."
+      "libraryNote": "Related donor and biosample resources; exact identity with this version’s metadata snapshot is not established."
     },
     {
       "id": "ANNOTATED_USING__sample__sample_provenance",
@@ -1614,7 +1614,7 @@
         }
       ],
       "libraryStatus": "Related resource",
-      "libraryNote": "Related donor and biosample resources; exact identity with the 1104 metadata snapshot is not established."
+      "libraryNote": "Related donor and biosample resources; exact identity with this version’s metadata snapshot is not established."
     },
     {
       "id": "LIGAND_RECEPTOR__Gene__Gene",
@@ -1762,5 +1762,6 @@
         }
       ]
     }
-  ]
+  ],
+  "version": "11/04/2026"
 }

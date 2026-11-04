@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import StatPage from './StatPage';
-import data from '../statistics/statistics1104.json';
+import data from '../statistics/statistics20261104.json';
 
 test('snapshot totals reconcile and no private source records enter the public catalog', () => {
   expect(data.rows.filter(r => r.kind === 'nodes').reduce((n, r) => n + r.count, 0)).toBe(5454692);
@@ -17,6 +17,8 @@ test('snapshot totals reconcile and no private source records enter the public c
 test('researchers can search relationships, inspect terms and distinguish related downloads', () => {
   render(<StatPage />);
   expect(screen.getByRole('heading', { name: 'Statistics & data sources' })).toBeTruthy();
+  expect(screen.getByRole('main').textContent).toContain('PanKgraph 11/04/2026 version');
+  expect(screen.getByRole('main').textContent).not.toMatch(/\b1104\b|development build|development data build/i);
   fireEvent.click(screen.getByRole('button', { name: /Relationships/ }));
   fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'BioGRID' } });
   expect(screen.getByRole('status').textContent).toBe('2 of 34 relationship groups');

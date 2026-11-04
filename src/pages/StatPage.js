@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import data from '../statistics/statistics1104.json';
+import data from '../statistics/statistics20261104.json';
 import './Statistics.css';
 
 const number = value => value.toLocaleString('en-US');
@@ -44,15 +44,15 @@ export default function StatPage() {
   const reset = () => { setQuery(''); setLicense('all'); setLinkedOnly(false); setSort('count'); };
   return <main className="stats-page" aria-labelledby="stats-title">
     <header className="stats-header">
-      <div className="stats-eyebrow">DATA RESOURCES <span>DEVELOPMENT BUILD · 1104</span></div>
+      <div className="stats-eyebrow">DATA RESOURCES <span>{data.release}</span></div>
       <h1 id="stats-title">Statistics & data sources</h1>
       <p className="stats-intro">Explore the biological entities and relationships in PanKgraph, with source provenance, recorded licenses, and links to the PanKbase Data Library.</p>
-      <div className="stats-meta"><span>Snapshot · November 4, 2026</span><span>Human · GRCh38</span><ExternalLink href="https://data.pankbase.org/">Browse PanKbase Data Library</ExternalLink></div>
+      <div className="stats-meta"><span>Version date · November 4, 2026</span><span>Human · GRCh38</span><ExternalLink href="https://data.pankbase.org/">Browse PanKbase Data Library</ExternalLink></div>
     </header>
-    <section className="stats-metrics" aria-label="Build totals">
+    <section className="stats-metrics" aria-label="Version totals">
       {[['Graph nodes', data.totals.nodes, 'Biological entities & metadata'], ['Relationships', data.totals.edges, 'Contextualized graph records'], ['Supporting table rows', data.totals.sqlRows, `Across ${data.totals.sqlTables} evidence & lookup tables`]].map(([label, count, description]) => <div className="stats-metric" key={label}><span>{label}</span><strong>{number(count)}</strong><small>{description}</small></div>)}
     </section>
-    <div className="stats-scope"><strong>About this snapshot</strong><p>Counts describe PanKgraph 1104, a development data build. They do not indicate which build a live query uses. Graph records and supporting table rows have different units and should not be added together.</p></div>
+    <div className="stats-scope"><strong>About these counts</strong><p>Graph records and supporting table rows have different units and should not be added together.</p></div>
     <section className="stats-catalog" aria-labelledby="stats-catalog-title">
       <div className="stats-section-heading"><div><h2 id="stats-catalog-title">Explore the data</h2><p>Find a data type, review its terms, and follow the available source links.</p></div><a href="#stats-reuse">How to use these resources ↓</a></div>
       <div className="stats-tabs" role="group" aria-label="Record category">{[['nodes', 'Nodes'], ['edges', 'Relationships']].map(([value, label]) => <button type="button" key={value} aria-pressed={kind === value} onClick={() => setKind(value)}>{label}<span>{data.rows.filter(row => row.kind === value).length}</span></button>)}</div>
@@ -63,7 +63,7 @@ export default function StatPage() {
       </div>
       <div className="stats-results-line"><p role="status">{rows.length} of {data.rows.filter(row => row.kind === kind).length} {kind === 'nodes' ? 'node categories' : 'relationship groups'}</p><label><input type="checkbox" checked={linkedOnly} onChange={event => setLinkedOnly(event.target.checked)} /> With PanKbase links</label><button type="button" onClick={reset}>Reset filters</button></div>
       <div className="stats-table-scroll" role="region" aria-label="Data statistics table" tabIndex="0"><table className="stats-table">
-        <caption className="stats-sr-only">PanKgraph 1104 {kind === 'nodes' ? 'node categories' : 'relationship groups'}, counts, sources, licenses and PanKbase resources</caption>
+        <caption className="stats-sr-only">{data.release} {kind === 'nodes' ? 'node categories' : 'relationship groups'}, counts, sources, licenses and PanKbase resources</caption>
         <thead><tr><th scope="col">{kind === 'nodes' ? 'Entity type' : 'Relationship / endpoints'}</th><th scope="col" className="stats-count">Records</th><th scope="col">Source</th><th scope="col">Recorded license</th><th scope="col">PanKbase downloads</th></tr></thead>
         <tbody>{rows.map(row => <tr key={row.id}>
           <th scope="row"><span className="stats-row-name">{row.name}</span>{row.endpoints && <small className="stats-endpoints">{row.endpoints}</small>}<details className="stats-record-details"><summary>Type & version</summary><code>{row.type}</code>{row.versions.map(version => <small key={version}>{version}</small>)}</details></th>
@@ -75,10 +75,10 @@ export default function StatPage() {
       <p className="stats-table-note">Relationships are grouped by type and endpoint categories. Counts include individual source records; repeated gene pairs may represent distinct experimental evidence.</p>
     </section>
     <section className="stats-reuse" id="stats-reuse" aria-labelledby="stats-reuse-title"><h2 id="stats-reuse-title">Using the data responsibly</h2><div className="stats-reuse-grid">
-      <div><span className="stats-step">01 / LICENSING</span><h3>Check the source terms</h3><p>Licenses are recorded per data type in this build. “Not yet verified” preserves an unknown license; it does not grant permission to reuse or redistribute. Where several terms are shown, review the original records and their source conditions.</p></div>
-      <div><span className="stats-step">02 / DOWNLOADS</span><h3>Keep dataset identity intact</h3><p>Source dataset links come from the build records. Related resources provide useful context, but may differ in release, cohort or processing. Open each dataset’s Files section for downloads and current availability.</p></div>
-      <div><span className="stats-step">03 / INTERPRETATION</span><h3>Retain the biological context</h3><p>Associations, expression differences and inferred ligand–receptor relationships have distinct evidence scopes. Counts do not establish causality or completeness. This build excludes ABC predictions and regulatory-element nodes.</p></div>
+      <div><span className="stats-step">01 / LICENSING</span><h3>Check the source terms</h3><p>Licenses are recorded per data type in this version. “Not yet verified” preserves an unknown license; it does not grant permission to reuse or redistribute. Where several terms are shown, review the original records and their source conditions.</p></div>
+      <div><span className="stats-step">02 / DOWNLOADS</span><h3>Keep dataset identity intact</h3><p>Source dataset links come from the source records. Related resources provide useful context, but may differ in release, cohort or processing. Open each dataset’s Files section for downloads and current availability.</p></div>
+      <div><span className="stats-step">03 / INTERPRETATION</span><h3>Retain the biological context</h3><p>Associations, expression differences and inferred ligand–receptor relationships have distinct evidence scopes. Counts do not establish causality or completeness. This version excludes ABC predictions and regulatory-element nodes.</p></div>
     </div></section>
-    <footer className="stats-provenance"><span>{data.release} · Library mapping reviewed {data.libraryCheckedOn}</span><details><summary>Snapshot provenance</summary><p>Aggregate counts and recorded terms are derived from the validated build schema. Library mappings retain their source review date.</p><strong>Input manifest SHA-256</strong><code>{data.inputManifestSha256}</code><strong>Schema SHA-256</strong><code>{data.schemaSha256}</code></details></footer>
+    <footer className="stats-provenance"><span>{data.release} · Library mapping reviewed {data.libraryCheckedOn}</span><details><summary>Version provenance</summary><p>Aggregate counts and recorded terms are derived from the validated version schema. Library mappings retain their source review date.</p><strong>Input manifest SHA-256</strong><code>{data.inputManifestSha256}</code><strong>Schema SHA-256</strong><code>{data.schemaSha256}</code></details></footer>
   </main>;
 }

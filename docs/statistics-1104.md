@@ -1,7 +1,8 @@
-# Statistics page: PanKgraph 1104
+# Statistics page: PanKgraph 11/04/2026 version
 
-The `/docs/statistics` page presents a pinned development snapshot, independently
-of the database selected by the query backend. `/statistics` redirects to it.
+The `/docs/statistics` page uses the public release name
+**PanKgraph 11/04/2026 version**. Internal build IDs remain implementation and
+provenance identifiers, never public release labels. `/statistics` redirects to it.
 The surrounding site navigation is preserved; page styles are scoped.
 
 Source baseline: `wangyiqunumich/pank_frontend`, `xuteng/react`,
@@ -11,7 +12,7 @@ subsequent upstream hover-card fix was fast-forwarded before the final build.
 
 ## Data provenance
 
-The aggregate catalog `src/statistics/statistics1104.json` was projected from
+The aggregate catalog `src/statistics/statistics20261104.json` was projected from
 `RingoMao/PanKgraph_codex`:
 
 - `Research/Reports/release_1104/data_schema.json`: every node category and
@@ -43,3 +44,6 @@ Run `src/pages/StatPage.test.js` for count reconciliation, public-metadata bound
 link shape and interactive filtering. Existing frontend API/scBrowser integration
 checks and the complete build remain required for deployment. Test desktop and
 narrow layouts; the data table scrolls horizontally on narrow screens.
+
+Public naming correction baseline: `04149aa` on `xuteng/react`. No DOI is
+displayed until a version-specific record is actually registered.
