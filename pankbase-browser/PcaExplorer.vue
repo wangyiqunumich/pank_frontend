@@ -12,7 +12,7 @@
     </template>
     <BrowserToolbar v-if="view!=='PCA map'" navigation-only :fullscreen="fullscreen" @fullscreen="toggleFullscreen"/>
   </div>
-  <footer class="browser-footer"><div v-if="data && view==='PCA map'" class="legend"><span v-for="item in legend" :key="item.label"><i :style="{background:item.color}"/>{{item.label}}</span></div><span>{{cell}} · {{data ? data.rows.length : '…'}} pseudobulk samples · PanKbase v3.3</span><p class="description">Existing source PCA coordinates · {{view==='PCA map'?'Scroll to zoom · Drag to pan':'Normalized squared loadings in the contribution table.'}}</p></footer>
+  <footer class="browser-footer"><div v-if="data && view==='PCA map'" class="legend"><span v-for="item in legend" :key="item.label"><i :style="{background:item.color}"/>{{item.label}}</span></div><span>{{cell}} · {{data ? data.rows.length : '…'}} pseudobulk samples · PanKbase v3.3</span><p class="description">Existing source PCA coordinates · {{view==='PCA map'?'Zoom anchored at zero · No drag to pan':'Normalized squared loadings in the contribution table.'}}</p></footer>
 </section></template>
 <script>
 import { scaleOrdinal, schemeTableau10, scaleSequential, interpolateViridis, extent } from 'd3';

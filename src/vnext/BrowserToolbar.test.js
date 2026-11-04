@@ -15,3 +15,8 @@ test('browser controls share graph action order and execute reset, info and zoom
   expect(screen.queryByRole('button',{name:'Zoom in'})).toBeNull();
   fireEvent.click(screen.getByRole('button',{name:'Exit full screen'}));expect(fullscreen).toHaveBeenCalledTimes(1);
 });
+
+test('a static figure exposes only fullscreen and download without empty groups',()=>{
+ render(<BrowserToolbar visibleActions={['fullscreen','download']} onFullscreen={()=>{}} onDownload={()=>{}}/>);
+ expect(within(screen.getByRole('toolbar')).getAllByRole('button').map(b=>b.getAttribute('aria-label'))).toEqual(['Open in full screen','Download plot']);
+});

@@ -44,3 +44,14 @@
 
 .browser-image-plot { display:flex; align-items:center; justify-content:center; }
 .browser-image-frame { position:relative; max-width:100%; max-height:100%; min-width:0; min-height:0; }
+
+/* Native scientific figure: available aspect ratio, no bitmap pan/zoom. */
+.functional-navigation { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.browser-chrome .functional-navigation .browser-select { display:flex; align-items:center; gap:6px; min-width:0; flex:1 1 200px; max-width:360px; color:#94a3b8; }
+.browser-native-figure { position:relative; width:100%; height:100%; min-height:260px; padding:0; display:block; }
+.browser-native-figure > img { display:block; width:100%; height:100%; object-fit:contain; }
+.browser-native-figure > .browser-toolbar { top:8px; bottom:auto; right:8px; margin:0; }
+
+.browser-toolbar.is-minimal { padding:4px; gap:2px; }
+.browser-toolbar.is-minimal .graph-toolbar-action { min-height:28px; height:28px; width:32px; }
+.browser-toolbar.is-minimal .graph-toolbar-action-wrapper { height:28px; }

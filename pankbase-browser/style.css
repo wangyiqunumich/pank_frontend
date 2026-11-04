@@ -43,7 +43,7 @@ table{border-collapse:collapse;width:100%;font-size:11px}th,td{text-align:left;p
 .module-view.browser-chrome .module-stage.is-plot { padding:0; overflow:auto; }
 .module-view.browser-chrome .scatter { position:relative; flex:1; min-height:180px; padding:8px; }
 .module-view.browser-chrome .scatter-viewport { min-height:160px; }
-.module-view.browser-chrome .scatter canvas { touch-action:none; cursor:grab; }
+.module-view.browser-chrome .scatter canvas { touch-action:pan-y; cursor:default; }
 .module-view.browser-chrome .plot-tip { position:absolute; bottom:0; left:12px; right:56px; background:#ffffffe6; pointer-events:none; min-height:0; }
 .module-view.browser-chrome .browser-footer .legend { margin:0; flex-basis:100%; max-height:64px; overflow:auto; }
 .table-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:12px 0; }
@@ -74,3 +74,9 @@ table{border-collapse:collapse;width:100%;font-size:11px}th,td{text-align:left;p
 .genome-height select { width:auto; }
 
 .genome-content > .source-panel { height:100%; overflow:auto; }
+
+.heatmap-view .heatmap { width:100%; height:100%; }
+.heatmap-view .heatmap tbody th { width:100px; }
+.heatmap-view .heatmap tfoot th { position:static; width:auto; height:180px; padding:4px 0; vertical-align:top; background:white; font-size:10px; font-weight:400; }
+.heatmap-view .heatmap tfoot th:first-child { position:sticky; left:0; width:100px; white-space:normal; padding:8px; font-weight:600; }
+.heatmap-view .heatmap tfoot span { writing-mode:vertical-rl; display:inline-block; white-space:nowrap; }

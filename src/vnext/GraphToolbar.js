@@ -3,7 +3,7 @@ import { ButtonBase, Tooltip } from '@mui/material';
 import { fullscreenExitPath, compactChevron, compactFullscreen, compactZoomIn, compactZoomOut, compactFit, compactHover, compactDownload, compactReset, fullscreenIcon, zoomIn, zoomOut, fit, hover, mode, chevron, download, downloadChevron, reset } from './graphToolbarIcons';
 import './GraphToolbar.css';
 
-export default function GraphToolbar({ fullscreen, onFullscreen, zoomPercent, canZoomIn, canZoomOut, onZoomIn, onZoomOut, onFit, hoverEnabled, onHover, onDownload, onReset, modeLabel = 'KG mode', navigationOnly = false, browser = false, infoLabel = 'Hover info', resetLabel = 'Reset graph', downloadLabel = 'Download', disabled = false }) {
+export default function GraphToolbar({ fullscreen, onFullscreen, zoomPercent, canZoomIn, canZoomOut, onZoomIn, onZoomOut, onFit, hoverEnabled, onHover, onDownload, onReset, modeLabel = 'KG mode', navigationOnly = false, visibleActions = null, browser = false, infoLabel = 'Hover info', resetLabel = 'Reset graph', downloadLabel = 'Download', disabled = false }) {
   const [expanded, setExpanded] = useState(false);
   const toolbarRef = useRef(null);
   const [short, setShort] = useState(false);
@@ -31,7 +31,9 @@ export default function GraphToolbar({ fullscreen, onFullscreen, zoomPercent, ca
     download: { label: downloadLabel, icon: download, compact: compactDownload, onClick: onDownload, suffix: <img aria-hidden="true" src={downloadChevron} alt="" /> },
     reset: { label: resetLabel, icon: reset, compact: compactReset, onClick: onReset },
   };
+  const minimal = visibleActions?.length <= 2;
   const action = key => {
+    if (visibleActions && !visibleActions.includes(key)) return null;
     const item = actions[key];
     return <Tooltip key={key} title={expanded ? '' : item.label} {...tooltipProps}><span className="graph-toolbar-action-wrapper">
       <ButtonBase className={`graph-toolbar-action${item.pressed ? ' is-active' : ''}`} aria-label={item.label} aria-pressed={item.pressed} disabled={item.disabled || (key !== 'fullscreen' && (disabled || !item.onClick))} onClick={item.onClick}>
@@ -40,11 +42,11 @@ export default function GraphToolbar({ fullscreen, onFullscreen, zoomPercent, ca
       </ButtonBase>
     </span></Tooltip>;
   };
-  return <div ref={toolbarRef} className={`graph-toolbar${browser ? ' browser-toolbar' : ''}${expanded ? ' is-expanded' : ''}${short ? ' is-short' : ''}`} role="toolbar" aria-label={browser ? 'Visualization controls' : 'Graph controls'} aria-orientation="vertical">
-    <ButtonBase className="graph-toolbar-toggle" aria-label={expanded ? 'Collapse graph toolbar' : 'Expand graph toolbar'} aria-expanded={expanded} onClick={() => setExpanded(value => !value)}>
+  return <div ref={toolbarRef} className={`graph-toolbar${browser ? ' browser-toolbar' : ''}${expanded ? ' is-expanded' : ''}${short ? ' is-short' : ''}${minimal ? ' is-minimal' : ''}`} role="toolbar" aria-label={browser ? 'Visualization controls' : 'Graph controls'} aria-orientation="vertical">
+    {!minimal && <ButtonBase className="graph-toolbar-toggle" aria-label={expanded ? 'Collapse graph toolbar' : 'Expand graph toolbar'} aria-expanded={expanded} onClick={() => setExpanded(value => !value)}>
       <img aria-hidden="true" src={compactChevron} alt="" style={{ transform: expanded ? 'none' : 'scaleX(-1)' }} />
-    </ButtonBase>
-    {expanded ? <>
+    </ButtonBase>}
+    {minimal ? visibleActions.map(action) : expanded ? <>
       <div className="graph-toolbar-section"><h3>View</h3>{(navigationOnly ? ['fullscreen'] : ['fullscreen', 'zoomIn', 'zoomOut', 'fit']).map(action)}</div>
       <div className="graph-toolbar-section" hidden={navigationOnly}><h3>{browser ? 'Plot' : 'Graph'}</h3>{action('hover')}
         {!browser && <Tooltip title="The saved graph determines its presentation mode." {...tooltipProps}><div className="graph-toolbar-mode"><span className="graph-toolbar-icon"><img aria-hidden="true" src={mode} alt="" /></span><span className="graph-toolbar-label">Mode</span><span className="graph-toolbar-mode-value">{modeLabel}</span><img aria-hidden="true" src={chevron} alt="" /></div></Tooltip>}
