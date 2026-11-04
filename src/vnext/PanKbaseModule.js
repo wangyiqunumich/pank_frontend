@@ -5,7 +5,8 @@ import schema from './schema/result_page_schema.json';
 import { pankbaseUrl } from './pankbaseContext';
 import { sitePath } from './api';
 import { browserLinks } from './browserChrome';
-import { BROWSER_FILL_SX, BROWSER_HEADER_SX, BROWSER_IFRAME_STYLE } from './browserLayout';
+import './browserChrome.css';
+import { BROWSER_FILL_SX, BROWSER_IFRAME_STYLE } from './browserLayout';
 
 const PROTOCOL = 'pankgraph.pankbase.v1';
 let entryPromise;
@@ -57,12 +58,9 @@ export default function PanKbaseModule({ moduleId, context, preview = false, isV
     <Typography sx={{ fontSize: 11, color: '#64748b', mt: 1 }}>Data loads when you open this view.</Typography>
   </Box>;
   return <PersistentGraphViewport fullscreen={expanded} onExit={() => setExpanded(false)} label={definition.title}><Box sx={{ ...BROWSER_FILL_SX, overflow: 'hidden' }}>
-    <Box component="header" sx={BROWSER_HEADER_SX}>
-      <Typography sx={{ fontSize: 12, fontWeight: 500, flex: 1 }}>{definition.source_title || definition.title}</Typography>
-      <Button component="a" href={pankbaseUrl(moduleId, context)} target="_blank" rel="noopener noreferrer" size="small" sx={{ fontSize: 11, textTransform: 'none', color: '#0f766e' }}>{browserLinks[moduleId]} ↗</Button>
-    </Box>
     {!ready && !error && <Typography role="status" sx={{ p: 2 }}>{definition.wording.loading}</Typography>}
     {error && <Box role="alert" sx={{ p: 2 }}>{error} <Button onClick={() => { setError(''); setReady(false); setHtml(''); setAttempt(value => value + 1); }}>Retry</Button></Box>}
     {html && <iframe ref={frame} title={definition.title} srcDoc={html} onLoad={send} style={BROWSER_IFRAME_STYLE} />}
+    <footer className="browser-source-footer" aria-label="Module source"><span>{definition.source_title || definition.title}</span><a href={pankbaseUrl(moduleId, context)} target="_blank" rel="noopener noreferrer">{browserLinks[moduleId]} ↗</a></footer>
   </Box></PersistentGraphViewport>;
 }

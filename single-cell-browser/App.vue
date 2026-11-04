@@ -7,10 +7,6 @@
     </div>
     <p v-else-if="!context" role="status">Select an expression relationship in the graph to explore single cells.</p>
     <template v-else>
-      <header class="browser-header">
-        <strong>{{ copy.atlas_label }}</strong>
-        <a v-if="fullView.external_browser.enabled" :href="sourceLink" target="_blank" rel="noopener noreferrer"><span>{{ copy.header_browser_link.replace(/\s*[→↗]\s*$/, '') }}</span><span class="external-icon"><img :src="icons.external" alt="" /></span></a>
-      </header>
       <div class="browser-navigation">
         <nav :aria-label="copy.views_label"><button v-for="item in tabs" :key="item.id" :aria-label="item.label" :aria-pressed="tab === item.id" @click="selectTab(item.id)"><img :src="item.icon" alt="" /><span>{{ item.label }}</span></button></nav>
       </div>
@@ -54,6 +50,10 @@
       <BrowserToolbar v-if="tab === 'Source'" navigation-only :fullscreen="fullscreen" @fullscreen="toggleFullscreen"/>
       </div>
       <footer class="browser-footer"><span><template v-if="view"><strong>{{ view.count.toLocaleString() }} {{ copy.cells_label }}</strong> · </template>{{ tab === 'Cell map' ? copy.map_caption : tab === 'Expression' ? 'Expression by cell type' : 'Source atlas and methods' }}</span><span v-if="tab !== 'Source'" class="navigation-hint">{{ tab === 'Cell map' ? mapZoom : Math.round(expressionZoom*100) }}% · {{ tab === 'Cell map' ? copy.map_navigation : 'Scroll horizontally to explore' }}</span></footer>
+      <footer class="browser-source-footer" aria-label="Module source">
+        <span>{{ copy.atlas_label }}</span>
+        <a v-if="fullView.external_browser.enabled" :href="sourceLink" target="_blank" rel="noopener noreferrer"><span>{{ copy.header_browser_link.replace(/\s*[→↗]\s*$/, '') }}</span><span class="external-icon"><img :src="icons.external" alt="" /></span></a>
+      </footer>
     </template>
   </main>
 </template>

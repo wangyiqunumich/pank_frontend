@@ -58,3 +58,11 @@ Baseline: verified current upstream `fc49d595219b425717a7259678e16e318404c26e`, 
 - [x] Live release: PR 420 merged as `b9582b6e51dac63f6393efe6236e4e9877d87fe6`; Amplify job 871 succeeded. Authenticated live manifest reports source `198a94ed0f32529de91e0cd68777ee4ba873da37`, that host SHA, EC2 data origin, fixed fixture and no agent requests. Live Chrome verifies 14 default tracks/fullscreen, Heatmap 20 × 62/color key, and Age 1–64 PCA gradient.
 - Additional checks: 420 px coordinate input remains fully readable and interval zoom works; browser console had no errors during local module checks. Temporary viewport override reset.
 - Limitation: fresh Safari follow-up was unavailable because macOS was locked. Safari is not claimed revalidated for this release; the previous release's cross-browser result is historical evidence only. Backend and source datasets were unchanged.
+
+## 2026-11-04 — source/version footer
+
+Moved version/source labels and PanKbase browser links from the top to the final provenance row for scBrowser, Genome, DE, PCA and Functional. Shared footer spacing is 10px top, 12px sides/bottom, with 6px row gap and wrapping links. Ordinary panels retain 12px clipped outer corners; fullscreen remains flush to the viewport. Graph has no equivalent PanKbase source header to move.
+
+Chrome local checks: all five source rows are the last element of their module, with no horizontal overflow. 420px full-screen scBrowser and DE were visually verified; the longest DE link wraps to a second line and remains 12px from the right/bottom edge. Ordinary/fullscreen transitions preserve their content. Build and focused existing tests passed. macOS remains locked, so native Safari was unavailable.
+
+Live pin/manifest verification pending.

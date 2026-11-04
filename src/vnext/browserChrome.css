@@ -55,3 +55,19 @@
 .browser-toolbar.is-minimal { padding:4px; gap:2px; }
 .browser-toolbar.is-minimal .graph-toolbar-action { min-height:28px; height:28px; width:32px; }
 .browser-toolbar.is-minimal .graph-toolbar-action-wrapper { height:28px; }
+
+/* Final provenance row: consistent spacing inside the host's 12px corners.
+   Keep wrapping available in narrow panels and leave plots in the flex space. */
+.browser-source-footer {
+  box-sizing:border-box; flex:0 0 auto; display:flex; align-items:center;
+  justify-content:space-between; flex-wrap:wrap; gap:6px 16px;
+  min-width:0; padding:10px 12px 12px; border-top:1px solid #f1f5f9;
+  background:#f8fafc; color:#64748b; font:11px/16px Inter,system-ui,sans-serif;
+}
+.browser-source-footer > span { min-width:0; overflow-wrap:anywhere; }
+.browser-source-footer > a { display:inline-flex; align-items:center; gap:4px;
+  min-width:0; max-width:100%; margin-left:auto; color:#0f766e;
+  font:500 11px/16px Inter,system-ui,sans-serif; text-decoration:none;
+  overflow-wrap:anywhere; }
+.browser-source-footer > a:hover { text-decoration:underline; }
+.browser-source-footer > a:focus-visible { outline:2px solid #0d9488; outline-offset:2px; border-radius:3px; }

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import PersistentGraphViewport from '../components/PersistentGraphViewport';
 import BrowserImagePlot from './BrowserImagePlot';
 import BrowserToolbar from './BrowserToolbar';
 import { sitePath } from './api';
-import { BROWSER_FILL_SX, BROWSER_HEADER_SX } from './browserLayout';
+import { BROWSER_FILL_SX } from './browserLayout';
 import './browserChrome.css';
 
 const TRACES = {
@@ -28,7 +28,6 @@ export default function PanKgraphFunctionalPlot({ isVisible = false }) {
   if (!isVisible) return null;
   const url = sitePath(`/api/functional/api/charts/cohort-traces.png?trace_type=${trace}&result_page=Yes`);
   return <PersistentGraphViewport fullscreen={fullscreen} onExit={()=>setFullscreen(false)} label="PanKgraph functional plot"><Box className="browser-chrome" sx={BROWSER_FILL_SX}>
-    <Box component="header" sx={BROWSER_HEADER_SX}><Typography sx={{fontSize:12,fontWeight:500,flex:1}}>PanKgraph functional data</Typography><a className="browser-external-link" href="https://pankbase.org/functional.html" target="_blank" rel="noopener noreferrer">PanKbase functional browser ↗</a></Box>
     <div className="browser-navigation functional-navigation"><nav className="browser-tabs" aria-label="Functional views">{['Response','Source'].map(value=><button key={value} aria-pressed={tab===value} onClick={()=>setTab(value)}>{value}</button>)}</nav><label className="browser-select">Response<select value={trace} onChange={event=>setTrace(event.target.value)}>{Object.entries(TRACES).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label></div>
     <div className="browser-functional-stage">
       <div style={{display:tab==='Response'?'flex':'none',height:'100%',minHeight:0}}><BrowserImagePlot key={trace} url={url} title={`PanKgraph functional response · ${TRACES[trace]}`} fullscreen={fullscreen} onFullscreen={()=>setFullscreen(value=>!value)}/></div>
@@ -36,5 +35,6 @@ export default function PanKgraphFunctionalPlot({ isVisible = false }) {
       {tab==='Source'&&<BrowserToolbar navigationOnly fullscreen={fullscreen} onFullscreen={()=>setFullscreen(value=>!value)}/>}
     </div>
     <footer className="browser-footer"><span>All available donors{count!==null?` · ${count} donors`:''}</span><span>{TRACES[trace]}</span><p className="description">Independent functional cohort · Native PanKgraph plot · Faint: first 24 donor traces · Bold: cohort mean</p></footer>
+    <footer className="browser-source-footer" aria-label="Module source"><span>PanKgraph functional data</span><a href="https://pankbase.org/functional.html" target="_blank" rel="noopener noreferrer">PanKbase functional browser ↗</a></footer>
   </Box></PersistentGraphViewport>;
 }
