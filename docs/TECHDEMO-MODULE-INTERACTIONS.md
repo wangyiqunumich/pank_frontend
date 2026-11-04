@@ -41,3 +41,18 @@ Acceptance evidence is recorded below. Backend health alone is not frontend acce
 - Scope: fixed demo and component APIs. These checks do not claim scientific validation of the fixture graph or equivalence between independent cohorts.
 
 Goal completed after two implementation/review rounds. This checklist commit is documentation only; the deployed application remains pinned to the source SHA above.
+
+## 2026-11-04 — default comparisons and module polish
+
+Baseline: verified current upstream `fc49d595219b425717a7259678e16e318404c26e`, merged before editing. Retained checkout local edits remain untouched.
+
+- [x] Genome: default six available cell types (context type prioritized; otherwise Ductal, Beta, Alpha, Acinar, Delta, Gamma), signal + peaks, plus annotation/ruler = 14 tracks. Auto height capped at 160 px; explicit Compact/Medium/Large retained. The full coordinate field wraps ahead of secondary controls.
+- [x] Genome selection: editing the locus preserves chosen cells/types; deselecting Gamma produced 12 tracks after a locus change. Default comparison restores 14 without changing the current locus. Select-all state derives from current selection.
+- [x] Heatmap: persistent visual z-score color key, missing-value swatch, displayed gene/sample counts; 20 genes × 62 Beta samples observed, original x-axis labels retained.
+- [x] DE: origin zoom/reset verified; unmatched gene filters show an explicit empty state and working Clear filter. Source data and comparison download retained.
+- [x] PCA: continuous numeric legend for numeric attributes, explicit Unknown swatch for missing values; Age 1–64, 178 Acinar samples and Contributions tab verified. Origin-based navigation retained.
+- [x] Knowledge Graph: fullscreen, fit and exit regression passed; native controls retained.
+- [x] scBrowser: V3.4 / 448,935 cells; CFTR range 0–5.83, zoom 111%, fit and By cell type view verified. Atlas and native interactions retained.
+- [x] Functional: Glucagon content mode, 407 donors, native full-width plot, fullscreen/exit and two-action toolbar regression passed. No backend/data changes.
+- [x] Validation: 12 module tests, 30 focused React tests, 17 scBrowser tests; production build passed. Existing fit tests updated for the explicit readable-height ceiling.
+- [ ] Live release: pending pin deployment and fresh manifest/browser verification.

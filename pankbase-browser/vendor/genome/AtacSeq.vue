@@ -1,10 +1,10 @@
 <template><section class="module-view browser-chrome">
   <div class="browser-navigation"><nav class="browser-tabs" aria-label="Genome views"><button v-for="item in ['Genome','Tracks','Source']" :key="item" :aria-pressed="view===item" @click="view=item">{{item}}</button></nav></div>
-  <form class="browser-filters" @submit.prevent="openRegion"><label class="browser-input genome-region"><span>GRCh38</span><input v-model="regionInput" placeholder="chr7:start-end" aria-label="GRCh38 region"/><button :disabled="isLoading" type="submit">View</button></label><button type="button" :aria-pressed="showTools" @click="showTools=!showTools;scheduleFit()">More tools</button><label class="genome-height">Track height <select v-model="trackHeight" @change="scheduleFit"><option value="auto">Fit panel</option><option value="80">Compact</option><option value="160">Medium</option><option value="260">Large</option></select></label></form>
+  <form class="browser-filters genome-filters" @submit.prevent="openRegion"><label class="browser-input genome-region"><span>GRCh38</span><input v-model="regionInput" placeholder="chr7:start-end" aria-label="GRCh38 region"/><button :disabled="isLoading" type="submit">View</button></label><button type="button" :aria-pressed="showTools" @click="showTools=!showTools;scheduleFit()">More tools</button><label class="genome-height">Track height <select v-model="trackHeight" @change="scheduleFit"><option value="auto">Fit panel</option><option value="80">Compact</option><option value="160">Medium</option><option value="260">Large</option></select></label></form>
   <div class="module-stage genome-content"><p v-if="loadError" role="alert">{{loadError}}</p><p v-if="isLoading" role="status">Loading ATAC tracks…</p>
     <div v-show="view==='Genome'" ref="viewport" class="genome-viewport"><div class="genome-stage" :class="{'show-tools':showTools}"><div id="browser" class="atac-seq__browser" aria-live="polite"></div></div></div><BrowserToolbar v-if="view==='Genome'" zoom-axis="x" :actions="['fullscreen','zoomIn','zoomOut','download','reset']" :fullscreen="fullscreen" :disabled="isLoading || !controlReady" @fullscreen="toggleFullscreen" @zoomIn="zoomGenome(0.5)" @zoomOut="zoomGenome(2)" :info-enabled="plotInfo" info-label="Plot info" @info="plotInfo=!plotInfo" @reset="resetView" @fit="fitView" @download="downloadPlot"/><p v-if="plotInfo && view==='Genome'" class="browser-plot-info">HPAP ATAC signal and peak calls, GRCh38. Drag tracks to pan; zoom changes the genomic range. Track height changes the display only. Click a native feature for its source annotation.</p>
-    <div v-if="view==='Tracks'" class="source-panel"><h2>Cell types</h2><label><input type="checkbox" v-model="selectAll" @change="toggleTracks"/> Select all</label><div class="track-options"><label v-for="cellType in cellTypes" :key="cellType"><input type="checkbox" v-model="selectedCellTypes" :value="cellType"/>{{cellType}}</label></div><h2>Track types</h2><div class="track-options"><label v-for="trackType in trackTypes" :key="trackType"><input type="checkbox" v-model="selectedTrackTypes" :value="trackType"/>{{trackType.includes('peaks')?'ATAC peaks':trackType}}</label></div><button class="primary" @click="view='Genome';$nextTick(updateBrowser)">Apply tracks</button></div>
-    <div v-if="view==='Source'" class="source-panel"><h2>Source &amp; methods</h2><p>HPAP ATAC signal and peaks · GRCh38. All source cell types and track choices remain available under Tracks.</p><p>Coordinates are 0-based, half-open. {{manualLocus?'User-selected region; gene overlap is not assumed.':'Locus from explicit graph coordinates or a verified source lookup.'}}</p><p>Signal, peak calls and gene annotations are distinct evidence layers. Signal tracks are redrawn to fit available height; genomic coordinates and values are unchanged.</p></div>
+    <div v-if="view==='Tracks'" class="source-panel"><h2>Cell types</h2><p>{{selectedCellTypes.length}} of {{cellTypes.length}} selected · Signal and peak tracks can be compared together.</p><button @click="restoreDefaultTracks">Default comparison</button><label><input type="checkbox" :checked="selectedCellTypes.length===cellTypes.length" @change="toggleTracks($event.target.checked)"/> Select all</label><div class="track-options"><label v-for="cellType in cellTypes" :key="cellType"><input type="checkbox" v-model="selectedCellTypes" :value="cellType"/>{{cellType}}</label></div><h2>Track types</h2><div class="track-options"><label v-for="trackType in trackTypes" :key="trackType"><input type="checkbox" v-model="selectedTrackTypes" :value="trackType"/>{{trackType.includes('peaks')?'ATAC peaks':trackType}}</label></div><button class="primary" @click="view='Genome';$nextTick(updateBrowser)">Apply tracks</button></div>
+    <div v-if="view==='Source'" class="source-panel"><h2>Source &amp; methods</h2><p>HPAP ATAC signal and peaks · GRCh38. All source cell types and track choices remain available under Tracks.</p><p>Coordinates are 0-based, half-open. {{manualLocus?'User-selected region; gene overlap is not assumed.':'Locus from explicit graph coordinates or a verified source lookup.'}}</p><p>Signal, peak calls and gene annotations are distinct evidence layers. Default comparison includes up to six cell types. Automatic signal height is capped at 160 px; use Track height for larger tracks. Signal tracks are redrawn to fit available height; genomic coordinates and values are unchanged.</p></div>
     <BrowserToolbar v-if="view!=='Genome'" navigation-only :fullscreen="fullscreen" @fullscreen="toggleFullscreen"/>
   </div>
   <footer class="browser-footer"><span>GRCh38 · {{liveLocus || regionInput}}</span><span>{{trackCount}} tracks</span><p class="description">HPAP ATAC signal and peaks · Drag to pan · More tools for native navigation</p></footer>
@@ -15,6 +15,7 @@ import BrowserToolbar from '../../BrowserToolbar.vue';
 import browserControls from '../../browserControls.mjs';
 import { mountGenome, zoomGenome, fitSignalTracks } from './browserBridge.mjs';
 import { exportGenome } from './exportGenome.mjs';
+import { defaultCellTypes } from './trackDefaults.mjs';
 import { fetchTracks } from "./tracks.js";
 import { loadWashUAssets } from "./washU.js";
 import { TRACKS } from "./tracks.js";
@@ -43,7 +44,7 @@ export default Vue.component("AtacSeq", {
             trackTypes: [],
             selectedTrackTypes: [],
             geneInfo: null,
-            manualLocus: null, regionInput: "",
+            tracksInitialized:false, manualLocus: null, regionInput: "",
         };
     },
     async mounted() {
@@ -97,11 +98,11 @@ export default Vue.component("AtacSeq", {
                 await loadWashUAssets();
                 this.allTracks = await this.loadTracks();
                 this.cellTypes = Array.from(new Set(this.allTracks.map(t => t.cellType)));
-                this.selectedCellTypes = this.cellTypes.filter(cell => cell.toLowerCase() === (this.cellType || "").toLowerCase());
-                if (!this.selectedCellTypes.length) this.selectedCellTypes = this.cellTypes.slice(0, 1);
+                if (!this.tracksInitialized) this.selectedCellTypes = defaultCellTypes(this.cellTypes,this.cellType);
                 this.selectAll = this.selectedCellTypes.length === this.cellTypes.length;
                 this.trackTypes = Array.from(new Set(this.allTracks.map(t => t.trackType)));
-                this.selectedTrackTypes = this.trackTypes;
+                if (!this.tracksInitialized) this.selectedTrackTypes = [...this.trackTypes];
+                this.tracksInitialized = true;
                 const filteredTracks = this.filterTrackNames(this.allTracks);
                 this.renderBrowser(filteredTracks,this.region);
             } catch (error) {
@@ -237,9 +238,8 @@ export default Vue.component("AtacSeq", {
             this.renderBrowser(filteredTracks,this.liveLocus || this.region);
             this.isLoading = false;
         },
-        toggleTracks(){
-            this.selectedCellTypes = !this.selectAll ? [] : this.cellTypes;
-        },
+        toggleTracks(checked){ this.selectedCellTypes = checked ? [...this.cellTypes] : []; },
+        restoreDefaultTracks(){ this.selectedCellTypes=defaultCellTypes(this.cellTypes,this.cellType);this.selectedTrackTypes=[...this.trackTypes]; },
         populateCellsAndTracks(input){
             // this assumes same formatting for all track names - quick fix
             let output = structuredClone(input);

@@ -24,7 +24,7 @@ export function fitSignalTracks(tracks, extraHeight, { availableHeight = 1000, f
   if(!signals.length || !Number.isFinite(extraHeight))return null;
   // Bound each allocation by the actual viewport. Never compound transient
   // render measurements into an unbounded track height during fullscreen.
-  const ceiling=Math.max(50,Math.floor(availableHeight/signals.length));
+  const ceiling=Math.max(50,Math.min(160,Math.floor(availableHeight/signals.length)));
   if(fixedHeight===null&&Math.abs(extraHeight)<3)return null;
   let changed=false;
   const next=tracks.map(track=>{
