@@ -30,7 +30,10 @@ The 14 node categories distinguish donor/sample provenance ownership.
 
 Only aggregate metadata is exported. Raw examples, donor-level records, private
 source URLs and filesystem locations are excluded. Raw license values are preserved. The public usage-policy column links PanKbase
-source records to https://pankbase.org/policies.html with “Follow PanKbase policy”.
+and PanKgraph source records to https://pankbase.org/policies.html with “Follow
+PanKbase policy”. Owned Metadata/Functional API aliases use that same policy.
+HPAP/PANC-DB records link to https://hpap.pmacs.upenn.edu/user-agreement with
+“Follow HPAP policy”. Mixed source groups display both applicable policies.
 External sources retain explicit licenses or neutral “See source terms” text.
 Related PanKbase library links alone do not trigger the PanKbase policy label.
 Combined external terms remain combined.

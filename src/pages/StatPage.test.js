@@ -43,4 +43,11 @@ test('researchers can search relationships, inspect terms and distinguish relate
   expect(within(table).queryByRole('link', { name: /Follow PanKbase policy/ })).toBeNull();
   fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'LIGAND_RECEPTOR' } });
   expect(within(table).getAllByRole('link', { name: /Follow PanKbase policy/ })).toHaveLength(2);
+  fireEvent.click(screen.getByRole('button', { name: 'Reset filters' }));
+  fireEvent.click(screen.getByRole('button', { name: /Nodes/ }));
+  fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'Donors' } });
+  expect(within(table).getByRole('link', { name: /Follow HPAP policy/ }).getAttribute('href')).toBe('https://hpap.pmacs.upenn.edu/user-agreement');
+  expect(within(table).getByRole('link', { name: /Follow PanKbase policy/ }).getAttribute('href')).toBe('https://pankbase.org/policies.html');
+  fireEvent.change(screen.getByLabelText('Usage terms'), { target: { value: 'hpap' } });
+  expect(screen.getByRole('status').textContent).toBe('1 of 14 node categories');
 });
