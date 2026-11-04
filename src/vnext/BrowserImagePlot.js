@@ -7,8 +7,9 @@ export default function BrowserImagePlot({ url, title, fullscreen, onFullscreen 
   const [size,setSize]=useState(0);
   useLayoutEffect(()=>{
     const measure=()=>{const el=stage.current;if(el)setSize(Math.max(1,Math.min(el.clientWidth-16,el.clientHeight-16)));};
-    const observer=new ResizeObserver(measure);observer.observe(stage.current);measure();
-    return ()=>observer.disconnect();
+    const observer=typeof ResizeObserver==='undefined'?null:new ResizeObserver(measure);
+    observer?.observe(stage.current);window.addEventListener('resize',measure);measure();
+    return ()=>{observer?.disconnect();window.removeEventListener('resize',measure);};
   },[]);
   const fit=()=>{setZoom(1);setPan({x:0,y:0});};
   const changeZoom=factor=>setZoom(value=>{const next=Math.max(1,Math.min(4,value*factor));if(next===1)setPan({x:0,y:0});return next;});

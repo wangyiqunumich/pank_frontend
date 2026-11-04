@@ -1,12 +1,12 @@
 <template><div ref="toolbar" class="graph-toolbar browser-toolbar" :class="{'is-expanded':expanded,'is-short':short}" role="toolbar" aria-label="Visualization controls" aria-orientation="vertical">
-  <button class="graph-toolbar-toggle" type="button" :aria-label="expanded?'Collapse graph toolbar':'Expand graph toolbar'" :aria-expanded="expanded" @click="expanded=!expanded"><img :src="icons.compactChevron" alt="" :style="{transform:expanded?'none':'scaleX(-1)'}"/></button>
+  <button class="graph-toolbar-toggle" type="button" :aria-label="expanded?'Collapse graph toolbar':'Expand graph toolbar'" :aria-expanded="expanded" @click="expanded=!expanded"><img aria-hidden="true" :src="icons.compactChevron" alt="" :style="{transform:expanded?'none':'scaleX(-1)'}"/></button>
   <template v-for="group in groups">
     <div v-if="!expanded" :key="group.title+'divider'" class="graph-toolbar-divider"/>
     <div :key="group.title" class="graph-toolbar-section"><h3 v-if="expanded">{{group.title}}</h3>
       <span v-for="action in group.actions" :key="action.id" class="graph-toolbar-action-wrapper">
         <button class="graph-toolbar-action" :class="{'is-active':action.id==='info'&&infoEnabled}" type="button" :aria-label="action.label" :title="expanded?'':action.label" :aria-pressed="action.id==='info'?infoEnabled:undefined" :disabled="inactive(action)" @click="$emit(action.id)">
-          <span class="graph-toolbar-icon"><svg v-if="action.id==='fullscreen'&&fullscreen" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path :d="icons.fullscreenExitPath"/></svg><img v-else :src="icons[expanded?action.icon:action.compact]" alt=""/></span>
-          <template v-if="expanded"><span class="graph-toolbar-label">{{action.label}}</span><span v-if="action.id==='zoomIn'&&zoomPercent" class="graph-toolbar-zoom">{{zoomPercent}}%</span><span v-if="action.id==='info'" class="graph-toolbar-switch" :class="{'is-on':infoEnabled}" aria-hidden="true"><span/></span><img v-if="action.id==='download'" :src="icons.downloadChevron" alt=""/></template>
+          <span class="graph-toolbar-icon"><svg v-if="action.id==='fullscreen'&&fullscreen" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path :d="icons.fullscreenExitPath"/></svg><img aria-hidden="true" v-else :src="icons[expanded?action.icon:action.compact]" alt=""/></span>
+          <template v-if="expanded"><span class="graph-toolbar-label">{{action.label}}</span><span v-if="action.id==='zoomIn'&&zoomPercent" class="graph-toolbar-zoom">{{zoomPercent}}%</span><span v-if="action.id==='info'" class="graph-toolbar-switch" :class="{'is-on':infoEnabled}" aria-hidden="true"><span/></span><img aria-hidden="true" v-if="action.id==='download'" :src="icons.downloadChevron" alt=""/></template>
         </button>
       </span>
     </div>
