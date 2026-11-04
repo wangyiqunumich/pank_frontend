@@ -16,7 +16,11 @@ Each iframe remains mounted; applying a configuration doesn't remount the entire
 - [x] Browser island tests, including new action validation and inverse operations (15 tests).
 - [x] Backend module-guide tests: 11 including concurrency, restart, idempotency, timeout reservations, billing anomaly halt, schema/grounding and manual-only mode; existing component/functional/inventory tests also passed.
 - [x] Desktop browser: launcher above Feedback; manual opens; Apply comparison changes Genome from 14 to 8 tracks; Undo restores 14.
-- [ ] Final narrow viewport/live deployed checks (record below after deployment).
+- [x] Final narrow viewport (390×844), Escape/focus, and live deployed first Apply/Undo checks.
 - [ ] Real Haiku auth, citations, multi-turn, scope refusal canaries: blocked by jieliu3 `/var/log` full, preventing sudo access to designated provider configuration. Do not represent mocked provider tests as live model acceptance.
 
 Backend is independently deployed on loopback8822 with a persistent total $20 ledger and public exact guide routes. Missing key is explicitly manual-only. Existing fixed-result/`agent_requests:false`, component/functional endpoints and databases remain unchanged. Amplify needs the one additive guide rewrite described in backend docs. Pin the reviewed feature commit in host `config/techdemo.json` to publish. Roll back via previous source pin; keep backend budget ledger across upgrades/rollbacks.
+
+## Live acceptance
+
+Amplify 874 succeeded. Served source `08f619165c1876f90351e0570983250aedd8f2da`, host `981d385c71bf795830743bc105f01566b2351121`, fixed result and agent-disabled flags verified. Cold-start initialization regression fixed and tested (16 island tests): live first Apply now opens Genome and changes 14→8 tracks without losing the request; Undo restores 14. Four React suites/10 tests pass, and required backend checks on EC2 Python3.13 are 26/26. Provider remains manual-only pending the user's server-side key provisioning; live Haiku canaries are still required.
