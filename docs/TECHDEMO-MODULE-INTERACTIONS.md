@@ -55,4 +55,6 @@ Baseline: verified current upstream `fc49d595219b425717a7259678e16e318404c26e`, 
 - [x] scBrowser: V3.4 / 448,935 cells; CFTR range 0–5.83, zoom 111%, fit and By cell type view verified. Atlas and native interactions retained.
 - [x] Functional: Glucagon content mode, 407 donors, native full-width plot, fullscreen/exit and two-action toolbar regression passed. No backend/data changes.
 - [x] Validation: 12 module tests, 30 focused React tests, 17 scBrowser tests; production build passed. Existing fit tests updated for the explicit readable-height ceiling.
-- [ ] Live release: pending pin deployment and fresh manifest/browser verification.
+- [x] Live release: PR 420 merged as `b9582b6e51dac63f6393efe6236e4e9877d87fe6`; Amplify job 871 succeeded. Authenticated live manifest reports source `198a94ed0f32529de91e0cd68777ee4ba873da37`, that host SHA, EC2 data origin, fixed fixture and no agent requests. Live Chrome verifies 14 default tracks/fullscreen, Heatmap 20 × 62/color key, and Age 1–64 PCA gradient.
+- Additional checks: 420 px coordinate input remains fully readable and interval zoom works; browser console had no errors during local module checks. Temporary viewport override reset.
+- Limitation: fresh Safari follow-up was unavailable because macOS was locked. Safari is not claimed revalidated for this release; the previous release's cross-browser result is historical evidence only. Backend and source datasets were unchanged.
