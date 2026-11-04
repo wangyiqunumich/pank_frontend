@@ -1,0 +1,62 @@
+[
+  {
+    "id": "overview",
+    "module": "all",
+    "title": "Start here · 开始使用",
+    "body": "This fixed demo teaches six modules: Knowledge Graph, scBrowser, Genome Browser, Differential Expression, Functional Browser, PCA Explorer. Select a module from the tabs above the visualization; horizontal arrows reveal hidden tabs. Within each module, sub-tabs choose views, filters configure the selected view, and the bottom footer reports source/version and links to PanKbase. Controls float over the plot and vary by scientific visualization. Fullscreen expands the current module; Escape or the exit icon restores it. Downloads preserve the displayed source values or figure. Loading, unavailable and empty mean different things; retry failures, do not interpret them as biological absence.\n模块导航在图上方；子标签选择视图，筛选栏配置，底部显示来源/版本和 PanKbase 链接。右侧控件按图形类型不同，不是每个模块都能自由拖动。演示图谱是导航样例，不是检索得到的生物学证据。不同模块的数据来源和队列独立，不能把对应链接当作同一批供者或因果证据。\nThe guide only explains this interface and its configuration. It cannot conduct scientific analyses, answer general questions, query the graph/database, or change source data. Ask in English or Chinese. Conversation stays for this browser tab/session; New conversation clears local history. Guide requests send typed messages and selected module name to Anthropic, not plotted cells, donor rows or graph evidence. Configuration cards are proposals; Apply opens the module and changes only the listed controls. Undo restores the configuration captured immediately before Apply. Loading failures appear in the module. No action runs without Apply."
+  },
+  {
+    "id": "genome-tracks",
+    "module": "genome_browser",
+    "title": "Genome · Choose tracks / 选择轨道",
+    "body": "Open Genome Browser → Tracks. Choose cell types and track types, then Apply tracks to return to Genome. Available cell types: a_stellate, acinar, alpha, beta, delta, ductal, endothelial, gamma, immune, muc5b_ductal, q_stellate, schwann. Each selected cell type can contribute ATAC signal and ATAC peaks. refGene and Ruler remain as reference tracks. Six default cell types give 12 signal/peak tracks plus two references = 14 tracks. Defaults prioritize the context cell type when available, then ductal, beta, alpha, acinar, delta, gamma, up to six. Default comparison restores this selection; Select all selects all 12 cell types, giving up to 26 tracks with both types.\nATAC signal is a continuous accessibility signal; peaks are source peak intervals. They are different representations, not gene expression. Start with two to four cell types for side-by-side comparison, e.g. beta/alpha/ductal. For an overview select signal only. Include peaks when inspecting intervals. Cell type names in this atlas need not match scBrowser exactly.\n轨道太多：Tracks 里保留关注的细胞类型；只看 signal 可减少一半轨道。比较 beta、alpha、ductal 可以同时保留 signal 与 peaks。不要因为轨道少就把单条信号无限拉高。滚动查看所有轨道；隐藏轨道不会删除数据。可以让指南按指定的细胞类型、signal/peaks 和轨道高度生成配置卡片。Apply 后生效；Undo 恢复之前选择。空选择无意义，不允许提交。"
+  },
+  {
+    "id": "genome-navigation",
+    "module": "genome_browser",
+    "title": "Genome · Region, zoom & height / 区域与布局",
+    "body": "The GRCh38 region field accepts chr:start-end, for example chr7:117480025-117668665. Enter a valid interval then View. Coordinates and assembly must match GRCh38; this UI does not lift over other assemblies. Use horizontal zoom icons to change the genomic span, not vertical signal scaling. Drag the native genome view left/right to pan. More tools opens the original genome browser navigation. Reset returns to the context region.\nTrack height: Fit panel (auto) distributes available height with bounded signal heights; Compact=80, Medium=160, Large=260. Many tracks may need vertical scrolling; this is expected and preserves usable labels. Fullscreen increases available space and reflows the browser. Download exports the current genome SVG. Some features are too small at the current scale: zoom into the region, not the entire web page. If tracks look empty, check locus, selected cells, scale and loading errors; do not infer absent biology.\n指南可以设置你提供的基因组区域；必须明确给出坐标，不能猜测基因坐标。用于查找基因时，先使用当前界面或有来源的坐标。页面不是通用 UCSC/IGV，不能承诺尚未提供的上传轨道功能。"
+  },
+  {
+    "id": "scbrowser",
+    "module": "single_cell_browser",
+    "title": "scBrowser · Gene, highlight & subset / 单细胞",
+    "body": "Cell map shows source atlas UMAP, one dot per cell. Enter a gene symbol then View. Highlight selects a cell type; Selected limits visible cells to that type and toggles back to the whole atlas. Highlight alone does not filter the atlas. Cell map supports the native zoom/pan and Fit to view. Expression (By cell type in older labels) shows distributions by cell type; Source describes the atlas. Gray means no detected expression, blue means higher source log-normalized expression. Dense overlapping dots can obscure individual cells. A missing gene or failed request is not a zero-expression result.\nThe accepted atlas is PanKbase scRNAseq V3.4, 448,935 cells. It is distinct from v3.3 pseudobulk DE/PCA. Do not equate UMAP distance with a causal or temporal trajectory. Cell labels in this atlas are not interchangeable with genome-track names. Downloads and fullscreen use native viewer controls.\n单细胞先输入基因并 View，再 Highlight 细胞类型；Selected 才是真正子集显示。连续提问可询问这些区别。当前指南支持打开此模块；基因/细胞筛选请使用模块原生控件（不自动更改）。"
+  },
+  {
+    "id": "de-volcano",
+    "module": "differential_expression",
+    "title": "DE · Volcano & thresholds / 火山图",
+    "body": "Differential Expression → Volcano. Dataset selects one of six source pseudobulk cell-type comparisons (Acinar, ActiveStellate, Alpha, Beta, Delta, Ductal), T1D versus control. Highlight and thresholds exposes absolute log2 fold-change (default 1.5), adjusted P (default 0.05), and a gene highlight. Both thresholds determine significance colors: red positive fold change, blue negative, gray remaining, orange highlighted gene. The y axis is −log10 adjusted P, not raw P. Thresholds change display classification, not the underlying analysis or source table.\nZoom is anchored at zero using the native D3 scale; no free drag-to-pan. Reset restores the extent. Gene table supports search, sorting and pagination, and downloading the complete comparison. Clicking a gene highlights it in Volcano. Source gives original comparison provenance. This is a cohort comparison, not a time trajectory or causal effect. Dataset/source labels remain authoritative.\n可让指南设置绝对 log₂ 倍数变化阈值（0–20）和调整后 P 值阈值（>0 到1），它会打开 Volcano 并修改两个显示阈值，不重算差异分析。不提供模型推断疾病结论。"
+  },
+  {
+    "id": "de-heatmap",
+    "module": "differential_expression",
+    "title": "DE · Heatmap and sample labels / 热图",
+    "body": "Differential Expression → Heatmap loads the source-selected 20 genes for the chosen comparison. Rows are genes, columns are source samples with IDs on the x axis in original source order. Horizontal scrolling retains individual sample labels. Values are per-gene z-normalized expression, blue/white/red at −3/0/+3; missing is gray. Do not compare z scores across genes as absolute expression. Hover shows gene, sample and value. Fullscreen helps fit more columns; SVG download keeps sample labels. A loading or mismatch error means the source pair could not be validated, not an empty heatmap. Ask the guide to open Heatmap; use Dataset in the module to change comparison."
+  },
+  {
+    "id": "functional",
+    "module": "functional_browser",
+    "title": "Functional · Native response curves / 功能曲线",
+    "body": "Functional Browser uses PanKgraph's own functional plot service and HIPP data, not an embedded PanKbase browser. Response selects Insulin per IEQ (ins_ieq), Insulin % content (ins_content), Glucagon per IEQ (gcg_ieq), Glucagon % content (gcg_content). These normalizations have different units; do not directly compare their y-axis magnitudes. Time is minutes. Shaded stimulus windows and labels describe the protocol. Faint lines show the first 24 donor traces for readability; the bold line is the cohort mean across available donors (407 in this snapshot). The line subset is not the cohort size.\nThe cohort is independent of selected graph/scBrowser cells and is not inferred from graph selection. Fullscreen requests a plot sized for the available space. Download exports the plot. There is no arbitrary bitmap zoom/pan. Source explains methods; footer links to PanKbase while identifying PanKgraph data. Ask the guide to switch to one of these four response modes. No donor filtering or new statistical analysis is available through this guide."
+  },
+  {
+    "id": "pca",
+    "module": "pca_explorer",
+    "title": "PCA · Samples, coloring & PCs / 主成分",
+    "body": "PCA Explorer → PCA map shows existing source PanKbase v3.3 log-normalized pseudobulk PCA scores. Choose Cell type; Color by sets metadata coloring. Program is categorical; numeric values use a continuous legend; missing is Unknown gray. Plot settings chooses hover label and axes PC1–PC10. Default PC1/PC2. Zoom remains anchored at zero and does not allow arbitrary dragging. Download displayed coordinates records the selected axes and color field. No PCA is recomputed by changing controls.\nContributions shows the top ten genes for a selected PC, with normalized squared source prcomp loadings expressed as percentages over all genes. These are contributions to that axis, not differential expression or causal importance. Source reports provenance and methods. Available cell types follow the loaded catalogue (12 types); do not invent values.\n指南支持打开 PCA map / Contributions / Source。可以让指南设置横、纵轴的主成分（1–10，必须不同）；细胞类型与颜色使用当前下拉控件。"
+  },
+  {
+    "id": "graph",
+    "module": "graph_viewer",
+    "title": "Knowledge Graph · Explore safely / 图谱",
+    "body": "Knowledge Graph is the demo navigation graph. Drag nodes or pan using native graph controls; zoom, Fit to view, information, download, reset and fullscreen are on the right toolbar. Selecting supported evidence can provide context to a related module; a link does not establish matching cohorts. The fixed demo graph nodes and relationships are test inputs, not retrieved biological evidence. This guide cannot run agent queries, Cypher, SQL or database writes, and cannot interpret the demo edges as scientific findings. It can open Knowledge Graph; use its original controls for graph interaction."
+  },
+  {
+    "id": "troubleshooting",
+    "module": "all",
+    "title": "Troubleshooting & guide limits / 故障排查",
+    "body": "If a module fails: read its loading/error state, Retry where shown, check the network, and compare the Source footer. Fullscreen can be exited with Escape. Source links open a new tab. Track scrolling and heatmap horizontal scrolling are intentional; the visualization should use all available panel space. Controls are contextual: Genome zooms genomic position only, Volcano/PCA use origin-based scaling, scBrowser retains native pan, Functional only offers fullscreen/download.\nGuide chat is for operating the six demo modules, not general coding, medicine, biological interpretation, unrelated conversation, secrets, external URL fetching or document instructions. Unrelated questions are refused. Responses cite retrieved manual sections; the manual is available even when AI is unavailable. Configuration proposals do not execute automatically. Apply validates module, fields and values, then reports applied settings; Undo restores captured settings. An acknowledgement means controls changed, not that remote scientific data loaded successfully.\nThe operator enforces a persistent total $20 application budget, maximum 1024 output tokens per call, request limits, and no automatic paid retries. When the provider or budget is unavailable, use the manual and native controls. Refresh/close can discard an in-flight reply but does not cancel provider billing. No API key is ever in browser code. The budget covers only this service, not other applications using the provider account."
+  }
+]

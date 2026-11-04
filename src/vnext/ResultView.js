@@ -186,6 +186,11 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
     : selectedIds;
   visualOrderRef.current = { scope: visualScope, preference: visualPreference, ids: visualIds };
   const visualTabs = visualIds.map((id) => ({ id, label: selectedVisuals.find((visual) => visual.id === id).label, content: visualRenderers[id], minHeight: visualSchema.main_visuals.items[id]?.layout?.min_height }));
+  useEffect(()=>{
+    if(!TECH_DEMO)return undefined;
+    const open=event=>{if(!visualIds.includes(event.detail?.module))return;setVisualRequest({id:event.detail.module,scope:runId,nonce:Date.now()});event.detail.opened=true;};
+    window.addEventListener('pank-guide-open',open);return()=>window.removeEventListener('pank-guide-open',open);
+  },[visualIds.join('|'),runId]);
   const visualMaterial = visualTabs.length ? { title: page.mainVisualTitle, tabs: visualTabs, scopeKey: runId, requestedTab: visualRequest?.scope === runId ? visualRequest : null } : undefined;
   const planData = {
     questionId: 'PLAN', title: 'Confirm Query & Execution Steps', originalQuestion: run?.plan?.original_question || run?.question || '', parsedTitle: run?.plan?.interpreted_question || '',

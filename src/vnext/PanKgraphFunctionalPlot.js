@@ -6,6 +6,7 @@ import BrowserToolbar from './BrowserToolbar';
 import { sitePath } from './api';
 import { BROWSER_FILL_SX } from './browserLayout';
 import './browserChrome.css';
+import { registerGuideModule } from './moduleGuide/bridge';
 
 const TRACES = {
   ins_ieq: 'Insulin · per IEQ', ins_content: 'Insulin · % content',
@@ -25,6 +26,14 @@ export default function PanKgraphFunctionalPlot({ isVisible = false }) {
       .then(value => setCount(value.summary?.available_donors ?? null)).catch(() => {});
     return () => controller.abort();
   }, [isVisible]);
+  useEffect(()=>{
+    if(!isVisible)return undefined;
+    return registerGuideModule('functional_browser', async action=>{
+      if(action.type==='functional_response'){const undo={...action,params:{trace}};setTrace(action.params.trace);setTab('Response');return undo;}
+      if(action.type==='open_module'){const undo={...action,params:{view:tab}};setTab(action.params.view);return undo;}
+      throw new Error('Unsupported functional configuration.');
+    });
+  },[isVisible,trace,tab]);
   if (!isVisible) return null;
   const url = sitePath(`/api/functional/api/charts/cohort-traces.png?trace_type=${trace}&result_page=Yes`);
   return <PersistentGraphViewport fullscreen={fullscreen} onExit={()=>setFullscreen(false)} label="PanKgraph functional plot"><Box className="browser-chrome" sx={BROWSER_FILL_SX}>

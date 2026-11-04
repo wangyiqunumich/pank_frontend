@@ -6,6 +6,7 @@ import { pankbaseUrl } from './pankbaseContext';
 import { sitePath } from './api';
 import { browserLinks } from './browserChrome';
 import './browserChrome.css';
+import { registerGuideModule } from './moduleGuide/bridge';
 import { BROWSER_FILL_SX, BROWSER_IFRAME_STYLE } from './browserLayout';
 
 const PROTOCOL = 'pankgraph.pankbase.v1';
@@ -52,6 +53,17 @@ export default function PanKbaseModule({ moduleId, context, preview = false, isV
     return () => clearTimeout(timer);
   }, [html, ready]);
   useEffect(() => { if (ready) frame.current?.contentWindow?.postMessage({ protocol: PROTOCOL, type: 'fullscreen-state', fullscreen: expanded }, window.location.origin); }, [expanded, ready]);
+  useEffect(() => {
+    if(!ready || !isVisible) return undefined;
+    return registerGuideModule(moduleId, action => new Promise((resolve,reject) => {
+      const id=crypto.randomUUID();
+      const finish=()=>{clearTimeout(timer);window.removeEventListener('message',receive);};
+      const receive=event=>{if(event.origin!==window.location.origin||event.source!==frame.current?.contentWindow||event.data?.protocol!==PROTOCOL||event.data.type!=='guide-result'||event.data.id!==id)return;finish();event.data.ok?resolve(event.data.undo):reject(new Error(event.data.message||'The module could not apply these settings.'));};
+      const timer=setTimeout(()=>{finish();reject(new Error('Configuration acknowledgement timed out. Check the module before trying again.'));},12000);
+      window.addEventListener('message',receive);
+      frame.current?.contentWindow?.postMessage({protocol:PROTOCOL,type:'guide-action',id,action},window.location.origin);
+    }));
+  },[ready,isVisible,moduleId]);
   if (preview) return <Box sx={{ p: 1.5 }}>
     <Typography sx={{ fontWeight: 600, fontSize: 14 }}>{context?.geneSymbol || definition.title}</Typography>
     <Typography sx={{ fontSize: 12, color: '#64748b', mt: 1 }}>{context?.cellType || 'Explore the related PanKbase resource'}</Typography>

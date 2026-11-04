@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import './style.css';
+import { applyGuideAction } from './guideActions.mjs';
 
 const protocol = 'pankgraph.pankbase.v1';
 const modules = {
@@ -14,7 +15,7 @@ const app = new Vue({
     if (this.error) return h('p', { attrs: { role: 'alert' } }, this.error);
     if (!this.component) return h('p', { attrs: { role: 'status' } }, 'Preparing view…');
     const context = this.context;
-    return h('main', { attrs: { id: 'app' } }, [h(this.component, { key: JSON.stringify([this.moduleId, context.recordId, context.geneSymbol, context.cellType, context.datasetId, context.locus]), props: {
+    return h('main', { attrs: { id: 'app' } }, [h(this.component, { ref: 'guideTarget', key: JSON.stringify([this.moduleId, context.recordId, context.geneSymbol, context.cellType, context.datasetId, context.locus]), props: {
       context, gene: context.geneSymbol, locus: context.locus, cellType: context.cellType,
       config: { gene: context.geneSymbol, prodHost: 'https://bioindex.pankbase.org', devHost: 'https://bioindex.pankbase.org',
         documentationUrl: 'https://pankbase.org/cell-states-docs.html', exampleGenes: ['CFTR','PDX1','INS'], primaryColor: '#0f827d', secondaryColor: '#0f827d' },
@@ -37,3 +38,14 @@ window.addEventListener('message', async event => {
   }
 });
 window.parent.postMessage({ protocol, type: 'ready' }, origin);
+
+window.addEventListener('message', async event => {
+  const data=event.data;
+  if(event.origin!==origin||event.source!==window.parent||data?.protocol!==protocol||data.type!=='guide-action'||typeof data.id!=='string'||data.id.length>80)return;
+  if(data.action?.module!==app.moduleId)return;
+  try {
+    const until=Date.now()+9000;
+    while(Date.now()<until&&(!app.$refs.guideTarget || (app.moduleId==='genome_browser'&&(!app.$refs.guideTarget.controlReady||app.$refs.guideTarget.isLoading))))await new Promise(resolve=>setTimeout(resolve,120));
+    const undo=await applyGuideAction(app.$refs.guideTarget,data.action);window.parent.postMessage({protocol,type:'guide-result',id:data.id,ok:true,undo},origin); }
+  catch(error){window.parent.postMessage({protocol,type:'guide-result',id:data.id,ok:false,message:error.message},origin);}
+});

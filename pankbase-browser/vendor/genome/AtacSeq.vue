@@ -84,7 +84,7 @@ export default Vue.component("AtacSeq", {
                 this.loadError = "Enter a valid GRCh38 region, such as chr7:117480025-117668665."; return;
             }
             this.manualLocus = {chromosome:match[1], start:Number(match[2]), end:Number(match[3]), genomeBuild:"GRCh38"};
-            this.initializeBrowser();
+            return this.initializeBrowser();
         },
         async initializeBrowser() {
 
