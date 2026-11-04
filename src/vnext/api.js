@@ -31,7 +31,7 @@ const validateIdentity = (body, field, expected, snapshot = false) => {
 };
 
 export async function request(path, options = {}) {
-  const { timeoutMs = options.method && options.method !== 'GET' ? 10000 : 15000, signal, ...fetchOptions } = options;
+  const { timeoutMs = options.method && options.method !== 'GET' ? 10000 : 60000, signal, ...fetchOptions } = options;
   const controller = new AbortController();
   const cancel = () => controller.abort();
   if (signal?.aborted) throw abortError();
@@ -172,7 +172,7 @@ export function watchRun(runId, sequence, onEvent, onConnection = () => {}, onSn
       const saved = await getRun(runId, { signal: controller.signal });
       if (stopped) return;
       if (Number(saved.event_sequence || 0) >= lastSequence) {
-        lastSequence = Number(saved.event_sequence || 0); onSnapshot(saved);
+        lastSequence = Number(saved.event_sequence || 0); onConnection('connected'); onSnapshot(saved);
         if (TERMINAL_RUNS.has(saved.status)) stop();
       }
     } catch (_) { /* Keep the saved UI and try a read at the next polling tick. */ }
@@ -187,6 +187,7 @@ export function watchRun(runId, sequence, onEvent, onConnection = () => {}, onSn
     const seq = Number(event.seq ?? event.sequence ?? message.lastEventId);
     if (!Number.isSafeInteger(seq) || seq < 0 || seq <= lastSequence) return;
     lastSequence = seq;
+    onConnection('connected');
     onEvent({ ...event, seq });
     if (event.type === 'terminal') stop();
   };

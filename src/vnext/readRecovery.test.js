@@ -119,3 +119,53 @@ test('SSE fallback reads saved state, rejects stale terminal snapshots and forei
     expect(fetch.mock.calls.every(([, options]) => !options.method)).toBe(true);
   } finally { stop(); jest.useRealTimers(); }
 });
+
+
+test('saved GET allows a full minute before reporting a timeout', async () => {
+  jest.useFakeTimers();
+  let readSignal;
+  fetch.mockImplementation((_, { signal }) => { readSignal = signal; return new Promise((resolve, reject) => signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')))); });
+  try {
+    const pending = request('/results/saved');
+    const failed = expect(pending).rejects.toMatchObject({ status: 408 });
+    jest.advanceTimersByTime(59999);
+    expect(readSignal.aborted).toBe(false);
+    jest.advanceTimersByTime(1);
+    await failed;
+  } finally { jest.useRealTimers(); }
+});
+
+test('valid stream updates clear a previous connection failure, foreign and stale updates do not', () => {
+  let source;
+  global.EventSource = jest.fn().mockImplementation(() => (source = {
+    close: jest.fn(), readyState: 2, addEventListener(type, callback) { this[type] = callback; }
+  }));
+  fetch.mockImplementation(() => new Promise(() => {}));
+  const connection = jest.fn();
+  const stop = watchRun('run', 8, jest.fn(), connection);
+  try {
+    source.onerror();
+    expect(connection).toHaveBeenLastCalledWith('exhausted');
+    source.graph_answer({ data: JSON.stringify({ run_id: 'other', seq: 9 }) });
+    source.graph_answer({ data: JSON.stringify({ run_id: 'run', seq: 8 }) });
+    expect(connection).toHaveBeenLastCalledWith('exhausted');
+    source.graph_answer({ data: JSON.stringify({ run_id: 'run', seq: 9 }) });
+    expect(connection).toHaveBeenLastCalledWith('connected');
+  } finally { stop(); }
+});
+
+test('a current saved snapshot clears failed SSE status, including a backend failed run', async () => {
+  let source;
+  global.EventSource = jest.fn().mockImplementation(() => (source = {
+    close: jest.fn(), readyState: 2, addEventListener: jest.fn()
+  }));
+  fetch.mockResolvedValue(response({ run_id: 'run', event_sequence: 9, status: 'failed', error: { message: 'Backend query failed' } }));
+  const connection = jest.fn(), snapshot = jest.fn();
+  const stop = watchRun('run', 8, jest.fn(), connection, snapshot);
+  try {
+    source.onerror();
+    for (let i = 0; i < 15; i++) await Promise.resolve();
+    expect(connection).toHaveBeenLastCalledWith('connected');
+    expect(snapshot).toHaveBeenCalledWith(expect.objectContaining({ status: 'failed', error: { message: 'Backend query failed' } }));
+  } finally { stop(); }
+});

@@ -90,6 +90,7 @@ export function useProjectedResult(payload, savedId = '') {
         if (controller.signal.aborted) return;
         if (expectedRevision !== undefined && value.graph_revision !== expectedRevision && !['pending', 'queued', 'running', 'processing'].includes(value.status)) throw new Error('The saved graph revision does not match this investigation. Reconnect to read it again.');
         setError('');
+        setConnection('connected');
         setStoredResult((previous) => {
           // A queued projection is not a replacement for a visible graph.
           if (previous?.scope === scope && Number(previous.value?.graph_revision || 0) > Number(value.graph_revision || 0)) return previous;
