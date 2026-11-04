@@ -13,7 +13,7 @@ Source branch: `codex/techdemo-module-contract`.
 - [x] Charts use remaining space; only long tables/tracks/content scroll; no forced empty left navigation gutter.
 - [x] Desktop, narrow screen, fullscreen, return-from-fullscreen and tab switching verified.
 - [x] Production builds and meaningful regression tests verified.
-- [ ] Amplify publication and deployed version/data acceptance.
+- [x] Amplify publication and deployed version/data acceptance.
 
 ## Knowledge Graph
 - [x] Remove reserved disabled previous-tab gutter; align tabs with visualization frame.
@@ -60,3 +60,17 @@ Local acceptance on 2026-11-03:
 - Desktop/fullscreen and 390×844: common toolbars, fixed footers, real chart zoom/fit, Source-page fullscreen exit and all sub-tabs checked. Heatmap fills stage with intentional narrow-screen sample scrolling; expression page no longer has a nested 5px vertical scrollbar.
 - Fullscreen uses stable DOM to preserve camera. An untouched fitted KG view refits for a shorter viewport (1043×494 checked); a user-adjusted 120% view remains 120% through fullscreen return. Original native functional image is fitted without clipping or stretching; its source aspect ratio is preserved.
 - Exact deployed source/host SHAs: `/techdemo/techdemo-release.json` after the host pin is published. Previous source for rollback: `3f15c17219d03b79b8ac4da6fff420a30ebfca90`.
+
+## Published acceptance
+
+Goal completed on 2026-11-03 (America/Detroit; release timestamp is UTC).
+- Final application source: `81c90bc33dcb672f378cc37786f11f176e7423f9`.
+- Amplify host: `c2392f9009828466c18e5a80349f6e74b2f969df`.
+- Amplify app `d1de5p4691hcl7`, branch `xuteng/react`, job **867 SUCCEED** (BUILD / DEPLOY / VERIFY all succeeded).
+- Deployment PRs: [#415](https://github.com/wangyiqunumich/pank_frontend/pull/415), [#416](https://github.com/wangyiqunumich/pank_frontend/pull/416).
+- [Live demo](https://dev.pankgraph.org/techdemo); [release manifest](https://dev.pankgraph.org/techdemo/techdemo-release.json) verified in the authenticated browser.
+- All six modules opened online with the expected genuine module data; top-right PanKbase browser labels, toolbar and fixed footer verified. The final short-window KG correction was rechecked online at 1029×493; nodes remain below the search field and above the legend.
+- All four Functional modes returned HTTP 200 / image/png / 1800×1800 from the EC2 API with distinct response images. Native PanKgraph curves are retained.
+- Fixed-result mode remains enabled; `agent_requests` remains false; data origin remains `https://api-dev.pankgraph.org`.
+
+This final acceptance entry is documentation-only; the application is pinned to the exact source above.
