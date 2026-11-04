@@ -74,13 +74,13 @@ export function fitGraphViewport(cy, listMode = false) {
 }
 
 export function observeGraphViewport(cy, container, onFit = () => {}, host = window, listMode = false) {
-  let disposed = false, frame = null, lastSize = null;
+  let disposed = false, frame = null, lastSize = null, fittedCamera = null;
   const fit = () => {
     if (disposed || cy.destroyed()) return null;
     const box = container.getBoundingClientRect();
     if (box.width <= 0 || box.height <= 0) return null;
     const viewport = fitGraphViewport(cy, listMode);
-    if (viewport) { lastSize = { width: box.width, height: box.height }; onFit(viewport); }
+    if (viewport) { lastSize = { width: box.width, height: box.height }; fittedCamera = { zoom: viewport.zoom, pan: viewport.pan }; onFit(viewport); }
     return viewport;
   };
   const schedule = () => {
@@ -92,7 +92,12 @@ export function observeGraphViewport(cy, container, onFit = () => {}, host = win
       // Hidden visual tabs must not replace the last visible camera geometry.
       if (box.width <= 0 || box.height <= 0) return;
       if (box.width !== lastSize?.width || box.height !== lastSize?.height) {
-        if (!lastSize) fit();
+        const pan = cy.pan();
+        const stillFitted = fittedCamera && Math.abs(cy.zoom() - fittedCamera.zoom) < 1e-6
+          && Math.abs(pan.x - fittedCamera.pan.x) < 1e-6 && Math.abs(pan.y - fittedCamera.pan.y) < 1e-6;
+        // A shorter fullscreen window must not crop the initial fitted graph.
+        // Once the user changes the camera, retain their chosen view instead.
+        if (!lastSize || stillFitted) fit();
         else {
           cy.resize();
           // Resize the viewport around its model-space center, not its top-left.

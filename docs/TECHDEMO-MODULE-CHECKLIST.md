@@ -58,6 +58,5 @@ Local acceptance on 2026-11-03:
 - Actual downloads: DE and PCA PNGs, 1800×1800 native Functional PNG, scMap PNG, expression SVG, Genome SVG (53 text elements / 2 signal images for six tracks), heatmap SVG.
 - Genome: 954×371 normal viewport, native tracks occupy 367px; 390px fullscreen viewport has no horizontal overflow. Zoom updates coordinates and input; adding Ductal yields six tracks and retains the zoomed locus. Manual region entry and More tools verified.
 - Desktop/fullscreen and 390×844: common toolbars, fixed footers, real chart zoom/fit, Source-page fullscreen exit and all sub-tabs checked. Heatmap fills stage with intentional narrow-screen sample scrolling; expression page no longer has a nested 5px vertical scrollbar.
-- Fullscreen uses stable DOM to preserve camera. Original native functional image is fitted without clipping or stretching; its source aspect ratio is preserved.
+- Fullscreen uses stable DOM to preserve camera. An untouched fitted KG view refits for a shorter viewport (1043×494 checked); a user-adjusted 120% view remains 120% through fullscreen return. Original native functional image is fitted without clipping or stretching; its source aspect ratio is preserved.
 - Exact deployed source/host SHAs: `/techdemo/techdemo-release.json` after the host pin is published. Previous source for rollback: `3f15c17219d03b79b8ac4da6fff420a30ebfca90`.
-
