@@ -1,6 +1,6 @@
 {
-  "source_commit": "3f15c17219d03b79b8ac4da6fff420a30ebfca90",
-  "source_branch": "codex/techdemo-visual-layout",
+  "source_commit": "81c90bc33dcb672f378cc37786f11f176e7423f9",
+  "source_branch": "codex/techdemo-module-contract",
   "path": "/techdemo",
   "data_origin": "https://api-dev.pankgraph.org",
   "fixed_result": true,
