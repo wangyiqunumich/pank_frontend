@@ -8,15 +8,12 @@ scBrowser React panel and Vue browser share the same schema via `scBrowserConfig
 
 All fields below are under `main_visuals.items.single_cell_browser`:
 
-- `enabled` and `hidden`: enable or suppress both the tab and preview.
+- `enabled` and `hidden`: enable or suppress the main tab.
 - `requires: ["rna_expression_pair"]`: require a supported RNA gene/cell pair.
   Detection, enrichment, expression and marker edges are registered in
   `kg_relation_types`; canonical names match case-insensitively. ATAC is excluded.
 - `selection.default_pair`: `first_available_in_graph_order`. The first eligible
   pair initializes the gene and cell type without reshuffling on rerender.
-- `preview.enabled`, `height`, `show_caption`, `show_metadata`, `load_expression`:
-  default to a 160px whole-atlas map, with no caption, metadata or expression fetch.
-  Clicking the preview opens the persistent scBrowser tab.
 - `wording`: shared display text. Change `display_release` to edit release labels
   everywhere in this viewer. `atlas_label` interpolates `{display_release}`.
   The current label is `PanKbase scRNAseq V3.3`. Other keys control titles,
@@ -57,13 +54,6 @@ Validate with the vNext schema and browser tests. Rebuild to publish schema edit
 The frontend displays the original AWS image rather than reconstructing its
 statistics, LD or axes. The previous vNext coordinate-based two-track image remains
 in the saved resource payload but is not shown for the promoted QTL source/set.
-
-The scBrowser preview also supports `preview.labels`: enable/disable labels,
-set `font_size` and collision `gap`, and customize wrapped display names through
-`names` (use `\n` for line breaks). Labels use the actual cluster projections,
-white text outlines and short leader lines when shifted to avoid overlap.
-`preview.show_open_hint` controls one footer hint using `wording.preview_open_hint`.
-These settings add no legend, statistics or extra visual tab.
 
 `single_cell_browser.full_view` controls the compact browser tab: compact styling,
 context-note/badge visibility, no pair-navigation row and space reserved above the
