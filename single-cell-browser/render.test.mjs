@@ -12,7 +12,7 @@ test('full scBrowser starts and loads expression after preview config is removed
   for (const search of ['', '?preview=1']) {
     const sandbox = { window: { innerHeight: 800, location: { search }, parent: { location: { origin: 'https://dev.pankgraph.org' } } },
       document: { querySelector: () => null }, URLSearchParams, SC_CONFIG: config, SC_WORDING: config.wording, FIELD: 'cell_type',
-      BrowserToolbar: {}, ResearchUmapPlotGL: {}, ResearchViolinPlot: {}, selectIcon: '', externalIcon: '', fullscreenIcon: '', zoomInIcon: '', zoomOutIcon: '' };
+      BrowserToolbar: {}, BrowserSelect: {}, ResearchUmapPlotGL: {}, ResearchViolinPlot: {}, selectIcon: '', externalIcon: '', fullscreenIcon: '', zoomInIcon: '', zoomOutIcon: '' };
     vm.runInNewContext(appSource, sandbox);
     const state = sandbox.component.data();
     assert.equal(Boolean(state.preview), false);
