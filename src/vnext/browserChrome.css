@@ -76,3 +76,5 @@
 .qtl-pagination { display:flex; align-items:center; gap:10px; width:100%; color:#64748b; }
 .qtl-pagination button { border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; background:white; color:#334155; cursor:pointer; }
 .qtl-pagination button:disabled { opacity:.45; cursor:default; }
+
+.functional-filter-summary{display:grid;grid-template-columns:minmax(120px,1fr) minmax(0,2fr);gap:8px 16px}.functional-filter-summary dt{color:#64748b}.functional-filter-summary dd{margin:0;overflow-wrap:anywhere}.functional-donor-ids{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;line-height:1.7}.browser-source details{margin:12px 0}
