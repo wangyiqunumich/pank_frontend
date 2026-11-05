@@ -1,3 +1,4 @@
+import QuestionAnswerPage from '../vnext/DevResultPage';
 import './scoped.css';
 
 import React, {
@@ -41,7 +42,7 @@ import {
 import { flaskBackendAxiosInstanceNew } from '../axios/axios';
 import { ErrorComponent } from '../components/IntermediatePage';
 import KnowledgeGraph from '../components/KnowledgeGraph';
-import QuestionAnswerPage, {
+import {
   PlanConfirmationPage,
   ResultComponentSkeleton,
 } from '../components/ResultComponent';
@@ -998,6 +999,9 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         return {
             styleVariant: 'pank1',
             questionId: `Q${index + 2}`,
+            graphData: block?.graphData,
+            moduleScope: block?.id,
+            guideEnabled: block === followUpBlocks[followUpBlocks.length - 1],
             title,
             aiOverview: {
                 sections: [
@@ -3843,6 +3847,7 @@ Please review this plan and provide edits if needed.`,
             scrollToTop: streamComplete,
         },
         graphData: graphData,
+        guideEnabled: followUpBlocks.length === 0,
         visualMaterial: {
             title: "Visual Material",
             noGraph: noGraph && !functionalDataRequestPath,

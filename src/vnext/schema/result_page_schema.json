@@ -1,7 +1,7 @@
 {
   "schema": {
     "id": "pankgraph.result_page",
-    "version": "0.5.0",
+    "version": "0.7.0",
     "description": "Three sections for inserted answer elements, main visuals and supporting materials. Markdown text and native Markdown tables remain owned by AnswerMarkdown.",
     "selector": "src/vnext/resultPageSchema.js",
     "selection_order": [
@@ -56,14 +56,14 @@
           "labels": {
             "table": "Source data files",
             "idle": "Download",
-            "progress": "Downloading…",
+            "progress": "Downloading\u2026",
             "done": "Downloaded",
             "error": "Download failed. Please retry.",
             "retry": "Retry",
             "again": "Download again",
             "bulk": "Download all ({count})",
             "bulk_done": "All downloaded",
-            "bulk_progress": "Downloading {current} of {count}…",
+            "bulk_progress": "Downloading {current} of {count}\u2026",
             "download_accessible": "Download {name}",
             "ready_notice": "{name}: download ready.",
             "error_notice": "Could not download {name}. Please retry."
@@ -119,9 +119,11 @@
     "default_order": [
       "graph_viewer",
       "single_cell_browser",
-      "qtl_fine_mapping",
-      "functional_data",
-      "genome_browser"
+      "genome_browser",
+      "differential_expression",
+      "functional_browser",
+      "pca_explorer",
+      "qtl_browser"
     ],
     "state_parameter": "main_visual",
     "items": {
@@ -152,7 +154,8 @@
         ],
         "appearance_schema": "graph_viewer_schema.json",
         "format": "Keep existing network/list modes, zoom, legend, full-screen and evidence inspection.",
-        "wording": "Separate displayed counts from retrieved counts and retrieval completeness."
+        "wording": "Separate displayed counts from retrieved counts and retrieval completeness.",
+        "guide_open": true
       },
       "single_cell_browser": {
         "title": "scBrowser",
@@ -193,9 +196,9 @@
           "compact": true,
           "expression_cache": {
             "enabled": true,
-            "endpoint": "/pankgraph-vnext/api/scbrowser/expression",
+            "endpoint": "/api/pankbase-data/v1/expression",
             "prefetch_default_gene": true,
-            "fallback": true
+            "fallback": false
           },
           "show_context_note": false,
           "show_expression_badge": false,
@@ -219,19 +222,19 @@
         "wording": {
           "card_title": "Single cell browser",
           "atlas_label": "PanKbase scRNAseq {display_release}",
-          "display_release": "V3.3",
+          "display_release": "V3.4",
           "related_context": "Related atlas context",
-          "context_note": "Related context · See Source & methods",
+          "context_note": "Related context \u00b7 See Source & methods",
           "open_browser": "Open interactive UMAP",
           "choose_pair": "Choose",
           "previous_pair": "Previous expression browser",
           "next_pair": "Next expression browser",
           "no_resource": "No single-cell browser resource is available for this result.",
           "start_failed": "The cell browser could not start. Reload this result or open PanKbase.",
-          "external_browser": "Open PanKbase ↗",
-          "header_browser_link": "PanKbase single cell browser →",
+          "external_browser": "Open PanKbase \u2197",
+          "header_browser_link": "PanKbase single cell browser \u2192",
           "expression_description": "Width shows cell density; box shows the middle 50%.",
-          "expression_badge": "Cell-level · Includes zeros",
+          "expression_badge": "Cell-level \u00b7 Includes zeros",
           "gene_label": "Gene",
           "view_gene": "View",
           "selected_cells": "Selected",
@@ -239,9 +242,9 @@
           "views_label": "Single-cell views",
           "map_caption": "Each dot = one cell",
           "cells_label": "cells",
-          "map_navigation": "Scroll to zoom · Drag to pan",
+          "map_navigation": "Scroll to zoom \u00b7 Drag to pan",
           "map_expression_legend": "{gene} expression",
-          "map_expression_caption": "Gray = no detected expression · Blue = higher source log-normalized expression. Overlapping cells can hide individual dots.",
+          "map_expression_caption": "Gray = no detected expression \u00b7 Blue = higher source log-normalized expression. Overlapping cells can hide individual dots.",
           "fullscreen": "Open in full screen",
           "fullscreen_title": "Fullscreen single-cell browser",
           "exit_fullscreen": "Exit full screen",
@@ -254,12 +257,15 @@
           "source_tab": "Source"
         },
         "format": "Persistent interactive scBrowser main tab. Preserve graph controls and camera.",
-        "source_identity": "Display labels are editable copy; datasetId, source hashes, recorded edge release and conditions remain technical provenance, unchanged by wording edits."
+        "source_identity": "Display labels are editable copy; datasetId, source hashes, recorded edge release and conditions remain technical provenance, unchanged by wording edits.",
+        "context_adapter": "expression",
+        "extension": true,
+        "guide_open": true
       },
       "qtl_fine_mapping": {
         "title": "QTL Fine-Mapping",
         "renderer": "QtlFineMapping",
-        "enabled": true,
+        "enabled": false,
         "requires": [
           "qtl_edges"
         ],
@@ -294,34 +300,30 @@
           {
             "key": "gtex_eqtl",
             "label": "Pancreatic eQTL",
-            "aliases": [
-              "GTEx; SusieR"
-            ],
-            "folder": "1_eQTL-gtex-susie"
+            "folder": "1_eQTL-gtex-susie",
+            "dataset_id": "PKBDS6689QROA",
+            "source_url": "https://data.pankbase.org/curated-sets/PKBDS6689QROA/"
           },
           {
             "key": "inspire_eqtl",
             "label": "Islet eQTL",
-            "aliases": [
-              "INSPIRE; SusieR"
-            ],
-            "folder": "1_eQTL-inspire-susie"
+            "folder": "1_eQTL-inspire-susie",
+            "dataset_id": "PKBDS8062GYOQ",
+            "source_url": "https://data.pankbase.org/curated-sets/PKBDS8062GYOQ/"
           },
           {
             "key": "gtex_sqtl",
             "label": "Pancreatic splicing QTL",
-            "aliases": [
-              "splicing; GTEx"
-            ],
-            "folder": "1_sQTL-gtex-susie"
+            "folder": "1_sQTL-gtex-susie",
+            "dataset_id": "PKBDS2105PCON",
+            "source_url": "https://data.pankbase.org/curated-sets/PKBDS2105PCON/"
           },
           {
             "key": "inspire_exonqtl",
             "label": "Islet exon QTL",
-            "aliases": [
-              "exon; INSPIRE"
-            ],
-            "folder": "1_exonQTL-inspire-susie"
+            "folder": "1_exonQTL-inspire-susie",
+            "dataset_id": "PKBDS9837ORWK",
+            "source_url": "https://data.pankbase.org/curated-sets/PKBDS9837ORWK/"
           }
         ],
         "request": {
@@ -350,18 +352,18 @@
           "image_alt": "Production regional QTL fine-mapping plot",
           "expand": "View full-size fine-mapping plot",
           "close": "Close fine-mapping plot",
-          "download": "Source QTL data ↗",
-          "loading": "Loading fine-mapping plot…",
+          "download": "Source QTL data \u2197",
+          "loading": "Loading fine-mapping plot\u2026",
           "failed": "The production plot could not be loaded. The source data remains available below.",
           "retry": "Retry",
           "unsupported_source": "This QTL source does not have a registered production plot.",
           "missing_credible_set": "A valid credible-set identifier is required to load this source's plot.",
           "gene_mismatch": "The recorded credible set does not match the gene on this QTL edge.",
           "no_context": "No QTL context is available for this result.",
-          "description": "Association strength (−log₁₀P), posterior inclusion probability (PIP), and log Bayes factor (LBF) for the selected credible set.",
+          "description": "Association strength (\u2212log\u2081\u2080P), posterior inclusion probability (PIP), and log Bayes factor (LBF) for the selected credible set.",
           "provenance": "Uses the existing production AWS renderer for the recorded source and credible set. Track values, LD colors and lead markers are supplied by that renderer; this page does not calculate them.",
           "card_title": "QTL fine-mapping",
-          "legend": "Color: LD R² to the lead SNP. Dashed line: lead SNP.",
+          "legend": "Color: LD R\u00b2 to the lead SNP. Dashed line: lead SNP.",
           "details": "Source & plot details",
           "credible_set_label": "Credible set",
           "set_number": "Credible set {number}",
@@ -373,12 +375,14 @@
           "min_height": 520,
           "image_fit": "contain",
           "preserve_plot": true
-        }
+        },
+        "hidden": true,
+        "replaced_by": "qtl_browser"
       },
       "functional_data": {
         "title": "Functional Data",
         "renderer": "FunctionalVisual",
-        "enabled": true,
+        "enabled": false,
         "requires": [
           "functional_context_or_measurements"
         ],
@@ -399,31 +403,240 @@
           "component_status.resources"
         ],
         "format": "Existing cohort-response plot with expand/download controls and an explicit pending or unavailable state.",
-        "wording": "Keep selected cohort, hormone, units, normalization and aggregation. Do not infer donor variability from a cohort mean."
+        "wording": "Keep selected cohort, hormone, units, normalization and aggregation. Do not infer donor variability from a cohort mean.",
+        "hidden": true,
+        "replaced_by": "functional_browser"
       },
       "genome_browser": {
         "title": "Genome Browser",
-        "renderer": "GenomeBrowserEmbed",
-        "enabled": false,
-        "hidden": true,
+        "renderer": "PanKbaseModule",
+        "enabled": true,
         "requires": [
-          "genome_runtime_ready",
-          "verified_genome_tracks"
+          "genome_browser_context"
         ],
         "state_values": [
           "genome_browser"
         ],
         "agent_keywords": [
-          "genome_browser",
-          "genomic_tracks"
+          "genome_browser"
         ],
-        "data_binding": [
-          "verified genome build",
-          "resolved locus",
-          "registered tracks with source context"
+        "kg_relation_types": [
+          "GENE_ACTIVITY_SCORE_IN",
+          "OVERLAPS",
+          "LOCATED_IN"
         ],
-        "format": "Existing embedded genome-browser component, reserved for later activation.",
-        "wording": "Remain hidden. The current demo has a disabled IGV adapter; state parameters and agent keywords cannot enable it."
+        "pankbase_trigger": {
+          "node_types": [
+            "gene"
+          ],
+          "edge_types": [
+            "GENE_ACTIVITY_SCORE_IN",
+            "OVERLAPS",
+            "LOCATED_IN"
+          ],
+          "require_gene": true
+        },
+        "pankbase_resource": {
+          "url": "https://pankbase.org/atacseq.html",
+          "gene_parameter": "gene"
+        },
+        "preview": {
+          "enabled": true,
+          "content": "context_summary",
+          "load_data": false
+        },
+        "layout": {
+          "min_height": 520
+        },
+        "format": "Compact scBrowser-style controls, persistent main panel, source and methods disclosure. Load runtime and data only when the full view is visible.",
+        "wording": {
+          "loading": "Loading genome browser\u2026",
+          "source_note": "Related PanKbase resource. The graph record and this resource may represent different datasets, cohorts or analyses.",
+          "retry": "Retry",
+          "source_tab": "Source & methods"
+        },
+        "source_title": "HPAP ATAC \u00b7 GRCh38",
+        "context_adapter": "pankbase",
+        "extension": true,
+        "guide_open": true
+      },
+      "differential_expression": {
+        "title": "Differential Expression",
+        "renderer": "PanKbaseModule",
+        "enabled": true,
+        "requires": [
+          "differential_expression_context"
+        ],
+        "state_values": [
+          "differential_expression"
+        ],
+        "agent_keywords": [
+          "differential_expression"
+        ],
+        "kg_relation_types": [
+          "T1D_DEG_IN",
+          "DIFFERENTIALLY_EXPRESSED_IN"
+        ],
+        "pankbase_trigger": {
+          "node_types": [],
+          "edge_types": [
+            "T1D_DEG_IN",
+            "DIFFERENTIALLY_EXPRESSED_IN"
+          ],
+          "require_gene": true
+        },
+        "pankbase_resource": {
+          "url": "https://pankbase.org/diff-exp.html",
+          "gene_parameter": "gene"
+        },
+        "preview": {
+          "enabled": true,
+          "content": "context_summary",
+          "load_data": false
+        },
+        "layout": {
+          "min_height": 520
+        },
+        "format": "Compact scBrowser-style controls, persistent main panel, source and methods disclosure. Load runtime and data only when the full view is visible.",
+        "wording": {
+          "loading": "Loading differential expression\u2026",
+          "source_note": "Related PanKbase resource. The graph record and this resource may represent different datasets, cohorts or analyses.",
+          "retry": "Retry",
+          "source_tab": "Source & methods"
+        },
+        "source_title": "PanKbase pseudobulk RNA \u00b7 v3.3",
+        "context_adapter": "pankbase",
+        "extension": true,
+        "guide_open": true
+      },
+      "functional_browser": {
+        "title": "Functional Browser",
+        "renderer": "PanKgraphFunctionalPlot",
+        "enabled": true,
+        "requires": [
+          "functional_browser_context"
+        ],
+        "state_values": [
+          "functional_browser"
+        ],
+        "agent_keywords": [
+          "functional_browser"
+        ],
+        "kg_relation_types": [
+          "HAS_SAMPLE",
+          "HAS_DONOR",
+          "HAS_FUNCTIONAL_DATA"
+        ],
+        "pankbase_trigger": {
+          "node_types": [
+            "donor",
+            "human_donor",
+            "biosample",
+            "sample"
+          ],
+          "edge_types": [
+            "HAS_SAMPLE",
+            "HAS_DONOR",
+            "HAS_FUNCTIONAL_DATA"
+          ],
+          "require_gene": false
+        },
+        "pankbase_resource": {
+          "url": "https://functional.pankgraph.org",
+          "gene_parameter": null
+        },
+        "preview": {
+          "enabled": false,
+          "content": "context_summary",
+          "load_data": false
+        },
+        "layout": {
+          "min_height": 520
+        },
+        "format": "Compact scBrowser-style controls, persistent main panel, source and methods disclosure. Load runtime and data only when the full view is visible.",
+        "wording": {
+          "loading": "Loading functional browser\u2026",
+          "source_note": "Independent PanKgraph functional cohort; no matched cohort with other modules is implied.",
+          "retry": "Retry",
+          "source_tab": "Source & methods"
+        },
+        "source_title": "PanKgraph functional response",
+        "context_adapter": "pankbase",
+        "extension": true,
+        "guide_open": true
+      },
+      "pca_explorer": {
+        "title": "PCA Explorer",
+        "renderer": "PanKbaseModule",
+        "enabled": true,
+        "requires": [
+          "pca_explorer_context"
+        ],
+        "state_values": [
+          "pca_explorer"
+        ],
+        "agent_keywords": [
+          "pca_explorer"
+        ],
+        "kg_relation_types": [
+          "HAS_SAMPLE",
+          "HAS_DONOR"
+        ],
+        "pankbase_trigger": {
+          "node_types": [
+            "donor",
+            "human_donor",
+            "biosample",
+            "sample"
+          ],
+          "edge_types": [
+            "HAS_SAMPLE",
+            "HAS_DONOR"
+          ],
+          "require_gene": false
+        },
+        "pankbase_resource": {
+          "url": "https://pankbase.org/pca-explorer.html",
+          "gene_parameter": null
+        },
+        "preview": {
+          "enabled": true,
+          "content": "context_summary",
+          "load_data": false
+        },
+        "layout": {
+          "min_height": 520
+        },
+        "format": "Compact scBrowser-style controls, persistent main panel, source and methods disclosure. Load runtime and data only when the full view is visible.",
+        "wording": {
+          "loading": "Loading pca explorer\u2026",
+          "source_note": "Related PanKbase resource. The graph record and this resource may represent different datasets, cohorts or analyses.",
+          "retry": "Retry",
+          "source_tab": "Source & methods"
+        },
+        "source_title": "PanKbase pseudobulk PCA \u00b7 v3.3",
+        "context_adapter": "pankbase",
+        "extension": true,
+        "guide_open": true
+      },
+      "qtl_browser": {
+        "title": "QTL Browser",
+        "enabled": true,
+        "requires": [
+          "qtl_available_context"
+        ],
+        "agent_keywords": [
+          "qtl_browser"
+        ],
+        "state_values": [
+          "qtl_browser"
+        ],
+        "layout": {
+          "min_height": 600
+        },
+        "context_adapter": "qtl",
+        "extension": true,
+        "guide_open": true
       }
     },
     "tab_switch": {
@@ -431,6 +644,13 @@
       "show_when": "multiple_eligible_views",
       "scroll_buttons": "auto",
       "accessible_label": "Result visualizations"
+    },
+    "extension_lifecycle": {
+      "policy": "first_match_once",
+      "scope": "answer",
+      "order": "append_only",
+      "updates": "New graph revisions may add unseen modules only. Preserve the first matching context, tab and user configuration until the answer is unmounted.",
+      "encounter_order": "Edges in returned order, then nodes in returned order; first eligible context only."
     }
   },
   "supporting_materials": {
@@ -505,5 +725,6 @@
         "deduplication": "Do not repeat the main functional plot asset here; preserve independent empirical sources and their availability states."
       }
     }
-  }
+  },
+  "version": "0.7.0"
 }

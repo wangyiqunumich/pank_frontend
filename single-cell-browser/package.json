@@ -6,7 +6,7 @@
   "scripts": {
     "build": "vite build",
     "test": "node --test data.test.mjs render.test.mjs",
-    "prebuild": "node prepare-atlas.mjs"
+    "prepare:data": "node prepare-atlas.mjs"
   },
   "dependencies": {
     "vue": "2.7.16",

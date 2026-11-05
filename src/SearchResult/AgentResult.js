@@ -1,3 +1,5 @@
+import { DEV_MODULES } from '../vnext/hosting';
+import ModuleGuide from '../vnext/moduleGuide/ModuleGuide';
 import React, {
   useCallback,
   useEffect,
@@ -1538,6 +1540,7 @@ export function AgentResultLayout({
                     <button
                         type="button"
                         onClick={openFeedbackModal}
+                        data-pank-feedback-launcher
                         style={{
                             position: 'absolute',
                             right: isMobile ? 12 : 24,
@@ -1564,10 +1567,12 @@ export function AgentResultLayout({
                 </div>
             ) : null}
 
+            {DEV_MODULES && <ModuleGuide />}
             {!hasFloatingInputBar ? (
                 <button
                     type="button"
                     onClick={openFeedbackModal}
+                        data-pank-feedback-launcher
                     style={{
                         position: 'fixed',
                         right: isMobile ? 12 : 24,

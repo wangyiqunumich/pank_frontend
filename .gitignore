@@ -32,9 +32,12 @@ __pycache__/
 /hirn_agent_api/var/
 /hirn_agent_api/secrets/
 
-/single-cell-browser/node_modules/
+/single-cell-browser/node_modules
 /single-cell-browser/public/atlas/
 /public/scbrowser/
 
 # Disposable isolated Amplify fixed-demo build
 /.techdemo-work/
+
+/pankbase-browser/node_modules
+/public/pankbase-browser/

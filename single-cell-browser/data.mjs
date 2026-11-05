@@ -8,9 +8,15 @@ export async function readPublic(path, limit = 16 * 1024 * 1024) {
   try {
     // Workers live under assets/ in production, while atlas/ is beside index.html.
     const localBase = globalThis.location ? `${location.origin}${location.pathname.replace(/\/(?:assets\/)?[^/]*$/, '/')}` : import.meta.url;
-    const local = path.startsWith('./atlas/') || path.startsWith('/pankgraph-vnext/');
-    const directApi = globalThis.location?.hostname === 'dev.pankgraph.org' && path.startsWith('/pankgraph-vnext/api/');
-    const url = directApi ? `https://jieliulab3.dcmb.med.umich.edu${path}` : path.startsWith('./atlas/') ? new URL(path, localBase) : local ? `${location.origin}${path}` : `${ORIGIN}${path}`;
+    const fixedDemo = /(?:^|\/)techdemo\//.test(globalThis.location?.pathname || '');
+    const hostedSnapshot = fixedDemo || ['dev.pankgraph.org','localhost','127.0.0.1'].includes(globalThis.location?.hostname);
+    const directApi = !fixedDemo && globalThis.location?.hostname === 'dev.pankgraph.org' && path.startsWith('/pankgraph-vnext/api/');
+    const local = path.startsWith('./atlas/') || path.startsWith('/pankgraph-vnext/') || path.startsWith('/api/pankbase-data/');
+    const serviceBase = globalThis.location ? new URL(hostedSnapshot && !fixedDemo ? '/techdemo/api/pankbase-data/v1/' : '../api/pankbase-data/v1/', localBase) : null;
+    const url = directApi ? `https://jieliulab3.dcmb.med.umich.edu${path}`
+      : path.startsWith('./atlas/') ? (hostedSnapshot && serviceBase ? new URL('assets/' + path.slice(2), serviceBase) : new URL(path, localBase))
+      : path.startsWith('/api/pankbase-data/') && serviceBase ? new URL(path.slice('/api/pankbase-data/v1/'.length), serviceBase)
+      : local ? `${location.origin}${path}` : `${ORIGIN}${path}`;
     // Reuse the site's browser login for local assets; never send it to BioIndex.
     const response = await fetch(url, { credentials: local && !directApi ? 'same-origin' : 'omit', signal: controller.signal });
     if (!response.ok) throw new Error(`Atlas request failed (${response.status}).`);
@@ -55,7 +61,7 @@ export function summaries(atlas, expression, gene) {
     return [{ [FIELD]: atlas.labels[index], gene, count: list.length, min: list[0], max: list[list.length - 1], q1: quantile(list, .25), median: quantile(list, .5), q3: quantile(list, .75), exprValues: list }];
   });
 }
-export function createLoader(read = readPublic, cache = atlasCache, refresh = false, config = { enabled: true, endpoint: '/pankgraph-vnext/api/scbrowser/expression' }) {
+export function createLoader(read = readPublic, cache = atlasCache, refresh = false, config = { enabled: true, endpoint: '/api/pankbase-data/v1/expression', fallback: false }) {
   let atlasPromise; const genes = new Map();
   async function atlas() {
     if (!atlasPromise) atlasPromise = (async () => {

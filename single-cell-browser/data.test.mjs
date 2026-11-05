@@ -101,12 +101,12 @@ test('worker atlas and expression requests reuse site authentication without sen
     globalThis.fetch = async (url, options) => { paths.push([String(url), options.credentials]); return new Response('{}'); };
     assert.equal(await readPublic('./atlas/manifest.json'), '{}');
     await readPublic('./atlas/map-example.json');
-    await readPublic('/pankgraph-vnext/api/scbrowser/expression?gene=CFTR');
+    await readPublic('/api/pankbase-data/v1/expression?gene=CFTR');
     await readPublic('/api/bio/query/single-cell-lognorm?q=example,CFTR');
     assert.deepEqual(paths, [
       ['https://local.example/scbrowser/atlas/manifest.json', 'same-origin'],
       ['https://local.example/scbrowser/atlas/map-example.json', 'same-origin'],
-      ['https://local.example/pankgraph-vnext/api/scbrowser/expression?gene=CFTR', 'same-origin'],
+      ['https://local.example/api/pankbase-data/v1/expression?gene=CFTR', 'same-origin'],
       ['https://bioindex.pankbase.org/api/bio/query/single-cell-lognorm?q=example,CFTR', 'omit'],
     ]);
   } finally {
@@ -144,6 +144,17 @@ test('dev expression cache bypasses Amplify without sending site credentials', a
   globalThis.fetch=async(url,options)=>{calls.push([String(url),options.credentials]);return new Response('{}');};
   await readPublic('/pankgraph-vnext/api/scbrowser/expression?gene=CFTR');
   await readPublic('./atlas/manifest.json');
-  assert.deepEqual(calls,[['https://jieliulab3.dcmb.med.umich.edu/pankgraph-vnext/api/scbrowser/expression?gene=CFTR','omit'],['https://dev.pankgraph.org/scbrowser/atlas/manifest.json','same-origin']]);
+  assert.deepEqual(calls,[['https://jieliulab3.dcmb.med.umich.edu/pankgraph-vnext/api/scbrowser/expression?gene=CFTR','omit'],['https://dev.pankgraph.org/techdemo/api/pankbase-data/v1/assets/atlas/manifest.json','same-origin']]);
+ } finally {globalThis.fetch=originalFetch;if(originalLocation===undefined)delete globalThis.location;else globalThis.location=originalLocation;}
+});
+
+test('fixed demo atlas and expression stay on its EC2 proxy prefix', async () => {
+ const originalFetch=globalThis.fetch, originalLocation=globalThis.location; const calls=[];
+ try {
+  globalThis.location={hostname:'dev.pankgraph.org',origin:'https://dev.pankgraph.org',pathname:'/techdemo/scbrowser/assets/worker.js'};
+  globalThis.fetch=async(url,options)=>{calls.push([String(url),options.credentials]);return new Response('{}');};
+  await readPublic('./atlas/manifest.json');
+  await readPublic('/api/pankbase-data/v1/expression?gene=CFTR');
+  assert.deepEqual(calls,[['https://dev.pankgraph.org/techdemo/api/pankbase-data/v1/assets/atlas/manifest.json','same-origin'],['https://dev.pankgraph.org/techdemo/api/pankbase-data/v1/expression?gene=CFTR','same-origin']]);
  } finally {globalThis.fetch=originalFetch;if(originalLocation===undefined)delete globalThis.location;else globalThis.location=originalLocation;}
 });

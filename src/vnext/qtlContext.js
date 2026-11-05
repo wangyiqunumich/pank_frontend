@@ -10,9 +10,12 @@ export function qtlContexts(result) {
   const seen = new Set();
   return qtlEdges(graph).map(edge => {
     const props = properties(edge);
-    const credibleSet = text(props.credible_set || props.credibleset || props.credible_set_id);
+    const credibleSet = text(props.credible_set_id || props.credible_set);
+    const conflictingSet = props.credible_set_id && props.credible_set && props.credible_set_id !== props.credible_set;
     const dataSource = text(props.data_source);
-    const source = QTL_CONFIG.sources.find(source => source.aliases.includes(dataSource));
+    const sourceUrl = text(props.data_source_url).replace(/\/$/, '');
+    const source = QTL_CONFIG.sources.find(item => item.source_url.replace(/\/$/, '') === sourceUrl || (!sourceUrl && item.dataset_id === text(props.source_id)));
+    const conflictingSource = source && props.source_id && props.source_id !== source.dataset_id;
     const validSet = /^[A-Za-z0-9_.:-]{1,600}$/.test(credibleSet);
     const endpoints = [edge['~start'] || edge.start_id || edge.source, edge['~end'] || edge.end_id || edge.target];
     const geneNodes = (graph?.nodes || []).filter(node => endpoints.includes(node['~id'] || node.id));
@@ -20,17 +23,17 @@ export function qtlContexts(result) {
     const geneLabel = text(properties(geneNode).HGNC_symbol || properties(geneNode).name) || genesFallback(credibleSet);
     const genes = (graph?.nodes || []).filter(node => endpoints.includes(node['~id'] || node.id)).flatMap(node => [node['~id'], node.id, properties(node).id, properties(node).Ensembl_ID]).filter(id => /^ENSG\d{11}(?:\.\d+)?$/.test(id || ''));
     const geneMismatch = credibleSet.startsWith('ENSG') && genes.length && !genes.some(gene => credibleSet.split('__')[0].split('.')[0] === gene.split('.')[0]);
-    const available = Boolean(source && validSet && !geneMismatch);
+    const available = Boolean(source && validSet && !geneMismatch && !conflictingSet && !conflictingSource);
     const key = available ? `${source.folder}/${credibleSet}` : text(edge['~id'] || edge.id);
-    const group = groups.find(group => group.credible_set === credibleSet && (group.data_source === dataSource || group.source === source?.key));
-    return { key, edgeId: text(edge['~id'] || edge.id), credibleSet, dataSource, sourceLabel: source?.label || dataSource, geneLabel, available,
+    const group = groups.find(group => group.credible_set === credibleSet && (group.data_source_url === source?.source_url || group.source === source?.dataset_id || group.folder === source?.folder));
+    return { key, edgeId: text(edge['~id'] || edge.id), credibleSet, dataSource, sourceId:source?.dataset_id, sourceUrl:source?.source_url, sourceLabel: source?.label || dataSource, geneLabel, available,
       downloadUrl: available ? `${QTL_CONFIG.download_origin}/${source.folder}/${encodeURIComponent(credibleSet)}.txt` : '',
       context: group?.context || Object.fromEntries(QTL_CONFIG.context_fields.filter(field => props[field]).map(field => [field, props[field]])),
-      reason: !source ? 'unsupported_source' : !validSet ? 'missing_credible_set' : geneMismatch ? 'gene_mismatch' : null };
+      reason: !source || conflictingSource ? 'unsupported_source' : conflictingSet ? 'missing_credible_set' : !validSet ? 'missing_credible_set' : geneMismatch ? 'gene_mismatch' : null };
   }).filter(context => { if (seen.has(context.key)) return false; seen.add(context.key); return true; });
 }
 // Remove only the superseded QTL plot, leaving other empirical sources intact.
 export function isQtlEmpirical(entry, contexts) {
   return contexts.some(context => context.available && context.credibleSet === entry?.credible_set &&
-    (context.dataSource === entry.data_source || context.key === `${entry.folder}/${entry.credible_set}`));
+    (context.sourceUrl === entry.data_source_url || context.sourceId === entry.source_id || context.key === `${entry.folder}/${entry.credible_set}`));
 }

@@ -1,0 +1,92 @@
+:root {font:12px/1.5 Inter,'Open Sans',system-ui,sans-serif;color:#334155;background:#fff}
+* {box-sizing:border-box} html,body,#app {height:100%;margin:0;overflow:hidden}
+#app {display:flex;flex-direction:column} .module-view {display:flex;flex-direction:column;height:100%;min-height:0;min-width:0}
+button,input,select {font:inherit;color:inherit} button {cursor:pointer} button,input,select {border:1px solid #e2e8f0;border-radius:8px;padding:6px 9px;background:#fff;max-width:100%}
+button:hover:not(:disabled){background:#f1f5f9}button:disabled{opacity:.4;cursor:default}button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid #0d9488;outline-offset:2px}
+.tabs{display:flex;flex:none;gap:4px;align-items:center;overflow-x:auto;padding:6px;margin:10px 12px;border:1px solid #e2e8f0cc;border-radius:12px;background:#f1f5f9cc;width:max-content;max-width:calc(100% - 24px)}
+.tabs button{flex-shrink:0;padding:5px 10px;border:1px solid transparent;background:transparent;white-space:nowrap;font-weight:500;color:#334155;line-height:16px}
+.tabs button[aria-pressed=true]{background:#fff;border-color:#e2e8f0;color:#134e4a;font-weight:600}
+.module-stage{flex:1;min-height:0;overflow:auto;padding:8px 12px 12px;border-top:1px solid #f1f5f9}
+.controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}.controls label{display:flex;align-items:center;gap:6px;min-width:0}.controls select{max-width:230px}.controls input{max-width:130px}.controls input[type=number]{width:76px}label{color:#64748b}.primary{background:#0f766e;color:#fff;border-color:#0f766e}
+h2{font-size:14px;font-weight:600;margin:0 0 8px}p{margin:6px 0 10px}a{color:#0f766e;text-decoration:none}a:hover{text-decoration:underline}
+.source,.plot-actions,.plot-tip{color:#64748b;font-size:10px}.source{overflow-wrap:anywhere}.source-panel{padding:10px 0;line-height:1.6}.source-panel p{font-size:12px}
+.plot-tip{min-height:22px;padding:4px 0}.plot-actions{display:flex;align-items:center;justify-content:space-between;gap:8px}.plot-controls{gap:6px}.plot-controls select{max-width:190px}
+table{border-collapse:collapse;width:100%;font-size:11px}th,td{text-align:left;padding:7px;border-bottom:1px solid #e2e8f0}th{background:#f8fafc}.legend{display:flex;flex-wrap:wrap;gap:8px;font-size:10px;margin:8px 0}.legend i{display:inline-block;width:8px;height:8px;margin-right:5px}.bar{display:inline-block;background:#219197;height:12px;min-width:1px;margin-right:8px}.heatmap-scroll{overflow:auto}.heatmap{width:max-content}.heatmap th{position:sticky;left:0;background:white;white-space:nowrap}.heatmap td{padding:0;width:5px;min-width:5px;height:18px;border:0}.scatter canvas{display:block;max-width:100%}
+@media(max-width:399px){.tabs{margin:8px}.tabs button{padding:5px 8px}.controls{gap:6px}.controls select{max-width:190px}.module-stage{padding:8px}.plot-controls label{width:100%;justify-content:space-between}}
+
+.primary-controls select{max-width:145px}.plot-settings{font-size:11px;margin:4px 0 8px;color:#64748b}.plot-settings summary{cursor:pointer}.plot-settings .controls{margin:8px 0}.controls input[aria-label="GRCh38 region"]{max-width:230px;width:200px}
+
+.module-stage{scrollbar-width:thin}.plot{max-width:100%;min-width:0}.plot svg{max-width:100%}.tabs{scrollbar-width:thin}.tabs button{padding:5px 8px}
+
+.genome-stage button{border-radius:6px!important;font-family:inherit!important;font-size:11px!important}.genome-stage .btn-primary{background:#0f766e!important;border-color:#0f766e!important}.genome-stage .TrackLegend{font-family:inherit}
+
+/* Geometry contract: one scroll owner per view, plots consume the remainder.
+   Keep controls in normal flow; only genuinely long content needs scrolling. */
+.module-stage.is-plot { display:flex; flex-direction:column; min-width:0; }
+.module-stage.is-plot > :not(.plot-pane) { flex-shrink:0; }
+.plot-pane { display:flex; flex-direction:column; flex:1 0 auto; min-width:0; min-height:0; }
+.plot-pane > :not(.scatter) { flex-shrink:0; }
+.scatter { display:flex; flex-direction:column; flex:1 0 220px; min-width:0; min-height:220px; }
+.scatter-viewport { position:relative; flex:1; min-height:160px; min-width:0; }
+.scatter-viewport canvas { position:absolute; inset:0; }
+.scatter > :not(.scatter-viewport) { flex-shrink:0; }
+.scatter > button { align-self:flex-start; }
+.tabs { flex-wrap:wrap; overflow:visible; }
+.controls { min-width:0; }
+.controls label { max-width:100%; }
+.controls select { min-width:0; }
+.module-view > .tabs { line-height:1.5; }
+
+.module-stage > .controls:last-child { margin-bottom:0; }
+
+.module-view.browser-chrome .module-stage { border-top:0; padding:10px 12px; }
+.module-view.browser-chrome .module-stage.is-plot { padding:0; overflow:auto; }
+.module-view.browser-chrome .scatter { position:relative; flex:1; min-height:180px; padding:8px; }
+.module-view.browser-chrome .scatter-viewport { min-height:160px; }
+.module-view.browser-chrome .scatter canvas { touch-action:pan-y; cursor:default; }
+.module-view.browser-chrome .plot-tip { position:absolute; bottom:0; left:12px; right:56px; background:#ffffffe6; pointer-events:none; min-height:0; }
+.module-view.browser-chrome .browser-footer .legend { margin:0; flex-basis:100%; max-height:64px; overflow:auto; }
+.table-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:12px 0; }
+.heatmap-view { position:relative; height:100%; min-height:180px; padding-right:0; }
+.heatmap-view .heatmap-scroll { height:100%; }
+.heatmap td { width:var(--heat-cell,5px);min-width:var(--heat-cell,5px);height:var(--heat-row,18px); }
+
+.module-view.browser-chrome .genome-content { position:relative; padding:8px 12px!important; overflow:hidden; }
+.genome-region { flex:1 1 230px; }
+.genome-region input { width:180px!important; max-width:none!important; }
+.genome-viewport { position:relative; height:100%; min-height:0; overflow:auto; padding:0; }
+.genome-stage { min-height:0; width:100%; }
+.genome-stage:not(.show-tools) .tool-container { display:none; }
+.genome-stage .TrackLegend-label { font-size:10px; line-height:1.3; }
+.genome-stage .tool-container { font-size:11px; }
+.genome-stage .tool-container button { font-size:11px!important; padding:3px 6px; min-height:26px; }
+.genome-content > .source-panel { padding:12px; }
+
+.module-view.browser-chrome .module-stage { position:relative; }
+.module-view.browser-chrome .source-panel { padding-right:12px; }
+
+.heatmap-view .heatmap { table-layout:fixed; }
+.heatmap-view .heatmap th { width:90px; padding:2px 7px; }
+.heatmap-view .heatmap td { width:auto; min-width:0; }
+
+.genome-viewport { scrollbar-width:thin; }
+.genome-height { flex:none; font-size:11px; }
+.genome-height select { width:auto; }
+
+.genome-content > .source-panel { height:100%; overflow:auto; }
+
+.heatmap-view .heatmap { width:100%; height:100%; }
+.heatmap-view .heatmap tbody th { width:100px; }
+.heatmap-view .heatmap tfoot th { position:static; width:auto; height:180px; padding:4px 0; vertical-align:top; background:white; font-size:10px; font-weight:400; }
+.heatmap-view .heatmap tfoot th:first-child { position:sticky; left:0; width:100px; white-space:normal; padding:8px; font-weight:600; }
+.heatmap-view .heatmap tfoot span { writing-mode:vertical-rl; display:inline-block; white-space:nowrap; }
+
+/* Keep coordinates legible instead of compressing them behind secondary tools. */
+.genome-filters .genome-region { flex:1 1 330px; min-width:min(100%,330px); }
+.genome-filters .genome-region input { flex:1; width:240px!important; min-width:0; }
+.genome-height { display:flex; align-items:center; gap:6px; }
+.genome-stage .TrackLegend-label { overflow-wrap:normal; word-break:normal; }
+.heatmap-key { display:flex; align-items:center; flex-wrap:wrap; gap:7px; flex-basis:100%; font-size:10px; }
+.heatmap-gradient { width:90px; height:8px; background:linear-gradient(to right,#053061,#f7f7f7,#67001f); }
+.missing-swatch { display:inline-block; width:8px; height:8px; background:#e2e8f0; margin-right:3px; }
+.browser-footer .legend .continuous-key { width:90px; height:8px; margin:3px 0; }
