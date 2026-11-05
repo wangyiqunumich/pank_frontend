@@ -4,6 +4,7 @@ import PersistentGraphViewport from '../components/PersistentGraphViewport';
 import BrowserImagePlot from './BrowserImagePlot';
 import BrowserToolbar from './BrowserToolbar';
 import { BROWSER_FILL_SX } from './browserLayout';
+import { browserTabIcon } from './browserTabIcons';
 import { moduleApiPath } from './hosting';
 import { registerGuideModule } from './moduleGuide/bridge';
 import './browserChrome.css';
@@ -44,7 +45,7 @@ export default function QtlBrowser({isVisible=false,contexts=[]}) {
   const current=catalog?.items.find(item=>item.key===selected);
   const url=selected?moduleApiPath(`/qtl/plot.jpg?key=${encodeURIComponent(selected)}`):'';
   return <PersistentGraphViewport fullscreen={fullscreen} onExit={()=>setFullscreen(false)} label="QTL Browser"><Box className="browser-chrome" sx={BROWSER_FILL_SX}>
-    <div className="browser-navigation"><nav className="browser-tabs" aria-label="QTL views">{['Manhattan','Source'].map(value=><button key={value} aria-pressed={tab===value} onClick={()=>setTab(value)}>{value==='Manhattan'?'Manhattan plot':value}</button>)}</nav></div>
+    <div className="browser-navigation"><nav className="browser-tabs" aria-label="QTL views">{['Manhattan','Source'].map(value=><button key={value} aria-pressed={tab===value} onClick={()=>setTab(value)}><img src={browserTabIcon(value)} alt="" aria-hidden="true"/>{value==='Manhattan'?'Manhattan plot':value}</button>)}</nav></div>
     <form className="browser-filters" onSubmit={event=>{event.preventDefault();setOffset(0);setGene(draft.trim());}}>
       <label className="browser-select">Source<select aria-label="QTL source" value={source} onChange={e=>{setSource(e.target.value);setOffset(0);}}>{Object.entries(SOURCES).map(([key,label])=><option key={key} value={key}>{label}</option>)}</select></label>
       <label className="browser-input"><span>Gene / set</span><input aria-label="QTL gene or full credible-set ID" value={draft} maxLength={512} pattern="[A-Za-z0-9_.:-]*" onChange={e=>setDraft(e.target.value)} placeholder="Gene or complete credible-set ID"/><button type="submit">View</button></label>

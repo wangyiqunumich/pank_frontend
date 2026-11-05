@@ -3,6 +3,7 @@ import { join } from 'path';
 import vm from 'vm';
 import { fireEvent, within } from '@testing-library/dom';
 import { SC_CONFIG, SC_WORDING } from './scBrowserConfig';
+import * as toolbarIcons from './graphToolbarIcons';
 
 // Compile the real Vue template into jsdom. Only the expensive WebGL/violin
 // renderers and network lifecycle are stubbed; UI bindings/methods are real.
@@ -18,9 +19,13 @@ const script = source.split('<script>')[1].split('</script>')[0].replace(/^impor
 const FIELD = 'Cell Type';
 const onWheel = jest.fn();
 const map = { props: ['height', 'showControls', 'legendLabel'], methods: { onWheel }, render(h) { return h('canvas', { attrs: { 'data-umap': 'true' } }); } };
+const toolbarSource = readFileSync(join(__dirname, '../../pankbase-browser/BrowserToolbar.vue'), 'utf8').replace(/\r\n/g, '\n');
+const toolbarSandbox = { icons: toolbarIcons };
+vm.runInNewContext(toolbarSource.split('<script>')[1].split('</script>')[0].replace(/^import .*;$/gm, '').replace('export default ', 'component = '), toolbarSandbox);
+const BrowserToolbar = { ...toolbarSandbox.component, ...(Vue ? Vue.compile(toolbarSource.split('<template>')[1].split('</template>\n<script>')[0]) : {}), mounted: [], beforeDestroy: [] };
 const sandbox = { window, document, URLSearchParams, Event, SC_CONFIG, SC_WORDING, FIELD,
   SC_PROTOCOL: 'pankgraph.scbrowser.v1', validBrowserContext: () => true,
-  ResearchUmapPlotGL: map, ResearchViolinPlot: { render: h => h('div') },
+  ResearchUmapPlotGL: map, ResearchViolinPlot: { render: h => h('div') }, BrowserToolbar,
   integratedBrowserLink: () => 'https://pankbase.org/single-cell.html',
   mapIcon: 'map.svg', expressionIcon: 'expression.svg', sourceIcon: 'source.svg', selectIcon: 'select.svg',
   externalIcon: 'external.svg', fullscreenIcon: 'fullscreen.svg', zoomInIcon: 'zoom-in.svg', zoomOutIcon: 'zoom-out.svg' };
@@ -53,10 +58,10 @@ uiTest('actual scBrowser controls retain schema copy and put the dock inside the
   expect(ui.getByRole('toolbar').parentElement).toBe(stage);
   expect(stage.contains(nav)).toBe(false);
   expect(stage.contains(app.$el.querySelector('footer'))).toBe(false);
-  const header = app.$el.querySelector('.browser-header');
-  expect(within(header).getByText(SC_WORDING.atlas_label)).toBeTruthy();
-  expect(within(header).getByRole('link', { name: SC_WORDING.header_browser_link.replace(/\s*[→↗]\s*$/, '') })).toBeTruthy();
-  expect(header.nextElementSibling).toBe(app.$el.querySelector('.explore-controls'));
+  const sourceFooter = app.$el.querySelector('.browser-source-footer');
+  expect(within(sourceFooter).getByText(SC_WORDING.atlas_label)).toBeTruthy();
+  expect(within(sourceFooter).getByRole('link', { name: SC_WORDING.header_browser_link.replace(/\s*[→↗]\s*$/, '') })).toBeTruthy();
+  expect(nav.parentElement.nextElementSibling).toBe(app.$el.querySelector('.explore-controls'));
   expect(app.$refs.map.showControls).toBe(false);
   expect(app.$refs.map.legendLabel).toBe(SC_WORDING.map_expression_legend.replace('{gene}', 'CFTR'));
 });
@@ -106,6 +111,7 @@ uiTest('search preserves the worker contract and resets the displayed camera bas
 uiTest('actual styles bottom-anchor graph UI and keep scBrowser dock out of the navigation/footer', () => {
   const style = document.createElement('style');
   style.textContent = ['GraphToolbar.css', 'GraphLegend.css'].map(name => readFileSync(join(__dirname, name), 'utf8')).join('\n')
+    + readFileSync(join(__dirname, 'browserChrome.css'), 'utf8')
     + readFileSync(join(__dirname, '../../single-cell-browser/browser.css'), 'utf8');
   document.head.appendChild(style);
   const graph = document.createElement('div'); graph.className = 'graph-viewer';
@@ -118,8 +124,8 @@ uiTest('actual styles bottom-anchor graph UI and keep scBrowser dock out of the 
     expect(getComputedStyle(zoom).bottom).toBe('16px'); expect(getComputedStyle(zoom).top).not.toBe('24px');
     expect(getComputedStyle(toolbar).overflow).toBe('visible');
     expect(getComputedStyle(app.$el.querySelector('.browser-stage')).position).toBe('relative');
-    expect(getComputedStyle(app.$el.querySelector('.map-toolbar')).top).toBe('50%');
-    expect(getComputedStyle(app.$el.querySelector('.map-toolbar')).transform).toBe('translateY(-50%)');
+    expect(getComputedStyle(app.$el.querySelector('.browser-toolbar')).top).toBe('12px');
+    expect(getComputedStyle(app.$el.querySelector('.browser-toolbar')).bottom).toBe('12px');
     expect(getComputedStyle(app.$el.querySelector('nav')).flexWrap).toBe('nowrap');
     expect(getComputedStyle(app.$el.querySelector('nav')).overflowX).toBe('auto');
   } finally { graph.remove(); style.remove(); }
@@ -135,5 +141,5 @@ uiTest('every scBrowser design icon has a nonempty local SVG with the original r
     expect([Number(root.match(/width="([^"]+)"/)[1]), Number(root.match(/height="([^"]+)"/)[1])]).toEqual(size);
     expect(source).toContain(`./assets/${name}.svg`);
   });
-  expect(app.$el.querySelectorAll('img')).toHaveLength(Object.keys(expected).length);
+  expect(app.$el.querySelectorAll('nav img')).toHaveLength(3);
 });
