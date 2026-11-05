@@ -20,7 +20,7 @@ export function exactGraphRef(data,schema) {
 }
 
 export default function ObjectInformationPanel({data, endpointNodes=[], releaseId, service, fallback}) {
-  const ref=exactGraphRef(data,service?.schema?.release_id===releaseId ? service.schema : null);
+  const ref=exactGraphRef(data,service?.schema && service.schema.release_id===releaseId ? service.schema : null);
   const key=JSON.stringify([releaseId,ref]);
   const [state,setState]=useState(null);
   const request=service?.request, schema=service?.schema;
