@@ -84,3 +84,5 @@
 .xe-compact-details .xe-card-section:last-of-type {border-bottom:0;}
 .xe-record-view .xe-complete>dl {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 24px;}
 @media(max-width:650px){.xe-record-view .xe-complete>dl{grid-template-columns:1fr;}}
+
+.xe-relationship-context dd small{display:block;font-size:11px;font-weight:400;color:#71838a;overflow-wrap:anywhere}.xe-relationship-context dd{min-width:0}.xe-method-context{margin:0 0 8px}.xe-expression-evidence-summary .xe-processing-links{font-size:12px}

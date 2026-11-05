@@ -26,12 +26,12 @@ export default function TableDownloads({card,table,schema,filters={},records=[],
   return <div className="xe-table-downloads">
     <div className="xe-download-actions"><button type="button" onClick={start} disabled={state.busy}>{state.busy ? `Preparing ${state.rows || 0} rows…` : wording.table || 'Download table (CSV)'}</button>
       {state.busy && <button type="button" onClick={()=>{controller.current?.abort();setState({});}}>Cancel</button>}
-      <span className="xe-small">{localRecords ? 'All rows in this table' : wording.scope || 'All matching rows · current filters'}</span>
+      {!table.simple_list && <span className="xe-small">{localRecords ? 'All rows in this table' : wording.scope || 'All matching rows · current filters'}</span>}
     </div>
     <div className="xe-full-sources">{sources.map(source=><span key={source.id}>
       <a href={source.href} target="_blank" rel="noopener noreferrer" title={source.note || source.href}>{source.kind==='unverified' ? source.title : `${source.kind==='related' ? wording.related || 'Related source' : source.kind==='input' ? wording.input || 'Full input data' : source.kind==='index' ? wording.index || 'Full source downloads' : wording.source || 'Full source data'}: ${source.title}`} ↗</a>
       {safeSourceUrl(source.library_url) && <a className="xe-library-link" href={source.library_url} target="_blank" rel="noopener noreferrer">{source.library_label || wording.library || 'Data Library'} ↗</a>}
-      {source.note && <small>{source.note}</small>}
+      {!table.simple_list && source.note && <small>{source.note}</small>}
     </span>)}</div>
     {(!sources.length || sources.every(s=>['related','unverified'].includes(s.kind))) && <span className="xe-small">{wording.unverified || 'Exact full-source download not yet verified.'}</span>}
     {state.ready && <span className="xe-small" role="status">CSV ready · {state.rows} rows</span>}{state.error && <p role="alert" className="xe-warning">{state.error}</p>}

@@ -1251,7 +1251,7 @@ export default function KnowledgeGraph({ overlay, onEvidenceInspect, releaseId, 
         onEnlarge={() => { setPanelMode('expanded'); setInfocardVisible(true); setExpanded(true); }}
         onMinimize={() => { setPanelMode('hover'); setNodeHovered(false); setInfocardHovered(true); }}
         onClose={() => { setPanelMode('hover'); setInfocardVisible(false); setNodeHovered(false); setInfocardHovered(false); }}>
-        <ObjectInformationPanel data={activeNode?.data()} releaseId={releaseId} service={review ? null : evidenceService} fallback={<InfocardMenu hoveredData={activeNode?.data()} review={review} />} />
+        <ObjectInformationPanel endpointNodes={activeNode?.isEdge?.() ? [activeNode.source().data(), activeNode.target().data()] : []} data={activeNode?.data()} releaseId={releaseId} service={review ? null : evidenceService} fallback={<InfocardMenu hoveredData={activeNode?.data()} review={review} />} />
       </GraphInfoPanel>
       {!review && <GraphLegend defaultOpen={defaultLegendVisible} />}
     </div>

@@ -10,7 +10,7 @@ export function exactGraphRef(data) {
     ? {kind:ref.kind,type_id:ref.type_id,id:ref.id} : null;
 }
 
-export default function ObjectInformationPanel({data, releaseId, service, fallback}) {
+export default function ObjectInformationPanel({data, endpointNodes=[], releaseId, service, fallback}) {
   const ref=exactGraphRef(data);
   const key=JSON.stringify([releaseId,ref]);
   const [state,setState]=useState(null);
@@ -31,6 +31,6 @@ export default function ObjectInformationPanel({data, releaseId, service, fallba
     return ()=>{current=false;controller.abort();};
   },[eligible,key,releaseId,request]);
   const selected=eligible && state?.key===key ? state : null;
-  if(selected?.card) return <InspectedInformationPanel card={selected.card} schema={schema} request={request} releaseId={releaseId}/>;
+  if(selected?.card) return <InspectedInformationPanel card={{...selected.card,endpoints:selected.card.endpoints?.map(e=>{const node=endpointNodes.find(n=>n.id===e.ref.id);return {...e,display_name:node?.HGNC_symbol || node?.name || node?.label};})}} schema={schema} request={request} releaseId={releaseId}/>;
   return <>{fallback}{eligible && <p role="status" style={{padding:'0 14px',fontSize:12}}>{selected?.error ? 'Detailed evidence is temporarily unavailable. Recorded graph evidence is preserved.' : 'Loading detailed evidence…'}</p>}</>;
 }
