@@ -68,6 +68,12 @@ fs.mkdirSync(output,{recursive:true});
     const selected=page.getByRole('tab',{name:'Knowledge Graph',exact:true});
     assert.equal(await selected.getAttribute('aria-selected'),'true');
     assert.equal(await selected.evaluate(e=>getComputedStyle(e).backgroundColor),'rgba(0, 0, 0, 0)','Visualization tabs must use the original underline style');
+    const tabStyles=await selected.evaluate(e=>{
+      const root=e.closest('.MuiTabs-root'),indicator=getComputedStyle(root.querySelector('.MuiTabs-indicator'));
+      return {indicator:{display:indicator.display,height:indicator.height,color:indicator.backgroundColor},tabs:[...root.querySelectorAll('[role="tab"]')].map(tab=>{const s=getComputedStyle(tab);return {background:s.backgroundColor,border:s.borderTopWidth,radius:s.borderRadius};})};
+    });
+    assert.deepEqual(tabStyles.indicator,{display:'block',height:'2px',color:'rgb(58, 131, 139)'});
+    for(const style of tabStyles.tabs)assert.deepEqual(style,{background:'rgba(0, 0, 0, 0)',border:'0px',radius:'0px'});
     if(demo)assert(!requests.some(p=>p.includes('/agent/v2/')),'The fixed demo must not contact the agent');
     assert.deepEqual(errors,[]);
     fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({passed:true,files,requests,errors},null,2));

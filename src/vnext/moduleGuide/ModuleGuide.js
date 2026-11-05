@@ -7,6 +7,7 @@ import {moduleApiPath} from '../hosting';
 import {applyGuideAction} from './bridge';
 import {MODULE_LABELS,validAction,actionSummary} from './actions.mjs';
 import manual from './manual.json';
+import '../../components/floatingAction.css';
 import './guide.css';
 const storageKey='pank-module-guide:v2-en';
 const STARTERS=[{label:'Compare alpha and beta tracks',prompt:'Open Genome Browser with alpha and beta signal tracks at compact height.'},{label:'Explore functional responses',prompt:'Open Functional Browser for female donors with T1D.'},{label:'Plot PC2 against PC3',prompt:'Open PCA Explorer and set X to PC2 and Y to PC3.'}];
@@ -70,7 +71,7 @@ export default function ModuleGuide(){
   const clear=()=>{requestGeneration.current++;abort.current?.abort();setMessages([]);setActionStates({});setBusy(false);setArticle(null);setInput('');};
   const section=manual.find(d=>d.id===article);
   return <>
-    <button ref={launcher} className="guide-launcher" style={{bottom}} aria-label="Open module guide" aria-expanded={open} aria-controls="pank-module-guide" onClick={()=>setOpen(value=>!value)}><HelpOutlineRoundedIcon/><span>Module guide</span></button>
+    <button ref={launcher} className="guide-launcher pank-floating-action" style={{bottom}} aria-label="Open module guide" aria-expanded={open} aria-controls="pank-module-guide" onClick={()=>setOpen(value=>!value)}><HelpOutlineRoundedIcon/><span>Module guide</span></button>
     {open&&<aside ref={panel} id="pank-module-guide" role="dialog" aria-label="PanKgraph module guide" className="module-guide" style={{bottom,maxHeight:`calc(100dvh - ${bottom+16}px)`}}>
       <header><strong>Module guide</strong><IconButton aria-label="Close module guide" onClick={()=>{setOpen(false);launcher.current?.focus();}} size="small"><CloseRoundedIcon/></IconButton></header>
       <nav aria-label="Guide views"><div>{['Chat','Manual'].map(t=><button key={t} aria-pressed={tab===t&&!article} onClick={()=>{setTab(t);setArticle(null);}}>{t}</button>)}</div><button className="guide-new" aria-label="New conversation" onClick={clear} disabled={busy||applying}>New chat</button></nav>

@@ -1,0 +1,23 @@
+.pank-floating-action {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 220px;
+  height: 48px;
+  margin: 0;
+  padding: 12px 24px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font: 600 16px/20px 'Open Sans', sans-serif;
+  white-space: nowrap;
+  box-shadow: 0 8px 20px rgba(77, 129, 138, 0.28);
+  cursor: pointer;
+}
+.pank-floating-action svg { flex: none; width: 20px; height: 20px; }
+.pank-floating-action:focus-visible { outline: 2px solid #0d9488; outline-offset: 2px; }
+@media (max-width: 599.95px) {
+  .pank-floating-action { width: 176px; height: 40px; gap: 6px; padding: 9px 19px; border-radius: 8px; font-size: 13px; }
+  .pank-floating-action svg { width: 16px; height: 16px; }
+}

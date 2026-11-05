@@ -1,5 +1,6 @@
 import { DEV_MODULES } from '../vnext/hosting';
 import ModuleGuide from '../vnext/moduleGuide/ModuleGuide';
+import '../components/floatingAction.css';
 import React, {
   useCallback,
   useEffect,
@@ -1541,24 +1542,14 @@ export function AgentResultLayout({
                         type="button"
                         onClick={openFeedbackModal}
                         data-pank-feedback-launcher
+                        className="pank-floating-action"
                         style={{
                             position: 'absolute',
                             right: isMobile ? 12 : 24,
                             top: isMobile ? -50 : -60,
                             zIndex: 1300,
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: isMobile ? 6 : 8,
-                            padding: isMobile ? '9px 19px' : '12px 24px',
-                            borderRadius: isMobile ? 8 : 10,
-                            border: 'none',
                             backgroundColor: 'rgb(58, 131, 139)',
                             color: '#FFFFFF',
-                            fontFamily: 'Open Sans, sans-serif',
-                            fontWeight: 600,
-                            fontSize: isMobile ? 13 : 16,
-                            cursor: 'pointer',
-                            boxShadow: '0 8px 20px rgba(77, 129, 138, 0.28)',
                         }}
                     >
                         <ChatBubbleOutlineRoundedIcon sx={{ color: '#FFFFFF', fontSize: isMobile ? 16 : 20 }} />
@@ -1572,25 +1563,15 @@ export function AgentResultLayout({
                 <button
                     type="button"
                     onClick={openFeedbackModal}
-                        data-pank-feedback-launcher
+                    data-pank-feedback-launcher
+                    className="pank-floating-action"
                     style={{
                         position: 'fixed',
                         right: isMobile ? 12 : 24,
                         bottom: isMobile ? 12 : 24,
                         zIndex: 1300,
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: isMobile ? 6 : 8,
-                        padding: isMobile ? '9px 19px' : '12px 24px',
-                        borderRadius: isMobile ? 8 : 10,
-                        border: 'none',
                         backgroundColor: 'rgb(58, 131, 139)',
                         color: '#FFFFFF',
-                        fontFamily: 'Open Sans, sans-serif',
-                        fontWeight: 600,
-                        fontSize: isMobile ? 13 : 16,
-                        cursor: 'pointer',
-                        boxShadow: '0 8px 20px rgba(77, 129, 138, 0.28)',
                     }}
                 >
                     <ChatBubbleOutlineRoundedIcon sx={{ color: '#FFFFFF', fontSize: isMobile ? 16 : 20 }} />
