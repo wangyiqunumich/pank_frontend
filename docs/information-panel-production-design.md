@@ -23,3 +23,7 @@ Gene/Variant full-profile height estimates exceeded compact limits, addressed by
 compact field selection and retained internal scrolling. No database changes.
 The backend inspection bridge requests complete annotations so expanded cards
 never silently reuse a compact-only response.
+
+## Current expression lists
+
+Compact relationships display graph-resolved endpoint names alongside stable IDs, method and current data context. Expression views render current registered methods as direct read-only lists, without historical V3.3 selection, per-row expand controls or repetitive explanatory prose. The all-treatment preset supersedes its baseline subset; conditions, treatment, reference, units and source versions remain distinct. Exact object ownership and complete CSV export are unchanged.

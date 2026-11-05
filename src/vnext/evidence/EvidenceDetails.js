@@ -87,10 +87,10 @@ function EvidenceTable({ card, table, schema }) {
     }
   };
   return <div className="xe-evidence">
-    <div className="xe-table-intro"><div><strong>{table.title}</strong><p>{displayText(table.description,policy) || 'Exact records linked to this object and its paired source release.'}</p></div><span className="xe-small">{busy ? 'Reading…' : `${page?.records?.length || 0} rows on this page`}</span></div>
+    <div className="xe-table-intro"><div><strong>{table.title}</strong>{!table.simple_list && <p>{displayText(table.description,policy) || 'Exact records linked to this object and its paired source release.'}</p>}</div><span className="xe-small">{busy ? 'Reading…' : `${page?.records?.length || 0} rows on this page`}</span></div>
     {table.pipeline_links?.length > 0 && <div className="xe-processing-links"><span>Processing pipeline</span>{table.pipeline_links.filter(link=>safeSourceUrl(link.href)).map(link=><a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">{link.label} ↗</a>)}</div>}
     {table.presets && <div className="xe-source-presets">{table.presets.map(p => <button key={p.title} className={JSON.stringify(filters) === JSON.stringify(p.filters) ? 'active' : ''} onClick={() => setFilters(p.filters)}>{p.title}</button>)}</div>}
-    {table.filters.length > 0 && <form className="xe-filters" onSubmit={e => { e.preventDefault(); setFilters(previous => { const next = { ...previous }; if (input.trim()) next[key] = input.trim(); else delete next[key]; return next; }); }}>
+    {!table.simple_list && table.filters.length > 0 && <form className="xe-filters" onSubmit={e => { e.preventDefault(); setFilters(previous => { const next = { ...previous }; if (input.trim()) next[key] = input.trim(); else delete next[key]; return next; }); }}>
       <select aria-label="Filter field" value={key} onChange={e => setKey(e.target.value)}>{table.filters.map(k => <option key={k} value={k}>{fieldLabel(k,table.field_specs)}</option>)}</select>
       {key === 'condition' && (table.filter_values?.condition || table.legacy_condition_options) ? <select aria-label="Condition" value={input} onChange={e => setInput(e.target.value)}><option value="">All recorded</option>{(table.filter_values?.condition || ['ND','T1D','T2D']).map(k => <option key={k}>{k}</option>)}</select> : <input aria-label="Exact filter value" placeholder="Exact value" value={input} onChange={e => setInput(e.target.value)} />}
       <button type="submit">Apply</button><button type="button" onClick={() => { setFilters(table.default_filters || {}); setInput(''); }}>Clear</button>
@@ -102,32 +102,47 @@ function EvidenceTable({ card, table, schema }) {
     {page?.state === 'temporarily_unavailable' && <p className="xe-warning">{page.message}</p>}
     {page?.state === 'no_records' && <div className="xe-no-records">No matching records in this release. This does not mean zero expression or no biological association.</div>}
     <TableDownloads card={card} table={table} schema={schema} filters={scopedFilters} records={page?.records} sets={page?.credible_sets} />
-    <div className="xe-table-scroll"><table><thead><tr><th aria-label="Record details" />{columns.map(k => <th key={k} title={table.field_specs?.[k]?.description}>{relatedLinks ? ({source_name:'Database',alt_id:'Open record'}[k] || fieldLabel(k,table.field_specs)) : fieldLabel(k,table.field_specs)}</th>)}</tr></thead><tbody>
+    <div className="xe-table-scroll"><table><thead><tr>{!table.simple_list && <th aria-label="Record details" />}{columns.map(k => <th key={k} title={table.field_specs?.[k]?.description}>{relatedLinks ? ({source_name:'Database',alt_id:'Open record'}[k] || fieldLabel(k,table.field_specs)) : fieldLabel(k,table.field_specs)}</th>)}</tr></thead><tbody>
       {(page?.records || []).map((row, i) => <React.Fragment key={row.record_id || row.relationship_id || `${index}-${i}`}><tr>
-        <td><button className="xe-row-button" onClick={() => readDetail(row)} aria-label={`Read row ${i + 1}`}>{detail?.row === row ? '−' : '+'}</button></td>
+        {!table.simple_list && <td><button className="xe-row-button" onClick={() => readDetail(row)} aria-label={`Read row ${i + 1}`}>{detail?.row === row ? '−' : '+'}</button></td>}
         {columns.map(k => <td key={k}>{renderCell(row,k)}</td>)}</tr>
-        {detail?.row === row && <tr className="xe-detail-row"><td colSpan={columns.length + 1}>{detail.loading ? 'Reading complete record…' : <><span className="xe-small">Complete selected record {detail.error && `· ${detail.error}`}</span><dl><RecordFields fields={Object.entries(detail.record).filter(([k,v])=>visibleField(k,v,policy,table.field_specs?.[k])).map(([key,value])=>({key,label:fieldLabel(key,table.field_specs,detail.record),value}))} /></dl></>}</td></tr>}
+        {!table.simple_list && detail?.row === row && <tr className="xe-detail-row"><td colSpan={columns.length + 1}>{detail.loading ? 'Reading complete record…' : <><span className="xe-small">Complete selected record {detail.error && `· ${detail.error}`}</span><dl><RecordFields fields={Object.entries(detail.record).filter(([k,v])=>visibleField(k,v,policy,table.field_specs?.[k])).map(([key,value])=>({key,label:fieldLabel(key,table.field_specs,detail.record),value}))} /></dl></>}</td></tr>}
       </React.Fragment>)}</tbody></table></div>
-    <div className="xe-pagination"><span>Page {index + 1} · 20 rows maximum</span><div><button disabled={index === 0 || busy} onClick={() => setIndex(i => i - 1)}>Previous</button><button disabled={!page?.has_more || busy} onClick={() => { setHistory(h => [...h.slice(0, index + 1), page.next_cursor]); setIndex(i => i + 1); }}>Next</button></div></div>
+    {(index > 0 || page?.has_more) && <div className="xe-pagination"><span>Page {index + 1} · 20 rows maximum</span><div><button disabled={index === 0 || busy} onClick={() => setIndex(i => i - 1)}>Previous</button><button disabled={!page?.has_more || busy} onClick={() => { setHistory(h => [...h.slice(0, index + 1), page.next_cursor]); setIndex(i => i + 1); }}>Next</button></div></div>}
   </div>;
 }
 
-function ConditionEvidenceGroup({card,group,schema,view,component}) {
-  const [selected,setSelected]=useState(group.presets[0].id);
-  const preset=group.presets.find(p=>p.id===selected) || group.presets[0];
+
+export function currentPresets(presets) {
+  const rules=panelPolicy.expression_display;
+  return presets.filter(p=>!rules.excluded_presets.includes(p.id) && !presets.some(other=>other.id===rules.superseded_presets[p.id]));
+}
+function RelationshipContext({card,compact=false}) {
+  if(!card.endpoints?.length)return null;
+  const context=panelPolicy.expression_display.compact_context?.[card.ref.type_id];
+  const method=(card.fields || []).find(f=>f.key==='method')?.value || context?.method;
+  const description=(card.fields || []).find(f=>f.key==='description')?.value;
+  return <section className="xe-card-section xe-relationship-context"><dl>
+    {card.endpoints.map((e,i)=><div className="kg-card-field" key={e.ref.id}><dt>{e.ref.type_id==='Gene'?'Gene':e.ref.type_id==='Cell'?'Cell':e.role || (i?'Target':'Source')}</dt><dd>{e.display_name || e.display_id || e.ref.id}{e.display_name && <small>{e.display_id || e.ref.id}</small>}</dd></div>)}
+    {compact && method && <div className="kg-card-field"><dt>Method</dt><dd>{method}</dd></div>}
+    {compact && (context?.data || description) && <div className="kg-card-field"><dt>Data</dt><dd>{context?.data || description}</dd></div>}
+  </dl></section>;
+}
+
+function ConditionEvidenceGroup({card,group,schema,view,component,preset}) {
+  const selected=preset.id;
   const source=card.tables.find(t=>t.id===preset.table_id);
   const context=contextFilters({...component,view:{...view,context_filters:preset.context_filters ?? view.context_filters}},card);
   const labels={...view.field_labels,...preset.field_labels};
   const fields=source?.all_fields || schema.tables?.[preset.table_id]?.all_fields || [];
-  const table=source && context ? {...source,title:group.title,description:preset.description,columns:preset.columns,
+  const table=source && context ? {...source,title:group.title,simple_list:true,description:preset.description,columns:preset.columns,
     filters:preset.editable_filters || ['condition'],filter_values:{...source.filter_values,condition:preset.condition_values || view.condition_values || source.filter_values?.condition},legacy_condition_options:component.legacy,presets:undefined,hide_filter_chips:true,hide_empty_columns:true,
     default_filters:Object.fromEntries(Object.entries(preset.default_filters || view.default_filters || {status:'all'}).filter(([k])=>component.legacy || source.filters.includes(k))),fixed_filters:{...preset.fixed_filters,...context},
     pipeline_links:preset.pipeline_links,request_fields:preset.request_all_fields || (component.legacy && preset.table_id==='ruv_condition_summary') ? fields : [...new Set([...preset.columns,'data_source','data_source_url','data_version','license'])].filter(k=>fields.includes(k)),
     field_specs:{...source.field_specs,...Object.fromEntries(Object.entries(labels).map(([key,label])=>[key,{...source.field_specs?.[key],label,short_label:label}]))}} : null;
   return <section className="xe-expression-evidence-group" aria-label={group.title}>
     {table ? <>
-      {group.presets.length>1 && <label className="xe-evidence-view">View <select aria-label={`${group.title} view`} value={selected} onChange={e=>setSelected(e.target.value)}>{group.presets.map(p=><option key={p.id} value={p.id}>{p.title}</option>)}</select></label>}
-      {!component.legacy && preset.method_label && <p className="xe-small">Method: {preset.method_label}</p>}
+      <p className="xe-small xe-method-context">{preset.method_label || preset.title} · {preset.title}</p>
       <EvidenceTable key={`${card.ref.id}:${group.id}:${selected}`} card={card} table={table} schema={schema} />
     </> : <><h3>{group.title}</h3><p className="xe-small">{card.evidence_state==='temporarily_unavailable' ? view.unavailable_message : view.unlinked_message}</p></>}
   </section>;
@@ -137,8 +152,8 @@ function ConditionEvidenceSummary({card,schema,component}) {
   const view={...component.view,groups:conditionGroups(component,card)};
   const linked=view.groups.some(group=>group.presets.some(p=>card.tables.some(t=>t.id===p.table_id)));
   return <div className="xe-expression-evidence-summary">
-    <p className="xe-small">{card.ref.type_id==='MARKER_GENE_OF' ? view.marker_note : view.note}</p>
-    {!linked ? <><p className="xe-small">{card.evidence_state==='temporarily_unavailable' ? view.unavailable_message : view.unlinked_message}</p><div className="xe-expression-coverage">{view.groups.map(group=><section key={group.id} aria-label={group.title}><h3>{group.title}</h3><span>Not linked</span></section>)}</div></> : view.groups.map(group=><ConditionEvidenceGroup key={`${card.ref.id}:${group.id}`} card={card} group={group} schema={schema} view={view} component={component} />)}
+    <RelationshipContext card={card}/>
+    {!linked ? <><p className="xe-small">{card.evidence_state==='temporarily_unavailable' ? view.unavailable_message : view.unlinked_message}</p><div className="xe-expression-coverage">{view.groups.map(group=><section key={group.id} aria-label={group.title}><h3>{group.title}</h3><span>Not linked</span></section>)}</div></> : view.groups.flatMap(group=>currentPresets(group.presets).map(preset=><ConditionEvidenceGroup key={`${card.ref.id}:${group.id}:${preset.id}`} card={card} group={group} preset={preset} schema={schema} view={view} component={component} />))}
   </div>;
 }
 
@@ -194,7 +209,7 @@ export function InspectedInformationPanel({card,schema,request,releaseId}) {
     {panel?.large ? <EvidenceDetails card={shown} schema={schema} request={request} releaseId={releaseId}/> :
       <DisplayContext.Provider value={{policy:schema.display_policy || {},profileKey:`${card.ref.kind}:${card.ref.type_id}`}}>
         <div className="xe-expanded-details xe-compact-details">
-          {shown.endpoints?.length>0 && <div className="xe-compact-endpoints">{shown.endpoints.map((e,i)=><span key={i}>{i>0 && ' → '}{e.display_id}</span>)}</div>}
+          <RelationshipContext card={shown} schema={schema} compact/>
 
           {compact.sections.map((section,i)=><section className="xe-card-section" data-prose={section.prose || undefined} key={i}><h3>{section.title}</h3><dl><RecordFields fields={section.fields} specs={shown.field_specs}/></dl></section>)}
           <RecordFooter provenance={shown.provenance}/>
