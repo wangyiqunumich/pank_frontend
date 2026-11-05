@@ -44,7 +44,7 @@ export default function QtlBrowser({isVisible=false,contexts=[]}) {
   const current=catalog?.items.find(item=>item.key===selected);
   const url=selected?sitePath(`/api/qtl/plot.jpg?key=${encodeURIComponent(selected)}`):'';
   return <PersistentGraphViewport fullscreen={fullscreen} onExit={()=>setFullscreen(false)} label="QTL Browser"><Box className="browser-chrome" sx={BROWSER_FILL_SX}>
-    <div className="browser-navigation"><nav className="browser-tabs" aria-label="QTL views">{['Manhattan','Source'].map(value=><button key={value} aria-pressed={tab===value} onClick={()=>setTab(value)}>{value}</button>)}</nav></div>
+    <div className="browser-navigation"><nav className="browser-tabs" aria-label="QTL views">{['Manhattan','Source'].map(value=><button key={value} aria-pressed={tab===value} onClick={()=>setTab(value)}>{value==='Manhattan'?'Manhattan plot':value}</button>)}</nav></div>
     <form className="browser-filters" onSubmit={event=>{event.preventDefault();setOffset(0);setGene(draft.trim());}}>
       <label className="browser-select">Source<select aria-label="QTL source" value={source} onChange={e=>{setSource(e.target.value);setOffset(0);}}>{Object.entries(SOURCES).map(([key,label])=><option key={key} value={key}>{label}</option>)}</select></label>
       <label className="browser-input"><span>Gene / set</span><input aria-label="QTL gene or full credible-set ID" value={draft} maxLength={512} pattern="[A-Za-z0-9_.:-]*" onChange={e=>setDraft(e.target.value)} placeholder="Gene or complete credible-set ID"/><button type="submit">View</button></label>
@@ -60,6 +60,6 @@ export default function QtlBrowser({isVisible=false,contexts=[]}) {
       {tab==='Source'&&<BrowserToolbar navigationOnly fullscreen={fullscreen} onFullscreen={()=>setFullscreen(v=>!v)}/>}
     </div>
     <footer className="browser-footer"><span>{current?.symbol||gene||'All genes'}{facts?` · ${facts.records.length} SNPs`:''}</span><span>{facts?`Lead: ${facts.lead_snp}`:SOURCES[source]}</span><p className="description">Source-order SNPs · −log₁₀(P), PIP, LBF · Color: LD R² · Dashed line: maximum-PIP SNP</p></footer>
-    <footer className="browser-source-footer" aria-label="Module source"><span>PanKgraph QTL · production v6 · 2026-11-04</span><a href={`https://data.pankbase.org/curated-sets/${source}/`} target="_blank" rel="noopener noreferrer">PanKbase QTL browser ↗</a></footer>
+    <footer className="browser-source-footer" aria-label="Module source"><span>PanKgraph QTL · production v6 · 2026-11-04</span><a href="https://dev.pankgraph.org/qtl-explorer" target="_blank" rel="noopener noreferrer">PanKgraph QTL tool ↗</a></footer>
   </Box></PersistentGraphViewport>;
 }

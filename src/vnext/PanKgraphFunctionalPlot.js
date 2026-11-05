@@ -44,6 +44,6 @@ export default function PanKgraphFunctionalPlot({ isVisible = false }) {
       {tab==='Source'&&<BrowserToolbar navigationOnly fullscreen={fullscreen} onFullscreen={()=>setFullscreen(value=>!value)}/>}
     </div>
     <footer className="browser-footer"><span>All available donors{count!==null?` · ${count} donors`:''}</span><span>{TRACES[trace]}</span><p className="description">Independent functional cohort · Native PanKgraph plot · Faint: first 24 donor traces · Bold: cohort mean</p></footer>
-    <footer className="browser-source-footer" aria-label="Module source"><span>PanKgraph functional data</span><a href="https://pankbase.org/functional.html" target="_blank" rel="noopener noreferrer">PanKbase functional browser ↗</a></footer>
+    <footer className="browser-source-footer" aria-label="Module source"><span>PanKgraph functional data</span><a href="https://dev.pankgraph.org/functional-data" target="_blank" rel="noopener noreferrer">PanKgraph functional browser tool ↗</a></footer>
   </Box></PersistentGraphViewport>;
 }

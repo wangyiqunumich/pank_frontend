@@ -144,7 +144,7 @@ test('scmap selection is owned by the result schema and requires an actual RNA p
  expect(resolveScWordings(page.scBrowser.wording).atlas_label).toBe('PanKbase scRNAseq V3.4');
  expect(resolveScWordings({ ...page.scBrowser.wording, display_release: 'V7.0' }).atlas_label).toBe('PanKbase scRNAseq V7.0');
  expect(SC_DATASET).toBe('islet_of_Langerhans_scRNA_v3-4');
- expect(page.scBrowser.preview).toMatchObject({ content: 'full_atlas_map', show_metadata: false, load_expression: false });
+ expect(page.scBrowser.preview).toBeUndefined();
  const absent = resolveResultPage({ result: { combined_query_result: { ...graph, edges: [] }, result_page_keywords: ['scmap'] }, state: { main_visual: 'scmap' } });
  expect(absent.mainVisuals.map(item => item.id)).not.toContain('single_cell_browser');
 });
