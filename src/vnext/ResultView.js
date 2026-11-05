@@ -108,7 +108,7 @@ export function useProjectedResult(payload, savedId = '') {
 }
 
 function GraphPanel({ result, error, onEvidenceInspect }) {
-  const releaseId=result?.kg_release || result?.release_id;
+  const releaseId=result?.kg_release || result?.release_id || result?.graph_version || result?.evidence?.graph_version;
   const hasTypedRefs=[...(result?.combined_query_result?.nodes || []),...(result?.combined_query_result?.edges || [])].some(item=>item.ref?.kind && item.ref?.type_id && item.ref?.id);
   const evidenceService=useViewerService(releaseId,hasTypedRefs || Boolean(releaseId && result?.combined_query_result?.nodes?.length));
   const graphStatus = typeof result?.component_status?.graph === 'string'

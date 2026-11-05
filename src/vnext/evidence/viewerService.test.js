@@ -1,3 +1,4 @@
+import {renderHook} from '@testing-library/react';
 import {loadViewerService} from './viewerService';
 jest.mock('../api',()=>({request:jest.fn()}));
 test('pins every operation to the verified release and passes abort signal',async()=>{
@@ -14,4 +15,10 @@ test('pins every operation to the verified release and passes abort signal',asyn
 });
 test('mismatched schema cannot enable a viewer',async()=>{
  await expect(loadViewerService('r1',undefined,jest.fn().mockResolvedValue({release_id:'r2',profiles:{},tables:{}}))).rejects.toThrow('version mismatch');
+});
+
+test('typed refs without a release cannot dereference an uninitialized service',()=>{
+ const {useViewerService}=require('./viewerService');
+ const hook=renderHook(()=>useViewerService(undefined,true));
+ expect(hook.result.current).toBeNull();
 });

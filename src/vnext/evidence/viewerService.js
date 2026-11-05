@@ -25,5 +25,5 @@ export function useViewerService(releaseId,enabled) {
     }).catch(()=>{if(active) setState({releaseId,service:null});});
     return ()=>{active=false;controller.abort();};
   },[releaseId,enabled]);
-  return enabled && state?.releaseId===releaseId ? state.service : null;
+  return enabled && releaseId && state?.releaseId===releaseId ? state.service : null;
 }
