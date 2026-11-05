@@ -626,7 +626,7 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
       ? (
         <>
           {/* Title Bar */}
-          <GraphInfoPanelHeader title={recordedText(hoveredData[titleColumn?.[1]])}>
+          <GraphInfoPanelHeader canExpand={Boolean(compactCardModel(fullModel)?.omitted)} title={recordedText(hoveredData[titleColumn?.[1]])}>
             <InfocardData value={recordedText(hoveredData[titleColumn?.[1]])} dataKey={titleColumn?.[1]} config={titleDisplayConfig} />
           </GraphInfoPanelHeader>
           <Box sx={{ display: "grid", gridTemplateColumns: panel?.large ? `repeat(${cardLayout.expanded.columns}, minmax(0, 1fr))` : "1fr", columnGap: panel?.large ? `${cardLayout.expanded.gap_px}px` : 0, alignItems: "start", "@media (max-width: 650px)": {gridTemplateColumns: "1fr"} }}>

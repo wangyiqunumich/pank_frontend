@@ -82,5 +82,168 @@
   "field_descriptions": {
     "start_loc": "Start coordinate in base pairs, 0-based.",
     "end_loc": "End coordinate in base pairs, exclusive."
+  },
+  "production_design_source": {
+    "branch": "production",
+    "commit": "33ba32cc5cf44f4bdda1554683308a56cf02cee9",
+    "path": "src/schema/graph_viewer_schema.json"
+  },
+  "record_designs": {
+    "Gene": [
+      [
+        "Title",
+        "name"
+      ],
+      [
+        "Gene Identity",
+        [
+          [
+            "ENSG ID",
+            "id"
+          ],
+          [
+            "Ensembl",
+            "link",
+            "link"
+          ]
+        ]
+      ],
+      [
+        "Description",
+        "description"
+      ],
+      [
+        "Chromosomal Location",
+        [
+          [
+            "Chromosome",
+            "chr",
+            "label_chr(#0FB47D)"
+          ],
+          [
+            "Start",
+            "start_loc",
+            "int"
+          ],
+          [
+            "End",
+            "end_loc",
+            "int"
+          ],
+          [
+            "Strand",
+            "strand",
+            "int"
+          ]
+        ]
+      ],
+      [
+        "Sequence Features",
+        [
+          [
+            "GC Content",
+            "GC_percentage",
+            "label_percentage(#F0960B)"
+          ]
+        ]
+      ],
+      [
+        "Footer",
+        [
+          [
+            "Data Version",
+            "data_version"
+          ],
+          [
+            "Data Source",
+            "data_source"
+          ]
+        ]
+      ]
+    ],
+    "Variant": [
+      [
+        "Title",
+        "id"
+      ],
+      [
+        "Chromosomal Location",
+        [
+          [
+            "Chromosome",
+            "chr",
+            "label_chr(#0FB47D)"
+          ],
+          [
+            "Start",
+            "start_loc",
+            "int"
+          ],
+          [
+            "End",
+            "end_loc",
+            "int"
+          ]
+        ]
+      ],
+      [
+        "Variant Alleles",
+        [
+          [
+            "Reference Allele",
+            "ref"
+          ],
+          [
+            "Alternative Allele",
+            "alt"
+          ]
+        ]
+      ],
+      [
+        "Frequency",
+        "freq",
+        "freq_list(ref,alt)"
+      ],
+      [
+        "Footer",
+        [
+          [
+            "Data Source",
+            "data_source"
+          ]
+        ]
+      ]
+    ]
+  },
+  "record_design_types": {
+    "Gene": "Gene",
+    "Variant": "Variant",
+    "SNP": "Variant",
+    "sequence_variant": "Variant",
+    "sequence_SNP": "Variant"
+  },
+  "record_design_links": {
+    "Gene": {
+      "link": "https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={id}"
+    }
+  },
+  "provenance_fields": [
+    "data_source",
+    "data_version",
+    "data_source_url",
+    "license"
+  ],
+  "compact_section_priority": {
+    "Gene": [
+      "Gene Identity",
+      "Chromosomal Location",
+      "Sequence Features",
+      "Description"
+    ],
+    "Variant": [
+      "Chromosomal Location",
+      "Variant Alleles",
+      "Frequency"
+    ]
   }
 }

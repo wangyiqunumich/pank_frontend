@@ -12,12 +12,16 @@ export function compactSummary(card) {
   const columns=spec.columns.filter(c=>rows.some(row=>Object.hasOwn(row[spec.values] || {},c.key))).slice(0,spec.max_columns);
   return columns.length ? {spec,rows,columns} : null;
 }
-export function compactSections(card) {
+export function compactSections(card, suppliedSections=null) {
   const b=layout.compact;
-  const summary=compactSummary(card);
+  const summary=suppliedSections ? null : compactSummary(card);
   let remaining=b.content_budget_px-(card.endpoints?.length ? 50 : 0)-(summary ? 38+summary.rows.length*28 : 0), omitted=0;
   const sections=[];
-  for(const section of card.sections || []) {
+  const original=suppliedSections || card.sections || [];
+  const priority=policy.compact_section_priority?.[card.production_design] || [];
+  const rank=s=>priority.includes(s.title)?priority.indexOf(s.title):priority.length;
+  const ordered=priority.length ? [...original].sort((a,b)=>rank(a)-rank(b)) : original;
+  for(const section of ordered) {
     const fields=[];
     for(const field of section.fields) {
       if(summary?.spec.replaces.includes(field.key)) continue;
@@ -30,5 +34,6 @@ export function compactSections(card) {
     }
     if(fields.length)sections.push({...section,fields});
   }
+  sections.sort((a,b)=>original.findIndex(s=>s.title===a.title)-original.findIndex(s=>s.title===b.title));
   return {sections,omitted};
 }

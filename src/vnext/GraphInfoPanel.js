@@ -10,14 +10,14 @@ import cardLayout from '../schema/card_layout_schema.json';
 const PanelContext = createContext(null);
 export const useGraphInfoPanel = () => useContext(PanelContext);
 
-export function GraphInfoPanelHeader({ children, title }) {
+export function GraphInfoPanelHeader({ children, title, canExpand = false }) {
   const panel = useContext(PanelContext);
   return <div style={{ position: 'sticky', top: 0, zIndex: 2, display: 'flex', alignItems: 'center', gap: 8,
-    minHeight: 58, boxSizing: 'border-box', padding: panel ? (panel.large ? '10px 78px' : '10px 46px') : '10px 12px', background: '#E4F0F1', borderBottom: '1px solid #d8e6e8' }}>
+    minHeight: 58, boxSizing: 'border-box', padding: panel?.large ? '10px 78px' : canExpand ? '10px 46px' : '10px 16px', background: '#E4F0F1', borderBottom: '1px solid #d8e6e8' }}>
     <div title={title} data-testid="graph-info-title" style={{ flex: 1, minWidth: 0, display: '-webkit-box',
       WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, overflow: 'hidden', textAlign: 'center',
       overflowWrap: 'anywhere', font: '700 16px/1.35 Open Sans, sans-serif', color: '#263238' }}>{children}</div>
-    {panel && <div style={{ position: 'absolute', right: 12, top: 14, display: 'flex', gap: 2 }}>
+    {panel && (panel.large || canExpand) && <div style={{ position: 'absolute', right: 12, top: 14, display: 'flex', gap: 2 }}>
       <IconButton size="small" title={panel.large ? 'Minimize' : 'Enlarge'}
         aria-label={panel.large ? 'Minimize information panel' : 'Enlarge information panel'}
         onClick={panel.large ? panel.onMinimize : panel.onEnlarge} sx={{ color: '#37646b', width: 30, height: 30 }}>

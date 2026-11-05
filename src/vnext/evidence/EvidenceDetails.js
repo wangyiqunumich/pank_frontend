@@ -5,7 +5,9 @@ import {fieldLabel} from './presentation';
 import './evidenceDetails.css';
 import {panelTabs} from './panelTabs';
 import panelPolicy from '../../schema/information_panel_schema.json';
-import {compactSections,compactSummary} from './compactSections';
+import {compactSections} from './compactSections';
+import {recordDesign,objectSections,hasExtraRecord} from './recordDesign';
+import {ProductionValue,RecordFooter,ProductionFrequencies} from './ProductionRecord';
 import {GraphInfoPanelHeader,useGraphInfoPanel} from '../GraphInfoPanel';
 import {valueText,EvidenceRequestContext} from './api';
 import {publicId,visibleField,displayValue,displayText,presentCard} from './displayPolicy';
@@ -36,7 +38,7 @@ function Datum({ value, format, field = '', layout = 'auto', quantity = false })
 
 function RecordFields({ fields, specs = {} }) {
   return fields.map(f => <div key={f.key} className="kg-card-field" data-layout={cardValueLayout(f.value,f.layout || specs[f.key]?.layout)}>
-    <dt title={f.description || specs[f.key]?.description}>{fieldLabel(f,specs)}</dt><dd><Datum value={f.value} format={f.format} field={f.key} quantity={(f.kind || specs[f.key]?.kind)==='quantity' && !Number.isInteger(f.value)} layout={f.layout || specs[f.key]?.layout} /></dd>
+    <dt title={f.description || specs[f.key]?.description}>{fieldLabel(f,specs)}</dt><dd><ProductionValue field={f}><Datum value={f.value} format={f.format} field={f.key} quantity={(f.kind || specs[f.key]?.kind)==='quantity' && !Number.isInteger(f.value)} layout={f.layout || specs[f.key]?.layout} /></ProductionValue></dd>
   </div>);
 }
 
@@ -153,13 +155,13 @@ function ExpandedDetails({ card, schema }) {
         {card.endpoints?.length > 0 && <div className="xe-endpoints">{card.endpoints.map((o, i) => <React.Fragment key={`${i}:${o.ref.id}`}>{i > 0 && <Icon name="arrow" />}<span className="xe-endpoint-record">{o.display_id}<small>{o.role} · {o.ref.type_id.replace(/_/g,' ')}</small></span></React.Fragment>)}</div>}
         {card.widget === 'expression' && card.condition_statistics?.length > 0 && <div className="xe-condition-statistics">{card.condition_statistics.map(item => <section key={item.condition}><h3>{item.condition}<span>Supporting measurements</span></h3><div>{Object.entries(item.statistics).map(([key, value]) => <div key={key}><small title={card.field_specs?.[key]?.description}>{fieldLabel({key,label:{cpm:'CPM',pct_expr:'Expressing (%)',log2fc:'log₂ FC',p_adj:'Adj. P',stat:'Test stat.',n_donors:'Donors'}[key]},card.field_specs)}</small><strong>{valueText(value)}</strong></div>)}</div></section>)}</div>}
         {card.widget === 'coloc' && <div className="xe-coloc-posteriors">{['pp_h3_abf','pp_h4_abf'].map((key, i) => { const value = card.sections.flatMap(s => s.fields).find(f => f.key === key)?.value; return <section key={key}><span>{i ? 'H4 · shared signal' : 'H3 · distinct signals'}</span><strong>{typeof value === 'number' ? `${(value * 100).toFixed(2)}%` : 'Not recorded'}</strong>{typeof value === 'number' && <div><i style={{width:`${Math.max(0, Math.min(100, value * 100))}%`}} /></div>}</section>; })}</div>}
-        {card.widget !== 'gene_activity' && card.sections.filter(s => !(card.condition_statistics?.length && s.fields.every(f => f.key === 'evidence_summary'))).map((s, i) => s.fields.length > 0 && <section className="xe-card-section" key={i}><h3>{s.title}</h3><dl><RecordFields fields={s.fields.filter(f => !(f.key === 'evidence_summary' && card.condition_statistics?.length) && !(card.widget === 'coloc' && ['pp_h3_abf','pp_h4_abf'].includes(f.key)))} specs={card.field_specs} /></dl></section>)}
+        {card.widget !== 'gene_activity' && card.sections.filter(s => !(card.condition_statistics?.length && s.fields.every(f => f.key === 'evidence_summary'))).map((s, i) => s.fields.length > 0 && <section className="xe-card-section" data-prose={s.prose || undefined} key={i}><h3>{s.title}</h3><dl><RecordFields fields={s.fields.filter(f => !(f.key === 'evidence_summary' && card.condition_statistics?.length) && !(card.widget === 'coloc' && ['pp_h3_abf','pp_h4_abf'].includes(f.key)))} specs={card.field_specs} /></dl></section>)}
         {card.widget === 'gene_activity' && <section className="xe-card-section xe-activity-summary"><h3>Gene activity by condition</h3><p className="xe-small">Source units are unspecified. Values retain the original analysis scale; AAB-positive remains a separate group.</p><TableDownloads card={card} table={schema.widget_tables?.gene_activity || {id:"gene_activity",columns:["condition","mean","median"]}} schema={schema} localRecords={card.group_statistics || []} /><table><thead><tr><th>Condition</th><th>Mean</th><th>Median</th></tr></thead><tbody>{(card.group_statistics || []).map(group=><tr key={group.condition}><td>{group.condition}</td><td><Datum value={group.mean} /></td><td><Datum value={group.median} /></td></tr>)}</tbody></table></section>}
-        {card.widget === 'variant' && <section className="xe-card-section"><h3>Functional annotations</h3><div className="xe-chips muted">{card.consequences?.length ? card.consequences.map(c => <span key={c}>{c}</span>) : <span>No positive flag recorded</span>}</div><h3>Allele frequencies</h3>{card.frequencies?.length ? <><TableDownloads card={card} table={{id:"population_frequencies",...schema.tables?.population_frequencies}} schema={schema} records={card.frequencies} /><table className="xe-frequency"><thead><tr><th>Population</th><th>Allele</th><th title="Allele frequency">AF</th></tr></thead><tbody>{card.frequencies.map((f, i) => <tr key={i}><td>{f.population}</td><td>{f.allele}</td><td><Datum value={f.frequency} /></td></tr>)}</tbody></table></> : <p className="xe-empty">Not recorded</p>}{card.hgvs && <p className="xe-hgvs">{card.hgvs}</p>}</section>}
+        {(card.widget === 'variant' || card.production_design === 'Variant') && <section className="xe-card-section"><h3>Frequency</h3>{card.frequencies?.length ? <><ProductionFrequencies card={card}/><TableDownloads card={card} table={{id:"population_frequencies",...schema.tables?.population_frequencies}} schema={schema} records={card.frequencies}/></> : <p className="xe-empty">Not recorded</p>}{card.consequences?.length>0 && <><h3>Functional annotations</h3><div className="xe-chips muted">{card.consequences.map(c=><span key={c}>{c}</span>)}</div></>}{card.hgvs && <p className="xe-hgvs">{card.hgvs}</p>}</section>}
         {card.widget === 'go_codes' && <div className="xe-callout">{card.sections.flatMap(s => s.fields).filter(f => f.key === 'go_evidence_code').flatMap(f => f.value || []).map(code => <p key={code}><strong>{code}</strong> · {schema.go_evidence_codes[code] || 'Source evidence code'}</p>)}</div>}
         <p className="xe-card-note"><Icon name="info" size={15} />{card.note}</p>
         {wide && <details className="xe-card-section xe-complete"><summary>All recorded fields ({card.fields?.length || 0})</summary><dl><RecordFields fields={card.fields || []} specs={card.field_specs} /></dl></details>}
-        <div className="xe-provenance"><span><Datum value={card.provenance.data_source || 'Source not recorded'} /></span><span>{card.provenance.data_version || 'Version not recorded'}</span><span>{card.provenance.license || 'unknown'}</span>{card.provenance.data_source_url && <a href={card.provenance.data_source_url} target="_blank" rel="noreferrer">Source ↗</a>}</div>
+        <RecordFooter provenance={card.provenance}/>
       </>}
       {card && wide && active !== 'record' && (selected.component ?
         selected.component.renderer==='condition_tables' ? <ConditionEvidenceSummary card={card} schema={schema} component={selected.component} /> :
@@ -183,20 +185,19 @@ export default function EvidenceDetails({card,schema,request,releaseId}) {
 
 export function InspectedInformationPanel({card,schema,request,releaseId}) {
   const panel=useGraphInfoPanel();
-  const shown=useMemo(()=>presentCard(card,{...schema.display_policy,field_labels:{...schema.display_policy?.field_labels,...panelPolicy.field_labels},unit_labels:{...schema.display_policy?.unit_labels,...panelPolicy.unit_labels},field_descriptions:{...schema.display_policy?.field_descriptions,...panelPolicy.field_descriptions}}),[card,schema]);
-  const compact=useMemo(()=>compactSections(shown),[shown]);
-  const summary=useMemo(()=>compactSummary(shown),[shown]);
+  const shown=useMemo(()=>recordDesign(presentCard(card,{...schema.display_policy,field_labels:{...schema.display_policy?.field_labels,...panelPolicy.field_labels},unit_labels:{...schema.display_policy?.unit_labels,...panelPolicy.unit_labels},field_descriptions:{...schema.display_policy?.field_descriptions,...panelPolicy.field_descriptions}}),card),[card,schema]);
+  const compact=useMemo(()=>compactSections(shown,objectSections(shown)),[shown]);
+  const canExpand=hasExtraRecord(shown,compact,panelTabs(shown,schema));
   if(releaseId!==schema.release_id || card.release_id!==releaseId) return null;
   return <>
-    <GraphInfoPanelHeader title={shown.title}>{shown.title}</GraphInfoPanelHeader>
+    <GraphInfoPanelHeader canExpand={canExpand} title={shown.title}>{shown.title}</GraphInfoPanelHeader>
     {panel?.large ? <EvidenceDetails card={shown} schema={schema} request={request} releaseId={releaseId}/> :
       <DisplayContext.Provider value={{policy:schema.display_policy || {},profileKey:`${card.ref.kind}:${card.ref.type_id}`}}>
         <div className="xe-expanded-details xe-compact-details">
           {shown.endpoints?.length>0 && <div className="xe-compact-endpoints">{shown.endpoints.map((e,i)=><span key={i}>{i>0 && ' → '}{e.display_id}</span>)}</div>}
-          {summary && <table className="xe-compact-summary"><thead><tr><th>Condition</th>{summary.columns.map(c=><th key={c.key}>{c.label}</th>)}</tr></thead><tbody>{summary.rows.map((row,i)=><tr key={i}><th>{row[summary.spec.label]}</th>{summary.columns.map(c=><td key={c.key}><CardValue value={row[summary.spec.values]?.[c.key]} format={v=>Number.isInteger(v) ? String(v) : formatCardNumber(v)}/></td>)}</tr>)}</tbody></table>}
-          {compact.sections.map((section,i)=><section className="xe-card-section" key={i}><h3>{section.title}</h3><dl><RecordFields fields={section.fields} specs={shown.field_specs}/></dl></section>)}
-          {compact.omitted>0 && <p className="xe-small">Enlarge for complete record</p>}
-          <footer className="xe-provenance"><Datum value={shown.provenance.data_source_url || shown.provenance.data_source || 'Source not recorded'}/></footer>
+
+          {compact.sections.map((section,i)=><section className="xe-card-section" data-prose={section.prose || undefined} key={i}><h3>{section.title}</h3><dl><RecordFields fields={section.fields} specs={shown.field_specs}/></dl></section>)}
+          <RecordFooter provenance={shown.provenance}/>
         </div>
       </DisplayContext.Provider>}
   </>;
