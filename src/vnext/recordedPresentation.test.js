@@ -95,3 +95,12 @@ test('unrecorded source URL is not invented', () => {
   expect(model.data.__source_summary).toBe('Recorded source');
   expect(model.schema.find(([name])=>name==='Footer')[1][0][2]).toBe('recorded');
 });
+
+test('internal record handles stay hidden while public source identifiers and terms remain intact',()=>{
+ const raw={id:'14d7d7841ff35053a64f052f52779328',credible_set_id:'private-set',snapshot_id:'private-snapshot',source_id:'public-source',pankbase_id:'PKB123',rrid:'RRID:123',method:'SuSiE',qtl_type:'sQTL'};
+ const model=recordedInfocardModel({id:raw.id,element_kind:'edge',raw_type:'PART_OF_QTL_SIGNAL',evidence_properties:raw},true);
+ const text=JSON.stringify(model.schema.map(s=>s[1]));
+ expect(text).not.toContain('credible_set_id');expect(text).not.toContain('snapshot_id');
+ expect(Object.values(model.data)).toContain('SuSiE');expect(Object.values(model.data)).toContain('sQTL');
+ expect(Object.values(model.data)).toContain('RRID:123');
+});

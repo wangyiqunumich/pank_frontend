@@ -58,7 +58,7 @@ function EvidenceTable({ card, table, schema }) {
     return () => controller.abort();
   }, [viewer, card.ref, table.id, table.all_fields, table.component, table.request_fields, schema.tables, scopedFilters, history, index]);
   const relatedLinks = table.component === 'node_alt_id' || table.id === 'accessions';
-  const columns = table.columns.filter(k=>!(policy.hidden_fields || []).includes(k) && (relatedLinks || !page?.records?.length || page.records.some(row=>visibleField(k,row[k],policy,table.field_specs?.[k]))))
+  const columns = table.columns.filter(k=>!panelPolicy.hidden_internal_fields.includes(k) && !(policy.hidden_fields || []).includes(k) && (relatedLinks || !page?.records?.length || page.records.some(row=>visibleField(k,row[k],policy,table.field_specs?.[k]))))
     .filter(k=>!table.hide_empty_columns || !page?.records?.length || page.records.some(row=>row[k]!==null && row[k]!==undefined && row[k]!==''));
   const renderCell = (row,k) => {
     if (relatedLinks) {
@@ -97,7 +97,7 @@ function EvidenceTable({ card, table, schema }) {
     </form>}
     {!table.hide_filter_chips && Object.keys(filters).length > 0 && <div className="xe-filter-chips">{Object.entries(filters).filter(([k,v])=>visibleField(k,v,policy)).map(([k,v]) => <span key={k}>{fieldLabel(k,table.field_specs)}: {displayValue(k,v,policy)}</span>)}</div>}
     {page?.credible_sets && <label className="xe-set-selector">Credible set <select aria-label="Credible set" value={filters.credible_set_id || ''} onChange={e=>setFilters(f=>{const next={...f}; if(e.target.value) next.credible_set_id=e.target.value; else delete next.credible_set_id; return next;})}><option value="">All linked sets</option>{Object.entries(page.credible_sets).map(([id,data],i)=><option key={id} value={id}>{setLabel(data,i)}</option>)}</select></label>}
-    {page?.credible_sets && <div className="xe-set-descriptions">{Object.entries(page.credible_sets).map(([id, data],i) => <details key={id}><summary>{setLabel(data,i)}</summary><dl>{Object.entries(data).filter(([k,v])=>visibleField(k,v,policy,table.field_specs?.[k])).map(([k, v]) => <React.Fragment key={k}><dt>{fieldLabel(k,table.field_specs,data)}</dt><dd><Datum value={v} field={k} /></dd></React.Fragment>)}</dl></details>)}</div>}
+    {page?.credible_sets && <div className="xe-set-descriptions">{Object.entries(page.credible_sets).map(([id, data],i) => <details open key={id}><summary>{setLabel(data,i)}</summary><dl>{Object.entries(data).filter(([k,v])=>visibleField(k,v,policy,table.field_specs?.[k])).map(([k, v]) => <React.Fragment key={k}><dt>{fieldLabel(k,table.field_specs,data)}</dt><dd><Datum value={v} field={k} /></dd></React.Fragment>)}</dl></details>)}</div>}
     {error && <p role="alert" className="xe-warning">{error}</p>}
     {page?.state === 'temporarily_unavailable' && <p className="xe-warning">{page.message}</p>}
     {page?.state === 'no_records' && <div className="xe-no-records">No matching records in this release. This does not mean zero expression or no biological association.</div>}
@@ -175,7 +175,7 @@ function ExpandedDetails({ card, schema }) {
         {(card.widget === 'variant' || card.production_design === 'Variant') && <section className="xe-card-section"><h3>Frequency</h3>{card.frequencies?.length ? <><ProductionFrequencies card={card}/><TableDownloads card={card} table={{id:"population_frequencies",...schema.tables?.population_frequencies}} schema={schema} records={card.frequencies}/></> : <p className="xe-empty">Not recorded</p>}{card.consequences?.length>0 && <><h3>Functional annotations</h3><div className="xe-chips muted">{card.consequences.map(c=><span key={c}>{c}</span>)}</div></>}{card.hgvs && <p className="xe-hgvs">{card.hgvs}</p>}</section>}
         {card.widget === 'go_codes' && <div className="xe-callout">{card.sections.flatMap(s => s.fields).filter(f => f.key === 'go_evidence_code').flatMap(f => f.value || []).map(code => <p key={code}><strong>{code}</strong> · {schema.go_evidence_codes[code] || 'Source evidence code'}</p>)}</div>}
         <p className="xe-card-note"><Icon name="info" size={15} />{card.note}</p>
-        {wide && <details className="xe-card-section xe-complete"><summary>All recorded fields ({card.fields?.length || 0})</summary><dl><RecordFields fields={card.fields || []} specs={card.field_specs} /></dl></details>}
+        {wide && <details open className="xe-card-section xe-complete"><summary>All recorded fields ({card.fields?.length || 0})</summary><dl><RecordFields fields={card.fields || []} specs={card.field_specs} /></dl></details>}
         <RecordFooter provenance={card.provenance}/>
       </>}
       {card && wide && active !== 'record' && (selected.component ?

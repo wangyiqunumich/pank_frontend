@@ -1,8 +1,10 @@
+import panelPolicy from '../../schema/information_panel_schema.json';
 // All display decisions are declared in viewer.schema.json. Stored records,
 // typed references, exact lookup keys, URLs and cursors remain unchanged.
 const matches = (pattern,value) => new RegExp(pattern).test(String(value));
 export const displayText = (value,policy={}) => typeof value === 'string' && policy.replace_underscores ? value.replace(/_/g,' ') : value;
 export function publicId(value,policy={},key='id') {
+  if(panelPolicy.preserved_source_ids.includes(key))return value;
   if (!policy.version) return value;
   if (value === null || value === undefined || value === '') return undefined;
   let result=String(value);
@@ -13,6 +15,9 @@ export function publicId(value,policy={},key='id') {
 }
 export const identifierField = (key,spec={}) => spec.kind === 'identifier' || /(^|_)id($|_)/.test(key) || key === 'alt_id';
 export function visibleField(key,value,policy={},spec={}) {
+  if(panelPolicy.hidden_internal_fields.includes(key))return false;
+  if(key==='id' && /^[a-f0-9]{24,}$/i.test(String(value)))return false;
+  if(panelPolicy.preserved_source_ids.includes(key))return true;
   if (!policy.version) return true;
   if ((policy.hidden_fields || []).includes(key)) return false;
   if (identifierField(key,spec)) return (Array.isArray(value) ? value : [value]).some(v=>publicId(v,policy,key)!==undefined);
@@ -48,7 +53,7 @@ export function presentCard(card,policy={}) {
     const label=override.label || policy.field_labels?.[key];
     return {...f,...override,label:label || displayText(f.label,policy),short_label:label,
       unit:policy.unit_labels?.[f.unit] || f.unit,
-      show_unit:!(policy.omit_unit_annotations || []).includes(f.unit),
+      show_unit:!['source units (unspecified)','source log Bayes factor scale','unitless'].includes(f.unit) && !(policy.omit_unit_annotations || []).includes(f.unit),
       description:override.description || policy.field_descriptions?.[key] || f.description ||
         (/unspecified/.test(f.unit || '') ? 'Source units were not provided; this does not establish a dimensionless measurement.' : undefined)};
   };
@@ -65,6 +70,6 @@ export function presentCard(card,policy={}) {
     endpoints:card.endpoints?.map((e,i)=>({...e,role:i ? 'Target' : 'Source',display_id:publicId(e.ref.id,policy)})).filter(e=>e.display_id!==undefined),
     raw_provenance:card.provenance,
     provenance:Object.fromEntries(Object.entries(card.provenance).map(([key,value])=>[key,displayValue(key,value,policy,profileKey)])),
-    tables:card.tables.map(t=>({...t,field_specs:Object.fromEntries(Object.entries(t.field_specs || {}).map(([key,f])=>[key,spec(f,key)])),columns:t.columns.filter(k=>!(policy.hidden_fields || []).includes(k)),filters:t.filters.filter(k=>!(policy.hidden_fields || []).includes(k))})),
+    tables:card.tables.map(t=>({...t,field_specs:Object.fromEntries(Object.entries(t.field_specs || {}).map(([key,f])=>[key,spec(f,key)])),columns:t.columns.filter(k=>!(policy.hidden_fields || []).includes(k)),filters:t.filters.filter(k=>!panelPolicy.hidden_internal_fields.includes(k) && !(policy.hidden_fields || []).includes(k))})),
   };
 }

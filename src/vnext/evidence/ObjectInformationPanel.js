@@ -1,17 +1,26 @@
 import React, {useEffect, useState} from 'react';
 import {InspectedInformationPanel} from './EvidenceDetails';
 
-// Only server-issued typed refs may address owned evidence. Display aliases are
-// intentionally insufficient, including for older saved graph results.
-export function exactGraphRef(data) {
+// Prefer server-issued refs. Older saved graphs may omit the handle while
+// retaining the exact snapshot object ID; recover only an unambiguous profile
+// from the same release schema. The API still validates exact object ownership.
+export function exactGraphRef(data,schema) {
   const ref=data?.viewer_ref;
-  return ref && ['node','edge'].includes(ref.kind) && ref.kind===data.element_kind &&
-    typeof ref.id==='string' && ref.id===data.id && typeof ref.type_id==='string' && ref.type_id
-    ? {kind:ref.kind,type_id:ref.type_id,id:ref.id} : null;
+  if(ref && ['node','edge'].includes(ref.kind) && ref.kind===data.element_kind &&
+    typeof ref.id==='string' && ref.id===data.id && typeof ref.type_id==='string' && ref.type_id)
+    return {kind:ref.kind,type_id:ref.type_id,id:ref.id};
+  if(ref || !schema?.release_id || typeof data?.id!=='string' || data.evidence_properties?.id!==data.id)return null;
+  const candidates=Object.values(schema.profiles || {}).filter(p=>{
+    if(p.kind!==data.element_kind || !p.match)return false;
+    if(p.kind==='edge')return p.match.relationship_type===data.raw_type;
+    const labels=p.match.labels_all;
+    return labels?.length>0 && labels.every(label=>data.raw_labels?.includes(label));
+  });
+  return candidates.length===1 ? {kind:data.element_kind,type_id:candidates[0].id,id:data.id} : null;
 }
 
 export default function ObjectInformationPanel({data, endpointNodes=[], releaseId, service, fallback}) {
-  const ref=exactGraphRef(data);
+  const ref=exactGraphRef(data,service?.schema?.release_id===releaseId ? service.schema : null);
   const key=JSON.stringify([releaseId,ref]);
   const [state,setState]=useState(null);
   const request=service?.request, schema=service?.schema;

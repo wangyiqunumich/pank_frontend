@@ -175,7 +175,7 @@
       "help": "A set of candidate variants representing a genetic signal under the source model; membership does not prove causation."
     },
     "credible_set_purity": {
-      "label": "Credible-set purity (source definition)",
+      "label": "Credible-set purity",
       "section": "Recorded evidence",
       "format": "recorded"
     },
@@ -494,7 +494,7 @@
       "format": "recorded"
     },
     "lbf": {
-      "label": "Log Bayes factor (source scale)",
+      "label": "Log Bayes factor",
       "section": "Recorded evidence",
       "format": "recorded"
     },
@@ -890,9 +890,10 @@
       "format": "recorded"
     },
     "slope": {
-      "label": "Estimated effect (source units)",
+      "label": "Estimated effect",
       "section": "Recorded evidence",
-      "format": "recorded"
+      "format": "recorded",
+      "help": "Effect units follow the source model; units are not recorded."
     },
     "source_file": {
       "label": "Source file",
