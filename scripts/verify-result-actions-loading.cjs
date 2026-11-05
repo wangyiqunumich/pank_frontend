@@ -52,6 +52,7 @@ fs.mkdirSync(output,{recursive:true});
     });
     for(const frame of frames){assert(Math.abs(frame.top-initial.y)<.5);assert(Math.abs(frame.right-initial.x-initial.width)<.5);assert.equal(frame.height,size);}
     await page.waitForFunction(({name,expanded})=>{const e=[...document.querySelectorAll('.pank-floating-action')].find(e=>e.getAttribute('aria-label')===name);return Math.abs((e?.getBoundingClientRect().width||0)-expanded)<.5;},{name,expanded},{timeout:3000});
+    assert.equal(await button.evaluate(e=>getComputedStyle(e).borderRadius),`${size/2}px`,'Expanded actions retain circular ends');
     assert.equal(await button.locator('.pank-floating-action-label').evaluate(e=>getComputedStyle(e).opacity),'1');
     await page.screenshot({path:path.join(output,`hover-${name.startsWith('Open')?'guide':'feedback'}-${width}.png`)});
     await page.mouse.move(0,0);
