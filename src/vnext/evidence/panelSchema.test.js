@@ -22,3 +22,8 @@ test('owned tabs and compact summaries use supplied API declarations',()=>{
  expect(compactSummary({widget:'custom',rows:[{values:{x:0}}]},s.panel_presentation).columns[0].label).toBe('Measured');
  expect(panelSchema(s)).toBe(s.panel_presentation);
 });
+
+test('compact panel keeps asynchronously loaded content within the remaining viewport',()=>{
+ const {container}=render(<GraphInfoPanelSurface visible mode="hover" position={{x:100,y:194}}>Loaded evidence</GraphInfoPanelSurface>);
+ expect(container.querySelector('section').style.maxHeight).toContain('calc(100dvh - 194px - 12px)');
+});

@@ -43,7 +43,7 @@ export function GraphInfoPanelSurface({ children, panelRef, visible, mode, posit
       left: large ? '50%' : position.x, top: large ? surface.expanded_top_px : position.y,
       transform: large ? 'translateX(-50%)' : undefined,
       width: `min(${large ? surface.expanded_width_px : review ? surface.review_width_px : surface.compact_width_px}px, calc(100vw - ${large ? 32 : 24}px))`,
-      maxHeight: large ? `min(${cardLayout.height_limits.expanded_px}px, ${cardLayout.height_limits.expanded_vh}dvh, calc(100dvh - 100px))` : `min(${cardLayout.height_limits.compact_px}px, ${cardLayout.height_limits.compact_vh}dvh, calc(100dvh - 24px))`,
+      maxHeight: large ? `min(${cardLayout.height_limits.expanded_px}px, ${cardLayout.height_limits.expanded_vh}dvh, calc(100dvh - 100px))` : `min(${cardLayout.height_limits.compact_px}px, ${cardLayout.height_limits.compact_vh}dvh, calc(100dvh - ${Math.max(12, position.y)}px - 12px))`,
       background: '#fff', color: '#333', borderRadius: surface.border_radius_px, boxShadow: '0 8px 32px #0003',
       fontFamily: 'Open Sans, sans-serif', overflow: 'hidden', overflowWrap: 'anywhere' }}>
     <PanelSchemaContext.Provider value={config}><PanelContext.Provider value={{ large, onEnlarge, onMinimize, onClose }}>
