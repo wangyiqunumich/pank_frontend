@@ -54,3 +54,12 @@ test('configuration undo survives closing the panel and visiting manual, without
  expect(screen.queryByRole('button',{name:'Undo'})).toBeNull();
  expect(screen.getByRole('button',{name:'Apply configuration'}).disabled).toBe(false);
 });
+
+test('welcome examples prepare direct module configuration without automatically sending or applying',async()=>{
+ render(<ModuleGuide/>);fireEvent.click(screen.getByRole('button',{name:'Open module guide'}));
+ const prompt='Open PCA Explorer and set X to PC2 and Y to PC3.';
+ fireEvent.click(screen.getByRole('button',{name:prompt}));
+ expect(screen.getByLabelText('Ask about module usage').value).toBe(prompt);
+ expect(fetch.mock.calls.filter(([,o])=>o?.method==='POST')).toHaveLength(0);
+ await screen.findByText('Module help and verified entities · Changes require Apply');
+});

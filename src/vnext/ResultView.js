@@ -1,4 +1,6 @@
 import { TECH_DEMO } from './hosting';
+import GuideExploration, {canOpenGuideModule, explorationContext, explorationAtlasContext} from './moduleGuide/GuideExploration';
+import {MODULE_LABELS} from './moduleGuide/actions.mjs';
 import { newIntent, ensureIntent } from '../utils/agentIdentity';
 import { useStableGraphPane } from './StableGraphPane';
 import '../SearchResult/scoped.css';
@@ -131,13 +133,16 @@ function GraphPanel({ result, error, onEvidenceInspect }) {
   </Box>;
 }
 
-export function ResultSection({ run, result, error, planning, busy, onRevise, onConfirm, onFollowUp, anchorPrefix, presentationState, questionNumber = 1 }) {
+export function ResultSection({ run, result, error, planning, busy, onRevise, onConfirm, onFollowUp, anchorPrefix, presentationState, questionNumber = 1, guideEnabled = true }) {
   const sectionRef = useRef(null);
   const visualOrderRef = useRef({ scope: null, preference: null, ids: [] });
   const runId = run?.run_id || result?.result_id;
   const [expressionState, setExpressionState] = useState(null);
   const [moduleSelection, setModuleSelection] = useState(null);
   const [visualRequest, setVisualRequest] = useState(null);
+  const [guideModules, setGuideModules] = useState({scope:null,ids:[]});
+  const guideScope = runId || anchorPrefix;
+  const guideIds = guideModules.scope === guideScope ? guideModules.ids : [];
   const scopedExpressionState = expressionState?.scope === runId ? expressionState : null;
   const defaultExpression = useMemo(() => firstAvailableExpression(result?.combined_query_result), [result?.combined_query_result]);
   const expression = expressionContext(result?.combined_query_result, scopedExpressionState?.context?.edgeId) || defaultExpression;
@@ -169,16 +174,29 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
   const resources = useResourcePanels(page.resourceTabs, page.resourceStatus, { tabs: page.supportingTabs });
   const graphData = result?.combined_query_result || null;
   const graphError = error || (planning && run?.plan?.clarification) || (planning && run?.preview?.status === 'failed' ? 'The initial graph retrieval failed. Revise the plan before continuing; this failure does not indicate biological absence.' : '');
-  const moduleContexts = pankbaseContexts(graphData, moduleSelection && moduleSelection.scope === runId ? moduleSelection.id : undefined);
+  const moduleContexts = useMemo(() => pankbaseContexts(graphData, moduleSelection && moduleSelection.scope === runId ? moduleSelection.id : undefined), [graphData,moduleSelection,runId]);
+  const resolvedContexts = {...moduleContexts};
+  // Only explicitly requested modules get independent defaults. Never add
+  // fabricated entities or relationships to the answer's graph/context.
+  for (const id of guideIds) {
+    if (['genome_browser','differential_expression','pca_explorer','functional_browser'].includes(id) && !resolvedContexts[id]) resolvedContexts[id] = explorationContext(id);
+  }
   const visualRenderers = {
-    ...Object.fromEntries(Object.entries(moduleContexts).map(([id, context]) => [id, id === 'functional_browser' ? <PanKgraphFunctionalPlot key={`${runId}-${id}`} /> : <PanKbaseModule key={`${runId}-${id}`} moduleId={id} context={context} />])),
+    ...Object.fromEntries(Object.entries(resolvedContexts).map(([id, context]) => [id, id === 'functional_browser' ? <PanKgraphFunctionalPlot key={`${runId}-${id}`} /> : <PanKbaseModule key={`${runId}-${id}`} moduleId={id} context={context} />])),
     graph_viewer: null,
-    single_cell_browser: <SingleCellBrowser key={runId} graph={graphData} onSelect={selectExpression} context={expression} />,
+    single_cell_browser: <SingleCellBrowser key={runId} graph={graphData} onSelect={selectExpression} context={expression || (guideIds.includes('single_cell_browser') ? explorationAtlasContext : null)} />,
     qtl_browser: <QtlBrowser key={runId} contexts={page.qtlContexts} />,
     qtl_fine_mapping: <QtlFineMapping key={runId} contexts={page.qtlContexts} />,
     functional_data: <FunctionalVisual result={result} />,
   };
   const selectedVisuals = page.mainVisuals.filter((visual) => Object.prototype.hasOwnProperty.call(visualRenderers, visual.id));
+  for (const id of guideIds) {
+    if (!selectedVisuals.some(visual => visual.id === id)) {
+      selectedVisuals.push({id,label:MODULE_LABELS[id]});
+      // Keep the wrapper stable for the lifetime of this independent tab.
+      visualRenderers[id] = <GuideExploration>{visualRenderers[id]}</GuideExploration>;
+    }
+  }
 
   const stableGraph = useStableGraphPane(<GraphPanel key={runId} onEvidenceInspect={onEvidenceInspect} result={result} error={graphError} />);
   visualRenderers.graph_viewer = stableGraph.slot;
@@ -194,10 +212,16 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
   visualOrderRef.current = { scope: visualScope, preference: visualPreference, ids: visualIds };
   const visualTabs = visualIds.map((id) => ({ id, label: selectedVisuals.find((visual) => visual.id === id).label, content: visualRenderers[id], minHeight: visualSchema.main_visuals.items[id]?.layout?.min_height }));
   useEffect(()=>{
-    if(!TECH_DEMO)return undefined;
-    const open=event=>{if(!visualIds.includes(event.detail?.module))return;setVisualRequest({id:event.detail.module,scope:runId,nonce:Date.now()});event.detail.opened=true;};
+    if(!TECH_DEMO || !guideEnabled || planning)return undefined;
+    const open=event=>{
+      const detail=event.detail;
+      if(!detail || detail.opened || !canOpenGuideModule(detail.module))return;
+      if(!visualIds.includes(detail.module))setGuideModules(previous=>({scope:guideScope,ids:[...new Set([...(previous.scope===guideScope?previous.ids:[]),detail.module])]}));
+      setVisualRequest({id:detail.module,scope:runId,nonce:Date.now()});
+      detail.opened=true;
+    };
     window.addEventListener('pank-guide-open',open);return()=>window.removeEventListener('pank-guide-open',open);
-  },[visualIds.join('|'),runId]);
+  },[visualIds.join('|'),runId,guideScope,guideEnabled,planning]);
   const visualMaterial = visualTabs.length ? { title: page.mainVisualTitle, tabs: visualTabs, scopeKey: runId, requestedTab: visualRequest?.scope === runId ? visualRequest : null } : undefined;
   const planData = {
     questionId: 'PLAN', title: 'Confirm Query & Execution Steps', originalQuestion: run?.plan?.original_question || run?.question || '', parsedTitle: run?.plan?.interpreted_question || '',
@@ -441,7 +465,7 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     <AlertMessage type="warning" content={error || resultError} open={!recovery && Boolean(error || resultError)} onClose={() => setError('')} />
     <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', px: { xs: 2, md: 3 }, py: 3 }}><Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 3 }}>
         {historyError && <Box role="status"><Typography>{historyError}</Typography><Button onClick={() => attachRun(readRunId.current)}>Refresh history</Button></Box>}
-        {previous.map((item, index) => <ResultSection key={item.run.run_id} {...item} questionNumber={index + 1} anchorPrefix={`${contentAnchorPrefix}-previous-${index}`} />)}
+        {previous.map((item, index) => <ResultSection key={item.run.run_id} guideEnabled={false} {...item} questionNumber={index + 1} anchorPrefix={`${contentAnchorPrefix}-previous-${index}`} />)}
         {initialLoading ? <Box role="status" aria-label="Loading current question" sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px' }}><SearchResultLoading streamProgress={progress} handleClose={cancel} /></Box> :
           <ResultSection run={run} result={result} error={resultError} planning={isPlanning} busy={busy || connection !== 'connected'} onRevise={onRevise} onConfirm={onConfirm} onFollowUp={TECH_DEMO ? undefined : followUp} questionNumber={previous.length + 1} anchorPrefix={contentAnchorPrefix} presentationState={location.state?.result_page} />}
       </Box></Box>
