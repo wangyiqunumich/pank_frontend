@@ -39,6 +39,31 @@ fs.mkdirSync(output,{recursive:true});
    });
    assert(samples.length>1,'Exercise a scrolling page');
    for(const s of samples){assert(Math.abs(s.left)<.5&&Math.abs(s.right)<.5&&Math.abs(s.width)<.5,JSON.stringify(s));assert(Math.abs(s.gap-10)<.5,JSON.stringify(s));}
+   const size=width<600?40:48,expanded=width<600?176:220;
+   for(const name of ['Open module guide','Give Feedback']){
+    const button=page.getByRole('button',{name,exact:true}),initial=await button.boundingBox();
+    assert.equal(initial.width,size);assert.equal(initial.height,size);
+    assert.equal(await button.locator('.pank-floating-action-label').evaluate(e=>getComputedStyle(e).opacity),'0');
+    await button.hover({position:{x:size-8,y:size/2}});
+    const frames=await button.evaluate(async e=>{
+     const frames=[];
+     for(let i=0;i<18;i++){await new Promise(requestAnimationFrame);const r=e.getBoundingClientRect();frames.push({top:r.top,right:r.right,height:r.height,width:r.width});}
+     return frames;
+    });
+    for(const frame of frames){assert(Math.abs(frame.top-initial.y)<.5);assert(Math.abs(frame.right-initial.x-initial.width)<.5);assert.equal(frame.height,size);}
+    await page.waitForFunction(({name,expanded})=>{const e=[...document.querySelectorAll('.pank-floating-action')].find(e=>e.getAttribute('aria-label')===name);return Math.abs((e?.getBoundingClientRect().width||0)-expanded)<.5;},{name,expanded},{timeout:3000});
+    assert.equal(await button.locator('.pank-floating-action-label').evaluate(e=>getComputedStyle(e).opacity),'1');
+    await page.screenshot({path:path.join(output,`hover-${name.startsWith('Open')?'guide':'feedback'}-${width}.png`)});
+    await page.mouse.move(0,0);
+    await page.waitForFunction(({name,size})=>{const e=[...document.querySelectorAll('.pank-floating-action')].find(e=>e.getAttribute('aria-label')===name);return e?.getBoundingClientRect().width===size;},{name,size});
+   }
+   await page.screenshot({path:path.join(output,`collapsed-${width}.png`)});
+   // Keyboard users can reveal the labels without a pointing device.
+   await page.keyboard.press('Tab');
+   const keyboardButton=page.getByRole('button',{name:'Give Feedback',exact:true});await keyboardButton.focus();
+   await page.waitForFunction(expanded=>document.querySelector('[data-pank-feedback-launcher]').getBoundingClientRect().width===expanded,expanded);
+   await keyboardButton.evaluate(e=>e.blur());
+   await page.waitForFunction(size=>document.querySelector('[data-pank-feedback-launcher]').getBoundingClientRect().width===size,size);
    const guide=page.getByRole('button',{name:'Open module guide'});await guide.click();
    const panel=page.getByRole('dialog',{name:'PanKgraph module guide'});await panel.waitFor();
    const bounds=await panel.boundingBox();assert(bounds.y>=15&&bounds.x>=0&&bounds.x+bounds.width<=width,'Open guide must fit the viewport');
@@ -46,6 +71,17 @@ fs.mkdirSync(output,{recursive:true});
    await page.getByRole('button',{name:'Close module guide'}).click();
    checks.push({width,alignmentSamples:samples.length});
   }
+  const touch=await browser.newPage({viewport:{width:390,height:650},hasTouch:true,isMobile:true});
+  await touch.addInitScript(()=>{localStorage.setItem('pank_feedback_auto_prompt_disabled_v1','1');});
+  await touch.route('**/pankgraph-dev-config.json',r=>r.fulfill({json:{vnextEnabled:true,apiBase:'/pankgraph-vnext/api'}}));
+  await touch.route('**/module-guide/health',r=>r.fulfill({json:{status:'ready'}}));
+  await touch.route(/https:\/\/(www\.)?(google-analytics|googletagmanager)\.com\//,r=>r.abort());
+  await touch.goto(url.href);await touch.getByRole('tab',{name:'Knowledge Graph',exact:true}).waitFor();
+  const touchGuide=touch.getByRole('button',{name:'Open module guide'});
+  assert.equal((await touchGuide.boundingBox()).width,40);
+  await touchGuide.tap();await touch.getByRole('button',{name:'Close module guide'}).tap();
+  await touch.getByRole('button',{name:'Give Feedback',exact:true}).tap();await touch.getByRole('button',{name:'Close feedback dialog'}).tap();
+  await touch.close();checks.push({touch:'Both circular buttons open on tap'});
   // Leave the embeds without a context, retaining exactly their first render.
   // This makes the normally transient text measurable without biological APIs.
   for(const component of ['pankbase-browser','scbrowser']){

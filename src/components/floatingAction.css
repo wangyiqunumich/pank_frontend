@@ -3,26 +3,42 @@
 .pank-result-actions { position:absolute; right:24px; bottom:24px; display:flex; flex-direction:column; align-items:flex-end; gap:10px; }
 .pank-result-footer.has-search .pank-result-actions { bottom:calc(100% + 12px); }
 .pank-floating-action {
+  --action-size: 48px;
+  --action-expanded-width: 220px;
+  --action-expanded-padding: 12px 24px;
+  --action-expanded-radius: 10px;
+  --action-expanded-gap: 8px;
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  width: 220px;
-  height: 48px;
+  gap: 0;
+  width: var(--action-size);
+  height: var(--action-size);
   margin: 0;
-  padding: 12px 24px;
+  padding: 0;
   border: 1px solid transparent;
-  border-radius: 10px;
+  border-radius: calc(var(--action-size) / 2);
   font: 600 16px/20px 'Open Sans', sans-serif;
   white-space: nowrap;
   box-shadow: 0 8px 20px rgba(77, 129, 138, 0.28);
   cursor: pointer;
+  transition: width 200ms ease, padding 200ms ease, gap 200ms ease, border-radius 200ms ease;
 }
 .pank-floating-action svg { flex: none; width: 20px; height: 20px; }
+.pank-floating-action-label { max-width:0; overflow:hidden; opacity:0; transition:max-width 200ms ease, opacity 120ms ease; }
+.pank-floating-action:focus-visible { width:var(--action-expanded-width); padding:var(--action-expanded-padding); gap:var(--action-expanded-gap); border-radius:var(--action-expanded-radius); }
+.pank-floating-action:focus-visible .pank-floating-action-label { max-width:160px; opacity:1; }
+@media (hover:hover) and (pointer:fine) {
+  .pank-floating-action:hover { width:var(--action-expanded-width); padding:var(--action-expanded-padding); gap:var(--action-expanded-gap); border-radius:var(--action-expanded-radius); }
+  .pank-floating-action:hover .pank-floating-action-label { max-width:160px; opacity:1; }
+}
 .pank-floating-action:focus-visible { outline: 2px solid #0d9488; outline-offset: 2px; }
 @media (max-width: 599.95px) {
   .pank-result-actions { right:12px; bottom:12px; }
-  .pank-floating-action { width: 176px; height: 40px; gap: 6px; padding: 9px 19px; border-radius: 8px; font-size: 13px; }
+  .pank-floating-action { --action-size:40px; --action-expanded-width:176px; --action-expanded-padding:9px 19px; --action-expanded-radius:8px; --action-expanded-gap:6px; font-size:13px; }
   .pank-floating-action svg { width: 16px; height: 16px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .pank-floating-action, .pank-floating-action-label { transition:none; }
 }

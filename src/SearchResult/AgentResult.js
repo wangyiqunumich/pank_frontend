@@ -1545,6 +1545,7 @@ export function AgentResultLayout({
                     type="button"
                     onClick={openFeedbackModal}
                     data-pank-feedback-launcher
+                    aria-label="Give Feedback"
                     className="pank-floating-action"
                     style={{
                         backgroundColor: 'rgb(58, 131, 139)',
@@ -1552,7 +1553,7 @@ export function AgentResultLayout({
                     }}
                 >
                     <ChatBubbleOutlineRoundedIcon sx={{ color: '#FFFFFF', fontSize: isMobile ? 16 : 20 }} />
-                    Give Feedback
+                    <span className="pank-floating-action-label">Give Feedback</span>
                 </button>
             </div>
             </div>

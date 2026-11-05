@@ -74,7 +74,7 @@ export default function ModuleGuide(){
   const clear=()=>{requestGeneration.current++;abort.current?.abort();setMessages([]);setActionStates({});setBusy(false);setArticle(null);setInput('');};
   const section=manual.find(d=>d.id===article);
   return <div className="module-guide-anchor">
-    <button ref={launcher} className="guide-launcher pank-floating-action" aria-label="Open module guide" aria-expanded={open} aria-controls="pank-module-guide" onClick={()=>setOpen(value=>!value)}><HelpOutlineRoundedIcon/><span>Module guide</span></button>
+    <button ref={launcher} className="guide-launcher pank-floating-action" aria-label="Open module guide" aria-expanded={open} aria-controls="pank-module-guide" onClick={()=>setOpen(value=>!value)}><HelpOutlineRoundedIcon/><span className="pank-floating-action-label">Module guide</span></button>
     {open&&createPortal(<aside ref={panel} id="pank-module-guide" role="dialog" aria-label="PanKgraph module guide" className="module-guide">
       <header><strong>Module guide</strong><IconButton aria-label="Close module guide" onClick={()=>{setOpen(false);launcher.current?.focus();}} size="small"><CloseRoundedIcon/></IconButton></header>
       <nav aria-label="Guide views"><div>{['Chat','Manual'].map(t=><button key={t} aria-pressed={tab===t&&!article} onClick={()=>{setTab(t);setArticle(null);}}>{t}</button>)}</div><button className="guide-new" aria-label="New conversation" onClick={clear} disabled={busy||applying}>New chat</button></nav>
