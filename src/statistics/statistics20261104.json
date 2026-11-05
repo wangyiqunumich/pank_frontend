@@ -1,0 +1,1767 @@
+{
+  "release": "PanKgraph 11/04/2026 version",
+  "date": "2026-11-04",
+  "inputManifestSha256": "2925a97c0226c871ba42105da6b12e8c996f9fcb3b63d8737f742fc876177f2b",
+  "schemaSha256": "653065fa07a1f3baa8b2cbde9417965b72a3e0d7cc72699d6f15d6409593ccc8",
+  "libraryCheckedOn": "2026-10-20",
+  "totals": {
+    "nodes": 5454692,
+    "edges": 7262719,
+    "sqlRows": 25687709,
+    "sqlTables": 10
+  },
+  "rows": [
+    {
+      "id": "GO_term",
+      "kind": "nodes",
+      "name": "Gene Ontology terms",
+      "type": "GO_term",
+      "count": 45267,
+      "sources": [
+        {
+          "name": "EnsemblOntology",
+          "url": "https://geneontology.org/"
+        }
+      ],
+      "licenses": [
+        "CC-BY-4.0"
+      ],
+      "versions": [
+        "EnsemblOntology_GO_term_r116_51fb98c7cdc3"
+      ],
+      "library": [
+        {
+          "label": "PKBDS1041SZAV",
+          "url": "https://data.pankbase.org/curated-sets/PKBDS1041SZAV/",
+          "description": "Genes in biological processes in GO database"
+        }
+      ],
+      "libraryStatus": "Related resource",
+      "libraryNote": "GO BP MSigDB gene sets are not the original Ensembl GO ontology/annotation files."
+    },
+    {
+      "id": "Gene",
+      "kind": "nodes",
+      "name": "Genes",
+      "type": "Gene",
+      "count": 87735,
+      "sources": [
+        {
+          "name": "Ensembl",
+          "url": "https://www.ensembl.org/"
+        }
+      ],
+      "licenses": [
+        "LicenseRef-Ensembl-Data-Use"
+      ],
+      "versions": [
+        "Ensembl_Gene_GRCh38p14_c116_g2026_04_51fb98c7cdc3"
+      ],
+      "library": [
+        {
+          "label": "PKBDS1506CLWV",
+          "url": "https://data.pankbase.org/curated-sets/PKBDS1506CLWV/",
+          "description": "GENCODE v39 gene annotation file for the GRCh38 human reference genome."
+        },
+        {
+          "label": "PKBDS5232SOAH",
+          "url": "https://data.pankbase.org/curated-sets/PKBDS5232SOAH/",
+          "description": "Human reference genome GRCh38 without alternative contigs, HLA sequences, and decoy sequences."
+        }
+      ],
+      "libraryStatus": "Related resource",
+      "libraryNote": "GENCODE v39/GRCh38 references are not the complete new Ensembl package."
+    },
+    {
+      "id": "Reactome_pathway",
+      "kind": "nodes",
+      "name": "Reactome pathways",
+      "type": "Reactome_pathway",
+      "count": 2883,
+      "sources": [
+        {
+          "name": "Reactome",
+          "url": "https://reactome.org/"
+        }
+      ],
+      "licenses": [
+        "CC0-1.0"
+      ],
+      "versions": [
+        "97"
+      ],
+      "library": [
+        {
+          "label": "PKBDS1413YNPJ",
+          "url": "https://data.pankbase.org/curated-sets/PKBDS1413YNPJ/",
+          "description": "Genes in biological pathways in REACTOME database"
+        }
+      ],
+      "libraryStatus": "Related resource",
+      "libraryNote": "Library MSigDB GMT is a different artifact from the new direct Reactome release-97 files."
+    },
+    {
+      "id": "KEGG_pathway",
+      "kind": "nodes",
+      "name": "MSigDB KEGG MEDICUS pathways",
+      "type": "KEGG_pathway",
+      "count": 790,
+      "sources": [
+        {
+          "name": "MSigDB:KEGG_MEDICUS",
+          "url": "https://www.gsea-msigdb.org/gsea/msigdb/"
+        }
+      ],
+      "licenses": [
+        "CC-BY-SA-4.0"
+      ],
+      "versions": [
+        "2026.2.Hs"
+      ],
+      "library": [
+        {
+          "label": "PKBDS1047JQCX",
+          "url": "https://data.pankbase.org/curated-sets/PKBDS1047JQCX/",
+          "description": "Genes in biological pathways in KEGG Medicus database"
+        }
+      ],
+      "libraryStatus": "Related resource",
+      "libraryNote": "Existing library KEGG_Medicus_MSigDB.gmt differs from the directly downloaded 2026.2.Hs JSON/GMT; release identity not asserted."
+    },
+    {
+      "id": "ocr_peak",
+      "kind": "nodes",
+      "name": "Open chromatin regions",
+      "type": "ocr_peak",
+      "count": 5294421,
+      "sources": [
+        {
+          "name": "PanKbase",
+          "url": "https://data.pankbase.org/"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "PanKgraph_07_08"
+      ],
+      "library": [
+        {
+          "label": "PKBDS0470WCHR",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS0470WCHR/",
+          "description": "Reference map of islet cell type-specific chromatin accessibility from 97,659 cells derived from single cell ATAC-seq assays of 41 non-diabetic;T1D autoantibody positive (Aab+);T1D;and T2D donors from the Human Pancreas Analysis Program"
+        },
+        {
+          "label": "PKBDS0206SBJF",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS0206SBJF/",
+          "description": "Peak calls and read counts for pancreatic ductal cells from snATAC-seq"
+        },
+        {
+          "label": "PKBDS7691LOBY",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS7691LOBY/",
+          "description": "Peak calls and read counts for pancreatic immune cells from snATAC-seq"
+        },
+        {
+          "label": "PKBDS1840SOPT",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS1840SOPT/",
+          "description": "Peak calls and read counts for pancreatic activated stellate cells from snATAC-seq"
+        },
+        {
+          "label": "PKBDS3504VMPS",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS3504VMPS/",
+          "description": "Peak calls and read counts for pancreatic gamma cells from snATAC-seq"
+        },
+        {
+          "label": "PKBDS8988YQBZ",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS8988YQBZ/",
+          "description": "Peak calls unified across all pancreatic cell types from snATAC-seq"
+        },
+        {
+          "label": "PKBDS5528RBHE",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS5528RBHE/",
+          "description": "Peak calls and read counts for pancreatic delta cells from snATAC-seq"
+        },
+        {
+          "label": "PKBDS3568VOEM",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS3568VOEM/",
+          "description": "Peak calls and read counts for pancreatic MUC5b+ ductal cells from snATAC-seq"
+        },
+        {
+          "label": "PKBDS5249JJKD",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS5249JJKD/",
+          "description": "Peak calls and read counts for pancreatic alpha cells from snATAC-seq"
+        },
+        {
+          "label": "PKBDS9687AMNO",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS9687AMNO/",
+          "description": "Unified peaks of islet cell type-specific chromatin accessibility from 97,659 cells derived from single cell ATAC-seq assays of 41 non-diabetic;T1D autoantibody positive (Aab+);T1D;and T2D donors from the Human Pancreas Analysis Program"
+        },
+        {
+          "label": "PKBDS7254MJJN",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS7254MJJN/",
+          "description": "Peak calls and read counts for pancreatic quiescent stellate cells from snATAC-seq"
+        },
+        {
+          "label": "PKBDS4115VWFM",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS4115VWFM/",
+          "description": "Peak calls and read counts for pancreatic schwann cells from snATAC-seq"
+        },
+        {
+          "label": "PKBDS3521REWK",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS3521REWK/",
+          "description": "Peak calls and read counts for pancreatic beta cells from snATAC-seq"
+        },
+        {
+          "label": "PKBDS8469RQOO",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS8469RQOO/",
+          "description": "Peak calls and read counts for pancreatic endothelial cells from snATAC-seq"
+        },
+        {
+          "label": "PKBDS4758SLXG",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS4758SLXG/",
+          "description": "Peak calls and read counts for pancreatic acinar cells from snATAC-seq"
+        }
+      ],
+      "libraryStatus": "Related resource",
+      "libraryNote": "Released atlas/peak datasets found; exact lineage to the existing PanKgraph ATAC export is not established.",
+      "methods": [
+        {
+          "label": "snATAC-seq pipeline",
+          "url": "https://hugeampkpncms.org/sites/default/files/images/pankbase/pipelines/snATACprocessingpipeline_parul_pankbase.pdf"
+        },
+        {
+          "label": "snATAC-seq code",
+          "url": "https://github.com/PanKbase/HPAP-scATAC-seq/blob/main/clustering_notebooks/query_snatac.ipynb"
+        }
+      ]
+    },
+    {
+      "id": "disease",
+      "kind": "nodes",
+      "name": "Diseases",
+      "type": "disease",
+      "count": 3,
+      "sources": [
+        {
+          "name": "MONDO",
+          "url": "https://mondo.monarchinitiative.org/"
+        },
+        {
+          "name": "PanKbase",
+          "url": "https://data.pankbase.org/"
+        }
+      ],
+      "licenses": [
+        "CC-BY-4.0",
+        "unknown"
+      ],
+      "versions": [
+        "4_29_25"
+      ],
+      "library": [],
+      "libraryStatus": "Not mapped",
+      "libraryNote": "No matched PanKbase download page is recorded for this data."
+    },
+    {
+      "id": "donor",
+      "kind": "nodes",
+      "name": "Donors",
+      "type": "donor",
+      "count": 218,
+      "sources": [
+        {
+          "name": "PanKbase;HPAP/PANC-DB"
+        },
+        {
+          "name": "HPAP/PANC-DB",
+          "url": "https://hpap.pmacs.upenn.edu/"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "PanKbase_donor_20260519_API_20261027_PancDB_current_v3",
+        "PancDB_current_retrieved_20261027"
+      ],
+      "library": [
+        {
+          "label": "PKBDS5236MJJT",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS5236MJJT/",
+          "description": "Meta-data for 3.7k human donors in IIDP, HPAP, ADI, nPOD and Prodo."
+        },
+        {
+          "label": "PKBDS1057RJYW",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS1057RJYW/",
+          "description": "Meta-data table for 3.6k pancreatic islet biosamples in IIDP, HPAP, Prodo and ADI. (all primary biosamples from the original source)"
+        },
+        {
+          "label": "PKBDS2932PQVM",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS2932PQVM/",
+          "description": "Meta-data table for pancreatic islet biosamples in IIDP, HPAP, Prodo and ADI. (post-shipment biosamples used for treatments etc in papers)"
+        }
+      ],
+      "libraryStatus": "Related resource",
+      "libraryNote": "Related donor and biosample resources; exact identity with this version’s metadata snapshot is not established."
+    },
+    {
+      "id": "sample",
+      "kind": "nodes",
+      "name": "Samples",
+      "type": "sample",
+      "count": 2221,
+      "sources": [
+        {
+          "name": "HPAP/PANC-DB",
+          "url": "https://hpap.pmacs.upenn.edu/"
+        },
+        {
+          "name": "Functional API",
+          "url": "https://api-dev.pankgraph.org/api/functional"
+        },
+        {
+          "name": "HPAP/PANC-DB;PanKbase"
+        },
+        {
+          "name": "PanKbase",
+          "url": "https://data.pankbase.org/"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "PanKbase_donor_20260519_API_20261027_PancDB_current_v3",
+        "Functional_API_2026-11-03_d515bb3cbe3b"
+      ],
+      "library": [
+        {
+          "label": "PKBDS5236MJJT",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS5236MJJT/",
+          "description": "Meta-data for 3.7k human donors in IIDP, HPAP, ADI, nPOD and Prodo."
+        },
+        {
+          "label": "PKBDS1057RJYW",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS1057RJYW/",
+          "description": "Meta-data table for 3.6k pancreatic islet biosamples in IIDP, HPAP, Prodo and ADI. (all primary biosamples from the original source)"
+        },
+        {
+          "label": "PKBDS2932PQVM",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS2932PQVM/",
+          "description": "Meta-data table for pancreatic islet biosamples in IIDP, HPAP, Prodo and ADI. (post-shipment biosamples used for treatments etc in papers)"
+        }
+      ],
+      "libraryStatus": "Related resource",
+      "libraryNote": "Related donor and biosample resources; exact identity with this version’s metadata snapshot is not established."
+    },
+    {
+      "id": "Molecular_complex",
+      "kind": "nodes",
+      "name": "Molecular complexes",
+      "type": "Molecular_complex",
+      "count": 24,
+      "sources": [
+        {
+          "name": "LIANA:consensus",
+          "url": "https://pypi.org/project/liana/1.5.1/"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "LIANA_1.5.1_consensus_9b4880f63819"
+      ],
+      "library": [],
+      "libraryStatus": "Not mapped",
+      "libraryNote": "No matched PanKbase download page is recorded for this data."
+    },
+    {
+      "id": "anatomical_structure",
+      "kind": "nodes",
+      "name": "Anatomical structures",
+      "type": "anatomical_structure",
+      "count": 64,
+      "sources": [
+        {
+          "name": "UBERON",
+          "url": "https://obophenotype.github.io/uberon/"
+        },
+        {
+          "name": "UBERON + CL"
+        },
+        {
+          "name": "CL",
+          "url": "https://obophenotype.github.io/cell-ontology/"
+        },
+        {
+          "name": "PanKbase",
+          "url": "https://data.pankbase.org/"
+        },
+        {
+          "name": "HPAP/PANC-DB",
+          "url": "https://hpap.pmacs.upenn.edu/"
+        }
+      ],
+      "licenses": [
+        "CC-BY-3.0",
+        "CC-BY-3.0 AND CC-BY-4.0",
+        "CC-BY-4.0",
+        "unknown"
+      ],
+      "versions": [
+        "PanKgraph_07_08",
+        "PanKbase_donor_20260519_API_20261027_PancDB_current_v3"
+      ],
+      "library": [],
+      "libraryStatus": "Not mapped",
+      "libraryNote": "No matched PanKbase download page is recorded for this data."
+    },
+    {
+      "id": "data_modality",
+      "kind": "nodes",
+      "name": "Data modalities",
+      "type": "data_modality",
+      "count": 22,
+      "sources": [
+        {
+          "name": "Metadata"
+        },
+        {
+          "name": "HPAP/PANC-DB",
+          "url": "https://hpap.pmacs.upenn.edu/"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "PanKgraph_07_08",
+        "PanKbase_donor_20260519_API_20261027_PancDB_current_v3"
+      ],
+      "library": [],
+      "libraryStatus": "Not mapped",
+      "libraryNote": "No matched PanKbase download page is recorded for this data."
+    },
+    {
+      "id": "Variant",
+      "kind": "nodes",
+      "name": "Sequence variants",
+      "type": "Variant",
+      "count": 21042,
+      "sources": [
+        {
+          "name": "GWAS_other"
+        },
+        {
+          "name": "dbSNP",
+          "url": "https://www.ncbi.nlm.nih.gov/snp/"
+        },
+        {
+          "name": "GWAS"
+        },
+        {
+          "name": "GWAS_Catalog"
+        }
+      ],
+      "licenses": [
+        "LicenseRef-NCBI-Data-Usage"
+      ],
+      "versions": [
+        "8/5/25",
+        "157",
+        "PanKgraph_07_08",
+        "8/5/21"
+      ],
+      "library": [],
+      "libraryStatus": "Not mapped",
+      "libraryNote": "No matched PanKbase download page is recorded for this data."
+    },
+    {
+      "id": "donor_provenance",
+      "kind": "nodes",
+      "name": "Donor annotation provenance",
+      "type": "donor_provenance",
+      "count": 1,
+      "sources": [
+        {
+          "name": "PanKgraph"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "donor_metadata_20261027_v3"
+      ],
+      "library": [
+        {
+          "label": "PKBDS5236MJJT",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS5236MJJT/",
+          "description": "Meta-data for 3.7k human donors in IIDP, HPAP, ADI, nPOD and Prodo."
+        },
+        {
+          "label": "PKBDS1057RJYW",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS1057RJYW/",
+          "description": "Meta-data table for 3.6k pancreatic islet biosamples in IIDP, HPAP, Prodo and ADI. (all primary biosamples from the original source)"
+        },
+        {
+          "label": "PKBDS2932PQVM",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS2932PQVM/",
+          "description": "Meta-data table for pancreatic islet biosamples in IIDP, HPAP, Prodo and ADI. (post-shipment biosamples used for treatments etc in papers)"
+        }
+      ],
+      "libraryStatus": "Related resource",
+      "libraryNote": "Related donor and biosample resources; exact identity with this version’s metadata snapshot is not established."
+    },
+    {
+      "id": "sample_provenance",
+      "kind": "nodes",
+      "name": "Sample annotation provenance",
+      "type": "sample_provenance",
+      "count": 1,
+      "sources": [
+        {
+          "name": "PanKgraph"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "donor_metadata_20261027_v3"
+      ],
+      "library": [
+        {
+          "label": "PKBDS5236MJJT",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS5236MJJT/",
+          "description": "Meta-data for 3.7k human donors in IIDP, HPAP, ADI, nPOD and Prodo."
+        },
+        {
+          "label": "PKBDS1057RJYW",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS1057RJYW/",
+          "description": "Meta-data table for 3.6k pancreatic islet biosamples in IIDP, HPAP, Prodo and ADI. (all primary biosamples from the original source)"
+        },
+        {
+          "label": "PKBDS2932PQVM",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS2932PQVM/",
+          "description": "Meta-data table for pancreatic islet biosamples in IIDP, HPAP, Prodo and ADI. (post-shipment biosamples used for treatments etc in papers)"
+        }
+      ],
+      "libraryStatus": "Related resource",
+      "libraryNote": "Related donor and biosample resources; exact identity with this version’s metadata snapshot is not established."
+    },
+    {
+      "id": "FUNCTION_ANNOTATION__Gene__GO_term",
+      "kind": "edges",
+      "name": "GO functional annotation",
+      "type": "FUNCTION_ANNOTATION",
+      "count": 375805,
+      "sources": [
+        {
+          "name": "Ensembl",
+          "url": "https://www.ensembl.org/"
+        }
+      ],
+      "licenses": [
+        "LicenseRef-Ensembl-Data-Use AND CC-BY-4.0"
+      ],
+      "versions": [
+        "Ensembl_ASSOCIATED_WITH_GO_GRCh38p14_c116_g2026_04_51fb98c7cdc3"
+      ],
+      "endpoints": "Gene \u2192 Gene Ontology term",
+      "library": [
+        {
+          "label": "PKBDS1041SZAV",
+          "url": "https://data.pankbase.org/curated-sets/PKBDS1041SZAV/",
+          "description": "Genes in biological processes in GO database"
+        }
+      ],
+      "libraryStatus": "Related resource",
+      "libraryNote": "GO BP MSigDB gene sets are not the original Ensembl GO ontology/annotation files."
+    },
+    {
+      "id": "GENETIC_INTERACTION__Gene__Gene",
+      "kind": "edges",
+      "name": "Genetic interaction",
+      "type": "GENETIC_INTERACTION",
+      "count": 18450,
+      "sources": [
+        {
+          "name": "BioGRID",
+          "url": "https://thebiogrid.org/"
+        }
+      ],
+      "licenses": [
+        "MIT"
+      ],
+      "versions": [
+        "5.0.262"
+      ],
+      "endpoints": "Gene \u2192 Gene",
+      "library": [],
+      "libraryStatus": "Not mapped",
+      "libraryNote": "No matched PanKbase download page is recorded for this data."
+    },
+    {
+      "id": "PHYSICAL_INTERACTION__Gene__Gene",
+      "kind": "edges",
+      "name": "Physical interaction",
+      "type": "PHYSICAL_INTERACTION",
+      "count": 1113355,
+      "sources": [
+        {
+          "name": "BioGRID",
+          "url": "https://thebiogrid.org/"
+        }
+      ],
+      "licenses": [
+        "MIT"
+      ],
+      "versions": [
+        "5.0.262"
+      ],
+      "endpoints": "Gene \u2192 Gene",
+      "library": [],
+      "libraryStatus": "Not mapped",
+      "libraryNote": "No matched PanKbase download page is recorded for this data."
+    },
+    {
+      "id": "GENE_DETECTED_IN__Gene__anatomical_structure",
+      "kind": "edges",
+      "name": "Detected gene expression",
+      "type": "GENE_DETECTED_IN",
+      "count": 111672,
+      "sources": [
+        {
+          "name": "PanKbase",
+          "url": "https://data.pankbase.org/"
+        }
+      ],
+      "licenses": [
+        "CC-BY-4.0"
+      ],
+      "versions": [
+        "PanKgraph_expression_V3.4_1024_components_v1"
+      ],
+      "endpoints": "Gene \u2192 Anatomical structure",
+      "library": [
+        {
+          "label": "PKBDS1349YHGQ",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS1349YHGQ/",
+          "description": "Reference map of islet cell type-specific gene expression derived from single cell RNA-seq assays of 191 samples (140 donors) from HPAP;IIDP and Prodo."
+        }
+      ],
+      "libraryStatus": "Related resource",
+      "libraryNote": "Related 140-donor/191-sample atlas only. No exact catalog match for the 19 preserved historical expression files; do not substitute pseudobulk/atlas data for these aggregate detection/RUVSeq inputs.",
+      "methods": [
+        {
+          "label": "Expression pipeline",
+          "url": "https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/expression_pipeline.pdf"
+        },
+        {
+          "label": "scRNA-seq code",
+          "url": "https://github.com/PanKbase/PanKbase-scRNA-seq"
+        }
+      ]
+    },
+    {
+      "id": "GENE_ENRICHED_IN__Gene__anatomical_structure",
+      "kind": "edges",
+      "name": "Enriched gene expression",
+      "type": "GENE_ENRICHED_IN",
+      "count": 11622,
+      "sources": [
+        {
+          "name": "PanKbase",
+          "url": "https://data.pankbase.org/"
+        }
+      ],
+      "licenses": [
+        "CC-BY-4.0"
+      ],
+      "versions": [
+        "PanKgraph_expression_V3.4_1024_components_v1"
+      ],
+      "endpoints": "Gene \u2192 Anatomical structure",
+      "library": [
+        {
+          "label": "PKBDS1349YHGQ",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS1349YHGQ/",
+          "description": "Reference map of islet cell type-specific gene expression derived from single cell RNA-seq assays of 191 samples (140 donors) from HPAP;IIDP and Prodo."
+        }
+      ],
+      "libraryStatus": "Related resource",
+      "libraryNote": "Related 140-donor/191-sample atlas only. No exact catalog match for the 19 preserved historical expression files; do not substitute pseudobulk/atlas data for these aggregate detection/RUVSeq inputs.",
+      "methods": [
+        {
+          "label": "Expression pipeline",
+          "url": "https://pank-s3-to-share.s3.us-east-1.amazonaws.com/docs/expression_pipeline.pdf"
+        },
+        {
+          "label": "scRNA-seq code",
+          "url": "https://github.com/PanKbase/PanKbase-scRNA-seq"
+        }
+      ]
+    },
+    {
+      "id": "PART_OF_GWAS_SIGNAL__Variant__disease",
+      "kind": "edges",
+      "name": "GWAS association",
+      "type": "PART_OF_GWAS_SIGNAL",
+      "count": 1608,
+      "sources": [
+        {
+          "name": "PanKbase",
+          "url": "https://data.pankbase.org/"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "1.0"
+      ],
+      "endpoints": "Sequence variant \u2192 Disease",
+      "library": [
+        {
+          "label": "PKBDS4689SZBR",
+          "url": "https://data.pankbase.org/curated-sets/PKBDS4689SZBR/",
+          "description": "Summary statistics from T1D GWAS in Europeans"
+        }
+      ],
+      "libraryStatus": "Source dataset",
+      "libraryNote": "Dataset pages recorded in this build; open the Files section for available downloads. The linked summary statistics are related to the analysis; an exact fine-mapping input match is not established.",
+      "methods": [
+        {
+          "label": "Fine-mapping & coloc code",
+          "url": "https://github.com/PanKbase/PanKgraph-finemap-coloc"
+        }
+      ]
+    },
+    {
+      "id": "SIGNAL_COLOC_WITH__Gene__disease",
+      "kind": "edges",
+      "name": "Colocalization",
+      "type": "SIGNAL_COLOC_WITH",
+      "count": 23,
+      "sources": [
+        {
+          "name": "PanKbase",
+          "url": "https://data.pankbase.org/"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "1.0"
+      ],
+      "endpoints": "Gene \u2192 Disease",
+      "library": [
+        {
+          "label": "PKBDS2020YBLW",
+          "url": "https://data.pankbase.org/curated-sets/PKBDS2020YBLW/",
+          "description": "coloc results of T1D GWAS and eQTL analyses from pancreatic dataset, analysis level: gene"
+        },
+        {
+          "label": "PKBDS8554CPWF",
+          "url": "https://data.pankbase.org/curated-sets/PKBDS8554CPWF/",
+          "description": "Colocalization results of T1D GWAS and expression QTL analyses from islets, analysis level: gene"
+        },
+        {
+          "label": "PKBDS6036YASR",
+          "url": "https://data.pankbase.org/curated-sets/PKBDS6036YASR/",
+          "description": "coloc results of T1D GWAS and eQTL analyses from islet dataset, analysis level: exon"
+        },
+        {
+          "label": "PKBDS2517QKPR",
+          "url": "https://data.pankbase.org/curated-sets/PKBDS2517QKPR/",
+          "description": "coloc results of T1D GWAS and eQTL analyses from pancreatic dataset, analysis level: splicing"
+        }
+      ],
+      "libraryStatus": "Source dataset",
+      "libraryNote": "Dataset pages recorded in this build; open the Files section for available downloads.",
+      "methods": [
+        {
+          "label": "Fine-mapping & coloc code",
+          "url": "https://github.com/PanKbase/PanKgraph-finemap-coloc"
+        }
+      ]
+    },
+    {
+      "id": "PART_OF__anatomical_structure__anatomical_structure",
+      "kind": "edges",
+      "name": "Part of",
+      "type": "PART_OF",
+      "count": 19,
+      "sources": [
+        {
+          "name": "Metadata"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "PanKgraph_07_08"
+      ],
+      "endpoints": "Anatomical structure \u2192 Anatomical structure",
+      "library": [],
+      "libraryStatus": "Not mapped",
+      "libraryNote": "No matched PanKbase download page is recorded for this data."
+    },
+    {
+      "id": "HAS_CELL_TYPE__anatomical_structure__anatomical_structure",
+      "kind": "edges",
+      "name": "Has cell type",
+      "type": "HAS_CELL_TYPE",
+      "count": 8,
+      "sources": [
+        {
+          "name": "Metadata"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "PanKgraph_07_08"
+      ],
+      "endpoints": "Anatomical structure \u2192 Anatomical structure",
+      "library": [],
+      "libraryStatus": "Not mapped",
+      "libraryNote": "No matched PanKbase download page is recorded for this data."
+    },
+    {
+      "id": "SUBCLASS_OF__anatomical_structure__anatomical_structure",
+      "kind": "edges",
+      "name": "Subclass of",
+      "type": "SUBCLASS_OF",
+      "count": 23,
+      "sources": [
+        {
+          "name": "Metadata"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "PanKgraph_07_08"
+      ],
+      "endpoints": "Anatomical structure \u2192 Anatomical structure",
+      "library": [],
+      "libraryStatus": "Not mapped",
+      "libraryNote": "No matched PanKbase download page is recorded for this data."
+    },
+    {
+      "id": "HAS_STATE__anatomical_structure__anatomical_structure",
+      "kind": "edges",
+      "name": "Has state",
+      "type": "HAS_STATE",
+      "count": 4,
+      "sources": [
+        {
+          "name": "Metadata"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "PanKgraph_07_08"
+      ],
+      "endpoints": "Anatomical structure \u2192 Anatomical structure",
+      "library": [],
+      "libraryStatus": "Not mapped",
+      "libraryNote": "No matched PanKbase download page is recorded for this data."
+    },
+    {
+      "id": "REPRESENTS_COMPOSITE_LABEL__anatomical_structure__anatomical_structure",
+      "kind": "edges",
+      "name": "Represents composite label",
+      "type": "REPRESENTS_COMPOSITE_LABEL",
+      "count": 2,
+      "sources": [
+        {
+          "name": "Metadata"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "PanKgraph_07_08"
+      ],
+      "endpoints": "Anatomical structure \u2192 Anatomical structure",
+      "library": [],
+      "libraryStatus": "Not mapped",
+      "libraryNote": "No matched PanKbase download page is recorded for this data."
+    },
+    {
+      "id": "LYMPH_FLOWS_TO__anatomical_structure__anatomical_structure",
+      "kind": "edges",
+      "name": "Lymph flows to",
+      "type": "LYMPH_FLOWS_TO",
+      "count": 2,
+      "sources": [
+        {
+          "name": "Metadata"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "PanKgraph_07_08"
+      ],
+      "endpoints": "Anatomical structure \u2192 Anatomical structure",
+      "library": [],
+      "libraryStatus": "Not mapped",
+      "libraryNote": "No matched PanKbase download page is recorded for this data."
+    },
+    {
+      "id": "ADJACENT_TO__anatomical_structure__anatomical_structure",
+      "kind": "edges",
+      "name": "Adjacent to",
+      "type": "ADJACENT_TO",
+      "count": 3,
+      "sources": [
+        {
+          "name": "Metadata"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "PanKgraph_07_08"
+      ],
+      "endpoints": "Anatomical structure \u2192 Anatomical structure",
+      "library": [],
+      "libraryStatus": "Not mapped",
+      "libraryNote": "No matched PanKbase download page is recorded for this data."
+    },
+    {
+      "id": "FUNCTION_ANNOTATION__Gene__Reactome_pathway",
+      "kind": "edges",
+      "name": "Reactome pathway annotation",
+      "type": "FUNCTION_ANNOTATION",
+      "count": 158132,
+      "sources": [
+        {
+          "name": "Reactome",
+          "url": "https://reactome.org/"
+        }
+      ],
+      "licenses": [
+        "CC0-1.0"
+      ],
+      "versions": [
+        "97"
+      ],
+      "endpoints": "Gene \u2192 Reactome pathway",
+      "library": [
+        {
+          "label": "PKBDS1413YNPJ",
+          "url": "https://data.pankbase.org/curated-sets/PKBDS1413YNPJ/",
+          "description": "Genes in biological pathways in REACTOME database"
+        }
+      ],
+      "libraryStatus": "Related resource",
+      "libraryNote": "Library MSigDB GMT is a different artifact from the new direct Reactome release-97 files."
+    },
+    {
+      "id": "HAS_SUBPATHWAY__Reactome_pathway__Reactome_pathway",
+      "kind": "edges",
+      "name": "Pathway hierarchy",
+      "type": "HAS_SUBPATHWAY",
+      "count": 2899,
+      "sources": [
+        {
+          "name": "Reactome",
+          "url": "https://reactome.org/"
+        }
+      ],
+      "licenses": [
+        "CC0-1.0"
+      ],
+      "versions": [
+        "97"
+      ],
+      "endpoints": "Reactome pathway \u2192 Reactome pathway",
+      "library": [
+        {
+          "label": "PKBDS1413YNPJ",
+          "url": "https://data.pankbase.org/curated-sets/PKBDS1413YNPJ/",
+          "description": "Genes in biological pathways in REACTOME database"
+        }
+      ],
+      "libraryStatus": "Related resource",
+      "libraryNote": "Library MSigDB GMT is a different artifact from the new direct Reactome release-97 files."
+    },
+    {
+      "id": "MARKER_GENE_OF__Gene__anatomical_structure",
+      "kind": "edges",
+      "name": "Cell-type marker gene",
+      "type": "MARKER_GENE_OF",
+      "count": 124,
+      "sources": [
+        {
+          "name": "HuBMAP HRA ASCT+B",
+          "url": "https://humanatlas.io/asctb-tables"
+        }
+      ],
+      "licenses": [
+        "CC-BY-4.0"
+      ],
+      "versions": [
+        "pancreas_v1.4"
+      ],
+      "endpoints": "Gene \u2192 Anatomical structure",
+      "library": [],
+      "libraryStatus": "Not mapped",
+      "libraryNote": "No matched PanKbase download page is recorded for this data."
+    },
+    {
+      "id": "T1D_DEG_IN__Gene__anatomical_structure",
+      "kind": "edges",
+      "name": "T1D differential expression",
+      "type": "T1D_DEG_IN",
+      "count": 1971,
+      "sources": [
+        {
+          "name": "PanKbase",
+          "url": "https://data.pankbase.org/"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "PanKbase_disease_DEG_57ee10851fea"
+      ],
+      "endpoints": "Gene \u2192 Anatomical structure",
+      "library": [
+        {
+          "label": "PKBDS5505XMWS",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS5505XMWS/",
+          "description": "Recorded source dataset"
+        },
+        {
+          "label": "PKBDS9343POSP",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS9343POSP/",
+          "description": "Recorded source dataset"
+        },
+        {
+          "label": "PKBDS3483TGEQ",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS3483TGEQ/",
+          "description": "Recorded source dataset"
+        },
+        {
+          "label": "PKBDS3519RAFX",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS3519RAFX/",
+          "description": "Recorded source dataset"
+        },
+        {
+          "label": "PKBDS8497JAAX",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS8497JAAX/",
+          "description": "Recorded source dataset"
+        },
+        {
+          "label": "PKBDS6610NSWK",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS6610NSWK/",
+          "description": "Recorded source dataset"
+        }
+      ],
+      "libraryStatus": "Source dataset",
+      "libraryNote": "Dataset pages recorded in this build; open the Files section for available downloads. Historical catalog matching included revoked or deleted parent datasets; availability must be checked on the source page.",
+      "methods": [
+        {
+          "label": "DEG analysis code",
+          "url": "https://github.com/PanKbase/PanKbase-DEG-analysis"
+        }
+      ]
+    },
+    {
+      "id": "FGSEA_ENRICHED_IN__Reactome_pathway__anatomical_structure",
+      "kind": "edges",
+      "name": "Pathway enrichment (fGSEA)",
+      "type": "FGSEA_ENRICHED_IN",
+      "count": 69,
+      "sources": [
+        {
+          "name": "PanKbase",
+          "url": "https://data.pankbase.org/"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "2025-09-30"
+      ],
+      "endpoints": "Reactome pathway \u2192 Anatomical structure",
+      "library": [
+        {
+          "label": "PKBDS1047JQCX",
+          "url": "https://data.pankbase.org/curated-sets/PKBDS1047JQCX/",
+          "description": "Genes in biological pathways in KEGG Medicus database"
+        },
+        {
+          "label": "PKBDS1413YNPJ",
+          "url": "https://data.pankbase.org/curated-sets/PKBDS1413YNPJ/",
+          "description": "Genes in biological pathways in REACTOME database"
+        },
+        {
+          "label": "PKBDS0775JNIV",
+          "url": "https://data.pankbase.org/curated-sets/PKBDS0775JNIV/",
+          "description": "Genes in biological pathways in Hallmark database"
+        },
+        {
+          "label": "PKBDS1041SZAV",
+          "url": "https://data.pankbase.org/curated-sets/PKBDS1041SZAV/",
+          "description": "Genes in biological processes in GO database"
+        }
+      ],
+      "libraryStatus": "Related resource",
+      "libraryNote": "Library gene-set resources only; no exact fGSEA score/result export found. Original scores do not become MEDICUS scores."
+    },
+    {
+      "id": "OCR_PEAK_IN__ocr_peak__anatomical_structure",
+      "kind": "edges",
+      "name": "Chromatin accessibility",
+      "type": "OCR_PEAK_IN",
+      "count": 5294421,
+      "sources": [
+        {
+          "name": "PanKbase",
+          "url": "https://data.pankbase.org/"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "PanKgraph_07_08"
+      ],
+      "endpoints": "Open chromatin region \u2192 Anatomical structure",
+      "library": [
+        {
+          "label": "PKBDS0470WCHR",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS0470WCHR/",
+          "description": "Reference map of islet cell type-specific chromatin accessibility from 97,659 cells derived from single cell ATAC-seq assays of 41 non-diabetic;T1D autoantibody positive (Aab+);T1D;and T2D donors from the Human Pancreas Analysis Program"
+        },
+        {
+          "label": "PKBDS0206SBJF",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS0206SBJF/",
+          "description": "Peak calls and read counts for pancreatic ductal cells from snATAC-seq"
+        },
+        {
+          "label": "PKBDS7691LOBY",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS7691LOBY/",
+          "description": "Peak calls and read counts for pancreatic immune cells from snATAC-seq"
+        },
+        {
+          "label": "PKBDS1840SOPT",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS1840SOPT/",
+          "description": "Peak calls and read counts for pancreatic activated stellate cells from snATAC-seq"
+        },
+        {
+          "label": "PKBDS3504VMPS",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS3504VMPS/",
+          "description": "Peak calls and read counts for pancreatic gamma cells from snATAC-seq"
+        },
+        {
+          "label": "PKBDS8988YQBZ",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS8988YQBZ/",
+          "description": "Peak calls unified across all pancreatic cell types from snATAC-seq"
+        },
+        {
+          "label": "PKBDS5528RBHE",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS5528RBHE/",
+          "description": "Peak calls and read counts for pancreatic delta cells from snATAC-seq"
+        },
+        {
+          "label": "PKBDS3568VOEM",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS3568VOEM/",
+          "description": "Peak calls and read counts for pancreatic MUC5b+ ductal cells from snATAC-seq"
+        },
+        {
+          "label": "PKBDS5249JJKD",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS5249JJKD/",
+          "description": "Peak calls and read counts for pancreatic alpha cells from snATAC-seq"
+        },
+        {
+          "label": "PKBDS9687AMNO",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS9687AMNO/",
+          "description": "Unified peaks of islet cell type-specific chromatin accessibility from 97,659 cells derived from single cell ATAC-seq assays of 41 non-diabetic;T1D autoantibody positive (Aab+);T1D;and T2D donors from the Human Pancreas Analysis Program"
+        },
+        {
+          "label": "PKBDS7254MJJN",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS7254MJJN/",
+          "description": "Peak calls and read counts for pancreatic quiescent stellate cells from snATAC-seq"
+        },
+        {
+          "label": "PKBDS4115VWFM",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS4115VWFM/",
+          "description": "Peak calls and read counts for pancreatic schwann cells from snATAC-seq"
+        },
+        {
+          "label": "PKBDS3521REWK",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS3521REWK/",
+          "description": "Peak calls and read counts for pancreatic beta cells from snATAC-seq"
+        },
+        {
+          "label": "PKBDS8469RQOO",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS8469RQOO/",
+          "description": "Peak calls and read counts for pancreatic endothelial cells from snATAC-seq"
+        },
+        {
+          "label": "PKBDS4758SLXG",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS4758SLXG/",
+          "description": "Peak calls and read counts for pancreatic acinar cells from snATAC-seq"
+        }
+      ],
+      "libraryStatus": "Related resource",
+      "libraryNote": "Released atlas/peak datasets found; exact lineage to the existing PanKgraph ATAC export is not established.",
+      "methods": [
+        {
+          "label": "snATAC-seq pipeline",
+          "url": "https://hugeampkpncms.org/sites/default/files/images/pankbase/pipelines/snATACprocessingpipeline_parul_pankbase.pdf"
+        },
+        {
+          "label": "snATAC-seq code",
+          "url": "https://github.com/PanKbase/HPAP-scATAC-seq/blob/main/clustering_notebooks/query_snatac.ipynb"
+        }
+      ]
+    },
+    {
+      "id": "GENE_ACTIVITY_SCORE_IN__Gene__anatomical_structure",
+      "kind": "edges",
+      "name": "Gene activity score",
+      "type": "GENE_ACTIVITY_SCORE_IN",
+      "count": 126077,
+      "sources": [
+        {
+          "name": "PanKbase",
+          "url": "https://data.pankbase.org/"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "2025_05_28"
+      ],
+      "endpoints": "Gene \u2192 Anatomical structure",
+      "library": [],
+      "libraryStatus": "Not mapped",
+      "libraryNote": "No matched PanKbase download page is recorded for this data.",
+      "methods": [
+        {
+          "label": "snATAC-seq pipeline",
+          "url": "https://hugeampkpncms.org/sites/default/files/images/pankbase/pipelines/snATACprocessingpipeline_parul_pankbase.pdf"
+        },
+        {
+          "label": "snATAC-seq code",
+          "url": "https://github.com/PanKbase/HPAP-scATAC-seq/blob/main/clustering_notebooks/query_snatac.ipynb"
+        }
+      ]
+    },
+    {
+      "id": "EFFECTOR_GENE_OF__Gene__disease",
+      "kind": "edges",
+      "name": "Candidate effector gene",
+      "type": "EFFECTOR_GENE_OF",
+      "count": 256,
+      "sources": [
+        {
+          "name": "Atla et al. 2022",
+          "url": "https://t1d.hugeamp.org/research.html?pageid=Atla_T1D_568"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "10/24/25"
+      ],
+      "endpoints": "Gene \u2192 Disease",
+      "library": [],
+      "libraryStatus": "Not mapped",
+      "libraryNote": "No matched PanKbase download page is recorded for this data."
+    },
+    {
+      "id": "HAS_SAMPLE__donor__sample",
+      "kind": "edges",
+      "name": "Has sample",
+      "type": "HAS_SAMPLE",
+      "count": 2221,
+      "sources": [
+        {
+          "name": "HPAP/PANC-DB",
+          "url": "https://hpap.pmacs.upenn.edu/"
+        },
+        {
+          "name": "Functional API",
+          "url": "https://api-dev.pankgraph.org/api/functional"
+        },
+        {
+          "name": "HPAP/PANC-DB;PanKbase"
+        },
+        {
+          "name": "PanKbase",
+          "url": "https://data.pankbase.org/"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "PanKbase_donor_20260519_API_20261027_PancDB_current_v3",
+        "Functional_API_2026-11-03_d515bb3cbe3b"
+      ],
+      "endpoints": "Donor \u2192 Sample",
+      "library": [
+        {
+          "label": "PKBDS5236MJJT",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS5236MJJT/",
+          "description": "Meta-data for 3.7k human donors in IIDP, HPAP, ADI, nPOD and Prodo."
+        },
+        {
+          "label": "PKBDS1057RJYW",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS1057RJYW/",
+          "description": "Meta-data table for 3.6k pancreatic islet biosamples in IIDP, HPAP, Prodo and ADI. (all primary biosamples from the original source)"
+        },
+        {
+          "label": "PKBDS2932PQVM",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS2932PQVM/",
+          "description": "Meta-data table for pancreatic islet biosamples in IIDP, HPAP, Prodo and ADI. (post-shipment biosamples used for treatments etc in papers)"
+        }
+      ],
+      "libraryStatus": "Related resource",
+      "libraryNote": "Related donor and biosample resources; exact identity with this version’s metadata snapshot is not established."
+    },
+    {
+      "id": "HAS_SAMPLE__anatomical_structure__sample",
+      "kind": "edges",
+      "name": "Has sample",
+      "type": "HAS_SAMPLE",
+      "count": 2221,
+      "sources": [
+        {
+          "name": "HPAP/PANC-DB",
+          "url": "https://hpap.pmacs.upenn.edu/"
+        },
+        {
+          "name": "Functional API",
+          "url": "https://api-dev.pankgraph.org/api/functional"
+        },
+        {
+          "name": "HPAP/PANC-DB;PanKbase"
+        },
+        {
+          "name": "PanKbase",
+          "url": "https://data.pankbase.org/"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "PanKbase_donor_20260519_API_20261027_PancDB_current_v3",
+        "Functional_API_2026-11-03_d515bb3cbe3b"
+      ],
+      "endpoints": "Anatomical structure \u2192 Sample",
+      "library": [
+        {
+          "label": "PKBDS5236MJJT",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS5236MJJT/",
+          "description": "Meta-data for 3.7k human donors in IIDP, HPAP, ADI, nPOD and Prodo."
+        },
+        {
+          "label": "PKBDS1057RJYW",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS1057RJYW/",
+          "description": "Meta-data table for 3.6k pancreatic islet biosamples in IIDP, HPAP, Prodo and ADI. (all primary biosamples from the original source)"
+        },
+        {
+          "label": "PKBDS2932PQVM",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS2932PQVM/",
+          "description": "Meta-data table for pancreatic islet biosamples in IIDP, HPAP, Prodo and ADI. (post-shipment biosamples used for treatments etc in papers)"
+        }
+      ],
+      "libraryStatus": "Related resource",
+      "libraryNote": "Related donor and biosample resources; exact identity with this version’s metadata snapshot is not established."
+    },
+    {
+      "id": "HAS_SAMPLE__data_modality__sample",
+      "kind": "edges",
+      "name": "Has sample",
+      "type": "HAS_SAMPLE",
+      "count": 2221,
+      "sources": [
+        {
+          "name": "HPAP/PANC-DB",
+          "url": "https://hpap.pmacs.upenn.edu/"
+        },
+        {
+          "name": "Functional API",
+          "url": "https://api-dev.pankgraph.org/api/functional"
+        },
+        {
+          "name": "HPAP/PANC-DB;PanKbase"
+        },
+        {
+          "name": "PanKbase",
+          "url": "https://data.pankbase.org/"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "PanKbase_donor_20260519_API_20261027_PancDB_current_v3",
+        "Functional_API_2026-11-03_d515bb3cbe3b"
+      ],
+      "endpoints": "Data modality \u2192 Sample",
+      "library": [
+        {
+          "label": "PKBDS5236MJJT",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS5236MJJT/",
+          "description": "Meta-data for 3.7k human donors in IIDP, HPAP, ADI, nPOD and Prodo."
+        },
+        {
+          "label": "PKBDS1057RJYW",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS1057RJYW/",
+          "description": "Meta-data table for 3.6k pancreatic islet biosamples in IIDP, HPAP, Prodo and ADI. (all primary biosamples from the original source)"
+        },
+        {
+          "label": "PKBDS2932PQVM",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS2932PQVM/",
+          "description": "Meta-data table for pancreatic islet biosamples in IIDP, HPAP, Prodo and ADI. (post-shipment biosamples used for treatments etc in papers)"
+        }
+      ],
+      "libraryStatus": "Related resource",
+      "libraryNote": "Related donor and biosample resources; exact identity with this version’s metadata snapshot is not established."
+    },
+    {
+      "id": "HAS_STATE__disease__donor",
+      "kind": "edges",
+      "name": "Has state",
+      "type": "HAS_STATE",
+      "count": 214,
+      "sources": [
+        {
+          "name": "PanKbase;HPAP/PANC-DB"
+        },
+        {
+          "name": "HPAP/PANC-DB",
+          "url": "https://hpap.pmacs.upenn.edu/"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "PanKbase_donor_20260519_API_20261027_PancDB_current_v3",
+        "PancDB_current_retrieved_20261027"
+      ],
+      "endpoints": "Disease \u2192 Donor",
+      "library": [
+        {
+          "label": "PKBDS5236MJJT",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS5236MJJT/",
+          "description": "Meta-data for 3.7k human donors in IIDP, HPAP, ADI, nPOD and Prodo."
+        },
+        {
+          "label": "PKBDS1057RJYW",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS1057RJYW/",
+          "description": "Meta-data table for 3.6k pancreatic islet biosamples in IIDP, HPAP, Prodo and ADI. (all primary biosamples from the original source)"
+        },
+        {
+          "label": "PKBDS2932PQVM",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS2932PQVM/",
+          "description": "Meta-data table for pancreatic islet biosamples in IIDP, HPAP, Prodo and ADI. (post-shipment biosamples used for treatments etc in papers)"
+        }
+      ],
+      "libraryStatus": "Related resource",
+      "libraryNote": "Related donor and biosample resources; exact identity with this version’s metadata snapshot is not established."
+    },
+    {
+      "id": "HAS_STATE__disease__sample",
+      "kind": "edges",
+      "name": "Has state",
+      "type": "HAS_STATE",
+      "count": 2199,
+      "sources": [
+        {
+          "name": "PanKbase;HPAP/PANC-DB"
+        },
+        {
+          "name": "Functional API",
+          "url": "https://api-dev.pankgraph.org/api/functional"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "PanKbase_donor_20260519_API_20261027_PancDB_current_v3",
+        "Functional_API_2026-11-03_d515bb3cbe3b"
+      ],
+      "endpoints": "Disease \u2192 Sample",
+      "library": [
+        {
+          "label": "PKBDS5236MJJT",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS5236MJJT/",
+          "description": "Meta-data for 3.7k human donors in IIDP, HPAP, ADI, nPOD and Prodo."
+        },
+        {
+          "label": "PKBDS1057RJYW",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS1057RJYW/",
+          "description": "Meta-data table for 3.6k pancreatic islet biosamples in IIDP, HPAP, Prodo and ADI. (all primary biosamples from the original source)"
+        },
+        {
+          "label": "PKBDS2932PQVM",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS2932PQVM/",
+          "description": "Meta-data table for pancreatic islet biosamples in IIDP, HPAP, Prodo and ADI. (post-shipment biosamples used for treatments etc in papers)"
+        }
+      ],
+      "libraryStatus": "Related resource",
+      "libraryNote": "Related donor and biosample resources; exact identity with this version’s metadata snapshot is not established."
+    },
+    {
+      "id": "ANNOTATED_USING__donor__donor_provenance",
+      "kind": "edges",
+      "name": "Annotated using",
+      "type": "ANNOTATED_USING",
+      "count": 218,
+      "sources": [
+        {
+          "name": "PanKbase",
+          "url": "https://data.pankbase.org/"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "PanKbase_donor_20260519_API_20261027_PancDB_current_v3"
+      ],
+      "endpoints": "Donor \u2192 Donor annotation provenance",
+      "library": [
+        {
+          "label": "PKBDS5236MJJT",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS5236MJJT/",
+          "description": "Meta-data for 3.7k human donors in IIDP, HPAP, ADI, nPOD and Prodo."
+        },
+        {
+          "label": "PKBDS1057RJYW",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS1057RJYW/",
+          "description": "Meta-data table for 3.6k pancreatic islet biosamples in IIDP, HPAP, Prodo and ADI. (all primary biosamples from the original source)"
+        },
+        {
+          "label": "PKBDS2932PQVM",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS2932PQVM/",
+          "description": "Meta-data table for pancreatic islet biosamples in IIDP, HPAP, Prodo and ADI. (post-shipment biosamples used for treatments etc in papers)"
+        }
+      ],
+      "libraryStatus": "Related resource",
+      "libraryNote": "Related donor and biosample resources; exact identity with this version’s metadata snapshot is not established."
+    },
+    {
+      "id": "ANNOTATED_USING__sample__sample_provenance",
+      "kind": "edges",
+      "name": "Annotated using",
+      "type": "ANNOTATED_USING",
+      "count": 2221,
+      "sources": [
+        {
+          "name": "PanKbase",
+          "url": "https://data.pankbase.org/"
+        },
+        {
+          "name": "Functional API",
+          "url": "https://api-dev.pankgraph.org/api/functional"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "PanKbase_donor_20260519_API_20261027_PancDB_current_v3",
+        "Functional_API_2026-11-03_d515bb3cbe3b"
+      ],
+      "endpoints": "Sample \u2192 Sample annotation provenance",
+      "library": [
+        {
+          "label": "PKBDS5236MJJT",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS5236MJJT/",
+          "description": "Meta-data for 3.7k human donors in IIDP, HPAP, ADI, nPOD and Prodo."
+        },
+        {
+          "label": "PKBDS1057RJYW",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS1057RJYW/",
+          "description": "Meta-data table for 3.6k pancreatic islet biosamples in IIDP, HPAP, Prodo and ADI. (all primary biosamples from the original source)"
+        },
+        {
+          "label": "PKBDS2932PQVM",
+          "url": "https://data.pankbase.org/analysis-sets/PKBDS2932PQVM/",
+          "description": "Meta-data table for pancreatic islet biosamples in IIDP, HPAP, Prodo and ADI. (post-shipment biosamples used for treatments etc in papers)"
+        }
+      ],
+      "libraryStatus": "Related resource",
+      "libraryNote": "Related donor and biosample resources; exact identity with this version’s metadata snapshot is not established."
+    },
+    {
+      "id": "LIGAND_RECEPTOR__Gene__Gene",
+      "kind": "edges",
+      "name": "Ligand\u2013receptor interaction",
+      "type": "LIGAND_RECEPTOR",
+      "count": 561,
+      "sources": [
+        {
+          "name": "JP Cartailler / PanKbase CCC"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "JP_CCC_2026-11-03_8624f5068b75"
+      ],
+      "endpoints": "Gene \u2192 Gene",
+      "library": [],
+      "libraryStatus": "Not mapped",
+      "libraryNote": "No matched PanKbase download page is recorded for this data."
+    },
+    {
+      "id": "LIGAND_RECEPTOR__Gene__Molecular_complex",
+      "kind": "edges",
+      "name": "Ligand\u2013receptor interaction",
+      "type": "LIGAND_RECEPTOR",
+      "count": 162,
+      "sources": [
+        {
+          "name": "JP Cartailler / PanKbase CCC"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "JP_CCC_2026-11-03_8624f5068b75"
+      ],
+      "endpoints": "Gene \u2192 Molecular complex",
+      "library": [],
+      "libraryStatus": "Not mapped",
+      "libraryNote": "No matched PanKbase download page is recorded for this data."
+    },
+    {
+      "id": "HAS_SUBUNIT__Molecular_complex__Gene",
+      "kind": "edges",
+      "name": "Complex subunit",
+      "type": "HAS_SUBUNIT",
+      "count": 48,
+      "sources": [
+        {
+          "name": "LIANA:consensus",
+          "url": "https://pypi.org/project/liana/1.5.1/"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "LIANA_1.5.1_consensus_9b4880f63819"
+      ],
+      "endpoints": "Molecular complex \u2192 Gene",
+      "library": [],
+      "libraryStatus": "Not mapped",
+      "libraryNote": "No matched PanKbase download page is recorded for this data."
+    },
+    {
+      "id": "FUNCTION_ANNOTATION__Gene__KEGG_pathway",
+      "kind": "edges",
+      "name": "MSigDB MEDICUS annotation",
+      "type": "FUNCTION_ANNOTATION",
+      "count": 10634,
+      "sources": [
+        {
+          "name": "MSigDB:KEGG_MEDICUS",
+          "url": "https://www.gsea-msigdb.org/gsea/msigdb/"
+        }
+      ],
+      "licenses": [
+        "CC-BY-SA-4.0"
+      ],
+      "versions": [
+        "2026.2.Hs"
+      ],
+      "endpoints": "Gene \u2192 MSigDB KEGG MEDICUS pathway",
+      "library": [
+        {
+          "label": "PKBDS1047JQCX",
+          "url": "https://data.pankbase.org/curated-sets/PKBDS1047JQCX/",
+          "description": "Genes in biological pathways in KEGG Medicus database"
+        }
+      ],
+      "libraryStatus": "Related resource",
+      "libraryNote": "Existing library KEGG_Medicus_MSigDB.gmt differs from the directly downloaded 2026.2.Hs JSON/GMT; release identity not asserted."
+    },
+    {
+      "id": "PART_OF_QTL_SIGNAL__Variant__Gene",
+      "kind": "edges",
+      "name": "QTL association",
+      "type": "PART_OF_QTL_SIGNAL",
+      "count": 23254,
+      "sources": [
+        {
+          "name": "PanKbase",
+          "url": "https://data.pankbase.org/"
+        }
+      ],
+      "licenses": [
+        "unknown"
+      ],
+      "versions": [
+        "1.0"
+      ],
+      "endpoints": "Sequence variant \u2192 Gene",
+      "library": [
+        {
+          "label": "PKBDS8062GYOQ",
+          "url": "https://data.pankbase.org/curated-sets/PKBDS8062GYOQ/",
+          "description": "Fine-mapping expression QTL SNPs in set and metrics using InsPIRE data (islet tissue) as source, analysis level: gene"
+        },
+        {
+          "label": "PKBDS6689QROA",
+          "url": "https://data.pankbase.org/curated-sets/PKBDS6689QROA/",
+          "description": "Fine-mapping expression QTL SNPs in set and metrics using GTEx data (pancreas tissue) as source, analysis level: gene"
+        },
+        {
+          "label": "PKBDS9837ORWK",
+          "url": "https://data.pankbase.org/curated-sets/PKBDS9837ORWK/",
+          "description": "Fine-mapping expression QTL SNPs in set and metrics using InsPIRE data (islet tissue) as source, analysis level: exon"
+        },
+        {
+          "label": "PKBDS2105PCON",
+          "url": "https://data.pankbase.org/curated-sets/PKBDS2105PCON/",
+          "description": "Fine-mapping expression QTL SNPs in set and metrics using GTEx data (pancreas tissue) as source, analysis level: splicing"
+        }
+      ],
+      "libraryStatus": "Source dataset",
+      "libraryNote": "Dataset pages recorded in this build; open the Files section for available downloads.",
+      "methods": [
+        {
+          "label": "Fine-mapping & coloc code",
+          "url": "https://github.com/PanKbase/PanKgraph-finemap-coloc"
+        }
+      ]
+    }
+  ],
+  "version": "11/04/2026"
+}

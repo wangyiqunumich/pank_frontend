@@ -76,3 +76,22 @@ test('secondary evidence is collapsed, expands using the existing control and re
   rerender(<InfocardMenu hoveredData={{...data,id:'edge2'}}/>);
   expect(screen.getByRole('button',{name:'Show additional details'}).getAttribute('aria-expanded')).toBe('false');
 });
+
+
+test.each([
+  {data_source:'https://example.org/record/123'},
+  {data_source:'Recorded source',data_source_url:'https://example.org/record/123'},
+])('source footer keeps the actual recorded link: %j', evidence_properties => {
+  const model=recordedInfocardModel({id:'n',element_kind:'node',evidence_properties},false);
+  expect(model.data.__source_summary).toBe('https://example.org/record/123');
+  expect(model.schema.find(([name])=>name==='Footer')[1][0][2]).toBe('link');
+  const {container}=render(<InfocardMenu hoveredData={{id:'n',element_kind:'node',evidence_properties}} />);
+  expect(container.textContent).not.toContain('Linked source (above)');
+  expect(container.querySelectorAll('a[href="https://example.org/record/123"]').length).toBeGreaterThan(0);
+});
+
+test('unrecorded source URL is not invented', () => {
+  const model=recordedInfocardModel({evidence_properties:{data_source:'Recorded source'}},false);
+  expect(model.data.__source_summary).toBe('Recorded source');
+  expect(model.schema.find(([name])=>name==='Footer')[1][0][2]).toBe('recorded');
+});

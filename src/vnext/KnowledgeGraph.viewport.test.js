@@ -113,3 +113,52 @@ test('hover on a visible offset edge label opens its scientific evidence without
   unmount();
   jest.useRealTimers();
 });
+
+
+test.each(['gene_enriched_in', 'gene_detected_in', 'anatomical_structure'])('%s card enlarges and pins independently of graph fullscreen', type => {
+  jest.useFakeTimers();
+  const { unmount } = render(view());
+  const cy = cytoscape.mock.results[0].value;
+  const node = type === 'anatomical_structure';
+  const element = { id: () => 'info-object', nonempty: () => true, isEdge: () => !node, isNode: () => node,
+    removed: () => false, position: () => ({ x: 10, y: 10 }), outerWidth: () => 30, outerHeight: () => 20,
+    midpoint: () => ({ x: 10, y: 10 }), data: () => ({ id: 'info-object', type,
+      ...(!node ? { source: 'CFTR', target: 'ductal' } : {}),
+      evidence_properties: { name: 'Ductal evidence', data_source: 'Recorded source', count: 0 } }) };
+  cy.getElementById = () => element; cy.pan = () => ({ x: 0, y: 0 });
+  const hover = cy.on.mock.calls.find(([event, selector]) => event === 'mousemove' && selector === (node ? 'node' : 'edge'))[2];
+  act(() => hover({ target: element }));
+  act(() => jest.advanceTimersByTime(600));
+  const compact = screen.getByRole('region', { name: 'Graph information' });
+  expect(compact.parentElement).toBe(document.body);
+  expect(compact.style.position).toBe('fixed');
+  expect(screen.queryByRole('button', { name: 'Close information panel' })).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'Enlarge information panel' }));
+  const dialog = screen.getByRole('dialog', { name: 'Fullscreen graph viewer' });
+  const large = screen.getByRole('region', { name: 'Expanded graph information' });
+  expect(dialog.contains(large)).toBe(true);
+  fireEvent.mouseLeave(large);
+  act(() => jest.advanceTimersByTime(1000));
+  expect(screen.getByRole('region', { name: 'Expanded graph information' })).toBe(large);
+  fireEvent.click(screen.getByRole('button', { name: 'Minimize information panel' }));
+  expect(screen.getByRole('dialog', { name: 'Fullscreen graph viewer' })).toBe(dialog);
+  const minimized = screen.getByRole('region', { name: 'Graph information' });
+  expect(screen.queryByRole('button', { name: 'Close information panel' })).toBeNull();
+  fireEvent.mouseLeave(minimized);
+  act(() => jest.advanceTimersByTime(600));
+  expect(screen.queryByRole('region', { name: 'Graph information' })).toBeNull();
+  act(() => hover({ target: element }));
+  act(() => jest.advanceTimersByTime(600));
+  fireEvent.pointerDown(document.body);
+  expect(screen.queryByRole('region', { name: 'Graph information' })).toBeNull();
+  act(() => hover({ target: element }));
+  act(() => jest.advanceTimersByTime(600));
+  fireEvent.click(screen.getByRole('button', { name: 'Enlarge information panel' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Close information panel' }));
+  expect(screen.queryByRole('region', { name: 'Expanded graph information' })).toBeNull();
+  expect(screen.getByRole('dialog', { name: 'Fullscreen graph viewer' })).toBe(dialog);
+  fireEvent.click(screen.getByRole('button', { name: 'Exit fullscreen graph' }));
+  expect(screen.queryByRole('dialog', { name: 'Fullscreen graph viewer' })).toBeNull();
+  expect(cytoscape).toHaveBeenCalledTimes(1);
+  unmount(); jest.useRealTimers();
+});

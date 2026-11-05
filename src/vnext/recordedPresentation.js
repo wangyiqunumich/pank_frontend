@@ -106,8 +106,11 @@ export function recordedInfocardModel(data, isEdge) {
     if (def.help) help.add(def.help);
   });
   schema.push(...['Key evidence','Sources','Additional details'].filter(section => groups.has(section)).map(section => [section, groups.get(section), section === 'Additional details' ? 'collapsed' : undefined]));
-  values.__source_summary = typeof raw.data_source === 'string' && /^https?:/.test(raw.data_source) ? 'Linked source (above)' : fieldText('data_source', raw.data_source);
-  schema.push(['Footer', [['Data source', '__source_summary']]]);
+  // Keep the source actionable in the footer; never substitute a location hint for a URL.
+  const sourceUrl = [raw.data_source_url, raw.data_source].find(value =>
+    typeof value === 'string' && /^https?:\/\/\S+$/i.test(value));
+  values.__source_summary = sourceUrl || fieldText('data_source', raw.data_source);
+  schema.push(['Footer', [['Data source', '__source_summary', sourceUrl ? 'link' : 'recorded']]]);
   if (isProvenance) help.add('This is a metadata definition record, not a donor.');
   if (help.size) { values.__help = [...help].join(' '); schema.push(['How to read this evidence', '__help', 'collapsed']); }
   return {data: values, schema, rawProperties: raw};

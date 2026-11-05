@@ -1,4 +1,5 @@
 import './Ontology.css';
+import StatPage from './StatPage';
 import './github-markdown-light.css';
 
 import React, {
@@ -930,6 +931,9 @@ function DocPage() {
             if (Pages[newpage]) {
                 setSelectedPage(newpage);
                 setPage(newpage);
+                if (newpage === 'statistics') {
+                    setExpandedItems(items => items.includes('data') ? items : [...items, 'data']);
+                }
             } else {
                 setSelectedPage(defaultPage);
                 setPage(defaultPage);
@@ -979,10 +983,11 @@ function DocPage() {
     </pre>
 
     const isGlobalTreePage = page === 'ontology' && isStyledOntology;
+    const isStatisticsPage = page === 'statistics';
 
     return (
         <div className="App">
-            <Container maxWidth="100%"
+            <Container maxWidth="100%" className={isStatisticsPage ? 'stats-doc-layout' : undefined}
                 sx={{
                     mt: 4,
                     mb: 4,
@@ -994,6 +999,7 @@ function DocPage() {
             >
                 <Box
                     sx={{
+                        display: isStatisticsPage ? 'none' : undefined,
                         width: '370px',
                         textAlign: 'left',
                         height: 'calc(100% + 100px)',
@@ -1007,15 +1013,15 @@ function DocPage() {
                     }}
                 >
                 </Box>
-                <Box
+                <Box className={isStatisticsPage ? 'stats-doc-nav' : undefined}
                     sx={{
-                        width: '300px',
+                        width: isStatisticsPage ? '230px' : '300px',
                         textAlign: 'left',
                         height: 'fit-content',
                         overflowY: 'auto',
                         position: 'sticky',
                         top: '30px',
-                        mr: 10
+                        mr: isStatisticsPage ? 0 : 10
                     }}
                 >
                     <Box sx={{ height: "10px" }} />
@@ -1067,10 +1073,12 @@ function DocPage() {
                             }
                             : {}),
                     }}
-                    className={isGlobalTreePage ? undefined : 'markdown-body'}
+                    className={isStatisticsPage ? 'stats-doc-content' : isGlobalTreePage ? undefined : 'markdown-body'}
                 >
                     <div ref={contentRef} >
-                        {isLoading
+                        {isStatisticsPage
+                            ? <StatPage />
+                            : isLoading
                             ? loading()
                             : (page === 'ontology'
                                 ? (isStyledOntology

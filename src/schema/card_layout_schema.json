@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.1",
+  "default_layout": "auto",
+  "prose_min_characters": 48,
+  "layouts": [
+    "auto",
+    "inline",
+    "prose",
+    "tokens"
+  ],
+  "height_limits": {
+    "compact_px": 460,
+    "compact_vh": 72,
+    "expanded_px": 800,
+    "expanded_vh": 85,
+    "viewport_margin_px": 24
+  },
+  "quantity_significant_digits": 4,
+  "rules": {
+    "arrays": "tokens",
+    "multiline_text": "prose",
+    "long_text_with_spaces": "prose",
+    "other_values": "inline",
+    "titles": "balance",
+    "provenance": "wrap_whole_items",
+    "unbroken_tokens": "emergency_wrap_only"
+  },
+  "compact": {
+    "content_budget_px": 300,
+    "section_height_px": 34,
+    "row_min_px": 30,
+    "line_height_px": 17,
+    "value_characters_per_line": 22,
+    "label_characters_per_line": 16
+  },
+  "expanded": {
+    "columns": 2,
+    "minimum_column_px": 300,
+    "gap_px": 20
+  }
+}

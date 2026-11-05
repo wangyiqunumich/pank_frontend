@@ -33,7 +33,7 @@ const validateIdentity = (body, field, expected, snapshot = false) => {
 
 export async function request(path, options = {}) {
   if (TECH_DEMO) return techdemoRequest(path, options);
-  const { timeoutMs = options.method && options.method !== 'GET' ? 10000 : 15000, signal, ...fetchOptions } = options;
+  const { timeoutMs = options.method && options.method !== 'GET' ? 10000 : 60000, signal, ...fetchOptions } = options;
   const controller = new AbortController();
   const cancel = () => controller.abort();
   if (signal?.aborted) throw abortError();
@@ -42,7 +42,7 @@ export async function request(path, options = {}) {
   const timer = timeoutMs ? setTimeout(() => { timedOut = true; controller.abort(); }, timeoutMs) : null;
   try {
     const response = await fetch(apiPath(path), {
-      credentials: 'same-origin', ...fetchOptions, signal: controller.signal,
+      credentials: 'same-origin', cache: 'no-store', ...fetchOptions, signal: controller.signal,
       headers: { 'Content-Type': 'application/json', ...fetchOptions.headers },
     });
     let body;
@@ -115,7 +115,7 @@ async function admit(path, payload, key) {
 }
 export function createPlanOnce(question, sessionId = '', requestId = null, parentRunId = null) {
   // Legacy call sites retain a stable locally mapped intent; current UI passes UUIDs.
-  const legacyKey = `pank-vnext:intent:${JSON.stringify([sessionId, requestId || question])}`;
+  const legacyKey = `pank-vnext:intent:1104:${JSON.stringify([sessionId, requestId || question])}`;
   const previousIntent = readSaved(legacyKey);
   const id = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId || '') ? requestId : previousIntent?.request_id || newId();
   const durableSessionId = sessionId || previousIntent?.session_id || newId();
@@ -133,7 +133,7 @@ export function revisePlan(id, question, includeContext = true, requestId = newI
 }
 
 export function createResultOnce(payload) {
-  const key = `pank-vnext:result:tools1:${JSON.stringify(payload)}`;
+  const key = `pank-vnext:result:1104:${JSON.stringify(payload)}`;
   if (inFlight.has(key)) return inFlight.get(key);
   const previous = readSaved(key);
   if (identity(previous?.result_id)) return Promise.resolve(previous);
@@ -174,7 +174,7 @@ export function watchRun(runId, sequence, onEvent, onConnection = () => {}, onSn
       const saved = await getRun(runId, { signal: controller.signal });
       if (stopped) return;
       if (Number(saved.event_sequence || 0) >= lastSequence) {
-        lastSequence = Number(saved.event_sequence || 0); onSnapshot(saved);
+        lastSequence = Number(saved.event_sequence || 0); onConnection('connected'); onSnapshot(saved);
         if (TERMINAL_RUNS.has(saved.status)) stop();
       }
     } catch (_) { /* Keep the saved UI and try a read at the next polling tick. */ }
@@ -189,6 +189,7 @@ export function watchRun(runId, sequence, onEvent, onConnection = () => {}, onSn
     const seq = Number(event.seq ?? event.sequence ?? message.lastEventId);
     if (!Number.isSafeInteger(seq) || seq < 0 || seq <= lastSequence) return;
     lastSequence = seq;
+    onConnection('connected');
     onEvent({ ...event, seq });
     if (event.type === 'terminal') stop();
   };

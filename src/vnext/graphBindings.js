@@ -169,11 +169,14 @@ export function graphElements(result, positions = {}, routes = {}, options = {})
   const nodes = [...unique.values()].map((node, index) => {
     const raw = node[propertyKey] || {};
     const labels = node['~labels'] || [];
-    const type = review ? 'cell_type' : (labels.includes('provenance') ? 'provenance' : node.display_type) || labels.find((label) => graphInfocard.nodes?.[label]?.info_panel) || 'coding_elements';
+    // Backend profile names (e.g. Gene/Cell) are evidence identities, not
+    // necessarily registered frontend style keys. Keep typed refs unchanged.
+    const displayType = graphInfocard.nodes?.[node.display_type] ? node.display_type : null;
+    const type = review ? 'cell_type' : (labels.includes('provenance') ? 'provenance' : displayType) || labels.find((label) => graphInfocard.nodes?.[label]?.info_panel) || 'coding_elements';
     const position = finitePoint(positions[node['~id']]) || { x: index * 36, y: 0 };
     const sample = review ? {} : samplePresentation(node, result);
     const label = node.list_label || (labels.includes('provenance') ? 'Metadata definition' : sample.sample_display_label || raw.name || node.display_label || raw.id || node['~id']);
-    return { data: { ...raw, ...sample, evidence_properties: { ...raw }, element_kind: 'node', id: node['~id'], label: displayWords(label).length > 55 ? displayWords(label).slice(0, 52) + '…' : displayWords(label), type, raw_labels: labels, Level: positions[node['~id']]?.Level || 'Core' }, position };
+    return { data: { ...raw, ...sample, evidence_properties: { ...raw }, element_kind: 'node', viewer_ref: node.ref ? { ...node.ref } : null, id: node['~id'], label: displayWords(label).length > 55 ? displayWords(label).slice(0, 52) + '…' : displayWords(label), type, raw_labels: labels, Level: positions[node['~id']]?.Level || 'Core' }, position };
   });
   const byId = Object.fromEntries(nodes.map((node) => [node.data.id, node]));
   const edgeStyles = new Map();
@@ -185,7 +188,7 @@ export function graphElements(result, positions = {}, routes = {}, options = {})
     const start = edge['~start'], end = edge['~end'];
     const style = routeStyle(routes[edge['~id']], byId[start].position, byId[end].position, inverted);
     edgeStyles.set(edge['~id'], { ...style, 'text-opacity': 1, 'text-events': 'yes' });
-    return { data: { ...(edge[propertyKey] || {}), element_kind: 'edge', id: edge['~id'], source: inverted ? end : start, target: inverted ? start : end,
+    return { data: { ...(edge[propertyKey] || {}), element_kind: 'edge', viewer_ref: edge.ref ? { ...edge.ref } : null, id: edge['~id'], source: inverted ? end : start, target: inverted ? start : end,
       source_name: byId[start].data.label, target_name: byId[end].data.label, type: displayType, raw_type: edge['~type'],
       label: label.replace(/_/g, ' ').trim(),
       evidence_properties: { ...(edge[propertyKey] || {}) } } };

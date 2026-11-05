@@ -28,7 +28,8 @@
       "label": "Adjusted P-value",
       "section": "Recorded evidence",
       "format": "recorded",
-      "help": "P-value adjusted for multiple tests; smaller values indicate stronger statistical evidence under the test assumptions."
+      "help": "P-value adjusted for multiple tests; smaller values indicate stronger statistical evidence under the test assumptions.",
+      "short_label": "Adj. P"
     },
     "age": {
       "label": "Age (recorded)",
@@ -108,7 +109,8 @@
     "cell_type_label": {
       "label": "Cell type label",
       "section": "Recorded evidence",
-      "format": "recorded"
+      "format": "recorded",
+      "short_label": "Cell type"
     },
     "cell_type_name": {
       "label": "Cell type name",
@@ -192,12 +194,14 @@
       "label": "Assay (recorded)",
       "section": "Recorded evidence",
       "format": "recorded",
-      "help": "Recorded assay label. An indexed sample does not establish that downloadable files are available."
+      "help": "Recorded assay label. An indexed sample does not establish that downloadable files are available.",
+      "short_label": "Modality"
     },
     "data_source": {
       "label": "Data source",
       "section": "Sources and record details",
-      "format": "recorded"
+      "format": "recorded",
+      "short_label": "Source"
     },
     "data_source_url": {
       "label": "Source link",
@@ -207,7 +211,8 @@
     "data_version": {
       "label": "Source version",
       "section": "Sources and record details",
-      "format": "recorded"
+      "format": "recorded",
+      "short_label": "Version"
     },
     "dataset_source": {
       "label": "Dataset source",
@@ -312,7 +317,8 @@
     "expression_call": {
       "label": "Recorded expression classification",
       "section": "Recorded evidence",
-      "format": "recorded"
+      "format": "recorded",
+      "short_label": "Detection"
     },
     "expression_cell_type": {
       "label": "Expression cell type",
@@ -372,7 +378,8 @@
     "gene_symbol": {
       "label": "Gene symbol",
       "section": "Recorded evidence",
-      "format": "recorded"
+      "format": "recorded",
+      "short_label": "Gene"
     },
     "gene_type": {
       "label": "Gene type",
@@ -382,7 +389,8 @@
     "genome_assembly": {
       "label": "Genome assembly",
       "section": "Recorded evidence",
-      "format": "recorded"
+      "format": "recorded",
+      "short_label": "Assembly"
     },
     "go_domain": {
       "label": "GO category",
@@ -514,7 +522,8 @@
       "label": "Log2 fold change",
       "section": "Recorded evidence",
       "format": "recorded",
-      "help": "Difference on a base-2 log scale; +1 corresponds to a two-fold ratio. Direction depends on the recorded comparison."
+      "help": "Difference on a base-2 log scale; +1 corresponds to a two-fold ratio. Direction depends on the recorded comparison.",
+      "short_label": "Log2 FC"
     },
     "log2err": {
       "label": "P-value uncertainty estimate (log2 scale)",
@@ -554,12 +563,14 @@
     "median_donor_log_cpm": {
       "label": "Median donor log counts per million",
       "section": "Recorded evidence",
-      "format": "recorded"
+      "format": "recorded",
+      "short_label": "Median donor log CPM"
     },
     "median_pct_cells_expressing": {
       "label": "Median percentage cells expressing",
       "section": "Recorded evidence",
-      "format": "recorded"
+      "format": "recorded",
+      "short_label": "Cells expressing (%)"
     },
     "method": {
       "label": "Method",
@@ -711,13 +722,15 @@
       "label": "P-value",
       "section": "Recorded evidence",
       "format": "recorded",
-      "help": "A P-value measures compatibility with the test\u2019s null model, not the probability that a biological claim is true."
+      "help": "A P-value measures compatibility with the test\u2019s null model, not the probability that a biological claim is true.",
+      "short_label": "P value"
     },
     "padj": {
       "label": "Adjusted P-value",
       "section": "Recorded evidence",
       "format": "recorded",
-      "help": "P-value adjusted for multiple tests; smaller values indicate stronger statistical evidence under the test assumptions."
+      "help": "P-value adjusted for multiple tests; smaller values indicate stronger statistical evidence under the test assumptions.",
+      "short_label": "Adj. P"
     },
     "pancdb_id": {
       "label": "PANC-DB ID",
@@ -777,13 +790,15 @@
       "label": "Colocalization probability H3: both traits, different causal variants",
       "section": "Recorded evidence",
       "format": "recorded",
-      "help": "Support for a shared causal variant under the colocalization model; depends on its assumptions and priors. It does not prove a biological mechanism. Trait 1/2 follow the source analysis order."
+      "help": "Support for a shared causal variant under the colocalization model; depends on its assumptions and priors. It does not prove a biological mechanism. Trait 1/2 follow the source analysis order.",
+      "short_label": "Coloc PP.H3"
     },
     "pp_h4_abf": {
       "label": "Colocalization probability H4: both traits, shared causal variant",
       "section": "Recorded evidence",
       "format": "recorded",
-      "help": "Support for a shared causal variant under the colocalization model; depends on its assumptions and priors. It does not prove a biological mechanism. Trait 1/2 follow the source analysis order."
+      "help": "Support for a shared causal variant under the colocalization model; depends on its assumptions and priors. It does not prove a biological mechanism. Trait 1/2 follow the source analysis order.",
+      "short_label": "Coloc PP.H4"
     },
     "predicted_genetic_ancestry": {
       "label": "Predicted genetic ancestry",
@@ -810,7 +825,8 @@
       "label": "P-value",
       "section": "Recorded evidence",
       "format": "recorded",
-      "help": "A P-value measures compatibility with the test\u2019s null model, not the probability that a biological claim is true."
+      "help": "A P-value measures compatibility with the test\u2019s null model, not the probability that a biological claim is true.",
+      "short_label": "P value"
     },
     "qtl_lead_vars": {
       "label": "QTL lead variants",
@@ -840,7 +856,8 @@
     "rank_in_cell_type": {
       "label": "Rank in cell type",
       "section": "Recorded evidence",
-      "format": "recorded"
+      "format": "recorded",
+      "short_label": "Cell-type rank"
     },
     "ref": {
       "label": "Reference allele",
@@ -937,7 +954,8 @@
     "total_cells": {
       "label": "Total cells",
       "section": "Recorded evidence",
-      "format": "recorded"
+      "format": "recorded",
+      "short_label": "Cells"
     },
     "type": {
       "label": "Recorded type",
