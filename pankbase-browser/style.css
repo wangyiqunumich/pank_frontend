@@ -90,3 +90,9 @@ table{border-collapse:collapse;width:100%;font-size:11px}th,td{text-align:left;p
 .heatmap-gradient { width:90px; height:8px; background:linear-gradient(to right,#053061,#f7f7f7,#67001f); }
 .missing-swatch { display:inline-block; width:8px; height:8px; background:#e2e8f0; margin-right:3px; }
 .browser-footer .legend .continuous-key { width:90px; height:8px; margin:3px 0; }
+
+/* Legacy embedded view tabs use the same contrast as the shared module chrome. */
+.tabs button { min-height:32px; border-color:#b8d8d3; background:#f0f8f6; color:#245c56; font-weight:600; }
+.tabs button:hover:not(:disabled) { background:#dcefea; }
+.tabs button[aria-pressed=true] { border-color:#0f766e; background:#0f766e; color:#fff; }
+.tabs button[aria-pressed=true]:hover { background:#115e59; }

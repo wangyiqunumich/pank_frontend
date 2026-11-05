@@ -157,25 +157,31 @@ function ContentTabs({ tabs, value, onChange, variant = 'default' }) {
             aria-label={visualSchema.main_visuals.tab_switch.accessible_label}
             scrollButtons={visualSchema.main_visuals.tab_switch.scroll_buttons}
             sx={{
-                minHeight: 0,
+                minHeight: 36,
+                "& .MuiTabs-flexContainer": { gap: "6px" },
                 "& .MuiTabs-scrollButtons.Mui-disabled": { display: "none" },
                 "& .MuiTab-root": {
-                    minHeight: 0,
-                    pb: 1,
-                    pt: 0,
-                    px: 0,
+                    minHeight: 36,
+                    py: "7px",
+                    px: "12px",
+                    border: "1px solid #B8D8D3",
+                    borderRadius: "8px",
+                    backgroundColor: "#F0F8F6",
+                    whiteSpace: "nowrap",
                     minWidth: "auto",
-                    marginRight: "24px",
+                    marginRight: 0,
                     textTransform: "none",
                     fontWeight: "600 !important",
-                    fontSize: isPank1 ? "12px !important" : "14px !important",
-                    color: "#94A3B8 !important",
+                    fontSize: isPank1 ? "13px !important" : "14px !important",
+                    color: "#245C56 !important",
+                    "&:hover": { backgroundColor: "#DCEFEA" },
+                    "&.Mui-focusVisible": { outline: "2px solid #0F766E", outlineOffset: "-3px" },
                     "&:last-child": {
                         marginRight: 0,
                     },
                 },
-                "& .Mui-selected": { color: "#3A838B !important" },
-                "& .MuiTabs-indicator": { backgroundColor: "#3A838B !important", height: 2 },
+                "& .MuiTab-root.Mui-selected": { color: "#FFF !important", backgroundColor: "#0F766E", borderColor: "#0F766E", "&:hover": { backgroundColor: "#115E59" } },
+                "& .MuiTabs-indicator": { display: "none" },
             }}
         >
             {tabs.map((t) => (
@@ -1026,7 +1032,6 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
     const [hoveredReference, setHoveredReference] = React.useState(null);
     const aiOverviewRef = React.useRef(null);
     const pageRootRef = React.useRef(null);
-    const [aiOverviewHeight, setAiOverviewHeight] = React.useState(0);
     const isSingleColumn = useMediaQuery("(max-width:1199.95px)");
     const visualTabs = data?.visualMaterial?.tabs ?? [];
     React.useEffect(() => { setVisualTab(0); }, [data?.visualMaterial?.scopeKey]);
@@ -1043,14 +1048,8 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
     const activeVisualMinHeight = visualTabs[normalizedVisualIndex]?.minHeight;
     const singleColumnHeight = (minPx, vw, maxPx) => `clamp(${minPx}px, ${vw}vw, ${maxPx}px)`;
     const desktopClamp = "clamp(260px, 28vw, 420px)";
-    const maxAiOverviewHeight = 520;
     const baseSingleHeight = singleColumnHeight(400, 55, 520);
-    const cappedAiOverviewHeight = aiOverviewHeight
-        ? Math.min(aiOverviewHeight, maxAiOverviewHeight)
-        : 0;
-    const baseDesktopHeight = cappedAiOverviewHeight
-        ? `max(${desktopClamp}, ${cappedAiOverviewHeight}px)`
-        : desktopClamp;
+    const baseDesktopHeight = desktopClamp;
     const visualPanelHeight = BROWSER_VISUAL_IDS.has(visualTabs[normalizedVisualIndex]?.id)
         ? `max(${activeVisualMinHeight || 0}px, ${BROWSER_PANEL_HEIGHT})`
         : activeVisualMinHeight
@@ -1165,6 +1164,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
             || (data?.visualMaterial?.noGraph && !hasRenderableVisualTabs)
         )
     );
+    const matchVisualHeight = !isSingleColumn && showVisualSection && !preferFollowUpBeforeVisual;
     const anchorPrefix = React.useMemo(() => {
         if (contentAnchorPrefix) return contentAnchorPrefix;
         if (data?.questionId) {
@@ -1188,20 +1188,6 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
             setEvidenceTab(0);
         }
     }, [evidenceTab, evidenceTabs.length]);
-
-    React.useEffect(() => {
-        const element = aiOverviewRef.current;
-        if (!element || typeof ResizeObserver === "undefined") return;
-
-        const observer = new ResizeObserver((entries) => {
-            entries.forEach((entry) => {
-                setAiOverviewHeight(Math.ceil(entry.contentRect.height));
-            });
-        });
-
-        observer.observe(element);
-        return () => observer.disconnect();
-    }, [data?.aiOverview?.sections]);
 
     // Handle scroll to top signal from parent
     React.useEffect(() => {
@@ -1271,13 +1257,16 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                 {/* Main two-column area (AI Overview + Visual Material) */}
                 <Grid container columns={10} columnSpacing={3} rowSpacing={2.5} alignItems="stretch">
                     {/* AI Overview */}
-                    <Grid item zeroMinWidth xs={10} md={10} lg={6} order={{ xs: 1, md: 1, lg: 1 }} id={buildAnchorId("ai-overview")}>
-                        <SectionCard title="AI Overview" variant={isPank1Style ? 'pank1' : 'default'}>
+                    <Grid item zeroMinWidth xs={10} md={10} lg={6} order={{ xs: 1, md: 1, lg: 1 }} id={buildAnchorId("ai-overview")} sx={{ display: "flex", minHeight: 0 }}>
+                        <SectionCard title="AI Overview" variant={isPank1Style ? 'pank1' : 'default'} sx={{ width: "100%", minWidth: 0, display: "flex", flexDirection: "column" }}>
                             <Box
                                 sx={{
-                                    height: "auto",
+                                    // The visual column determines the row height. CSS flex
+                                    // sizing follows browser zoom without a stale pixel measurement.
+                                    height: matchVisualHeight ? 0 : "auto",
+                                    flex: matchVisualHeight ? "1 1 0px" : "none",
                                     minHeight: 0,
-                                    maxHeight: isSingleColumn ? "none" : 520,
+                                    maxHeight: matchVisualHeight || isSingleColumn ? "none" : 520,
                                     overflowY: "auto",
                                     overflowX: "hidden",
                                     pr: { xs: 0, lg: 1 },
