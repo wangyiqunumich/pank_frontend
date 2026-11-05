@@ -1,8 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import schema from './schema/result_page_schema.json';
 import {firstAvailableExpression} from './singleCellContext';
-import {qtlContexts} from './qtlContext';
-import {pankbaseContexts} from './pankbaseContext';
+import {resolveResultPage} from './resultPageSchema';
 import {DEV_MODULES} from './hosting';
 import SingleCellBrowser from './SingleCellBrowser';
 import PanKbaseModule from './PanKbaseModule';
@@ -13,12 +12,14 @@ import GuideExploration, {explorationContext, explorationAtlasContext} from './m
 // Schema owns eligibility and ordering. Context adapters only interpret records.
 export function firstModuleContexts(result) {
   const graph=result?.combined_query_result;
-  const adapters={expression:()=>firstAvailableExpression(graph),qtl:()=>qtlContexts(result).find(c=>c.available)};
-  const related=pankbaseContexts(graph);
+  const page=resolveResultPage({result});
+  const eligible=new Set(page.mainVisuals.map(view=>view.id));
+  const adapters={expression:()=>firstAvailableExpression(graph),qtl:()=>(page.qtlContexts||[]).find(c=>c.available)};
+  const related=page.pankbaseContexts||{};
   const contexts={};
   for(const id of schema.main_visuals.default_order){
     const d=schema.main_visuals.items[id];
-    if(!d?.extension || !d.enabled || d.hidden)continue;
+    if(!d?.extension || !eligible.has(id))continue;
     const context=d.context_adapter==='pankbase'?related[id]:adapters[d.context_adapter]?.();
     if(context?.available)contexts[id]=context;
   }

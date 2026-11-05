@@ -1,3 +1,4 @@
+import schema from './schema/result_page_schema.json';
 import React from 'react';
 import {render,screen,fireEvent} from '@testing-library/react';
 import {captureModules,firstModuleContexts,useResultModules} from './ResultModules';
@@ -42,4 +43,11 @@ test('late endpoint arrivals activate RNA and DE once; later edges cannot change
  payload.combined_query_result.edges.unshift({...edge,'~id':'later','~start':'CFTR'});
  const next=captureModules(first,'one',firstModuleContexts(payload));
  expect(next).toBe(first);expect(next.entries.single_cell_browser.geneSymbol).toBe('INS');
+});
+
+test('the shared schema requirements gate automatic extension activation',()=>{
+ const definition=schema.main_visuals.items.genome_browser,previous=definition.requires;
+ try{definition.requires=['unavailable_requirement'];expect(firstModuleContexts(result([gene('CFTR')])).genome_browser).toBeUndefined();}
+ finally{definition.requires=previous;}
+ expect(firstModuleContexts(result([gene('CFTR')])).genome_browser.geneSymbol).toBe('CFTR');
 });

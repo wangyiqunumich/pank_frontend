@@ -95,3 +95,14 @@ The focused 66 React tests and 34 native tests passed. An additional 49 API and
 stream-contract tests passed; the four surface tests were updated to the shared
 module chrome and passed. The latest upstream panel merge also passed its 15
 focused checks. Existing CRA/lint warnings remain; production builds succeeded.
+
+All six extensions were subsequently opened in the same regular dev conversation.
+DE rendered 11,653 source gene records, Functional rendered its 407-donor response,
+and QTL rendered the complete PKBDS2105PCON/CFTR set with three SNPs and lead
+rs2402203. No browser errors were recorded. These independent guide-opened
+modules were explicitly labeled; none changed the original INS answer.
+
+Extension capture consumes the selector's eligible visual IDs, so `requires`
+conditions are enforced by `resolveResultPage` rather than a parallel eligibility
+implementation. A regression verifies that changing a module's schema requirement
+prevents automatic activation even when a matching Gene exists.
