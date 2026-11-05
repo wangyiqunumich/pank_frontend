@@ -1,9 +1,9 @@
-import policy from '../../schema/information_panel_schema.json';
+import defaultPolicy from '../../schema/graph_viewer_panel_schema.json';
 import {compactSummary} from './compactSections';
 export const nonempty=v=>v!==null && v!==undefined && v!=='' && (!Array.isArray(v)||v.length>0);
 // Production section order and visual formats, applied to the selected record's
 // current fields. No legacy dataset values or neighbor lookups are introduced.
-export function recordDesign(card,source=card) {
+export function recordDesign(card,source=card,policy=defaultPolicy) {
  card={...card,provenance:{...Object.fromEntries((card.fields||[]).filter(f=>policy.provenance_fields.includes(f.key)).map(f=>[f.key,f.value])),...card.provenance}};
  const design=policy.record_design_types?.[card.ref?.type_id];
  const rules=policy.record_designs?.[design];
@@ -43,13 +43,13 @@ export function recordDesign(card,source=card) {
  }
  return {...card,sections,frequencies,production_design:design};
 }
-export function objectSections(card){
- const summary=compactSummary(card);
+export function objectSections(card,policy=defaultPolicy){
+ const summary=compactSummary(card,policy);
  const sections=card.sections.map(s=>({...s,fields:s.fields.filter(f=>!policy.provenance_fields.includes(f.key)&&!summary?.spec.replaces.includes(f.key))})).filter(s=>s.fields.length);
  if(!summary)return sections;
  return [...summary.rows.map(row=>({title:row[summary.spec.label],fields:summary.columns.filter(c=>Object.hasOwn(row[summary.spec.values]||{},c.key)).map(c=>({key:`${row[summary.spec.label]}:${c.key}`,label:c.label,value:row[summary.spec.values][c.key],kind:'quantity',layout:'inline'}))})),...sections];
 }
-export function hasExtraRecord(card,compact,tabs){
+export function hasExtraRecord(card,compact,tabs,policy=defaultPolicy){
  if(tabs.length||compact.omitted>0)return true;
  const shown=new Set(compact.sections.flatMap(s=>s.fields.map(f=>f.key)));
  if((card.fields||[]).some(f=>!shown.has(f.key)&&!(policy.complete_record.omit_fields||[]).includes(f.key)&&!policy.hidden_internal_fields.includes(f.key)&&!policy.provenance_fields.includes(f.key)&&nonempty(f.value)))return true;
@@ -57,8 +57,8 @@ export function hasExtraRecord(card,compact,tabs){
 }
 
 // One section layout for every modality. Source values are never recalculated.
-export function expandedSections(card) {
- const summary=compactSummary(card);
+export function expandedSections(card,policy=defaultPolicy) {
+ const summary=compactSummary(card,policy);
  const consumed=new Set([...policy.provenance_fields,...(policy.complete_record.omit_fields||[]),...(summary?.spec.replaces||[])]);
  if(card.production_design==='Variant')for(const key of ['freq','consequence','hgvs'])consumed.add(key);
  const genes=card.endpoints?.filter(e=>e.ref.type_id==='Gene') || [];

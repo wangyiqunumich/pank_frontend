@@ -1,4 +1,4 @@
-import panelPolicy from '../../schema/information_panel_schema.json';
+import defaultPolicy from '../../schema/graph_viewer_panel_schema.json';
 /** Declarative object-owned components. No neighbor lookup or SQL discovery. */
 export function componentViews(card, schema) {
   const owned=new Set((card.tables || []).map(t=>t.id));
@@ -9,7 +9,7 @@ export function componentViews(card, schema) {
   return legacy ? [{id:'expression',renderer:'condition_tables',title:legacy.title,
     table_ids:(card.tables || []).map(t=>t.id),view:legacy,legacy:true}] : [];
 }
-export function conditionGroups(component,card) {
+export function conditionGroups(component,card,panelPolicy=defaultPolicy) {
   if (component.legacy) return component.view.groups;
   const owned=new Set(component.table_ids);
   return component.view.groups.map(group=>({...group,presets:group.presets.map(p=>({...p,...panelPolicy.expression_display.presets?.[p.id]})).filter(p=>owned.has(p.table_id))}))

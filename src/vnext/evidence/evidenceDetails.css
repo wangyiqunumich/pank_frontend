@@ -5,7 +5,7 @@
 .xe-expanded-details .xe-card-tabs button {background:transparent;border:0;border-bottom:2px solid transparent;white-space:nowrap;padding:8px;color:#536970;}
 .xe-expanded-details .xe-card-tabs button.active {color:#087d78;border-bottom-color:#087d78;}
 .xe-expanded-details .xe-card-body {padding:16px;min-width:0;}
-.xe-record-view .xe-card-body {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 24px;align-items:start;}
+.xe-record-view .xe-card-body {display:grid;grid-template-columns:repeat(var(--panel-columns,2),minmax(0,1fr));gap:var(--panel-gap,16px);align-items:start;}
 .xe-expanded-details .xe-card-section {min-width:0;border-bottom:1px solid #e6edef;padding:8px 0;}
 .xe-expanded-details h3 {font-size:13px;color:#61767d;margin:0 0 12px;}
 .xe-expanded-details dl {margin:0;}

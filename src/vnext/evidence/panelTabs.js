@@ -1,7 +1,8 @@
-import policy from '../../schema/information_panel_schema.json';
+import {panelSchema} from './panelSchema';
 import {componentViews} from './evidenceComponents';
 // Registration controls presentation, never grants table ownership.
 export function panelTabs(card,schema) {
+  const policy=panelSchema(schema);
   const components=componentViews(card,schema).filter(c=>policy.components[c.id]);
   const consumed=new Set(components.flatMap(c=>c.table_ids));
   return [

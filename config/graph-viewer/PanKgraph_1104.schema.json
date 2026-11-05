@@ -1,0 +1,5618 @@
+{
+  "schema_version": "1103.viewer.candidate.1.panel3",
+  "release_id": "PanKgraph_1104",
+  "profiles": {
+    "node:GO_term": {
+      "id": "GO_term",
+      "kind": "node",
+      "title": "Gene Ontology term",
+      "group": "Nodes",
+      "color": "#aa8c45",
+      "title_field": "name",
+      "compact": [
+        {
+          "title": "Term",
+          "fields": [
+            {
+              "key": "id",
+              "label": "Stable ID",
+              "format": "value"
+            },
+            {
+              "key": "name",
+              "label": "Name",
+              "format": "value"
+            },
+            {
+              "key": "description",
+              "label": "Description",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "Ontology",
+          "fields": [
+            {
+              "key": "go_domain",
+              "label": "Go domain",
+              "format": "value"
+            },
+            {
+              "key": "is_obsolete",
+              "label": "Is obsolete",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [
+        "accessions"
+      ],
+      "note": "GO identity and BP/MF/CC domains are retained.",
+      "widget": null,
+      "expanded_order": [
+        "id",
+        "name",
+        "description",
+        "go_domain",
+        "is_obsolete",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "synonyms"
+      ],
+      "components": [
+        {
+          "component": "node_alt_id",
+          "tables": [
+            "accessions"
+          ]
+        }
+      ],
+      "table_overrides": {
+        "accessions": {
+          "download": {
+            "source_ids": [
+              "ensembl_ontology116"
+            ]
+          }
+        }
+      },
+      "examples": [
+        {
+          "kind": "node",
+          "type_id": "GO_term",
+          "id": "GO:0000001"
+        },
+        {
+          "kind": "node",
+          "type_id": "GO_term",
+          "id": "GO:0000002"
+        }
+      ],
+      "match": {
+        "labels_all": [
+          "GO_term"
+        ]
+      }
+    },
+    "node:Gene": {
+      "id": "Gene",
+      "kind": "node",
+      "title": "Gene",
+      "group": "Nodes",
+      "color": "#2979a5",
+      "title_field": "name",
+      "compact": [
+        {
+          "title": "Identity",
+          "fields": [
+            {
+              "key": "name",
+              "label": "Name",
+              "format": "value"
+            },
+            {
+              "key": "id",
+              "label": "Stable ID",
+              "format": "value"
+            },
+            {
+              "key": "description",
+              "label": "Description",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "Position",
+          "fields": [
+            {
+              "key": "chr",
+              "label": "Chromosome",
+              "format": "value"
+            },
+            {
+              "key": "start_loc",
+              "label": "Start (0-based)",
+              "format": "value"
+            },
+            {
+              "key": "end_loc",
+              "label": "End (exclusive)",
+              "format": "value"
+            },
+            {
+              "key": "strand",
+              "label": "Strand",
+              "format": "value"
+            },
+            {
+              "key": "genome_assembly",
+              "label": "Assembly",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "Reference IDs",
+          "fields": [
+            {
+              "key": "alt_id_hgnc",
+              "label": "Alt id hgnc",
+              "format": "value"
+            },
+            {
+              "key": "alt_id_entrez",
+              "label": "Alt id entrez",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [
+        "accessions",
+        "placements"
+      ],
+      "note": "HGNC-preferred symbol. Gene annotations remain on the node; additional same-entity accessions and placements are exact lookups.",
+      "widget": null,
+      "expanded_order": [
+        "name",
+        "id",
+        "description",
+        "chr",
+        "start_loc",
+        "end_loc",
+        "strand",
+        "genome_assembly",
+        "alt_id_hgnc",
+        "alt_id_entrez",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "synonyms"
+      ],
+      "components": [
+        {
+          "component": "chr_index",
+          "tables": [
+            "placements"
+          ]
+        },
+        {
+          "component": "node_alt_id",
+          "tables": [
+            "accessions"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "kind": "node",
+          "type_id": "Gene",
+          "id": "ENSG00000000003"
+        },
+        {
+          "kind": "node",
+          "type_id": "Gene",
+          "id": "ENSG00000000005"
+        }
+      ],
+      "match": {
+        "labels_all": [
+          "Gene"
+        ]
+      }
+    },
+    "node:Reactome_pathway": {
+      "id": "Reactome_pathway",
+      "kind": "node",
+      "title": "Reactome Pathway",
+      "group": "Nodes",
+      "color": "#aa8c45",
+      "title_field": "name",
+      "compact": [
+        {
+          "title": "Pathway",
+          "fields": [
+            {
+              "key": "name",
+              "label": "Name",
+              "format": "value"
+            },
+            {
+              "key": "id",
+              "label": "Stable ID",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "Release",
+          "fields": [
+            {
+              "key": "data_source",
+              "label": "Data source",
+              "format": "value"
+            },
+            {
+              "key": "data_version",
+              "label": "Data version",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [],
+      "note": "Reactome membership and pathway hierarchy are distinct relationships.",
+      "widget": null,
+      "expanded_order": [
+        "name",
+        "id",
+        "data_source",
+        "data_version",
+        "data_source_url",
+        "license",
+        "description",
+        "synonyms"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "node",
+          "type_id": "Reactome_pathway",
+          "id": "R-HSA-164843"
+        },
+        {
+          "kind": "node",
+          "type_id": "Reactome_pathway",
+          "id": "R-HSA-9909438"
+        }
+      ],
+      "match": {
+        "labels_all": [
+          "Reactome_pathway"
+        ]
+      }
+    },
+    "node:KEGG_pathway": {
+      "id": "KEGG_pathway",
+      "kind": "node",
+      "title": "KEGG Pathway",
+      "group": "Nodes",
+      "color": "#b58a3c",
+      "title_field": "name",
+      "compact": [
+        {
+          "title": "Pathway",
+          "fields": [
+            {
+              "key": "name",
+              "label": "Name",
+              "format": "value"
+            },
+            {
+              "key": "id",
+              "label": "MSigDB ID",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "Source",
+          "fields": [
+            {
+              "key": "collection",
+              "label": "Collection",
+              "format": "value"
+            },
+            {
+              "key": "external_id",
+              "label": "Source ID",
+              "format": "value"
+            },
+            {
+              "key": "source_gene_count",
+              "label": "Source genes",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [],
+      "note": "MSigDB KEGG_MEDICUS identity and license. Legacy KEGG IDs and scores are not substituted.",
+      "widget": null,
+      "expanded_order": [
+        "name",
+        "id",
+        "collection",
+        "data_version",
+        "data_source",
+        "data_source_url",
+        "license",
+        "external_id",
+        "external_url",
+        "source_gene_count",
+        "description",
+        "synonyms"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "node",
+          "type_id": "KEGG_pathway",
+          "id": "MSIGDB_HS_M47811"
+        },
+        {
+          "kind": "node",
+          "type_id": "KEGG_pathway",
+          "id": "MSIGDB_HS_M47812"
+        }
+      ],
+      "match": {
+        "labels_all": [
+          "KEGG_pathway"
+        ]
+      }
+    },
+    "node:ocr_peak": {
+      "id": "ocr_peak",
+      "kind": "node",
+      "title": "Open chromatin region",
+      "group": "Nodes",
+      "color": "#a781ad",
+      "title_field": "name",
+      "compact": [
+        {
+          "title": "Region",
+          "fields": [
+            {
+              "key": "id",
+              "label": "Stable ID",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "Position",
+          "fields": [
+            {
+              "key": "chr",
+              "label": "Chromosome",
+              "format": "value"
+            },
+            {
+              "key": "start_loc",
+              "label": "Start (0-based)",
+              "format": "value"
+            },
+            {
+              "key": "end_loc",
+              "label": "End (exclusive)",
+              "format": "value"
+            },
+            {
+              "key": "genome_assembly",
+              "label": "Assembly",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [],
+      "note": "Original peak granularity and source analysis retained; cell context is on OCR_PEAK_IN.",
+      "widget": null,
+      "expanded_order": [
+        "id",
+        "chr",
+        "start_loc",
+        "end_loc",
+        "genome_assembly",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "description",
+        "name",
+        "synonyms",
+        "type"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "node",
+          "type_id": "ocr_peak",
+          "id": "CL_0002410_active_1_100008394_100008769"
+        },
+        {
+          "kind": "node",
+          "type_id": "ocr_peak",
+          "id": "CL_0002410_active_1_10001052_10001305"
+        }
+      ],
+      "match": {
+        "labels_all": [
+          "OCR_peak"
+        ]
+      }
+    },
+    "node:disease": {
+      "id": "disease",
+      "kind": "node",
+      "title": "Disease",
+      "group": "Nodes",
+      "color": "#b8727b",
+      "title_field": "name",
+      "compact": [
+        {
+          "title": "Disease",
+          "fields": [
+            {
+              "key": "name",
+              "label": "Name",
+              "format": "value"
+            },
+            {
+              "key": "id",
+              "label": "Stable ID",
+              "format": "value"
+            },
+            {
+              "key": "description",
+              "label": "Description",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [],
+      "note": "Only the existing disease dependencies used by this release are included.",
+      "widget": null,
+      "expanded_order": [
+        "name",
+        "id",
+        "description",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "synonyms"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "node",
+          "type_id": "disease",
+          "id": "MONDO_0005147"
+        },
+        {
+          "kind": "node",
+          "type_id": "disease",
+          "id": "MONDO_0005148"
+        }
+      ],
+      "match": {
+        "labels_all": [
+          "ontology",
+          "disease"
+        ]
+      }
+    },
+    "node:donor": {
+      "id": "donor",
+      "kind": "node",
+      "title": "Donor",
+      "group": "Nodes",
+      "color": "#748b9a",
+      "title_field": "id",
+      "compact": [
+        {
+          "title": "Donor",
+          "fields": [
+            {
+              "key": "id",
+              "label": "HPAP ID",
+              "format": "value"
+            },
+            {
+              "key": "rrid",
+              "label": "RRID",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "Recorded status",
+          "fields": [
+            {
+              "key": "clinical_diagnosis",
+              "label": "Diagnosis",
+              "format": "value"
+            },
+            {
+              "key": "t1d_stage",
+              "label": "T1D stage",
+              "format": "value"
+            },
+            {
+              "key": "staging_status",
+              "label": "Stage basis",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [
+        "metadata_donor"
+      ],
+      "note": "Current HPAP-only metadata candidate. Source clinical annotations and metadata-based staging remain distinct.",
+      "widget": null,
+      "expanded_order": [
+        "id",
+        "rrid",
+        "pankbase_id",
+        "pancdb_id",
+        "derived_diabetes_status",
+        "diabetes_type",
+        "t1d_stage",
+        "aab_state",
+        "age",
+        "gender",
+        "sex_at_birth",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "aab_count",
+        "aab_panel_complete",
+        "antibody_source_conflict",
+        "bmi",
+        "c_peptide_ng_ml",
+        "cause_of_death",
+        "center_donor_id",
+        "clinical_diagnosis",
+        "creation_date",
+        "description",
+        "diabetes_duration",
+        "donation_type",
+        "family_history_of_diabetes",
+        "hba1c_percentage",
+        "hla_status",
+        "hla_typing",
+        "hospital_stay_hours",
+        "metadata_coverage",
+        "name",
+        "other_disease_records",
+        "other_therapy",
+        "predicted_genetic_ancestry",
+        "race",
+        "rna_v3_4_included",
+        "source_t1d_stage",
+        "staging_basis",
+        "staging_status",
+        "synonyms"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "node",
+          "type_id": "donor",
+          "id": "HPAP-123"
+        },
+        {
+          "kind": "node",
+          "type_id": "donor",
+          "id": "HPAP-151"
+        }
+      ],
+      "match": {
+        "labels_all": [
+          "donor"
+        ]
+      }
+    },
+    "node:sample": {
+      "id": "sample",
+      "kind": "node",
+      "title": "Sample",
+      "group": "Nodes",
+      "color": "#829a9a",
+      "title_field": "data_modality",
+      "compact": [
+        {
+          "title": "Sample",
+          "fields": [
+            {
+              "key": "donor_id",
+              "label": "Donor",
+              "format": "value"
+            },
+            {
+              "key": "data_modality",
+              "label": "Modality",
+              "format": "value"
+            },
+            {
+              "key": "anatomical_structure",
+              "label": "Tissue",
+              "format": "value"
+            },
+            {
+              "key": "rrid",
+              "label": "RRID",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [
+        "metadata_sample",
+        "metadata_sample_source"
+      ],
+      "note": "Aggregate donor × physical tissue × modality; explicitly recorded RRID scopes remain distinct.",
+      "widget": null,
+      "expanded_order": [
+        "id",
+        "data_modality",
+        "anatomical_structure",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "available_trace_types",
+        "available_traits",
+        "cohort_trace_url",
+        "conditions",
+        "data_api_url",
+        "description",
+        "donor_id",
+        "functional_donor_rrid",
+        "n_cells",
+        "name",
+        "record_api_url",
+        "rna_v3_4_included",
+        "rrid",
+        "rrid_scope",
+        "source_sample_ids",
+        "synonyms",
+        "trait_summary_url",
+        "treatments",
+        "v34_sample_ids"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "node",
+          "type_id": "sample",
+          "id": "000864cb13e5548777a9dd4790a99c8f"
+        },
+        {
+          "kind": "node",
+          "type_id": "sample",
+          "id": "000d87aa8697bb0efc737720a59f5f97"
+        }
+      ],
+      "match": {
+        "labels_all": [
+          "sample"
+        ]
+      }
+    },
+    "node:Molecular_complex": {
+      "title": "Molecular complex",
+      "group": "Nodes",
+      "color": "#168b84",
+      "title_field": "name",
+      "compact": [
+        {
+          "title": "Complex",
+          "fields": [
+            {
+              "key": "name",
+              "label": "Subunits",
+              "format": "value"
+            },
+            {
+              "key": "subunit_count",
+              "label": "Subunit genes",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [],
+      "components": [],
+      "expanded_order": [
+        "data_source",
+        "data_source_url",
+        "data_version",
+        "description",
+        "id",
+        "license",
+        "name",
+        "subunit_count",
+        "synonyms"
+      ],
+      "id": "Molecular_complex",
+      "kind": "node",
+      "examples": [
+        {
+          "kind": "node",
+          "type_id": "Molecular_complex",
+          "id": "LIANA:COMPLEX:O60462_O75051"
+        },
+        {
+          "kind": "node",
+          "type_id": "Molecular_complex",
+          "id": "LIANA:COMPLEX:O75578_P05556"
+        }
+      ],
+      "match": {
+        "labels_all": [
+          "Molecular_complex"
+        ]
+      },
+      "note": "Complete source-defined complex; HAS_SUBUNIT records gene encoders. No stoichiometry or Cartesian binding is inferred."
+    },
+    "node:data_modality": {
+      "id": "data_modality",
+      "kind": "node",
+      "title": "Assay modality",
+      "group": "Nodes",
+      "color": "#6e9f9e",
+      "title_field": "id",
+      "compact": [
+        {
+          "title": "Assay",
+          "fields": [
+            {
+              "key": "id",
+              "label": "Stable ID",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [],
+      "note": "Legacy assay identity; sample links are source-recorded.",
+      "widget": null,
+      "expanded_order": [
+        "id",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "category",
+        "description",
+        "name",
+        "synonyms"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "node",
+          "type_id": "data_modality",
+          "id": "BCR-seq"
+        },
+        {
+          "kind": "node",
+          "type_id": "data_modality",
+          "id": "Bulk ATAC-seq"
+        }
+      ],
+      "match": {
+        "labels_all": [
+          "data_modality"
+        ]
+      }
+    },
+    "node:Variant": {
+      "id": "Variant",
+      "kind": "node",
+      "title": "Variant / SNP",
+      "group": "Nodes",
+      "color": "#d99631",
+      "title_field": "name",
+      "compact": [
+        {
+          "title": "Variant",
+          "fields": [
+            {
+              "key": "id",
+              "label": "Stable ID",
+              "format": "value"
+            },
+            {
+              "key": "ref",
+              "label": "Ref",
+              "format": "value"
+            },
+            {
+              "key": "alt",
+              "label": "Alt",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "Position",
+          "fields": [
+            {
+              "key": "chr",
+              "label": "Chromosome",
+              "format": "value"
+            },
+            {
+              "key": "start_loc",
+              "label": "Start (0-based)",
+              "format": "value"
+            },
+            {
+              "key": "end_loc",
+              "label": "End (exclusive)",
+              "format": "value"
+            },
+            {
+              "key": "genome_assembly",
+              "label": "Assembly",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "Interpretation",
+          "fields": [
+            {
+              "key": "variant_suspect_reason",
+              "label": "Variant suspect reason",
+              "format": "value"
+            },
+            {
+              "key": "common_snp",
+              "label": "Common snp",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [],
+      "note": "All recorded alleles, frequencies and consequence flags remain available. Some annotations explicitly retain the older source release; coordinate IDs are not guessed rsIDs.",
+      "widget": "variant",
+      "expanded_order": [
+        "id",
+        "ref",
+        "alt",
+        "chr",
+        "start_loc",
+        "end_loc",
+        "genome_assembly",
+        "variant_suspect_reason",
+        "common_snp",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "HGVS_name",
+        "description",
+        "freq",
+        "in_3prime_gene_region",
+        "in_3prime_utr",
+        "in_5prime_gene_region",
+        "in_5prime_utr",
+        "in_acceptor_splice_site",
+        "in_donor_splice_site",
+        "in_intron",
+        "name",
+        "non_synonymous_frameshift",
+        "non_synonymous_missense",
+        "non_synonymous_nonsense",
+        "synonyms"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "node",
+          "type_id": "Variant",
+          "id": "10:6458311_CT_C"
+        },
+        {
+          "kind": "node",
+          "type_id": "Variant",
+          "id": "11:128138867_TC_T"
+        }
+      ],
+      "match": {
+        "labels_all": [
+          "variants"
+        ]
+      }
+    },
+    "node:donor_provenance": {
+      "title": "Donor provenance",
+      "group": "Nodes",
+      "color": "#168b84",
+      "title_field": "name",
+      "compact": [
+        {
+          "title": "Provenance",
+          "fields": [
+            {
+              "key": "owner_type",
+              "label": "Applies to",
+              "format": "value"
+            },
+            {
+              "key": "name",
+              "label": "Name",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [],
+      "components": [],
+      "expanded_order": [
+        "age",
+        "bmi",
+        "data_source",
+        "data_source_url",
+        "data_version",
+        "derived_diabetes_status",
+        "description",
+        "diabetes_duration",
+        "diabetes_type",
+        "gender",
+        "id",
+        "license",
+        "name",
+        "owner_type",
+        "race",
+        "sex_at_birth",
+        "staging_standard",
+        "synonyms",
+        "t1d_stage"
+      ],
+      "id": "donor_provenance",
+      "kind": "node",
+      "examples": [
+        {
+          "kind": "node",
+          "type_id": "donor_provenance",
+          "id": "PanKgraph:donor_metadata:20261027"
+        }
+      ],
+      "match": {
+        "labels_all": [
+          "Metadata",
+          "Provenance"
+        ],
+        "properties": {
+          "owner_type": "donor"
+        }
+      },
+      "note": "Construction/source rules only; this node is not a biological donor or sample."
+    },
+    "node:sample_provenance": {
+      "title": "Sample provenance",
+      "group": "Nodes",
+      "color": "#168b84",
+      "title_field": "name",
+      "compact": [
+        {
+          "title": "Provenance",
+          "fields": [
+            {
+              "key": "owner_type",
+              "label": "Applies to",
+              "format": "value"
+            },
+            {
+              "key": "name",
+              "label": "Name",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [],
+      "components": [],
+      "expanded_order": [
+        "data_source",
+        "data_source_url",
+        "data_version",
+        "description",
+        "id",
+        "license",
+        "name",
+        "owner_type",
+        "rrid",
+        "sample_grouping",
+        "synonyms"
+      ],
+      "id": "sample_provenance",
+      "kind": "node",
+      "examples": [
+        {
+          "kind": "node",
+          "type_id": "sample_provenance",
+          "id": "PanKgraph:sample_metadata:20261103"
+        }
+      ],
+      "match": {
+        "labels_all": [
+          "Metadata",
+          "Provenance"
+        ],
+        "properties": {
+          "owner_type": "sample"
+        }
+      },
+      "note": "Construction/source rules only; this node is not a biological donor or sample."
+    },
+    "edge:FUNCTION_ANNOTATION__Gene__GO_term": {
+      "id": "FUNCTION_ANNOTATION__Gene__GO_term",
+      "kind": "edge",
+      "title": "GO annotation",
+      "group": "Functions",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [
+        {
+          "title": "Annotation",
+          "fields": [
+            {
+              "key": "go_evidence_code",
+              "label": "Go evidence code",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [],
+      "note": "Source evidence codes describe GO annotation support, not expression enrichment.",
+      "widget": "go_codes",
+      "expanded_order": [
+        "go_evidence_code",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "description",
+        "id"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "FUNCTION_ANNOTATION__Gene__GO_term",
+          "id": "ae9c8492c8940203e020bc16ef412546"
+        },
+        {
+          "kind": "edge",
+          "type_id": "FUNCTION_ANNOTATION__Gene__GO_term",
+          "id": "e511b4e7b1a39148261a51885256bc42"
+        }
+      ],
+      "match": {
+        "relationship_type": "FUNCTION_ANNOTATION",
+        "start_type": "Gene",
+        "end_type": "GO_term"
+      }
+    },
+    "edge:GENETIC_INTERACTION__Gene__Gene": {
+      "id": "GENETIC_INTERACTION__Gene__Gene",
+      "kind": "edge",
+      "title": "BioGRID genetic interaction",
+      "group": "Interactions",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [
+        {
+          "title": "Experiment",
+          "fields": [
+            {
+              "key": "id",
+              "label": "Stable ID",
+              "format": "value"
+            },
+            {
+              "key": "experimental_system",
+              "label": "Experimental system",
+              "format": "value"
+            },
+            {
+              "key": "experimental_system_type",
+              "label": "Experimental system type",
+              "format": "value"
+            },
+            {
+              "key": "throughput",
+              "label": "Throughput",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "Publication",
+          "fields": [
+            {
+              "key": "publication_source",
+              "label": "Publication source",
+              "format": "value"
+            },
+            {
+              "key": "author",
+              "label": "Author",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [],
+      "note": "Each BioGRID interaction record is independent. Source A/B orientation does not imply biological causality.",
+      "widget": null,
+      "expanded_order": [
+        "id",
+        "experimental_system",
+        "experimental_system_type",
+        "throughput",
+        "publication_source",
+        "author",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "biogrid_id_interactor_a",
+        "biogrid_id_interactor_b",
+        "biogrid_interaction_id",
+        "description",
+        "entrez_id_a",
+        "entrez_id_b",
+        "modifications",
+        "official_symbol_interactor_a",
+        "official_symbol_interactor_b",
+        "organism_id_interactor_a",
+        "organism_id_interactor_b",
+        "qualifications",
+        "score"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "GENETIC_INTERACTION__Gene__Gene",
+          "id": "BioGRID:244457"
+        },
+        {
+          "kind": "edge",
+          "type_id": "GENETIC_INTERACTION__Gene__Gene",
+          "id": "BioGRID:244645"
+        }
+      ],
+      "match": {
+        "relationship_type": "GENETIC_INTERACTION",
+        "start_type": "Gene",
+        "end_type": "Gene"
+      }
+    },
+    "edge:PHYSICAL_INTERACTION__Gene__Gene": {
+      "id": "PHYSICAL_INTERACTION__Gene__Gene",
+      "kind": "edge",
+      "title": "BioGRID physical interaction",
+      "group": "Interactions",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [
+        {
+          "title": "Experiment",
+          "fields": [
+            {
+              "key": "id",
+              "label": "Stable ID",
+              "format": "value"
+            },
+            {
+              "key": "experimental_system",
+              "label": "Experimental system",
+              "format": "value"
+            },
+            {
+              "key": "experimental_system_type",
+              "label": "Experimental system type",
+              "format": "value"
+            },
+            {
+              "key": "throughput",
+              "label": "Throughput",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "Publication",
+          "fields": [
+            {
+              "key": "publication_source",
+              "label": "Publication source",
+              "format": "value"
+            },
+            {
+              "key": "author",
+              "label": "Author",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [],
+      "note": "Each BioGRID interaction record is independent. Source A/B orientation does not imply biological causality.",
+      "widget": null,
+      "expanded_order": [
+        "id",
+        "experimental_system",
+        "experimental_system_type",
+        "throughput",
+        "publication_source",
+        "author",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "biogrid_id_interactor_a",
+        "biogrid_id_interactor_b",
+        "biogrid_interaction_id",
+        "description",
+        "entrez_id_a",
+        "entrez_id_b",
+        "modifications",
+        "official_symbol_interactor_a",
+        "official_symbol_interactor_b",
+        "organism_id_interactor_a",
+        "organism_id_interactor_b",
+        "qualifications",
+        "score"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "PHYSICAL_INTERACTION__Gene__Gene",
+          "id": "BioGRID:103"
+        },
+        {
+          "kind": "edge",
+          "type_id": "PHYSICAL_INTERACTION__Gene__Gene",
+          "id": "BioGRID:117"
+        }
+      ],
+      "match": {
+        "relationship_type": "PHYSICAL_INTERACTION",
+        "start_type": "Gene",
+        "end_type": "Gene"
+      }
+    },
+    "edge:GENE_DETECTED_IN__Gene__anatomical_structure": {
+      "id": "GENE_DETECTED_IN__Gene__anatomical_structure",
+      "kind": "edge",
+      "title": "Gene detected in",
+      "group": "Expression",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [
+        {
+          "title": "Passing conditions",
+          "fields": [
+            {
+              "key": "supported_conditions",
+              "label": "Supported conditions",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "Supporting measurements",
+          "fields": [
+            {
+              "key": "evidence_summary",
+              "label": "Evidence summary",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [
+        "expression",
+        "ruv",
+        "ruv_condition_summary"
+      ],
+      "note": "ND, T1D and T2D are evaluated separately. Only matched cohort and no_treatment evidence supports these edges; old RUV is annotation only.",
+      "widget": "expression",
+      "expanded_order": [
+        "supported_conditions",
+        "evidence_summary",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "snapshot_id",
+        "description",
+        "id"
+      ],
+      "components": [
+        {
+          "component": "expression",
+          "tables": [
+            "expression",
+            "ruv",
+            "ruv_condition_summary"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "GENE_DETECTED_IN__Gene__anatomical_structure",
+          "id": "39b8f2894ab3657d97a005e0faec9f0b"
+        },
+        {
+          "kind": "edge",
+          "type_id": "GENE_DETECTED_IN__Gene__anatomical_structure",
+          "id": "350b8c3bdc3fa4337126e643d7802abd"
+        }
+      ],
+      "match": {
+        "relationship_type": "GENE_DETECTED_IN",
+        "start_type": "Gene",
+        "end_type": "anatomical_structure"
+      }
+    },
+    "edge:GENE_ENRICHED_IN__Gene__anatomical_structure": {
+      "id": "GENE_ENRICHED_IN__Gene__anatomical_structure",
+      "kind": "edge",
+      "title": "Gene enriched in",
+      "group": "Expression",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [
+        {
+          "title": "Passing conditions",
+          "fields": [
+            {
+              "key": "supported_conditions",
+              "label": "Supported conditions",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "Supporting measurements",
+          "fields": [
+            {
+              "key": "evidence_summary",
+              "label": "Evidence summary",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [
+        "expression",
+        "ruv",
+        "ruv_condition_summary"
+      ],
+      "note": "ND, T1D and T2D are evaluated separately. Only matched cohort and no_treatment evidence supports these edges; old RUV is annotation only.",
+      "widget": "expression",
+      "expanded_order": [
+        "supported_conditions",
+        "evidence_summary",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "snapshot_id",
+        "description",
+        "id"
+      ],
+      "components": [
+        {
+          "component": "expression",
+          "tables": [
+            "expression",
+            "ruv",
+            "ruv_condition_summary"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "GENE_ENRICHED_IN__Gene__anatomical_structure",
+          "id": "fe375b9946c3e1a0e74f27c672a10c4f"
+        },
+        {
+          "kind": "edge",
+          "type_id": "GENE_ENRICHED_IN__Gene__anatomical_structure",
+          "id": "2b39c1e722d799728ab25c7af278fab3"
+        }
+      ],
+      "match": {
+        "relationship_type": "GENE_ENRICHED_IN",
+        "start_type": "Gene",
+        "end_type": "anatomical_structure"
+      }
+    },
+    "edge:PART_OF_GWAS_SIGNAL__Variant__disease": {
+      "id": "PART_OF_GWAS_SIGNAL__Variant__disease",
+      "kind": "edge",
+      "title": "GWAS fine mapping",
+      "group": "Genetic associations",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [
+        {
+          "title": "Signal",
+          "fields": [
+            {
+              "key": "locus_name",
+              "label": "Locus name",
+              "format": "value"
+            },
+            {
+              "key": "credible_set_id",
+              "label": "Credible set id",
+              "format": "value"
+            },
+            {
+              "key": "method",
+              "label": "Method",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "Variant support",
+          "fields": [
+            {
+              "key": "pip",
+              "label": "Posterior inclusion probability",
+              "format": "probability"
+            },
+            {
+              "key": "p_value",
+              "label": "P value",
+              "format": "probability"
+            },
+            {
+              "key": "effect_allele",
+              "label": "Effect allele",
+              "format": "value"
+            },
+            {
+              "key": "non_effect_allele",
+              "label": "Non effect allele",
+              "format": "value"
+            },
+            {
+              "key": "lead_status",
+              "label": "Lead status",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [
+        "credible_members"
+      ],
+      "note": "Retained v1.0 export. Exact fine-mapping raw source remains unverified; unknown license is explicit.",
+      "widget": null,
+      "expanded_order": [
+        "locus_name",
+        "credible_set_id",
+        "method",
+        "pip",
+        "p_value",
+        "effect_allele",
+        "non_effect_allele",
+        "lead_status",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "snapshot_id",
+        "credible_set_purity",
+        "credible_set_size",
+        "description",
+        "id",
+        "lbf",
+        "pip_rank",
+        "qtl_type",
+        "tissue_id",
+        "tissue_name"
+      ],
+      "components": [
+        {
+          "component": "credible_set",
+          "tables": [
+            "credible_members"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "PART_OF_GWAS_SIGNAL__Variant__disease",
+          "id": "9953e69d16226c3274a391f691ede3b0"
+        },
+        {
+          "kind": "edge",
+          "type_id": "PART_OF_GWAS_SIGNAL__Variant__disease",
+          "id": "09a5bbeb7f1b841bf6d8ae67af7b2b97"
+        }
+      ],
+      "match": {
+        "relationship_type": "PART_OF_GWAS_SIGNAL",
+        "start_type": "Variant",
+        "end_type": "disease"
+      }
+    },
+    "edge:SIGNAL_COLOC_WITH__Gene__disease": {
+      "id": "SIGNAL_COLOC_WITH__Gene__disease",
+      "kind": "edge",
+      "title": "Colocalization",
+      "group": "Genetic associations",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [
+        {
+          "title": "Signals",
+          "fields": [
+            {
+              "key": "qtl_signal_id",
+              "label": "Qtl signal id",
+              "format": "value"
+            },
+            {
+              "key": "gwas_signal_id",
+              "label": "Gwas signal id",
+              "format": "value"
+            },
+            {
+              "key": "tissue_name",
+              "label": "Tissue name",
+              "format": "value"
+            },
+            {
+              "key": "qtl_type",
+              "label": "Qtl type",
+              "format": "value"
+            },
+            {
+              "key": "method",
+              "label": "Method",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "Posterior hypotheses",
+          "fields": [
+            {
+              "key": "pp_h3_abf",
+              "label": "H3 · distinct signals",
+              "format": "value"
+            },
+            {
+              "key": "pp_h4_abf",
+              "label": "H4 · shared signal",
+              "format": "value"
+            },
+            {
+              "key": "pp_h0_abf",
+              "label": "Pp h0 abf",
+              "format": "value"
+            },
+            {
+              "key": "pp_h1_abf",
+              "label": "Pp h1 abf",
+              "format": "value"
+            },
+            {
+              "key": "pp_h2_abf",
+              "label": "Pp h2 abf",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [
+        "credible_members"
+      ],
+      "note": "H3: distinct causal signals. H4: shared signal under this model. QTL and GWAS credible sets stay separate; no shared causal set is invented.",
+      "widget": "coloc",
+      "expanded_order": [
+        "qtl_signal_id",
+        "gwas_signal_id",
+        "tissue_name",
+        "qtl_type",
+        "method",
+        "pp_h3_abf",
+        "pp_h4_abf",
+        "pp_h0_abf",
+        "pp_h1_abf",
+        "pp_h2_abf",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "snapshot_id",
+        "coloc_dataset",
+        "description",
+        "gwas_lead_vars",
+        "gwas_locus_name",
+        "id",
+        "nsnp",
+        "qtl_lead_vars",
+        "qtl_locus_name",
+        "tissue_id"
+      ],
+      "components": [
+        {
+          "component": "credible_set",
+          "tables": [
+            "credible_members"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "SIGNAL_COLOC_WITH__Gene__disease",
+          "id": "13f7e65361c636b29aec167b2f5e6a23"
+        },
+        {
+          "kind": "edge",
+          "type_id": "SIGNAL_COLOC_WITH__Gene__disease",
+          "id": "3ef5f30006c629c7497839403d13ab3a"
+        }
+      ],
+      "match": {
+        "relationship_type": "SIGNAL_COLOC_WITH",
+        "start_type": "Gene",
+        "end_type": "disease"
+      }
+    },
+    "edge:PART_OF__anatomical_structure__anatomical_structure": {
+      "id": "PART_OF__anatomical_structure__anatomical_structure",
+      "kind": "edge",
+      "title": "Anatomical hierarchy",
+      "group": "Biological context",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [],
+      "tables": [],
+      "note": "Original approved hierarchy and identities; provenance-only transport update.",
+      "widget": null,
+      "expanded_order": [
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "description",
+        "id"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "PART_OF__anatomical_structure__anatomical_structure",
+          "id": "451201113753c4df3c871312d2df665e"
+        },
+        {
+          "kind": "edge",
+          "type_id": "PART_OF__anatomical_structure__anatomical_structure",
+          "id": "ccf3c71a276654ffde8be703f0dba113"
+        }
+      ],
+      "match": {
+        "relationship_type": "PART_OF",
+        "start_type": "anatomical_structure",
+        "end_type": "anatomical_structure"
+      }
+    },
+    "edge:HAS_CELL_TYPE__anatomical_structure__anatomical_structure": {
+      "id": "HAS_CELL_TYPE__anatomical_structure__anatomical_structure",
+      "kind": "edge",
+      "title": "Cell type → anatomical context",
+      "group": "Biological context",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [],
+      "tables": [],
+      "note": "Recorded source orientation in the original anatomical hierarchy; no direction is inferred from the relationship name.",
+      "widget": null,
+      "expanded_order": [
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "description",
+        "id"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "HAS_CELL_TYPE__anatomical_structure__anatomical_structure",
+          "id": "8e5a3670e1094e3ef7eee97dc25e1c79"
+        },
+        {
+          "kind": "edge",
+          "type_id": "HAS_CELL_TYPE__anatomical_structure__anatomical_structure",
+          "id": "e992859e75c4f92af12b5157cb92261e"
+        }
+      ],
+      "match": {
+        "relationship_type": "HAS_CELL_TYPE",
+        "start_type": "anatomical_structure",
+        "end_type": "anatomical_structure"
+      }
+    },
+    "edge:SUBCLASS_OF__anatomical_structure__anatomical_structure": {
+      "id": "SUBCLASS_OF__anatomical_structure__anatomical_structure",
+      "kind": "edge",
+      "title": "Ontology subclass",
+      "group": "Biological context",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [],
+      "tables": [],
+      "note": "Original ontology subclass relation; this is separate from biological part-of containment.",
+      "widget": null,
+      "expanded_order": [
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "description",
+        "id"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "SUBCLASS_OF__anatomical_structure__anatomical_structure",
+          "id": "4011e4cf5db88e3ac84d4e326ca27aaa"
+        },
+        {
+          "kind": "edge",
+          "type_id": "SUBCLASS_OF__anatomical_structure__anatomical_structure",
+          "id": "26efe9eaccad2ba49d88690114fd95df"
+        }
+      ],
+      "match": {
+        "relationship_type": "SUBCLASS_OF",
+        "start_type": "anatomical_structure",
+        "end_type": "anatomical_structure"
+      }
+    },
+    "edge:HAS_STATE__anatomical_structure__anatomical_structure": {
+      "id": "HAS_STATE__anatomical_structure__anatomical_structure",
+      "kind": "edge",
+      "title": "Cell state",
+      "group": "Biological context",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [],
+      "tables": [],
+      "note": "Existing active / quiescent or cycling identity relationship; no new state is inferred.",
+      "widget": null,
+      "expanded_order": [
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "description",
+        "id"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "HAS_STATE__anatomical_structure__anatomical_structure",
+          "id": "390f40d77126d3dce6f5c45b165b589e"
+        },
+        {
+          "kind": "edge",
+          "type_id": "HAS_STATE__anatomical_structure__anatomical_structure",
+          "id": "7b8430f7c2a28d9932908c4dfcf14fae"
+        }
+      ],
+      "match": {
+        "relationship_type": "HAS_STATE",
+        "start_type": "anatomical_structure",
+        "end_type": "anatomical_structure"
+      }
+    },
+    "edge:REPRESENTS_COMPOSITE_LABEL__anatomical_structure__anatomical_structure": {
+      "id": "REPRESENTS_COMPOSITE_LABEL__anatomical_structure__anatomical_structure",
+      "kind": "edge",
+      "title": "Composite cell label",
+      "group": "Biological context",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [],
+      "tables": [],
+      "note": "Legacy composite annotation is preserved, including Gamma + Epsilon; this does not merge their separate ontology identities.",
+      "widget": null,
+      "expanded_order": [
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "description",
+        "id"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "REPRESENTS_COMPOSITE_LABEL__anatomical_structure__anatomical_structure",
+          "id": "bdfb3fe620b84a8534d9d6fb924ca86f"
+        },
+        {
+          "kind": "edge",
+          "type_id": "REPRESENTS_COMPOSITE_LABEL__anatomical_structure__anatomical_structure",
+          "id": "f4a5095e169cf7cc3562f41fe66f9c65"
+        }
+      ],
+      "match": {
+        "relationship_type": "REPRESENTS_COMPOSITE_LABEL",
+        "start_type": "anatomical_structure",
+        "end_type": "anatomical_structure"
+      }
+    },
+    "edge:LYMPH_FLOWS_TO__anatomical_structure__anatomical_structure": {
+      "id": "LYMPH_FLOWS_TO__anatomical_structure__anatomical_structure",
+      "kind": "edge",
+      "title": "Lymphatic flow",
+      "group": "Biological context",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [],
+      "tables": [],
+      "note": "Recorded anatomical lymphatic-flow relationship; source direction is preserved.",
+      "widget": null,
+      "expanded_order": [
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "description",
+        "id"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "LYMPH_FLOWS_TO__anatomical_structure__anatomical_structure",
+          "id": "38eb63832958458a4a1a3da3790958ba"
+        },
+        {
+          "kind": "edge",
+          "type_id": "LYMPH_FLOWS_TO__anatomical_structure__anatomical_structure",
+          "id": "81c73bbace9e8e698a947371bec1809f"
+        }
+      ],
+      "match": {
+        "relationship_type": "LYMPH_FLOWS_TO",
+        "start_type": "anatomical_structure",
+        "end_type": "anatomical_structure"
+      }
+    },
+    "edge:ADJACENT_TO__anatomical_structure__anatomical_structure": {
+      "id": "ADJACENT_TO__anatomical_structure__anatomical_structure",
+      "kind": "edge",
+      "title": "Anatomical adjacency",
+      "group": "Biological context",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [],
+      "tables": [],
+      "note": "Recorded spatial adjacency; this is not anatomical containment.",
+      "widget": null,
+      "expanded_order": [
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "description",
+        "id"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "ADJACENT_TO__anatomical_structure__anatomical_structure",
+          "id": "5b162008236cdc6ac9e07639d203ca4f"
+        },
+        {
+          "kind": "edge",
+          "type_id": "ADJACENT_TO__anatomical_structure__anatomical_structure",
+          "id": "3525972fa2c34a8d475bf5a9564e3894"
+        }
+      ],
+      "match": {
+        "relationship_type": "ADJACENT_TO",
+        "start_type": "anatomical_structure",
+        "end_type": "anatomical_structure"
+      }
+    },
+    "edge:FUNCTION_ANNOTATION__Gene__Reactome_pathway": {
+      "id": "FUNCTION_ANNOTATION__Gene__Reactome_pathway",
+      "kind": "edge",
+      "title": "Reactome membership",
+      "group": "Functions",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [
+        {
+          "title": "Evidence",
+          "fields": [
+            {
+              "key": "evidence_code",
+              "label": "Evidence code",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [],
+      "note": "Gene membership in a Reactome pathway.",
+      "widget": null,
+      "expanded_order": [
+        "evidence_code",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "description",
+        "id"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "FUNCTION_ANNOTATION__Gene__Reactome_pathway",
+          "id": "37503a4f6e7889839df8aaf636cfcf02"
+        },
+        {
+          "kind": "edge",
+          "type_id": "FUNCTION_ANNOTATION__Gene__Reactome_pathway",
+          "id": "e57027a9d23fddcf8859bf650eb544f7"
+        }
+      ],
+      "match": {
+        "relationship_type": "FUNCTION_ANNOTATION",
+        "start_type": "Gene",
+        "end_type": "Reactome_pathway"
+      }
+    },
+    "edge:HAS_SUBPATHWAY__Reactome_pathway__Reactome_pathway": {
+      "id": "HAS_SUBPATHWAY__Reactome_pathway__Reactome_pathway",
+      "kind": "edge",
+      "title": "Reactome hierarchy",
+      "group": "Functions",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [],
+      "tables": [],
+      "note": "Parent pathway → child pathway.",
+      "widget": null,
+      "expanded_order": [
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "description",
+        "id"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "HAS_SUBPATHWAY__Reactome_pathway__Reactome_pathway",
+          "id": "b2bdfc0ce39a1ba09f73bd79b5f4f546"
+        },
+        {
+          "kind": "edge",
+          "type_id": "HAS_SUBPATHWAY__Reactome_pathway__Reactome_pathway",
+          "id": "c1358cd42503476bb330f54b0d5ccf77"
+        }
+      ],
+      "match": {
+        "relationship_type": "HAS_SUBPATHWAY",
+        "start_type": "Reactome_pathway",
+        "end_type": "Reactome_pathway"
+      }
+    },
+    "edge:MARKER_GENE_OF__Gene__anatomical_structure": {
+      "id": "MARKER_GENE_OF__Gene__anatomical_structure",
+      "kind": "edge",
+      "title": "HuBMAP-curated marker",
+      "group": "Expression",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [
+        {
+          "title": "Curation",
+          "fields": [
+            {
+              "key": "method",
+              "label": "Method",
+              "format": "value"
+            },
+            {
+              "key": "publication_id",
+              "label": "Publication id",
+              "format": "value"
+            },
+            {
+              "key": "source_rows",
+              "label": "Source rows",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [
+        "expression",
+        "ruv",
+        "ruv_condition_summary"
+      ],
+      "note": "HuBMAP HRA ASCT+B marker curation, pancreas v1.4. Includes 124 Gene–Cell pairs.",
+      "widget": null,
+      "expanded_order": [
+        "method",
+        "publication_id",
+        "source_rows",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "snapshot_id",
+        "description",
+        "id"
+      ],
+      "components": [
+        {
+          "component": "expression",
+          "tables": [
+            "expression",
+            "ruv",
+            "ruv_condition_summary"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "MARKER_GENE_OF__Gene__anatomical_structure",
+          "id": "5a31b102fcac253a6f45da3529422b17"
+        },
+        {
+          "kind": "edge",
+          "type_id": "MARKER_GENE_OF__Gene__anatomical_structure",
+          "id": "454dd21643de2a40f23d2ee3131ece1f"
+        }
+      ],
+      "match": {
+        "relationship_type": "MARKER_GENE_OF",
+        "start_type": "Gene",
+        "end_type": "anatomical_structure"
+      }
+    },
+    "edge:T1D_DEG_IN__Gene__anatomical_structure": {
+      "id": "T1D_DEG_IN__Gene__anatomical_structure",
+      "kind": "edge",
+      "title": "Disease differential expression",
+      "group": "Expression",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [
+        {
+          "title": "Contrast",
+          "fields": [
+            {
+              "key": "condition",
+              "label": "Condition",
+              "format": "value"
+            },
+            {
+              "key": "reference_condition",
+              "label": "Reference condition",
+              "format": "value"
+            },
+            {
+              "key": "cell_type_id",
+              "label": "Cell type id",
+              "format": "value"
+            },
+            {
+              "key": "up_or_down_regulation",
+              "label": "Up or down regulation",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "Statistics",
+          "fields": [
+            {
+              "key": "log2_fold_change",
+              "label": "log₂ fold change",
+              "format": "number"
+            },
+            {
+              "key": "adjusted_p_value",
+              "label": "Adjusted P",
+              "format": "probability"
+            },
+            {
+              "key": "stat",
+              "label": "Stat",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "Analysis",
+          "fields": [
+            {
+              "key": "method",
+              "label": "Method",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [],
+      "note": "Source-native T1D vs control contrast; control is not silently relabelled ND. Gene-only results.",
+      "widget": null,
+      "expanded_order": [
+        "condition",
+        "reference_condition",
+        "cell_type_id",
+        "up_or_down_regulation",
+        "log2_fold_change",
+        "adjusted_p_value",
+        "stat",
+        "method",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "base_mean",
+        "description",
+        "id",
+        "p_value",
+        "se_of_log2_fold_change"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "T1D_DEG_IN__Gene__anatomical_structure",
+          "id": "f0c82a1fe71a54c2c527fa2ee5e0969d"
+        },
+        {
+          "kind": "edge",
+          "type_id": "T1D_DEG_IN__Gene__anatomical_structure",
+          "id": "a5cb7804a8b47dfb63e0ecb66f5c8d8c"
+        }
+      ],
+      "match": {
+        "relationship_type": "T1D_DEG_IN",
+        "start_type": "Gene",
+        "end_type": "anatomical_structure"
+      }
+    },
+    "edge:FGSEA_ENRICHED_IN__Reactome_pathway__anatomical_structure": {
+      "id": "FGSEA_ENRICHED_IN__Reactome_pathway__anatomical_structure",
+      "kind": "edge",
+      "title": "fGSEA enrichment",
+      "group": "Functions",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [
+        {
+          "title": "Analysis",
+          "fields": [
+            {
+              "key": "cell_type_label",
+              "label": "Cell type label",
+              "format": "value"
+            },
+            {
+              "key": "pathway_name",
+              "label": "Pathway name",
+              "format": "value"
+            },
+            {
+              "key": "pathway_collection",
+              "label": "Pathway collection",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "Statistics",
+          "fields": [
+            {
+              "key": "nes",
+              "label": "Normalized enrichment score",
+              "format": "number"
+            },
+            {
+              "key": "padj",
+              "label": "Adjusted P",
+              "format": "probability"
+            },
+            {
+              "key": "size",
+              "label": "Size",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [],
+      "note": "Retained V3.3 analysis (source date retained), not V3.4 recomputation. NES alone does not establish pathway activation.",
+      "widget": null,
+      "expanded_order": [
+        "cell_type_label",
+        "pathway_name",
+        "pathway_collection",
+        "nes",
+        "padj",
+        "size",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "description",
+        "es",
+        "id",
+        "leading_edge",
+        "log2err",
+        "pathway_term",
+        "pval",
+        "source_file"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "FGSEA_ENRICHED_IN__Reactome_pathway__anatomical_structure",
+          "id": "ea225f6a9a52e674f4180c99103034c3"
+        },
+        {
+          "kind": "edge",
+          "type_id": "FGSEA_ENRICHED_IN__Reactome_pathway__anatomical_structure",
+          "id": "3533a12dacf372503916df1968590633"
+        }
+      ],
+      "match": {
+        "relationship_type": "FGSEA_ENRICHED_IN",
+        "start_type": "Reactome_pathway",
+        "end_type": "anatomical_structure"
+      }
+    },
+    "edge:OCR_PEAK_IN__ocr_peak__anatomical_structure": {
+      "id": "OCR_PEAK_IN__ocr_peak__anatomical_structure",
+      "kind": "edge",
+      "title": "Open chromatin region in",
+      "group": "Regulation",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [],
+      "tables": [],
+      "note": "Original peak-to-cell assignment, not a predicted target-gene relationship.",
+      "widget": null,
+      "expanded_order": [
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "description",
+        "id"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "OCR_PEAK_IN__ocr_peak__anatomical_structure",
+          "id": "72314e1bdfc74e42d3f863301089e723"
+        },
+        {
+          "kind": "edge",
+          "type_id": "OCR_PEAK_IN__ocr_peak__anatomical_structure",
+          "id": "099bd623c11909b6a7d6851fb415ae1e"
+        }
+      ],
+      "match": {
+        "relationship_type": "OCR_PEAK_IN",
+        "start_type": "ocr_peak",
+        "end_type": "anatomical_structure"
+      }
+    },
+    "edge:GENE_ACTIVITY_SCORE_IN__Gene__anatomical_structure": {
+      "id": "GENE_ACTIVITY_SCORE_IN__Gene__anatomical_structure",
+      "kind": "edge",
+      "title": "Gene activity score",
+      "group": "Regulation",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [
+        {
+          "title": "Pooled",
+          "fields": [
+            {
+              "key": "ocr_gene_activity_score_mean",
+              "label": "Ocr gene activity score mean",
+              "format": "value"
+            },
+            {
+              "key": "ocr_gene_activity_score_median",
+              "label": "Ocr gene activity score median",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "ND",
+          "fields": [
+            {
+              "key": "non_diabetic_ocr_gene_activity_score_mean",
+              "label": "Non diabetic ocr gene activity score mean",
+              "format": "value"
+            },
+            {
+              "key": "non_diabetic_ocr_gene_activity_score_median",
+              "label": "Non diabetic ocr gene activity score median",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "AAB-positive",
+          "fields": [
+            {
+              "key": "aab_pos_ocr_gene_activity_score_mean",
+              "label": "Aab pos ocr gene activity score mean",
+              "format": "value"
+            },
+            {
+              "key": "aab_pos_ocr_gene_activity_score_median",
+              "label": "Aab pos ocr gene activity score median",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "T1D",
+          "fields": [
+            {
+              "key": "type_1_diabetes_ocr_gene_activity_score_mean",
+              "label": "Type 1 diabetes ocr gene activity score mean",
+              "format": "value"
+            },
+            {
+              "key": "type_1_diabetes_ocr_gene_activity_score_median",
+              "label": "Type 1 diabetes ocr gene activity score median",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "T2D",
+          "fields": [
+            {
+              "key": "type_2_diabetes_ocr_gene_activity_score_mean",
+              "label": "Type 2 diabetes ocr gene activity score mean",
+              "format": "value"
+            },
+            {
+              "key": "type_2_diabetes_ocr_gene_activity_score_median",
+              "label": "Type 2 diabetes ocr gene activity score median",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [],
+      "note": "Source-native mean / median. AAB-positive remains a separate group; original analysis is not recomputed.",
+      "widget": "gene_activity",
+      "expanded_order": [
+        "ocr_gene_activity_score_mean",
+        "ocr_gene_activity_score_median",
+        "non_diabetic_ocr_gene_activity_score_mean",
+        "non_diabetic_ocr_gene_activity_score_median",
+        "aab_pos_ocr_gene_activity_score_mean",
+        "aab_pos_ocr_gene_activity_score_median",
+        "type_1_diabetes_ocr_gene_activity_score_mean",
+        "type_1_diabetes_ocr_gene_activity_score_median",
+        "type_2_diabetes_ocr_gene_activity_score_mean",
+        "type_2_diabetes_ocr_gene_activity_score_median",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "description",
+        "id"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "GENE_ACTIVITY_SCORE_IN__Gene__anatomical_structure",
+          "id": "03d357280462b814d61c27128760c808"
+        },
+        {
+          "kind": "edge",
+          "type_id": "GENE_ACTIVITY_SCORE_IN__Gene__anatomical_structure",
+          "id": "14f1d502c907edec5bf6c47ec2d67c68"
+        }
+      ],
+      "match": {
+        "relationship_type": "GENE_ACTIVITY_SCORE_IN",
+        "start_type": "Gene",
+        "end_type": "anatomical_structure"
+      }
+    },
+    "edge:EFFECTOR_GENE_OF__Gene__disease": {
+      "id": "EFFECTOR_GENE_OF__Gene__disease",
+      "kind": "edge",
+      "title": "Candidate effector gene",
+      "group": "Genetic associations",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [
+        {
+          "title": "Prioritization",
+          "fields": [
+            {
+              "key": "evidence",
+              "label": "Evidence",
+              "format": "value"
+            },
+            {
+              "key": "effector_gene_list_url",
+              "label": "Effector gene list url",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [],
+      "note": "Original study evidence criteria prioritize candidates; this is not proof of a causal effector.",
+      "widget": null,
+      "expanded_order": [
+        "evidence",
+        "effector_gene_list_url",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "description",
+        "id"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "EFFECTOR_GENE_OF__Gene__disease",
+          "id": "dd504b6823c30592202a12dd828d8ac1"
+        },
+        {
+          "kind": "edge",
+          "type_id": "EFFECTOR_GENE_OF__Gene__disease",
+          "id": "a6bdb0ef5193348f3a0491101cef5f13"
+        }
+      ],
+      "match": {
+        "relationship_type": "EFFECTOR_GENE_OF",
+        "start_type": "Gene",
+        "end_type": "disease"
+      }
+    },
+    "edge:HAS_SAMPLE__donor__sample": {
+      "id": "HAS_SAMPLE__donor__sample",
+      "kind": "edge",
+      "title": "Anatomy / cell → sample",
+      "group": "Metadata",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [],
+      "tables": [],
+      "note": "Original 08/04 association. No new clinical or sample mapping is inferred.",
+      "widget": null,
+      "expanded_order": [
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "description",
+        "id"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "HAS_SAMPLE__donor__sample",
+          "id": "5b880a545d3baa24644bb39c69d78838"
+        },
+        {
+          "kind": "edge",
+          "type_id": "HAS_SAMPLE__donor__sample",
+          "id": "04743b6157ae8ba2aa735e45b26c1ae8"
+        }
+      ],
+      "match": {
+        "relationship_type": "HAS_SAMPLE",
+        "start_type": "donor",
+        "end_type": "sample"
+      }
+    },
+    "edge:HAS_SAMPLE__anatomical_structure__sample": {
+      "id": "HAS_SAMPLE__anatomical_structure__sample",
+      "kind": "edge",
+      "title": "Anatomy / cell → sample",
+      "group": "Metadata",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [],
+      "tables": [],
+      "note": "Original 08/04 association. No new clinical or sample mapping is inferred.",
+      "widget": null,
+      "expanded_order": [
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "description",
+        "id"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "HAS_SAMPLE__anatomical_structure__sample",
+          "id": "05bda527c9b033900d4eaa252ba43b5a"
+        },
+        {
+          "kind": "edge",
+          "type_id": "HAS_SAMPLE__anatomical_structure__sample",
+          "id": "4da336a2b3c69c44c08312c5e5cba6e5"
+        }
+      ],
+      "match": {
+        "relationship_type": "HAS_SAMPLE",
+        "start_type": "anatomical_structure",
+        "end_type": "sample"
+      }
+    },
+    "edge:HAS_SAMPLE__data_modality__sample": {
+      "id": "HAS_SAMPLE__data_modality__sample",
+      "kind": "edge",
+      "title": "Anatomy / cell → sample",
+      "group": "Metadata",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [],
+      "tables": [],
+      "note": "Original 08/04 association. No new clinical or sample mapping is inferred.",
+      "widget": null,
+      "expanded_order": [
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "description",
+        "id"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "HAS_SAMPLE__data_modality__sample",
+          "id": "11f23b54e06152c321eb826d08f9717a"
+        },
+        {
+          "kind": "edge",
+          "type_id": "HAS_SAMPLE__data_modality__sample",
+          "id": "b918ff28931f26131d387d1d56000b7e"
+        }
+      ],
+      "match": {
+        "relationship_type": "HAS_SAMPLE",
+        "start_type": "data_modality",
+        "end_type": "sample"
+      }
+    },
+    "edge:HAS_STATE__disease__donor": {
+      "id": "HAS_STATE__disease__donor",
+      "kind": "edge",
+      "title": "Cell state",
+      "group": "Biological context",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [],
+      "tables": [],
+      "note": "Existing active / quiescent or cycling identity relationship; no new state is inferred.",
+      "widget": null,
+      "expanded_order": [
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "description",
+        "id"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "HAS_STATE__disease__donor",
+          "id": "a797686e25757f1298a4e2d7f7e70a06"
+        },
+        {
+          "kind": "edge",
+          "type_id": "HAS_STATE__disease__donor",
+          "id": "745f6bed3e0333b861bd9b4e6847144a"
+        }
+      ],
+      "match": {
+        "relationship_type": "HAS_STATE",
+        "start_type": "disease",
+        "end_type": "donor"
+      }
+    },
+    "edge:HAS_STATE__disease__sample": {
+      "id": "HAS_STATE__disease__sample",
+      "kind": "edge",
+      "title": "Cell state",
+      "group": "Biological context",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [],
+      "tables": [],
+      "note": "Existing active / quiescent or cycling identity relationship; no new state is inferred.",
+      "widget": null,
+      "expanded_order": [
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "description",
+        "id"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "HAS_STATE__disease__sample",
+          "id": "acfd999c9c716491680f91614b235170"
+        },
+        {
+          "kind": "edge",
+          "type_id": "HAS_STATE__disease__sample",
+          "id": "c88fac3e585bc02f11e1a2ae5bee50ca"
+        }
+      ],
+      "match": {
+        "relationship_type": "HAS_STATE",
+        "start_type": "disease",
+        "end_type": "sample"
+      }
+    },
+    "edge:ANNOTATED_USING__donor__donor_provenance": {
+      "title": "ANNOTATED USING  donor  donor provenance",
+      "group": "Relationships",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [],
+      "tables": [],
+      "components": [],
+      "expanded_order": [
+        "data_source",
+        "data_source_url",
+        "data_version",
+        "description",
+        "id",
+        "license"
+      ],
+      "id": "ANNOTATED_USING__donor__donor_provenance",
+      "kind": "edge",
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "ANNOTATED_USING__donor__donor_provenance",
+          "id": "3e0d3779a5cb2436a811b55114438e73"
+        },
+        {
+          "kind": "edge",
+          "type_id": "ANNOTATED_USING__donor__donor_provenance",
+          "id": "ff21909d202aa73b8a5ae2defac5baee"
+        }
+      ],
+      "match": {
+        "relationship_type": "ANNOTATED_USING",
+        "start_type": "donor",
+        "end_type": "donor_provenance"
+      }
+    },
+    "edge:ANNOTATED_USING__sample__sample_provenance": {
+      "title": "ANNOTATED USING  sample  sample provenance",
+      "group": "Relationships",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [],
+      "tables": [],
+      "components": [],
+      "expanded_order": [
+        "data_source",
+        "data_source_url",
+        "data_version",
+        "description",
+        "id",
+        "license"
+      ],
+      "id": "ANNOTATED_USING__sample__sample_provenance",
+      "kind": "edge",
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "ANNOTATED_USING__sample__sample_provenance",
+          "id": "a9073a7500a9af24618ef37149666020"
+        },
+        {
+          "kind": "edge",
+          "type_id": "ANNOTATED_USING__sample__sample_provenance",
+          "id": "4da0db48d9266fd2ab2fa7a109346ac6"
+        }
+      ],
+      "match": {
+        "relationship_type": "ANNOTATED_USING",
+        "start_type": "sample",
+        "end_type": "sample_provenance"
+      }
+    },
+    "edge:LIGAND_RECEPTOR__Gene__Gene": {
+      "title": "Ligand–receptor",
+      "group": "Cell communication",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [
+        {
+          "title": "CCC",
+          "fields": [
+            {
+              "key": "supported_conditions",
+              "label": "Condition",
+              "format": "value"
+            },
+            {
+              "key": "method",
+              "label": "Method",
+              "format": "value"
+            },
+            {
+              "key": "n_supporting_contexts",
+              "label": "Supporting contexts",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [
+        "ccc_contexts"
+      ],
+      "components": [],
+      "expanded_order": [
+        "assertion_status",
+        "data_source",
+        "data_source_url",
+        "data_version",
+        "description",
+        "evidence_summary",
+        "id",
+        "license",
+        "method",
+        "n_supporting_contexts",
+        "n_supporting_records",
+        "snapshot_id",
+        "supported_conditions"
+      ],
+      "id": "LIGAND_RECEPTOR__Gene__Gene",
+      "kind": "edge",
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "LIGAND_RECEPTOR__Gene__Gene",
+          "id": "efa160503b2f2479eec346fe88db0132"
+        },
+        {
+          "kind": "edge",
+          "type_id": "LIGAND_RECEPTOR__Gene__Gene",
+          "id": "6ea9cc3682af5e526fbd3c92753c0bad"
+        }
+      ],
+      "match": {
+        "relationship_type": "LIGAND_RECEPTOR",
+        "start_type": "Gene",
+        "end_type": "Gene"
+      },
+      "note": "M5 ND untreated computational prediction; complete ligand/receptor entities, with separate sender/receiver cell contexts in SQL."
+    },
+    "edge:LIGAND_RECEPTOR__Gene__Molecular_complex": {
+      "title": "Ligand–receptor",
+      "group": "Cell communication",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [
+        {
+          "title": "CCC",
+          "fields": [
+            {
+              "key": "supported_conditions",
+              "label": "Condition",
+              "format": "value"
+            },
+            {
+              "key": "method",
+              "label": "Method",
+              "format": "value"
+            },
+            {
+              "key": "n_supporting_contexts",
+              "label": "Supporting contexts",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [
+        "ccc_contexts"
+      ],
+      "components": [],
+      "expanded_order": [
+        "assertion_status",
+        "data_source",
+        "data_source_url",
+        "data_version",
+        "description",
+        "evidence_summary",
+        "id",
+        "license",
+        "method",
+        "n_supporting_contexts",
+        "n_supporting_records",
+        "snapshot_id",
+        "supported_conditions"
+      ],
+      "id": "LIGAND_RECEPTOR__Gene__Molecular_complex",
+      "kind": "edge",
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "LIGAND_RECEPTOR__Gene__Molecular_complex",
+          "id": "ca440fd91ba3b972dcb4ad9bf2396bd0"
+        },
+        {
+          "kind": "edge",
+          "type_id": "LIGAND_RECEPTOR__Gene__Molecular_complex",
+          "id": "d24ec3535021d5ac703a36796b26e1b4"
+        }
+      ],
+      "match": {
+        "relationship_type": "LIGAND_RECEPTOR",
+        "start_type": "Gene",
+        "end_type": "Molecular_complex"
+      },
+      "note": "M5 ND untreated computational prediction; complete ligand/receptor entities, with separate sender/receiver cell contexts in SQL."
+    },
+    "edge:HAS_SUBUNIT__Molecular_complex__Gene": {
+      "title": "Complex subunit",
+      "group": "Cell communication",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [],
+      "tables": [],
+      "components": [],
+      "expanded_order": [
+        "data_source",
+        "data_source_url",
+        "data_version",
+        "description",
+        "id",
+        "license"
+      ],
+      "id": "HAS_SUBUNIT__Molecular_complex__Gene",
+      "kind": "edge",
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "HAS_SUBUNIT__Molecular_complex__Gene",
+          "id": "60c1c8ba843d9aef2f5be6852968881d"
+        },
+        {
+          "kind": "edge",
+          "type_id": "HAS_SUBUNIT__Molecular_complex__Gene",
+          "id": "4be9b52a40d24a81b69d80b338e6d806"
+        }
+      ],
+      "match": {
+        "relationship_type": "HAS_SUBUNIT",
+        "start_type": "Molecular_complex",
+        "end_type": "Gene"
+      },
+      "note": "Source-defined gene encoding a complex subunit; stoichiometry is not asserted."
+    },
+    "edge:FUNCTION_ANNOTATION__Gene__KEGG_pathway": {
+      "id": "FUNCTION_ANNOTATION__Gene__KEGG_pathway",
+      "kind": "edge",
+      "title": "KEGG membership",
+      "group": "Functions",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [],
+      "tables": [],
+      "note": "Membership in the MSigDB KEGG_MEDICUS set, retaining MSigDB identity.",
+      "widget": null,
+      "expanded_order": [
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "description",
+        "id"
+      ],
+      "components": [],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "FUNCTION_ANNOTATION__Gene__KEGG_pathway",
+          "id": "b6522e0d01c8855bdf5fb399164002bb"
+        },
+        {
+          "kind": "edge",
+          "type_id": "FUNCTION_ANNOTATION__Gene__KEGG_pathway",
+          "id": "39f20fb72b2bf4ef87557161d2c2db0c"
+        }
+      ],
+      "match": {
+        "relationship_type": "FUNCTION_ANNOTATION",
+        "start_type": "Gene",
+        "end_type": "KEGG_pathway"
+      }
+    },
+    "edge:PART_OF_QTL_SIGNAL__Variant__Gene": {
+      "id": "PART_OF_QTL_SIGNAL__Variant__Gene",
+      "kind": "edge",
+      "title": "QTL signal",
+      "group": "Genetic associations",
+      "color": "#168b84",
+      "title_field": "id",
+      "compact": [
+        {
+          "title": "Signal",
+          "fields": [
+            {
+              "key": "tissue_name",
+              "label": "Tissue name",
+              "format": "value"
+            },
+            {
+              "key": "qtl_type",
+              "label": "Qtl type",
+              "format": "value"
+            },
+            {
+              "key": "method",
+              "label": "Method",
+              "format": "value"
+            },
+            {
+              "key": "credible_set",
+              "label": "Credible set",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "Fine mapping",
+          "fields": [
+            {
+              "key": "pip",
+              "label": "Posterior inclusion probability",
+              "format": "probability"
+            },
+            {
+              "key": "nominal_p",
+              "label": "Nominal p",
+              "format": "probability"
+            },
+            {
+              "key": "effect_allele",
+              "label": "Effect allele",
+              "format": "value"
+            },
+            {
+              "key": "other_allele",
+              "label": "Other allele",
+              "format": "value"
+            },
+            {
+              "key": "slope",
+              "label": "Slope",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [
+        "credible_members"
+      ],
+      "note": "Complete credible-set members are read by exact set and role; per-SNP source/version remain visible.",
+      "widget": null,
+      "expanded_order": [
+        "tissue_name",
+        "qtl_type",
+        "method",
+        "credible_set",
+        "pip",
+        "nominal_p",
+        "effect_allele",
+        "other_allele",
+        "slope",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "snapshot_id",
+        "description",
+        "gene_name",
+        "id",
+        "lbf",
+        "n_snp",
+        "purity",
+        "tissue_id"
+      ],
+      "components": [
+        {
+          "component": "credible_set",
+          "tables": [
+            "credible_members"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "kind": "edge",
+          "type_id": "PART_OF_QTL_SIGNAL__Variant__Gene",
+          "id": "3458b9378691e22899c584d40e0d76ac"
+        },
+        {
+          "kind": "edge",
+          "type_id": "PART_OF_QTL_SIGNAL__Variant__Gene",
+          "id": "2179f46230cce461f0dbb1c84a9ee569"
+        }
+      ],
+      "match": {
+        "relationship_type": "PART_OF_QTL_SIGNAL",
+        "start_type": "Variant",
+        "end_type": "Gene"
+      }
+    },
+    "node:Cell": {
+      "id": "Cell",
+      "kind": "node",
+      "title": "Cell type",
+      "group": "Nodes",
+      "color": "#168b84",
+      "title_field": "name",
+      "compact": [
+        {
+          "title": "Cell identity",
+          "fields": [
+            {
+              "key": "name",
+              "label": "Name",
+              "format": "value"
+            },
+            {
+              "key": "id",
+              "label": "Stable ID",
+              "format": "value"
+            },
+            {
+              "key": "description",
+              "label": "Description",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "Ontology",
+          "fields": [
+            {
+              "key": "category",
+              "label": "Category",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [],
+      "note": "Approved legacy cell identities and ontology mapping; no inferred replacement cell IDs.",
+      "widget": null,
+      "expanded_order": [
+        "name",
+        "id",
+        "description",
+        "category",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "snapshot_id"
+      ],
+      "components": [],
+      "canonical_type": "anatomical_structure",
+      "match": {
+        "labels_all": [
+          "anatomical_structure"
+        ],
+        "properties": {
+          "category": "cell_type"
+        }
+      },
+      "examples": [
+        {
+          "kind": "node",
+          "type_id": "Cell",
+          "id": "CL_0000171"
+        },
+        {
+          "kind": "node",
+          "type_id": "Cell",
+          "id": "CL_0000169"
+        }
+      ]
+    },
+    "node:Tissue": {
+      "id": "Tissue",
+      "kind": "node",
+      "title": "Tissue",
+      "group": "Nodes",
+      "color": "#168b84",
+      "title_field": "name",
+      "compact": [
+        {
+          "title": "Anatomy",
+          "fields": [
+            {
+              "key": "name",
+              "label": "Name",
+              "format": "value"
+            },
+            {
+              "key": "id",
+              "label": "Stable ID",
+              "format": "value"
+            },
+            {
+              "key": "description",
+              "label": "Description",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "Category",
+          "fields": [
+            {
+              "key": "category",
+              "label": "Category",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [],
+      "note": "Existing tissue and region identities; hierarchy is shown as explicit PART_OF relations.",
+      "widget": null,
+      "expanded_order": [
+        "name",
+        "id",
+        "description",
+        "category",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "snapshot_id"
+      ],
+      "components": [],
+      "canonical_type": "anatomical_structure",
+      "match": {
+        "labels_all": [
+          "anatomical_structure"
+        ],
+        "properties": {
+          "category": "tissue"
+        }
+      },
+      "examples": [
+        {
+          "kind": "node",
+          "type_id": "Tissue",
+          "id": "UBERON_0001264"
+        },
+        {
+          "kind": "node",
+          "type_id": "Tissue",
+          "id": "UBERON_0000006"
+        }
+      ]
+    },
+    "node:Region": {
+      "id": "Region",
+      "kind": "node",
+      "title": "Anatomical region",
+      "group": "Nodes",
+      "color": "#168b84",
+      "title_field": "name",
+      "compact": [
+        {
+          "title": "Anatomy",
+          "fields": [
+            {
+              "key": "name",
+              "label": "Name",
+              "format": "value"
+            },
+            {
+              "key": "id",
+              "label": "Stable ID",
+              "format": "value"
+            },
+            {
+              "key": "description",
+              "label": "Description",
+              "format": "value"
+            }
+          ]
+        },
+        {
+          "title": "Category",
+          "fields": [
+            {
+              "key": "category",
+              "label": "Category",
+              "format": "value"
+            }
+          ]
+        }
+      ],
+      "tables": [],
+      "note": "Existing tissue and region identities; hierarchy is shown as explicit PART_OF relations.",
+      "widget": null,
+      "expanded_order": [
+        "name",
+        "id",
+        "description",
+        "category",
+        "data_source",
+        "data_source_url",
+        "license",
+        "data_version",
+        "snapshot_id"
+      ],
+      "components": [],
+      "canonical_type": "anatomical_structure",
+      "match": {
+        "labels_all": [
+          "anatomical_structure"
+        ],
+        "properties": {
+          "category": "region"
+        }
+      },
+      "examples": [
+        {
+          "kind": "node",
+          "type_id": "Region",
+          "id": "UBERON_0001069"
+        },
+        {
+          "kind": "node",
+          "type_id": "Region",
+          "id": "UBERON_0001150"
+        }
+      ]
+    }
+  },
+  "tables": {
+    "accessions": {
+      "title": "Related links",
+      "columns": [
+        "source_name",
+        "alt_id"
+      ],
+      "filters": [
+        "source_name",
+        "alt_id"
+      ],
+      "download": {
+        "source_ids": [
+          "ensembl_xref_202604",
+          "ensembl_core116"
+        ]
+      },
+      "component": "node_alt_id"
+    },
+    "placements": {
+      "title": "Genomic placements",
+      "columns": [
+        "genome_assembly",
+        "chr",
+        "start_loc",
+        "end_loc"
+      ],
+      "filters": [
+        "genome_assembly",
+        "chr"
+      ],
+      "download": {
+        "source_ids": [
+          "ensembl_gff_202604"
+        ]
+      },
+      "component": "chr_index"
+    },
+    "expression": {
+      "title": "Expression records",
+      "columns": [
+        "condition",
+        "cell_type_id",
+        "method",
+        "record_kind",
+        "cpm",
+        "pct_expr",
+        "log2fc",
+        "p_adj",
+        "n_donors",
+        "normalization",
+        "status",
+        "data_source",
+        "data_version",
+        "license"
+      ],
+      "filters": [
+        "condition",
+        "record_kind",
+        "status",
+        "cell_type_id",
+        "cohort_id",
+        "treatment",
+        "normalization",
+        "donor_id",
+        "sample_id",
+        "method"
+      ],
+      "component": "expression"
+    },
+    "ruv": {
+      "title": "RUV annotation",
+      "columns": [
+        "condition",
+        "sample_id",
+        "record_kind",
+        "expression_value",
+        "expression_mean",
+        "expression_median",
+        "normalization",
+        "data_source",
+        "data_version",
+        "license"
+      ],
+      "filters": [
+        "condition",
+        "record_kind",
+        "sample_id",
+        "donor_id",
+        "normalization",
+        "cell_type_id",
+        "status"
+      ],
+      "presets": [
+        {
+          "title": "Native matrix · 2025-05-22",
+          "filters": {
+            "record_kind": "ruv_abundance",
+            "normalization": "RUVSeq_native_export"
+          }
+        },
+        {
+          "title": "Contrast reference · analysis date unverified",
+          "filters": {
+            "record_kind": "ruv_abundance",
+            "normalization": "RUVSeq_contrast_specific_reference"
+          }
+        },
+        {
+          "title": "Native summary · V3.3",
+          "filters": {
+            "record_kind": "ruv_summary",
+            "normalization": "source_expression_scale_unverified"
+          }
+        }
+      ],
+      "component": "expression"
+    },
+    "credible_members": {
+      "title": "Credible-set SNPs",
+      "columns": [
+        "variant_id",
+        "pip",
+        "p_value",
+        "effect_allele",
+        "other_allele",
+        "beta",
+        "lbf"
+      ],
+      "filters": [
+        "credible_set_id",
+        "signal_role",
+        "variant_id",
+        "tissue_id",
+        "qtl_type"
+      ],
+      "component": "credible_set"
+    },
+    "population_frequencies": {
+      "title": "Population frequencies",
+      "columns": [
+        "population",
+        "allele",
+        "frequency",
+        "ref",
+        "alt"
+      ],
+      "filters": [
+        "population",
+        "allele"
+      ],
+      "download": {
+        "source_ids": [
+          "dbsnp157"
+        ]
+      },
+      "presentation": "inline"
+    },
+    "ruv_condition_summary": {
+      "title": "RUV-normalized expression",
+      "columns": [
+        "condition",
+        "expression_mean",
+        "expression_median",
+        "n_samples",
+        "data_version"
+      ],
+      "filters": [
+        "condition",
+        "reference_condition",
+        "treatment",
+        "normalization",
+        "cell_type_id",
+        "status"
+      ],
+      "component": "expression"
+    },
+    "ccc_contexts": {
+      "title": "CCC contexts",
+      "columns": [
+        "condition",
+        "treatment",
+        "source",
+        "target",
+        "ligand_complex",
+        "receptor_complex",
+        "lr_means",
+        "cellphone_pvals",
+        "expr_prod",
+        "scaled_weight",
+        "lr_logfc",
+        "spec_weight",
+        "lrscore",
+        "specificity_rank",
+        "magnitude_rank",
+        "n_donors_sig",
+        "n_donors_celltypes_ok",
+        "frac_sig_of_eligible"
+      ],
+      "filters": [
+        "condition",
+        "treatment",
+        "sender_cell_id",
+        "receiver_cell_id",
+        "selection_status"
+      ],
+      "presentation": "tab",
+      "note": "Read records explicitly owned by this LR edge. Each row is one M5 ND untreated sender/receiver context. Rank is not P/FDR; donor counts are aggregate, not donor identities.",
+      "download": {
+        "enabled": true,
+        "scope": "all exact-owner matching rows"
+      }
+    },
+    "metadata_donor": {
+      "title": "Source annotations",
+      "columns": [
+        "source_records"
+      ],
+      "filters": [],
+      "presentation": "tab",
+      "note": "Original-source annotations for this exact HPAP donor. Raw/source values do not replace current clinical annotations on the graph.",
+      "download": {
+        "enabled": true,
+        "scope": "all exact-owner matching rows"
+      }
+    },
+    "metadata_sample": {
+      "title": "Sample crosswalk",
+      "columns": [
+        "donor_id",
+        "tissue_id",
+        "modality",
+        "rrid",
+        "conditions",
+        "treatments",
+        "n_cells"
+      ],
+      "filters": [
+        "modality"
+      ],
+      "presentation": "tab",
+      "note": "One aggregate sample crosswalk with explicit donor, tissue, modality and RRID arrays. RRID scope does not establish an aliquot or replicate.",
+      "download": {
+        "enabled": true,
+        "scope": "all exact-owner matching rows"
+      }
+    },
+    "metadata_sample_source": {
+      "title": "Source memberships",
+      "columns": [
+        "source_sample_id",
+        "donor_id",
+        "rrid",
+        "rrid_scope",
+        "condition",
+        "treatment"
+      ],
+      "filters": [
+        "condition",
+        "treatment",
+        "mapping_status"
+      ],
+      "presentation": "tab",
+      "note": "Source membership rows explicitly owned by this aggregate sample. NULL-owner audit rows cannot be requested through an object panel.",
+      "download": {
+        "enabled": true,
+        "scope": "all exact-owner matching rows"
+      }
+    }
+  },
+  "hierarchy": [
+    {
+      "title": "Node types",
+      "node_profiles": [
+        "GO_term",
+        "Gene",
+        "Reactome_pathway",
+        "KEGG_pathway",
+        "ocr_peak",
+        "disease",
+        "donor",
+        "sample",
+        "Molecular_complex",
+        "data_modality",
+        "Variant",
+        "donor_provenance",
+        "sample_provenance",
+        "Cell",
+        "Tissue",
+        "Region"
+      ]
+    }
+  ],
+  "provenance_fields": [
+    "data_source",
+    "data_source_url",
+    "license",
+    "data_version",
+    "snapshot_id"
+  ],
+  "page_size": 20,
+  "max_page_size": 100,
+  "display_limits": {
+    "nodes": 100,
+    "edges": 400
+  },
+  "missing_value": "Not recorded",
+  "go_evidence_codes": {
+    "EXP": "Inferred from experiment",
+    "IDA": "Direct assay",
+    "IPI": "Physical interaction",
+    "IMP": "Mutant phenotype",
+    "IGI": "Genetic interaction",
+    "IEP": "Expression pattern",
+    "HTP": "High throughput experiment",
+    "HDA": "High throughput direct assay",
+    "HMP": "High throughput mutant phenotype",
+    "HGI": "High throughput genetic interaction",
+    "HEP": "High throughput expression pattern",
+    "IBA": "Biological aspect of ancestor",
+    "IBD": "Biological aspect of descendant",
+    "IKR": "Key residues",
+    "IRD": "Rapid divergence",
+    "ISS": "Sequence or structural similarity",
+    "ISO": "Sequence orthology",
+    "ISA": "Sequence alignment",
+    "ISM": "Sequence model",
+    "IGC": "Genomic context",
+    "RCA": "Reviewed computational analysis",
+    "TAS": "Traceable author statement",
+    "NAS": "Non-traceable author statement",
+    "IC": "Curator inference",
+    "ND": "No biological data",
+    "IEA": "Electronic annotation"
+  },
+  "evidence_scope": "Panels contain only the selected object properties and exact snapshot-bound SQL ownership records. Related nodes, relationships, pathway members and endpoint annotations belong to their own panels, reached through graph navigation.",
+  "display_policy": {
+    "version": "public-display-1",
+    "# TODO next data version": "1024 records include typed method/condition and explicit owned links. Public IDs and stable join keys remain distinct; readable source-version labels are recorded in the paired source catalog. Presentation formatting must never rewrite source analysis versions.",
+    "replace_underscores": true,
+    "hidden_fields": [
+      "object_id",
+      "record_id",
+      "context_id",
+      "snapshot_id",
+      "policy_id",
+      "cohort_id",
+      "source_ref",
+      "source_rows",
+      "source_file",
+      "source_path",
+      "raw_path",
+      "input_checksum",
+      "checksum",
+      "sha256",
+      "qtl_signal_id",
+      "gwas_signal_id",
+      "credible_set_id",
+      "viewer_ref",
+      "relationship_id",
+      "edge_id",
+      "credible_set",
+      "gwas_credible_set_id",
+      "qtl_credible_set_id",
+      "source_set",
+      "serving",
+      "selection_status",
+      "mapping_status",
+      "summary_method"
+    ],
+    "public_id_patterns": [
+      "^ENS(?:G|T|P|E)[0-9]+(?:\\.[0-9]+)?$",
+      "^rs[0-9]+$",
+      "^R-HSA-[0-9]+(?:\\.[0-9]+)?$",
+      "^(?:HGNC|NCBIGene|Entrez|GO|CL|UBERON|MONDO|DOID|EFO|HP|PR|CHEBI|BioGRID|PMID|PubMed):[A-Za-z0-9.:-]+$",
+      "^PKB[A-Z0-9]+$",
+      "^HPAP[-_ ]?[0-9]+$",
+      "^RRID:[A-Za-z0-9_:-]+$",
+      "^(?:N[MRCP]|X[MRP]|YP|WP|AP)_[0-9]+(?:\\.[0-9]+)?(?:[:].*)?$",
+      "^[A-Z][0-9][A-Z0-9]{3}[0-9](?:-[0-9]+)?$",
+      "^M[0-9]+$",
+      "^10\\.[0-9]{4,9}/.+$"
+    ],
+    "public_field_names": [
+      "alt_id",
+      "alt_id_hgnc",
+      "alt_id_entrez",
+      "entrez_id_a",
+      "entrez_id_b",
+      "biogrid_interaction_id",
+      "biogrid_id_interactor_a",
+      "biogrid_id_interactor_b",
+      "organism_id_interactor_a",
+      "organism_id_interactor_b"
+    ],
+    "public_id_aliases": [
+      {
+        "pattern": "^(GO|CL|UBERON|MONDO|DOID|EFO|HP|PR|CHEBI)_([0-9]+)$",
+        "replacement": "$1:$2"
+      },
+      {
+        "pattern": "^MSIGDB_HS_(M[0-9]+)$",
+        "replacement": "$1"
+      }
+    ],
+    "internal_value_patterns": [
+      "^[a-fA-F0-9]{24,128}$",
+      "^[a-fA-F0-9]{8}-[a-fA-F0-9-]{27,}$",
+      "^/(?:db|nfs|private|var)/"
+    ],
+    "version_rules": [
+      {
+        "pattern": "^PanKgraph_expression_V3\\.4_1024_components_v1$",
+        "display": "PanKbase V3.4",
+        "basis": "Reused verified V3.4 analysis; 1024 publication adds explicit components and marker annotation-only mappings."
+      },
+      {
+        "pattern": "^PanKgraph_V34_paired_celltype_DESeq2_",
+        "display": "V3.4 cell-type analysis"
+      },
+      {
+        "pattern": "^PanKgraph_expression_simple_v3_[a-f0-9]+$",
+        "display": "PanKbase V3.4",
+        "basis": "accepted V3.4 expression manifest; input release, not a new RUV analysis"
+      },
+      {
+        "pattern": "^PanKgraph_V34_paired_celltype_DESeq2_20261021_[a-f0-9]+$",
+        "display": "PanKbase V3.4",
+        "basis": "accepted paired cell-type DESeq2 analysis of the V3.4 RNA input; display input release, retain original analysis identifier"
+      },
+      {
+        "pattern": "^PanKbase_disease_DEG_[a-f0-9]+$",
+        "display": "PanKbase V3.3",
+        "basis": "DEG raw manifest input_release=3.3; source data_version=2025-05-22"
+      },
+      {
+        "profiles": [
+          "edge:FGSEA_ENRICHED_IN"
+        ],
+        "pattern": "^2025-09-30$",
+        "display": "PanKbase V3.3",
+        "basis": "retained fGSEA manifest input_release=3.3, not recomputed"
+      },
+      {
+        "pattern": "^(?:V)?3\\.([34])$",
+        "template": "PanKbase V3.$1"
+      },
+      {
+        "pattern": "^Ensembl(?:Ontology)?_.*(?:r116|c116).*$",
+        "display": "Ensembl 116",
+        "basis": "frozen Ensembl core source release identifiers"
+      },
+      {
+        "pattern": "^PanKbase_ABC_[a-f0-9]+$",
+        "display": "Retrieved 2026-10-19",
+        "basis": "released_catalog_20261019 and pinned acquisition receipt; retrieval date, not analysis date"
+      },
+      {
+        "pattern": "^PanKbase_RUV_reference_2026_21_10$",
+        "display": "Retrieved 2026-10-21",
+        "basis": "verified retrieval identity only; analysis date unverified"
+      },
+      {
+        "pattern": "^PanKgraph_07_08$",
+        "display": "Legacy release",
+        "basis": "no verified year/release date; do not fabricate one"
+      },
+      {
+        "pattern": "^pancreas_v1\\.4$",
+        "display": "Pancreas v1.4"
+      },
+      {
+        "pattern": "^2025_05_28$",
+        "display": "2025-05-28"
+      },
+      {
+        "pattern": "^4_29_25$",
+        "display": "2025-04-29"
+      },
+      {
+        "pattern": "^10/24/25$",
+        "display": "2025-10-24"
+      }
+    ],
+    "unknown_internal_version": "Source version not specified",
+    "preserve_exact_links_and_public_accessions": true,
+    "field_labels": {
+      "pip": "PIP",
+      "nominal_p": "Nominal P",
+      "p_value": "P value",
+      "pvalue": "P value",
+      "pval": "P value",
+      "p_adj": "Adj. P",
+      "padj": "Adj. P",
+      "adjusted_p_value": "Adj. P",
+      "log2fc": "log₂ FC",
+      "log2_fold_change": "log₂ FC",
+      "se_of_log2_fold_change": "log₂ FC SE",
+      "lfc_se": "LFC SE",
+      "stat": "Test stat.",
+      "chr": "Chr.",
+      "transcript_length": "cDNA length",
+      "transcript_support_level": "TSL",
+      "ensembl_canonical": "Canonical",
+      "mane_select": "MANE Select",
+      "mane_plus_clinical": "MANE Plus Clinical",
+      "gencode_primary_annotation": "GENCODE primary",
+      "gencode_basic_annotation": "GENCODE basic",
+      "appris_annotation": "APPRIS",
+      "alt_id_hgnc": "HGNC",
+      "alt_id_entrez": "Entrez",
+      "go_domain": "GO domain",
+      "go_evidence_code": "GO evidence",
+      "common_snp": "Common SNP",
+      "rrid": "RRID",
+      "pankbase_id": "PanKbase ID",
+      "pancdb_id": "PANC-DB ID",
+      "t1d_stage": "T1D stage",
+      "aab_state": "AAB status",
+      "qtl_type": "QTL type",
+      "tissue_name": "Tissue",
+      "credible_set": "Credible set",
+      "n_snp": "SNPs",
+      "credible_set_size": "SNPs",
+      "supported_conditions": "Conditions",
+      "experimental_system": "Assay",
+      "experimental_system_type": "Interaction class",
+      "publication_source": "Publication",
+      "publication_id": "Publication",
+      "abc_score": "ABC score",
+      "nes": "NES",
+      "es": "ES",
+      "non_effect_allele": "Other allele",
+      "up_or_down_regulation": "Direction",
+      "reference_condition": "Reference condition",
+      "cell_type_id": "Cell type",
+      "cell_type_label": "Cell type",
+      "pathway_collection": "Collection",
+      "pp_h0_abf": "H0",
+      "pp_h1_abf": "H1",
+      "pp_h2_abf": "H2",
+      "pp_h3_abf": "H3 · distinct",
+      "pp_h4_abf": "H4 · shared",
+      "n_cells": "Cells",
+      "n_donors": "Donors",
+      "nsnp": "SNPs",
+      "size": "Genes",
+      "purity": "Purity",
+      "credible_set_purity": "CS purity",
+      "lbf": "Log Bayes factor",
+      "log2err": "log₂ err.",
+      "pip_rank": "PIP rank",
+      "start_loc": "Start",
+      "end_loc": "End",
+      "expression_value": "Expression",
+      "sample_id": "Sample",
+      "donor_id": "Donor",
+      "source_ref": "Source matrix",
+      "condition": "Condition",
+      "treatment": "Treatment",
+      "pct_expr": "Expressing cells (%)",
+      "n_samples": "Samples",
+      "sender_cell_id": "Sender cell",
+      "receiver_cell_id": "Receiver cell",
+      "variant_id": "Variant",
+      "method": "Method",
+      "source_records": "Source annotations",
+      "specificity_rank": "Specificity rank",
+      "magnitude_rank": "Magnitude rank",
+      "n_donors_sig": "Significant donors",
+      "n_donors_celltypes_ok": "Eligible donors",
+      "frac_sig_of_eligible": "Significant donor fraction",
+      "n_members": "Members",
+      "beta": "Effect estimate",
+      "ocr_gene_activity_score_mean": "Mean",
+      "ocr_gene_activity_score_median": "Median",
+      "non_diabetic_ocr_gene_activity_score_mean": "Mean",
+      "non_diabetic_ocr_gene_activity_score_median": "Median",
+      "aab_pos_ocr_gene_activity_score_mean": "Mean",
+      "aab_pos_ocr_gene_activity_score_median": "Median",
+      "type_1_diabetes_ocr_gene_activity_score_mean": "Mean",
+      "type_1_diabetes_ocr_gene_activity_score_median": "Median",
+      "type_2_diabetes_ocr_gene_activity_score_mean": "Mean",
+      "type_2_diabetes_ocr_gene_activity_score_median": "Median",
+      "source": "Sender cell",
+      "target": "Receiver cell",
+      "lr_means": "Ligand–receptor mean",
+      "cellphone_pvals": "CellPhoneDB P value",
+      "expr_prod": "Expression product",
+      "scaled_weight": "Scaled weight",
+      "lr_logfc": "Ligand–receptor log FC",
+      "spec_weight": "Specificity weight",
+      "lrscore": "Ligand–receptor score",
+      "rrid_scope": "RRID refers to",
+      "gene_name": "Gene",
+      "tissue_id": "Tissue accession",
+      "description": "Description",
+      "effect_allele": "Effect allele",
+      "other_allele": "Other allele"
+    },
+    "unit_labels": {
+      "counts per million": "CPM",
+      "P value; unitless, 0–1": "0–1",
+      "probability, 0–1": "0–1",
+      "posterior probability, 0–1": "0–1",
+      "correlation, 0–1": "0–1",
+      "test statistic; unitless": "unitless",
+      "source units (unspecified)": "units unspecified",
+      "orientation code: 1 / −1": "1 / −1",
+      "normalized score; unitless": "unitless",
+      "score; unitless": "unitless",
+      "ABC score; unitless": "unitless"
+    },
+    "value_aliases": [
+      {
+        "profiles": [
+          "edge:MARKER_GENE_OF__Gene__anatomical_structure"
+        ],
+        "field": "method",
+        "values": {
+          "expert_curated_ASCTB_marker": "HuBMAP ASCT+B curated",
+          "expert curated ASCTB marker": "HuBMAP ASCT+B curated"
+        }
+      },
+      {
+        "field": "status",
+        "profiles": [
+          "edge:GENE_DETECTED_IN__Gene__anatomical_structure",
+          "edge:GENE_ENRICHED_IN__Gene__anatomical_structure",
+          "edge:MARKER_GENE_OF__Gene__anatomical_structure"
+        ],
+        "values": {
+          "supporting": "Supports this edge",
+          "annotation_only": "Annotation only",
+          "below_threshold": "Below threshold",
+          "not_evaluated": "Not evaluated",
+          "filtered_by_policy": "Filtered by policy"
+        }
+      }
+    ],
+    "abbreviations": {
+      "PIP": "Posterior inclusion probability",
+      "Adj. P": "Adjusted P value",
+      "TSL": "Transcript support level",
+      "NES": "Normalized enrichment score",
+      "SE": "Standard error",
+      "CPM": "Counts per million",
+      "ASCT+B": "Anatomical Structures, Cell Types and Biomarkers",
+      "Nominal P": "Unadjusted association P value",
+      "P value": "P value; adjustment status follows source annotation",
+      "Wald z": "DESeq2 Wald statistic: log2FC / standard error",
+      "Test stat.": "Test statistic; consult source method for the specific test",
+      "CS": "Credible set",
+      "AF": "Allele frequency"
+    },
+    "omit_unit_annotations": [
+      "P value; unitless, 0–1",
+      "probability, 0–1",
+      "posterior probability, 0–1",
+      "correlation, 0–1",
+      "allele fraction, 0–1",
+      "test statistic; unitless",
+      "normalized score; unitless",
+      "score; unitless",
+      "ABC score; unitless",
+      "log2 ratio",
+      "source log2 error scale",
+      "source log Bayes factor scale",
+      "source units (unspecified)",
+      "units unspecified",
+      "unitless",
+      "dimensionless",
+      "0–1",
+      "donors",
+      "cells",
+      "genes",
+      "variants",
+      "rank",
+      "orientation code: 1 / −1",
+      "1 / −1",
+      "GFF phase code",
+      "exon phase code"
+    ],
+    "profile_field_specs": {
+      "edge:GENE_ENRICHED_IN__Gene__anatomical_structure": {
+        "stat": {
+          "label": "Wald z",
+          "description": "DESeq2 Wald statistic: log2FC divided by its standard error; target cell type versus rest within the stated diagnosis, with donor pairing."
+        }
+      },
+      "edge:PART_OF_QTL_SIGNAL__Variant__Gene": {
+        "p_value": {
+          "label": "Nominal P",
+          "description": "Unadjusted association P value mapped from the original QTL nominal_p column."
+        }
+      }
+    },
+    "field_descriptions": {
+      "nominal_p": "Unadjusted association P value from the original nominal_p column; not a multiple-testing-adjusted P value.",
+      "p_adj": "Multiple-testing-adjusted P value.",
+      "padj": "Multiple-testing-adjusted P value.",
+      "adjusted_p_value": "Multiple-testing-adjusted P value.",
+      "p_value": "Source P value; adjustment status is not inferred from a generic column name.",
+      "pip": "Posterior inclusion probability.",
+      "pct_expr": "Percentage of cells with detected expression.",
+      "nes": "Normalized enrichment score.",
+      "slope": "Source effect estimate; units were not provided.",
+      "beta": "Source effect estimate; units were not provided."
+    }
+  },
+  "expansion_policy": {
+    "rule": "Show expand only for additional non-empty object-local fields or verified owned tables. Provenance, IDs and repeated compact annotations alone do not qualify.",
+    "excluded_fields": [
+      "id",
+      "name",
+      "start_id",
+      "end_id",
+      "snapshot_id",
+      "labels",
+      "type"
+    ]
+  },
+  "resource_links": {
+    "genecards": {
+      "title": "GeneCards",
+      "url": "https://www.genecards.org/card/{record}",
+      "host": "www.genecards.org",
+      "pattern": "^\\d+$",
+      "token": "symbol"
+    },
+    "mim_gene": {
+      "title": "OMIM",
+      "url": "https://omim.org/entry/{record}",
+      "host": "omim.org",
+      "pattern": "^\\d{6}$",
+      "token": "accession"
+    },
+    "wikigene": {
+      "title": "WikiGenes",
+      "url": "https://www.wikigenes.org/e/gene/e/{record}.html",
+      "host": "www.wikigenes.org",
+      "pattern": "^\\d+$",
+      "token": "accession"
+    },
+    "uniprotkb": {
+      "title": "UniProt",
+      "url": "https://www.uniprot.org/uniprotkb/{record}/entry",
+      "host": "www.uniprot.org",
+      "pattern": "^[A-Z0-9]{6,10}(?:-\\d+)?$",
+      "token": "accession"
+    },
+    "uniprotkb_isoform": {
+      "title": "UniProt",
+      "url": "https://www.uniprot.org/uniprotkb/{record}/entry",
+      "host": "www.uniprot.org",
+      "pattern": "^[A-Z0-9]{6,10}(?:-\\d+)?$",
+      "token": "accession"
+    },
+    "refseq_mrna": {
+      "title": "RefSeq RNA",
+      "url": "https://www.ncbi.nlm.nih.gov/nuccore/{record}",
+      "host": "www.ncbi.nlm.nih.gov",
+      "pattern": "^(?:NM|XM|NR|XR)_\\d+(?:\\.\\d+)?$",
+      "token": "accession"
+    },
+    "refseq_mrna_predicted": {
+      "title": "RefSeq RNA",
+      "url": "https://www.ncbi.nlm.nih.gov/nuccore/{record}",
+      "host": "www.ncbi.nlm.nih.gov",
+      "pattern": "^(?:NM|XM|NR|XR)_\\d+(?:\\.\\d+)?$",
+      "token": "accession"
+    },
+    "refseq_ncrna": {
+      "title": "RefSeq RNA",
+      "url": "https://www.ncbi.nlm.nih.gov/nuccore/{record}",
+      "host": "www.ncbi.nlm.nih.gov",
+      "pattern": "^(?:NM|XM|NR|XR)_\\d+(?:\\.\\d+)?$",
+      "token": "accession"
+    },
+    "refseq_ncrna_predicted": {
+      "title": "RefSeq RNA",
+      "url": "https://www.ncbi.nlm.nih.gov/nuccore/{record}",
+      "host": "www.ncbi.nlm.nih.gov",
+      "pattern": "^(?:NM|XM|NR|XR)_\\d+(?:\\.\\d+)?$",
+      "token": "accession"
+    },
+    "refseq_peptide": {
+      "title": "RefSeq protein",
+      "url": "https://www.ncbi.nlm.nih.gov/protein/{record}",
+      "host": "www.ncbi.nlm.nih.gov",
+      "pattern": "^(?:NP|XP)_\\d+(?:\\.\\d+)?$",
+      "token": "accession"
+    },
+    "refseq_peptide_predicted": {
+      "title": "RefSeq protein",
+      "url": "https://www.ncbi.nlm.nih.gov/protein/{record}",
+      "host": "www.ncbi.nlm.nih.gov",
+      "pattern": "^(?:NP|XP)_\\d+(?:\\.\\d+)?$",
+      "token": "accession"
+    },
+    "insdc_protein_id": {
+      "title": "INSDC protein",
+      "url": "https://www.ncbi.nlm.nih.gov/protein/{record}",
+      "host": "www.ncbi.nlm.nih.gov",
+      "pattern": "^[A-Z]{3}\\d+(?:\\.\\d+)?$",
+      "token": "accession"
+    },
+    "ens_hs_gene": {
+      "title": "Ensembl",
+      "url": "https://www.ensembl.org/id/{record}",
+      "host": "www.ensembl.org",
+      "pattern": "^ENS[GPT]\\d+(?:\\.\\d+)?$",
+      "token": "accession"
+    },
+    "ensembl_human_gene": {
+      "title": "Ensembl",
+      "url": "https://www.ensembl.org/id/{record}",
+      "host": "www.ensembl.org",
+      "pattern": "^ENS[GPT]\\d+(?:\\.\\d+)?$",
+      "token": "accession"
+    },
+    "ens_hs_transcript": {
+      "title": "Ensembl",
+      "url": "https://www.ensembl.org/id/{record}",
+      "host": "www.ensembl.org",
+      "pattern": "^ENS[GPT]\\d+(?:\\.\\d+)?$",
+      "token": "accession"
+    },
+    "ensembl_human_transcript": {
+      "title": "Ensembl",
+      "url": "https://www.ensembl.org/id/{record}",
+      "host": "www.ensembl.org",
+      "pattern": "^ENS[GPT]\\d+(?:\\.\\d+)?$",
+      "token": "accession"
+    },
+    "ens_hs_translation": {
+      "title": "Ensembl",
+      "url": "https://www.ensembl.org/id/{record}",
+      "host": "www.ensembl.org",
+      "pattern": "^ENS[GPT]\\d+(?:\\.\\d+)?$",
+      "token": "accession"
+    },
+    "ensembl_human_translation": {
+      "title": "Ensembl",
+      "url": "https://www.ensembl.org/id/{record}",
+      "host": "www.ensembl.org",
+      "pattern": "^ENS[GPT]\\d+(?:\\.\\d+)?$",
+      "token": "accession"
+    },
+    "ucsc": {
+      "title": "UCSC",
+      "url": "https://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position={record}",
+      "host": "genome.ucsc.edu",
+      "pattern": "^uc[A-Za-z0-9]+\\.\\d+$",
+      "token": "accession",
+      "assembly_pattern": "^GRCh38(?:\\.p\\d+)?$"
+    },
+    "go": {
+      "title": "Gene Ontology",
+      "url": "https://amigo.geneontology.org/amigo/term/{record}",
+      "host": "amigo.geneontology.org",
+      "pattern": "^GO:\\d{7}$",
+      "token": "accession",
+      "category": "identifier"
+    }
+  },
+  "resource_links_note": "Related links use same-entity accessions. GO alternate term IDs are valid GO aliases; they do not grant a Gene annotation lookup or an automatic GO page. # TODO next data version: retain explicit component bindings in manifests.",
+  "table_downloads": {
+    "version": "1",
+    "format": "CSV",
+    "pagination": "All exact-object rows matching the current filters, read sequentially through existing scoped cursors. Abort on object/filter change; no partial download.",
+    "precision": "Raw numeric precision; display rounding is not exported. Source/version/license retained; internal join IDs hidden.",
+    "labels": {
+      "table": "Download table (CSV)",
+      "scope": "All matching rows · current filters",
+      "source": "Source",
+      "input": "Source",
+      "index": "Source",
+      "library": "Data Library",
+      "related": "Related source",
+      "unverified": "",
+      "unverified_link": "Source page"
+    },
+    "sources": [
+      {
+        "id": "eqtl_pancreas",
+        "title": "Pancreas eQTL · SuSiE",
+        "href": "https://data.pankbase.org/tabular-files/PKBFI0558GLJM/",
+        "library_url": "https://data.pankbase.org/tabular-files/PKBFI0558GLJM/",
+        "match_urls": [
+          "https://data.pankbase.org/curated-sets/PKBDS6689QROA/"
+        ],
+        "kind": "library",
+        "source_version": "1.0",
+        "evidence": "checksum-verified pinned QTL source manifest",
+        "artifact_url": "https://pankbase-data-v1.s3.us-west-2.amazonaws.com/analysis_resources/library_resources/1_eQTL-gtex-susie_combined.tsv.gz",
+        "source_page_url": "https://data.pankbase.org/tabular-files/PKBFI0558GLJM/"
+      },
+      {
+        "id": "eqtl_islet",
+        "title": "Islet eQTL · SuSiE",
+        "href": "https://data.pankbase.org/tabular-files/PKBFI5586ILIV/",
+        "library_url": "https://data.pankbase.org/tabular-files/PKBFI5586ILIV/",
+        "match_urls": [
+          "https://data.pankbase.org/curated-sets/PKBDS8062GYOQ/"
+        ],
+        "kind": "library",
+        "source_version": "1.0",
+        "evidence": "checksum-verified pinned QTL source manifest",
+        "artifact_url": "https://pankbase-data-v1.s3.us-west-2.amazonaws.com/analysis_resources/library_resources/1_eQTL-inspire-susie_combined.tsv.gz",
+        "source_page_url": "https://data.pankbase.org/tabular-files/PKBFI5586ILIV/"
+      },
+      {
+        "id": "exonqtl_islet",
+        "title": "Islet exonQTL · SuSiE",
+        "href": "https://data.pankbase.org/tabular-files/PKBFI8313GSLP/",
+        "library_url": "https://data.pankbase.org/tabular-files/PKBFI8313GSLP/",
+        "match_urls": [
+          "https://data.pankbase.org/curated-sets/PKBDS9837ORWK/"
+        ],
+        "kind": "library",
+        "source_version": "1.0",
+        "evidence": "checksum-verified pinned QTL source manifest",
+        "artifact_url": "https://pankbase-data-v1.s3.us-west-2.amazonaws.com/analysis_resources/library_resources/1_exonQTL-inspire-susie_combined.tsv.gz",
+        "source_page_url": "https://data.pankbase.org/tabular-files/PKBFI8313GSLP/"
+      },
+      {
+        "id": "sqtl_pancreas",
+        "title": "Pancreas sQTL · SuSiE",
+        "href": "https://data.pankbase.org/tabular-files/PKBFI8805UBLT/",
+        "library_url": "https://data.pankbase.org/tabular-files/PKBFI8805UBLT/",
+        "match_urls": [
+          "https://data.pankbase.org/curated-sets/PKBDS2105PCON/"
+        ],
+        "kind": "library",
+        "source_version": "1.0",
+        "evidence": "checksum-verified pinned QTL source manifest",
+        "artifact_url": "https://pankbase-data-v1.s3.us-west-2.amazonaws.com/analysis_resources/library_resources/1_sQTL-gtex-susie_combined.tsv.gz",
+        "source_page_url": "https://data.pankbase.org/tabular-files/PKBFI8805UBLT/"
+      },
+      {
+        "id": "t1d_eQTL-gtex_coloc",
+        "title": "Pancreas eQTL coloc",
+        "href": "https://data.pankbase.org/tabular-files/PKBFI1963NIWQ/",
+        "library_url": "https://data.pankbase.org/tabular-files/PKBFI1963NIWQ/",
+        "match_urls": [
+          "https://data.pankbase.org/curated-sets/PKBDS2020YBLW/"
+        ],
+        "kind": "library",
+        "source_version": "1.0",
+        "evidence": "checksum-verified pinned QTL source manifest",
+        "artifact_url": "https://pankbase-data-v1.s3.us-west-2.amazonaws.com/analysis_resources/library_resources/t1d_eQTL-gtex_coloc.txt",
+        "source_page_url": "https://data.pankbase.org/tabular-files/PKBFI1963NIWQ/"
+      },
+      {
+        "id": "t1d_eQTL-inspire_coloc",
+        "title": "Islet eQTL coloc",
+        "href": "https://data.pankbase.org/tabular-files/PKBFI1083DVUX/",
+        "library_url": "https://data.pankbase.org/tabular-files/PKBFI1083DVUX/",
+        "match_urls": [
+          "https://data.pankbase.org/curated-sets/PKBDS8554CPWF/"
+        ],
+        "kind": "library",
+        "source_version": "1.0",
+        "evidence": "checksum-verified pinned QTL source manifest",
+        "artifact_url": "https://pankbase-data-v1.s3.us-west-2.amazonaws.com/analysis_resources/library_resources/t1d_eQTL-inspire_coloc.txt",
+        "source_page_url": "https://data.pankbase.org/tabular-files/PKBFI1083DVUX/"
+      },
+      {
+        "id": "t1d_exonQTL-inspire_coloc",
+        "title": "Islet exonQTL coloc",
+        "href": "https://data.pankbase.org/tabular-files/PKBFI4455WJFS/",
+        "library_url": "https://data.pankbase.org/tabular-files/PKBFI4455WJFS/",
+        "match_urls": [
+          "https://data.pankbase.org/curated-sets/PKBDS6036YASR/"
+        ],
+        "kind": "library",
+        "source_version": "1.0",
+        "evidence": "checksum-verified pinned QTL source manifest",
+        "artifact_url": "https://pankbase-data-v1.s3.us-west-2.amazonaws.com/analysis_resources/library_resources/t1d_exonQTL-inspire_coloc.txt",
+        "source_page_url": "https://data.pankbase.org/tabular-files/PKBFI4455WJFS/"
+      },
+      {
+        "id": "t1d_sQTL-gtex_coloc",
+        "title": "Pancreas sQTL coloc",
+        "href": "https://data.pankbase.org/tabular-files/PKBFI5137VNYG/",
+        "library_url": "https://data.pankbase.org/tabular-files/PKBFI5137VNYG/",
+        "match_urls": [
+          "https://data.pankbase.org/curated-sets/PKBDS2517QKPR/"
+        ],
+        "kind": "library",
+        "source_version": "1.0",
+        "evidence": "checksum-verified pinned QTL source manifest",
+        "artifact_url": "https://pankbase-data-v1.s3.us-west-2.amazonaws.com/analysis_resources/library_resources/t1d_sQTL-gtex_coloc.txt",
+        "source_page_url": "https://data.pankbase.org/tabular-files/PKBFI5137VNYG/"
+      },
+      {
+        "id": "PKBFI1553PGUM",
+        "title": "delta RUV counts · 2025-05-22",
+        "href": "https://data.pankbase.org/matrix-files/PKBFI1553PGUM/",
+        "library_url": "https://data.pankbase.org/matrix-files/PKBFI1553PGUM/",
+        "match_urls": [
+          "https://pankbase-data-v1.s3.us-west-2.amazonaws.com/analysis_resources/single_cell_expression/20250522_data_for_platform/Delta_ruvNormCounts.txt"
+        ],
+        "kind": "library",
+        "source_version": "2025-05-22",
+        "evidence": "MD5-verified pinned RUV source manifest",
+        "artifact_url": "https://pankbase-data-v1.s3.us-west-2.amazonaws.com/analysis_resources/single_cell_expression/20250522_data_for_platform/Delta_ruvNormCounts.txt",
+        "source_page_url": "https://data.pankbase.org/matrix-files/PKBFI1553PGUM/"
+      },
+      {
+        "id": "PKBFI1082DWBN",
+        "title": "alpha RUV counts · 2025-05-22",
+        "href": "https://data.pankbase.org/matrix-files/PKBFI1082DWBN/",
+        "library_url": "https://data.pankbase.org/matrix-files/PKBFI1082DWBN/",
+        "match_urls": [
+          "https://pankbase-data-v1.s3.us-west-2.amazonaws.com/analysis_resources/single_cell_expression/20250522_data_for_platform/Alpha_ruvNormCounts.txt"
+        ],
+        "kind": "library",
+        "source_version": "2025-05-22",
+        "evidence": "MD5-verified pinned RUV source manifest",
+        "artifact_url": "https://pankbase-data-v1.s3.us-west-2.amazonaws.com/analysis_resources/single_cell_expression/20250522_data_for_platform/Alpha_ruvNormCounts.txt",
+        "source_page_url": "https://data.pankbase.org/matrix-files/PKBFI1082DWBN/"
+      },
+      {
+        "id": "PKBFI3988BVSI",
+        "title": "active stellate RUV counts · 2025-05-22",
+        "href": "https://data.pankbase.org/matrix-files/PKBFI3988BVSI/",
+        "library_url": "https://data.pankbase.org/matrix-files/PKBFI3988BVSI/",
+        "match_urls": [
+          "https://pankbase-data-v1.s3.us-west-2.amazonaws.com/analysis_resources/single_cell_expression/20250522_data_for_platform/ActiveStellate_ruvNormCounts.txt"
+        ],
+        "kind": "library",
+        "source_version": "2025-05-22",
+        "evidence": "MD5-verified pinned RUV source manifest",
+        "artifact_url": "https://pankbase-data-v1.s3.us-west-2.amazonaws.com/analysis_resources/single_cell_expression/20250522_data_for_platform/ActiveStellate_ruvNormCounts.txt",
+        "source_page_url": "https://data.pankbase.org/matrix-files/PKBFI3988BVSI/"
+      },
+      {
+        "id": "PKBFI1695DUZE",
+        "title": "beta RUV counts · 2025-05-22",
+        "href": "https://data.pankbase.org/matrix-files/PKBFI1695DUZE/",
+        "library_url": "https://data.pankbase.org/matrix-files/PKBFI1695DUZE/",
+        "match_urls": [
+          "https://pankbase-data-v1.s3.us-west-2.amazonaws.com/analysis_resources/single_cell_expression/20250522_data_for_platform/Beta_ruvNormCounts.txt"
+        ],
+        "kind": "library",
+        "source_version": "2025-05-22",
+        "evidence": "MD5-verified pinned RUV source manifest",
+        "artifact_url": "https://pankbase-data-v1.s3.us-west-2.amazonaws.com/analysis_resources/single_cell_expression/20250522_data_for_platform/Beta_ruvNormCounts.txt",
+        "source_page_url": "https://data.pankbase.org/matrix-files/PKBFI1695DUZE/"
+      },
+      {
+        "id": "PKBFI6084ZAJV",
+        "title": "ductal RUV counts · 2025-05-22",
+        "href": "https://data.pankbase.org/matrix-files/PKBFI6084ZAJV/",
+        "library_url": "https://data.pankbase.org/matrix-files/PKBFI6084ZAJV/",
+        "match_urls": [
+          "https://pankbase-data-v1.s3.us-west-2.amazonaws.com/analysis_resources/single_cell_expression/20250522_data_for_platform/Ductal_ruvNormCounts.txt"
+        ],
+        "kind": "library",
+        "source_version": "2025-05-22",
+        "evidence": "MD5-verified pinned RUV source manifest",
+        "artifact_url": "https://pankbase-data-v1.s3.us-west-2.amazonaws.com/analysis_resources/single_cell_expression/20250522_data_for_platform/Ductal_ruvNormCounts.txt",
+        "source_page_url": "https://data.pankbase.org/matrix-files/PKBFI6084ZAJV/"
+      },
+      {
+        "id": "PKBFI6084CGGA",
+        "title": "acinar RUV counts · 2025-05-22",
+        "href": "https://data.pankbase.org/matrix-files/PKBFI6084CGGA/",
+        "library_url": "https://data.pankbase.org/matrix-files/PKBFI6084CGGA/",
+        "match_urls": [
+          "https://pankbase-data-v1.s3.us-west-2.amazonaws.com/analysis_resources/single_cell_expression/20250522_data_for_platform/Acinar_ruvNormCounts.txt"
+        ],
+        "kind": "library",
+        "source_version": "2025-05-22",
+        "evidence": "MD5-verified pinned RUV source manifest",
+        "artifact_url": "https://pankbase-data-v1.s3.us-west-2.amazonaws.com/analysis_resources/single_cell_expression/20250522_data_for_platform/Acinar_ruvNormCounts.txt",
+        "source_page_url": "https://data.pankbase.org/matrix-files/PKBFI6084CGGA/"
+      },
+      {
+        "id": "rna_v34",
+        "title": "RNA-seq object V3.4",
+        "href": "https://data.pankbase.org/",
+        "library_url": "https://doi.org/10.5281/zenodo.15611730",
+        "library_label": "Release",
+        "match_urls": [
+          "https://doi.org/10.5281/zenodo.15611730"
+        ],
+        "kind": "library",
+        "source_version": "3.4",
+        "note": "Source object; PanKgraph expression statistics are derived from this input.",
+        "evidence": "SHA256-verified RNA object source manifest",
+        "artifact_url": "https://pankbase-data-v1.s3.us-west-2.amazonaws.com/analysis_resources/single_cell_objects/02072026_scRNA_v3.4.rds",
+        "source_page_url": "https://data.pankbase.org/"
+      },
+      {
+        "id": "ensembl_xref_202604",
+        "title": "Ensembl xrefs · 2026-04",
+        "href": "https://www.ensembl.org/Homo_sapiens/Info/Index",
+        "kind": "page",
+        "evidence": "Checksum-verified Ensembl raw manifest, files/36",
+        "artifact_url": "https://ftp.ebi.ac.uk/pub/ensemblorganisms/GCA/000/001/405/29/ensembl/2026_04/geneset/xref.tsv.gz",
+        "source_page_url": "https://www.ensembl.org/Homo_sapiens/Info/Index"
+      },
+      {
+        "id": "ensembl_core116",
+        "title": "Ensembl core · release 116",
+        "href": "https://www.ensembl.org/Homo_sapiens/Info/Index",
+        "kind": "page",
+        "evidence": "Checksum-verified Ensembl raw manifest, core/xref and object_xref inputs",
+        "artifact_url": "https://ftp.ensembl.org/pub/release-116/mysql/homo_sapiens_core_116_38/",
+        "source_page_url": "https://www.ensembl.org/Homo_sapiens/Info/Index"
+      },
+      {
+        "id": "ensembl_gff_202604",
+        "title": "Ensembl GFF3 · 2026-04",
+        "href": "https://www.ensembl.org/Homo_sapiens/Info/Index",
+        "kind": "page",
+        "evidence": "Checksum-verified Ensembl raw manifest, files/33",
+        "artifact_url": "https://ftp.ebi.ac.uk/pub/ensemblorganisms/GCA/000/001/405/29/ensembl/2026_04/geneset/genes-including_alt.gff3.gz",
+        "source_page_url": "https://www.ensembl.org/Homo_sapiens/Info/Index"
+      },
+      {
+        "id": "dbsnp157",
+        "title": "dbSNP · build 157",
+        "href": "https://www.ncbi.nlm.nih.gov/snp/",
+        "kind": "page",
+        "data_versions": [
+          "157"
+        ],
+        "evidence": "Pinned dbSNP build157 VCF; official archive index HTTP 200 verified",
+        "artifact_url": "https://ftp.ncbi.nih.gov/snp/archive/b157/VCF/",
+        "source_page_url": "https://www.ncbi.nlm.nih.gov/snp/"
+      },
+      {
+        "id": "gwas_summary_related",
+        "title": "T1D GWAS summary statistics",
+        "href": "https://data.pankbase.org/curated-sets/PKBDS4689SZBR/",
+        "kind": "related",
+        "match_urls": [
+          "https://data.pankbase.org/curated-sets/PKBDS4689SZBR/"
+        ],
+        "note": "Related summary statistics; the exact full fine-mapping source is not verified."
+      },
+      {
+        "id": "ensembl_ontology116",
+        "title": "Ensembl ontology · release 116",
+        "href": "https://www.ensembl.org/Homo_sapiens/Info/Index",
+        "kind": "page",
+        "source_version": "116",
+        "evidence": "GO aliases originate from pinned Ensembl ontology term/alt_id tables.",
+        "artifact_url": "https://ftp.ensembl.org/pub/release-116/mysql/ensembl_ontology_116/",
+        "source_page_url": "https://www.ensembl.org/Homo_sapiens/Info/Index"
+      }
+    ],
+    "profile_sources": {
+      "edge:PART_OF_QTL_SIGNAL__Variant__Gene": {
+        "credible_members": [
+          "eqtl_islet"
+        ]
+      },
+      "edge:SIGNAL_COLOC_WITH__Gene__disease": {
+        "credible_members": [
+          "eqtl_islet",
+          "gwas_summary_related"
+        ]
+      },
+      "edge:PART_OF_GWAS_SIGNAL__Variant__disease": {
+        "credible_members": [
+          "gwas_summary_related"
+        ]
+      }
+    }
+  },
+  "widget_tables": {
+    "gene_activity": {
+      "id": "gene_activity",
+      "title": "Gene activity by condition",
+      "columns": [
+        "condition",
+        "mean",
+        "median"
+      ],
+      "download": {
+        "source_ids": []
+      }
+    }
+  },
+  "components": {
+    "chr_index": {
+      "version": 1,
+      "renderer": "table",
+      "title": "Genomic placements"
+    },
+    "node_alt_id": {
+      "version": 1,
+      "renderer": "table",
+      "title": "Related links"
+    },
+    "expression": {
+      "version": 1,
+      "renderer": "condition_tables",
+      "title": "Expression evidence summary",
+      "view": {
+        "title": "Expression evidence summary",
+        "note": "Condition-level evidence linked to this relationship. ND, T1D and T2D stay separate; missing groups are not zero. RUV abundance is not CPM.",
+        "marker_note": "HuBMAP-curated marker annotation. Only measurements explicitly linked to this marker relationship may appear here; curation alone is not an expression or DEG result.",
+        "unlinked_message": "No expression records are linked to this relationship. This does not establish zero expression.",
+        "unavailable_message": "Expression evidence is temporarily unavailable; no absence is inferred.",
+        "field_labels": {
+          "condition": "Condition",
+          "reference_condition": "Reference",
+          "treatment": "Treatment",
+          "cpm": "CPM",
+          "pct_expr": "Expressing (%)",
+          "n_donors": "Donors",
+          "n_samples": "Samples",
+          "n_values": "Values",
+          "expression_mean": "Mean",
+          "expression_median": "Median",
+          "expression_min": "Min",
+          "expression_max": "Max",
+          "log2fc": "log₂ FC",
+          "p_adj": "Adj. P",
+          "stat": "Test stat.",
+          "status": "Edge role",
+          "data_version": "Version",
+          "summary_method": "Summary method"
+        },
+        "groups": [
+          {
+            "id": "general",
+            "title": "General expression",
+            "presets": [
+              {
+                "id": "baseline",
+                "title": "Baseline · V3.4",
+                "table_id": "expression",
+                "fixed_filters": {
+                  "record_kind": "absolute_summary",
+                  "treatment": "no_treatment",
+                  "method": "raw_count_CPM"
+                },
+                "columns": [
+                  "condition",
+                  "cpm",
+                  "pct_expr",
+                  "n_donors",
+                  "status",
+                  "data_version"
+                ],
+                "description": "Raw-count CPM and expressing-cell percentage, per condition. Baseline only; each row retains its edge-support role.",
+                "pipeline_links": [
+                  {
+                    "label": "V3.4 processing code",
+                    "href": "https://github.com/RingoMao/context-aware-kg-standard/tree/c7bb60cdc1785c151438c7de94e3f0c8362ff8c4/demo/expression_v2/real_v34"
+                  }
+                ],
+                "method": "raw_count_CPM",
+                "method_source": "typed_source_record",
+                "method_label": "Raw-count CPM"
+              },
+              {
+                "id": "treatments",
+                "title": "Expression by condition and treatment",
+                "table_id": "expression",
+                "fixed_filters": {
+                  "record_kind": "absolute_summary",
+                  "method": "raw_count_CPM"
+                },
+                "columns": [
+                  "condition",
+                  "treatment",
+                  "cpm",
+                  "pct_expr",
+                  "n_donors"
+                ],
+                "description": "",
+                "pipeline_links": [
+                  {
+                    "label": "V3.4 processing code",
+                    "href": "https://github.com/RingoMao/context-aware-kg-standard/tree/c7bb60cdc1785c151438c7de94e3f0c8362ff8c4/demo/expression_v2/real_v34"
+                  }
+                ],
+                "method": "raw_count_CPM",
+                "method_source": "typed_source_record",
+                "method_label": "Raw-count CPM",
+                "presentation": "source_records"
+              },
+              {
+                "id": "historical",
+                "title": "Historical summary · V3.3",
+                "table_id": "expression",
+                "fixed_filters": {
+                  "record_kind": "ruv_summary",
+                  "normalization": "source_expression_scale_unverified",
+                  "method": "legacy_summary_unverified"
+                },
+                "columns": [
+                  "condition",
+                  "expression_mean",
+                  "expression_median",
+                  "status",
+                  "data_version"
+                ],
+                "description": "Retained V3.3 expression summary. Source scale and RUV-normalization status are unverified; no processing pipeline is recorded for this summary. Pooled ALL remains pooled.",
+                "pipeline_links": [],
+                "method": "legacy_summary_unverified",
+                "method_source": "typed_source_record",
+                "method_label": "Source summary (processing unverified)"
+              }
+            ]
+          },
+          {
+            "id": "ruv",
+            "title": "RUV-normalized expression",
+            "presets": [
+              {
+                "id": "native",
+                "title": "RUV-normalized expression · source samples",
+                "table_id": "ruv",
+                "fixed_filters": {
+                  "record_kind": "ruv_abundance",
+                  "normalization": "RUVSeq_native_export"
+                },
+                "columns": [
+                  "sample_id",
+                  "condition",
+                  "treatment",
+                  "expression_value"
+                ],
+                "description": "",
+                "pipeline_links": [
+                  {
+                    "label": "PanKbase RUV/DEG pipeline",
+                    "href": "https://github.com/PanKbase/PanKbase-DEG-analysis"
+                  },
+                  {
+                    "label": "Source methods",
+                    "href": "https://hugeampkpncms.org/sites/default/files/images/pankbase/methods/DE_methods.pdf"
+                  }
+                ],
+                "method": "RUVSeq_native_export",
+                "method_source": "typed_source_record",
+                "request_all_fields": true,
+                "method_label": "RUVSeq",
+                "presentation": "source_records"
+              },
+              {
+                "id": "reference",
+                "title": "RUV-normalized expression · contrast reference",
+                "table_id": "ruv",
+                "fixed_filters": {
+                  "record_kind": "ruv_abundance",
+                  "normalization": "RUVSeq_contrast_specific_reference"
+                },
+                "columns": [
+                  "sample_id",
+                  "condition",
+                  "reference_condition",
+                  "treatment",
+                  "expression_value"
+                ],
+                "description": "",
+                "pipeline_links": [],
+                "method": "RUVSeq_contrast_specific_reference",
+                "method_source": "typed_source_record",
+                "request_all_fields": true,
+                "method_label": "RUVSeq (contrast reference)",
+                "presentation": "source_records"
+              }
+            ]
+          },
+          {
+            "id": "deg",
+            "title": "DEG",
+            "presets": [
+              {
+                "id": "cell_type",
+                "title": "{cell} vs other cell types",
+                "table_id": "expression",
+                "fixed_filters": {
+                  "record_kind": "cell_type_deg",
+                  "treatment": "no_treatment",
+                  "method": "DESeq2_poscounts_cell_type_one_vs_rest"
+                },
+                "columns": [
+                  "condition",
+                  "log2fc",
+                  "p_adj",
+                  "stat"
+                ],
+                "description": "",
+                "pipeline_links": [
+                  {
+                    "label": "V3.4 processing code",
+                    "href": "https://github.com/RingoMao/context-aware-kg-standard/tree/c7bb60cdc1785c151438c7de94e3f0c8362ff8c4/demo/expression_v2/real_v34"
+                  }
+                ],
+                "field_labels": {
+                  "stat": "Wald z"
+                },
+                "method": "DESeq2_poscounts_cell_type_one_vs_rest",
+                "method_source": "typed_source_record",
+                "method_label": "DESeq2 (cell-type one-vs-rest)",
+                "comparison": "cell_type",
+                "presentation": "source_records"
+              },
+              {
+                "id": "disease",
+                "title": "Disease comparison · {cell}",
+                "table_id": "expression",
+                "fixed_filters": {
+                  "record_kind": "disease_deg",
+                  "method": "DESeq2_RUVg_disease_contrast"
+                },
+                "columns": [
+                  "condition",
+                  "reference_condition",
+                  "treatment",
+                  "log2fc",
+                  "p_adj",
+                  "stat"
+                ],
+                "description": "",
+                "pipeline_links": [
+                  {
+                    "label": "PanKbase RUV/DEG pipeline",
+                    "href": "https://github.com/PanKbase/PanKbase-DEG-analysis"
+                  },
+                  {
+                    "label": "Source methods",
+                    "href": "https://hugeampkpncms.org/sites/default/files/images/pankbase/methods/DE_methods.pdf"
+                  }
+                ],
+                "method": "DESeq2_RUVg_disease_contrast",
+                "method_source": "typed_source_record",
+                "method_label": "DESeq2 with RUVg (disease contrast)",
+                "comparison": "disease",
+                "presentation": "source_records"
+              }
+            ]
+          }
+        ],
+        "context_filters": {
+          "cell_type_id": {
+            "endpoint_type": "Cell"
+          }
+        },
+        "default_filters": {
+          "status": "all"
+        },
+        "condition_values": [
+          "ND",
+          "T1D",
+          "T2D",
+          "ALL"
+        ]
+      }
+    },
+    "credible_set": {
+      "version": 1,
+      "renderer": "credible_set",
+      "title": "Credible sets",
+      "definition_source": "paired_manifest",
+      "membership_representation": "materialized_index",
+      "index_table_id": "credible_members"
+    }
+  },
+  "table_bindings": {
+    "placements": {
+      "component": "chr_index",
+      "reader": "legacy_placements",
+      "snapshot_id": "ensembl_gene_go_20261024_v1"
+    },
+    "accessions": {
+      "component": "node_alt_id",
+      "reader": "legacy_accessions",
+      "snapshot_id": "ensembl_gene_go_20261024_v1"
+    },
+    "expression": {
+      "component": "expression",
+      "reader": "typed_expression",
+      "snapshot_id": "expression_20261024_v1"
+    },
+    "ruv": {
+      "component": "expression",
+      "reader": "typed_ruv",
+      "snapshot_id": "expression_20261024_v1"
+    },
+    "ruv_condition_summary": {
+      "component": "expression",
+      "reader": "typed_ruv_summary",
+      "snapshot_id": "expression_20261024_v1"
+    },
+    "credible_members": {
+      "component": "credible_set",
+      "reader": "legacy_association",
+      "snapshot_id": "association_20261024_v1"
+    },
+    "ccc_contexts": {
+      "reader": "release_1103.reader.Reader",
+      "component_argument": "ccc",
+      "snapshot_id": "ccc_M5_20261103_v1",
+      "table": "ccc.evidence",
+      "owner_column": "object_id",
+      "owner_kind": [
+        "edge"
+      ],
+      "owner_types": [
+        "LIGAND_RECEPTOR"
+      ],
+      "null_owner_served": false,
+      "ref_resolver": "release_1103.registry.Registry.resolve_ref; verify actual graph record before resolving the display profile to the storage type"
+    },
+    "metadata_donor": {
+      "reader": "release_1103.reader.Reader",
+      "component_argument": "donor",
+      "snapshot_id": "metadata_20261103_v1",
+      "table": "donor_sample.donor_metadata",
+      "owner_column": "object_id",
+      "owner_kind": [
+        "node"
+      ],
+      "owner_types": [
+        "donor"
+      ],
+      "null_owner_served": false,
+      "ref_resolver": "release_1103.registry.Registry.resolve_ref; verify actual graph record before resolving the display profile to the storage type"
+    },
+    "metadata_sample": {
+      "reader": "release_1103.reader.Reader",
+      "component_argument": "sample",
+      "snapshot_id": "metadata_20261103_v1",
+      "table": "donor_sample.sample_metadata",
+      "owner_column": "object_id",
+      "owner_kind": [
+        "node"
+      ],
+      "owner_types": [
+        "sample"
+      ],
+      "null_owner_served": false,
+      "ref_resolver": "release_1103.registry.Registry.resolve_ref; verify actual graph record before resolving the display profile to the storage type"
+    },
+    "metadata_sample_source": {
+      "reader": "release_1103.reader.Reader",
+      "component_argument": "sample_source",
+      "snapshot_id": "metadata_20261103_v1",
+      "table": "donor_sample.sample_source_metadata",
+      "owner_column": "object_id",
+      "owner_kind": [
+        "node"
+      ],
+      "owner_types": [
+        "sample"
+      ],
+      "null_owner_served": false,
+      "ref_resolver": "release_1103.registry.Registry.resolve_ref; verify actual graph record before resolving the display profile to the storage type"
+    }
+  },
+  "component_contract": {
+    "version": 1,
+    "source": "context-aware-kg-standard/demo/components",
+    "rule": "Profile opt-in AND exact snapshot/object ownership; never endpoint discovery."
+  },
+  "deployment_status": "PREPARED_NOT_DEPLOYED",
+  "input_manifest_sha256": "2925a97c0226c871ba42105da6b12e8c996f9fcb3b63d8737f742fc876177f2b",
+  "backend_binding_status": "New data/reader bindings prepared. Consuming API integration and deployed UI validation are separate gates.",
+  "type_hierarchy_defined": false,
+  "future_data_cleanup_note": "# TODO next data version: presentation aliases do not rewrite raw public IDs/source versions.",
+  "panel_presentation": {
+    "version": 3,
+    "complete_record": {
+      "title": "Complete record",
+      "omit_fields": [
+        "name",
+        "description_note",
+        "evidence_scope",
+        "selection_status",
+        "mapping_status"
+      ],
+      "omit_value_patterns": [
+        "existing claim retained",
+        "source-native mean / median"
+      ]
+    },
+    "components": {
+      "chr_index": {
+        "title": "Genomic coordinates"
+      },
+      "node_alt_id": {
+        "title": "Related links"
+      },
+      "expression": {
+        "title": "Expression evidence summary"
+      },
+      "credible_set": {
+        "title": "Credible-set summary"
+      }
+    },
+    "tables": {
+      "placements": {
+        "title": "Genomic coordinates"
+      },
+      "accessions": {
+        "title": "Related links"
+      },
+      "ccc_contexts": {
+        "title": "Cell–cell context summary"
+      },
+      "metadata_donor": {
+        "title": "Source annotations"
+      },
+      "metadata_sample": {
+        "title": "Sample crosswalk"
+      },
+      "metadata_sample_source": {
+        "title": "Source memberships"
+      }
+    },
+    "field_labels": {
+      "start_loc": "Start",
+      "end_loc": "End",
+      "expression_value": "Expression",
+      "sample_id": "Sample",
+      "donor_id": "Donor",
+      "source_ref": "Source matrix",
+      "condition": "Condition",
+      "reference_condition": "Reference condition",
+      "treatment": "Treatment",
+      "log2fc": "log₂ FC",
+      "pct_expr": "Expressing cells (%)",
+      "n_donors": "Donors",
+      "n_cells": "Cells",
+      "n_samples": "Samples",
+      "sender_cell_id": "Sender cell",
+      "receiver_cell_id": "Receiver cell",
+      "variant_id": "Variant",
+      "qtl_type": "QTL type",
+      "method": "Method",
+      "source_records": "Source annotations",
+      "specificity_rank": "Specificity rank",
+      "magnitude_rank": "Magnitude rank",
+      "n_donors_sig": "Significant donors",
+      "n_donors_celltypes_ok": "Eligible donors",
+      "frac_sig_of_eligible": "Significant donor fraction",
+      "n_members": "Members",
+      "purity": "Purity",
+      "beta": "Effect estimate",
+      "lbf": "Log Bayes factor",
+      "p_value": "P value",
+      "pip": "PIP",
+      "ocr_gene_activity_score_mean": "Mean",
+      "ocr_gene_activity_score_median": "Median",
+      "non_diabetic_ocr_gene_activity_score_mean": "Mean",
+      "non_diabetic_ocr_gene_activity_score_median": "Median",
+      "aab_pos_ocr_gene_activity_score_mean": "Mean",
+      "aab_pos_ocr_gene_activity_score_median": "Median",
+      "type_1_diabetes_ocr_gene_activity_score_mean": "Mean",
+      "type_1_diabetes_ocr_gene_activity_score_median": "Median",
+      "type_2_diabetes_ocr_gene_activity_score_mean": "Mean",
+      "type_2_diabetes_ocr_gene_activity_score_median": "Median",
+      "source": "Sender cell",
+      "target": "Receiver cell",
+      "lr_means": "Ligand–receptor mean",
+      "cellphone_pvals": "CellPhoneDB P value",
+      "expr_prod": "Expression product",
+      "scaled_weight": "Scaled weight",
+      "lr_logfc": "Ligand–receptor log FC",
+      "spec_weight": "Specificity weight",
+      "lrscore": "Ligand–receptor score",
+      "rrid_scope": "RRID refers to",
+      "gene_name": "Gene",
+      "tissue_id": "Tissue accession",
+      "description": "Description",
+      "tissue_name": "Tissue",
+      "effect_allele": "Effect allele",
+      "other_allele": "Other allele"
+    },
+    "compact_summaries": {
+      "expression": {
+        "rows": "condition_statistics",
+        "label": "condition",
+        "values": "statistics",
+        "replaces": [
+          "evidence_summary",
+          "supported_conditions"
+        ],
+        "max_columns": 3,
+        "columns": [
+          {
+            "key": "log2fc",
+            "label": "Log2 FC"
+          },
+          {
+            "key": "p_adj",
+            "label": "Adj. P"
+          },
+          {
+            "key": "cpm",
+            "label": "CPM"
+          },
+          {
+            "key": "pct_expr",
+            "label": "Cells (%)"
+          },
+          {
+            "key": "n_donors",
+            "label": "Donors"
+          }
+        ]
+      }
+    },
+    "unit_labels": {
+      "bp; 0-based": "bp",
+      "bp; exclusive": "bp"
+    },
+    "field_descriptions": {
+      "start_loc": "Start coordinate in base pairs, 0-based.",
+      "end_loc": "End coordinate in base pairs, exclusive."
+    },
+    "production_design_source": {
+      "branch": "production",
+      "commit": "33ba32cc5cf44f4bdda1554683308a56cf02cee9",
+      "path": "src/schema/graph_viewer_schema.json"
+    },
+    "record_designs": {
+      "Gene": [
+        [
+          "Title",
+          "name"
+        ],
+        [
+          "Gene Identity",
+          [
+            [
+              "ENSG ID",
+              "id"
+            ],
+            [
+              "Ensembl",
+              "link",
+              "link"
+            ]
+          ]
+        ],
+        [
+          "Description",
+          "description"
+        ],
+        [
+          "Chromosomal Location",
+          [
+            [
+              "Chromosome",
+              "chr",
+              "label_chr(#0FB47D)"
+            ],
+            [
+              "Start",
+              "start_loc",
+              "int"
+            ],
+            [
+              "End",
+              "end_loc",
+              "int"
+            ],
+            [
+              "Strand",
+              "strand",
+              "int"
+            ]
+          ]
+        ],
+        [
+          "Sequence Features",
+          [
+            [
+              "GC Content",
+              "GC_percentage",
+              "label_percentage(#F0960B)"
+            ]
+          ]
+        ],
+        [
+          "Footer",
+          [
+            [
+              "Data Version",
+              "data_version"
+            ],
+            [
+              "Data Source",
+              "data_source"
+            ]
+          ]
+        ]
+      ],
+      "Variant": [
+        [
+          "Title",
+          "id"
+        ],
+        [
+          "Chromosomal Location",
+          [
+            [
+              "Chromosome",
+              "chr",
+              "label_chr(#0FB47D)"
+            ],
+            [
+              "Start",
+              "start_loc",
+              "int"
+            ],
+            [
+              "End",
+              "end_loc",
+              "int"
+            ]
+          ]
+        ],
+        [
+          "Variant Alleles",
+          [
+            [
+              "Reference Allele",
+              "ref"
+            ],
+            [
+              "Alternative Allele",
+              "alt"
+            ]
+          ]
+        ],
+        [
+          "Frequency",
+          "freq",
+          "freq_list(ref,alt)"
+        ],
+        [
+          "Footer",
+          [
+            [
+              "Data Source",
+              "data_source"
+            ]
+          ]
+        ]
+      ]
+    },
+    "record_design_types": {
+      "Gene": "Gene",
+      "Variant": "Variant",
+      "SNP": "Variant",
+      "sequence_variant": "Variant",
+      "sequence_SNP": "Variant"
+    },
+    "record_design_links": {
+      "Gene": {
+        "link": "https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={id}"
+      }
+    },
+    "provenance_fields": [
+      "data_source",
+      "data_version",
+      "data_source_url",
+      "license",
+      "license_url"
+    ],
+    "compact_section_priority": {
+      "Gene": [
+        "Gene Identity",
+        "Chromosomal Location",
+        "Sequence Features",
+        "Description"
+      ],
+      "Variant": [
+        "Chromosomal Location",
+        "Variant Alleles",
+        "Frequency"
+      ]
+    },
+    "expression_display": {
+      "excluded_presets": [
+        "historical"
+      ],
+      "superseded_presets": {
+        "baseline": "treatments"
+      },
+      "row_details": false,
+      "descriptions": false,
+      "compact_context": {
+        "GENE_DETECTED_IN__Gene__anatomical_structure": {
+          "method": "Raw-count CPM",
+          "data": "PanKbase V3.4 · RNA-seq · no treatment"
+        },
+        "GENE_ENRICHED_IN__Gene__anatomical_structure": {
+          "method": "DESeq2 · cell type vs rest",
+          "data": "PanKbase V3.4 · RNA-seq · no treatment"
+        }
+      },
+      "presets": {
+        "treatments": {
+          "title": "Expression by condition and treatment",
+          "columns": [
+            "condition",
+            "treatment",
+            "cpm",
+            "pct_expr",
+            "n_donors"
+          ]
+        },
+        "cell_type": {
+          "title": "{cell} vs other cell types",
+          "comparison": "cell_type",
+          "columns": [
+            "condition",
+            "log2fc",
+            "p_adj",
+            "stat"
+          ]
+        },
+        "disease": {
+          "title": "Disease comparison · {cell}",
+          "comparison": "disease",
+          "columns": [
+            "condition",
+            "reference_condition",
+            "treatment",
+            "log2fc",
+            "p_adj",
+            "stat"
+          ]
+        },
+        "native": {
+          "title": "RUV-normalized expression · source samples",
+          "table_id": "ruv",
+          "fixed_filters": {
+            "record_kind": "ruv_abundance",
+            "normalization": "RUVSeq_native_export"
+          },
+          "columns": [
+            "sample_id",
+            "condition",
+            "treatment",
+            "expression_value"
+          ]
+        },
+        "reference": {
+          "title": "RUV-normalized expression · contrast reference",
+          "table_id": "ruv",
+          "fixed_filters": {
+            "record_kind": "ruv_abundance",
+            "normalization": "RUVSeq_contrast_specific_reference"
+          },
+          "columns": [
+            "sample_id",
+            "condition",
+            "reference_condition",
+            "treatment",
+            "expression_value"
+          ]
+        }
+      }
+    },
+    "hidden_internal_fields": [
+      "record_id",
+      "relationship_id",
+      "edge_id",
+      "snapshot_id",
+      "context_id",
+      "credible_set_id",
+      "credible_set",
+      "gwas_credible_set_id",
+      "qtl_credible_set_id",
+      "gwas_signal_id",
+      "qtl_signal_id",
+      "source_set",
+      "serving",
+      "object_id",
+      "cohort_id",
+      "selection_status",
+      "mapping_status",
+      "summary_method"
+    ],
+    "preserved_source_ids": [
+      "source_id",
+      "pankbase_id",
+      "rrid",
+      "source_record_id",
+      "source_sample_id",
+      "source_sample_ids",
+      "sample_id",
+      "donor_id",
+      "v34_sample_ids"
+    ],
+    "exact_terms": [
+      "SuSiE",
+      "sQTL",
+      "eQTL",
+      "pQTL",
+      "caQTL",
+      "DESeq2",
+      "RUVSeq",
+      "GWAS",
+      "QTL"
+    ],
+    "table_hidden_fields": [
+      "status",
+      "reason",
+      "record_kind",
+      "normalization",
+      "source_ref",
+      "completeness",
+      "serving",
+      "legacy_declared_n_snp"
+    ],
+    "source_annotation_hidden_fields": [
+      "uuid",
+      "@type",
+      "audit",
+      "status",
+      "schema_version",
+      "submitted_by",
+      "date_created",
+      "last_modified",
+      "lab",
+      "award",
+      "aliases",
+      "documents",
+      "related_donors",
+      "actions",
+      "principals_allowed",
+      "source_ref"
+    ],
+    "table_columns": {
+      "accessions": [
+        "source_name",
+        "alt_id"
+      ],
+      "placements": [
+        "genome_assembly",
+        "chr",
+        "start_loc",
+        "end_loc",
+        "strand"
+      ],
+      "credible_members": [
+        "variant_id",
+        "pip",
+        "p_value",
+        "effect_allele",
+        "other_allele",
+        "beta",
+        "lbf"
+      ],
+      "ccc_contexts": [
+        "condition",
+        "treatment",
+        "source",
+        "target",
+        "ligand_complex",
+        "receptor_complex",
+        "lr_means",
+        "cellphone_pvals",
+        "expr_prod",
+        "scaled_weight",
+        "lr_logfc",
+        "spec_weight",
+        "lrscore",
+        "specificity_rank",
+        "magnitude_rank",
+        "n_donors_sig",
+        "n_donors_celltypes_ok",
+        "frac_sig_of_eligible"
+      ],
+      "metadata_donor": [
+        "source_records"
+      ],
+      "metadata_sample": [
+        "donor_id",
+        "tissue_id",
+        "modality",
+        "rrid",
+        "conditions",
+        "treatments",
+        "n_cells"
+      ],
+      "metadata_sample_source": [
+        "source_sample_id",
+        "donor_id",
+        "rrid",
+        "rrid_scope",
+        "condition",
+        "treatment"
+      ]
+    },
+    "literal_value_fields": [
+      "treatment",
+      "sample_id",
+      "donor_id",
+      "source_sample_id",
+      "source_sample_ids",
+      "v34_sample_ids",
+      "alt_id"
+    ],
+    "value_labels": {
+      "rrid_scope": {
+        "donor_RRID_explicitly_recorded_on_assay_row": "Donor"
+      }
+    },
+    "endpoint_labels": {
+      "Gene": "Gene",
+      "Variant": "Variant",
+      "SNP": "Variant",
+      "anatomical_structure": "Cell",
+      "Cell": "Cell",
+      "disease": "Disease",
+      "Tissue": "Tissue",
+      "Molecular_complex": "Complex"
+    },
+    "source_navigation": {
+      "host_pages": {
+        "ftp.ebi.ac.uk": "https://www.ensembl.org/Homo_sapiens/Info/Index",
+        "ftp.ensembl.org": "https://www.ensembl.org/Homo_sapiens/Info/Index",
+        "ftp.ncbi.nih.gov": "https://www.ncbi.nlm.nih.gov/snp/",
+        "pankbase-data-v1.s3.us-west-2.amazonaws.com": "https://data.pankbase.org/"
+      },
+      "host_labels": {
+        "www.ensembl.org": "Ensembl",
+        "www.ncbi.nlm.nih.gov": "dbSNP",
+        "data.pankbase.org": "PanKbase Data Library"
+      }
+    },
+    "layout": {
+      "schema_version": "1.1",
+      "default_layout": "auto",
+      "prose_min_characters": 48,
+      "layouts": [
+        "auto",
+        "inline",
+        "prose",
+        "tokens"
+      ],
+      "height_limits": {
+        "compact_px": 460,
+        "compact_vh": 72,
+        "expanded_px": 800,
+        "expanded_vh": 85,
+        "viewport_margin_px": 24
+      },
+      "quantity_significant_digits": 4,
+      "rules": {
+        "arrays": "tokens",
+        "multiline_text": "prose",
+        "long_text_with_spaces": "prose",
+        "other_values": "inline",
+        "titles": "balance",
+        "provenance": "wrap_whole_items",
+        "unbroken_tokens": "emergency_wrap_only"
+      },
+      "compact": {
+        "content_budget_px": 300,
+        "section_height_px": 34,
+        "row_min_px": 30,
+        "line_height_px": 17,
+        "value_characters_per_line": 22,
+        "label_characters_per_line": 16
+      },
+      "expanded": {
+        "columns": 2,
+        "minimum_column_px": 300,
+        "gap_px": 20
+      }
+    },
+    "header": {
+      "title_align": "center",
+      "title_max_lines": 2,
+      "background": "#E4F0F1",
+      "compact_padding_px": 46,
+      "expanded_padding_px": 78,
+      "min_height_px": 58,
+      "controls": {
+        "enlarge": {
+          "label": "Enlarge",
+          "aria_label": "Enlarge information panel",
+          "icon": "open_in_full"
+        },
+        "minimize": {
+          "label": "Minimize",
+          "aria_label": "Minimize information panel",
+          "icon": "close_fullscreen"
+        },
+        "close": {
+          "label": "Close",
+          "aria_label": "Close information panel",
+          "icon": "close"
+        }
+      },
+      "compact_close": false
+    },
+    "footer": {
+      "fields": [
+        {
+          "key": "data_source",
+          "label": "Data Source"
+        },
+        {
+          "key": "data_version",
+          "label": "Data Version"
+        },
+        {
+          "key": "data_source_url",
+          "label": "Open Link",
+          "kind": "source_link"
+        },
+        {
+          "key": "license",
+          "label": "License"
+        }
+      ]
+    },
+    "surface": {
+      "compact_width_px": 280,
+      "review_width_px": 550,
+      "expanded_width_px": 900,
+      "expanded_top_px": 76,
+      "border_radius_px": 12
+    },
+    "expanded_layout": {
+      "columns": 2,
+      "narrow_columns": 1,
+      "gap_px": 16
+    },
+    "context": {
+      "method_label": "Method",
+      "description_label": "Analysis",
+      "endpoint_fallback_labels": [
+        "Source",
+        "Target"
+      ],
+      "show_public_accessions": true
+    }
+  }
+}
