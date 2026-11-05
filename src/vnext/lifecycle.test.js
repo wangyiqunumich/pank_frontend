@@ -303,6 +303,8 @@ test('follow-up loading keeps earlier answers outside the loading body through p
   act(() => { onContentMeta.mock.calls.at(-1)[0].followUpHandler('What about SST?'); });
   await waitFor(() => expect(resolveFollowUp).toBeDefined());
   const loading = screen.getByRole('status', { name: 'Loading current question' });
+  expect(loading.textContent).toContain('While you wait:');
+  expect(loading.textContent).not.toMatch(/seconds elapsed/);
   expect(screen.getByText('Earlier answer remains readable')).toBeTruthy();
   expect(within(loading).queryByText('Earlier answer remains readable')).toBeNull();
   expect(screen.getByTestId('graph').textContent).toBe('r1-final');

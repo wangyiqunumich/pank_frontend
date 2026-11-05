@@ -25,8 +25,6 @@ function LoadingEntry({ step, entry }) {
     const containerRef = useRef(null);
     const steps = entry?.steps || [];
     const currentIndex = step;
-    const currentText = steps[currentIndex] || '';
-    const lastTextRef = useRef(currentText);
 
     const lastStepRef = useRef(currentIndex);
     const didMountRef = useRef(false);
@@ -45,8 +43,7 @@ function LoadingEntry({ step, entry }) {
             return;
         }
 
-        if (currentIndex === steps.length) return;
-        if (currentIndex === lastStepRef.current && currentText === lastTextRef.current) return;
+        if (currentIndex === lastStepRef.current || currentIndex === steps.length) return;
 
         setPrevStepIndex(lastStepRef.current);
 
@@ -54,7 +51,7 @@ function LoadingEntry({ step, entry }) {
         setYPos(-20);
 
         const t1 = setTimeout(() => {
-            setCurrText(currentText);
+            setCurrText(steps[currentIndex] || '');
             setTransition(false);
             setYPos(20);
         }, 200);
@@ -66,13 +63,12 @@ function LoadingEntry({ step, entry }) {
         }, 250);
 
         lastStepRef.current = currentIndex;
-        lastTextRef.current = currentText;
 
         return () => {
             clearTimeout(t1);
             clearTimeout(t2);
         };
-    }, [currentIndex, currentText, steps.length]);
+    }, [currentIndex]);
 
     // Determine current visual state
     const isIdle = step < 0;
@@ -113,7 +109,6 @@ function LoadingEntry({ step, entry }) {
                             width: 24,
                             height: 24,
                             animation: 'spin 1.2s linear infinite',
-                            '@media (prefers-reduced-motion: reduce)': { animation: 'none' },
                             '@keyframes spin': {
                                 from: { transform: 'rotate(0deg)' },
                                 to: { transform: 'rotate(360deg)' },
@@ -162,15 +157,7 @@ function LoadingEntry({ step, entry }) {
 export default function SearchResultLoading({ open, handleClose, streamProgress, onFakeTimerComplete }) {
     const resolvedEntries = streamProgress?.entries || texts.entries;
     const resolvedTitle = streamProgress?.title || texts.title;
-    const resolvedTip = streamProgress?.tip ?? texts.tip;
-    const waitingTips = streamProgress?.waitingTips;
-    const [tipIndex, setTipIndex] = useState(0);
-    useEffect(() => {
-        setTipIndex(0);
-        if (!waitingTips?.length) return;
-        const timer = setInterval(() => setTipIndex(index => (index + 1) % waitingTips.length), 8000);
-        return () => clearInterval(timer);
-    }, [waitingTips, streamProgress?.timerKey]);
+    const resolvedTip = streamProgress?.tip || texts.tip;
     const resolvedCancel = streamProgress?.cancel || texts.cancel;
     const fakeTimerMode = Boolean(streamProgress?.useFakeTimer);
     const keepLastStepInProgress = Boolean(streamProgress?.keepLastStepInProgress);
@@ -502,8 +489,7 @@ export default function SearchResultLoading({ open, handleClose, streamProgress,
         }
     }, [isControlled, resolvedEntries]);
     return <Box sx={{
-        width: '768px',
-        maxWidth: '100%',
+        width: '704px',
         padding: '32px',
         borderRadius: '20px',
         gap: '32px',
@@ -515,7 +501,7 @@ export default function SearchResultLoading({ open, handleClose, streamProgress,
         color: 'black',
         border: '0.63px solid #EEEEEE',
         boxShadow: '0px 4px 6px -4px #0000001A, 0px 10px 15px -3px #0000001A',
-        boxSizing: 'border-box',
+        boxSizing: 'content-box',
     }}>
         <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
             <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '24px', color: '#263824' }}>{resolvedTitle}</Typography>
@@ -553,7 +539,7 @@ export default function SearchResultLoading({ open, handleClose, streamProgress,
                     totalSteps={entry.steps.length} />
             ))}
         </Box>
-        <LinearProgress aria-label="Investigation activity" variant={streamProgress?.indeterminate ? "indeterminate" : "determinate"} sx={{
+        <LinearProgress variant="determinate" sx={{
             width: '100%',
             height: '8px',
             borderRadius: '999px',
@@ -566,14 +552,9 @@ export default function SearchResultLoading({ open, handleClose, streamProgress,
                 borderRadius: 'inherit',
                 transformOrigin: 'left center',
                 willChange: 'transform',
-                '@media (prefers-reduced-motion: reduce)': { animation: 'none', transition: 'none' },
             }
         }} value={effectiveProgress} />
-        {waitingTips?.length > 0 && <Typography aria-live="off" sx={{ width: '100%', minHeight: 40, fontFamily: 'Open Sans', fontSize: '14px', color: '#656565' }}>
-            <Box component="span" sx={{ color: '#078AA3', fontWeight: 600 }}>While you wait: </Box>
-            {waitingTips[tipIndex % waitingTips.length]}
-        </Typography>}
-        <Box sx={{ width: '100%', display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
             <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 400, fontSize: '14px', color: '#9E9E9E' }}>
                 {resolvedTip}
             </Typography>
