@@ -36,7 +36,7 @@
       "title": "Related links"
     },
     "ccc_contexts": {
-      "title": "Cell–cell context summary"
+      "title": "Cell\u2013cell context summary"
     },
     "metadata_donor": {
       "title": "Source annotations"
@@ -58,7 +58,7 @@
     "condition": "Condition",
     "reference_condition": "Reference condition",
     "treatment": "Treatment",
-    "log2fc": "log₂ FC",
+    "log2fc": "log\u2082 FC",
     "pct_expr": "Expressing cells (%)",
     "n_donors": "Donors",
     "n_cells": "Cells",
@@ -92,13 +92,13 @@
     "type_2_diabetes_ocr_gene_activity_score_median": "Median",
     "source": "Sender cell",
     "target": "Receiver cell",
-    "lr_means": "Ligand–receptor mean",
+    "lr_means": "Ligand\u2013receptor mean",
     "cellphone_pvals": "CellPhoneDB P value",
     "expr_prod": "Expression product",
     "scaled_weight": "Scaled weight",
-    "lr_logfc": "Ligand–receptor log FC",
+    "lr_logfc": "Ligand\u2013receptor log FC",
     "spec_weight": "Specificity weight",
-    "lrscore": "Ligand–receptor score",
+    "lrscore": "Ligand\u2013receptor score",
     "rrid_scope": "RRID refers to",
     "gene_name": "Gene",
     "tissue_id": "Tissue accession",
@@ -325,11 +325,11 @@
     "compact_context": {
       "GENE_DETECTED_IN__Gene__anatomical_structure": {
         "method": "Raw-count CPM",
-        "data": "PanKbase V3.4 · RNA-seq · no treatment"
+        "data": "PanKbase V3.4 \u00b7 RNA-seq \u00b7 no treatment"
       },
       "GENE_ENRICHED_IN__Gene__anatomical_structure": {
-        "method": "DESeq2 · cell type vs rest",
-        "data": "PanKbase V3.4 · RNA-seq · no treatment"
+        "method": "DESeq2 \u00b7 cell type vs rest",
+        "data": "PanKbase V3.4 \u00b7 RNA-seq \u00b7 no treatment"
       }
     },
     "presets": {
@@ -354,7 +354,7 @@
         ]
       },
       "disease": {
-        "title": "Disease comparison · {cell}",
+        "title": "Disease comparison \u00b7 {cell}",
         "comparison": "disease",
         "columns": [
           "condition",
@@ -366,7 +366,7 @@
         ]
       },
       "native": {
-        "title": "RUV-normalized expression · source samples",
+        "title": "RUV-normalized expression \u00b7 source samples",
         "table_id": "ruv",
         "fixed_filters": {
           "record_kind": "ruv_abundance",
@@ -380,7 +380,7 @@
         ]
       },
       "reference": {
-        "title": "RUV-normalized expression · contrast reference",
+        "title": "RUV-normalized expression \u00b7 contrast reference",
         "table_id": "ruv",
         "fixed_filters": {
           "record_kind": "ruv_abundance",
@@ -551,5 +551,18 @@
     "disease": "Disease",
     "Tissue": "Tissue",
     "Molecular_complex": "Complex"
+  },
+  "source_navigation": {
+    "host_pages": {
+      "ftp.ebi.ac.uk": "https://www.ensembl.org/Homo_sapiens/Info/Index",
+      "ftp.ensembl.org": "https://www.ensembl.org/Homo_sapiens/Info/Index",
+      "ftp.ncbi.nih.gov": "https://www.ncbi.nlm.nih.gov/snp/",
+      "pankbase-data-v1.s3.us-west-2.amazonaws.com": "https://data.pankbase.org/"
+    },
+    "host_labels": {
+      "www.ensembl.org": "Ensembl",
+      "www.ncbi.nlm.nih.gov": "dbSNP",
+      "data.pankbase.org": "PanKbase Data Library"
+    }
   }
 }

@@ -1,6 +1,6 @@
 import React,{useContext,useEffect,useRef,useState} from 'react';
 import {EvidenceRequestContext} from './api';
-import {collectTable,downloadCsv,safeSourceUrl,tableCsv,tableSources} from './tableDownloads';
+import {collectTable,downloadCsv,tableCsv,tableSources} from './tableDownloads';
 import {publicId} from './displayPolicy';
 
 export default function TableDownloads({card,table,schema,filters={},records=[],sets={},localRecords}) {
@@ -29,11 +29,9 @@ export default function TableDownloads({card,table,schema,filters={},records=[],
       {!table.simple_list && <span className="xe-small">{localRecords ? 'All rows in this table' : wording.scope || 'All matching rows · current filters'}</span>}
     </div>
     <div className="xe-full-sources">{sources.map(source=><span key={source.id}>
-      <a href={source.href} target="_blank" rel="noopener noreferrer" title={source.note || source.href}>{source.kind==='unverified' ? source.title : `${source.kind==='related' ? wording.related || 'Related source' : source.kind==='input' ? wording.input || 'Full input data' : source.kind==='index' ? wording.index || 'Full source downloads' : wording.source || 'Full source data'}: ${source.title}`} ↗</a>
-      {safeSourceUrl(source.library_url) && <a className="xe-library-link" href={source.library_url} target="_blank" rel="noopener noreferrer">{source.library_label || wording.library || 'Data Library'} ↗</a>}
-      {!table.simple_list && source.note && <small>{source.note}</small>}
+      <a href={source.href} target="_blank" rel="noopener noreferrer">{source.kind==='library' ? 'Data Library' : 'Source'}: {source.title} ↗</a>
     </span>)}</div>
-    {!table.simple_list && (!sources.length || sources.every(s=>['related','unverified'].includes(s.kind))) && <span className="xe-small">{wording.unverified || 'Exact full-source download not yet verified.'}</span>}
+
     {state.ready && <span className="xe-small" role="status">CSV ready · {state.rows} rows</span>}{state.error && <p role="alert" className="xe-warning">{state.error}</p>}
   </div>;
 }

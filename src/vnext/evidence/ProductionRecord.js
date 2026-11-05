@@ -1,5 +1,5 @@
 import React from 'react';
-import {safeSourceUrl} from './tableDownloads';
+import {safeSourceUrl,sourcePageUrl} from './tableDownloads';
 // Keep production's chromosome/GC pills and population frequency bars.
 // Zero is a valid frequency; absent values never become a fabricated zero.
 export function ProductionValue({field,children}){
@@ -10,8 +10,8 @@ export function ProductionValue({field,children}){
  if(format==='link' && safeSourceUrl(field.value))return <a href={field.value} target="_blank" rel="noreferrer">Open Link ↗</a>;
  return children;
 }
-export function RecordFooter({provenance={}}){
- const url=safeSourceUrl(provenance.data_source_url);
+export function RecordFooter({provenance={},schema={}}){
+ const url=sourcePageUrl({href:provenance.data_source_url},schema);
  return <footer className="xe-provenance xe-production-footer">
   <span>Data Source: {provenance.data_source||'Not recorded'}</span>
   <span>Data Version: {provenance.data_version||'Not recorded'}</span>

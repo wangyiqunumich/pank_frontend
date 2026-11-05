@@ -108,7 +108,7 @@ function EvidenceTable({ card, table: sourceTable, schema }) {
         {groupColumns.map(k => <td key={k}>{renderCell(row,k)}</td>)}</tr>
         {!table.simple_list && detail?.row === row && <tr className="xe-detail-row"><td colSpan={groupColumns.length + 1}>{detail.loading ? 'Reading complete record…' : <><span className="xe-small">Complete selected record {detail.error && `· ${detail.error}`}</span><dl><RecordFields fields={Object.entries(detail.record).filter(([k,v])=>visibleField(k,v,policy,table.field_specs?.[k])).map(([key,value])=>({key,label:fieldLabel(key,table.field_specs,detail.record),value}))} /></dl></>}</td></tr>}
       </React.Fragment>)}</tbody></table></div></section>;})}
-    {page?.records?.length>0 && [...new Map(page.records.filter(r=>r.data_source || r.data_version).map(r=>{const p={data_source:r.data_source,data_version:r.data_version,data_source_url:r.data_source_url,license:r.license};return [JSON.stringify(p),p];})).values()].map((p,i)=><RecordFooter key={i} provenance={p}/>)}
+    {page?.records?.length>0 && [...new Map(page.records.filter(r=>r.data_source || r.data_version).map(r=>{const p={data_source:r.data_source,data_version:r.data_version,data_source_url:r.data_source_url,license:r.license};return [JSON.stringify(p),p];})).values()].map((p,i)=><RecordFooter key={i} provenance={p} schema={schema}/>)}
     {(index > 0 || page?.has_more) && <div className="xe-pagination"><span>Page {index + 1} · 20 rows maximum</span><div><button disabled={index === 0 || busy} onClick={() => setIndex(i => i - 1)}>Previous</button><button disabled={!page?.has_more || busy} onClick={() => { setHistory(h => [...h.slice(0, index + 1), page.next_cursor]); setIndex(i => i + 1); }}>Next</button></div></div>}
   </div>;
 }
@@ -183,7 +183,7 @@ function ExpandedDetails({ card, schema }) {
         <RelationshipContext card={card}/>
         {expandedSections(card).map((section,i)=><section className="xe-card-section" data-prose={section.prose || undefined} key={i}><h3>{section.title}</h3><dl><RecordFields fields={section.fields} specs={card.field_specs}/></dl></section>)}
         {(card.widget === 'variant' || card.production_design === 'Variant') && <section className="xe-card-section"><h3>Frequency</h3>{card.frequencies?.length ? <><ProductionFrequencies card={card}/><TableDownloads card={card} table={{id:"population_frequencies",...schema.tables?.population_frequencies}} schema={schema} records={card.frequencies}/></> : <p className="xe-empty">Not recorded</p>}{card.consequences?.length>0 && <><h3>Functional annotations</h3><div className="xe-chips muted">{card.consequences.map(c=><span key={c}>{c}</span>)}</div></>}{card.hgvs && <p className="xe-hgvs">{card.hgvs}</p>}</section>}
-        <RecordFooter provenance={card.provenance}/>
+        <RecordFooter provenance={card.provenance} schema={schema}/>
       </>}
       {card && active !== 'record' && selected.component?.renderer!=='condition_tables' && <RelationshipContext card={card}/>}
       {card && wide && active !== 'record' && (selected.component ?
@@ -220,7 +220,7 @@ export function InspectedInformationPanel({card,schema,request,releaseId}) {
           <RelationshipContext card={shown} schema={schema} compact/>
 
           {compact.sections.map((section,i)=><section className="xe-card-section" data-prose={section.prose || undefined} key={i}><h3>{section.title}</h3><dl><RecordFields fields={section.fields} specs={shown.field_specs}/></dl></section>)}
-          <RecordFooter provenance={shown.provenance}/>
+          <RecordFooter provenance={shown.provenance} schema={schema}/>
         </div>
       </DisplayContext.Provider>}
   </>;
