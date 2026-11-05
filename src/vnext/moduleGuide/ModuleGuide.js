@@ -34,9 +34,20 @@ export default function ModuleGuide(){
   useEffect(()=>{try{sessionStorage.setItem(storageKey,JSON.stringify(messages.slice(-24)));}catch(_){}},[messages]);
   useEffect(()=>()=>abort.current?.abort(),[]);
   useEffect(()=>{
-    const element=document.querySelector('[data-pank-feedback-launcher]');
-    const measure=()=>{if(element)setBottom(Math.max(76,window.innerHeight-element.getBoundingClientRect().top+10));};
-    measure();const observer=new ResizeObserver(measure);if(element)observer.observe(element);window.addEventListener('resize',measure);return()=>{observer.disconnect();window.removeEventListener('resize',measure);};
+    let element,frame;
+    const measure=()=>{
+      frame=null;
+      const current=document.querySelector('[data-pank-feedback-launcher]');
+      if(current!==element){if(element)observer.unobserve(element);element=current;if(element)observer.observe(element);}
+      const rect=element?.getBoundingClientRect();
+      setBottom(rect?.height>0 && rect.top>=0 && rect.top<window.innerHeight ? Math.max(76,window.innerHeight-rect.top+10) : 88);
+    };
+    const schedule=()=>{if(frame==null)frame=requestAnimationFrame(measure);};
+    const observer=new ResizeObserver(schedule);
+    const changes=new MutationObserver(schedule);
+    changes.observe(document.body,{childList:true,subtree:true});
+    measure();window.addEventListener('resize',schedule);window.addEventListener('scroll',schedule,true);
+    return()=>{observer.disconnect();changes.disconnect();if(frame!=null)cancelAnimationFrame(frame);window.removeEventListener('resize',schedule);window.removeEventListener('scroll',schedule,true);};
   },[]);
   useEffect(()=>{if(open){textarea.current?.focus();const escape=e=>{if(e.key==='Escape'){e.stopPropagation();setOpen(false);launcher.current?.focus();}};const node=panel.current;node?.addEventListener('keydown',escape);return()=>node?.removeEventListener('keydown',escape);}},[open]);
   useEffect(()=>{if(open&&tab==='Chat')end.current?.scrollIntoView({block:'nearest'});},[messages,busy,open,tab]);

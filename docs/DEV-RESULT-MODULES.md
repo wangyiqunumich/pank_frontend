@@ -86,7 +86,10 @@ In an existing INS expression chat on the regular root `/result-new2` route:
 - Guide Apply changed to alpha/beta signal, Compact, four tracks; a continuous
   follow-up added ductal signal, five tracks. Undo restored four tracks without
   changing the INS interval or adding a duplicate tab.
-- Guide Apply opened the previously absent PCA module as independent exploration.
+- Guide Apply opened the previously absent PCA module as independent exploration,
+  rendered PC2/PC3 with 178 samples, and Undo restored PC1/PC2.
+- Acceptance caught a guide launcher anchor changing when the floating follow-up
+  input mounts. The launcher now rebinds to the current Feedback element.
 
 The focused 66 React tests and 34 native tests passed. An additional 49 API and
 stream-contract tests passed; the four surface tests were updated to the shared
