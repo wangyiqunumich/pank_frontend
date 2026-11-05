@@ -16,7 +16,8 @@ test('owned table is requested only on its tab with the exact object ref',async(
  expect(request).not.toHaveBeenCalled();fireEvent.click(screen.getByRole('button',{name:'Related links'}));
  await waitFor(()=>expect(request).toHaveBeenCalled());
  expect(request.mock.calls[0][1]).toMatchObject({ref,table_id:'accessions',filters:{}});
- expect(await screen.findByText(/does not mean zero expression/)).toBeTruthy();
+ expect(await screen.findByText('No matching records.')).toBeTruthy();
+ expect(screen.queryByRole('table')).toBeNull();
 });
 test('registry without owned tables does not fabricate a tab',()=>{
  render(<EvidenceDetails card={{...card,tables:[],component_views:[]}} schema={schema} releaseId={card.release_id} request={jest.fn()}/>);

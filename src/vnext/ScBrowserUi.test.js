@@ -99,7 +99,7 @@ uiTest('search preserves the worker contract and resets the displayed camera bas
   app.worker = { postMessage: jest.fn() }; app.mapZoom = 200;
   fireEvent.input(within(app.$el).getByRole('textbox', { name: 'Atlas gene' }), { target: { value: ' ins ' } });
   fireEvent.submit(app.$el.querySelector('form')); await tick();
-  expect(app.worker.postMessage).toHaveBeenCalledWith({ request: 1, gene: 'INS', refresh: false, preview: false });
+  expect(app.worker.postMessage).toHaveBeenCalledWith({ request: 1, gene: 'INS', refresh: false });
   expect(app.mapZoom).toBe(100); expect(app.gene).toBe('INS');
 });
 

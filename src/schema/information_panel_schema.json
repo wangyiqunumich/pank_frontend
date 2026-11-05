@@ -1,7 +1,18 @@
 {
-  "version": 1,
+  "version": 2,
   "complete_record": {
-    "title": "Complete record"
+    "title": "Complete record",
+    "omit_fields": [
+      "name",
+      "description_note",
+      "evidence_scope",
+      "selection_status",
+      "mapping_status"
+    ],
+    "omit_value_patterns": [
+      "existing claim retained",
+      "source-native mean / median"
+    ]
   },
   "components": {
     "chr_index": {
@@ -39,7 +50,62 @@
   },
   "field_labels": {
     "start_loc": "Start",
-    "end_loc": "End"
+    "end_loc": "End",
+    "expression_value": "Expression",
+    "sample_id": "Sample",
+    "donor_id": "Donor",
+    "source_ref": "Source matrix",
+    "condition": "Condition",
+    "reference_condition": "Reference condition",
+    "treatment": "Treatment",
+    "log2fc": "log₂ FC",
+    "pct_expr": "Expressing cells (%)",
+    "n_donors": "Donors",
+    "n_cells": "Cells",
+    "n_samples": "Samples",
+    "sender_cell_id": "Sender cell",
+    "receiver_cell_id": "Receiver cell",
+    "variant_id": "Variant",
+    "qtl_type": "QTL type",
+    "method": "Method",
+    "source_records": "Source annotations",
+    "specificity_rank": "Specificity rank",
+    "magnitude_rank": "Magnitude rank",
+    "n_donors_sig": "Significant donors",
+    "n_donors_celltypes_ok": "Eligible donors",
+    "frac_sig_of_eligible": "Significant donor fraction",
+    "n_members": "Members",
+    "purity": "Purity",
+    "beta": "Effect estimate",
+    "lbf": "Log Bayes factor",
+    "p_value": "P value",
+    "pip": "PIP",
+    "ocr_gene_activity_score_mean": "Mean",
+    "ocr_gene_activity_score_median": "Median",
+    "non_diabetic_ocr_gene_activity_score_mean": "Mean",
+    "non_diabetic_ocr_gene_activity_score_median": "Median",
+    "aab_pos_ocr_gene_activity_score_mean": "Mean",
+    "aab_pos_ocr_gene_activity_score_median": "Median",
+    "type_1_diabetes_ocr_gene_activity_score_mean": "Mean",
+    "type_1_diabetes_ocr_gene_activity_score_median": "Median",
+    "type_2_diabetes_ocr_gene_activity_score_mean": "Mean",
+    "type_2_diabetes_ocr_gene_activity_score_median": "Median",
+    "source": "Sender cell",
+    "target": "Receiver cell",
+    "lr_means": "Ligand–receptor mean",
+    "cellphone_pvals": "CellPhoneDB P value",
+    "expr_prod": "Expression product",
+    "scaled_weight": "Scaled weight",
+    "lr_logfc": "Ligand–receptor log FC",
+    "spec_weight": "Specificity weight",
+    "lrscore": "Ligand–receptor score",
+    "rrid_scope": "RRID refers to",
+    "gene_name": "Gene",
+    "tissue_id": "Tissue accession",
+    "description": "Description",
+    "tissue_name": "Tissue",
+    "effect_allele": "Effect allele",
+    "other_allele": "Other allele"
   },
   "compact_summaries": {
     "expression": {
@@ -265,6 +331,69 @@
         "method": "DESeq2 · cell type vs rest",
         "data": "PanKbase V3.4 · RNA-seq · no treatment"
       }
+    },
+    "presets": {
+      "treatments": {
+        "title": "Expression by condition and treatment",
+        "columns": [
+          "condition",
+          "treatment",
+          "cpm",
+          "pct_expr",
+          "n_donors"
+        ]
+      },
+      "cell_type": {
+        "title": "{cell} vs other cell types",
+        "comparison": "cell_type",
+        "columns": [
+          "condition",
+          "log2fc",
+          "p_adj",
+          "stat"
+        ]
+      },
+      "disease": {
+        "title": "Disease comparison · {cell}",
+        "comparison": "disease",
+        "columns": [
+          "condition",
+          "reference_condition",
+          "treatment",
+          "log2fc",
+          "p_adj",
+          "stat"
+        ]
+      },
+      "native": {
+        "title": "RUV-normalized expression · source samples",
+        "table_id": "ruv",
+        "fixed_filters": {
+          "record_kind": "ruv_abundance",
+          "normalization": "RUVSeq_native_export"
+        },
+        "columns": [
+          "sample_id",
+          "condition",
+          "treatment",
+          "expression_value"
+        ]
+      },
+      "reference": {
+        "title": "RUV-normalized expression · contrast reference",
+        "table_id": "ruv",
+        "fixed_filters": {
+          "record_kind": "ruv_abundance",
+          "normalization": "RUVSeq_contrast_specific_reference"
+        },
+        "columns": [
+          "sample_id",
+          "condition",
+          "reference_condition",
+          "treatment",
+          "expression_value"
+        ]
+      }
     }
   },
   "hidden_internal_fields": [
@@ -280,13 +409,23 @@
     "gwas_signal_id",
     "qtl_signal_id",
     "source_set",
-    "serving"
+    "serving",
+    "object_id",
+    "cohort_id",
+    "selection_status",
+    "mapping_status",
+    "summary_method"
   ],
   "preserved_source_ids": [
     "source_id",
     "pankbase_id",
     "rrid",
-    "source_record_id"
+    "source_record_id",
+    "source_sample_id",
+    "source_sample_ids",
+    "sample_id",
+    "donor_id",
+    "v34_sample_ids"
   ],
   "exact_terms": [
     "SuSiE",
@@ -298,5 +437,119 @@
     "RUVSeq",
     "GWAS",
     "QTL"
-  ]
+  ],
+  "table_hidden_fields": [
+    "status",
+    "reason",
+    "record_kind",
+    "normalization",
+    "source_ref",
+    "completeness",
+    "serving",
+    "legacy_declared_n_snp"
+  ],
+  "source_annotation_hidden_fields": [
+    "uuid",
+    "@type",
+    "audit",
+    "status",
+    "schema_version",
+    "submitted_by",
+    "date_created",
+    "last_modified",
+    "lab",
+    "award",
+    "aliases",
+    "documents",
+    "related_donors",
+    "actions",
+    "principals_allowed",
+    "source_ref"
+  ],
+  "table_columns": {
+    "accessions": [
+      "source_name",
+      "alt_id"
+    ],
+    "placements": [
+      "genome_assembly",
+      "chr",
+      "start_loc",
+      "end_loc",
+      "strand"
+    ],
+    "credible_members": [
+      "variant_id",
+      "pip",
+      "p_value",
+      "effect_allele",
+      "other_allele",
+      "beta",
+      "lbf"
+    ],
+    "ccc_contexts": [
+      "condition",
+      "treatment",
+      "source",
+      "target",
+      "ligand_complex",
+      "receptor_complex",
+      "lr_means",
+      "cellphone_pvals",
+      "expr_prod",
+      "scaled_weight",
+      "lr_logfc",
+      "spec_weight",
+      "lrscore",
+      "specificity_rank",
+      "magnitude_rank",
+      "n_donors_sig",
+      "n_donors_celltypes_ok",
+      "frac_sig_of_eligible"
+    ],
+    "metadata_donor": [
+      "source_records"
+    ],
+    "metadata_sample": [
+      "donor_id",
+      "tissue_id",
+      "modality",
+      "rrid",
+      "conditions",
+      "treatments",
+      "n_cells"
+    ],
+    "metadata_sample_source": [
+      "source_sample_id",
+      "donor_id",
+      "rrid",
+      "rrid_scope",
+      "condition",
+      "treatment"
+    ]
+  },
+  "literal_value_fields": [
+    "treatment",
+    "sample_id",
+    "donor_id",
+    "source_sample_id",
+    "source_sample_ids",
+    "v34_sample_ids",
+    "alt_id"
+  ],
+  "value_labels": {
+    "rrid_scope": {
+      "donor_RRID_explicitly_recorded_on_assay_row": "Donor"
+    }
+  },
+  "endpoint_labels": {
+    "Gene": "Gene",
+    "Variant": "Variant",
+    "SNP": "Variant",
+    "anatomical_structure": "Cell",
+    "Cell": "Cell",
+    "disease": "Disease",
+    "Tissue": "Tissue",
+    "Molecular_complex": "Complex"
+  }
 }

@@ -52,6 +52,32 @@ export function objectSections(card){
 export function hasExtraRecord(card,compact,tabs){
  if(tabs.length||compact.omitted>0)return true;
  const shown=new Set(compact.sections.flatMap(s=>s.fields.map(f=>f.key)));
- if((card.fields||[]).some(f=>!shown.has(f.key)&&f.key!=='name'&&!policy.provenance_fields.includes(f.key)&&nonempty(f.value)))return true;
+ if((card.fields||[]).some(f=>!shown.has(f.key)&&!(policy.complete_record.omit_fields||[]).includes(f.key)&&!policy.hidden_internal_fields.includes(f.key)&&!policy.provenance_fields.includes(f.key)&&nonempty(f.value)))return true;
  return Boolean(card.frequencies?.length || card.consequences?.length || card.hgvs || card.group_statistics?.length);
+}
+
+// One section layout for every modality. Source values are never recalculated.
+export function expandedSections(card) {
+ const summary=compactSummary(card);
+ const consumed=new Set([...policy.provenance_fields,...(policy.complete_record.omit_fields||[]),...(summary?.spec.replaces||[])]);
+ if(card.production_design==='Variant')for(const key of ['freq','consequence','hgvs'])consumed.add(key);
+ const genes=card.endpoints?.filter(e=>e.ref.type_id==='Gene') || [];
+ if(genes.length===1){
+  const names=(card.fields||[]).filter(f=>['HGNC_symbol','gene_name','gene_symbol'].includes(f.key));
+  const shown=genes[0].display_name || ['HGNC_symbol','gene_name','gene_symbol'].map(k=>names.find(f=>f.key===k)?.value).find(Boolean);
+  for(const f of names)if(f.value===shown)consumed.add(f.key);
+ }
+ const excluded=f=>(policy.complete_record.omit_value_patterns||[]).some(pattern=>typeof f.value==='string' && new RegExp(pattern,'i').test(f.value));
+ const sections=[];
+ if(summary)for(const row of summary.rows){
+  const values=row[summary.spec.values]||{};
+  sections.push({title:row[summary.spec.label],fields:Object.entries(values).map(([key,value])=>({key:`${row[summary.spec.label]}:${key}`,label:summary.spec.columns.find(c=>c.key===key)?.label || policy.field_labels[key] || key,value,kind:'quantity'}))});
+ }
+ for(const section of card.sections||[]){
+  const fields=section.fields.filter(f=>{if(consumed.has(f.key)||excluded(f)||!nonempty(f.value))return false;consumed.add(f.key);return true;});
+  if(fields.length)sections.push({...section,fields});
+ }
+ const remaining=(card.fields||[]).filter(f=>{if(consumed.has(f.key)||excluded(f)||!nonempty(f.value))return false;consumed.add(f.key);return true;});
+ if(remaining.length)sections.push({title:'Additional details',fields:remaining});
+ return sections;
 }

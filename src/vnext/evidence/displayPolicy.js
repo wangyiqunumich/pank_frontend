@@ -5,6 +5,7 @@ const matches = (pattern,value) => new RegExp(pattern).test(String(value));
 export const displayText = (value,policy={}) => typeof value === 'string' && policy.replace_underscores ? value.replace(/_/g,' ') : value;
 export function publicId(value,policy={},key='id') {
   if(panelPolicy.preserved_source_ids.includes(key))return value;
+  if(['variant_id','id'].includes(key) && /^(?:chr)?(?:[1-9]|1[0-9]|2[0-2]|X|Y|MT?)[_:]\d+[_:][ACGTN-]+[_:][ACGTN-]+$/i.test(String(value)))return value;
   if (!policy.version) return value;
   if (value === null || value === undefined || value === '') return undefined;
   let result=String(value);
@@ -34,6 +35,8 @@ export function displayVersion(value,policy={},profileKey=null) {
   return displayText(text,policy);
 }
 export function displayValue(key,value,policy={},profileKey=null,spec={}) {
+  if(Object.prototype.hasOwnProperty.call(panelPolicy.value_labels?.[key] || {},value)) return panelPolicy.value_labels[key][value];
+  if ((panelPolicy.literal_value_fields || []).includes(key)) return value;
   if (/(^|_)version$/.test(key)) return displayVersion(value,policy,profileKey);
   if (Array.isArray(value)) return value.map(v=>displayValue(key,v,policy,profileKey,spec)).filter(v=>v!==undefined);
   for (const alias of policy.value_aliases || []) {

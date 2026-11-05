@@ -43,3 +43,11 @@ test('recovers an exact stored object only from an unambiguous current schema pr
  expect(exactGraphRef(edge,{...schema,profiles:{a:profile,b:{...profile,id:'other'}}})).toBeNull();
  expect(exactGraphRef(edge)).toBeNull();
 });
+
+test('fixed demo without a release or viewer service renders its recorded fallback',()=>{
+ const {rerender}=render(<ObjectInformationPanel data={null} service={null} fallback={fallback}/>);
+ expect(screen.getByText('Saved graph evidence')).toBeTruthy();
+ rerender(<ObjectInformationPanel data={{id:'CFTR',element_kind:'node'}} fallback={fallback}/>);
+ expect(screen.getByText('Saved graph evidence')).toBeTruthy();
+ expect(screen.queryByRole('status')).toBeNull();
+});

@@ -45,7 +45,7 @@ function csvCell(value) {
 
 export function tableCsv(records,table,card,schema={},sets={}) {
   const hidden=new Set(schema.display_policy?.hidden_fields || []);
-  const columns=[...new Set([...(table.columns || []),...(table.download?.provenance_fields || ['data_source','data_source_url','data_version','license'])])].filter(k=>!hidden.has(k));
+  const columns=[...new Set([...(table.columns || []),...(table.id==='credible_members'?['signal_role']:[]),...(table.download?.provenance_fields || ['data_source','data_source_url','data_version','license'])])].filter(k=>!hidden.has(k));
   if (table.component==='node_alt_id' || table.id==='accessions') columns.push('resource_url');
   if (Object.keys(sets).length) columns.unshift('credible_set');
   const rows=records.map(row=>columns.map(key=>key==='resource_url' ? resourceLink(row,card,schema.resource_links)?.href : key==='credible_set' ? sets[row.credible_set_id]?.source_set || sets[row.credible_set_id]?.description : Object.prototype.hasOwnProperty.call(row,key) ? row[key] : (card.raw_provenance || card.provenance)?.[key]));

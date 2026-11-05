@@ -1,3 +1,4 @@
+import panelPolicy from '../../schema/information_panel_schema.json';
 /** Declarative object-owned components. No neighbor lookup or SQL discovery. */
 export function componentViews(card, schema) {
   const owned=new Set((card.tables || []).map(t=>t.id));
@@ -11,7 +12,7 @@ export function componentViews(card, schema) {
 export function conditionGroups(component,card) {
   if (component.legacy) return component.view.groups;
   const owned=new Set(component.table_ids);
-  return component.view.groups.map(group=>({...group,presets:group.presets.filter(p=>owned.has(p.table_id))}))
+  return component.view.groups.map(group=>({...group,presets:group.presets.map(p=>({...p,...panelPolicy.expression_display.presets?.[p.id]})).filter(p=>owned.has(p.table_id))}))
     .filter(group=>group.presets.length);
 }
 export function contextFilters(component,card) {

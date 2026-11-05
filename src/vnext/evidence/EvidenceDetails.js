@@ -1,12 +1,13 @@
 // Reused from the source-pinned 1024 demo; network access is supplied by the host.
 import React,{createContext,useContext,useEffect,useMemo,useRef,useState} from 'react';
+import {annotationValue} from './sourceAnnotations';
 import {conditionGroups,contextFilters} from './evidenceComponents';
 import {fieldLabel} from './presentation';
 import './evidenceDetails.css';
 import {panelTabs} from './panelTabs';
 import panelPolicy from '../../schema/information_panel_schema.json';
 import {compactSections} from './compactSections';
-import {recordDesign,objectSections,hasExtraRecord} from './recordDesign';
+import {recordDesign,objectSections,hasExtraRecord,expandedSections} from './recordDesign';
 import {ProductionValue,RecordFooter,ProductionFrequencies} from './ProductionRecord';
 import {GraphInfoPanelHeader,useGraphInfoPanel} from '../GraphInfoPanel';
 import {valueText,EvidenceRequestContext} from './api';
@@ -16,21 +17,12 @@ import {resourceLink} from './resourceLinks';
 import TableDownloads from './TableDownloadControls';
 import {safeSourceUrl} from './tableDownloads';
 const DisplayContext=createContext({policy:{},profileKey:null});
-function Icon({ name, size = 18 }) {
-  const paths = {
-    search: 'M21 21l-5.2-5.2M10.5 18a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15',
-    fit: 'M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6', plus: 'M12 4v16M4 12h16', minus: 'M4 12h16',
-    close: 'M5 5l14 14M19 5L5 19', arrow: 'M5 12h14m-6-6l6 6-6 6', chevron: 'M9 5l7 7-7 7',
-    download: 'M12 3v12m-5-5l5 5 5-5M4 16v5h16v-5', menu: 'M4 6h16M4 12h16M4 18h16',
-    reset: 'M4 10a8 8 0 1 1 1 8M4 3v7h7', graph: 'M6 6l12 12M6 18L18 6M6 6h.1M18 18h.1M6 18h.1M18 6h.1',
-    expand: 'M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6', pin: 'M8 3h8l-1 7 4 4H5l4-4-1-7m4 11v7',
-    info: 'M12 11v6m0-10v.1M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0',
-  };
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[name] || paths.info} /></svg>;
-}
 function Datum({ value, format, field = '', layout = 'auto', quantity = false }) {
   const {policy,profileKey} = useContext(DisplayContext);
-  if (value && typeof value === 'object' && !Array.isArray(value)) return <dl className="xe-nested-fields"><RecordFields fields={Object.entries(value).filter(([key,v])=>visibleField(key,v,policy)).map(([key,value])=>({key,label:fieldLabel(key,{}, { [key]:value }),value}))} /></dl>;
+  value=annotationValue(value);
+  if (Array.isArray(value) && value.some(item=>item && typeof item==='object')) return <div className="xe-source-annotations">{value.map((item,i)=><section key={i}><Datum value={item} field={field}/></section>)}</div>;
+  if (value && typeof value==='object' && value.row) return <section className="xe-source-annotation"><strong>{value.data_source || 'Source annotations'}</strong><Datum value={value.row}/><RecordFooter provenance={value}/></section>;
+  if (value && typeof value === 'object' && !Array.isArray(value)) return <dl className="xe-nested-fields"><RecordFields fields={Object.entries(value).filter(([key,v])=>!(panelPolicy.source_annotation_hidden_fields || []).includes(key) && visibleField(key,v,policy)).map(([key,value])=>({key,label:fieldLabel(key,{}, { [key]:value }),value}))} /></dl>;
   const empty = value === undefined || value === null || value === '';
   if (typeof value === 'string' && /^https:\/\//.test(value)) return <a href={value} target="_blank" rel="noreferrer">Source ↗</a>;
   return <span className={empty ? 'xe-empty' : undefined}><CardValue value={displayValue(field,value,policy,profileKey)} layout={layout} format={item => quantity ? (item !== null && item !== '' && typeof item !== 'boolean' && Number.isInteger(Number(item)) ? Number(item).toLocaleString('en-US') : formatCardNumber(item)) : valueText(item,format)} /></span>;
@@ -42,23 +34,24 @@ function RecordFields({ fields, specs = {} }) {
   </div>);
 }
 
-function EvidenceTable({ card, table, schema }) {
+function EvidenceTable({ card, table: sourceTable, schema }) {
+  const table=useMemo(()=>({...sourceTable,columns:(panelPolicy.table_columns[sourceTable.id] || sourceTable.columns).filter(k=>(sourceTable.all_fields || schema.tables[sourceTable.id]?.all_fields || sourceTable.columns).includes(k)),simple_list:true,hide_empty_columns:true,hide_filter_chips:true,field_specs:{...sourceTable.field_specs,...Object.fromEntries(Object.entries(panelPolicy.field_labels).map(([key,label])=>[key,{...sourceTable.field_specs?.[key],label,short_label:label,show_unit:false}]))}}),[sourceTable]);
   const {policy} = useContext(DisplayContext);
   const viewer = useContext(EvidenceRequestContext);
   const [page, setPage] = useState(null), [error, setError] = useState(''), [busy, setBusy] = useState(false);
-  const [filters, setFilters] = useState(table.default_filters || table.presets?.[0]?.filters || {}), [key, setKey] = useState(table.filters[0] || ''), [input, setInput] = useState('');
+  const [filters, setFilters] = useState(table.default_filters || table.presets?.[0]?.filters || {}), [key, setKey] = useState(table.filters?.[0] || ''), [input, setInput] = useState('');
   const scopedFilters=useMemo(()=>({...filters,...table.fixed_filters}),[filters,table.fixed_filters]);
   const [history, setHistory] = useState([null]), [index, setIndex] = useState(0), [detail, setDetail] = useState(null);
   const previousFilters=useRef(filters);
   useEffect(() => { if(previousFilters.current===filters)return; previousFilters.current=filters; setHistory([null]); setIndex(0); setDetail(null); }, [filters]);
   useEffect(() => {
     const controller = new AbortController(); setBusy(true); setError(''); setPage(null);
-    viewer('/table', { ref: card.ref, table_id: table.id, filters:scopedFilters, limit: 20, cursor: history[index], ...(table.request_fields ? {fields:table.request_fields} : (table.component === 'node_alt_id' || table.id === 'accessions') ? {fields:table.all_fields || schema.tables[table.id].all_fields} : {}) }, controller.signal)
+    viewer('/table', { ref: card.ref, table_id: table.id, filters:scopedFilters, limit: 20, cursor: history[index], fields:table.request_fields || [...new Set([...table.columns,...(table.id==='credible_members'?['credible_set_id','signal_role']:[]),'data_source','data_source_url','data_version','license'])].filter(k=>(table.all_fields || schema.tables[table.id]?.all_fields || table.columns).includes(k)) }, controller.signal)
       .then(value => { if (!controller.signal.aborted) setPage(value); }).catch(e => { if (!controller.signal.aborted && e.name !== 'AbortError') setError(e.message); }).finally(() => { if (!controller.signal.aborted) setBusy(false); });
     return () => controller.abort();
   }, [viewer, card.ref, table.id, table.all_fields, table.component, table.request_fields, schema.tables, scopedFilters, history, index]);
   const relatedLinks = table.component === 'node_alt_id' || table.id === 'accessions';
-  const columns = table.columns.filter(k=>!panelPolicy.hidden_internal_fields.includes(k) && !(policy.hidden_fields || []).includes(k) && (relatedLinks || !page?.records?.length || page.records.some(row=>visibleField(k,row[k],policy,table.field_specs?.[k]))))
+  const columns = table.columns.filter(k=>!(table.comparison==='disease' && k==='reference_condition')).filter(k=>!(panelPolicy.table_hidden_fields || []).includes(k)).filter(k=>!panelPolicy.hidden_internal_fields.includes(k) && !(policy.hidden_fields || []).includes(k) && (relatedLinks || !page?.records?.length || page.records.some(row=>visibleField(k,row[k],policy,table.field_specs?.[k]))))
     .filter(k=>!table.hide_empty_columns || !page?.records?.length || page.records.some(row=>row[k]!==null && row[k]!==undefined && row[k]!==''));
   const renderCell = (row,k) => {
     if (relatedLinks) {
@@ -67,9 +60,16 @@ function EvidenceTable({ card, table, schema }) {
       if (k === 'source_name') return <>{provider?.title || displayText(row[k],policy)}{provider?.category === 'annotation' && <small className="xe-resource-category">Annotation</small>}</>;
       if (k === 'alt_id') return link ? <a href={link.href} target="_blank" rel="noopener noreferrer" title={link.href}>{link.record} ↗</a> : <>{row[k]}<small className="xe-resource-category">Direct link unavailable</small></>;
     }
+    if(table.comparison==='disease' && k==='condition')return row.condition && row.reference_condition ? `${row.condition} vs ${row.reference_condition}` : 'Comparison not recorded';
     return <Datum value={row[k]} field={k} quantity={table.field_specs?.[k]?.kind === 'quantity'} />;
   };
   const setLabel = (data,i) => [displayText(data.signal_role || data.qtl_type || 'Credible set',policy), publicId(data.gene_id,policy), `Set ${i+1}`].filter(Boolean).join(' · ');
+  const rowGroups=useMemo(()=>{
+    if(table.id!=='credible_members')return [{key:'records',rows:page?.records || []}];
+    const groups=new Map();
+    for(const row of page?.records || []){const key=JSON.stringify([row.signal_role,row.credible_set_id]);if(!groups.has(key))groups.set(key,{key,role:row.signal_role,set:row.credible_set_id,rows:[]});groups.get(key).rows.push(row);}
+    return [...groups.values()];
+  },[page,table.id]);
   const detailRequest=useRef(null);
   useEffect(()=>()=>{detailRequest.current?.abort();},[viewer,card.ref,table.id,scopedFilters]);
   const readDetail = async row => {
@@ -87,7 +87,7 @@ function EvidenceTable({ card, table, schema }) {
     }
   };
   return <div className="xe-evidence">
-    <div className="xe-table-intro"><div><strong>{table.title}</strong>{!table.simple_list && <p>{displayText(table.description,policy) || 'Exact records linked to this object and its paired source release.'}</p>}</div><span className="xe-small">{busy ? 'Reading…' : `${page?.records?.length || 0} rows on this page`}</span></div>
+    <div className="xe-table-intro"><div><strong>{table.title}</strong>{table.comparison==='cell_type' && <p className="xe-small">Within each condition · positive log₂ FC means higher in the selected cell type.</p>}{table.comparison==='disease' && <p className="xe-small">Positive log₂ FC means higher in the first condition than its reference.</p>}</div><span className="xe-small">{busy ? 'Reading…' : `${page?.records?.length || 0} rows on this page`}</span></div>
     {table.pipeline_links?.length > 0 && <div className="xe-processing-links"><span>Processing pipeline</span>{table.pipeline_links.filter(link=>safeSourceUrl(link.href)).map(link=><a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">{link.label} ↗</a>)}</div>}
     {table.presets && <div className="xe-source-presets">{table.presets.map(p => <button key={p.title} className={JSON.stringify(filters) === JSON.stringify(p.filters) ? 'active' : ''} onClick={() => setFilters(p.filters)}>{p.title}</button>)}</div>}
     {!table.simple_list && table.filters.length > 0 && <form className="xe-filters" onSubmit={e => { e.preventDefault(); setFilters(previous => { const next = { ...previous }; if (input.trim()) next[key] = input.trim(); else delete next[key]; return next; }); }}>
@@ -96,18 +96,19 @@ function EvidenceTable({ card, table, schema }) {
       <button type="submit">Apply</button><button type="button" onClick={() => { setFilters(table.default_filters || {}); setInput(''); }}>Clear</button>
     </form>}
     {!table.hide_filter_chips && Object.keys(filters).length > 0 && <div className="xe-filter-chips">{Object.entries(filters).filter(([k,v])=>visibleField(k,v,policy)).map(([k,v]) => <span key={k}>{fieldLabel(k,table.field_specs)}: {displayValue(k,v,policy)}</span>)}</div>}
-    {page?.credible_sets && <label className="xe-set-selector">Credible set <select aria-label="Credible set" value={filters.credible_set_id || ''} onChange={e=>setFilters(f=>{const next={...f}; if(e.target.value) next.credible_set_id=e.target.value; else delete next.credible_set_id; return next;})}><option value="">All linked sets</option>{Object.entries(page.credible_sets).map(([id,data],i)=><option key={id} value={id}>{setLabel(data,i)}</option>)}</select></label>}
-    {page?.credible_sets && <div className="xe-set-descriptions">{Object.entries(page.credible_sets).map(([id, data],i) => <details open key={id}><summary>{setLabel(data,i)}</summary><dl>{Object.entries(data).filter(([k,v])=>visibleField(k,v,policy,table.field_specs?.[k])).map(([k, v]) => <React.Fragment key={k}><dt>{fieldLabel(k,table.field_specs,data)}</dt><dd><Datum value={v} field={k} /></dd></React.Fragment>)}</dl></details>)}</div>}
+    {page?.credible_sets && Object.keys(page.credible_sets).length>1 && <label className="xe-set-selector">Credible set <select aria-label="Credible set" value={filters.credible_set_id || ''} onChange={e=>setFilters(f=>{const next={...f}; if(e.target.value) next.credible_set_id=e.target.value; else delete next.credible_set_id; return next;})}><option value="">All linked sets</option>{Object.entries(page.credible_sets).map(([id,data],i)=><option key={id} value={id}>{setLabel(data,i)}</option>)}</select></label>}
+    {page?.credible_sets && <div className="xe-set-descriptions">{Object.entries(page.credible_sets).filter(([id])=>!filters.credible_set_id || filters.credible_set_id===id).map(([id,data],i)=><section key={id}><strong>{setLabel(data,i)}</strong><dl>{['tissue_name','qtl_type','method','n_members','purity'].filter(k=>data[k]!==undefined && data[k]!==null).map(k=><div className="kg-card-field" key={k}><dt>{fieldLabel(k,table.field_specs)}</dt><dd><Datum value={data[k]} field={k}/></dd></div>)}</dl></section>)}</div>}
     {error && <p role="alert" className="xe-warning">{error}</p>}
     {page?.state === 'temporarily_unavailable' && <p className="xe-warning">{page.message}</p>}
-    {page?.state === 'no_records' && <div className="xe-no-records">No matching records in this release. This does not mean zero expression or no biological association.</div>}
-    <TableDownloads card={card} table={table} schema={schema} filters={scopedFilters} records={page?.records} sets={page?.credible_sets} />
-    <div className="xe-table-scroll"><table><thead><tr>{!table.simple_list && <th aria-label="Record details" />}{columns.map(k => <th key={k} title={table.field_specs?.[k]?.description}>{relatedLinks ? ({source_name:'Database',alt_id:'Open record'}[k] || fieldLabel(k,table.field_specs)) : fieldLabel(k,table.field_specs)}</th>)}</tr></thead><tbody>
-      {(page?.records || []).map((row, i) => <React.Fragment key={row.record_id || row.relationship_id || `${index}-${i}`}><tr>
+    {page?.state === 'no_records' && <div className="xe-no-records">No matching records.</div>}
+    {page?.records?.length > 0 && <TableDownloads card={card} table={table} schema={schema} filters={scopedFilters} records={page.records} sets={page?.credible_sets} />}
+    {page?.records?.length > 0 && rowGroups.map(group=><section key={group.key} className="xe-evidence-record-group">{group.role && <h3>{String(group.role).toUpperCase()} · {page.credible_sets?.[group.set]?.description || 'Linked credible set'}</h3>}<div className="xe-table-scroll"><table><thead><tr>{!table.simple_list && <th aria-label="Record details" />}{columns.map(k => <th key={k} title={table.field_specs?.[k]?.description}>{table.comparison==='disease' && k==='condition' ? 'Comparison' : relatedLinks ? ({source_name:'Database',alt_id:'Open record'}[k] || fieldLabel(k,table.field_specs)) : fieldLabel(k,table.field_specs)}</th>)}</tr></thead><tbody>
+      {group.rows.map((row, i) => <React.Fragment key={row.record_id || row.relationship_id || `${index}-${i}`}><tr>
         {!table.simple_list && <td><button className="xe-row-button" onClick={() => readDetail(row)} aria-label={`Read row ${i + 1}`}>{detail?.row === row ? '−' : '+'}</button></td>}
         {columns.map(k => <td key={k}>{renderCell(row,k)}</td>)}</tr>
         {!table.simple_list && detail?.row === row && <tr className="xe-detail-row"><td colSpan={columns.length + 1}>{detail.loading ? 'Reading complete record…' : <><span className="xe-small">Complete selected record {detail.error && `· ${detail.error}`}</span><dl><RecordFields fields={Object.entries(detail.record).filter(([k,v])=>visibleField(k,v,policy,table.field_specs?.[k])).map(([key,value])=>({key,label:fieldLabel(key,table.field_specs,detail.record),value}))} /></dl></>}</td></tr>}
-      </React.Fragment>)}</tbody></table></div>
+      </React.Fragment>)}</tbody></table></div></section>)}
+    {page?.records?.length>0 && [...new Map(page.records.filter(r=>r.data_source || r.data_version).map(r=>{const p={data_source:r.data_source,data_version:r.data_version,data_source_url:r.data_source_url,license:r.license};return [JSON.stringify(p),p];})).values()].map((p,i)=><RecordFooter key={i} provenance={p}/>)}
     {(index > 0 || page?.has_more) && <div className="xe-pagination"><span>Page {index + 1} · 20 rows maximum</span><div><button disabled={index === 0 || busy} onClick={() => setIndex(i => i - 1)}>Previous</button><button disabled={!page?.has_more || busy} onClick={() => { setHistory(h => [...h.slice(0, index + 1), page.next_cursor]); setIndex(i => i + 1); }}>Next</button></div></div>}
   </div>;
 }
@@ -117,13 +118,22 @@ export function currentPresets(presets) {
   const rules=panelPolicy.expression_display;
   return presets.filter(p=>!rules.excluded_presets.includes(p.id) && !presets.some(other=>other.id===rules.superseded_presets[p.id]));
 }
+function endpointName(card,e) {
+  if(e.display_name)return e.display_name;
+  const keys=e.ref.type_id==='Gene' ? ['HGNC_symbol','gene_name','gene_symbol'] : ['Cell','anatomical_structure'].includes(e.ref.type_id) ? ['cell_type_name','cell_name'] : [];
+  // Own-record names are safe only when this endpoint type is unambiguous.
+  if(card.endpoints.filter(x=>x.ref.type_id===e.ref.type_id).length===1){
+    for(const key of keys){const value=card.fields?.find(f=>f.key===key)?.value;if(typeof value==='string'&&value)return value;}
+  }
+  return e.display_id || e.ref.id;
+}
 function RelationshipContext({card,compact=false}) {
   if(!card.endpoints?.length)return null;
   const context=panelPolicy.expression_display.compact_context?.[card.ref.type_id];
   const method=(card.fields || []).find(f=>f.key==='method')?.value || context?.method;
   const description=(card.fields || []).find(f=>f.key==='description')?.value;
   return <section className="xe-card-section xe-relationship-context"><dl>
-    {card.endpoints.map((e,i)=><div className="kg-card-field" key={e.ref.id}><dt>{e.ref.type_id==='Gene'?'Gene':e.ref.type_id==='Cell'?'Cell':e.role || (i?'Target':'Source')}</dt><dd>{e.display_name || e.display_id || e.ref.id}{e.display_name && <small>{e.display_id || e.ref.id}</small>}</dd></div>)}
+    {card.endpoints.map((e,i)=><div className="kg-card-field" key={e.ref.id}><dt>{panelPolicy.endpoint_labels?.[e.ref.type_id] || e.role || (i?'Target':'Source')}</dt><dd>{endpointName(card,e)}{endpointName(card,e)!==(e.display_id || e.ref.id) && <small>{e.display_id || e.ref.id}</small>}</dd></div>)}
     {compact && method && <div className="kg-card-field"><dt>Method</dt><dd>{method}</dd></div>}
     {compact && (context?.data || description) && <div className="kg-card-field"><dt>Data</dt><dd>{context?.data || description}</dd></div>}
   </dl></section>;
@@ -133,16 +143,19 @@ function ConditionEvidenceGroup({card,group,schema,view,component,preset}) {
   const selected=preset.id;
   const source=card.tables.find(t=>t.id===preset.table_id);
   const context=contextFilters({...component,view:{...view,context_filters:preset.context_filters ?? view.context_filters}},card);
-  const labels={...view.field_labels,...preset.field_labels};
+  const labels={...view.field_labels,...panelPolicy.field_labels,...preset.field_labels};
+  const cell=card.endpoints?.find(e=>['Cell','anatomical_structure'].includes(e.ref.type_id));
+  const cellName=cell ? endpointName(card,cell) : 'Selected cell type';
+  const title=(preset.title || group.title).replace('{cell}',cellName);
   const fields=source?.all_fields || schema.tables?.[preset.table_id]?.all_fields || [];
-  const table=source && context ? {...source,title:group.title,simple_list:true,description:preset.description,columns:preset.columns,
+  const table=source && context ? {...source,title,comparison:preset.comparison,simple_list:true,description:preset.description,columns:preset.columns,
     filters:preset.editable_filters || ['condition'],filter_values:{...source.filter_values,condition:preset.condition_values || view.condition_values || source.filter_values?.condition},legacy_condition_options:component.legacy,presets:undefined,hide_filter_chips:true,hide_empty_columns:true,
     default_filters:Object.fromEntries(Object.entries(preset.default_filters || view.default_filters || {status:'all'}).filter(([k])=>component.legacy || source.filters.includes(k))),fixed_filters:{...preset.fixed_filters,...context},
     pipeline_links:preset.pipeline_links,request_fields:preset.request_all_fields || (component.legacy && preset.table_id==='ruv_condition_summary') ? fields : [...new Set([...preset.columns,'data_source','data_source_url','data_version','license'])].filter(k=>fields.includes(k)),
-    field_specs:{...source.field_specs,...Object.fromEntries(Object.entries(labels).map(([key,label])=>[key,{...source.field_specs?.[key],label,short_label:label}]))}} : null;
+    field_specs:{...source.field_specs,...Object.fromEntries(Object.entries(labels).map(([key,label])=>[key,{...source.field_specs?.[key],label,short_label:label,show_unit:false}]))}} : null;
   return <section className="xe-expression-evidence-group" aria-label={group.title}>
     {table ? <>
-      <p className="xe-small xe-method-context">{preset.method_label || preset.title} · {preset.title}</p>
+      <p className="xe-small xe-method-context">{preset.method_label || preset.method}</p>
       <EvidenceTable key={`${card.ref.id}:${group.id}:${selected}`} card={card} table={table} schema={schema} />
     </> : <><h3>{group.title}</h3><p className="xe-small">{card.evidence_state==='temporarily_unavailable' ? view.unavailable_message : view.unlinked_message}</p></>}
   </section>;
@@ -167,17 +180,12 @@ function ExpandedDetails({ card, schema }) {
     {wide && card && <nav className="xe-card-tabs"><button className={tab === 'record' ? 'active' : ''} onClick={() => setTab('record')}>Complete record</button>{tabs.map(t=><button key={t.id} className={active===t.id ? 'active' : ''} onClick={()=>setTab(t.id)}>{t.title}</button>)}</nav>}
     <div className="xe-card-body">
       {card && (!wide || active === 'record') && <>
-        {card.endpoints?.length > 0 && <div className="xe-endpoints">{card.endpoints.map((o, i) => <React.Fragment key={`${i}:${o.ref.id}`}>{i > 0 && <Icon name="arrow" />}<span className="xe-endpoint-record">{o.display_id}<small>{o.role} · {o.ref.type_id.replace(/_/g,' ')}</small></span></React.Fragment>)}</div>}
-        {card.widget === 'expression' && card.condition_statistics?.length > 0 && <div className="xe-condition-statistics">{card.condition_statistics.map(item => <section key={item.condition}><h3>{item.condition}<span>Supporting measurements</span></h3><div>{Object.entries(item.statistics).map(([key, value]) => <div key={key}><small title={card.field_specs?.[key]?.description}>{fieldLabel({key,label:{cpm:'CPM',pct_expr:'Expressing (%)',log2fc:'log₂ FC',p_adj:'Adj. P',stat:'Test stat.',n_donors:'Donors'}[key]},card.field_specs)}</small><strong>{valueText(value)}</strong></div>)}</div></section>)}</div>}
-        {card.widget === 'coloc' && <div className="xe-coloc-posteriors">{['pp_h3_abf','pp_h4_abf'].map((key, i) => { const value = card.sections.flatMap(s => s.fields).find(f => f.key === key)?.value; return <section key={key}><span>{i ? 'H4 · shared signal' : 'H3 · distinct signals'}</span><strong>{typeof value === 'number' ? `${(value * 100).toFixed(2)}%` : 'Not recorded'}</strong>{typeof value === 'number' && <div><i style={{width:`${Math.max(0, Math.min(100, value * 100))}%`}} /></div>}</section>; })}</div>}
-        {card.widget !== 'gene_activity' && card.sections.filter(s => !(card.condition_statistics?.length && s.fields.every(f => f.key === 'evidence_summary'))).map((s, i) => s.fields.length > 0 && <section className="xe-card-section" data-prose={s.prose || undefined} key={i}><h3>{s.title}</h3><dl><RecordFields fields={s.fields.filter(f => !(f.key === 'evidence_summary' && card.condition_statistics?.length) && !(card.widget === 'coloc' && ['pp_h3_abf','pp_h4_abf'].includes(f.key)))} specs={card.field_specs} /></dl></section>)}
-        {card.widget === 'gene_activity' && <section className="xe-card-section xe-activity-summary"><h3>Gene activity by condition</h3><p className="xe-small">Source units are unspecified. Values retain the original analysis scale; AAB-positive remains a separate group.</p><TableDownloads card={card} table={schema.widget_tables?.gene_activity || {id:"gene_activity",columns:["condition","mean","median"]}} schema={schema} localRecords={card.group_statistics || []} /><table><thead><tr><th>Condition</th><th>Mean</th><th>Median</th></tr></thead><tbody>{(card.group_statistics || []).map(group=><tr key={group.condition}><td>{group.condition}</td><td><Datum value={group.mean} /></td><td><Datum value={group.median} /></td></tr>)}</tbody></table></section>}
+        <RelationshipContext card={card}/>
+        {expandedSections(card).map((section,i)=><section className="xe-card-section" data-prose={section.prose || undefined} key={i}><h3>{section.title}</h3><dl><RecordFields fields={section.fields} specs={card.field_specs}/></dl></section>)}
         {(card.widget === 'variant' || card.production_design === 'Variant') && <section className="xe-card-section"><h3>Frequency</h3>{card.frequencies?.length ? <><ProductionFrequencies card={card}/><TableDownloads card={card} table={{id:"population_frequencies",...schema.tables?.population_frequencies}} schema={schema} records={card.frequencies}/></> : <p className="xe-empty">Not recorded</p>}{card.consequences?.length>0 && <><h3>Functional annotations</h3><div className="xe-chips muted">{card.consequences.map(c=><span key={c}>{c}</span>)}</div></>}{card.hgvs && <p className="xe-hgvs">{card.hgvs}</p>}</section>}
-        {card.widget === 'go_codes' && <div className="xe-callout">{card.sections.flatMap(s => s.fields).filter(f => f.key === 'go_evidence_code').flatMap(f => f.value || []).map(code => <p key={code}><strong>{code}</strong> · {schema.go_evidence_codes[code] || 'Source evidence code'}</p>)}</div>}
-        <p className="xe-card-note"><Icon name="info" size={15} />{card.note}</p>
-        {wide && <details open className="xe-card-section xe-complete"><summary>All recorded fields ({card.fields?.length || 0})</summary><dl><RecordFields fields={card.fields || []} specs={card.field_specs} /></dl></details>}
         <RecordFooter provenance={card.provenance}/>
       </>}
+      {card && active !== 'record' && selected.component?.renderer!=='condition_tables' && <RelationshipContext card={card}/>}
       {card && wide && active !== 'record' && (selected.component ?
         selected.component.renderer==='condition_tables' ? <ConditionEvidenceSummary card={card} schema={schema} component={selected.component} /> :
         ['table','credible_set'].includes(selected.component.renderer) ? selected.component.table_ids.map(tid=><EvidenceTable key={`${card.ref.id}:${tid}`} card={card} table={card.tables.find(t=>t.id===tid)} schema={schema} />) : <p className="xe-small">Unsupported registered component.</p> :
