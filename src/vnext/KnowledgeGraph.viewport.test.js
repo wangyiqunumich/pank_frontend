@@ -111,7 +111,7 @@ test('JSON download retains the original graph identifiers, zeroes, nulls and ev
     fireEvent.click(screen.getByRole('menuitem', { name: 'Download JSON' }));
     expect(click.mock.instances[0].download).toBe('knowledge_graph.json');
     expect(blob.type).toBe('application/json');
-    act(() => jest.advanceTimersByTime(1000));
+    act(() => jest.advanceTimersByTime(30000));
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:graph-json');
     unmount();
     jest.useRealTimers();
@@ -120,6 +120,29 @@ test('JSON download retains the original graph identifiers, zeroes, nulls and ev
     });
     expect(JSON.parse(content)).toEqual(source);
     expect(JSON.stringify(source)).toBe(before);
+  } finally { jest.useRealTimers(); click.mockRestore(); URL.createObjectURL = previousCreate; URL.revokeObjectURL = previousRevoke; }
+});
+
+test('PNG export uses a bounded Blob and starts its download inside fullscreen', async () => {
+  const previousCreate = URL.createObjectURL, previousRevoke = URL.revokeObjectURL;
+  URL.createObjectURL = jest.fn(() => 'blob:graph-image'); URL.revokeObjectURL = jest.fn();
+  let downloadParent, downloadHref;
+  const click = jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function () { downloadParent = this.parentElement; downloadHref = this.href; });
+  jest.useFakeTimers();
+  try {
+    const { unmount } = render(view());
+    const cy = cytoscape.mock.results[0].value;
+    cy.elements = () => ({ boundingBox: () => ({ w: 10000, h: 3000 }) });
+    const png = new Blob(['PNG export'], { type: 'image/png' }); cy.png = jest.fn().mockResolvedValue(png);
+    fireEvent.click(screen.getByRole('button', { name: 'Open in full screen' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Download', exact: true }));
+    await act(async () => fireEvent.click(screen.getByRole('menuitem', { name: 'Download image' })));
+    expect(cy.png).toHaveBeenCalledWith({ output: 'blob-promise', full: true, maxWidth: 4096, maxHeight: 4096 });
+    expect(URL.createObjectURL).toHaveBeenCalledWith(png); expect(downloadHref).toBe('blob:graph-image');
+    expect(downloadParent).toBe(screen.getByRole('dialog', { name: 'Fullscreen graph viewer' }));
+    act(() => jest.advanceTimersByTime(30000));
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:graph-image');
+    unmount();
   } finally { jest.useRealTimers(); click.mockRestore(); URL.createObjectURL = previousCreate; URL.revokeObjectURL = previousRevoke; }
 });
 

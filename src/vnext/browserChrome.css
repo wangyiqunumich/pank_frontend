@@ -104,10 +104,3 @@
   .functional-filter-summary { grid-template-columns:minmax(0,1fr); gap:4px; }
   .functional-filter-summary dd { margin-bottom:8px; }
 }
-
-/* Shared selected/unselected contrast across all browser module view tabs. */
-.browser-chrome .browser-tabs button { min-height:32px; border-color:#b8d8d3; background:#f0f8f6; color:#245c56; font-weight:600!important; }
-.browser-chrome .browser-tabs button:hover:not(:disabled) { background:#dcefea; }
-.browser-chrome .browser-tabs button[aria-pressed=true] { border-color:#0f766e; background:#0f766e; color:#fff; }
-.browser-chrome .browser-tabs button[aria-pressed=true]:hover { background:#115e59; }
-.browser-chrome .browser-tabs button[aria-pressed=true] img { filter:brightness(0) invert(1); }

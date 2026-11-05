@@ -916,33 +916,35 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
     viewportRef.current?.fit();
   };
 
-  const handleDownload = () => {
-    if (cyRef.current) {
-      const png = cyRef.current.png({
-        full: true,
-        scale: 6,
-      });
-      const link = document.createElement("a");
-      link.href = png;
-      link.download = "knowledge_graph.png";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
+  const saveGraphFile = (blob, filename) => {
+    if (!(blob instanceof Blob) || !blob.size) throw new Error('The export is empty.');
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    const dialog = containerRef.current?.closest('dialog');
+    (dialog?.open ? dialog : document.body).appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+  };
+
+  const handleDownload = async () => {
+    if (!cyRef.current) throw new Error('The graph is unavailable.');
+    // A Blob avoids data-URL length limits. Cap full-graph exports so large
+    // layouts remain within browser canvas limits without cropping the graph.
+    const bounds = cyRef.current.elements().boundingBox();
+    const png = await cyRef.current.png({ output: 'blob-promise', full: true,
+      maxWidth: Math.min(4096, Math.max(1, Math.ceil(bounds.w)) * 6),
+      maxHeight: Math.min(4096, Math.max(1, Math.ceil(bounds.h)) * 6) });
+    saveGraphFile(png, 'knowledge_graph.png');
   };
 
   const handleDownloadJson = () => {
     const graph = graphData || queryResultPage?.combined_query_result;
-    if (!graph) return;
+    if (!graph) throw new Error('The graph is unavailable.');
     // Export the source graph, retaining all scientific properties and IDs.
-    const url = URL.createObjectURL(new Blob([JSON.stringify(graph, null, 2)], { type: 'application/json' }));
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'knowledge_graph.json';
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    saveGraphFile(new Blob([JSON.stringify(graph, null, 2)], { type: 'application/json' }), 'knowledge_graph.json');
   };
 
 
@@ -1277,6 +1279,7 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
         onZoomIn={handleZoomOut} onZoomOut={handleZoomIn} onFit={handleRecenter}
         hoverEnabled={infocardEnabled} onHover={() => { setInfocardEnabled(value => !value); if (infocardEnabled) setInfocardVisible(false); }}
         onDownload={handleDownload} onDownloadJson={handleDownloadJson} onReset={handleReset}
+        onDownloadMenuOpen={() => { setInfocardVisible(false); setNodeHovered(false); setInfocardHovered(false); }}
         modeLabel={(graphData || queryResultPage?.combined_query_result)?.presentation_mode === 'relationship_list' ? 'List mode' : 'KG mode'} />
       <div className="graph-zoom-indicator" aria-label="Graph zoom">{Math.round(zoomLevel / initZoom * 100)}%</div>
       <GraphInfoPanel schema={evidenceService?.schema} panelRef={infocardRef} host={expanded ? containerRef.current?.closest('dialog') : document.body}

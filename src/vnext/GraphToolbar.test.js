@@ -66,3 +66,16 @@ test('density follows the graph pane height, ignores hidden tabs and cleans up i
     unmount(); expect(disconnect).toHaveBeenCalledTimes(1);
   } finally { bounds.mockRestore(); global.ResizeObserver = original; }
 });
+
+test.each([false, true])('image export reports failures and allows retry in either toolbar layout (%s)', async expanded => {
+  const image = jest.fn().mockRejectedValueOnce(new Error('Canvas unavailable')).mockResolvedValueOnce();
+  render(<GraphToolbar onDownloadJson={jest.fn()} onDownload={image} />);
+  if (expanded) fireEvent.click(screen.getByRole('button', { name: 'Expand graph toolbar' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Download', exact: true }));
+  await act(async () => fireEvent.click(screen.getByRole('menuitem', { name: 'Download image' })));
+  expect(screen.getByRole('alert').textContent).toContain('Download failed');
+  expect(screen.getByRole('menuitem', { name: 'Download image' }).getAttribute('aria-disabled')).not.toBe('true');
+  await act(async () => fireEvent.click(screen.getByRole('menuitem', { name: 'Download image' })));
+  expect(image).toHaveBeenCalledTimes(2);
+  expect(screen.queryByRole('menu')).toBeNull();
+});

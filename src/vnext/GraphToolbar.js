@@ -1,14 +1,27 @@
 import React, { useId, useLayoutEffect, useRef, useState } from 'react';
-import { ButtonBase, Menu, MenuItem, Tooltip } from '@mui/material';
+import { ButtonBase, Menu, MenuItem, Tooltip, Typography } from '@mui/material';
 import { fullscreenExitPath, compactChevron, compactFullscreen, compactZoomIn, compactZoomOut, compactFit, compactHover, compactDownload, compactReset, fullscreenIcon, zoomIn, zoomOut, fit, hover, mode, chevron, download, downloadChevron, reset } from './graphToolbarIcons';
 import './GraphToolbar.css';
 
-export default function GraphToolbar({ fullscreen, onFullscreen, zoomPercent, canZoomIn, canZoomOut, onZoomIn, onZoomOut, onFit, hoverEnabled, onHover, onDownload, onDownloadJson, onReset, modeLabel = 'KG mode', navigationOnly = false, visibleActions = null, browser = false, infoLabel = 'Hover info', resetLabel = 'Reset graph', downloadLabel = 'Download', disabled = false }) {
+export default function GraphToolbar({ fullscreen, onFullscreen, zoomPercent, canZoomIn, canZoomOut, onZoomIn, onZoomOut, onFit, hoverEnabled, onHover, onDownload, onDownloadJson, onDownloadMenuOpen, onReset, modeLabel = 'KG mode', navigationOnly = false, visibleActions = null, browser = false, infoLabel = 'Hover info', resetLabel = 'Reset graph', downloadLabel = 'Download', disabled = false }) {
   const [expanded, setExpanded] = useState(false);
   const [downloadAnchor, setDownloadAnchor] = useState(null);
+  const [downloadBusy, setDownloadBusy] = useState(false);
+  const [downloadError, setDownloadError] = useState('');
   const downloadMenuId = useId();
   const hasDownloadMenu = !browser && Boolean(onDownloadJson);
-  useLayoutEffect(() => { setDownloadAnchor(null); }, [fullscreen]);
+  useLayoutEffect(() => { setDownloadAnchor(null); }, [fullscreen, expanded]);
+  const runDownload = callback => {
+    setDownloadError('');
+    const failed = () => setDownloadError('Download failed. Please try again.');
+    try {
+      const result = callback();
+      if (result?.then) {
+        setDownloadBusy(true);
+        result.then(() => setDownloadAnchor(null), failed).finally(() => setDownloadBusy(false));
+      } else setDownloadAnchor(null);
+    } catch (_) { failed(); }
+  };
   const toolbarRef = useRef(null);
   const [short, setShort] = useState(false);
   useLayoutEffect(() => {
@@ -32,7 +45,7 @@ export default function GraphToolbar({ fullscreen, onFullscreen, zoomPercent, ca
     zoomOut: { label: 'Zoom out', icon: zoomOut, compact: compactZoomOut, onClick: onZoomOut, disabled: !canZoomOut },
     fit: { label: 'Fit to view', icon: fit, compact: compactFit, onClick: onFit },
     hover: { label: infoLabel, icon: hover, compact: compactHover, onClick: onHover, pressed: hoverEnabled, suffix: <span className={`graph-toolbar-switch${hoverEnabled ? ' is-on' : ''}`} aria-hidden="true"><span /></span> },
-    download: { label: downloadLabel, icon: download, compact: compactDownload, onClick: hasDownloadMenu ? event => setDownloadAnchor(event.currentTarget) : onDownload, suffix: <img aria-hidden="true" src={downloadChevron} alt="" /> },
+    download: { label: downloadLabel, icon: download, compact: compactDownload, onClick: hasDownloadMenu ? event => { setDownloadError(''); onDownloadMenuOpen?.(); setDownloadAnchor(event.currentTarget); } : onDownload, suffix: <img aria-hidden="true" src={downloadChevron} alt="" /> },
     reset: { label: resetLabel, icon: reset, compact: compactReset, onClick: onReset },
   };
   const minimal = visibleActions?.length <= 2;
@@ -44,6 +57,7 @@ export default function GraphToolbar({ fullscreen, onFullscreen, zoomPercent, ca
         aria-haspopup={key === 'download' && hasDownloadMenu ? 'menu' : undefined}
         aria-expanded={key === 'download' && hasDownloadMenu ? Boolean(downloadAnchor) : undefined}
         aria-controls={key === 'download' && downloadAnchor ? downloadMenuId : undefined}
+        aria-busy={key === 'download' && downloadBusy ? true : undefined}
         disabled={item.disabled || (key !== 'fullscreen' && (disabled || !item.onClick))} onClick={item.onClick}>
         <span className="graph-toolbar-icon">{key === 'fullscreen' && fullscreen ? <svg width={expanded ? 14 : 16} height={expanded ? 14 : 16} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={fullscreenExitPath}/></svg> : <img aria-hidden="true" src={expanded ? item.icon : item.compact} alt="" />}</span>
         {expanded && <><span className="graph-toolbar-label">{item.label}</span>{item.suffix}</>}
@@ -67,9 +81,10 @@ export default function GraphToolbar({ fullscreen, onFullscreen, zoomPercent, ca
       onKeyDown={event => { if (event.key === 'Escape') event.preventDefault(); }}
       MenuListProps={{ id: downloadMenuId, 'aria-label': 'Graph download formats', dense: true }}
       PaperProps={{ sx: { border: '1px solid #e2e8f0', borderRadius: '8px', minWidth: 160,
-        '& .MuiMenuItem-root': { fontSize: 12, minHeight: 32, color: '#334155' } } }} sx={{ zIndex: 1400 }}>
-      <MenuItem onClick={() => { setDownloadAnchor(null); onDownloadJson(); }}>Download JSON</MenuItem>
-      <MenuItem disabled={!onDownload} onClick={() => { setDownloadAnchor(null); onDownload(); }}>Download image</MenuItem>
+        '& .MuiMenuItem-root': { fontSize: 12, minHeight: 32, color: '#334155' } } }} sx={{ zIndex: 2147483002 }}>
+      <MenuItem disabled={downloadBusy} onClick={() => runDownload(onDownloadJson)}>Download JSON</MenuItem>
+      <MenuItem disabled={!onDownload || downloadBusy} onClick={() => runDownload(onDownload)}>{downloadBusy ? 'Preparing image…' : 'Download image'}</MenuItem>
+      {downloadError && <Typography component="li" role="alert" sx={{ listStyle: 'none', px: 2, py: 1, maxWidth: 220, fontSize: 12, color: '#B91C1C' }}>{downloadError}</Typography>}
     </Menu>}
   </div>;
 }

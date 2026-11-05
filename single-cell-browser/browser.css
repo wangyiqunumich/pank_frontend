@@ -102,10 +102,3 @@ dd { margin: 0; overflow-wrap: anywhere; }
    Let the native chart wrapper expand without becoming another scroll container. */
 .violin-scroll { overflow-x: auto; overflow-y: hidden; }
 .violin > div { overflow: visible !important; }
-
-/* Match the shared browser modules' more visible view tabs. */
-.browser-navigation nav button { min-height:32px; border-color:#b8d8d3; background:#f0f8f6; color:#245c56; font-weight:600; }
-.browser-navigation nav button:hover:not(:disabled) { background:#dcefea; }
-.browser-navigation nav button[aria-pressed=true] { border-color:#0f766e; background:#0f766e; color:#fff; }
-.browser-navigation nav button[aria-pressed=true]:hover { background:#115e59; }
-.browser-navigation nav button[aria-pressed=true] img { filter:brightness(0) invert(1); }

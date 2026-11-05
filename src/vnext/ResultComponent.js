@@ -149,7 +149,7 @@ export function ResultComponentSkeleton() {
     );
 }
 
-function ContentTabs({ tabs, value, onChange, variant = 'default', moduleTabs = false }) {
+function ContentTabs({ tabs, value, onChange, variant = 'default' }) {
     const isPank1 = variant === 'pank1';
     return (
         <Tabs
@@ -158,33 +158,7 @@ function ContentTabs({ tabs, value, onChange, variant = 'default', moduleTabs = 
             variant="scrollable"
             aria-label={visualSchema.main_visuals.tab_switch.accessible_label}
             scrollButtons={visualSchema.main_visuals.tab_switch.scroll_buttons}
-            sx={moduleTabs ? {
-                minHeight: 36,
-                "& .MuiTabs-flexContainer": { gap: "6px" },
-                "& .MuiTabs-scrollButtons.Mui-disabled": { display: "none" },
-                "& .MuiTab-root": {
-                    minHeight: 36,
-                    py: "7px",
-                    px: "12px",
-                    border: "1px solid #B8D8D3",
-                    borderRadius: "8px",
-                    backgroundColor: "#F0F8F6",
-                    whiteSpace: "nowrap",
-                    minWidth: "auto",
-                    marginRight: 0,
-                    textTransform: "none",
-                    fontWeight: "600 !important",
-                    fontSize: isPank1 ? "13px !important" : "14px !important",
-                    color: "#245C56 !important",
-                    "&:hover": { backgroundColor: "#DCEFEA" },
-                    "&.Mui-focusVisible": { outline: "2px solid #0F766E", outlineOffset: "-3px" },
-                    "&:last-child": {
-                        marginRight: 0,
-                    },
-                },
-                "& .MuiTab-root.Mui-selected": { color: "#FFF !important", backgroundColor: "#0F766E", borderColor: "#0F766E", "&:hover": { backgroundColor: "#115E59" } },
-                "& .MuiTabs-indicator": { display: "none" },
-            } : {
+            sx={{
                 minHeight: 0,
                 "& .MuiTabs-scrollButtons.Mui-disabled": { display: "none" },
                 "& .MuiTab-root": {
@@ -944,7 +918,6 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                 <Box sx={{ mb: 1.2 }}>
                                     <ContentTabs
                                         tabs={visualTabs}
-                                        moduleTabs
                                         value={visualTab}
                                         onChange={(_, v) => setVisualTab(v)}
                                     />
@@ -1321,7 +1294,6 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                     <Box sx={{ mb: 1.2, ...(matchVisualHeight ? ALIGNED_PANEL_HEADER_SX : {}) }}>
                                         <ContentTabs
                                             tabs={visualTabs}
-                                            moduleTabs
                                             value={visualTab}
                                             onChange={(_, v) => handleVisualTabChange(v)}
                                             variant={isPank1Style ? 'pank1' : 'default'}
