@@ -17,7 +17,7 @@ run('git',['worktree','add','--detach',work,config.source_commit]);
 try {
   const env={...process.env,AWS_BRANCH:'fixed-demo-source',PUBLIC_URL:'/techdemo',GENERATE_SOURCEMAP:'false'};
   run('npm',['ci','--cache',path.join(root,'.npm'),'--prefer-offline','--no-audit','--no-fund'],{cwd:work,env});
-  run('npm',['test','--','--watchAll=false','--runInBand','src/vnext/hosting.test.js','src/vnext/techdemoApi.test.js','src/vnext/PanKgraphFunctionalPlot.test.js','src/vnext/moduleGuide/ModuleGuide.test.js','src/vnext/QtlBrowser.test.js','src/vnext/qtlContext.test.js'],{cwd:work,env:{...env,CI:'true',PUBLIC_URL:''}});
+  run('npm',['test','--','--watchAll=false','--runInBand','src/vnext/hosting.test.js','src/vnext/techdemoApi.test.js','src/vnext/PanKgraphFunctionalPlot.test.js','src/vnext/moduleGuide/ModuleGuide.test.js','src/vnext/QtlBrowser.test.js','src/vnext/qtlContext.test.js','src/vnext/evidence/ObjectInformationPanel.test.js'],{cwd:work,env:{...env,CI:'true',PUBLIC_URL:''}});
   run('npm',['test','--prefix','single-cell-browser'],{cwd:work,env});
   run('npm',['run','build'],{cwd:work,env:{...env,CI:'false'}});
   const built=path.join(work,'build');
