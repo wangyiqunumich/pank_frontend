@@ -1,4 +1,6 @@
 import React, {useEffect, useState} from 'react';
+import {GraphInfoPanelHeader} from '../GraphInfoPanel';
+import {recordedCard} from './recordedCard';
 import {InspectedInformationPanel} from './EvidenceDetails';
 
 // Prefer server-issued refs. Older saved graphs may omit the handle while
@@ -40,9 +42,11 @@ export default function ObjectInformationPanel({data, endpointNodes=[], releaseI
     return ()=>{current=false;controller.abort();};
   },[eligible,key,releaseId,request]);
   const selected=eligible && state?.key===key ? state : null;
-  if(selected?.card) return <InspectedInformationPanel card={{...selected.card,endpoints:selected.card.endpoints?.map(e=>{const node=endpointNodes.find(n=>n.id===e.ref.id);return {...e,display_name:node?.HGNC_symbol || node?.name || node?.label};})}} schema={schema} request={request} releaseId={releaseId}/>;
-  // Do not paint the legacy card while the release schema or exact-object
-  // inspection is pending: it has a different layout from the final panel.
-  if(service?.loading || (eligible && !selected?.error)) return <p role="status" style={{padding:'12px 14px',fontSize:12}}>Loading detailed evidence…</p>;
+  const inspected=eligible && (service.peek?.(ref) || selected?.card);
+  const card=inspected || (eligible && recordedCard(data,ref,schema));
+  if(card) return <InspectedInformationPanel compactOnly={!inspected} card={{...card,endpoints:card.endpoints?.map(e=>{const node=endpointNodes.find(n=>n.id===e.ref.id);return {...e,display_name:node?.HGNC_symbol || node?.name || node?.label};})}} schema={schema} request={request} releaseId={releaseId}/>;
+  // The first frame uses the same panel header even if the release schema is
+  // still arriving. Never substitute the legacy layout during a successful read.
+  if(service?.loading || (eligible && !selected?.error)) return <GraphInfoPanelHeader title={data?.HGNC_symbol || data?.name || data?.label || data?.id}>{data?.HGNC_symbol || data?.name || data?.label || data?.id}</GraphInfoPanelHeader>;
   return <>{fallback}{eligible && <p role="status" style={{padding:'0 14px',fontSize:12}}>{selected?.error ? 'Detailed evidence is temporarily unavailable. Recorded graph evidence is preserved.' : 'Loading detailed evidence…'}</p>}</>;
 }

@@ -35,3 +35,26 @@ test('schema pending is distinct from failed and resets for a new release',async
  rerender({release:'r2'});
  expect(result.current).toEqual({loading:true});
 });
+
+test('prefetch and hover share an exact-object read and subsequent hover is synchronous from cache',async()=>{
+ const ref={kind:'node',type_id:'Gene',id:'a'};let finish;
+ const send=jest.fn().mockResolvedValueOnce({release_id:'r1',profiles:{},tables:{}}).mockImplementation(()=>new Promise(resolve=>{finish=resolve;}));
+ const service=await loadViewerService('r1',undefined,send);
+ const first=service.request('/inspect',{ref});
+ const hover=service.request('/inspect',{ref});
+ expect(send).toHaveBeenCalledTimes(2);
+ finish({ref,fields:[]});await first;await hover;
+ expect(service.peek(ref).ref).toEqual(ref);
+ await service.request('/inspect',{ref});expect(send).toHaveBeenCalledTimes(2);
+ expect(service.peek({...ref,id:'b'})).toBeUndefined();
+ const other=await loadViewerService('r2',undefined,jest.fn().mockResolvedValue({release_id:'r2',profiles:{},tables:{}}));
+ expect(other.peek(ref)).toBeUndefined();
+});
+test('invalid inspection is not cached and can be retried',async()=>{
+ const ref={kind:'edge',type_id:'r',id:'a'};
+ const send=jest.fn().mockResolvedValueOnce({release_id:'r1',profiles:{},tables:{}}).mockResolvedValueOnce({ref:{...ref,id:'wrong'}}).mockResolvedValueOnce({ref});
+ const service=await loadViewerService('r1',undefined,send);
+ await expect(service.request('/inspect',{ref})).rejects.toThrow('identity');
+ expect(service.peek(ref)).toBeUndefined();
+ await service.request('/inspect',{ref});expect(service.peek(ref).ref).toEqual(ref);
+});

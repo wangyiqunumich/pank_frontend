@@ -212,16 +212,16 @@ export default function EvidenceDetails({card,schema,request,releaseId}) {
   </EvidenceRequestContext.Provider></PanelSchemaContext.Provider>;
 }
 
-export function InspectedInformationPanel({card,schema,request,releaseId}) {
+export function InspectedInformationPanel({card,schema,request,releaseId,compactOnly=false}) {
   const panel=useGraphInfoPanel();
   const panelPolicy=panelSchema(schema);
   const shown=useMemo(()=>recordDesign(presentCard(card,{...schema.display_policy,panel_presentation:panelPolicy,field_labels:{...schema.display_policy?.field_labels,...panelPolicy.field_labels},unit_labels:{...schema.display_policy?.unit_labels,...panelPolicy.unit_labels},field_descriptions:{...schema.display_policy?.field_descriptions,...panelPolicy.field_descriptions}}),card,panelPolicy),[card,schema,panelPolicy]);
   const compact=useMemo(()=>compactSections(shown,objectSections(shown,panelPolicy),panelPolicy),[shown,panelPolicy]);
-  const canExpand=hasExtraRecord(shown,compact,panelTabs(shown,schema),panelPolicy);
+  const canExpand=!compactOnly && hasExtraRecord(shown,compact,panelTabs(shown,schema),panelPolicy);
   if(releaseId!==schema.release_id || card.release_id!==releaseId) return null;
   return <PanelSchemaContext.Provider value={panelPolicy}>
     <GraphInfoPanelHeader canExpand={canExpand} title={shown.title}>{shown.title}</GraphInfoPanelHeader>
-    {panel?.large ? <EvidenceDetails card={shown} schema={schema} request={request} releaseId={releaseId}/> :
+    {panel?.large && !compactOnly ? <EvidenceDetails card={shown} schema={schema} request={request} releaseId={releaseId}/> :
       <DisplayContext.Provider value={{policy:{...schema.display_policy,panel_presentation:panelSchema(schema)},profileKey:`${card.ref.kind}:${card.ref.type_id}`}}>
         <div className="xe-expanded-details xe-compact-details">
           <RelationshipContext card={shown} schema={schema} compact/>

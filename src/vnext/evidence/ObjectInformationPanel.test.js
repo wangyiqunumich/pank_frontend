@@ -56,7 +56,7 @@ test('fixed demo without a release or viewer service renders its recorded fallba
  const resolve={};const request=jest.fn((path,body)=>new Promise(done=>{resolve[body.ref.id]=done;}));
  const props={releaseId,fallback};
  const {rerender}=render(<ObjectInformationPanel {...props} data={data('A')} service={{loading:true}}/>);
- expect(screen.getByRole('status').textContent).toMatch(/Loading/);
+ expect(screen.getByTestId('graph-info-title').textContent).toBe('A');
  expect(screen.queryByText('Saved graph evidence')).toBeNull();
  const service={schema:{release_id:releaseId},request};
  rerender(<ObjectInformationPanel {...props} data={data('A')} service={service}/>);
@@ -67,7 +67,7 @@ test('fixed demo without a release or viewer service renders its recorded fallba
  rerender(<ObjectInformationPanel {...props} data={data('B')} service={service}/>);
  expect(screen.queryByText('Inspected A')).toBeNull();
  expect(screen.queryByText('Saved graph evidence')).toBeNull();
- expect(screen.getByRole('status').textContent).toMatch(/Loading/);
+ expect(screen.getByTestId('graph-info-title').textContent).toBe('B');
  await waitFor(()=>expect(request).toHaveBeenCalledTimes(2));
  await act(async()=>resolve.B({ref:data('B').viewer_ref}));
  expect(screen.getByText('Inspected B')).toBeTruthy();

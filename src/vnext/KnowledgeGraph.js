@@ -22,7 +22,7 @@ import PersistentGraphViewport from '../components/PersistentGraphViewport';
 import GraphToolbar from './GraphToolbar';
 import GraphInfoPanel, { GraphInfoPanelHeader, useGraphInfoPanel } from './GraphInfoPanel';
 import GraphLegend from './GraphLegend';
-import ObjectInformationPanel from './evidence/ObjectInformationPanel';
+import ObjectInformationPanel, {exactGraphRef} from './evidence/ObjectInformationPanel';
 
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -1191,6 +1191,22 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
       cy.container()?.removeEventListener('mouseleave', handleLeave);
     };
   }, [graphInputKey, review, selectable]);
+
+  useEffect(() => {
+    if(review || !evidenceService?.peek || evidenceService.schema?.release_id!==releaseId) return undefined;
+    // Bound background reads to the displayed graph; never prefetch evidence tables.
+    const refs=(cyRef.current?.elements().map(ele=>exactGraphRef(ele.data(),evidenceService.schema)) || []).filter(Boolean).slice(0,100);
+    let stopped=false, next=0;
+    const warm=async()=>{
+      while(!stopped && next<refs.length) {
+        const ref=refs[next++];
+        if(evidenceService.peek(ref)) continue;
+        try { await evidenceService.request('/inspect',{release_id:releaseId,ref}); } catch { /* Hover can retry. */ }
+      }
+    };
+    for(let i=0;i<3;i++) warm();
+    return ()=>{stopped=true;};
+  },[graphInputKey,evidenceService,releaseId,review]);
 
   useEffect(() => () => {
     const cy = cyRef.current;
