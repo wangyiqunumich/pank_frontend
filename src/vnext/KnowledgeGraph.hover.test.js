@@ -39,11 +39,12 @@ test('edge popup prioritizes readable measurements, retains exact values in hint
 });
 
 test('unmapped edges expose raw evidence safely, and missing evidence-properties supports old flat data', () => {
-  const raw = { id: 'scientific-id', source: 'recorded-source', supported: false, zeros: [0], markup: '<script>not executable</script>' };
+  const raw = { id: 'internal-record-id', source_id: 'scientific-id', source: 'recorded-source', supported: false, zeros: [0], markup: '<script>not executable</script>' };
   const model = edgeInfocardModel({ id: 'rendered-edge', source: 'gene', target: 'cell', type: 'new_measurement', evidence_properties: raw });
   expect(model.rawProperties).toEqual(raw);
   const { container } = render(<InfocardMenu hoveredData={{ ...model.data, evidence_properties: raw }} />);
-  expect(document.querySelector('[data-field="id"]').textContent).toContain('scientific-id');
+  expect(document.querySelector('[data-field="id"]')).toBeNull();
+  expect(document.querySelector('[data-field="source_id"]').textContent).toContain('scientific-id');
   expect(document.querySelector('[data-field="source"]').textContent).toContain('recorded-source');
   expect(container.querySelector('script')).toBeNull();
   const old = edgeInfocardModel({ id: 'legacy', source: 'gene', target: 'cell', type: 'relationship', score: 0, provenance: { version: 1 } });

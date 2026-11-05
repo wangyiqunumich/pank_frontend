@@ -14,7 +14,7 @@ export default function TableDownloads({card,table,schema,filters={},records=[],
     controller.current?.abort();const current=new AbortController();controller.current=current;setState({busy:true,rows:0});
     try {
       const available=table.all_fields || schema.tables?.[table.id]?.all_fields || table.columns;
-      const wanted=[...(table.columns || []),'data_source','data_source_url','data_version','license'];
+      const wanted=[...(table.columns || []),...(table.id==='credible_members'?['credible_set_id','signal_role']:[]),'data_source','data_source_url','data_version','license'];
       const fields=[...new Set(wanted)].filter(key=>available.includes(key));
       const out=localRecords ? {records:localRecords,sets} : await collectTable(viewer,{ref:card.ref,table_id:table.id,filters,fields},current.signal,rows=>{if(!current.signal.aborted)setState({busy:true,rows});});
       if(current.signal.aborted)return;
@@ -33,7 +33,7 @@ export default function TableDownloads({card,table,schema,filters={},records=[],
       {safeSourceUrl(source.library_url) && <a className="xe-library-link" href={source.library_url} target="_blank" rel="noopener noreferrer">{source.library_label || wording.library || 'Data Library'} ↗</a>}
       {!table.simple_list && source.note && <small>{source.note}</small>}
     </span>)}</div>
-    {(!sources.length || sources.every(s=>['related','unverified'].includes(s.kind))) && <span className="xe-small">{wording.unverified || 'Exact full-source download not yet verified.'}</span>}
+    {!table.simple_list && (!sources.length || sources.every(s=>['related','unverified'].includes(s.kind))) && <span className="xe-small">{wording.unverified || 'Exact full-source download not yet verified.'}</span>}
     {state.ready && <span className="xe-small" role="status">CSV ready · {state.rows} rows</span>}{state.error && <p role="alert" className="xe-warning">{state.error}</p>}
   </div>;
 }

@@ -121,10 +121,11 @@ test.each(['gene_enriched_in', 'gene_detected_in', 'anatomical_structure'])('%s 
   const cy = cytoscape.mock.results[0].value;
   const node = type === 'anatomical_structure';
   const element = { id: () => 'info-object', nonempty: () => true, isEdge: () => !node, isNode: () => node,
+    source: () => ({data: () => ({id:'CFTR',name:'CFTR'})}), target: () => ({data: () => ({id:'ductal',name:'ductal cell'})}),
     removed: () => false, position: () => ({ x: 10, y: 10 }), outerWidth: () => 30, outerHeight: () => 20,
     midpoint: () => ({ x: 10, y: 10 }), data: () => ({ id: 'info-object', type,
       ...(!node ? { source: 'CFTR', target: 'ductal' } : {}),
-      evidence_properties: { name: 'Ductal evidence', data_source: 'Recorded source', count: 0 } }) };
+      evidence_properties: { name: 'Ductal evidence', data_source: 'Recorded source', count: 0, ...(!node ? Object.fromEntries(Array.from({length:20},(_,i)=>['measurement_'+i,i])) : {}) } }) };
   cy.getElementById = () => element; cy.pan = () => ({ x: 0, y: 0 });
   const hover = cy.on.mock.calls.find(([event, selector]) => event === 'mousemove' && selector === (node ? 'node' : 'edge'))[2];
   act(() => hover({ target: element }));
@@ -133,6 +134,7 @@ test.each(['gene_enriched_in', 'gene_detected_in', 'anatomical_structure'])('%s 
   expect(compact.parentElement).toBe(document.body);
   expect(compact.style.position).toBe('fixed');
   expect(screen.queryByRole('button', { name: 'Close information panel' })).toBeNull();
+  if(node){expect(screen.queryByRole('button',{name:'Enlarge information panel'})).toBeNull();unmount();jest.useRealTimers();return;}
   fireEvent.click(screen.getByRole('button', { name: 'Enlarge information panel' }));
   const dialog = screen.getByRole('dialog', { name: 'Fullscreen graph viewer' });
   const large = screen.getByRole('region', { name: 'Expanded graph information' });

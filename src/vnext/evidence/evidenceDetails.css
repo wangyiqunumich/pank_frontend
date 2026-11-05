@@ -46,20 +46,6 @@
 .xe-expanded-details .xe-full-sources small {flex-basis:100%;color:#61767d;}
 .xe-expanded-details .xe-processing-links {display:flex;flex-wrap:wrap;gap:6px 12px;margin:8px 0;font-size:12px;}
 .xe-expanded-details .xe-set-selector {display:flex;gap:8px;align-items:center;margin:8px 0;}
-/* Shared record widgets keep labels and values separate in either column. */
-.xe-expanded-details .xe-condition-statistics {display:contents;}
-.xe-expanded-details .xe-condition-statistics section {padding:12px;border:1px solid #dfeae7;border-radius:8px;background:#f8fbfa;margin-bottom:10px;}
-.xe-expanded-details .xe-condition-statistics h3 {display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;color:#287d75;margin-bottom:10px;}
-.xe-expanded-details .xe-condition-statistics h3 span {font-size:11px;font-weight:400;color:#61767d;}
-.xe-expanded-details .xe-condition-statistics section>div {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px;}
-.xe-expanded-details .xe-condition-statistics small {display:block;font-size:12px;color:#61767d;margin-bottom:3px;overflow-wrap:anywhere;}
-.xe-expanded-details .xe-condition-statistics strong {display:block;font-size:14px;color:#31576a;overflow-wrap:anywhere;}
-.xe-expanded-details .xe-coloc-posteriors {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-width:0;}
-.xe-expanded-details .xe-coloc-posteriors section {padding:12px;background:#f4f9fa;border:1px solid #e2ecee;border-radius:8px;}
-.xe-expanded-details .xe-coloc-posteriors span {display:block;font-size:12px;color:#61767d;}
-.xe-expanded-details .xe-coloc-posteriors strong {display:block;font-size:22px;color:#25877e;margin:8px 0;}
-.xe-expanded-details .xe-coloc-posteriors section>div {height:4px;background:#deebe8;border-radius:4px;overflow:hidden;}
-.xe-expanded-details .xe-coloc-posteriors i {display:block;height:4px;background:#44ad96;}
 /* Production card grammar: centered section headings, label/value columns,
    white sections with quiet dividers, and a source/version/link footer. */
 .xe-compact-details {padding:0;font:600 12px/1.4 'Open Sans',sans-serif;}
@@ -86,3 +72,25 @@
 @media(max-width:650px){.xe-record-view .xe-complete>dl{grid-template-columns:1fr;}}
 
 .xe-relationship-context dd small{display:block;font-size:11px;font-weight:400;color:#71838a;overflow-wrap:anywhere}.xe-relationship-context dd{min-width:0}.xe-method-context{margin:0 0 8px}.xe-expression-evidence-summary .xe-processing-links{font-size:12px}
+
+/* Complete records share the compact card grammar at a readable column width. */
+.xe-record-view .xe-card-body {gap:16px;}
+.xe-record-view .xe-card-section {padding:20px;border:1px solid #e3ecee;border-radius:10px;background:#fff;}
+.xe-record-view .xe-card-section h3 {font-size:12px;}
+.xe-record-view .xe-production-footer {grid-column:1/-1;border-radius:0 0 10px 10px;}
+.xe-expanded-details .xe-table-intro {display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:12px 0;}
+.xe-expanded-details .xe-method-context {margin:16px 0 4px;}
+.xe-expanded-details .xe-table-scroll th:first-child,.xe-expanded-details .xe-table-scroll td:first-child {min-width:80px;width:auto;}
+.xe-expanded-details .xe-member-group th {background:#e4f0f1;color:#315b62;font-weight:600;}
+.xe-expanded-details .xe-source-annotations section + section {border-top:1px solid #e3ecee;margin-top:12px;padding-top:12px;}
+@media(max-width:760px){.xe-record-view .xe-card-body{grid-template-columns:1fr;}}
+
+/* Credible-set context stays compact above the source member tables. */
+.xe-expanded-details .xe-set-descriptions {display:block;}
+.xe-expanded-details .xe-set-descriptions section {padding:10px 0;border:0;border-bottom:1px solid #e3ecee;border-radius:0;}
+.xe-set-descriptions dl {display:flex;flex-wrap:wrap;gap:8px 20px;margin:8px 0;}
+.xe-set-descriptions .kg-card-field {display:flex;gap:6px;margin:0;}
+.xe-set-descriptions dt {color:#61767d;}
+.xe-evidence-record-group h3 {font-size:14px;margin:14px 0 8px;}
+.xe-source-annotations {min-width:320px;max-width:100%;}
+.xe-expanded-details td:has(.xe-source-annotations) {max-width:none;}

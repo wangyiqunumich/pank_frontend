@@ -77,11 +77,6 @@ dd { margin: 0; overflow-wrap: anywhere; }
 .umap-container .legend .label { font: 500 11px/16px Inter, sans-serif !important; color: #334155; }
 .umap-container .legend .gradient { width: 112px; height: 6px !important; border-radius: 999px; }
 .umap-container .legend .marks { justify-content: space-between; color: #64748b; font: 10px/15px 'JetBrains Mono', ui-monospace, monospace; }
-main.atlas-preview { padding: 0; overflow: hidden; }
-.preview-map { height: 100%; position: relative; }
-.preview-map .umap-container > div { display: none !important; }
-.preview-map p { font-size: 11px; text-align: center; margin: 36px 0 0; color: #708a90; }
-.preview-caption { position: absolute; bottom: 4px; left: 8px; background: #ffffffe0; color: #517279; border-radius: 3px; padding: 2px 4px; font-size: 9px; pointer-events: none; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
 @media (max-width: 399px) {

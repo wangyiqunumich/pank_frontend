@@ -15,13 +15,13 @@ test('full scBrowser starts and loads expression after preview config is removed
       BrowserToolbar: {}, ResearchUmapPlotGL: {}, ResearchViolinPlot: {}, selectIcon: '', externalIcon: '', fullscreenIcon: '', zoomInIcon: '', zoomOutIcon: '' };
     vm.runInNewContext(appSource, sandbox);
     const state = sandbox.component.data();
-    assert.equal(state.preview, false);
+    assert.equal(Boolean(state.preview), false);
     assert.equal(state.fullView, config.full_view);
     assert.equal(state.tab, 'Cell map');
     let request;
     sandbox.component.methods.load.call({ ...state, worker: { postMessage: value => { request = value; } } }, 'CFTR');
     assert.equal(request.gene, 'CFTR');
-    assert.equal(request.preview, false, 'full expression loading must not fall back to preview');
+    assert.equal(Boolean(request.preview), false, 'full expression loading must not fall back to preview');
   }
 });
 

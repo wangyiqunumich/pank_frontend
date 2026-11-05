@@ -1219,14 +1219,19 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
 
   return (
     <PersistentGraphViewport fullscreen={expanded} onExit={exitGraphFullscreen}>
-    <div className="graph-viewer" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', ...sx, position: 'relative', width: '100%', height: '100%', minHeight: 0, borderRadius: expanded ? 0 : 16, background: expanded ? '#f8fafc' : undefined }}>
+    <div className="graph-viewer" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', ...sx, userSelect: 'none', WebkitUserSelect: 'none', position: 'relative', width: '100%', height: '100%', minHeight: 0, borderRadius: expanded ? 0 : 16, background: expanded ? '#f8fafc' : undefined }}>
       {expanded && <Box sx={{ position: 'absolute', top: 16, left: '50%', transform: 'translateX(-50%)', width: 'min(360px, calc(100% - 210px))', zIndex: 15 }}><GraphSearch inputRef={inputRef} onSearch={focusElementByKey} /></Box>}
       <div
         ref={containerRef}
+        className="graph-canvas-host"
         style={{
           ...{
             width: "100%",
             height: containerHeight,
+            // Prevent browser text-selection highlights on the interactive canvas.
+            // Information-panel text remains independently selectable.
+            userSelect: "none",
+            WebkitUserSelect: "none",
             backgroundColor: "transparent",
             border: "none",
             borderRadius: "8px",
