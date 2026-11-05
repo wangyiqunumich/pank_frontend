@@ -1,4 +1,3 @@
-import { DEBUG_STREAM_LOADING_ENTRIES } from '../SearchResult/streamLoadingProgress';
 export const TEMPLATE_IDS = ['qtl_by_gene', 'qtl_by_variant_gene', 'qtl_by_variant', 'gwas_by_variant', 'coloc_by_gene', 'expression_by_gene'];
 const literatureIncluded = (plan) => typeof plan?.literature_intent?.included === 'boolean' ? plan.literature_intent.included : typeof plan?.literature === 'boolean' ? plan.literature : null;
 
@@ -191,15 +190,55 @@ export function planMarkdown(run) {
   return `${text}\n\n${literature}\n\n${notice}`;
 }
 
-const STAGES = { queued: 'Waiting for capacity', planning: 'Preparing the plan', preparing_preview: 'Checking initial graph evidence', resolving_entities: 'Resolving graph entities', generating_cypher: 'Preparing the graph query', validating: 'Checking the graph query', enriching_graph: 'Retrieving linked graph context', querying_graph: 'Checking graph evidence', preparing_execution: 'Preparing the investigation', reusing_preview: 'Using the checked graph evidence', writing_answer: 'Writing the grounded answer', searching_literature: 'Searching literature', awaiting_confirmation: 'Awaiting confirmation' };
+const STAGES = { queued: 'Waiting for capacity', planning: 'Preparing the query', preparing_preview: 'Checking available data', resolving_entities: 'Matching biological entities', generating_cypher: 'Preparing the graph query', validating: 'Checking the graph query', enriching_graph: 'Retrieving linked graph context', querying_graph: 'Checking graph evidence', preparing_execution: 'Preparing the investigation', reusing_preview: 'Using the checked graph evidence', writing_answer: 'Writing the grounded answer', searching_literature: 'Searching literature', awaiting_confirmation: 'Ready for your review', waiting_for_model_service: 'Waiting for the model service', recovering_model_response: 'Retrying the model response' };
 export function stageLabel(stage) { return STAGES[stage] || 'Preparing the investigation'; }
+const STAGE_DETAILS = {
+  planning: 'Working through your question and the available evidence.',
+  preparing_preview: 'Checking which data and relationships are available.',
+  resolving_entities: 'Matching names and identifiers to graph entities.',
+  generating_cypher: 'Building a query for your question.',
+  validating: 'Checking the query before retrieving evidence.',
+  querying_graph: 'Retrieving records for the current query.',
+  enriching_graph: 'Retrieving linked context for the selected evidence.',
+  waiting_for_model_service: 'Waiting for the model service to become available.',
+  recovering_model_response: 'Retrying the response with the saved context.',
+};
+const WAITING_TIPS = [
+  'You can review the proposed query before continuing.',
+  'A specific gene, cell type or condition helps focus a question.',
+  'The evidence view includes source records and biological context.',
+];
 export function liveProgress(run, connection) {
-  const graphPreparation = ['preparing_preview', 'resolving_entities', 'generating_cypher', 'validating', 'querying_graph'].includes(run?.stage);
-  const current = graphPreparation ? 2 : 0;
-  return { title: 'Answering your question...', shortTitle: stageLabel(run?.stage), entries: DEBUG_STREAM_LOADING_ENTRIES,
-    entryStates: DEBUG_STREAM_LOADING_ENTRIES.map((_, index) => ({ step: index < current ? 1 : index === current ? 0 : -1, isFinished: index < current })),
-    indeterminate: true, useFakeTimer: false,
-    tip: `${connection === 'reconnecting' ? 'Reconnecting to the saved investigation. ' : ''}${Math.floor((run?.elapsed_ms || 0) / 1000)} seconds elapsed. Progress reflects current activity.`, cancel: 'Cancel and ask a new question' };
+  const stage = run?.stage || (run?.status === 'queued' ? 'queued' : '');
+  const received = Boolean(run?.run_id);
+  const queued = stage === 'queued';
+  const disconnected = ['reconnecting', 'exhausted'].includes(connection);
+  const terminal = ['completed', 'complete', 'partial', 'failed', 'cancelled', 'interrupted', 'superseded'].includes(run?.status);
+  const graphAvailable = Boolean(run?.preview?.evidence?.graph_version || run?.evidence?.graph_version);
+  const reviewReady = run?.status === 'awaiting_confirmation' && Boolean(run?.plan);
+  const checkingGraph = ['querying_graph', 'enriching_graph', 'reusing_preview'].includes(stage);
+  const current = !received || queued ? 0 : reviewReady || graphAvailable ? 3 : checkingGraph ? 2 : 1;
+  const detail = STAGE_DETAILS[stage] || 'Preparing the next step of your investigation.';
+  const entries = [
+    { title: queued ? 'Request Queued' : 'Question Received', steps: [received ? (queued ? 'Waiting for an available slot.' : 'Your question is saved for this investigation.') : 'Sending your question...'] },
+    { title: 'Preparing the Query', steps: [detail] },
+    { title: 'Checking Graph Evidence', steps: [graphAvailable ? 'Graph evidence is available for review.' : checkingGraph ? detail : 'Evidence will appear when a graph query returns.'] },
+    { title: 'Reviewing the Plan', steps: [reviewReady ? 'Your plan is ready to review.' : 'Preparing the proposed query and evidence for your review.'] },
+  ];
+  // Tool use and model reasoning can alternate. A later stage alone is not
+  // evidence that earlier work succeeded; only returned artifacts earn ticks.
+  const completed = [received && !queued, reviewReady, graphAvailable, reviewReady];
+  return {
+    title: 'Answering your question...',
+    shortTitle: disconnected ? 'Reconnecting for updates' : terminal ? 'Investigation stopped' : stageLabel(stage),
+    entries,
+    entryStates: entries.map((_, index) => ({ step: completed[index] ? 1 : index === current && !disconnected && !terminal ? 0 : -1, isFinished: completed[index] })),
+    indeterminate: !disconnected && !terminal, useFakeTimer: false,
+    tip: disconnected ? 'Reconnecting to your saved investigation.' : terminal ? 'Your available results are preserved.' : queued ? 'Your question will start when capacity is available.' : 'Updates appear as your investigation progresses.',
+    waitingTips: disconnected || terminal || queued ? [] : WAITING_TIPS,
+    timerKey: run?.run_id || 'submitting',
+    cancel: 'Cancel and ask a new question',
+  };
 }
 
 export const canFollowUp = run => Boolean(run?.followup_ready || ['completed', 'complete', 'partial', 'failed', 'cancelled', 'interrupted'].includes(run?.status));

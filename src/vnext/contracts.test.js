@@ -119,11 +119,11 @@ test('immutable presentation is not created from incomplete preflight or the fir
   expect(projectionForRun({ ...executing, status: 'completed' })).toEqual({ run_id: 'r', phase: 'final' });
 });
 test('live progress preserves upstream four-row layout without invented completion percentages', () => {
-  const progress = liveProgress({ stage: 'querying_graph', elapsed_ms: 12000 }, 'connected');
+  const progress = liveProgress({ run_id: 'r', stage: 'querying_graph', elapsed_ms: 12000 }, 'connected');
   expect(progress.entries).toHaveLength(4);
   expect(progress.entryStates[2]).toEqual({ step: 0, isFinished: false });
   expect(progress.entryStates[3]).toEqual({ step: -1, isFinished: false });
-  expect(progress.tip).toContain('12 seconds elapsed');
+  expect(progress.tip).not.toMatch(/seconds|elapsed|time/i);
   expect(progress.indeterminate).toBe(true);
   expect(progress).not.toHaveProperty('progress');
 });
