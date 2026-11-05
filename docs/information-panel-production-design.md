@@ -27,3 +27,32 @@ never silently reuse a compact-only response.
 ## Current expression lists
 
 Compact relationships display graph-resolved endpoint names alongside stable IDs, method and current data context. Expression views render current registered methods as direct read-only lists, without historical V3.3 selection, per-row expand controls or repetitive explanatory prose. The all-treatment preset supersedes its baseline subset; conditions, treatment, reference, units and source versions remain distinct. Exact object ownership and complete CSV export are unchanged.
+
+### 2026-11-04 exact-object evidence audit
+
+Panel-only policy hides record, snapshot, context, signal and credible-set lookup IDs;
+source IDs, PanKbase IDs, RRIDs and public accessions remain visible. Lookup keys and
+CSV source records are unchanged. SuSiE and QTL class tokens are literal. Expanded
+record sections and credible-set metadata open by default. Unknown effect units
+remain documented in field definitions without a verbose unit suffix.
+
+Saved 1104 graphs lacking a typed viewer handle can recover it only from an exact
+raw object ID and one unambiguous same-release schema profile. Invalid handles,
+ambiguous profiles and cross-release graphs do not use this recovery. The API
+continues to enforce exact-object ownership.
+
+Authenticated PanKgraph_1104 inspect/table checks returned owned records for:
+
+| Objects | Expanded view | Verification |
+| --- | --- | --- |
+| QTL, GWAS, coloc edges | Credible-set summary | Each returned members; screenshot QTL exact object also verified |
+| Detect, enrich edges | Expression evidence summary | Expression and RUV records returned |
+| Marker edge | Expression evidence summary when explicitly mapped | Sampled marker has no mapping; no borrowed evidence |
+| CCC edge | Cell–cell context summary | Context records returned |
+| Gene | Genomic coordinates; Related links | Placement and accession records returned |
+| Donor | Source annotations | Source annotation returned |
+| Sample | Sample crosswalk; Source memberships | Both tables returned |
+
+These are real-object samples, not all-record coverage or scientific validation.
+Three-real-card layout validation has no schema errors; long Gene/Variant cards
+retain internal scrolling for their existing compact content budgets.

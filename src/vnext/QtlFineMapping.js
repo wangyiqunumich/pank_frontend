@@ -5,7 +5,7 @@ import { QTL_CONFIG } from './qtlContext';
 import { loadQtlPlot } from './qtlPlotApi';
 import './QtlFineMapping.css';
 const copy = QTL_CONFIG.wording;
-export default function QtlFineMapping({ contexts = [], isVisible, preview = false }) {
+export default function QtlFineMapping({ contexts = [], isVisible }) {
   const [selected, setSelected] = useState('');
   const [loaded, setLoaded] = useState(null);
   const [retry, setRetry] = useState(0);
@@ -30,9 +30,8 @@ export default function QtlFineMapping({ contexts = [], isVisible, preview = fal
   const metadata = QTL_CONFIG.context_fields.map(field => current?.context?.[field]).filter(value => typeof value === 'string').filter((value, i, values) => values.indexOf(value) === i).join(' · ');
   const plot = !current?.available ? <Typography role="status" className="pk-qtl-state">{copy[current?.reason] || copy.no_context}</Typography>
     : state?.status === 'unavailable' ? <Box role="alert" className="pk-qtl-state pk-qtl-error">{copy.failed}<Button className="pk-qtl-action" onClick={() => setRetry(value => value + 1)}>{copy.retry}</Button></Box>
-    : !url ? <Box role="status" className="pk-qtl-state pk-qtl-loading" sx={{ minHeight: preview ? 100 : 200 }}><CircularProgress size={20} sx={{ color: '#3A838B' }} />{copy.loading}</Box>
-    : <Box component="img" className="pk-qtl-image" src={url} alt={copy.image_alt} onError={() => setLoaded({ key: currentKey, status: 'unavailable' })} sx={{ maxHeight: preview ? '100%' : QTL_CONFIG.plot.max_height }} />;
-  if (preview) return <Box sx={{ width: '100%', height: '100%', p: 0.5, boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>{plot}</Box>;
+    : !url ? <Box role="status" className="pk-qtl-state pk-qtl-loading" sx={{ minHeight: 200 }}><CircularProgress size={20} sx={{ color: '#3A838B' }} />{copy.loading}</Box>
+    : <Box component="img" className="pk-qtl-image" src={url} alt={copy.image_alt} onError={() => setLoaded({ key: currentKey, status: 'unavailable' })} sx={{ maxHeight: QTL_CONFIG.plot.max_height }} />;
   return <Box component="section" className="pk-qtl-panel" aria-label={copy.title}>
     <Box className="pk-qtl-header">
       <Typography component="h2">{copy.title}</Typography>

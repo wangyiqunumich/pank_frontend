@@ -29,7 +29,7 @@ async function sentContext(frame) {
 }
 test('scBrowser uses its own tab without a duplicate graph preview and fills the first RNA gene-cell pair', async () => {
  render(<ResultSection result={result} anchorPrefix="first" />);
- expect(SC_CONFIG.preview.enabled).toBe(false);
+ expect(SC_CONFIG.preview).toBeUndefined();
  expect(screen.queryByRole('region', { name: 'Expression evidence' })).toBeNull();
  expect(screen.queryByTitle('PanKbase atlas preview')).toBeNull();
  expect(screen.queryByText(/padj|CFTR ·|Related atlas/)).toBeNull();
@@ -74,9 +74,9 @@ test('enriched and detected edge inspection preserves the graph tab; scBrowser o
  expect(await sentContext(screen.getByTitle('PanKgraph single-cell browser'))).toMatchObject({ geneSymbol: 'CFTR', mappedCellType: 'Ductal' });
 });
 test('same-origin manifest bridge ignores foreign and unrelated window messages', async () => {
- render(<SingleCellBrowser context={expressionContext(graph, 'edge-1')} isVisible preview />);
- const frame = screen.getByTitle('PanKbase atlas preview');
- await waitFor(() => expect(frame.getAttribute('srcdoc')).toContain('pankgraph-preview'));
+ render(<SingleCellBrowser context={expressionContext(graph, 'edge-1')} isVisible />);
+ const frame = screen.getByTitle('PanKgraph single-cell browser');
+ await waitFor(() => expect(frame.getAttribute('srcdoc')).toContain('<base href='));
  expect(frame.getAttribute('src')).toBeNull();
  fireEvent(window, new MessageEvent('message', { origin: 'https://foreign.test', source: window, data: { protocol: 'pankgraph.scbrowser.v1', type: 'status', edgeId: 'edge-1', message: 'Injected' } }));
  expect(screen.queryByText('Injected')).toBeNull();

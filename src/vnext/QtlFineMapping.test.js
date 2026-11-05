@@ -40,14 +40,7 @@ test('network failure retains source download and permits retry', async () => {
   fireEvent.click(screen.getByRole('button', { name: QTL_CONFIG.wording.retry }));
   await screen.findByAltText(QTL_CONFIG.wording.image_alt);
 });
-test('preview uses the same AWS plot without metadata or plot controls', async () => {
-  loadQtlPlot.mockResolvedValue('data:image/png;base64,iVBORw0KGgo=');
-  render(<QtlFineMapping contexts={[first, second]} isVisible preview />);
-  await screen.findByAltText(QTL_CONFIG.wording.image_alt);
-  expect(screen.queryByRole('heading')).toBeNull();
-  expect(screen.queryByRole('combobox')).toBeNull();
-  expect(screen.queryByRole('link')).toBeNull();
-});
+
 
 test('panel styling preserves the full source context, explanatory text and original plot', async () => {
   const url = 'data:image/png;base64,iVBORw0KGgo=';

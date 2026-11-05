@@ -8,15 +8,12 @@ scBrowser React panel and Vue browser share the same schema via `scBrowserConfig
 
 All fields below are under `main_visuals.items.single_cell_browser`:
 
-- `enabled` and `hidden`: enable or suppress both the tab and preview.
+- `enabled` and `hidden`: enable or suppress the main tab.
 - `requires: ["rna_expression_pair"]`: require a supported RNA gene/cell pair.
   Detection, enrichment, expression and marker edges are registered in
   `kg_relation_types`; canonical names match case-insensitively. ATAC is excluded.
 - `selection.default_pair`: `first_available_in_graph_order`. The first eligible
   pair initializes the gene and cell type without reshuffling on rerender.
-- `preview.enabled`, `height`, `show_caption`, `show_metadata`, `load_expression`:
-  default to a 160px whole-atlas map, with no caption, metadata or expression fetch.
-  Clicking the preview opens the persistent scBrowser tab.
 - `wording`: shared display text. Change `display_release` to edit release labels
   everywhere in this viewer. `atlas_label` interpolates `{display_release}`.
   The current label is `PanKbase scRNAseq V3.3`. Other keys control titles,
@@ -58,13 +55,6 @@ The frontend displays the original AWS image rather than reconstructing its
 statistics, LD or axes. The previous vNext coordinate-based two-track image remains
 in the saved resource payload but is not shown for the promoted QTL source/set.
 
-The scBrowser preview also supports `preview.labels`: enable/disable labels,
-set `font_size` and collision `gap`, and customize wrapped display names through
-`names` (use `\n` for line breaks). Labels use the actual cluster projections,
-white text outlines and short leader lines when shifted to avoid overlap.
-`preview.show_open_hint` controls one footer hint using `wording.preview_open_hint`.
-These settings add no legend, statistics or extra visual tab.
-
 `single_cell_browser.full_view` controls the compact browser tab: compact styling,
 context-note/badge visibility, no pair-navigation row and space reserved above the
 plot. Its `external_browser` owns the Integrated Cell Browser URL and query-parameter
@@ -97,23 +87,15 @@ The header label is controlled by `wording.header_browser_link`.
 `full_view.expression_cache` controls the same-origin gene-vector endpoint,
 enablement, default-gene prefetch and upstream fallback. See
 `single-cell-browser/DATA-PROCESSING.md` for version preparation, cache provenance,
-refresh behavior and prewarming. Preview gene prefetch does not alter its colors.
+refresh behavior and prewarming.
 
-## Shared visualization previews (v0.5)
+## Main visualization tabs
 
-`main_visuals.preview_standard` defines a single graph-adjacent preview card for
-all eligible non-graph visuals, including future registered renderers by default.
-The card preserves the graph camera and offers scrollable preview tabs when more
-than one visual is available. Minimize, close, restore and open labels, card size,
-and the default open-action template are schema owned. Opening a preview selects
-its persistent main visual tab. New renderers must support `preview` and
-`isVisible`; previews must fit the card without interactive controls or duplicate
-headings. Set an item's `preview.enabled` to false only for an explicit exception.
+All modules use their persistent main tabs. Graph-adjacent visualization previews,
+preview launchers and preview-specific rendering modes have been removed. New
+modules must not reserve or overlay graph space. Switching main tabs preserves
+the graph camera and mounted module state.
 
-`main_visuals.tab_switch` owns the main switcher accessibility label and documents
-scrollable tabs with automatic overflow buttons. QTL `preview` uses the same AWS
-image/cache as the main panel; it never recreates the plot. QTL `layout` records
-compact headers, contained image scaling, and expandable source details. Its
-`wording` owns the short title, description, legend, detail/download labels and
-credible-set display template. The full source/set identity remains in details
-and the source picker; compact gene labels do not change request keys.
+`main_visuals.tab_switch` owns the main switcher accessibility label and scrollable
+tabs. QTL `layout` records compact headers, contained image scaling and source
+details. Its `wording` owns the title, description, legend and download labels.

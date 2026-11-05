@@ -663,11 +663,11 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
                               textTransform: "uppercase",
                             }}>
                               {title}
-                              {config === 'collapsed' && <IconButton aria-label={`${openSections[title] ? 'Hide' : 'Show'} ${title.toLowerCase()}`} aria-expanded={Boolean(openSections[title])} onClick={() => setOpenSections(previous => ({...previous, [title]: !previous[title]}))} sx={{ marginLeft: "8px", padding: "0px", marginBottom: "-2px" }} size="small">
+                              {config === 'collapsed' && !panel?.large && <IconButton aria-label={`${openSections[title] ? 'Hide' : 'Show'} ${title.toLowerCase()}`} aria-expanded={Boolean(openSections[title])} onClick={() => setOpenSections(previous => ({...previous, [title]: !previous[title]}))} sx={{ marginLeft: "8px", padding: "0px", marginBottom: "-2px" }} size="small">
                                 {openSections[title] ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
                               </IconButton>}
                             </Typography>
-                            <Collapse in={config !== "collapsed" || Boolean(openSections[title])} timeout="auto">
+                            <Collapse in={panel?.large || config !== "collapsed" || Boolean(openSections[title])} timeout="auto">
                             <Box key={title} sx={{
                               width: "calc(100%)",
                               display: "flex",
@@ -807,7 +807,7 @@ function GraphSearch({ inputRef, onSearch }) {
 }
 
 // Main KnowledgeGraph component
-export default function KnowledgeGraph({ overlay, onEvidenceInspect, releaseId, evidenceService, selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, edgeRoutes = null, review = false, containerHeight = "600px", defaultLegendVisible = false }) {
+export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceService, selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, edgeRoutes = null, review = false, containerHeight = "600px", defaultLegendVisible = false }) {
   const cyRef = useRef(null);
   const containerRef = useRef(null);
   const infocardRef = useRef(null);
@@ -1237,7 +1237,6 @@ export default function KnowledgeGraph({ overlay, onEvidenceInspect, releaseId, 
         }}
       >
       </div>
-      {React.isValidElement(overlay) ? React.cloneElement(overlay, { onOpen: id => { setExpanded(false); overlay.props.onOpen?.(id); } }) : overlay}
       <GraphToolbar fullscreen={expanded} onFullscreen={toggleExpand}
         zoomPercent={Math.round(zoomLevel / initZoom * 100)} canZoomIn={zoomLevel < 4} canZoomOut={zoomLevel > minimumZoom}
         onZoomIn={handleZoomOut} onZoomOut={handleZoomIn} onFit={handleRecenter}

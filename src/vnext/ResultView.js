@@ -111,10 +111,10 @@ export function useProjectedResult(payload, savedId = '') {
   return [result, error, { status: connection, reconnect: createdRef.current?.key === key || agentProjection ? reconnect : undefined }];
 }
 
-function GraphPanel({ result, error, onEvidenceInspect, expressionCard }) {
+function GraphPanel({ result, error, onEvidenceInspect }) {
   const releaseId=result?.kg_release || result?.release_id;
   const hasTypedRefs=[...(result?.combined_query_result?.nodes || []),...(result?.combined_query_result?.edges || [])].some(item=>item.ref?.kind && item.ref?.type_id && item.ref?.id);
-  const evidenceService=useViewerService(releaseId,hasTypedRefs);
+  const evidenceService=useViewerService(releaseId,hasTypedRefs || Boolean(releaseId && result?.combined_query_result?.nodes?.length));
   const graphStatus = typeof result?.component_status?.graph === 'string'
     ? result.component_status.graph : result?.component_status?.graph?.status;
   const pending = value => ['preparing', 'pending', 'queued', 'running', 'processing'].includes(value);
@@ -124,7 +124,7 @@ function GraphPanel({ result, error, onEvidenceInspect, expressionCard }) {
   const waiting = !graphError && (!result || pending(result.status) || pending(graphStatus));
   const empty = !waiting && (graphStatus === 'empty' || (result?.status === 'ready' && Array.isArray(result?.combined_query_result?.nodes) && !result.combined_query_result.nodes.length));
   if (result?.combined_query_result?.nodes?.length) return <Box sx={{ width: '100%', height: '100%', position: 'relative' }}>
-    <KnowledgeGraph releaseId={releaseId} evidenceService={evidenceService} overlay={expressionCard} onEvidenceInspect={onEvidenceInspect} graphData={result.combined_query_result} coordData={result.xy_json} edgeRoutes={result.edge_routes} sx={{ height: '100%' }} containerHeight="100%" />
+    <KnowledgeGraph releaseId={releaseId} evidenceService={evidenceService} onEvidenceInspect={onEvidenceInspect} graphData={result.combined_query_result} coordData={result.xy_json} edgeRoutes={result.edge_routes} sx={{ height: '100%' }} containerHeight="100%" />
   </Box>;
   return <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
     {waiting ? <Box role="status" aria-label="Loading graph" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}><CircularProgress size={28} /><Typography sx={{ fontSize: 14, color: '#64748B' }}>Loading graph…</Typography></Box> : <Typography sx={{ fontSize: 14, color: '#64748B', textAlign: 'center', px: 2 }}>{graphError || (empty ? 'No matching graph evidence was returned.' : 'The graph presentation is unavailable. Available answer sections are preserved.')}</Typography>}
@@ -143,7 +143,7 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
   const expression = expressionContext(result?.combined_query_result, scopedExpressionState?.context?.edgeId) || defaultExpression;
   const selectExpression = useCallback((edgeId) => {
     const context = expressionContext(result?.combined_query_result, edgeId);
-    if (context) { setExpressionState({ scope: runId, context, minimized: false, closed: false }); setVisualRequest({ id: 'single_cell_browser', scope: runId, nonce: Date.now() }); }
+    if (context) { setExpressionState({ scope: runId, context }); setVisualRequest({ id: 'single_cell_browser', scope: runId, nonce: Date.now() }); }
   }, [result?.combined_query_result, runId]);
   const trackingScope = run?.run_id ? 'run' : 'result';
   const onEvidenceInspect = useCallback((id) => { recordInteraction(runId, 'graph_evidence_inspected', referenceKey(id), trackingScope); }, [runId, trackingScope]);

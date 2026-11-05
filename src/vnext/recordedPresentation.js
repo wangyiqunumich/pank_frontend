@@ -1,3 +1,4 @@
+import panelPolicy from '../schema/information_panel_schema.json';
 import catalog from './schema/recorded_fields.json';
 
 export const fieldDefinition = (key) => catalog.fields[key] || {
@@ -22,7 +23,7 @@ const GO_CODES = { IBA: 'Inferred from Biological aspect of Ancestor', IBD: 'Inf
   HDA: 'Inferred from High Throughput Direct Assay', HMP: 'Inferred from High Throughput Mutant Phenotype',
   HGI: 'Inferred from High Throughput Genetic Interaction', HEP: 'Inferred from High Throughput Expression Pattern' };
 // Presentation only. Exact values remain in evidence_properties and row title hints.
-export const HIDDEN_PROCESSING_FIELDS = new Set(['expression_support_match', 'expression_support_rule']);
+export const HIDDEN_PROCESSING_FIELDS = new Set(['expression_support_match', 'expression_support_rule', ...panelPolicy.hidden_internal_fields]);
 const EXACT_NUMBERS = /(^id$|_id$|^start_loc$|^end_loc$|^source_row$|^rank_|_rank$|^total_cells$|^nsnp$|^n_snp$|^size$|credible_set_size)/;
 export function displayNumber(value, key = '') {
   if (!Number.isFinite(value)) return String(value);
@@ -38,6 +39,7 @@ export function displayNumber(value, key = '') {
   return rounded === 1 && value !== 1 ? String(value) : String(rounded);
 }
 export function displayWords(value) {
+  if(panelPolicy.exact_terms.includes(String(value)))return String(value);
   return String(value).replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').replace(/\+/g, '+ ').replace(/\s+/g, ' ').trim();
 }
 const PRIMARY = ['id','name','data_modality','anatomical_structure','t1d_stage','derived_diabetes_status',
@@ -47,6 +49,7 @@ const PRIMARY = ['id','name','data_modality','anatomical_structure','t1d_stage',
   'go_evidence_code','evidence','effect_direction','expression_call'];
 const SOURCE_PRIMARY = new Set(['data_source','data_source_url','data_version']);
 export function fieldText(key, value) {
+  if(panelPolicy.preserved_source_ids.includes(key))return recordedText(value);
   if (key === 'go_evidence_code') {
     const expand = code => GO_CODES[code] ? `${code} — ${GO_CODES[code]}` : recordedText(code);
     return Array.isArray(value) ? value.map(expand).join('; ') : expand(value);
@@ -96,7 +99,7 @@ export function recordedInfocardModel(data, isEdge) {
   }
   const groups = new Map(); const help = new Set();
   Object.keys(raw).sort((a,b) => ((PRIMARY.indexOf(a) < 0 ? 999 : PRIMARY.indexOf(a)) - (PRIMARY.indexOf(b) < 0 ? 999 : PRIMARY.indexOf(b))) || a.localeCompare(b)).forEach((key, index) => {
-    if (key === 'description' || HIDDEN_PROCESSING_FIELDS.has(key)) return;
+    if (key === 'description' || HIDDEN_PROCESSING_FIELDS.has(key) || (key === 'id' && (isEdge || /^[a-f0-9]{24,}$/i.test(String(raw[key]))))) return;
     const def = fieldDefinition(key), slot = `__field_${index}`;
     values[slot] = fieldText(key, raw[key]);
     const section = SOURCE_PRIMARY.has(key) ? 'Sources' : PRIMARY.includes(key) && (groups.get('Key evidence')?.length || 0) < 12 ? 'Key evidence' : 'Additional details';

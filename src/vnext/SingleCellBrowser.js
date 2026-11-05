@@ -6,7 +6,7 @@ import { sitePath } from './api';
 import PersistentGraphViewport from '../components/PersistentGraphViewport';
 import { BROWSER_FILL_SX, BROWSER_IFRAME_STYLE } from './browserLayout';
 
-export default function SingleCellBrowser({ context, isVisible, preview = false }) {
+export default function SingleCellBrowser({ context, isVisible }) {
   const frame = useRef(null);
   const readyRef = useRef(false);
   const contextRef = useRef(context);
@@ -28,21 +28,21 @@ export default function SingleCellBrowser({ context, isVisible, preview = false 
       .then(page => {
         if (page.version !== 1 || typeof page.html !== 'string' || page.html.length > 8000 || !/^<!doctype html/i.test(page.html)) throw new Error('Invalid browser entry.');
         const base = `${window.location.origin}${sitePath('/scbrowser/')}`;
-        const html = page.html.replace('<head>', `<head><base href="${base}"><meta name="pankgraph-preview" content="${preview ? '1' : '0'}">`);
+        const html = page.html.replace('<head>', `<head><base href="${base}">`);
         if (!cancelled) setPageHtml(html);
       }).catch(() => { if (!cancelled) setStatus(SC_WORDING.start_failed); });
     return () => { cancelled = true; };
-  }, [started, preview]);
+  }, [started]);
   useEffect(() => {
     const receive = event => {
       if (event.origin !== window.location.origin || event.source !== frame.current?.contentWindow || event.data?.protocol !== SC_PROTOCOL) return;
       if (event.data.type === 'ready') { readyRef.current = true; setStatus(''); send(); }
-      if (event.data.type === 'toggle-fullscreen' && !preview) setFullscreen(value => !value);
+      if (event.data.type === 'toggle-fullscreen') setFullscreen(value => !value);
       if (event.data.type === 'status' && event.data.edgeId === contextRef.current?.edgeId) setStatus(typeof event.data.message === 'string' ? event.data.message.slice(0, 500) : '');
     };
     window.addEventListener('message', receive);
     return () => window.removeEventListener('message', receive);
-  }, [preview]);
+  }, []);
   useEffect(() => { frame.current?.contentWindow?.postMessage({ protocol: SC_PROTOCOL, type: 'fullscreen-state', fullscreen }, window.location.origin); }, [fullscreen]);
   useEffect(() => {
     if (!started) return undefined;
@@ -52,11 +52,11 @@ export default function SingleCellBrowser({ context, isVisible, preview = false 
   useEffect(() => { setStatus(''); send(); }, [context]);
   useEffect(() => { if (isVisible) frame.current?.contentWindow?.postMessage({ protocol: SC_PROTOCOL, type: 'resize' }, window.location.origin); }, [isVisible]);
   return <PersistentGraphViewport fullscreen={fullscreen} label={SC_WORDING.fullscreen_title} onExit={() => setFullscreen(false)}><Box sx={BROWSER_FILL_SX}>
-    {!preview && (!context ? <Typography sx={{ p: 2 }}>{SC_WORDING.no_resource}</Typography> : <>
+    {(!context ? <Typography sx={{ p: 2 }}>{SC_WORDING.no_resource}</Typography> : <>
       {!context.available ? <Typography sx={{ p: 2 }}>{context.reason}</Typography> : null}
       <span role="status" style={{ padding: status ? 8 : 0, fontSize: 12 }}>{status}</span>
       {status && context.available && <Button component="a" href={context.browserUrl} target="_blank" rel="noopener noreferrer">{SC_WORDING.external_browser}</Button>}
     </>)}
-    {started && <iframe ref={frame} title={preview ? "PanKbase atlas preview" : "PanKgraph single-cell browser"} srcDoc={pageHtml || undefined} onLoad={send} style={{ ...BROWSER_IFRAME_STYLE, pointerEvents: preview ? 'none' : 'auto', display: context?.available ? 'block' : 'none' }} />}
+    {started && <iframe ref={frame} title="PanKgraph single-cell browser" srcDoc={pageHtml || undefined} onLoad={send} style={{ ...BROWSER_IFRAME_STYLE, display: context?.available ? 'block' : 'none' }} />}
   </Box></PersistentGraphViewport>;
 }

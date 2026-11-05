@@ -32,3 +32,14 @@ test('incorrect response identity preserves original evidence and shows unavaila
  expect(await screen.findByText(/temporarily unavailable/)).toBeTruthy();
  expect(screen.getByText('Saved graph evidence')).toBeTruthy();
 });
+
+test('recovers an exact stored object only from an unambiguous current schema profile',()=>{
+ const {exactGraphRef}=require('./ObjectInformationPanel');
+ const edge={id:'stable',element_kind:'edge',raw_type:'PART_OF_QTL_SIGNAL',evidence_properties:{id:'stable'}};
+ const profile={id:'QTL__Variant__Gene',kind:'edge',match:{relationship_type:'PART_OF_QTL_SIGNAL'}};
+ const schema={release_id:releaseId,profiles:{qtl:profile}};
+ expect(exactGraphRef(edge,schema)).toEqual({kind:'edge',type_id:profile.id,id:'stable'});
+ expect(exactGraphRef({...edge,evidence_properties:{id:'another'}},schema)).toBeNull();
+ expect(exactGraphRef(edge,{...schema,profiles:{a:profile,b:{...profile,id:'other'}}})).toBeNull();
+ expect(exactGraphRef(edge)).toBeNull();
+});

@@ -25,7 +25,7 @@
       "title": "Related links"
     },
     "ccc_contexts": {
-      "title": "Cell\u2013cell context summary"
+      "title": "Cell–cell context summary"
     },
     "metadata_donor": {
       "title": "Source annotations"
@@ -259,12 +259,44 @@
     "compact_context": {
       "GENE_DETECTED_IN__Gene__anatomical_structure": {
         "method": "Raw-count CPM",
-        "data": "PanKbase V3.4 \u00b7 RNA-seq \u00b7 no treatment"
+        "data": "PanKbase V3.4 · RNA-seq · no treatment"
       },
       "GENE_ENRICHED_IN__Gene__anatomical_structure": {
-        "method": "DESeq2 \u00b7 cell type vs rest",
-        "data": "PanKbase V3.4 \u00b7 RNA-seq \u00b7 no treatment"
+        "method": "DESeq2 · cell type vs rest",
+        "data": "PanKbase V3.4 · RNA-seq · no treatment"
       }
     }
-  }
+  },
+  "hidden_internal_fields": [
+    "record_id",
+    "relationship_id",
+    "edge_id",
+    "snapshot_id",
+    "context_id",
+    "credible_set_id",
+    "credible_set",
+    "gwas_credible_set_id",
+    "qtl_credible_set_id",
+    "gwas_signal_id",
+    "qtl_signal_id",
+    "source_set",
+    "serving"
+  ],
+  "preserved_source_ids": [
+    "source_id",
+    "pankbase_id",
+    "rrid",
+    "source_record_id"
+  ],
+  "exact_terms": [
+    "SuSiE",
+    "sQTL",
+    "eQTL",
+    "pQTL",
+    "caQTL",
+    "DESeq2",
+    "RUVSeq",
+    "GWAS",
+    "QTL"
+  ]
 }
