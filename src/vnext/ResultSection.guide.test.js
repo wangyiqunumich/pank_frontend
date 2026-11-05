@@ -33,7 +33,7 @@ test('Apply creates an absent module, configures it after mount, and Undo restor
   let pending;act(()=>{pending=applyGuideAction(action);});
   await act(async()=>{inverse=await pending;});
   expect(screen.getByTestId('pca_explorer').textContent).toContain('independent::visible:PC2/PC3');
-  expect(screen.getByText(/Independent exploration/)).toBeTruthy();
+  expect(screen.queryByText(/Independent exploration/)).toBeNull();
   expect(screen.getByText(result.answer)).toBeTruthy();
   expect(inverse.params).toEqual({x:1,y:2});
   await act(async()=>{await applyGuideAction(inverse);});

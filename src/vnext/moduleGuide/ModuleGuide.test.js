@@ -41,7 +41,7 @@ test('configuration undo survives closing the panel and visiting manual, without
  fetch.mockImplementation(async(url,options)=>({ok:true,json:async()=>options?.method==='POST'?{answer:'Preview tracks.',citations:[{id:'genome-tracks',title:'Genome tracks'}],actions:[action]}:{status:'ready'}}));
  render(<ModuleGuide/>);fireEvent.click(screen.getByRole('button',{name:'Open module guide'}));
  fireEvent.change(screen.getByLabelText('Ask about module usage'),{target:{value:'Configure beta alpha'}});fireEvent.click(screen.getByRole('button',{name:'Send guide question'}));
- fireEvent.click(await screen.findByRole('button',{name:'Apply configuration'}));
+ fireEvent.click(await screen.findByRole('button',{name:'Apply',exact:true}));
  await screen.findByRole('button',{name:'Undo'});
  expect(screen.getByRole('button',{name:'Applied'}).disabled).toBe(true);
  fireEvent.click(screen.getByRole('button',{name:'Close module guide'}));fireEvent.click(screen.getByRole('button',{name:'Open module guide'}));
@@ -52,16 +52,16 @@ test('configuration undo survives closing the panel and visiting manual, without
  await screen.findByText('Previous settings restored.');
  expect(apply.mock.calls.map(([value])=>value)).toEqual([action,inverse]);
  expect(screen.queryByRole('button',{name:'Undo'})).toBeNull();
- expect(screen.getByRole('button',{name:'Apply configuration'}).disabled).toBe(false);
+ expect(screen.getByRole('button',{name:'Apply',exact:true}).disabled).toBe(false);
 });
 
 test('welcome examples prepare direct module configuration without automatically sending or applying',async()=>{
  render(<ModuleGuide/>);fireEvent.click(screen.getByRole('button',{name:'Open module guide'}));
  const prompt='Open PCA Explorer and set X to PC2 and Y to PC3.';
- fireEvent.click(screen.getByRole('button',{name:prompt}));
+ fireEvent.click(screen.getByRole('button',{name:/Plot PC2 against PC3/}));
  expect(screen.getByLabelText('Ask about module usage').value).toBe(prompt);
  expect(fetch.mock.calls.filter(([,o])=>o?.method==='POST')).toHaveLength(0);
- await screen.findByText('Module help and verified entities · Changes require Apply');
+ expect(screen.queryByText('Module help and verified entities · Changes require Apply')).toBeNull();
 });
 
 test('launcher follows replacement feedback anchors when the floating chat bar mounts',async()=>{

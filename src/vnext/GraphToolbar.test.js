@@ -32,6 +32,21 @@ test('zoom bounds and fullscreen state are accessible in either toolbar layout',
   expect(screen.getByText('200%')).toBeTruthy();
 });
 
+test.each([false, true])('download menu chooses a format without starting a download on open (expanded: %s)', expanded => {
+  const json = jest.fn(), image = jest.fn();
+  render(<GraphToolbar onDownloadJson={json} onDownload={image} />);
+  if (expanded) fireEvent.click(screen.getByRole('button', { name: 'Expand graph toolbar' }));
+  const download = screen.getByRole('button', { name: 'Download', exact: true });
+  fireEvent.click(download);
+  expect(json).not.toHaveBeenCalled(); expect(image).not.toHaveBeenCalled();
+  expect(download.getAttribute('aria-expanded')).toBe('true');
+  fireEvent.click(screen.getByRole('menuitem', { name: 'Download JSON' }));
+  expect(json).toHaveBeenCalledTimes(1); expect(image).not.toHaveBeenCalled();
+  fireEvent.click(download);
+  fireEvent.click(screen.getByRole('menuitem', { name: 'Download image' }));
+  expect(image).toHaveBeenCalledTimes(1);
+});
+
 test('density follows the graph pane height, ignores hidden tabs and cleans up its observer', () => {
   const original = global.ResizeObserver;
   let resize, height = 300;

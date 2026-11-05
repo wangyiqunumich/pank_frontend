@@ -94,6 +94,35 @@ test('fullscreen search retains its DOM and focus while zoom updates rerender th
   unmount();
 });
 
+test('JSON download retains the original graph identifiers, zeroes, nulls and evidence properties', async () => {
+  const source = { ...graph, nodes: graph.nodes.map(node => ({ ...node,
+    '~properties': { ...node['~properties'], count: 0, supported: false, missing: null, source: { version: 'recorded' } } })) };
+  const before = JSON.stringify(source);
+  const previousCreate = URL.createObjectURL, previousRevoke = URL.revokeObjectURL;
+  let blob;
+  URL.createObjectURL = jest.fn(value => { blob = value; return 'blob:graph-json'; });
+  URL.revokeObjectURL = jest.fn();
+  const click = jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+  jest.useFakeTimers();
+  try {
+    const { unmount } = render(view(source));
+    fireEvent.click(screen.getByRole('button', { name: 'Download', exact: true }));
+    expect(click).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Download JSON' }));
+    expect(click.mock.instances[0].download).toBe('knowledge_graph.json');
+    expect(blob.type).toBe('application/json');
+    act(() => jest.advanceTimersByTime(1000));
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:graph-json');
+    unmount();
+    jest.useRealTimers();
+    const content = await new Promise((resolve, reject) => {
+      const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsText(blob);
+    });
+    expect(JSON.parse(content)).toEqual(source);
+    expect(JSON.stringify(source)).toBe(before);
+  } finally { jest.useRealTimers(); click.mockRestore(); URL.createObjectURL = previousCreate; URL.revokeObjectURL = previousRevoke; }
+});
+
 test('hover on a visible offset edge label opens its scientific evidence without a midpoint-distance gate', () => {
   jest.useFakeTimers();
   const { unmount } = render(view());

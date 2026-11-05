@@ -1,24 +1,70 @@
-/* Keep the guide above page controls and below modal dialogs (1300). */
-.guide-launcher{position:fixed;right:24px;z-index:1200;display:flex;align-items:center;gap:8px;padding:10px 16px;border:1px solid #d5e5e8;border-radius:10px;background:#fff;color:#2d6a70;font:600 14px 'Open Sans',sans-serif;box-shadow:0 5px 16px #33415514;cursor:pointer}
-.module-guide{position:fixed;right:24px;z-index:1201;display:flex;flex-direction:column;width:min(420px,calc(100vw - 24px));height:650px;overflow:hidden;border:1px solid #dce6ed;border-radius:16px;background:#fff;box-shadow:0 16px 50px #1e293b26;color:#334155;font:13px/1.55 'Open Sans',system-ui,sans-serif}
-.module-guide *{box-sizing:border-box}.module-guide button{font:inherit;cursor:pointer}.module-guide button:disabled{cursor:wait;opacity:.5}.module-guide button:focus-visible,.module-guide select:focus-visible,.module-guide textarea:focus-visible,.module-guide input:focus-visible,.guide-launcher:focus-visible{outline:2px solid #3a838b;outline-offset:2px}
-.module-guide header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #edf2f7;flex:none;background:#f8fbfc}.module-guide header strong{font-size:16px;color:#1e293b}.module-guide header small{display:block;color:#64748b;font-size:11px;margin-top:2px}.module-guide nav{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;gap:8px;flex:none}.module-guide nav>div{display:flex;padding:3px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;gap:3px}.module-guide nav button{border:1px solid transparent;border-radius:7px;background:transparent;padding:4px 10px;color:#64748b}.module-guide nav button[aria-pressed=true]{background:#fff;border-color:#e2e8f0;color:#134e4a;font-weight:600}.module-guide nav .guide-new{padding:3px;font-size:11px}
-.guide-scroll{overflow:auto;overscroll-behavior:contain;min-height:0;flex:1;padding:0 14px 14px}.guide-welcome h3{font-size:15px;color:#1e293b;margin:8px 0}.guide-welcome p{color:#64748b}.guide-welcome>button{display:block;text-align:left;width:100%;margin:8px 0;padding:9px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;color:#334155}.guide-welcome>.guide-manual-shortcut{color:#0f766e;background:#f0fdfa}.guide-message{margin:12px 0;padding:10px 12px;border:1px solid #e2e8f0;border-radius:12px;overflow-wrap:anywhere}.guide-message.user{background:#edf7f7;margin-left:22px;border-color:#d4e8e9}.guide-message.assistant{margin-right:6px}.guide-message strong{font-size:11px;color:#64748b}.guide-message p{margin:5px 0;white-space:pre-wrap}.guide-message.error{background:#fff7ed}.guide-citations{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}.guide-citations button{border:1px solid #d5e5e8;background:#f8fbfc;color:#0f766e;border-radius:6px;padding:3px 6px;text-align:left;font-size:11px}
-.guide-action{border:1px solid #d5e5e8;border-radius:8px;background:#f8fbfc;padding:10px;margin-top:10px}.guide-action p{font-size:12px;margin:5px 0;overflow-wrap:anywhere}.guide-action-buttons{display:flex;gap:8px;flex-wrap:wrap}.guide-action-buttons button{border:1px solid #3a838b;border-radius:6px;background:#3a838b;color:#fff;padding:5px 8px}.guide-action-buttons button+button{background:white;color:#2d6a70}.guide-pending{color:#64748b;font-size:12px}.guide-composer{display:flex;align-items:flex-end;gap:6px;margin:0;padding:10px 12px;border-top:1px solid #e2e8f0;flex:none}.guide-composer textarea{resize:none;min-width:0;flex:1;border:1px solid #d5e1ea;border-radius:10px;font:inherit;padding:9px;max-height:110px;background:#fff;color:#334155}.guide-composer button{color:#3a838b}.module-guide footer{padding:4px 14px 12px;font-size:11px;color:#64748b;flex:none}.module-guide footer small{display:block;font-size:10px;margin-top:3px}.module-guide footer button{border:0;background:transparent;color:#0f766e;padding:0}.guide-manual label{display:block;font-size:12px;color:#64748b}.guide-manual input{display:block;width:100%;margin:6px 0 12px;border:1px solid #d5e1ea;border-radius:8px;padding:9px;font:inherit}.guide-manual>button{display:flex;justify-content:space-between;gap:8px;width:100%;text-align:left;padding:10px 4px;border:0;border-bottom:1px solid #edf2f7;background:white;color:#334155}.guide-manual-article h3{font-size:15px;color:#134e4a}.guide-manual-article p{line-height:1.75;white-space:pre-wrap}.guide-manual-article>button{border:0;background:transparent;padding:6px 0;color:#0f766e}.guide-sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
-@media(max-width:600px){.guide-launcher,.module-guide{right:12px}.module-guide{border-radius:12px}.guide-launcher{padding:8px 12px;font-size:13px}}
-
-.guide-entity { margin-top: 12px; padding: 10px 12px; border: 1px solid #dbe5ec; border-radius: 12px; font-size: 13px; overflow-wrap: anywhere; }
-.guide-entity summary { cursor: pointer; color: #0f766e; }
-.guide-entity > div { padding-top: 10px; }
-.guide-entity a { color: #0f766e; }
-/* Keep reference facts and action receipts readable in short laptop windows. */
-@media(max-height:650px){
-  .module-guide header{padding:6px 12px}
-  .module-guide header small{display:none}
-  .module-guide nav{padding:4px 10px}
-
-  .guide-composer{padding:6px 10px}
-  .guide-composer textarea{height:42px;padding:6px 8px;line-height:1.4}
-  .module-guide footer{padding:2px 10px 6px;font-size:10px;line-height:1.4}
-  .module-guide footer small{font-size:10px;margin-top:2px}
+/* Same type, surfaces and controls as the visualization panels. */
+.guide-launcher { position:fixed; right:24px; z-index:1200; display:flex; align-items:center; gap:8px; min-height:36px; padding:8px 12px; border:1px solid #e2e8f0; border-radius:8px; background:#fff; color:#0f766e; font:500 12px/18px Inter,'Open Sans',system-ui,sans-serif; box-shadow:0 1px 3px #0f172a14; cursor:pointer; }
+.guide-launcher svg { width:18px; height:18px; }
+.module-guide { position:fixed; right:24px; z-index:1201; display:flex; flex-direction:column; width:min(400px,calc(100vw - 24px)); height:600px; overflow:hidden; border:1px solid #e2e8f0; border-radius:12px; background:#fff; box-shadow:0 8px 24px #0f172a26; color:#334155; font:12px/1.6 Inter,'Open Sans',system-ui,sans-serif; }
+.module-guide * { box-sizing:border-box; }
+.module-guide button { font:inherit; cursor:pointer; }
+.module-guide button:disabled { cursor:default; opacity:.4; }
+.module-guide button:focus-visible, .module-guide textarea:focus-visible, .module-guide input:focus-visible, .guide-launcher:focus-visible { outline:2px solid #0d9488; outline-offset:2px; }
+.module-guide header { display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-bottom:1px solid #f1f5f9; flex:none; background:#fff; }
+.module-guide header strong { font-size:14px; font-weight:600; color:#134e4a; }
+.module-guide header button { width:28px; height:28px; color:#64748b; }
+.module-guide header svg { width:18px; height:18px; }
+.module-guide nav { display:flex; align-items:center; justify-content:space-between; padding:10px 12px; gap:8px; border-bottom:1px solid #f1f5f9; background:#f8fafc80; flex:none; }
+.module-guide nav > div { display:flex; align-items:center; padding:5px; background:#f1f5f9cc; border:1px solid #e2e8f0cc; border-radius:12px; gap:4px; }
+.module-guide nav button { border:1px solid transparent; border-radius:8px; background:transparent; padding:5px 10px; color:#334155; font:500 12px/16px Inter,system-ui,sans-serif; }
+.module-guide nav button[aria-pressed=true] { background:#fff; border-color:#e2e8f0cc; color:#134e4a; font-weight:600; }
+.module-guide nav .guide-new { padding:6px 8px; color:#64748b; }
+.module-guide nav .guide-new:hover { color:#0f766e; background:#f1f5f9; }
+.guide-scroll { overflow:auto; overscroll-behavior:contain; scrollbar-width:thin; min-height:0; flex:1; padding:12px; }
+.guide-welcome h3 { font-size:14px; font-weight:600; color:#1e293b; margin:4px 0; }
+.guide-welcome p { color:#64748b; margin:4px 0 16px; }
+.guide-welcome > button { display:flex; justify-content:space-between; align-items:center; gap:8px; text-align:left; width:100%; margin:8px 0; padding:9px 12px; background:#fff; border:1px solid #e2e8f0; border-radius:8px; color:#334155; }
+.guide-welcome > button:hover { background:#f8fafc; border-color:#cbd5e1; }
+.guide-welcome > button > span { color:#94a3b8; }
+.guide-welcome > .guide-manual-shortcut { width:auto; margin-top:14px; padding:4px 0; border:0; background:transparent; color:#0f766e; }
+.guide-message { margin:0 0 16px; padding:0; overflow-wrap:anywhere; }
+.guide-message.user { background:#f1f5f9; margin-left:24px; padding:8px 12px; border-radius:8px; }
+.guide-message > strong { font-size:11px; font-weight:500; color:#64748b; }
+.guide-message p { margin:5px 0; white-space:pre-wrap; }
+.guide-message.error { padding:8px 12px; border:1px solid #fed7aa; border-radius:8px; background:#fff7ed; }
+.guide-citations { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.guide-citations button { border:1px solid #e2e8f0; background:#fff; color:#0f766e; border-radius:6px; padding:3px 6px; text-align:left; font-size:11px; }
+.guide-action { border:1px solid #e2e8f0; border-radius:8px; background:#fff; padding:10px 12px; margin-top:12px; }
+.guide-action > strong { color:#134e4a; font-size:12px; font-weight:600; }
+.guide-action p { font-size:12px; margin:6px 0; overflow-wrap:anywhere; }
+.guide-action [role=status] { font-size:11px; color:#64748b; }
+.guide-action-buttons { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+.guide-action-buttons button { min-height:32px; border:1px solid #0f766e; border-radius:8px; background:#0f766e; color:#fff; padding:5px 12px; font-weight:500; }
+.guide-action-buttons button:hover:not(:disabled) { background:#115e59; }
+.guide-action-buttons button + button { background:#fff; color:#334155; border-color:#e2e8f0; }
+.guide-action-buttons button + button:hover:not(:disabled) { background:#f1f5f9; }
+.guide-pending { color:#64748b; font-size:12px; }
+.guide-composer { display:flex; align-items:flex-end; gap:8px; margin:0; padding:10px 12px; border-top:1px solid #f1f5f9; flex:none; }
+.guide-composer textarea { resize:none; min-width:0; flex:1; border:1px solid #cbd5e1; border-radius:8px; font:inherit; line-height:18px; padding:8px 10px; max-height:110px; background:#fff; color:#334155; }
+.guide-composer textarea:focus { border-color:#0f766e; }
+.guide-composer button { width:32px; height:32px; margin-bottom:2px; border-radius:8px; background:#0f766e; color:#fff; }
+.guide-composer button:hover { background:#115e59; }
+.guide-composer button.Mui-disabled { background:#f1f5f9; color:#94a3b8; opacity:1; }
+.guide-composer svg { width:16px; height:16px; }
+.module-guide footer { padding:6px 12px 10px; font-size:11px; color:#64748b; flex:none; }
+.module-guide footer button { border:0; background:transparent; color:#0f766e; padding:0; }
+.guide-manual label { display:block; font-size:12px; color:#64748b; }
+.guide-manual input { display:block; width:100%; height:32px; margin:6px 0 12px; border:1px solid #cbd5e1; border-radius:8px; padding:6px 9px; font:inherit; background:#fff; color:#1e293b; }
+.guide-manual > button { display:flex; justify-content:space-between; gap:8px; width:100%; text-align:left; padding:10px 4px; border:0; border-bottom:1px solid #f1f5f9; background:#fff; color:#334155; }
+.guide-manual > button:hover { color:#0f766e; }
+.guide-manual-article h3 { font-size:14px; color:#134e4a; margin:8px 0; }
+.guide-manual-article p { line-height:1.7; white-space:pre-wrap; }
+.guide-manual-article > button { border:0; background:transparent; padding:4px 0; color:#0f766e; }
+.guide-entity { margin-top:12px; padding:8px 10px; border:1px solid #e2e8f0; border-radius:8px; overflow-wrap:anywhere; }
+.guide-entity summary { cursor:pointer; color:#0f766e; }
+.guide-entity > div { padding-top:10px; }
+.guide-entity a { color:#0f766e; }
+.guide-sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); }
+@media(max-width:600px) { .guide-launcher, .module-guide { right:12px; } }
+@media(max-height:650px) {
+  .module-guide header { padding:6px 12px; }
+  .module-guide nav { padding:6px 10px; }
+  .guide-composer { padding:6px 10px; }
+  .guide-composer textarea { height:38px; padding:8px; }
 }

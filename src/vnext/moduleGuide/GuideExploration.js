@@ -14,7 +14,6 @@ export function canOpenGuideModule(id) { return Object.hasOwn(MODULE_LABELS,id);
 // Forward visibility: iframe modules should initialize only when the tab opens.
 export default function GuideExploration({ children, isVisible }) {
   return <div style={{display:'flex',flexDirection:'column',width:'100%',height:'100%',minHeight:0,minWidth:0}}>
-    <p style={{margin:0,padding:'8px 14px',fontSize:12,color:'#64748b',background:'#f7fafc',borderBottom:'1px solid #e2e8f0'}}>Independent exploration · Opened from the module guide; not evidence from this answer. Source describes the current dataset and selection.</p>
     <div style={{flex:'1 1 0%',minHeight:0,minWidth:0}}>{React.cloneElement(children,{isVisible})}</div>
   </div>;
 }

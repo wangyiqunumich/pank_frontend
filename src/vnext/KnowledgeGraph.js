@@ -931,6 +931,20 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
     }
   };
 
+  const handleDownloadJson = () => {
+    const graph = graphData || queryResultPage?.combined_query_result;
+    if (!graph) return;
+    // Export the source graph, retaining all scientific properties and IDs.
+    const url = URL.createObjectURL(new Blob([JSON.stringify(graph, null, 2)], { type: 'application/json' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'knowledge_graph.json';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
 
 
   useEffect(() => {
@@ -1262,7 +1276,7 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
         zoomPercent={Math.round(zoomLevel / initZoom * 100)} canZoomIn={zoomLevel < 4} canZoomOut={zoomLevel > minimumZoom}
         onZoomIn={handleZoomOut} onZoomOut={handleZoomIn} onFit={handleRecenter}
         hoverEnabled={infocardEnabled} onHover={() => { setInfocardEnabled(value => !value); if (infocardEnabled) setInfocardVisible(false); }}
-        onDownload={handleDownload} onReset={handleReset}
+        onDownload={handleDownload} onDownloadJson={handleDownloadJson} onReset={handleReset}
         modeLabel={(graphData || queryResultPage?.combined_query_result)?.presentation_mode === 'relationship_list' ? 'List mode' : 'KG mode'} />
       <div className="graph-zoom-indicator" aria-label="Graph zoom">{Math.round(zoomLevel / initZoom * 100)}%</div>
       <GraphInfoPanel schema={evidenceService?.schema} panelRef={infocardRef} host={expanded ? containerRef.current?.closest('dialog') : document.body}

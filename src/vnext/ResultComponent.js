@@ -84,7 +84,9 @@ const theme = createTheme({
 });
 
 
-function SectionCard({ title, children, sx, showTitleDivider = true, variant = 'default' }) {
+const ALIGNED_PANEL_HEADER_SX = { minHeight: 36, mb: 1.5 };
+
+function SectionCard({ title, children, sx, headerSx, showTitleDivider = true, variant = 'default' }) {
     const isPank1 = variant === 'pank1';
     return (
         <Paper
@@ -95,7 +97,7 @@ function SectionCard({ title, children, sx, showTitleDivider = true, variant = '
             }}
         >
             {title ? (
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1.25, mb: 1.5 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.25, mb: 1.5, ...headerSx }}>
                     <Typography
                         sx={{
                             fontSize: isPank1 ? 12 : 14,
@@ -1258,7 +1260,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                 <Grid container columns={10} columnSpacing={3} rowSpacing={2.5} alignItems="stretch">
                     {/* AI Overview */}
                     <Grid item zeroMinWidth xs={10} md={10} lg={6} order={{ xs: 1, md: 1, lg: 1 }} id={buildAnchorId("ai-overview")} sx={{ display: "flex", minHeight: 0 }}>
-                        <SectionCard title="AI Overview" variant={isPank1Style ? 'pank1' : 'default'} sx={{ width: "100%", minWidth: 0, display: "flex", flexDirection: "column" }}>
+                        <SectionCard title="AI Overview" variant={isPank1Style ? 'pank1' : 'default'} sx={{ width: "100%", minWidth: 0, display: "flex", flexDirection: "column" }} headerSx={matchVisualHeight ? ALIGNED_PANEL_HEADER_SX : undefined}>
                             <Box
                                 sx={{
                                     // The visual column determines the row height. CSS flex
@@ -1293,9 +1295,9 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                     {/* Visual Material */}
                     {showVisualSection ? (
                         <Grid item zeroMinWidth xs={10} md={10} lg={4} order={{ xs: 2, md: 2, lg: preferFollowUpBeforeVisual ? 4 : 2 }} id={buildAnchorId("visual-material")}>
-                            <SectionCard title={visualTabs.length > 1 ? null : (data?.visualMaterial?.title || "Visual Material")} sx={{ height: "100%" }} variant={isPank1Style ? 'pank1' : 'default'}>
+                            <SectionCard title={visualTabs.length > 1 ? null : (data?.visualMaterial?.title || "Visual Material")} sx={{ height: "100%" }} variant={isPank1Style ? 'pank1' : 'default'} headerSx={matchVisualHeight ? ALIGNED_PANEL_HEADER_SX : undefined}>
                                 {visualTabs.length > 1 ? (
-                                    <Box sx={{ mb: 1.2 }}>
+                                    <Box sx={{ mb: 1.2, ...(matchVisualHeight ? ALIGNED_PANEL_HEADER_SX : {}) }}>
                                         <ContentTabs
                                             tabs={visualTabs}
                                             value={visualTab}

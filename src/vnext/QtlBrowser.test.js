@@ -24,13 +24,15 @@ test('complete 1104 IDs are passed without shortening and sources remain indepen
  render(<QtlBrowser isVisible contexts={[{available:true,sourceId:'PKBDS2105PCON',credibleSet:cs}]}/>);
  await screen.findByRole('img');
  expect(global.fetch.mock.calls[0][0]).toContain('credible_set_id='+cs);
- fireEvent.change(screen.getByRole('combobox',{name:'QTL source'}),{target:{value:'PKBDS6689QROA'}});
+ fireEvent.mouseDown(screen.getByRole('combobox',{name:'QTL source'}));
+ fireEvent.click(screen.getByRole('option',{name:'GTEx · pancreatic eQTL'}));
  await waitFor(()=>expect(global.fetch.mock.calls.some(([u])=>u.includes('source=PKBDS6689QROA&credible_set_id='+cs))).toBe(true));
 });
 test('empty results are explicit and never retain the previous source image',async()=>{
  const {rerender}=render(<QtlBrowser isVisible/>);await screen.findByRole('img');
  global.fetch=jest.fn(async()=>({ok:true,json:async()=>({items:[],total:0})}));
- fireEvent.change(screen.getByRole('combobox',{name:'QTL source'}),{target:{value:'PKBDS8062GYOQ'}});
+ fireEvent.mouseDown(screen.getByRole('combobox',{name:'QTL source'}));
+ fireEvent.click(screen.getByRole('option',{name:'INSPIRE · islet eQTL'}));
  await screen.findByText(/No matching credible sets/);
  expect(screen.queryByRole('img')).toBeNull();
  rerender(<QtlBrowser/>);expect(screen.queryByText(/No matching credible sets/)).toBeNull();

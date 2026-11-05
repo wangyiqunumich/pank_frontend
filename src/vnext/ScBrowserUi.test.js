@@ -23,9 +23,13 @@ const toolbarSource = readFileSync(join(__dirname, '../../pankbase-browser/Brows
 const toolbarSandbox = { icons: toolbarIcons };
 vm.runInNewContext(toolbarSource.split('<script>')[1].split('</script>')[0].replace(/^import .*;$/gm, '').replace('export default ', 'component = '), toolbarSandbox);
 const BrowserToolbar = { ...toolbarSandbox.component, ...(Vue ? Vue.compile(toolbarSource.split('<template>')[1].split('</template>\n<script>')[0]) : {}), mounted: [], beforeDestroy: [] };
+const selectSource = readFileSync(join(__dirname, '../../pankbase-browser/BrowserSelect.vue'), 'utf8');
+const selectSandbox = { window, document, innerWidth: window.innerWidth, innerHeight: window.innerHeight, setTimeout, clearTimeout };
+vm.runInNewContext(selectSource.split('<script>')[1].split('</script>')[0].replace('export default ', 'component = '), selectSandbox);
+const BrowserSelect = { ...selectSandbox.component, ...(Vue ? Vue.compile(selectSource.split('<template>')[1].split('</template>')[0]) : {}) };
 const sandbox = { window, document, URLSearchParams, Event, SC_CONFIG, SC_WORDING, FIELD,
   SC_PROTOCOL: 'pankgraph.scbrowser.v1', validBrowserContext: () => true,
-  ResearchUmapPlotGL: map, ResearchViolinPlot: { render: h => h('div') }, BrowserToolbar,
+  ResearchUmapPlotGL: map, ResearchViolinPlot: { render: h => h('div') }, BrowserToolbar, BrowserSelect,
   integratedBrowserLink: () => 'https://pankbase.org/single-cell.html',
   mapIcon: 'map.svg', expressionIcon: 'expression.svg', sourceIcon: 'source.svg', selectIcon: 'select.svg',
   externalIcon: 'external.svg', fullscreenIcon: 'fullscreen.svg', zoomInIcon: 'zoom-in.svg', zoomOutIcon: 'zoom-out.svg' };
@@ -106,6 +110,25 @@ uiTest('search preserves the worker contract and resets the displayed camera bas
   fireEvent.submit(app.$el.querySelector('form')); await tick();
   expect(app.worker.postMessage).toHaveBeenCalledWith({ request: 1, gene: 'INS', refresh: false });
   expect(app.mapZoom).toBe(100); expect(app.gene).toBe('INS');
+});
+
+uiTest('highlight menu supports keyboard selection and closes without exiting the viewer', async () => {
+  const originalScroll = Element.prototype.scrollIntoView;
+  Element.prototype.scrollIntoView = jest.fn();
+  try {
+    const trigger = within(app.$el).getByRole('combobox', { name: 'Highlight cell type' });
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' }); await tick();
+    const menu = within(document.body).getByRole('listbox', { name: 'Highlight cell type' });
+    fireEvent.keyDown(menu, { key: 'ArrowDown' }); await tick();
+    fireEvent.keyDown(menu, { key: 'Enter' }); await tick();
+    expect(app.highlighted).toBe('Ductal');
+    expect(document.activeElement).toBe(trigger);
+    expect(within(document.body).queryByRole('listbox')).toBeNull();
+    fireEvent.click(trigger); await tick();
+    fireEvent.keyDown(within(document.body).getByRole('listbox'), { key: 'Escape' }); await tick();
+    expect(app.highlighted).toBe('Ductal');
+    expect(within(document.body).queryByRole('listbox')).toBeNull();
+  } finally { Element.prototype.scrollIntoView = originalScroll; }
 });
 
 uiTest('actual styles bottom-anchor graph UI and keep scBrowser dock out of the navigation/footer', () => {

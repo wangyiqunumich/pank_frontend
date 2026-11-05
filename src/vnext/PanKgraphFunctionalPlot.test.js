@@ -32,7 +32,8 @@ test('retains four native response modes, capability-specific controls and fulls
   await waitFor(()=>expect(screen.getByText(/407 donors/)).toBeTruthy());
   expect(screen.getByRole('link',{name:/PanKgraph functional browser tool/}).href).toBe('https://dev.pankgraph.org/functional-data');
   for(const trace of ['ins_content','gcg_ieq','gcg_content','ins_ieq']) {
-    fireEvent.change(screen.getByRole('combobox'),{target:{value:trace}});
+    fireEvent.mouseDown(screen.getByRole('combobox'));
+    fireEvent.click(screen.getAllByRole('option').find(option=>option.getAttribute('data-value')===trace));
     await waitFor(()=>expect(screen.getByRole('img').src).toContain('trace_type='+trace+'&result_page=Yes'));
   }
   expect(screen.queryByRole('button',{name:'Zoom in'})).toBeNull();
@@ -57,7 +58,7 @@ test('Source lists the actual cohort and drawn trace IDs; filter Apply and Undo 
  global.fetch=jest.fn(async url=>{const q=new URL(url,'https://example.org').searchParams;return {ok:true,json:async()=>fixture(q.get('trace_type'),q.has('disease')?['RRID:SAMN42','RRID:SAMN43']:Array.from({length:30},(_,i)=>'RRID:SAMN'+i))};});
  render(<PanKgraphFunctionalPlot isVisible/>);await screen.findByRole('img');
  fireEvent.click(screen.getByRole('button',{name:'Source',exact:true}));
- expect(screen.getByText(/no manual cohort filter controls/)).toBeTruthy();
+ expect(screen.getByRole('heading',{name:'Cohort',exact:true})).toBeTruthy();
  expect(screen.getByText('Cohort mean donor IDs (30)')).toBeTruthy();
  expect(screen.getByText('Individual trace donor IDs (24)')).toBeTruthy();
  expect(screen.getByText(/RRID:SAMN29/)).toBeTruthy();
