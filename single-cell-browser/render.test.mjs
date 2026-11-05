@@ -3,6 +3,28 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
+test('full scBrowser starts and loads expression after preview config is removed', () => {
+  const config = JSON.parse(readFileSync(new URL('../src/vnext/schema/result_page_schema.json', import.meta.url))).main_visuals.items.single_cell_browser;
+  assert.equal(config.preview, undefined, 'the retired popup must stay removed');
+  const appSource = readFileSync(new URL('./App.vue', import.meta.url), 'utf8')
+    .split('<script>')[1].split('</script>')[0]
+    .replace(/^import .*;$/gm, '').replaceAll('import.meta.url', JSON.stringify(import.meta.url)).replace('export default ', 'component = ');
+  for (const search of ['', '?preview=1']) {
+    const sandbox = { window: { innerHeight: 800, location: { search }, parent: { location: { origin: 'https://dev.pankgraph.org' } } },
+      document: { querySelector: () => null }, URLSearchParams, SC_CONFIG: config, SC_WORDING: config.wording, FIELD: 'cell_type',
+      BrowserToolbar: {}, ResearchUmapPlotGL: {}, ResearchViolinPlot: {}, selectIcon: '', externalIcon: '', fullscreenIcon: '', zoomInIcon: '', zoomOutIcon: '' };
+    vm.runInNewContext(appSource, sandbox);
+    const state = sandbox.component.data();
+    assert.equal(state.preview, false);
+    assert.equal(state.fullView, config.full_view);
+    assert.equal(state.tab, 'Cell map');
+    let request;
+    sandbox.component.methods.load.call({ ...state, worker: { postMessage: value => { request = value; } } }, 'CFTR');
+    assert.equal(request.gene, 'CFTR');
+    assert.equal(request.preview, false, 'full expression loading must not fall back to preview');
+  }
+});
+
 // Exercise the actual Vue component methods with a deterministic frame scheduler.
 const source = readFileSync(new URL('./vendor/ResearchUmapPlotGL.vue', import.meta.url), 'utf8')
   .split('<script>')[1].split('</script>')[0]
