@@ -29,7 +29,7 @@ async function sentContext(frame) {
 }
 test('scBrowser uses its own tab without a duplicate graph preview and fills the first RNA gene-cell pair', async () => {
  render(<ResultSection result={result} anchorPrefix="first" />);
- expect(SC_CONFIG.preview.enabled).toBe(false);
+ expect(SC_CONFIG.preview).toBeUndefined();
  expect(screen.queryByRole('region', { name: 'Expression evidence' })).toBeNull();
  expect(screen.queryByTitle('PanKbase atlas preview')).toBeNull();
  expect(screen.queryByText(/padj|CFTR ·|Related atlas/)).toBeNull();
@@ -74,9 +74,9 @@ test('enriched and detected edge inspection preserves the graph tab; scBrowser o
  expect(await sentContext(screen.getByTitle('PanKgraph single-cell browser'))).toMatchObject({ geneSymbol: 'CFTR', mappedCellType: 'Ductal' });
 });
 test('same-origin manifest bridge ignores foreign and unrelated window messages', async () => {
- render(<SingleCellBrowser context={expressionContext(graph, 'edge-1')} isVisible preview />);
- const frame = screen.getByTitle('PanKbase atlas preview');
- await waitFor(() => expect(frame.getAttribute('srcdoc')).toContain('pankgraph-preview'));
+ render(<SingleCellBrowser context={expressionContext(graph, 'edge-1')} isVisible />);
+ const frame = screen.getByTitle('PanKgraph single-cell browser');
+ await waitFor(() => expect(frame.getAttribute('srcdoc')).toContain('<base href='));
  expect(frame.getAttribute('src')).toBeNull();
  fireEvent(window, new MessageEvent('message', { origin: 'https://foreign.test', source: window, data: { protocol: 'pankgraph.scbrowser.v1', type: 'status', edgeId: 'edge-1', message: 'Injected' } }));
  expect(screen.queryByText('Injected')).toBeNull();
@@ -97,19 +97,15 @@ test('only this browser frame can request fullscreen, preserving its iframe and 
  expect(screen.getByTitle('PanKgraph single-cell browser')).toBe(frame);
  unmount();
 });
-test('mixed QTL and RNA evidence retains the unrelated QTL preview but no cell preview', async () => {
+test('mixed QTL and RNA modules use main tabs without any graph preview', () => {
  const qtlGraph = { nodes: [...graph.nodes, { '~id': 'rs2402203', '~labels': ['sequence_variant'], '~properties': { name: 'rs2402203' } }], edges: [...graph.edges, { '~id': 'qtl', '~type': 'PART_OF_QTL_SIGNAL', '~start': 'rs2402203', '~end': 'cftr', '~properties': { data_source: 'splicing; GTEx', credible_set: 'test_credibleSet1' } }] };
  render(<ResultSection result={{ ...result, combined_query_result: qtlGraph }} />);
  const graphElement = screen.getByTestId('graph');
- const card = screen.getByRole('region', { name: 'Visualization preview' });
- expect(screen.queryByRole('region', { name: 'Expression evidence' })).toBeNull();
- expect(within(card).queryByRole('tab', { name: 'scBrowser' })).toBeNull();
- expect(within(card).queryByTitle('PanKbase atlas preview')).toBeNull();
- fireEvent.click(within(card).getByRole('button', { name: 'Open QTL fine-mapping →' }));
- expect(screen.getByRole('tablist', { name: 'Result visualizations' }).querySelector('[aria-selected="true"]').textContent).toBe('QTL Fine-Mapping');
- fireEvent.click(within(screen.getByRole('tablist', { name: 'Result visualizations' })).getByRole('tab', { name: 'Knowledge Graph' }));
+ expect(screen.queryByRole('region', { name: 'Visualization preview' })).toBeNull();
+ expect(screen.queryByRole('button', { name: 'Show visualization preview' })).toBeNull();
+ fireEvent.click(screen.getByRole('tab', { name: 'QTL Fine-Mapping' }));
+ expect(screen.getByRole('tab', { name: 'QTL Fine-Mapping' }).getAttribute('aria-selected')).toBe('true');
+ fireEvent.click(screen.getByRole('tab', { name: 'Knowledge Graph' }));
  expect(screen.getByTestId('graph')).toBe(graphElement);
- fireEvent.click(within(card).getByRole('button', { name: 'Close visualization preview' }));
- fireEvent.click(screen.getByRole('button', { name: 'Show visualization preview' }));
- expect(screen.getByRole('region', { name: 'Visualization preview' })).toBeTruthy();
+ expect(screen.queryByRole('region', { name: 'Visualization preview' })).toBeNull();
 });

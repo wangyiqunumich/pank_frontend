@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Box, Button, CircularProgress, Typography, Dialog } from '@mui/material';
 import { sitePath } from './api';
 
-export default function FunctionalVisual({ result, preview = false }) {
+export default function FunctionalVisual({ result }) {
   const [expanded, setExpanded] = useState(false);
   const [failedUrl, setFailedUrl] = useState('');
   const plot = result?.resources_tabs?.empirical_evidence;
@@ -14,7 +14,7 @@ export default function FunctionalVisual({ result, preview = false }) {
   return <Box sx={{width:'100%',height:'100%',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',p:2,boxSizing:'border-box'}}>
     {available ? <>
       <Box component="img" src={url} alt={title} onError={()=>setFailedUrl(url)} sx={{width:'100%',minHeight:0,flex:'1 1 auto',objectFit:'contain'}} />
-      {!preview && <Box sx={{display:'flex',gap:2,flexShrink:0}}>
+      {<Box sx={{display:'flex',gap:2,flexShrink:0}}>
         <Button onClick={()=>setExpanded(true)}>Expand plot</Button>
         <Button component="a" href={url} target="_blank" rel="noopener noreferrer" download>Download plot</Button>
       </Box>}

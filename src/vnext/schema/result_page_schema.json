@@ -189,27 +189,6 @@
           "default_pair": "first_available_in_graph_order",
           "description": "Use the first eligible gene-cell pair as the initial gene and cell highlight; do not reshuffle on rerender."
         },
-        "preview": {
-          "enabled": false,
-          "content": "full_atlas_map",
-          "height": 144,
-          "show_caption": false,
-          "show_open_hint": true,
-          "labels": {
-            "enabled": true,
-            "font_size": 8,
-            "gap": 2,
-            "names": {
-              "Gamma + Epsilon": "Gamma +\nEpsilon",
-              "Cycling Alpha": "Cycling\nAlpha",
-              "MUC5B+ Ductal": "MUC5B+\nDuctal",
-              "Active Stellate": "Active\nStellate",
-              "Quiescent Stellate": "Quiescent\nStellate"
-            }
-          },
-          "show_metadata": false,
-          "load_expression": false
-        },
         "full_view": {
           "compact": true,
           "expression_cache": {
@@ -244,10 +223,6 @@
           "related_context": "Related atlas context",
           "context_note": "Related context · See Source & methods",
           "open_browser": "Open interactive UMAP",
-          "preview_open_hint": "Open scBrowser →",
-          "loading_preview": "Loading atlas preview…",
-          "preview_unavailable": "Preview unavailable",
-          "preview_idle": "Atlas preview",
           "choose_pair": "Choose",
           "previous_pair": "Previous expression browser",
           "next_pair": "Next expression browser",
@@ -276,15 +251,9 @@
           "all_cells": "All cell types",
           "map_tab": "Cell map",
           "expression_tab": "By cell type",
-          "source_tab": "Source",
-          "preview_cells_label": "cells · Atlas UMAP",
-          "preview_region": "Expression evidence",
-          "preview_minimize": "Minimize expression card",
-          "preview_restore": "Restore expression card",
-          "preview_close": "Close expression card",
-          "preview_open_accessible": "Open in scBrowser →"
+          "source_tab": "Source"
         },
-        "format": "A map-only graph-adjacent preview opens the persistent interactive scBrowser tab. Preserve graph controls and camera.",
+        "format": "Persistent interactive scBrowser main tab. Preserve graph controls and camera.",
         "source_identity": "Display labels are editable copy; datasetId, source hashes, recorded edge release and conditions remain technical provenance, unchanged by wording edits."
       },
       "qtl_fine_mapping": {
@@ -392,7 +361,6 @@
           "description": "Association strength (−log₁₀P), posterior inclusion probability (PIP), and log Bayes factor (LBF) for the selected credible set.",
           "provenance": "Uses the existing production AWS renderer for the recorded source and credible set. Track values, LD colors and lead markers are supplied by that renderer; this page does not calculate them.",
           "card_title": "QTL fine-mapping",
-          "preview_open_hint": "Open QTL fine-mapping →",
           "legend": "Color: LD R² to the lead SNP. Dashed line: lead SNP.",
           "details": "Source & plot details",
           "credible_set_label": "Credible set",
@@ -400,11 +368,6 @@
           "gene_fallback": "QTL signal"
         },
         "source_identity": "Use exact returned source and credible set; do not substitute a gene, source, LD panel or coordinate plot.",
-        "preview": {
-          "enabled": true,
-          "content": "production_plot",
-          "height": 180
-        },
         "layout": {
           "metadata": "compact_header_and_expandable_details",
           "min_height": 520,
@@ -436,11 +399,7 @@
           "component_status.resources"
         ],
         "format": "Existing cohort-response plot with expand/download controls and an explicit pending or unavailable state.",
-        "wording": "Keep selected cohort, hormone, units, normalization and aggregation. Do not infer donor variability from a cohort mean.",
-        "preview": {
-          "enabled": true,
-          "content": "source_plot"
-        }
+        "wording": "Keep selected cohort, hormone, units, normalization and aggregation. Do not infer donor variability from a cohort mean."
       },
       "genome_browser": {
         "title": "Genome Browser",
@@ -465,26 +424,6 @@
         ],
         "format": "Existing embedded genome-browser component, reserved for later activation.",
         "wording": "Remain hidden. The current demo has a disabled IGV adapter; state parameters and agent keywords cannot enable it."
-      }
-    },
-    "preview_standard": {
-      "enabled": true,
-      "renderer": "VisualPreview",
-      "default_for_new_visuals": true,
-      "exclude": [
-        "graph_viewer"
-      ],
-      "presentation": "One fixed graph-adjacent preview card. Tabs switch eligible previews; the open action selects the matching persistent main visual tab. Never stack cards or recreate the graph.",
-      "height": 180,
-      "width": 286,
-      "wording": {
-        "title": "Visualization preview",
-        "open": "Open {title} →",
-        "minimize": "Minimize visualization preview",
-        "restore": "Restore visualization preview",
-        "close": "Close visualization preview",
-        "show": "Show visualization preview",
-        "switch": "Visualization previews"
       }
     },
     "tab_switch": {
