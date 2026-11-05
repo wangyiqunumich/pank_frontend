@@ -20,13 +20,13 @@ export function GraphInfoPanelHeader({ children, title, canExpand = false }) {
     <div title={title} data-testid="graph-info-title" style={{ flex: 1, minWidth: 0, display: '-webkit-box',
       WebkitBoxOrient: 'vertical', WebkitLineClamp: h.title_max_lines, overflow: 'hidden', textAlign: h.title_align,
       overflowWrap: 'anywhere', font: '700 16px/1.35 Open Sans, sans-serif', color: '#263238' }}>{children}</div>
-    {panel && (panel.large || canExpand) && <div style={{ position: 'absolute', right: 12, top: 14, display: 'flex', gap: 2 }}>
+    {panel && (panel.large || canExpand || h.compact_close) && <div style={{ position: 'absolute', right: 12, top: 14, display: 'flex', gap: 2 }}>
       <IconButton size="small" title={panel.large ? controls.minimize.label : controls.enlarge.label}
         aria-label={panel.large ? controls.minimize.aria_label : controls.enlarge.aria_label}
         onClick={panel.large ? panel.onMinimize : panel.onEnlarge} sx={{ color: '#37646b', width: 30, height: 30 }}>
         <ControlIcon name={panel.large ? controls.minimize.icon : controls.enlarge.icon}/>
       </IconButton>
-      {panel.large && <IconButton size="small" title={controls.close.label} aria-label={controls.close.aria_label} onClick={panel.onClose}
+      {(panel.large || h.compact_close) && <IconButton size="small" title={controls.close.label} aria-label={controls.close.aria_label} onClick={panel.onClose}
         sx={{ color: '#37646b', width: 30, height: 30 }}><ControlIcon name={controls.close.icon}/></IconButton>}
     </div>}
   </div>;

@@ -184,7 +184,7 @@ function ExpandedDetails({ card, schema }) {
   const active=tab==='record' || !selected ? 'record' : tab;
   return <div className={`xe-expanded-details ${active === 'record' ? 'xe-record-view' : 'xe-table-view'}`}>
     {wide && card && <nav className="xe-card-tabs"><button className={tab === 'record' ? 'active' : ''} onClick={() => setTab('record')}>Complete record</button>{tabs.map(t=><button key={t.id} className={active===t.id ? 'active' : ''} onClick={()=>setTab(t.id)}>{t.title}</button>)}</nav>}
-    <div className="xe-card-body" style={{'--panel-columns':panelPolicy.expanded_layout.columns,'--panel-gap':`${panelPolicy.expanded_layout.gap_px}px`}}>
+    <div className="xe-card-body" style={{'--panel-columns':panelPolicy.expanded_layout.columns,'--panel-narrow-columns':panelPolicy.expanded_layout.narrow_columns,'--panel-gap':`${panelPolicy.expanded_layout.gap_px}px`}}>
       {card && (!wide || active === 'record') && <>
         <RelationshipContext card={card}/>
         {expandedSections(card,panelPolicy).map((section,i)=><section className="xe-card-section" data-prose={section.prose || undefined} key={i}><h3>{section.title}</h3><dl><RecordFields fields={section.fields} specs={card.field_specs}/></dl></section>)}
