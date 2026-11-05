@@ -24,7 +24,7 @@ test('retains four native response modes, capability-specific controls and fulls
   global.fetch = jest.fn().mockResolvedValue({ ok:true, json:async()=>({summary:{available_donors:407}}) });
   render(<PanKgraphFunctionalPlot isVisible />);
   await waitFor(()=>expect(screen.getByText(/407 donors/)).toBeTruthy());
-  expect(screen.getByRole('link',{name:/PanKgraph functional browser tool/}).href).toBe('https://pankbase.org/functional.html');
+  expect(screen.getByRole('link',{name:/PanKgraph functional browser tool/}).href).toBe('https://dev.pankgraph.org/functional-data');
   for(const trace of ['ins_content','gcg_ieq','gcg_content','ins_ieq']) {
     fireEvent.change(screen.getByRole('combobox'),{target:{value:trace}});
     expect(screen.getByRole('img').src).toContain('trace_type='+trace+'&result_page=Yes');
