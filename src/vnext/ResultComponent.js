@@ -149,7 +149,7 @@ export function ResultComponentSkeleton() {
     );
 }
 
-function ContentTabs({ tabs, value, onChange, variant = 'default' }) {
+function ContentTabs({ tabs, value, onChange, variant = 'default', moduleTabs = false }) {
     const isPank1 = variant === 'pank1';
     return (
         <Tabs
@@ -158,7 +158,7 @@ function ContentTabs({ tabs, value, onChange, variant = 'default' }) {
             variant="scrollable"
             aria-label={visualSchema.main_visuals.tab_switch.accessible_label}
             scrollButtons={visualSchema.main_visuals.tab_switch.scroll_buttons}
-            sx={{
+            sx={moduleTabs ? {
                 minHeight: 36,
                 "& .MuiTabs-flexContainer": { gap: "6px" },
                 "& .MuiTabs-scrollButtons.Mui-disabled": { display: "none" },
@@ -184,6 +184,26 @@ function ContentTabs({ tabs, value, onChange, variant = 'default' }) {
                 },
                 "& .MuiTab-root.Mui-selected": { color: "#FFF !important", backgroundColor: "#0F766E", borderColor: "#0F766E", "&:hover": { backgroundColor: "#115E59" } },
                 "& .MuiTabs-indicator": { display: "none" },
+            } : {
+                minHeight: 0,
+                "& .MuiTabs-scrollButtons.Mui-disabled": { display: "none" },
+                "& .MuiTab-root": {
+                    minHeight: 0,
+                    pb: 1,
+                    pt: 0,
+                    px: 0,
+                    minWidth: "auto",
+                    marginRight: "24px",
+                    textTransform: "none",
+                    fontWeight: "600 !important",
+                    fontSize: isPank1 ? "12px !important" : "14px !important",
+                    color: "#94A3B8 !important",
+                    "&:last-child": {
+                        marginRight: 0,
+                    },
+                },
+                "& .Mui-selected": { color: "#3A838B !important" },
+                "& .MuiTabs-indicator": { backgroundColor: "#3A838B !important", height: 2 },
             }}
         >
             {tabs.map((t) => (
@@ -924,6 +944,7 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                 <Box sx={{ mb: 1.2 }}>
                                     <ContentTabs
                                         tabs={visualTabs}
+                                        moduleTabs
                                         value={visualTab}
                                         onChange={(_, v) => setVisualTab(v)}
                                     />
@@ -1300,6 +1321,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                     <Box sx={{ mb: 1.2, ...(matchVisualHeight ? ALIGNED_PANEL_HEADER_SX : {}) }}>
                                         <ContentTabs
                                             tabs={visualTabs}
+                                            moduleTabs
                                             value={visualTab}
                                             onChange={(_, v) => handleVisualTabChange(v)}
                                             variant={isPank1Style ? 'pank1' : 'default'}
