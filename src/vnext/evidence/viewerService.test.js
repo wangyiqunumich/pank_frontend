@@ -1,4 +1,4 @@
-import {renderHook} from '@testing-library/react';
+import {renderHook,act} from '@testing-library/react';
 import {loadViewerService} from './viewerService';
 jest.mock('../api',()=>({request:jest.fn()}));
 test('pins every operation to the verified release and passes abort signal',async()=>{
@@ -21,4 +21,17 @@ test('typed refs without a release cannot dereference an uninitialized service',
  const {useViewerService}=require('./viewerService');
  const hook=renderHook(()=>useViewerService(undefined,true));
  expect(hook.result.current).toBeNull();
+});
+
+test('schema pending is distinct from failed and resets for a new release',async()=>{
+ const {useViewerService}=require('./viewerService');
+ const {request}=require('../api');
+ let reject;
+ request.mockImplementation(()=>new Promise((_,fail)=>{reject=fail;}));
+ const {result,rerender}=renderHook(({release})=>useViewerService(release,true),{initialProps:{release:'r1'}});
+ expect(result.current).toEqual({loading:true});
+ await act(async()=>reject(new Error('offline')));
+ expect(result.current).toBeNull();
+ rerender({release:'r2'});
+ expect(result.current).toEqual({loading:true});
 });

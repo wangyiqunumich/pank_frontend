@@ -41,5 +41,8 @@ export default function ObjectInformationPanel({data, endpointNodes=[], releaseI
   },[eligible,key,releaseId,request]);
   const selected=eligible && state?.key===key ? state : null;
   if(selected?.card) return <InspectedInformationPanel card={{...selected.card,endpoints:selected.card.endpoints?.map(e=>{const node=endpointNodes.find(n=>n.id===e.ref.id);return {...e,display_name:node?.HGNC_symbol || node?.name || node?.label};})}} schema={schema} request={request} releaseId={releaseId}/>;
+  // Do not paint the legacy card while the release schema or exact-object
+  // inspection is pending: it has a different layout from the final panel.
+  if(service?.loading || (eligible && !selected?.error)) return <p role="status" style={{padding:'12px 14px',fontSize:12}}>Loading detailed evidence…</p>;
   return <>{fallback}{eligible && <p role="status" style={{padding:'0 14px',fontSize:12}}>{selected?.error ? 'Detailed evidence is temporarily unavailable. Recorded graph evidence is preserved.' : 'Loading detailed evidence…'}</p>}</>;
 }

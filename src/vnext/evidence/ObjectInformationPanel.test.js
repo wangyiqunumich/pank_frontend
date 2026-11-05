@@ -51,3 +51,24 @@ test('fixed demo without a release or viewer service renders its recorded fallba
  expect(screen.getByText('Saved graph evidence')).toBeTruthy();
  expect(screen.queryByRole('status')).toBeNull();
 });
+
+ test('pending schema and inspections never flash the legacy card or previous object',async()=>{
+ const resolve={};const request=jest.fn((path,body)=>new Promise(done=>{resolve[body.ref.id]=done;}));
+ const props={releaseId,fallback};
+ const {rerender}=render(<ObjectInformationPanel {...props} data={data('A')} service={{loading:true}}/>);
+ expect(screen.getByRole('status').textContent).toMatch(/Loading/);
+ expect(screen.queryByText('Saved graph evidence')).toBeNull();
+ const service={schema:{release_id:releaseId},request};
+ rerender(<ObjectInformationPanel {...props} data={data('A')} service={service}/>);
+ expect(screen.queryByText('Saved graph evidence')).toBeNull();
+ await waitFor(()=>expect(request).toHaveBeenCalledTimes(1));
+ await act(async()=>resolve.A({ref:data('A').viewer_ref}));
+ expect(screen.getByText('Inspected A')).toBeTruthy();
+ rerender(<ObjectInformationPanel {...props} data={data('B')} service={service}/>);
+ expect(screen.queryByText('Inspected A')).toBeNull();
+ expect(screen.queryByText('Saved graph evidence')).toBeNull();
+ expect(screen.getByRole('status').textContent).toMatch(/Loading/);
+ await waitFor(()=>expect(request).toHaveBeenCalledTimes(2));
+ await act(async()=>resolve.B({ref:data('B').viewer_ref}));
+ expect(screen.getByText('Inspected B')).toBeTruthy();
+ });
