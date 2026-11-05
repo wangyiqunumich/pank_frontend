@@ -1,3 +1,5 @@
+import { TECH_DEMO } from './hosting';
+import {useResultModules} from './ResultModules';
 import { newIntent, ensureIntent } from '../utils/agentIdentity';
 import { useStableGraphPane } from './StableGraphPane';
 import '../SearchResult/scoped.css';
@@ -19,9 +21,8 @@ import AnswerMarkdown from './AnswerMarkdown';
 import LiteratureSections from './LiteratureSections';
 import FunctionalVisual from './FunctionalVisual';
 import QtlFineMapping from './QtlFineMapping';
-import visualSchema from './schema/result_page_schema.json';
 import SingleCellBrowser from './SingleCellBrowser';
-import { expressionContext, firstAvailableExpression } from './singleCellContext';
+import { firstAvailableExpression } from './singleCellContext';
 import SummaryInsertions from './SummaryInsertions';
 import { resolveResultPage } from './resultPageSchema';
 import { useResourcePanels } from './Resources';
@@ -126,19 +127,9 @@ function GraphPanel({ result, error, onEvidenceInspect }) {
   </Box>;
 }
 
-export function ResultSection({ run, result, error, planning, busy, onRevise, onConfirm, onFollowUp, anchorPrefix, presentationState, questionNumber = 1 }) {
+export function ResultSection({ run, result, error, planning, busy, onRevise, onConfirm, onFollowUp, anchorPrefix, presentationState, questionNumber = 1, guideEnabled = true }) {
   const sectionRef = useRef(null);
-  const visualOrderRef = useRef({ scope: null, preference: null, ids: [] });
   const runId = run?.run_id || result?.result_id;
-  const [expressionState, setExpressionState] = useState(null);
-  const [visualRequest, setVisualRequest] = useState(null);
-  const scopedExpressionState = expressionState?.scope === runId ? expressionState : null;
-  const defaultExpression = useMemo(() => firstAvailableExpression(result?.combined_query_result), [result?.combined_query_result]);
-  const expression = expressionContext(result?.combined_query_result, scopedExpressionState?.context?.edgeId) || defaultExpression;
-  const selectExpression = useCallback((edgeId) => {
-    const context = expressionContext(result?.combined_query_result, edgeId);
-    if (context) { setExpressionState({ scope: runId, context }); setVisualRequest({ id: 'single_cell_browser', scope: runId, nonce: Date.now() }); }
-  }, [result?.combined_query_result, runId]);
   const trackingScope = run?.run_id ? 'run' : 'result';
   const onEvidenceInspect = useCallback((id) => { recordInteraction(runId, 'graph_evidence_inspected', referenceKey(id), trackingScope); }, [runId, trackingScope]);
   useEffect(() => {
@@ -163,28 +154,16 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
   const resources = useResourcePanels(page.resourceTabs, page.resourceStatus, { tabs: page.supportingTabs });
   const graphData = result?.combined_query_result || null;
   const graphError = error || (planning && run?.plan?.clarification) || (planning && run?.preview?.status === 'failed' ? 'The initial graph retrieval failed. Revise the plan before continuing; this failure does not indicate biological absence.' : '');
-  const visualRenderers = {
-    graph_viewer: null,
-    single_cell_browser: <SingleCellBrowser key={runId} graph={graphData} onSelect={selectExpression} context={expression} />,
+  const stableGraph = useStableGraphPane(<GraphPanel key={runId} onEvidenceInspect={onEvidenceInspect} result={result} error={graphError} />);
+  const legacyRenderers = {
+    graph_viewer: stableGraph.slot,
+    single_cell_browser: <SingleCellBrowser key={runId} context={firstAvailableExpression(graphData)} />,
     qtl_fine_mapping: <QtlFineMapping key={runId} contexts={page.qtlContexts} />,
     functional_data: <FunctionalVisual result={result} />,
   };
-  const selectedVisuals = page.mainVisuals.filter((visual) => Object.prototype.hasOwnProperty.call(visualRenderers, visual.id));
-
-  const stableGraph = useStableGraphPane(<GraphPanel key={runId} onEvidenceInspect={onEvidenceInspect} result={result} error={graphError} />);
-  visualRenderers.graph_viewer = stableGraph.slot;
-  const selectedIds = selectedVisuals.map((visual) => visual.id);
-  const visualScope = runId || anchorPrefix;
-  const visualPreference = (presentationState || result?.result_page_state)?.main_visual;
-  const previousOrder = visualOrderRef.current;
-  // The existing pane renderer keys tabs by position. Keep already selected
-  // visuals in place as evidence arrives, so graph pan/zoom survives new tabs.
-  const visualIds = previousOrder.scope === visualScope && previousOrder.preference === visualPreference
-    ? [...previousOrder.ids.filter((id) => selectedIds.includes(id)), ...selectedIds.filter((id) => !previousOrder.ids.includes(id))]
-    : selectedIds;
-  visualOrderRef.current = { scope: visualScope, preference: visualPreference, ids: visualIds };
-  const visualTabs = visualIds.map((id) => ({ id, label: selectedVisuals.find((visual) => visual.id === id).label, content: visualRenderers[id], minHeight: visualSchema.main_visuals.items[id]?.layout?.min_height }));
-  const visualMaterial = visualTabs.length ? { title: page.mainVisualTitle, tabs: visualTabs, scopeKey: runId, requestedTab: visualRequest?.scope === runId ? visualRequest : null } : undefined;
+  const baseTabs = page.mainVisuals.filter(v=>legacyRenderers[v.id]).map(v=>({...v,content:legacyRenderers[v.id]}));
+  const modules = useResultModules({result,scope:runId || anchorPrefix,baseTabs,guideEnabled:guideEnabled && !planning});
+  const visualMaterial = modules.tabs.length ? {title:page.mainVisualTitle,...modules} : undefined;
   const planData = {
     questionId: 'PLAN', title: 'Confirm Query & Execution Steps', originalQuestion: run?.plan?.original_question || run?.question || '', parsedTitle: run?.plan?.interpreted_question || '',
     agentPlan: planMarkdown(run), revisionQuestion: run?.question || '', revisionKey: run?.plan_id,
@@ -352,7 +331,7 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     } catch (_) { /* Leaving the page must not wait on a failed or slow cancel request. */ }
   }, [navigate]);
   const followUp = useCallback(async (question, retryIntent = null) => {
-    if (!question?.trim() || followUpPending.current || !canFollowUp(runRef.current)) return false;
+    if (TECH_DEMO || !question?.trim() || followUpPending.current || !canFollowUp(runRef.current)) return false;
     const inputError = questionInputError(question);
     if (inputError) { setFailedFollowUp({ question, message: inputError }); return false; }
     const current = runRef.current;
@@ -375,13 +354,13 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     if (!onContentMeta) return;
     const page = resolveResultPage({ result, run, state: location.state?.result_page, resourceTabs: withLiteratureReferences(result?.resources_tabs, groundedLiterature(run, result), run?.run_id || result?.result_id) });
     const questions = [...previous.map((item, index) => ({ id: item.run.run_id, query: item.run.question, anchorPrefix: `${contentAnchorPrefix}-previous-${index}`, anchorId: `${contentAnchorPrefix}-previous-${index}-question-1` })), ...(run ? [{ id: run.run_id, query: run.question, anchorPrefix: contentAnchorPrefix, anchorId: `${contentAnchorPrefix}-question-1` }] : [])];
-    const meta = { anchorPrefix: contentAnchorPrefix, questions, aiHeadings: [], hasVisual: page.mainVisuals.length > 0, hasEvidences: page.supportingTabs.length > 0, hasFollowUp: !isPlanning,
-      isQuestionComplete: canFollowUp(run) && !busy, isPlanning, hideFloatingSearchBar: !canFollowUp(run),
+    const meta = { anchorPrefix: contentAnchorPrefix, questions, aiHeadings: [], hasVisual: page.mainVisuals.length > 0, hasEvidences: page.supportingTabs.length > 0, hasFollowUp: !TECH_DEMO && !isPlanning,
+      isQuestionComplete: canFollowUp(run) && !busy, isPlanning, hideFloatingSearchBar: TECH_DEMO || !canFollowUp(run),
       planProceedAnchorId: isPlanning ? `${contentAnchorPrefix}-plan-proceed-button` : '', feedbackSessionId: run?.session_id || '', metaRouteKey: `${location.pathname}${location.search}` };
     const signature = JSON.stringify(meta);
     if (metaRef.current === signature) return;
     metaRef.current = signature;
-    onContentMeta({ ...meta, followUpHandler: followUp });
+    onContentMeta({ ...meta, followUpHandler: TECH_DEMO ? undefined : followUp });
   }, [onContentMeta, contentAnchorPrefix, run, result, isPlanning, location.pathname, location.search, location.state?.result_page, followUp, busy, previous]);
   // Read-transport failures reconnect to saved state; only recorded execution
   // failures or explicit mutation failures belong in the query-recovery dialog.
@@ -427,9 +406,9 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     <AlertMessage type="warning" content={error || resultError} open={!recovery && Boolean(error || resultError)} onClose={() => setError('')} />
     <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', px: { xs: 2, md: 3 }, py: 3 }}><Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 3 }}>
         {historyError && <Box role="status"><Typography>{historyError}</Typography><Button onClick={() => attachRun(readRunId.current)}>Refresh history</Button></Box>}
-        {previous.map((item, index) => <ResultSection key={item.run.run_id} {...item} questionNumber={index + 1} anchorPrefix={`${contentAnchorPrefix}-previous-${index}`} />)}
+        {previous.map((item, index) => <ResultSection key={item.run.run_id} guideEnabled={false} {...item} questionNumber={index + 1} anchorPrefix={`${contentAnchorPrefix}-previous-${index}`} />)}
         {initialLoading ? <Box role="status" aria-label="Loading current question" sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px' }}><SearchResultLoading streamProgress={progress} handleClose={cancel} /></Box> :
-          <ResultSection run={run} result={result} error={resultError} planning={isPlanning} busy={busy || connection !== 'connected'} onRevise={onRevise} onConfirm={onConfirm} onFollowUp={followUp} questionNumber={previous.length + 1} anchorPrefix={contentAnchorPrefix} presentationState={location.state?.result_page} />}
+          <ResultSection run={run} result={result} error={resultError} planning={isPlanning} busy={busy || connection !== 'connected'} onRevise={onRevise} onConfirm={onConfirm} onFollowUp={TECH_DEMO ? undefined : followUp} questionNumber={previous.length + 1} anchorPrefix={contentAnchorPrefix} presentationState={location.state?.result_page} />}
       </Box></Box>
   </>;
 }

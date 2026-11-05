@@ -2,6 +2,7 @@ import { qtlContexts, qtlEdges, isQtlEmpirical, QTL_CONFIG } from './qtlContext'
 import { firstAvailableExpression } from './singleCellContext';
 import { normalizeExternalLinks } from './externalLinks';
 import schema from './schema/result_page_schema.json';
+import { pankbaseContexts } from './pankbaseContext';
 
 // Pure presentation selection. No requests, model calls, Markdown parsing or DOM work.
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -117,16 +118,20 @@ export function resolveResultPage({ result, run, state, agentKeywords, resourceT
   const graphExpected = projectionExists || (!functionalContext && !noGraphPlan
     && (!result || object(projection) || Boolean(evidence.graph_version) || Boolean(result?.component_status?.graph) || Boolean(run?.plan)));
   const qtl = qtlContexts(result);
-  const qtlSelected = QTL_CONFIG.enabled !== false && !QTL_CONFIG.hidden && qtlEdges(projection).length > 0;
-  const empirical = independentEmpirical(tabs, groups, functionalContext && isResultAssetUrl(functionalImage) ? functionalImage : null).filter(entry => !(qtlSelected && QTL_CONFIG.supporting_material === 'main_visual_only' && isQtlEmpirical(entry, qtl)));
+  const qtlSelected = schema.main_visuals.items.qtl_browser.enabled && qtl.some(c => c.available);
+  const empirical = independentEmpirical(tabs, groups, null).filter(entry => !(qtlSelected && QTL_CONFIG.supporting_material === 'main_visual_only' && isQtlEmpirical(entry, qtl)));
   const referencesPending = !functionalContext && pending(resourceStatus);
   const empiricalFailure = !functionalContext && failure(resourceStatus);
   if (!empirical.length && empiricalFailure) empirical.push({ status: 'unavailable',
     title: 'Supplementary resources unavailable', description: 'Some source files or plots could not be retrieved. This is a resource-availability limit, not evidence of biological absence.' });
+  const moduleContexts = pankbaseContexts(projection);
   const facts = {
+    ...Object.fromEntries(Object.keys(moduleContexts).map(id => [id + '_context', true])),
     downloadable_data_assets: rawLinks.length > 0,
     graph_projection_or_expected: graphExpected,
     qtl_edges: qtlEdges(projection).length > 0,
+    qtl_catalog: result?.source?.component_catalogs?.includes('qtl') === true,
+    qtl_available_context: qtl.some(context => context.available),
     rna_expression_pair: Boolean(firstAvailableExpression(projection)),
     functional_context_or_measurements: functionalContext,
     // The existing genome component uses a disabled IGV adapter in this demo.
@@ -175,7 +180,7 @@ export function resolveResultPage({ result, run, state, agentKeywords, resourceT
   tabs.empirical_evidence_groups = selectedSupporting.has('empirical_evidence') ? empirical : [];
   return { schemaVersion: schema.schema.version,
     summaryTitle: schema.ai_summary.title, mainVisualTitle: schema.main_visuals.title, supportingTitle: schema.supporting_materials.title,
-    insertions, mainVisuals, qtlContexts: qtl, scBrowser: schema.main_visuals.items.single_cell_browser, resourceTabs: tabs,
+    insertions, mainVisuals, pankbaseContexts: moduleContexts, qtlContexts: qtl, scBrowser: schema.main_visuals.items.single_cell_browser, resourceTabs: tabs,
     resourceStatus: functionalContext && !empiricalFailure ? undefined : resourceStatus,
     supportingTabs, decisions };
 }

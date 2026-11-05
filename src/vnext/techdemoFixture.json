@@ -1,0 +1,132 @@
+{
+  "run": {
+    "run_id": "11111111-1111-4111-8111-111111111111",
+    "session_id": "scbrowser-local-demo",
+    "status": "completed",
+    "plan": {
+      "original_question": "CFTR enrichment navigation regression",
+      "steps": [
+        {}
+      ]
+    },
+    "graph_complete": true,
+    "question": "PanKbase module navigation acceptance",
+    "evidence": {
+      "graph_version": "navigation-demo-fixture",
+      "follow_up_questions": []
+    }
+  },
+  "result": {
+    "result_id": "22222222-2222-4222-8222-222222222222",
+    "status": "ready",
+    "combined_query_result": {
+      "nodes": [
+        {
+          "~id": "ENSG00000001626",
+          "~labels": [
+            "Gene"
+          ],
+          "~properties": {
+            "HGNC_symbol": "CFTR",
+            "name": "CFTR",
+            "chromosome": "7",
+            "start_loc": 117480025,
+            "end_loc": 117668665,
+            "genome_build": "GRCh38",
+            "coordinate_system": "0-based-half-open"
+          },
+          "display_type": "gene"
+        },
+        {
+          "~id": "CL_0002079",
+          "~labels": [
+            "anatomical_structure"
+          ],
+          "~properties": {
+            "name": "ductal cell"
+          }
+        },
+        {
+          "~id": "fixture-muc5b",
+          "~labels": [
+            "anatomical_structure"
+          ],
+          "~properties": {
+            "name": "pancreatic ductal cell MUC5B+"
+          }
+        },
+        {
+          "~id": "fixture-donor",
+          "~labels": [
+            "Donor"
+          ],
+          "~properties": {
+            "name": "Navigation fixture donor"
+          }
+        }
+      ],
+      "edges": [
+        {
+          "~id": "cftr-enriched-0",
+          "~start": "ENSG00000001626",
+          "~end": "CL_0002079",
+          "~type": "GENE_ENRICHED_IN",
+          "display_type": "gene_enriched_in",
+          "~properties": {
+            "condition": "ND",
+            "data_version": "Navigation regression fixture"
+          }
+        },
+        {
+          "~id": "cftr-enriched-1",
+          "~start": "ENSG00000001626",
+          "~end": "fixture-muc5b",
+          "~type": "GENE_ENRICHED_IN",
+          "display_type": "gene_enriched_in",
+          "~properties": {
+            "condition": "ND",
+            "data_version": "Navigation regression fixture"
+          }
+        },
+        {
+          "~id": "fixture-de",
+          "~start": "ENSG00000001626",
+          "~end": "CL_0002079",
+          "~type": "T1D_DEG_IN",
+          "~properties": {
+            "cell_type_label": "Beta",
+            "data_source": "Navigation fixture only"
+          }
+        }
+      ]
+    },
+    "xy_json": {
+      "ENSG00000001626": {
+        "x": 0,
+        "y": 0
+      },
+      "CL_0002079": {
+        "x": 0,
+        "y": -70
+      },
+      "fixture-muc5b": {
+        "x": 0,
+        "y": 70
+      },
+      "fixture-donor": {
+        "x": 105,
+        "y": 0
+      }
+    },
+    "resources_tabs": {},
+    "answer": "**PanKbase integration navigation fixture.**\n\nGraph nodes, relationships and region here are test inputs, not retrieved biological evidence. Module data is loaded separately from its named public source. A related resource does not establish a matching cohort.",
+    "result_page_state": {
+      "main_visual": "graph_viewer"
+    },
+    "source": {
+      "component_catalogs": [
+        "qtl"
+      ]
+    }
+  }
+}

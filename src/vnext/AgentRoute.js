@@ -1,3 +1,4 @@
+import { TECH_DEMO } from './hosting';
 import React, { useMemo } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { AgentResultLayout } from '../SearchResult/AgentResult';
@@ -27,5 +28,5 @@ export default function AgentRoute({ children }) {
   }, [location.key, location.search]);
   if (!shouldUseVnextAgent(location.search, getDevConfig().vnextEnabled)) return children;
   if (identity !== location.search.replace(/^\?/, '')) return <Navigate to={`/result-new2?${identity}`} replace state={location.state} />;
-  return <AgentResultLayout ResultView={AgentResultView} allowSearch showFloatingSearchBar questionCharacterLimit={6000} />;
+  return <AgentResultLayout ResultView={AgentResultView} allowSearch={!TECH_DEMO} showFloatingSearchBar={!TECH_DEMO} questionCharacterLimit={6000} />;
 }

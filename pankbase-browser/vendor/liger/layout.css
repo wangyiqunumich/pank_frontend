@@ -1,0 +1,68 @@
+/* LAYOUT STYLES */
+.no-events{
+    pointer-events: none;
+}
+.f-col{
+    display: flex;
+    flex-direction: column;
+}
+.f-row{
+    display: flex;
+    flex-direction: row;
+}
+.f-col.align-v-center{
+    justify-content: center;
+}
+.f-row.align-v-center{
+    align-items: center;
+}
+.f-col.align-h-center{
+    align-items: center;
+}
+.f-row.align-h-center{
+    justify-content: center;
+}
+.f-col.align-v-bottom{
+    justify-content: flex-end;
+}
+.f-row.align-v-bottom{
+    align-items: flex-end;
+}
+.f-col.align-h-bottom{
+    align-items: flex-end;
+}
+.f-row.align-h-bottom{
+    justify-content: flex-end;
+}
+.f-col.spread-out,
+.f-row.spread-out{
+    justify-content: space-between;
+}
+.fill-height{
+    height: stretch;
+    height: 100%;
+}
+.fill-width{
+    width: stretch;
+    width: 100%;
+}
+.hug-height{
+    height: fit-content;
+}
+.hug-width{
+    width: fit-content
+}
+.grow-children>*{
+    flex-grow: 1;
+}
+.flex1{flex:1}
+.g-5{gap:5px;}
+.g-10{gap:10px;}
+.g-15{gap:15px;}
+.g-20{gap:20px;}
+.g-40{gap:40px;}
+.relative{
+    position: relative;;
+}
+.text-left{text-align: left;}
+.text-right{text-align: right;}

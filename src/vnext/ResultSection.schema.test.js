@@ -45,54 +45,13 @@ test('result composition calls the schema with explicit state and merged literat
   expect(screen.getByText('Recorded association data (TSV).')).toBeTruthy();
 });
 
-test('schema-selected functional visual retains independent empirical evidence and supplies tab labels', () => {
-  const functional = { ...result, resources_tabs: { empirical_evidence: { image_url: '/api/resources/functional.png', title: 'Functional response' } } };
-  resolveResultPage.mockReturnValue({ ...page, mainVisuals: [{ id: 'functional_data', label: 'Functional Data' }], resourceTabs: { empirical_evidence: { image_url: '/api/resources/association.png', title: 'Independent association evidence' } }, supportingTabs: [{ id: 'empirical_evidence', label: 'Recorded measurements' }] });
-  render(<ResultSection run={run} result={functional} anchorPrefix="schema" />);
-  expect(screen.getByAltText('Functional response').getAttribute('src')).toContain('/api/resources/functional.png');
-  expect(screen.getByText('Independent association evidence')).toBeTruthy();
-  expect(screen.getByText('Recorded measurements')).toBeTruthy();
-  expect(screen.queryByTestId('schema-graph')).toBeNull();
-  expect(screen.queryByText('Genome Browser')).toBeNull();
-});
-
 test('progressive schema resolution preserves the existing graph mount', () => {
   const { rerender } = render(<ResultSection run={run} result={result} anchorPrefix="schema" />);
   const graph = screen.getByTestId('schema-graph');
   rerender(<ResultSection run={run} result={{ ...result, combined_query_result: { nodes: [{ '~id': 'GCG' }], edges: [] } }} anchorPrefix="schema" />);
   expect(screen.getByTestId('schema-graph')).toBe(graph);
   expect(graph.textContent).toBe('GCG');
-  expect(resolveResultPage).toHaveBeenCalledTimes(2);
-});
-
-const mixedResult = {
-  ...result, visual_material_kind: 'functional_traces', component_status: { resources: 'available' },
-  resources_tabs: { empirical_evidence: { image_url: '/api/resources/functional_response', title: 'Selected cohort response' } },
-};
-
-test('real schema appends a newly eligible functional view without remounting an existing graph', () => {
-  resolveResultPage.mockImplementation(jest.requireActual('./resultPageSchema').resolveResultPage);
-  const { rerender } = render(<ResultSection run={run} result={result} anchorPrefix="schema" />);
-  const graph = screen.getByTestId('schema-graph');
-  rerender(<ResultSection run={run} result={mixedResult} anchorPrefix="schema" />);
-  expect(screen.getByTestId('schema-graph')).toBe(graph);
-  expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['Knowledge Graph', 'Functional Data']);
-  expect(screen.getByRole('tab', { name: 'Knowledge Graph' }).getAttribute('aria-selected')).toBe('true');
-  // An explicit state change is allowed to choose a different primary view.
-  rerender(<ResultSection run={run} result={mixedResult} presentationState={{ main_visual: 'functional_data' }} anchorPrefix="schema" />);
-  expect(screen.getAllByRole('tab')[0].textContent).toBe('Functional Data');
-  expect(screen.getByRole('tab', { name: 'Functional Data' }).getAttribute('aria-selected')).toBe('true');
-});
-
-test.each([
-  [{ main_visual: 'graph_viewer' }, [], 'Knowledge Graph'],
-  [undefined, ['graph'], 'Knowledge Graph'],
-  [{ main_visual: 'functional_data' }, ['graph'], 'Functional Data'],
-])('real schema honors initial eligible state and keyword preferences (%j, %j)', (presentationState, keywords, expected) => {
-  resolveResultPage.mockImplementation(jest.requireActual('./resultPageSchema').resolveResultPage);
-  render(<ResultSection run={run} result={{ ...mixedResult, result_page_keywords: keywords }} presentationState={presentationState} anchorPrefix="schema" />);
-  expect(screen.getAllByRole('tab')[0].textContent).toBe(expected);
-  expect(screen.getByRole('tab', { name: expected }).getAttribute('aria-selected')).toBe('true');
+  expect(resolveResultPage.mock.calls.at(-1)[0].result.combined_query_result.nodes[0]['~id']).toBe('GCG');
 });
 
 test('plan graph stays loading from Cypher completion through presentation preparation', () => {

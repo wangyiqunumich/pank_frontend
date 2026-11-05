@@ -1,0 +1,242 @@
+[
+	{
+	"type": "bigwig",
+	"name": "A_stellate ATAC signal",
+	"url": "https://s3-us-west-2.amazonaws.com/gaulton-lab-ucsc/rlmelton/washu_epigenome_browser_hpap/A_Stellate.scale_1e6.bw",
+	"showOnHubLoad": true,
+	"options": {
+		"color": "#B78E66",
+		"height":  50
+		}
+	},
+	{
+	"type": "bed",
+	"name": "A_Stellate peaks",
+	"url": "https://s3-us-west-2.amazonaws.com/gaulton-lab-ucsc/rlmelton/washu_epigenome_browser_hpap/A_Stellate_union_overlap_calledpeak.sorted.bed.gz",
+	"showOnHubLoad": true,
+	"options": {
+		"color": "#B78E66",
+		"height":  50
+		}
+	},
+	{
+	"type": "bigwig",
+	"name": "Acinar ATAC signal",
+	"url": "https://s3-us-west-2.amazonaws.com/gaulton-lab-ucsc/rlmelton/washu_epigenome_browser_hpap/Acinar.scale_1e6.bw",
+	"showOnHubLoad": true,
+	"options": {
+		"color": "#09850B",
+		"height": 50
+		}
+	},
+	{
+	"type": "bed",
+	"name": "Acinar peaks",
+	"url": "https://s3-us-west-2.amazonaws.com/gaulton-lab-ucsc/rlmelton/washu_epigenome_browser_hpap/Acinar_union_overlap_calledpeak.sorted.bed.gz",
+	"showOnHubLoad": true,
+	"options": {
+		"color": "#09850B",
+		"height":  50
+		}
+	},
+	{
+	"type": "bigwig",
+	"name": "Alpha ATAC signal",
+	"url": "https://s3-us-west-2.amazonaws.com/gaulton-lab-ucsc/rlmelton/washu_epigenome_browser_hpap/Alpha.scale_1e6.bw",
+	"showOnHubLoad": true,
+	"options": {
+		"color": "#F51646",
+		"height":  50
+		}
+	},
+	{
+	"type": "bed",
+	"name": "Alpha peaks",
+	"url": "https://s3-us-west-2.amazonaws.com/gaulton-lab-ucsc/rlmelton/washu_epigenome_browser_hpap/Alpha_union_overlap_calledpeak.sorted.bed.gz",
+	"showOnHubLoad": true,
+	"options": {
+		"color": "#F51646",
+		"height":  50
+		}
+	},
+	{
+	"type": "bigwig",
+	"name": "Beta ATAC signal",
+	"url": "https://s3-us-west-2.amazonaws.com/gaulton-lab-ucsc/rlmelton/washu_epigenome_browser_hpap/Beta.scale_1e6.bw",
+	"showOnHubLoad": true,
+	"options": {
+		"color": "#3F98E0",
+		"height": 50
+		}
+	},
+	{
+	"type": "bed",
+	"name": "Beta peaks",
+	"url": "https://s3-us-west-2.amazonaws.com/gaulton-lab-ucsc/rlmelton/washu_epigenome_browser_hpap/Beta_union_overlap_calledpeak.sorted.bed.gz",
+	"showOnHubLoad": true,
+	"options": {
+		"color": "#3F98E0",
+		"height":  50
+		}
+	},
+	{
+	"type": "bigwig",
+	"name": "Delta ATAC signal",
+	"url": "https://s3-us-west-2.amazonaws.com/gaulton-lab-ucsc/rlmelton/washu_epigenome_browser_hpap/Delta.scale_1e6.bw",
+	"showOnHubLoad": true,
+	"options": {
+		"color": "#FFA946",
+		"height":  50
+		}
+	},
+	{
+	"type": "bed",
+	"name": "Delta peaks",
+	"url": "https://s3-us-west-2.amazonaws.com/gaulton-lab-ucsc/rlmelton/washu_epigenome_browser_hpap/Delta_union_overlap_calledpeak.sorted.bed.gz",
+	"showOnHubLoad": true,
+	"options": {
+		"color": "#FFA946",
+		"height":  50
+		}
+	},
+	{
+	"type": "bigwig",
+	"name": "Ductal ATAC signal",
+	"url": "https://s3-us-west-2.amazonaws.com/gaulton-lab-ucsc/rlmelton/washu_epigenome_browser_hpap/Ductal.scale_1e6.bw",
+	"showOnHubLoad": true,
+	"options": {
+		"color": "#F5DE6C",
+		"height": 50
+		}
+	},
+	{
+	"type": "bed",
+	"name": "Ductal peaks",
+	"url": "https://s3-us-west-2.amazonaws.com/gaulton-lab-ucsc/rlmelton/washu_epigenome_browser_hpap/Ductal_union_overlap_calledpeak.sorted.bed.gz",
+	"showOnHubLoad": true,
+	"options": {
+		"color": "#F5DE6C",
+		"height":  50
+		}
+	},
+	{
+	"type": "bigwig",
+	"name": "Endothelial ATAC signal",
+	"url": "https://s3-us-west-2.amazonaws.com/gaulton-lab-ucsc/rlmelton/washu_epigenome_browser_hpap/Endothelial.scale_1e6.bw",
+	"showOnHubLoad": true,
+	"options": {
+		"color": "#752BBA",
+		"height":  50
+		}
+	},
+	{
+	"type": "bed",
+	"name": "Endothelial peaks",
+	"url": "https://s3-us-west-2.amazonaws.com/gaulton-lab-ucsc/rlmelton/washu_epigenome_browser_hpap/Endothelial_union_overlap_calledpeak.sorted.bed.gz",
+	"showOnHubLoad": true,
+	"options": {
+		"color": "#752BBA",
+		"height": 50
+		}
+	},
+	{
+	"type": "bigwig",
+	"name": "Gamma ATAC signal",
+	"url": "https://s3-us-west-2.amazonaws.com/gaulton-lab-ucsc/rlmelton/washu_epigenome_browser_hpap/Gamma.scale_1e6.bw",
+	"showOnHubLoad": true,
+	"options": {
+		"color": "#A1D99B",
+		"height": 50
+		}
+	},
+	{
+	"type": "bed",
+	"name": "Gamma peaks",
+	"url": "https://s3-us-west-2.amazonaws.com/gaulton-lab-ucsc/rlmelton/washu_epigenome_browser_hpap/Gamma_union_overlap_calledpeak.sorted.bed.gz",
+	"showOnHubLoad": true,
+	"options": {
+		"color": "#A1D99B",
+		"height": 50
+		}
+	},
+	{
+	"type": "bigwig",
+	"name": "Immune ATAC signal",
+	"url": "https://s3-us-west-2.amazonaws.com/gaulton-lab-ucsc/rlmelton/washu_epigenome_browser_hpap/Immune.scale_1e6.bw",
+	"showOnHubLoad": true,
+	"options": {
+		"color": "#F598C9",
+		"height":  50
+		}
+	},
+	{
+	"type": "bed",
+	"name": "Immune peaks",
+	"url": "https://s3-us-west-2.amazonaws.com/gaulton-lab-ucsc/rlmelton/washu_epigenome_browser_hpap/Immune_union_overlap_calledpeak.sorted.bed.gz",
+	"showOnHubLoad": true,
+	"options": {
+		"color": "#F598C9",
+		"height": 50
+		}
+	},
+	{
+	"type": "bigwig",
+	"name": "Muc5b_ductal ATAC signal",
+	"url": "https://s3-us-west-2.amazonaws.com/gaulton-lab-ucsc/rlmelton/washu_epigenome_browser_hpap/MUC5B_Ductal.scale_1e6.bw",
+	"showOnHubLoad": true,
+	"options": {
+		"color": "#D66853",
+		"height": 50
+		}
+	},
+	{
+	"type": "bed",
+	"name": "MUC5B_Ductal peaks",
+	"url": "https://s3-us-west-2.amazonaws.com/gaulton-lab-ucsc/rlmelton/washu_epigenome_browser_hpap/MUC5B_Ductal_union_overlap_calledpeak.sorted.bed.gz",
+	"showOnHubLoad": true,
+	"options": {
+		"color": "#D66853",
+		"height": 50
+		}
+	},
+	{
+	"type": "bigwig",
+	"name": "Q_stellate ATAC signal",
+	"url": "https://s3-us-west-2.amazonaws.com/gaulton-lab-ucsc/rlmelton/washu_epigenome_browser_hpap/Q_Stellate.scale_1e6.bw",
+	"showOnHubLoad": true,
+	"options": {
+		"color": "#583E23",
+		"height":  50
+		}
+	},
+	{
+	"type": "bed",
+	"name": "Q_Stellate peaks",
+	"url": "https://s3-us-west-2.amazonaws.com/gaulton-lab-ucsc/rlmelton/washu_epigenome_browser_hpap/Q_Stellate_union_overlap_calledpeak.sorted.bed.gz",
+	"showOnHubLoad": true,
+	"options": {
+		"color": "#583E23",
+		"height": 50
+		}
+	},
+	{
+	"type": "bigwig",
+	"name": "Schwann ATAC signal",
+	"url": "https://s3-us-west-2.amazonaws.com/gaulton-lab-ucsc/rlmelton/washu_epigenome_browser_hpap/Schwann.scale_1e6.bw",
+	"showOnHubLoad": true,
+	"options": {
+		"color": "#93D7CD",
+		"height": 50
+		}
+	},
+	{
+	"type": "bed",
+	"name": "Schwann peaks",
+	"url": "https://s3-us-west-2.amazonaws.com/gaulton-lab-ucsc/rlmelton/washu_epigenome_browser_hpap/Schwann_union_overlap_calledpeak.sorted.bed.gz",
+	"showOnHubLoad": true,
+	"options": {
+		"color": "#93D7CD",
+		"height": 50
+		}
+	}
+]

@@ -11,20 +11,20 @@ const sourceAsset = () => ({ asset_id: 'rawtable', kind: 'association_tsv', medi
 
 test('state then controlled keywords choose among available views', () => {
   const result = { ...functional(), combined_query_result: graph().combined_query_result };
-  expect(resolveResultPage({ result }).mainVisuals.map(v => v.id)).toEqual(['functional_data', 'graph_viewer']);
+  expect(resolveResultPage({ result }).mainVisuals.map(v => v.id)).toEqual(['graph_viewer']);
   expect(resolveResultPage({ result, state: { main_visual: 'graph' }, agentKeywords: ['functional_data'] }).mainVisuals[0].id).toBe('graph_viewer');
   expect(resolveResultPage({ result, agentKeywords: ['kg_view'] }).mainVisuals[0].id).toBe('graph_viewer');
 });
 
-test('hints cannot fabricate functional context or reveal the hidden genome browser', () => {
+test('hints cannot fabricate functional context or a genome-browser context', () => {
   const page = resolveResultPage({ result: graph(), state: { main_visual: 'genome_browser' }, agentKeywords: ['functional_data', 'genome_browser'] });
   expect(page.mainVisuals.map(v => v.id)).toEqual(['graph_viewer']);
-  expect(page.decisions.find(d => d.component === 'genome_browser').reason).toBe('hidden_or_disabled');
+  expect(page.decisions.find(d => d.component === 'genome_browser').reason).toBe('required_data_missing');
 });
 
 test('reads exact keyword arrays without scanning answer prose', () => {
   const result = { ...functional(), combined_query_result: graph().combined_query_result, answer: 'Display a knowledge_graph' };
-  expect(resolveResultPage({ result }).mainVisuals[0].id).toBe('functional_data');
+  expect(resolveResultPage({ result }).mainVisuals[0].id).toBe('graph_viewer');
   expect(resolveResultPage({ result, run: { evidence: { result_page_keywords: ['kg_view'] } } }).mainVisuals[0].id).toBe('graph_viewer');
   expect(resolveResultPage({ result, agentKeywords: ['execute_html'] }).decisions).toContainEqual(expect.objectContaining({ reason: 'unknown_keyword' }));
 });
@@ -63,7 +63,7 @@ test('metadata export is labeled as metadata and source failure removes a stale 
   expect(resolveResultPage({ result }).insertions).toEqual([]);
 });
 
-test('functional main asset is deduplicated while independent empirical groups remain', () => {
+test('recorded functional asset remains evidence alongside the independent extension', () => {
   const result = functional();
   const association = { title: 'Independent association evidence', image_url: '/api/resources/associationplot', download_url: '/api/resources/rawtable' };
   const other = { ...association, title: 'Another source', image_url: '/api/resources/otherplot', data_source: 'study2' };
@@ -73,7 +73,7 @@ test('functional main asset is deduplicated while independent empirical groups r
     { resources_tabs: { empirical_evidence: other } },
   ] };
   const page = resolveResultPage({ result });
-  expect(page.resourceTabs.empirical_evidence_groups).toEqual([association, other]);
+  expect(page.resourceTabs.empirical_evidence_groups).toEqual([result.resources_tabs.empirical_evidence, association, other]);
   expect(page.supportingTabs).toContainEqual({ id: 'empirical_evidence', label: 'Empirical Evidence' });
   expect(result.resources_tabs.empirical_evidence.image_url).toBe('/api/resources/functionalplot');
 });
@@ -115,7 +115,7 @@ test('loading and failed graph work keep the status view; explanation-only work 
 test('pending functional response uses its own status without empty graph/references placeholders', () => {
   const result = { source: { template_id: 'functional_traces' }, component_status: { resources: 'pending' } };
   const page = resolveResultPage({ result });
-  expect(page.mainVisuals).toEqual([{ id: 'functional_data', label: 'Functional Data', status: 'pending' }]);
+  expect(page.mainVisuals).toEqual([]);
   expect(page.supportingTabs).toEqual([]);
 });
 
@@ -123,12 +123,12 @@ test('pending functional response uses its own status without empty graph/refere
 test('namespaced saved functional assets are available and never become an unavailable duplicate card', () => {
   const result = {status:'ready',visual_material_kind:'functional_traces',source:{template_id:'functional_traces'},component_status:{resources:'available'},resources_tabs:{empirical_evidence:{title:'Selected cohort functional response',status:'available',image_url:'/pankgraph-vnext/api/resources/functionalplot',download_url:'/pankgraph-vnext/api/resources/functionalplot',link:'/pankgraph-vnext/api/resources/functionalplot'}}};
   const page = resolveResultPage({result});
-  expect(page.mainVisuals).toEqual([{id:'functional_data',label:'Functional Data',status:'available'}]);
-  expect(page.supportingTabs).toEqual([]);
-  expect(page.resourceTabs.empirical_evidence).toBeUndefined();
+  expect(page.mainVisuals).toEqual([]);
+  expect(page.supportingTabs.map(t=>t.id)).toEqual(['empirical_evidence']);
+  expect(page.resourceTabs.empirical_evidence.image_url).toBe(result.resources_tabs.empirical_evidence.image_url);
   const independent = {title:'Independent source',image_url:'/pankgraph-vnext/api/resources/independent',download_url:'/pankgraph-vnext/api/resources/rawtable'};
   result.resources = {resource_groups:[{resources_tabs:{empirical_evidence:{...result.resources_tabs.empirical_evidence,image_url:'/api/resources/functionalplot'}}},{resources_tabs:{empirical_evidence:independent}}]};
-  expect(resolveResultPage({result}).resourceTabs.empirical_evidence_groups).toEqual([independent]);
+  expect(resolveResultPage({result}).resourceTabs.empirical_evidence_groups).toEqual(expect.arrayContaining([independent]));
 });
 
 test('asset recognition permits only the two exact same-origin resource namespaces', () => {
@@ -141,7 +141,7 @@ test('scmap selection is owned by the result schema and requires an actual RNA p
  const graph = { nodes: [{ '~id': 'g', '~labels': ['Gene'], '~properties': { HGNC_symbol: 'CFTR' } }, { '~id': 'c', '~labels': ['anatomical_structure'], '~properties': { name: 'ductal cell' } }], edges: [{ '~id': 'e', '~type': 'GENE_ENRICHED_IN', '~start': 'g', '~end': 'c' }] };
  const page = resolveResultPage({ result: { combined_query_result: graph } });
  expect(page.mainVisuals.map(item => item.id)).toContain('single_cell_browser');
- expect(resolveScWordings(page.scBrowser.wording).atlas_label).toBe('PanKbase scRNAseq V3.3');
+ expect(resolveScWordings(page.scBrowser.wording).atlas_label).toBe('PanKbase scRNAseq V3.4');
  expect(resolveScWordings({ ...page.scBrowser.wording, display_release: 'V7.0' }).atlas_label).toBe('PanKbase scRNAseq V7.0');
  expect(SC_DATASET).toBe('islet_of_Langerhans_scRNA_v3-4');
  expect(page.scBrowser.preview).toBeUndefined();

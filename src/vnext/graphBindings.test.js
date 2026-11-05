@@ -156,7 +156,7 @@ test('resize observer waits for visibility, preserves user zoom on size changes,
   const bounds = { x1: 0, y1: 0, x2: 1000, y2: 400 };
   const cy = { destroyed: () => destroyed, resize: jest.fn(), nodes: () => ({ length: 100 }),
     elements: () => ({ boundingBox: jest.fn(() => bounds) }), width: () => size.width, height: () => size.height,
-    minZoom: jest.fn(), maxZoom: jest.fn(), viewport: jest.fn((view) => { zoom = view.zoom; pan = view.pan; }),
+    zoom: () => zoom, pan: () => pan, minZoom: jest.fn(), maxZoom: jest.fn(), viewport: jest.fn((view) => { zoom = view.zoom; pan = view.pan; }),
     panBy: jest.fn(delta => { pan = { x: pan.x + delta.x, y: pan.y + delta.y }; }) };
   const disconnect = jest.fn();
   const host = { ResizeObserver: jest.fn(function Observer(fn) { callback = fn; this.observe = jest.fn(); this.disconnect = disconnect; }),
@@ -168,6 +168,11 @@ test('resize observer waits for visibility, preserves user zoom on size changes,
   frame();
   size = { width: 600, height: 630 }; callback(); callback(); frame();
   expect(onFit).toHaveBeenCalledTimes(1);
+  expect(zoom).toBeCloseTo(0.492);
+  size = { width: 600, height: 260 }; callback(); frame();
+  expect(zoom).toBeLessThan(0.492); // Unchanged fit adapts to a shorter fullscreen viewport.
+  expect(pan.y + bounds.y1 * zoom).toBeGreaterThanOrEqual(64);
+  size = { width: 600, height: 630 }; callback(); frame();
   expect(zoom).toBeCloseTo(0.492);
   zoom = 2; callback(); frame();
   expect(zoom).toBe(2);
@@ -187,7 +192,7 @@ test('resize observer waits for visibility, preserves user zoom on size changes,
   size = { width: 600, height: 630 }; controller.fit();
   expect(zoom).toBeCloseTo(0.492);
   callback(); const lastFrame = frame; controller.dispose(); destroyed = true; lastFrame();
-  expect(onFit).toHaveBeenCalledTimes(2);
+  expect(onFit).toHaveBeenCalledTimes(4);
   expect(disconnect).toHaveBeenCalledTimes(1);
   expect(host.cancelAnimationFrame).toHaveBeenCalledWith(1);
   expect(controller.fit()).toBeNull();

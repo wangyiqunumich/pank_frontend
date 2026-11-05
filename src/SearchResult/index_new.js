@@ -1,3 +1,4 @@
+import QuestionAnswerPage from '../vnext/DevResultPage';
 import './scoped.css';
 
 import React, {
@@ -33,7 +34,7 @@ import {
   tabsQTL,
 } from '../components/IntermediatePage';
 import KnowledgeGraph from '../components/KnowledgeGraph';
-import QuestionAnswerPage, {
+import {
   ResultComponentSkeleton,
 } from '../components/ResultComponent';
 import VisuImage from '../image/output.png';
@@ -1130,6 +1131,7 @@ function SearchResult({ demoIndex = 1, contentAnchorPrefix, onContentMeta } = {}
         title: stripHtml(currentQuestion) || "Question",
         aiOverview: { sections: aiSections, isLoading: isAiSummaryLoading },
         graphData: queryResultPage?.combined_query_result,
+        guideEnabled: true,
         visualMaterial: {
             title: "Visual Material",
             tabs: [

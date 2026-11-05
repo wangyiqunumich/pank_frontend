@@ -51,7 +51,7 @@ export function calculateGraphViewport(bounds, size) {
     || ![bounds.x1, bounds.y1, bounds.x2, bounds.y2].every(Number.isFinite)) return null;
   // Reserve the existing controls and collapsed legend, not just the pane edge.
   const insetScale = Math.min(1, size.width / 320, size.height / 240);
-  const left = 24 * insetScale, right = 84 * insetScale, top = 24 * insetScale, bottom = 76 * insetScale;
+  const left = 24 * insetScale, right = 84 * insetScale, top = 64 * insetScale, bottom = 76 * insetScale;
   const width = size.width - left - right, height = size.height - top - bottom;
   const zoom = Math.min(4, width / Math.max(1, bounds.x2 - bounds.x1), height / Math.max(1, bounds.y2 - bounds.y1));
   return { zoom, minZoom: Math.min(0.6, zoom / 2), maxZoom: 4,
@@ -74,13 +74,13 @@ export function fitGraphViewport(cy, listMode = false) {
 }
 
 export function observeGraphViewport(cy, container, onFit = () => {}, host = window, listMode = false) {
-  let disposed = false, frame = null, lastSize = null;
+  let disposed = false, frame = null, lastSize = null, fittedCamera = null;
   const fit = () => {
     if (disposed || cy.destroyed()) return null;
     const box = container.getBoundingClientRect();
     if (box.width <= 0 || box.height <= 0) return null;
     const viewport = fitGraphViewport(cy, listMode);
-    if (viewport) { lastSize = { width: box.width, height: box.height }; onFit(viewport); }
+    if (viewport) { lastSize = { width: box.width, height: box.height }; fittedCamera = { zoom: viewport.zoom, pan: viewport.pan }; onFit(viewport); }
     return viewport;
   };
   const schedule = () => {
@@ -92,7 +92,12 @@ export function observeGraphViewport(cy, container, onFit = () => {}, host = win
       // Hidden visual tabs must not replace the last visible camera geometry.
       if (box.width <= 0 || box.height <= 0) return;
       if (box.width !== lastSize?.width || box.height !== lastSize?.height) {
-        if (!lastSize) fit();
+        const pan = cy.pan();
+        const stillFitted = fittedCamera && Math.abs(cy.zoom() - fittedCamera.zoom) < 1e-6
+          && Math.abs(pan.x - fittedCamera.pan.x) < 1e-6 && Math.abs(pan.y - fittedCamera.pan.y) < 1e-6;
+        // A shorter fullscreen window must not crop the initial fitted graph.
+        // Once the user changes the camera, retain their chosen view instead.
+        if (!lastSize || stillFitted) fit();
         else {
           cy.resize();
           // Resize the viewport around its model-space center, not its top-left.

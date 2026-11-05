@@ -52,10 +52,25 @@ export default function PersistentGraphViewport({ children, fullscreen, onExit, 
     document.documentElement.style.overflow = 'hidden';
     return () => { document.body.style.overflow = bodyOverflow; document.documentElement.style.overflow = htmlOverflow; };
   }, [fullscreen]);
+  useLayoutEffect(() => {
+    if (typeof ResizeObserver === 'undefined') return undefined;
+    const element=dialog.current;
+    let frame;
+    // Embedded runtimes must remeasure after the top-layer/flex layout settles.
+    // A resize inside an iframe is not guaranteed for every modal transition.
+    const resized=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{
+      element.querySelectorAll('iframe').forEach(iframe=>{
+        try { iframe.contentWindow.dispatchEvent(new Event('resize')); } catch (_) { /* Cross-origin embeds own their resize handling. */ }
+      });
+    });};
+    const observer=typeof ResizeObserver==='undefined'?null:new ResizeObserver(resized);
+    observer?.observe(element);resized();
+    return ()=>{observer?.disconnect();cancelAnimationFrame(frame);};
+  }, []);
   return <dialog ref={dialog} role={fullscreen ? 'dialog' : 'presentation'} aria-modal={fullscreen || undefined} aria-label={fullscreen ? label : undefined} tabIndex={-1}
     onCancel={event => { event.preventDefault(); onExit(); }}
     onKeyDown={event => { if (fullscreen && event.key === 'Escape') { event.preventDefault(); onExit(); } }}
-    style={{ display: 'block', boxSizing: 'border-box', position: fullscreen ? 'fixed' : 'relative', inset: fullscreen ? 0 : 'auto', width: fullscreen ? '100vw' : '100%', height: fullscreen ? '100dvh' : '100%', minHeight: 0, maxWidth: 'none', maxHeight: 'none', margin: 0, padding: 0, border: 0, background: 'transparent', color: 'inherit', outline: 0 }}>
+    style={{ display: 'block', boxSizing: 'border-box', position: fullscreen ? 'fixed' : 'relative', inset: fullscreen ? 0 : 'auto', width: fullscreen ? '100vw' : '100%', height: fullscreen ? '100dvh' : '100%', minHeight: 0, maxWidth: 'none', maxHeight: 'none', margin: 0, padding: 0, border: 0, overflow: 'hidden', background: 'transparent', color: 'inherit', outline: 0 }}>
     {children}
     {fullscreen && <button type="button" aria-label="Exit fullscreen graph" title="Exit full screen" onClick={onExit}
       style={{ position: 'fixed', top: 16, right: 16, zIndex: 2147483001, width: 40, height: 40,

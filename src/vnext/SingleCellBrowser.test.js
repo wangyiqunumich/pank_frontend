@@ -97,15 +97,18 @@ test('only this browser frame can request fullscreen, preserving its iframe and 
  expect(screen.getByTitle('PanKgraph single-cell browser')).toBe(frame);
  unmount();
 });
-test('mixed QTL and RNA modules use main tabs without any graph preview', () => {
- const qtlGraph = { nodes: [...graph.nodes, { '~id': 'rs2402203', '~labels': ['sequence_variant'], '~properties': { name: 'rs2402203' } }], edges: [...graph.edges, { '~id': 'qtl', '~type': 'PART_OF_QTL_SIGNAL', '~start': 'rs2402203', '~end': 'cftr', '~properties': { data_source: 'splicing; GTEx', credible_set: 'test_credibleSet1' } }] };
+test('mixed evidence uses persistent tabs without any visualization preview popup', async () => {
+ const qtlGraph = { nodes: [...graph.nodes, { '~id': 'rs2402203', '~labels': ['sequence_variant'], '~properties': { name: 'rs2402203' } }], edges: [...graph.edges, { '~id': 'qtl', '~type': 'PART_OF_QTL_SIGNAL', '~start': 'rs2402203', '~end': 'cftr', '~properties': { source_id: 'PKBDS2105PCON', credible_set: 'test_credibleSet1' } }] };
  render(<ResultSection result={{ ...result, combined_query_result: qtlGraph }} />);
  const graphElement = screen.getByTestId('graph');
  expect(screen.queryByRole('region', { name: 'Visualization preview' })).toBeNull();
  expect(screen.queryByRole('button', { name: 'Show visualization preview' })).toBeNull();
- fireEvent.click(screen.getByRole('tab', { name: 'QTL Fine-Mapping' }));
- expect(screen.getByRole('tab', { name: 'QTL Fine-Mapping' }).getAttribute('aria-selected')).toBe('true');
- fireEvent.click(screen.getByRole('tab', { name: 'Knowledge Graph' }));
+ expect(screen.queryByRole('tab', { name: 'Gene Browser' })).toBeNull();
+ expect(screen.queryByRole('tab', { name: 'Cell State Browser' })).toBeNull();
+ const tabs = screen.getByRole('tablist', { name: 'Result visualizations' });
+ fireEvent.click(within(tabs).getByRole('tab', { name: 'QTL Browser' }));
+ expect(within(tabs).getByRole('tab', { name: 'QTL Browser' }).getAttribute('aria-selected')).toBe('true');
+ fireEvent.click(within(tabs).getByRole('tab', { name: 'Knowledge Graph' }));
  expect(screen.getByTestId('graph')).toBe(graphElement);
  expect(screen.queryByRole('region', { name: 'Visualization preview' })).toBeNull();
 });

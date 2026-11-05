@@ -38,3 +38,6 @@ __pycache__/
 
 # Disposable isolated Amplify fixed-demo build
 /.techdemo-work/
+
+/pankbase-browser/node_modules/
+/public/pankbase-browser/

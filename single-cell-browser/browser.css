@@ -14,9 +14,6 @@ a { color: #0f766e; text-decoration: none; }
 a:hover { text-decoration: underline; }
 p { margin: 6px 0 12px; line-height: 1.6; }
 h2 { margin: 0 0 5px; font-size: 14px; color: #334155; font-weight: 600; }
-.browser-header { flex: none; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; padding: 12px; border-bottom: 1px solid #f1f5f9; color: #0f766e; line-height: 16px; }
-.browser-header strong { font-weight: 500; }
-.browser-header > a { display: inline-flex; flex-shrink: 0; align-items: center; gap: 4px; margin-left: auto; font-size: 12px; font-weight: 500; }
 .explore-controls { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 8px clamp(8px, calc(25vw - 96px), 16px); margin: 0; padding: 14px 12px; border-bottom: 1px solid #f1f5f9; }
 .gene-control { display: flex; flex: 0 1 auto; align-items: stretch; min-width: 0; height: 32px; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; background: #fff; }
 .gene-control > span { display: flex; align-items: center; padding: 0 10px; border-right: 1px solid #e2e8f0; color: #94a3b8; white-space: nowrap; font-weight: 400; }
@@ -39,7 +36,7 @@ h2 { margin: 0 0 5px; font-size: 14px; color: #334155; font-weight: 600; }
 .external-icon img { display: block; }
 .browser-stage { position: relative; flex: 1; min-height: 0; min-width: 0; overflow: hidden; }
 .browser-content { height: 100%; min-width: 0; overflow: auto; padding: 10px 12px; }
-.browser-content.is-map { display: flex; flex-direction: column; }
+.browser-content.is-map { display: flex; flex-direction: column; overflow: hidden; }
 .browser-content.is-map > :not(.map-card) { flex-shrink: 0; }
 .browser-content.is-map .map-card { display: flex; flex-direction: column; flex: 1; min-height: 0; margin-bottom: 0; }
 .map-viewport { flex: 1; min-height: 0; }
@@ -95,3 +92,13 @@ dd { margin: 0; overflow-wrap: anywhere; }
   .provenance dl { display: block; }
   dd { margin: 4px 0 12px; }
 }
+
+/* Keep a single content scrollbar; inline SVG baseline space otherwise creates
+   a second five-pixel scroll range inside the upstream violin wrapper. */
+.violin svg { display:block; }
+.browser-content:not(.is-map) { padding-right:12px; }
+
+/* The outer content owns vertical scrolling; the violin needs horizontal scrolling only.
+   Let the native chart wrapper expand without becoming another scroll container. */
+.violin-scroll { overflow-x: auto; overflow-y: hidden; }
+.violin > div { overflow: visible !important; }

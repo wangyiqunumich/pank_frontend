@@ -1,0 +1,575 @@
+/* Shared styling for the inline state / program detail components.
+ *
+ * One file rather than a copy in each SFC: both render the same panel chrome, and
+ * two copies would drift. Pulled in with `<style scoped src="...">` so each
+ * component still scopes it to its own markup instead of leaking page-wide.
+ *
+ * Derived from the original right-side drawer; the fixed-position chrome
+ * (backdrop, slide-in transform, sticky header) is gone because the panel now
+ * sits in the page flow. */
+
+.detail-panel-wrap{
+    border: 1px solid #edf0f7;
+    border-radius: 10px;
+    background: white;
+}
+
+.detail-tabs{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 10px 20px 0;
+    border-bottom: 1px solid #edf0f7;
+}
+.detail-tab{
+    padding: 6px 12px !important;
+    border: 1px solid transparent;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    background: transparent;
+    color: #4e4e4e;
+    font-size: 13px;
+    cursor: pointer;
+}
+.detail-tab:hover{
+    background: #f3f4f6;
+}
+.detail-tab.active{
+    border-color: #edf0f7;
+    background: #e8f1fb;
+    color: var(--liger-secondary, #175cd3);
+    font-weight: 700;
+}
+.detail-tab-count{
+    margin-left: 6px;
+    color: #6b7280;
+    font-weight: normal;
+}
+.detail-subheading{
+    margin-top: 18px;
+}
+/* the gene-specific reading and the QC verdict are the point of the overview,
+   so they are tinted out of the run of plain sections */
+.detail-interpretation{
+    background: #f6f9fd;
+    border-color: #d9e6f5;
+}
+.detail-ordered-list{
+    margin: 0;
+    padding-left: 20px;
+}
+.detail-ordered-list li{
+    padding: 2px 0;
+}
+
+/* generic helpers the detail markup uses; scoped, so they do not leak */
+.empty-state{
+    padding: 5px 0;
+    font-size: 13px;
+    color: #4e4e4e;
+}
+.clickable-cell{
+    cursor: pointer;
+}
+.clickable-cell:hover{
+    background: #ddd;
+}
+.table-wrap{
+    overflow-x: auto;
+}
+.table-wrap table {
+    width: 100%;
+}
+.table-wrap table tr th {
+    white-space: nowrap;
+}
+.table-wrap table tr th, .table-wrap table tr td {
+    padding: 0 5px;
+}
+.table-wrap table tr td:first-child {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 900px) {
+    .detail-field-grid{
+        grid-template-columns: 1fr;
+    }
+}
+
+.detail-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 18px 20px;
+    border-bottom: 1px solid #edf0f7;
+}
+.detail-eyebrow{
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #4e4e4e;
+}
+.detail-header-main{
+    min-width: 0;
+    flex: 1;
+}
+.detail-title{
+    margin: 0 !important;
+}
+/* The state's own description, moved up out of the overview. It says what the
+   entity *is*, which belongs next to its name rather than in a section competing
+   with the gene-specific reading below. */
+.detail-lede{
+    margin: 0;
+    max-width: 70ch;
+    font-size: 13px;
+    line-height: 1.55;
+    color: #374151;
+}
+/* Where the curation came from, in its own corner opposite the title, so "how
+   trustworthy is this record" reads as one thing separate from the biology.
+   Only API-reported values land here. */
+.detail-curation-summary{
+    flex: none;
+    width: auto;
+    padding: 10px 12px;
+    border: 1px solid #edf0f7;
+    border-radius: 10px;
+    background: #fafbfd;
+}
+/* Label beside value, one field per row. The label column sizes to its content
+   rather than taking the panel default 170px, and the box is `width: auto`, so
+   the whole block sizes to whatever the curation values need.
+   More specific than the 900px `.detail-field-grid` override below, so the two
+   columns survive at narrow widths -- the header stacks there, which is where
+   two columns read best. */
+.detail-curation-summary .detail-field-grid{
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: baseline;
+    gap: 6px 10px;
+}
+.detail-curation-summary .detail-field-grid dt{
+    font-size: 11px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: #6b7280;
+    font-weight: 400;
+}
+
+/* Interpretation guidance: label in the header, prose on hover. The content is
+   several paragraphs and belongs with the state's description, but rendered
+   inline it pushed the actual associations out of view. */
+.detail-note-row{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+}
+.detail-note{
+    position: relative;
+    display: inline-flex;
+    cursor: help;
+}
+.detail-note-label{
+    padding: 3px 10px;
+    border: 1px solid #d9e6f5;
+    border-radius: 999px;
+    background: #f6f9fd;
+    color: var(--liger-secondary, #175cd3);
+    font-size: 12px;
+    font-weight: 700;
+}
+.detail-note:hover .detail-note-label,
+.detail-note:focus-within .detail-note-label{
+    background: #e8f1fb;
+}
+/* Below the label, not above: these sit near the top of the panel, where an
+   upward bubble would open off the top of the section. */
+.detail-note-bubble{
+    position: absolute;
+    left: 0;
+    top: calc(100% + 8px);
+    width: 460px;
+    max-width: min(460px, calc(100vw - 32px));
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: #16324f;
+    color: white;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.5;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, .18);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: opacity .14s ease, transform .14s ease, visibility .14s ease;
+    pointer-events: none;
+    z-index: 20;
+}
+.detail-note-bubble::after{
+    content: "";
+    position: absolute;
+    left: 18px;
+    bottom: 100%;
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent transparent #16324f transparent;
+}
+.detail-note-grid{
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+    margin: 0;
+}
+.detail-note-grid dt{
+    color: #9fc4ea;
+    font-weight: 700;
+}
+.detail-note-grid dd{
+    margin: 0 0 8px;
+    color: #f3f6fa;
+}
+.detail-note-grid dd:last-child{
+    margin-bottom: 0;
+}
+.detail-note:hover .detail-note-bubble,
+.detail-note:focus-within .detail-note-bubble{
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+.detail-body{
+    padding: 18px 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+/* The overview is a digest, so it reads as one row: every section is a column,
+   side by side, and the whole digest is visible without scrolling past any of it.
+   `grid-auto-flow: column` means neither component has to declare how many
+   sections it has.
+   The 180px floor is what stops six program columns from squashing into
+   unreadable slivers -- past that the row scrolls rather than shrinking, which
+   keeps it a row at every width. */
+.detail-overview-row{
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(180px, 1fr);
+    align-items: stretch;
+    gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+.detail-overview-row > .detail-section{
+    min-width: 0;
+}
+/* Section title with a note across from it -- the note says how the preview was
+   selected, which belongs beside the heading rather than under the list. */
+.detail-section-head{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+}
+.detail-section-head h5{
+    margin: 0 !important;
+}
+.detail-section-head .detail-mini{
+    margin-top: 0;
+    flex: none;
+    white-space: nowrap;
+}
+/* A plain list, not chips: these read as rows of name + category, and wrapped
+   badges lost the pairing. */
+.detail-pair-list{
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 12px;
+}
+.detail-pair-list li{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    padding: 3px 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+.detail-pair-list li:last-child{
+    border-bottom: none;
+}
+.detail-pair-name{
+    min-width: 0;
+    overflow-wrap: anywhere;
+    color: #1f2937;
+}
+.detail-pair-meta{
+    flex: none;
+    color: #6b7280;
+}
+
+/* Column-width content adjustments. These only apply inside the overview row;
+   the same markup on a full-width tab keeps its roomier default. */
+
+/* Stacked rather than side-by-side: these labels are sentences ("If your gene is
+   enriched here"), and a 170px label column wraps them to three lines while
+   starving the value beside them. */
+.detail-overview-row .detail-field-grid{
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+}
+.detail-overview-row .detail-field-grid dt{
+    margin-top: 10px;
+    font-size: 12px;
+}
+.detail-overview-row .detail-field-grid dt:first-child{
+    margin-top: 0;
+}
+.detail-overview-row .detail-field-grid dd{
+    font-size: 12px;
+    line-height: 1.5;
+}
+/* Chip text is frequently one long unbroken token (`HALLMARK_TNFA_SIGNALING...`,
+   trait names), which would otherwise push its column wider than its share. */
+.detail-overview-row .detail-marker{
+    max-width: 100%;
+    padding: 3px 8px;
+    overflow-wrap: anywhere;
+}
+.detail-overview-row .detail-marker-list{
+    gap: 6px;
+}
+.detail-overview-row .detail-section p{
+    font-size: 12px;
+    line-height: 1.5;
+}
+.detail-overview-row .detail-ordered-list{
+    padding-left: 16px;
+    font-size: 12px;
+}
+/* Color key for a table whose rows are tinted. It leads the section, because the
+   colors are the fastest read in the table and mean nothing without it. */
+.detail-legend-row{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    margin: 8px 0 12px;
+    font-size: 12px;
+    color: #4e4e4e;
+}
+.detail-legend-item{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* One statistic per line: `GSEA P · GSEA q · Match` on one line re-wrapped into
+   an unreadable ribbon at column width. */
+.detail-stat-list{
+    margin-top: 8px;
+    display: grid;
+    grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+    gap: 2px 8px;
+    font-size: 12px;
+    color: #4e4e4e;
+}
+.detail-stat-list dt{
+    color: #6b7280;
+}
+.detail-stat-list dd{
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+}
+/* On a full-width tab there is room to run the pairs across one line, which the
+   column-width stacking would waste. */
+.detail-stat-inline{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 18px;
+}
+.detail-stat-inline dt::after{
+    content: ":";
+}
+
+@media (max-width: 1100px) {
+    .detail-header{
+        flex-direction: column;
+    }
+}
+.detail-section{
+    border: 1px solid #edf0f7;
+    border-radius: 12px;
+    padding: 16px;
+    background: #fff;
+}
+.detail-section h5{
+    margin-bottom: 10px !important;
+}
+.detail-field-grid{
+    display: grid;
+    grid-template-columns: 170px minmax(0, 1fr);
+    gap: 10px 14px;
+    margin: 0;
+}
+.detail-field-grid dt{
+    font-weight: 700;
+    color: #1f2937;
+}
+.detail-field-grid dd{
+    margin: 0;
+    color: #374151;
+}
+.detail-badge{
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+.detail-badge.good{
+    background: #e7f7ed;
+    color: #0f7b39;
+}
+.detail-badge.warn{
+    background: #fff4d6;
+    color: #9a6700;
+}
+.detail-badge.bad{
+    background: #fde7e9;
+    color: #b42318;
+}
+.detail-badge.blue{
+    background: #e8f1fb;
+    color: var(--liger-secondary, #175cd3);
+}
+.detail-link-button{
+    margin-top: 10px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--liger-secondary, #175cd3);
+    font-size: 13px;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+}
+.detail-link-button:hover{
+    text-decoration: underline;
+}
+.detail-marker-list{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.detail-marker{
+    display: inline-flex;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #f3f4f6;
+    color: #1f2937;
+    font-size: 12px;
+    font-weight: 700;
+}
+.detail-mini{
+    margin-top: 10px;
+    font-size: 12px;
+    color: #4e4e4e;
+}
+
+.relationship-link{
+    margin: 0 6px;
+    color: #6b7280;
+}
+.detail-action-row{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+/* The matrices moved in here from their own page sections, scoped to the entity
+   the panel is about. The table *is* the heatmap: every numeric column keeps its
+   number and carries its own color scale under the header, the same way the
+   expression cards label their axis. */
+.matrix-controls{
+    margin-bottom: 10px;
+}
+.heat-table-wrap{
+    max-height: 420px;
+    overflow: auto;
+}
+.heat-table{
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 2px;
+}
+.heat-table thead th{
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 0 4px 6px;
+    background: white;
+    text-align: center;
+    vertical-align: bottom;
+    font-size: 12px;
+    white-space: nowrap;
+}
+.heat-table-label-head{
+    text-align: left !important;
+}
+.heat-table-head-label{
+    font-weight: 700;
+    color: #1f2937;
+}
+.heat-table-head-unit{
+    font-size: 10px;
+    color: #8a93a5;
+}
+.heat-table-legend{
+    height: 6px;
+    margin-top: 4px;
+    border: 1px solid rgba(0, 0, 0, .08);
+    border-radius: 2px;
+}
+.heat-table-legend-ticks{
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: #6b7688;
+}
+.heat-table-label{
+    max-width: 240px;
+    padding: 4px 8px 4px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    color: #1f2937;
+}
+.heat-table-cell{
+    min-width: 74px;
+    padding: 4px 6px;
+    border: 1px solid rgba(0, 0, 0, .06);
+    text-align: center;
+    font-size: 11px;
+    color: #1f2937;
+}
+/* Only when the table is grouped: the label column is indented so the rows read
+   as sitting under their group heading rather than beside it. */
+.heat-table-grouped .heat-table-label{
+    padding-left: 14px;
+}
+.heat-table-group td{
+    padding: 8px 8px 2px 0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    color: #6b7280;
+}

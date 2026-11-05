@@ -1,0 +1,13 @@
+/* global globalThis */
+// Explicit hosting prefixes; root builds retain their existing routes.
+export const UI_BASE_PATH = ['/pankgraph-vnext', '/pankgraph-vnext/techdemo', '/techdemo'].includes(process.env.PUBLIC_URL) ? process.env.PUBLIC_URL : '';
+export const TECH_DEMO = UI_BASE_PATH.endsWith('/techdemo');
+export const uiPath = (path = '/') => {
+  if (/^(https?:|mailto:|#|data:)/.test(path) || path.startsWith('//')) return path;
+  const absolute = path.startsWith('/') ? path : `/${path}`;
+  if (!UI_BASE_PATH || absolute === UI_BASE_PATH || absolute.startsWith(`${UI_BASE_PATH}/`)) return absolute;
+  return `${UI_BASE_PATH}${absolute}`;
+};
+
+export const DEV_MODULES = TECH_DEMO || ['dev.pankgraph.org', 'localhost', '127.0.0.1'].includes(globalThis.location?.hostname);
+export const moduleApiPath = path => `${TECH_DEMO ? UI_BASE_PATH : '/techdemo'}/api${path}`;
