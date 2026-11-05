@@ -204,9 +204,9 @@ const STAGE_DETAILS = {
   recovering_model_response: 'Retrying the response with the saved context.',
 };
 const WAITING_TIPS = [
-  'You can review the proposed query before continuing.',
-  'A specific gene, cell type or condition helps focus a question.',
-  'The evidence view includes source records and biological context.',
+  'Review the plan before continuing.',
+  'Specific genes or cell types focus your question.',
+  'Explore source records in the evidence view.',
 ];
 export function liveProgress(run, connection) {
   const stage = run?.stage || (run?.status === 'queued' ? 'queued' : '');
@@ -233,7 +233,12 @@ export function liveProgress(run, connection) {
     shortTitle: disconnected ? 'Reconnecting for updates' : terminal ? 'Investigation stopped' : stageLabel(stage),
     entries,
     entryStates: entries.map((_, index) => ({ step: completed[index] ? 1 : index === current && !disconnected && !terminal ? 0 : -1, isFinished: completed[index] })),
-    indeterminate: !disconnected && !terminal, useFakeTimer: false,
+    indeterminate: false, useFakeTimer: false,
+    estimatedProgress: {
+      runKey: run?.run_id || 'submitting',
+      phase: graphAvailable || reviewReady ? 4 : checkingGraph ? 3 : ['resolving_entities', 'preparing_preview', 'generating_cypher', 'validating'].includes(stage) ? 2 : received ? 1 : 0,
+      paused: !received || disconnected || terminal || queued || ['waiting_for_model_service', 'recovering_model_response'].includes(stage),
+    },
     tip: disconnected ? 'Reconnecting to your saved investigation.' : terminal ? 'Your available results are preserved.' : queued ? 'Your question will start when capacity is available.' : 'Updates appear as your investigation progresses.',
     waitingTips: disconnected || terminal || queued ? [] : WAITING_TIPS,
     timerKey: run?.run_id || 'submitting',

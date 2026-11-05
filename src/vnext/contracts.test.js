@@ -118,13 +118,14 @@ test('immutable presentation is not created from incomplete preflight or the fir
   expect(projectionForRun({ ...executing, graph_complete: true })).toEqual({ run_id: 'r', phase: 'final' });
   expect(projectionForRun({ ...executing, status: 'completed' })).toEqual({ run_id: 'r', phase: 'final' });
 });
-test('live progress preserves upstream four-row layout without invented completion percentages', () => {
+test('live progress preserves four real-event rows alongside a separate presentation estimate', () => {
   const progress = liveProgress({ run_id: 'r', stage: 'querying_graph', elapsed_ms: 12000 }, 'connected');
   expect(progress.entries).toHaveLength(4);
   expect(progress.entryStates[2]).toEqual({ step: 0, isFinished: false });
   expect(progress.entryStates[3]).toEqual({ step: -1, isFinished: false });
   expect(progress.tip).not.toMatch(/seconds|elapsed|time/i);
-  expect(progress.indeterminate).toBe(true);
+  expect(progress.indeterminate).toBe(false);
+  expect(progress.estimatedProgress).toMatchObject({runKey:'r',phase:3,paused:false});
   expect(progress).not.toHaveProperty('progress');
 });
 test('progressive literature references join the existing tab without an external lookup', () => {

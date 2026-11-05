@@ -40,11 +40,11 @@ test('elapsed time and heartbeats never advance steps; tips rotate independently
   expect(later.entryStates).toEqual(initial.entryStates);
   const cancel = jest.fn();
   render(<SearchResultLoading streamProgress={initial} handleClose={cancel} />);
-  expect(screen.getByRole('progressbar').hasAttribute('aria-valuenow')).toBe(false);
+  expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('0');
   expect(screen.queryByText(/seconds|elapsed|Queue waiting:/i)).toBeNull();
-  expect(screen.getByText(initial.waitingTips[0])).toBeTruthy();
+  expect(screen.getByText(`While you wait: ${initial.waitingTips[0]}`)).toBeTruthy();
   act(() => jest.advanceTimersByTime(8000));
-  expect(screen.getByText(initial.waitingTips[1])).toBeTruthy();
+  expect(screen.getByText(`While you wait: ${initial.waitingTips[1]}`)).toBeTruthy();
   fireEvent.click(screen.getByRole('button', {name:initial.cancel}));
   expect(cancel).toHaveBeenCalledTimes(1);
 });

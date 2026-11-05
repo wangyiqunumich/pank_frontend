@@ -17,6 +17,7 @@ import {
 import loadingImage from '../image/loading.svg';
 import texts from '../SearchResult/loading_text.json';
 import { easeOutCubic } from '../SearchResult/streamLoadingProgress';
+import { useEstimatedProgress } from './estimatedProgress';
 
 const STREAM_STEP_WEIGHT_PERCENT = (3 / 13) * 100;
 const STREAM_PRE_COMPLETE_CAP_PERCENT = STREAM_STEP_WEIGHT_PERCENT * 4;
@@ -163,6 +164,7 @@ export default function SearchResultLoading({ open, handleClose, streamProgress,
     const resolvedEntries = streamProgress?.entries || texts.entries;
     const resolvedTitle = streamProgress?.title || texts.title;
     const resolvedTip = streamProgress?.tip ?? texts.tip;
+    const estimatedProgress = useEstimatedProgress(streamProgress?.estimatedProgress);
     const waitingTips = streamProgress?.waitingTips;
     const [tipIndex, setTipIndex] = useState(0);
     useEffect(() => {
@@ -434,7 +436,7 @@ export default function SearchResultLoading({ open, handleClose, streamProgress,
     }, [fakeTimerMode, responseReady, beginNextFakeStep, keepLastStepInProgress, notifyFakeDone, resolvedEntries, stopFakeSchedulers]);
 
     const effectiveEntryStates = fakeTimerMode ? fakeEntryStates : displayedEntryStates;
-    const effectiveProgress = fakeTimerMode ? fakeProgress : displayedProgress;
+    const effectiveProgress = streamProgress?.estimatedProgress ? estimatedProgress : fakeTimerMode ? fakeProgress : displayedProgress;
     const effectiveShortTitle = fakeTimerMode ? fakeShortTitle : displayedShortTitle;
     const statusLabel = String(effectiveShortTitle || '').replace(/_/g, ' ');
 
@@ -553,7 +555,7 @@ export default function SearchResultLoading({ open, handleClose, streamProgress,
                     totalSteps={entry.steps.length} />
             ))}
         </Box>
-        <LinearProgress aria-label="Investigation activity" variant={streamProgress?.indeterminate ? "indeterminate" : "determinate"} sx={{
+        <LinearProgress aria-label={streamProgress?.estimatedProgress ? "Estimated investigation progress" : "Investigation activity"} aria-valuetext={streamProgress?.estimatedProgress ? `${Math.floor(effectiveProgress)}% estimated` : undefined} variant={streamProgress?.indeterminate ? "indeterminate" : "determinate"} sx={{
             width: '100%',
             height: '8px',
             borderRadius: '999px',
@@ -566,18 +568,15 @@ export default function SearchResultLoading({ open, handleClose, streamProgress,
                 borderRadius: 'inherit',
                 transformOrigin: 'left center',
                 willChange: 'transform',
+                transition: 'transform 100ms linear',
                 '@media (prefers-reduced-motion: reduce)': { animation: 'none', transition: 'none' },
             }
         }} value={effectiveProgress} />
-        {waitingTips?.length > 0 && <Typography aria-live="off" sx={{ width: '100%', minHeight: 40, fontFamily: 'Open Sans', fontSize: '14px', color: '#656565' }}>
-            <Box component="span" sx={{ color: '#078AA3', fontWeight: 600 }}>While you wait: </Box>
-            {waitingTips[tipIndex % waitingTips.length]}
-        </Typography>}
         <Box sx={{ width: '100%', display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
-            <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 400, fontSize: '14px', color: '#9E9E9E' }}>
-                {resolvedTip}
+            <Typography aria-live={waitingTips?.length ? 'off' : 'polite'} sx={{ flex: 1, fontFamily: 'Open Sans', fontWeight: 400, fontSize: '14px', color: '#9E9E9E' }}>
+                {waitingTips?.length ? <>While you wait: {waitingTips[tipIndex % waitingTips.length]}</> : resolvedTip}
             </Typography>
-            <Button sx={{ backgroundColor: 'white', textTransform: 'none', borderRadius: '16.5px' }} onClick={handleClose}>
+            <Button sx={{ flexShrink: 0, backgroundColor: 'white', textTransform: 'none', borderRadius: '16.5px' }} onClick={handleClose}>
                 <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '14px', color: '#078AA3', px: '4px' }}>
                     {resolvedCancel}
                 </Typography>

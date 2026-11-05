@@ -1,0 +1,22 @@
+{
+  "sample_count": 6,
+  "new_trial_count": 4,
+  "mean_total_ms": 11805.333333333334,
+  "median_total_ms": 11749.0,
+  "min_total_ms": 9028,
+  "max_total_ms": 14784,
+  "mean_admission_ms": 104.25,
+  "mean_phase_ms": {
+    "initial_reasoning": 1860.8333333333333,
+    "context_and_query": 4909.833333333333,
+    "evidence_and_review": 5034.666666666667
+  },
+  "mean_stage_ms": {
+    "planning": 11722.333333333334,
+    "preparing_preview": 2.6666666666666665,
+    "querying_graph": 54.333333333333336,
+    "queued": 0.0,
+    "resolving_entities": 26.0
+  },
+  "scope": "Six initial-plan trials: five expression and one QTL. Small-sample visual estimate; not model-token progress."
+}
