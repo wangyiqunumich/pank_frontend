@@ -1,4 +1,5 @@
 import React from 'react';
+import {panelSchema} from './panelSchema';
 import {safeSourceUrl,sourcePageUrl} from './tableDownloads';
 // Keep production's chromosome/GC pills and population frequency bars.
 // Zero is a valid frequency; absent values never become a fabricated zero.
@@ -12,12 +13,13 @@ export function ProductionValue({field,children}){
 }
 export function RecordFooter({provenance={},schema={}}){
  const url=sourcePageUrl({href:provenance.data_source_url},schema);
- return <footer className="xe-provenance xe-production-footer">
-  <span>Data Source: {provenance.data_source||'Not recorded'}</span>
-  <span>Data Version: {provenance.data_version||'Not recorded'}</span>
-  {url && <a href={url} target="_blank" rel="noreferrer">Open Link ↗</a>}
-  {provenance.license && <span>License: {safeSourceUrl(provenance.license_url)?<a href={provenance.license_url} target="_blank" rel="noreferrer">{provenance.license}</a>:provenance.license}</span>}
- </footer>;
+ const config=panelSchema(schema);
+ return <footer className="xe-provenance xe-production-footer">{config.footer.fields.map(field=>{
+  const value=provenance[field.key];
+  if(field.kind==='source_link')return url ? <a key={field.key} href={url} target="_blank" rel="noreferrer">{field.label} ↗</a> : null;
+  if(value===undefined || value===null || value==='')return null;
+  return <span key={field.key}>{field.label}: {field.key==='license' && safeSourceUrl(provenance.license_url)?<a href={provenance.license_url} target="_blank" rel="noreferrer">{value}</a>:value}</span>;
+ })}</footer>;
 }
 export function ProductionFrequencies({card}){
  const populations=new Map();

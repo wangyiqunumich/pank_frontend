@@ -1,4 +1,4 @@
-import panelPolicy from '../schema/information_panel_schema.json';
+import panelPolicy from '../schema/graph_viewer_panel_schema.json';
 import catalog from './schema/recorded_fields.json';
 
 export const fieldDefinition = (key) => catalog.fields[key] || {

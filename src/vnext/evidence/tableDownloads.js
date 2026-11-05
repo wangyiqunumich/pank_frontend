@@ -1,4 +1,4 @@
-import panelPolicy from '../../schema/information_panel_schema.json';
+import {panelSchema} from './panelSchema';
 import {resourceLink} from './resourceLinks';
 
 export function safeSourceUrl(value) {
@@ -8,6 +8,7 @@ export function safeSourceUrl(value) {
 
 // Raw artifacts stay in provenance; panel navigation opens human-readable sources.
 export function sourcePageUrl(source,schema={}) {
+  const panelPolicy=panelSchema(schema);
   const registered=(schema.table_downloads?.sources || []).find(s=>s.href===source.href || s.match_urls?.includes(source.href));
   source={...registered,...source,library_url:source.library_url || registered?.library_url,source_page_url:source.source_page_url || registered?.source_page_url};
   const pages={...panelPolicy.source_navigation.host_pages,...schema.source_navigation?.host_pages};
@@ -27,6 +28,7 @@ export function sourcePageUrl(source,schema={}) {
 }
 
 export function tableSources(card,table,records=[],sets={},schema={}) {
+  const panelPolicy=panelSchema(schema);
   const registry=schema.table_downloads?.sources || [];
   const urls=new Set([...records.map(r=>r.data_source_url),...Object.values(sets).map(s=>s.data_source_url)]);
   const profileKey=`${card.ref.kind}:${card.ref.type_id}`;

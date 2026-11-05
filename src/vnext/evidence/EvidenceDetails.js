@@ -5,7 +5,7 @@ import {conditionGroups,contextFilters} from './evidenceComponents';
 import {fieldLabel} from './presentation';
 import './evidenceDetails.css';
 import {panelTabs} from './panelTabs';
-import panelPolicy from '../../schema/information_panel_schema.json';
+import {usePanelSchema,panelSchema,PanelSchemaContext,bundled} from './panelSchema';
 import {compactSections} from './compactSections';
 import {recordDesign,objectSections,hasExtraRecord,expandedSections} from './recordDesign';
 import {ProductionValue,RecordFooter,ProductionFrequencies} from './ProductionRecord';
@@ -18,6 +18,7 @@ import TableDownloads from './TableDownloadControls';
 import {safeSourceUrl} from './tableDownloads';
 const DisplayContext=createContext({policy:{},profileKey:null});
 function Datum({ value, format, field = '', layout = 'auto', quantity = false }) {
+  const panelPolicy=usePanelSchema();
   const {policy,profileKey} = useContext(DisplayContext);
   value=annotationValue(value);
   if (Array.isArray(value) && value.some(item=>item && typeof item==='object')) return <div className="xe-source-annotations">{value.map((item,i)=><section key={i}><Datum value={item} field={field}/></section>)}</div>;
@@ -25,7 +26,7 @@ function Datum({ value, format, field = '', layout = 'auto', quantity = false })
   if (value && typeof value === 'object' && !Array.isArray(value)) return <dl className="xe-nested-fields"><RecordFields fields={Object.entries(value).filter(([key,v])=>!(panelPolicy.source_annotation_hidden_fields || []).includes(key) && visibleField(key,v,policy)).map(([key,value])=>({key,label:fieldLabel(key,{}, { [key]:value }),value}))} /></dl>;
   const empty = value === undefined || value === null || value === '';
   if (typeof value === 'string' && /^https:\/\//.test(value)) return <a href={value} target="_blank" rel="noreferrer">Source ↗</a>;
-  return <span className={empty ? 'xe-empty' : undefined}><CardValue value={displayValue(field,value,policy,profileKey)} layout={layout} format={item => quantity ? (item !== null && item !== '' && typeof item !== 'boolean' && Number.isInteger(Number(item)) ? Number(item).toLocaleString('en-US') : formatCardNumber(item)) : valueText(item,format)} /></span>;
+  return <span className={empty ? 'xe-empty' : undefined}><CardValue value={displayValue(field,value,policy,profileKey)} layout={layout} format={item => quantity ? (item !== null && item !== '' && typeof item !== 'boolean' && Number.isInteger(Number(item)) ? Number(item).toLocaleString('en-US') : formatCardNumber(item,panelPolicy.layout)) : valueText(item,format)} /></span>;
 }
 
 function RecordFields({ fields, specs = {} }) {
@@ -35,7 +36,8 @@ function RecordFields({ fields, specs = {} }) {
 }
 
 function EvidenceTable({ card, table: sourceTable, schema }) {
-  const table=useMemo(()=>({...sourceTable,columns:(panelPolicy.table_columns[sourceTable.id] || sourceTable.columns).filter(k=>(sourceTable.all_fields || schema.tables[sourceTable.id]?.all_fields || sourceTable.columns).includes(k)),simple_list:true,hide_empty_columns:true,hide_filter_chips:true,field_specs:{...sourceTable.field_specs,...Object.fromEntries(Object.entries(panelPolicy.field_labels).map(([key,label])=>[key,{...sourceTable.field_specs?.[key],label,short_label:label,show_unit:false}]))}}),[sourceTable]);
+  const panelPolicy=usePanelSchema();
+  const table=useMemo(()=>({...sourceTable,columns:(panelPolicy.table_columns[sourceTable.id] || sourceTable.columns).filter(k=>(sourceTable.all_fields || schema.tables[sourceTable.id]?.all_fields || sourceTable.columns).includes(k)),simple_list:true,hide_empty_columns:true,hide_filter_chips:true,field_specs:{...sourceTable.field_specs,...Object.fromEntries(Object.entries(panelPolicy.field_labels).map(([key,label])=>[key,{...sourceTable.field_specs?.[key],label,short_label:label,show_unit:false}]))}}),[sourceTable,panelPolicy]);
   const {policy} = useContext(DisplayContext);
   const viewer = useContext(EvidenceRequestContext);
   const [page, setPage] = useState(null), [error, setError] = useState(''), [busy, setBusy] = useState(false);
@@ -114,7 +116,7 @@ function EvidenceTable({ card, table: sourceTable, schema }) {
 }
 
 
-export function currentPresets(presets) {
+export function currentPresets(presets,panelPolicy=bundled) {
   const rules=panelPolicy.expression_display;
   return presets.filter(p=>!rules.excluded_presets.includes(p.id) && !presets.some(other=>other.id===rules.superseded_presets[p.id]));
 }
@@ -128,18 +130,20 @@ function endpointName(card,e) {
   return e.display_id || e.ref.id;
 }
 function RelationshipContext({card,compact=false}) {
+  const panelPolicy=usePanelSchema();
   if(!card.endpoints?.length)return null;
   const context=panelPolicy.expression_display.compact_context?.[card.ref.type_id];
   const method=(card.fields || []).find(f=>f.key==='method')?.value || context?.method;
   const description=(card.fields || []).find(f=>f.key==='description')?.value;
   return <section className="xe-card-section xe-relationship-context"><dl>
-    {card.endpoints.map((e,i)=><div className="kg-card-field" key={e.ref.id}><dt>{panelPolicy.endpoint_labels?.[e.ref.type_id] || e.role || (i?'Target':'Source')}</dt><dd>{endpointName(card,e)}{endpointName(card,e)!==(e.display_id || e.ref.id) && <small>{e.display_id || e.ref.id}</small>}</dd></div>)}
-    {compact && method && <div className="kg-card-field"><dt>Method</dt><dd>{method}</dd></div>}
+    {card.endpoints.map((e,i)=><div className="kg-card-field" key={e.ref.id}><dt>{panelPolicy.endpoint_labels?.[e.ref.type_id] || e.role || panelPolicy.context.endpoint_fallback_labels[i]}</dt><dd>{endpointName(card,e)}{panelPolicy.context.show_public_accessions && endpointName(card,e)!==(e.display_id || e.ref.id) && <small>{e.display_id || e.ref.id}</small>}</dd></div>)}
+    {compact && method && <div className="kg-card-field"><dt>{panelPolicy.context.method_label}</dt><dd>{method}</dd></div>}
     {compact && (context?.data || description) && <div className="kg-card-field"><dt>Data</dt><dd>{context?.data || description}</dd></div>}
   </dl></section>;
 }
 
 function ConditionEvidenceGroup({card,group,schema,view,component,preset}) {
+  const panelPolicy=usePanelSchema();
   const selected=preset.id;
   const source=card.tables.find(t=>t.id===preset.table_id);
   const context=contextFilters({...component,view:{...view,context_filters:preset.context_filters ?? view.context_filters}},card);
@@ -162,15 +166,17 @@ function ConditionEvidenceGroup({card,group,schema,view,component,preset}) {
 }
 
 function ConditionEvidenceSummary({card,schema,component}) {
-  const view={...component.view,groups:conditionGroups(component,card)};
+  const panelPolicy=usePanelSchema();
+  const view={...component.view,groups:conditionGroups(component,card,panelPolicy)};
   const linked=view.groups.some(group=>group.presets.some(p=>card.tables.some(t=>t.id===p.table_id)));
   return <div className="xe-expression-evidence-summary">
     <RelationshipContext card={card}/>
-    {!linked ? <><p className="xe-small">{card.evidence_state==='temporarily_unavailable' ? view.unavailable_message : view.unlinked_message}</p><div className="xe-expression-coverage">{view.groups.map(group=><section key={group.id} aria-label={group.title}><h3>{group.title}</h3><span>Not linked</span></section>)}</div></> : view.groups.flatMap(group=>currentPresets(group.presets).map(preset=><ConditionEvidenceGroup key={`${card.ref.id}:${group.id}:${preset.id}`} card={card} group={group} preset={preset} schema={schema} view={view} component={component} />))}
+    {!linked ? <><p className="xe-small">{card.evidence_state==='temporarily_unavailable' ? view.unavailable_message : view.unlinked_message}</p><div className="xe-expression-coverage">{view.groups.map(group=><section key={group.id} aria-label={group.title}><h3>{group.title}</h3><span>Not linked</span></section>)}</div></> : view.groups.flatMap(group=>currentPresets(group.presets,panelPolicy).map(preset=><ConditionEvidenceGroup key={`${card.ref.id}:${group.id}:${preset.id}`} card={card} group={group} preset={preset} schema={schema} view={view} component={component} />))}
   </div>;
 }
 
 function ExpandedDetails({ card, schema }) {
+  const panelPolicy=usePanelSchema();
   const [tab, setTab] = useState('record');
   const wide = true;
   const tabs=panelTabs(card,schema);
@@ -178,10 +184,10 @@ function ExpandedDetails({ card, schema }) {
   const active=tab==='record' || !selected ? 'record' : tab;
   return <div className={`xe-expanded-details ${active === 'record' ? 'xe-record-view' : 'xe-table-view'}`}>
     {wide && card && <nav className="xe-card-tabs"><button className={tab === 'record' ? 'active' : ''} onClick={() => setTab('record')}>Complete record</button>{tabs.map(t=><button key={t.id} className={active===t.id ? 'active' : ''} onClick={()=>setTab(t.id)}>{t.title}</button>)}</nav>}
-    <div className="xe-card-body">
+    <div className="xe-card-body" style={{'--panel-columns':panelPolicy.expanded_layout.columns,'--panel-narrow-columns':panelPolicy.expanded_layout.narrow_columns,'--panel-gap':`${panelPolicy.expanded_layout.gap_px}px`}}>
       {card && (!wide || active === 'record') && <>
         <RelationshipContext card={card}/>
-        {expandedSections(card).map((section,i)=><section className="xe-card-section" data-prose={section.prose || undefined} key={i}><h3>{section.title}</h3><dl><RecordFields fields={section.fields} specs={card.field_specs}/></dl></section>)}
+        {expandedSections(card,panelPolicy).map((section,i)=><section className="xe-card-section" data-prose={section.prose || undefined} key={i}><h3>{section.title}</h3><dl><RecordFields fields={section.fields} specs={card.field_specs}/></dl></section>)}
         {(card.widget === 'variant' || card.production_design === 'Variant') && <section className="xe-card-section"><h3>Frequency</h3>{card.frequencies?.length ? <><ProductionFrequencies card={card}/><TableDownloads card={card} table={{id:"population_frequencies",...schema.tables?.population_frequencies}} schema={schema} records={card.frequencies}/></> : <p className="xe-empty">Not recorded</p>}{card.consequences?.length>0 && <><h3>Functional annotations</h3><div className="xe-chips muted">{card.consequences.map(c=><span key={c}>{c}</span>)}</div></>}{card.hgvs && <p className="xe-hgvs">{card.hgvs}</p>}</section>}
         <RecordFooter provenance={card.provenance} schema={schema}/>
       </>}
@@ -199,23 +205,24 @@ export default function EvidenceDetails({card,schema,request,releaseId}) {
   if (!releaseId || releaseId !== schema.release_id || card.release_id !== releaseId) {
     return <p role="status">Detailed evidence is unavailable for this graph version.</p>;
   }
-  return <EvidenceRequestContext.Provider value={request}>
-    <DisplayContext.Provider value={{policy:schema.display_policy || {},profileKey:`${card.ref.kind}:${card.ref.type_id}`}}>
+  return <PanelSchemaContext.Provider value={panelSchema(schema)}><EvidenceRequestContext.Provider value={request}>
+    <DisplayContext.Provider value={{policy:{...schema.display_policy,panel_presentation:panelSchema(schema)},profileKey:`${card.ref.kind}:${card.ref.type_id}`}}>
       <ExpandedDetails key={`${releaseId}:${card.ref.kind}:${card.ref.type_id}:${card.ref.id}`} card={card} schema={schema}/>
     </DisplayContext.Provider>
-  </EvidenceRequestContext.Provider>;
+  </EvidenceRequestContext.Provider></PanelSchemaContext.Provider>;
 }
 
 export function InspectedInformationPanel({card,schema,request,releaseId}) {
   const panel=useGraphInfoPanel();
-  const shown=useMemo(()=>recordDesign(presentCard(card,{...schema.display_policy,field_labels:{...schema.display_policy?.field_labels,...panelPolicy.field_labels},unit_labels:{...schema.display_policy?.unit_labels,...panelPolicy.unit_labels},field_descriptions:{...schema.display_policy?.field_descriptions,...panelPolicy.field_descriptions}}),card),[card,schema]);
-  const compact=useMemo(()=>compactSections(shown,objectSections(shown)),[shown]);
-  const canExpand=hasExtraRecord(shown,compact,panelTabs(shown,schema));
+  const panelPolicy=panelSchema(schema);
+  const shown=useMemo(()=>recordDesign(presentCard(card,{...schema.display_policy,panel_presentation:panelPolicy,field_labels:{...schema.display_policy?.field_labels,...panelPolicy.field_labels},unit_labels:{...schema.display_policy?.unit_labels,...panelPolicy.unit_labels},field_descriptions:{...schema.display_policy?.field_descriptions,...panelPolicy.field_descriptions}}),card,panelPolicy),[card,schema,panelPolicy]);
+  const compact=useMemo(()=>compactSections(shown,objectSections(shown,panelPolicy),panelPolicy),[shown,panelPolicy]);
+  const canExpand=hasExtraRecord(shown,compact,panelTabs(shown,schema),panelPolicy);
   if(releaseId!==schema.release_id || card.release_id!==releaseId) return null;
-  return <>
+  return <PanelSchemaContext.Provider value={panelPolicy}>
     <GraphInfoPanelHeader canExpand={canExpand} title={shown.title}>{shown.title}</GraphInfoPanelHeader>
     {panel?.large ? <EvidenceDetails card={shown} schema={schema} request={request} releaseId={releaseId}/> :
-      <DisplayContext.Provider value={{policy:schema.display_policy || {},profileKey:`${card.ref.kind}:${card.ref.type_id}`}}>
+      <DisplayContext.Provider value={{policy:{...schema.display_policy,panel_presentation:panelSchema(schema)},profileKey:`${card.ref.kind}:${card.ref.type_id}`}}>
         <div className="xe-expanded-details xe-compact-details">
           <RelationshipContext card={shown} schema={schema} compact/>
 
@@ -223,5 +230,5 @@ export function InspectedInformationPanel({card,schema,request,releaseId}) {
           <RecordFooter provenance={shown.provenance} schema={schema}/>
         </div>
       </DisplayContext.Provider>}
-  </>;
+  </PanelSchemaContext.Provider>;
 }

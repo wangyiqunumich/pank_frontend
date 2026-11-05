@@ -1,20 +1,20 @@
-import policy from '../../schema/information_panel_schema.json';
-import layout from '../../schema/card_layout_schema.json';
+import defaultPolicy from '../../schema/graph_viewer_panel_schema.json';
+import defaultLayout from '../../schema/card_layout_schema.json';
 import {fieldLabel} from './presentation';
 import {formatCardNumber} from './CardValue';
 import {valueText} from './api';
 // Sections already follow the selected modality profile's compact priorities.
 // Select whole fields only; expanded content always retains the complete record.
-export function compactSummary(card) {
+export function compactSummary(card, policy=defaultPolicy) {
   const spec=policy.compact_summaries?.[card.widget];
   const rows=spec && card[spec.rows];
   if(!rows?.length) return null;
   const columns=spec.columns.filter(c=>rows.some(row=>Object.hasOwn(row[spec.values] || {},c.key))).slice(0,spec.max_columns);
   return columns.length ? {spec,rows,columns} : null;
 }
-export function compactSections(card, suppliedSections=null) {
-  const b=layout.compact;
-  const summary=suppliedSections ? null : compactSummary(card);
+export function compactSections(card, suppliedSections=null, policy=defaultPolicy) {
+  const layout=policy.layout || defaultLayout; const b=layout.compact;
+  const summary=suppliedSections ? null : compactSummary(card, policy);
   let remaining=b.content_budget_px-(card.endpoints?.length ? 50 : 0)-(summary ? 38+summary.rows.length*28 : 0), omitted=0;
   const sections=[];
   const original=suppliedSections || card.sections || [];

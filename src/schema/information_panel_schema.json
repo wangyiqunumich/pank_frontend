@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "complete_record": {
     "title": "Complete record",
     "omit_fields": [
@@ -36,7 +36,7 @@
       "title": "Related links"
     },
     "ccc_contexts": {
-      "title": "Cell\u2013cell context summary"
+      "title": "Cell–cell context summary"
     },
     "metadata_donor": {
       "title": "Source annotations"
@@ -58,7 +58,7 @@
     "condition": "Condition",
     "reference_condition": "Reference condition",
     "treatment": "Treatment",
-    "log2fc": "log\u2082 FC",
+    "log2fc": "log₂ FC",
     "pct_expr": "Expressing cells (%)",
     "n_donors": "Donors",
     "n_cells": "Cells",
@@ -92,13 +92,13 @@
     "type_2_diabetes_ocr_gene_activity_score_median": "Median",
     "source": "Sender cell",
     "target": "Receiver cell",
-    "lr_means": "Ligand\u2013receptor mean",
+    "lr_means": "Ligand–receptor mean",
     "cellphone_pvals": "CellPhoneDB P value",
     "expr_prod": "Expression product",
     "scaled_weight": "Scaled weight",
-    "lr_logfc": "Ligand\u2013receptor log FC",
+    "lr_logfc": "Ligand–receptor log FC",
     "spec_weight": "Specificity weight",
-    "lrscore": "Ligand\u2013receptor score",
+    "lrscore": "Ligand–receptor score",
     "rrid_scope": "RRID refers to",
     "gene_name": "Gene",
     "tissue_id": "Tissue accession",
@@ -325,11 +325,11 @@
     "compact_context": {
       "GENE_DETECTED_IN__Gene__anatomical_structure": {
         "method": "Raw-count CPM",
-        "data": "PanKbase V3.4 \u00b7 RNA-seq \u00b7 no treatment"
+        "data": "PanKbase V3.4 · RNA-seq · no treatment"
       },
       "GENE_ENRICHED_IN__Gene__anatomical_structure": {
-        "method": "DESeq2 \u00b7 cell type vs rest",
-        "data": "PanKbase V3.4 \u00b7 RNA-seq \u00b7 no treatment"
+        "method": "DESeq2 · cell type vs rest",
+        "data": "PanKbase V3.4 · RNA-seq · no treatment"
       }
     },
     "presets": {
@@ -354,7 +354,7 @@
         ]
       },
       "disease": {
-        "title": "Disease comparison \u00b7 {cell}",
+        "title": "Disease comparison · {cell}",
         "comparison": "disease",
         "columns": [
           "condition",
@@ -366,7 +366,7 @@
         ]
       },
       "native": {
-        "title": "RUV-normalized expression \u00b7 source samples",
+        "title": "RUV-normalized expression · source samples",
         "table_id": "ruv",
         "fixed_filters": {
           "record_kind": "ruv_abundance",
@@ -380,7 +380,7 @@
         ]
       },
       "reference": {
-        "title": "RUV-normalized expression \u00b7 contrast reference",
+        "title": "RUV-normalized expression · contrast reference",
         "table_id": "ruv",
         "fixed_filters": {
           "record_kind": "ruv_abundance",
@@ -564,5 +564,114 @@
       "www.ncbi.nlm.nih.gov": "dbSNP",
       "data.pankbase.org": "PanKbase Data Library"
     }
+  },
+  "layout": {
+    "schema_version": "1.1",
+    "default_layout": "auto",
+    "prose_min_characters": 48,
+    "layouts": [
+      "auto",
+      "inline",
+      "prose",
+      "tokens"
+    ],
+    "height_limits": {
+      "compact_px": 460,
+      "compact_vh": 72,
+      "expanded_px": 800,
+      "expanded_vh": 85,
+      "viewport_margin_px": 24
+    },
+    "quantity_significant_digits": 4,
+    "rules": {
+      "arrays": "tokens",
+      "multiline_text": "prose",
+      "long_text_with_spaces": "prose",
+      "other_values": "inline",
+      "titles": "balance",
+      "provenance": "wrap_whole_items",
+      "unbroken_tokens": "emergency_wrap_only"
+    },
+    "compact": {
+      "content_budget_px": 300,
+      "section_height_px": 34,
+      "row_min_px": 30,
+      "line_height_px": 17,
+      "value_characters_per_line": 22,
+      "label_characters_per_line": 16
+    },
+    "expanded": {
+      "columns": 2,
+      "minimum_column_px": 300,
+      "gap_px": 20
+    }
+  },
+  "header": {
+    "title_align": "center",
+    "title_max_lines": 2,
+    "background": "#E4F0F1",
+    "compact_padding_px": 46,
+    "expanded_padding_px": 78,
+    "min_height_px": 58,
+    "controls": {
+      "enlarge": {
+        "label": "Enlarge",
+        "aria_label": "Enlarge information panel",
+        "icon": "open_in_full"
+      },
+      "minimize": {
+        "label": "Minimize",
+        "aria_label": "Minimize information panel",
+        "icon": "close_fullscreen"
+      },
+      "close": {
+        "label": "Close",
+        "aria_label": "Close information panel",
+        "icon": "close"
+      }
+    },
+    "compact_close": false
+  },
+  "footer": {
+    "fields": [
+      {
+        "key": "data_source",
+        "label": "Data Source"
+      },
+      {
+        "key": "data_version",
+        "label": "Data Version"
+      },
+      {
+        "key": "data_source_url",
+        "label": "Open Link",
+        "kind": "source_link"
+      },
+      {
+        "key": "license",
+        "label": "License"
+      }
+    ]
+  },
+  "surface": {
+    "compact_width_px": 280,
+    "review_width_px": 550,
+    "expanded_width_px": 900,
+    "expanded_top_px": 76,
+    "border_radius_px": 12
+  },
+  "expanded_layout": {
+    "columns": 2,
+    "narrow_columns": 1,
+    "gap_px": 16
+  },
+  "context": {
+    "method_label": "Method",
+    "description_label": "Analysis",
+    "endpoint_fallback_labels": [
+      "Source",
+      "Target"
+    ],
+    "show_public_accessions": true
   }
 }

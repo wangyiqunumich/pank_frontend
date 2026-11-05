@@ -1249,7 +1249,7 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
         onDownload={handleDownload} onReset={handleReset}
         modeLabel={(graphData || queryResultPage?.combined_query_result)?.presentation_mode === 'relationship_list' ? 'List mode' : 'KG mode'} />
       <div className="graph-zoom-indicator" aria-label="Graph zoom">{Math.round(zoomLevel / initZoom * 100)}%</div>
-      <GraphInfoPanel panelRef={infocardRef} host={expanded ? containerRef.current?.closest('dialog') : document.body}
+      <GraphInfoPanel schema={evidenceService?.schema} panelRef={infocardRef} host={expanded ? containerRef.current?.closest('dialog') : document.body}
         visible={infocardVisible} mode={panelMode} position={infocardPosition} review={review}
         onEnter={() => setInfocardHovered(true)} onLeave={() => setInfocardHovered(false)}
         onEnlarge={() => { setPanelMode('expanded'); setInfocardVisible(true); setExpanded(true); }}

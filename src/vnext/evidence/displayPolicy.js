@@ -1,9 +1,10 @@
-import panelPolicy from '../../schema/information_panel_schema.json';
+import defaultPolicy from '../../schema/graph_viewer_panel_schema.json';
 // All display decisions are declared in viewer.schema.json. Stored records,
 // typed references, exact lookup keys, URLs and cursors remain unchanged.
 const matches = (pattern,value) => new RegExp(pattern).test(String(value));
 export const displayText = (value,policy={}) => typeof value === 'string' && policy.replace_underscores ? value.replace(/_/g,' ') : value;
 export function publicId(value,policy={},key='id') {
+  const panelPolicy=policy.panel_presentation || defaultPolicy;
   if(panelPolicy.preserved_source_ids.includes(key))return value;
   if(['variant_id','id'].includes(key) && /^(?:chr)?(?:[1-9]|1[0-9]|2[0-2]|X|Y|MT?)[_:]\d+[_:][ACGTN-]+[_:][ACGTN-]+$/i.test(String(value)))return value;
   if (!policy.version) return value;
@@ -16,6 +17,7 @@ export function publicId(value,policy={},key='id') {
 }
 export const identifierField = (key,spec={}) => spec.kind === 'identifier' || /(^|_)id($|_)/.test(key) || key === 'alt_id';
 export function visibleField(key,value,policy={},spec={}) {
+  const panelPolicy=policy.panel_presentation || defaultPolicy;
   if(panelPolicy.hidden_internal_fields.includes(key))return false;
   if(key==='id' && /^[a-f0-9]{24,}$/i.test(String(value)))return false;
   if(panelPolicy.preserved_source_ids.includes(key))return true;
@@ -35,6 +37,7 @@ export function displayVersion(value,policy={},profileKey=null) {
   return displayText(text,policy);
 }
 export function displayValue(key,value,policy={},profileKey=null,spec={}) {
+  const panelPolicy=policy.panel_presentation || defaultPolicy;
   if(Object.prototype.hasOwnProperty.call(panelPolicy.value_labels?.[key] || {},value)) return panelPolicy.value_labels[key][value];
   if ((panelPolicy.literal_value_fields || []).includes(key)) return value;
   if (/(^|_)version$/.test(key)) return displayVersion(value,policy,profileKey);
@@ -49,6 +52,7 @@ export function displayValue(key,value,policy={},profileKey=null,spec={}) {
   return displayText(value,policy);
 }
 export function presentCard(card,policy={}) {
+  const panelPolicy=policy.panel_presentation || defaultPolicy;
   if (!card) return card;
   const profileKey=`${card.ref.kind}:${card.ref.type_id}`;
   const spec = (f,key) => {
