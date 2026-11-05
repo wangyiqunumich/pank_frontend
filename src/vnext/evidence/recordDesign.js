@@ -4,6 +4,7 @@ export const nonempty=v=>v!==null && v!==undefined && v!=='' && (!Array.isArray(
 // Production section order and visual formats, applied to the selected record's
 // current fields. No legacy dataset values or neighbor lookups are introduced.
 export function recordDesign(card,source=card) {
+ card={...card,provenance:{...Object.fromEntries((card.fields||[]).filter(f=>policy.provenance_fields.includes(f.key)).map(f=>[f.key,f.value])),...card.provenance}};
  const design=policy.record_design_types?.[card.ref?.type_id];
  const rules=policy.record_designs?.[design];
  if(!rules) return card;

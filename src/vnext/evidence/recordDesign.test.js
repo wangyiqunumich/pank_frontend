@@ -3,7 +3,7 @@ import {compactSections} from './compactSections';
 const field=(key,value)=>({key,label:key,value});
 test('short cell with only provenance extras cannot expand',()=>{
  const fields=[field('id','CL_0000169'),field('name','beta cell')];
- const card={sections:[{title:'Identity',fields}],fields:[...fields,field('data_source','CL'),field('data_version','2026'),field('license','CC0')]};
+ const card={sections:[{title:'Identity',fields}],fields:[...fields,field('data_source','CL'),field('data_version','2026'),field('license','CC0'),field('license_url','https://example.org/license')]};
  expect(hasExtraRecord(card,compactSections(card,objectSections(card)),[])).toBe(false);
  expect(hasExtraRecord(card,compactSections(card,objectSections(card)),[{id:'owned'}])).toBe(true);
 });

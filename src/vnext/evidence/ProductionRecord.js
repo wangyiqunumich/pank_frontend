@@ -16,7 +16,7 @@ export function RecordFooter({provenance={}}){
   <span>Data Source: {provenance.data_source||'Not recorded'}</span>
   <span>Data Version: {provenance.data_version||'Not recorded'}</span>
   {url && <a href={url} target="_blank" rel="noreferrer">Open Link ↗</a>}
-  {provenance.license && <span>License: {provenance.license}</span>}
+  {provenance.license && <span>License: {safeSourceUrl(provenance.license_url)?<a href={provenance.license_url} target="_blank" rel="noreferrer">{provenance.license}</a>:provenance.license}</span>}
  </footer>;
 }
 export function ProductionFrequencies({card}){

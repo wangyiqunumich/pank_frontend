@@ -231,7 +231,8 @@
     "data_source",
     "data_version",
     "data_source_url",
-    "license"
+    "license",
+    "license_url"
   ],
   "compact_section_priority": {
     "Gene": [
