@@ -12,6 +12,9 @@ Expression identifies cell-type versus other-cell comparisons separately from di
 
 - 98 real inspections across all 50 registered profiles: structural field placement/duplicate/internal-field audit. This is not all-record scientific acceptance.
 - Actual nonempty evidence samples: accessions, coordinates, expression, RUV, credible members, CCC, donor annotations, sample crosswalk and memberships.
+- Full frontend regression: 60 suites / 449 tests passed, one pre-existing skipped test. Final evidence-only follow-up: 10 suites / 32 tests passed. Production build passed with existing dependency/lint warnings.
+- Nine nonempty table categories matched record-for-record between 20-row and 100-row pagination; includes 60 RUV sample rows and 62 GWAS members.
+- Chrome actual-component checks: compact Gene, expanded QTL, coloc role separation, expression source rows, narrow layout, graph zoom/fit/reset and fullscreen exit. Safari acceptance and exact four-corner reproduction remain pending; no claim of full browser acceptance.
 - Regression tests exercise zero/false/missing, exact filters, disease direction, exports, ownership, stale responses and fullscreen behavior.
 - Removed the obsolete scBrowser preview branch that still dereferenced deleted configuration.
 - Blue-corner cause remains under visual investigation; canvas selection is disabled without introducing an overlay or extra clipping.
