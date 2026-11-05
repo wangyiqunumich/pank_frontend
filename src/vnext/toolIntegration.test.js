@@ -141,3 +141,25 @@ test('empty partial-index search exposes coverage limits and cannot imply biolog
   expect(screen.getByRole('button', { name: 'Retry search' })).toBeTruthy();
   expect(screen.queryByText(/No QTL records found in the dataset/)).toBeNull();
 });
+
+test('1104 PanKbase records use exact dataset URLs and retain all CFTR signals', async () => {
+  window.history.replaceState({}, '', '/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000001626&targetSymbol=CFTR');
+  const rows = [1, 2, 3].map(n => ({ edge_id: String(n).repeat(32), credible_set: `CFTR__credibleSet${n}`, snp: `rs${n}`, gene:'ENSG00000001626', gene_name:'CFTR', data_source:'PanKbase', data_source_url:'https://data.pankbase.org/curated-sets/PKBDS2105PCON/', source_id:'PKBDS2105PCON', pip:0, n_snp:3 }));
+  searchEntities.mockResolvedValue({items:rows,coverage:{complete:true}});
+  mount(<IntermediatePage />);
+  await screen.findByRole('tab', {name:'Pancreatic splicing QTL (3)'});
+  await waitFor(() => expect(screen.getAllByText('View', {exact:true})).toHaveLength(3));
+  expect(screen.getByRole('tab',{name:'Pancreatic eQTL (0)'})).toBeTruthy();
+});
+
+test('unrecognized sources stay visible instead of becoming false zero counts', async () => {
+  window.history.replaceState({}, '', '/intermediate?sourceTerm=snp&relationship=QTL&targetTerm=gene@ENSG00000001626');
+  searchEntities.mockResolvedValue({items:[1,2].map(n => ({credible_set:`s${n}`,snp:`rs${n}`,data_source:'PanKbase',data_source_url:'https://data.pankbase.org/curated-sets/UNKNOWN/'})),coverage:{complete:true}});
+  mount(<IntermediatePage />);
+  await screen.findByRole('tab',{name:'https://data.pankbase.org/curated-sets/UNKNOWN (2)'});
+});
+
+test('selected record retains exact edge, dataset and full credible-set identity', () => {
+  const params=selectedResultParams({sourceTerm:'snp',targetTerm:'gene@ENSG00000001626',relationship:'QTL'}, {snp:'rs2402203',edge_id:'a'.repeat(32),source_id:'PKBDS2105PCON',credible_set_id:'ENSG00000001626__CFTR__event__credibleSet1'});
+  expect(templateRequest(params).parameters).toMatchObject({edge_id:'a'.repeat(32),source_id:'PKBDS2105PCON',credible_set_id:'ENSG00000001626__CFTR__event__credibleSet1'});
+});

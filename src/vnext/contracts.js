@@ -84,7 +84,7 @@ export function withLiteratureReferences(tabs = {}, literature, runId = 'main') 
 export function selectedResultParams(searchState, item) {
   const { sourceTerm, targetTerm, relationship } = searchState;
   return new URLSearchParams({
-    ...Object.fromEntries(['credible_set_id', 'lead_snp', 'data_source'].filter((key) => item[key] !== undefined && item[key] !== null && item[key] !== '').map((key) => [key, item[key]])),
+    ...Object.fromEntries(['credible_set_id', 'lead_snp', 'data_source', 'edge_id', 'source_id'].filter((key) => item[key] !== undefined && item[key] !== null && item[key] !== '').map((key) => [key, item[key]])),
     sourceTerm: sourceTerm.includes('@') ? sourceTerm : `${sourceTerm}@${item[sourceTerm]}`,
     targetTerm: targetTerm.includes('@') ? targetTerm : `${targetTerm}@${item[targetTerm]}`,
     relationship,
@@ -117,6 +117,8 @@ export function templateRequest(input) {
     ...(get('credible_set_id') ? { credible_set_id: get('credible_set_id') } : {}),
     ...(get('lead_snp') ? { lead_variant_id: get('lead_snp') } : {}),
     ...(get('data_source') ? { data_source: get('data_source') } : {}),
+    ...(get('edge_id') ? { edge_id: get('edge_id') } : {}),
+    ...(get('source_id') ? { source_id: get('source_id') } : {}),
   };
   return { template_id: templateId, parameters };
 }

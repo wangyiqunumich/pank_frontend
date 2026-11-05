@@ -73,25 +73,34 @@ const getTotalCredibleSetCount = (results = []) => (
 export const tabsQTL = [
   {
     "label": "Pancreatic eQTL",
-    "data_source": "GTEx; SusieR",
+    "data_source": "GTEx; SusieR", "dataset_id": "PKBDS6689QROA",
     "folder": "1_eQTL-gtex-susie"
   },
   {
     "label": "Islet eQTL",
-    "data_source": "INSPIRE; SusieR",
+    "data_source": "INSPIRE; SusieR", "dataset_id": "PKBDS8062GYOQ",
     "folder": "1_eQTL-inspire-susie"
   },
   {
     "label": "Pancreatic splicing QTL",
-    "data_source": "splicing; GTEx",
+    "data_source": "splicing; GTEx", "dataset_id": "PKBDS2105PCON",
     "folder": "1_sQTL-gtex-susie"
   },
   {
     "label": "Islet exon QTL",
-    "data_source": "exon; INSPIRE",
+    "data_source": "exon; INSPIRE", "dataset_id": "PKBDS9837ORWK",
     "folder": "1_exonQTL-inspire-susie"
   }
 ];
+
+export const qtlGroupKey = (item) => {
+  const url = String(item.data_source_url || '').replace(/\/$/, '');
+  const source = tabsQTL.find(tab => url === `https://data.pankbase.org/curated-sets/${tab.dataset_id}` || (!url && item.source_id === tab.dataset_id));
+  if (source && (!item.source_id || item.source_id === source.dataset_id)) return source.data_source;
+  // Legacy fixtures may have only their old source label. New unknown sources
+  // must stay visible rather than disappear from every registered tab.
+  return url || item.source_id || item.data_source || 'Unclassified source';
+};
 
 const WarningSNP = (
   <Alert
@@ -315,8 +324,8 @@ function IntermediatePage({ onContinue }) {
     const groupedResults = allResults.reduce((acc, item) => (
       {
         ...acc,
-        [item.data_source]: [
-          ...(acc[item.data_source] || []),
+        [vnextEnabled ? qtlGroupKey(item) : item.data_source]: [
+          ...(acc[vnextEnabled ? qtlGroupKey(item) : item.data_source] || []),
           item
         ]
       }
@@ -333,6 +342,10 @@ function IntermediatePage({ onContinue }) {
         result: allResults
       }
     ];
+    if (vnextEnabled && searchState.relationship !== 'GWAS') {
+      Object.entries(groupedResults).filter(([key]) => !tabsQTL.some(tab => tab.data_source === key))
+        .forEach(([label, result]) => mappedResult.push({ label, result }));
+    }
     // deduplicate results within each group
     const deduplicatedResults = mappedResult.map(({ label, result }) => ({
       label,
@@ -340,7 +353,7 @@ function IntermediatePage({ onContinue }) {
         ...new Map(
           result.map(
             (cs, index) =>
-              [cs.credible_set_id,
+              [cs.edge_id || `${cs.data_source_url || cs.data_source}:${cs.credible_set_id}`,
               { ...cs, credible_set: getCredibleSetLabel(cs, index + 1) }
               ]
           )
@@ -451,7 +464,7 @@ function IntermediatePage({ onContinue }) {
       "INSPIRE; SusieR": "B",
       "splicing; GTEx": "C",
       "exon; INSPIRE": "D",
-    }[credibleSet.data_source] || "";
+    }[vnextEnabled ? qtlGroupKey(credibleSet) : credibleSet.data_source] || "";
     if (!prefix) return credibleSet.credible_set_id;
     return `CredibleSet_${prefix}${num}`;
   };
@@ -460,7 +473,12 @@ function IntermediatePage({ onContinue }) {
     queryData.find(item => item.label === selectedTab)?.result || []
   );
 
-  const handleDownload = (category, credibleSet) => {
+  const handleDownload = (category, item) => {
+    const credibleSet = item.credible_set_id;
+    if (vnextEnabled && item.download_url?.startsWith('https://api-dev.pankgraph.org/api/conventional/download?')) {
+      window.open(item.download_url, '_blank', 'noopener');
+      return;
+    }
     trackIntermediateEvent('intermediate_credible_set_download_click', {
       category,
       credible_set_id: credibleSet,
@@ -920,10 +938,10 @@ function IntermediatePage({ onContinue }) {
                                     {index === 0
                                       ? (<Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                                         {item[column.key]}
-                                        {(!vnextEnabled || tabsQTL.some(tab => tab.data_source === item.data_source)) && <IconButton
+                                        {(!vnextEnabled || Boolean(item.download_url) || tabsQTL.some(tab => tab.data_source === item.data_source)) && <IconButton
                                           aria-label="download"
                                           sx={{ color: '#3A838B', padding: '2px' }}
-                                          onClick={() => handleDownload(selectedTab, item.credible_set_id)}
+                                          onClick={() => handleDownload(selectedTab, item)}
                                         >
                                           <DownloadIcon />
                                         </IconButton>}

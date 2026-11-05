@@ -133,6 +133,11 @@ export function revisePlan(id, question, includeContext = true, requestId = newI
 }
 
 export function createResultOnce(payload) {
+  if (!TECH_DEMO && getDevConfig().vnextEnabled && payload.parameters?.edge_id && /^(qtl_|gwas_)/.test(payload.template_id || '')) {
+    const { edge_id, variant_id } = payload.parameters;
+    if (!/^[0-9a-f]{16,64}$/.test(edge_id) || (variant_id && !/^(?:rs[0-9]{1,20}|(?:chr)?(?:[1-9]|1[0-9]|2[0-2]|X|Y):[0-9]{1,10}_[ACGT]{1,40}_[ACGT]{1,40})$/.test(variant_id))) return Promise.reject(new Error('Invalid signal identity.'));
+    return Promise.resolve({ result_id: `ec2-1104-${edge_id}${variant_id ? `~${variant_id}` : ''}` });
+  }
   const key = `pank-vnext:result:1104:${JSON.stringify(payload)}`;
   if (inFlight.has(key)) return inFlight.get(key);
   const previous = readSaved(key);
@@ -141,10 +146,25 @@ export function createResultOnce(payload) {
   inFlight.set(key, task);
   return task;
 }
-export const getResult = (id, options = {}) => readWithRecovery(async () => validateIdentity(await request(`/results/${encodeURIComponent(id)}${options.graph_revision !== undefined ? `?graph_revision=${options.graph_revision}` : ''}`, { signal: options.signal }), 'result_id', id, true), options);
+export const getResult = (id, options = {}) => readWithRecovery(async () => validateIdentity(await (id.startsWith('ec2-1104-') ? conventionalRequest(`/result?${new URLSearchParams({result_id:id})}`, {signal:options.signal}) : request(`/results/${encodeURIComponent(id)}${options.graph_revision !== undefined ? `?graph_revision=${options.graph_revision}` : ''}`, { signal: options.signal })), 'result_id', id, true), options);
+export async function conventionalRequest(path, {signal} = {}) {
+  const controller = new AbortController();
+  const cancel = () => controller.abort();
+  if (signal?.aborted) throw abortError();
+  signal?.addEventListener('abort', cancel, {once:true});
+  const timer = setTimeout(cancel, 30000);
+  try {
+    const response = await fetch(`https://api-dev.pankgraph.org/api/conventional${path}`, {signal:controller.signal, credentials:'omit', cache:'no-store'});
+    const body = await response.json();
+    if (!response.ok) throw Object.assign(new Error(typeof body.detail === 'string' ? body.detail : 'Signal retrieval failed.'), {status:response.status});
+    if (!object(body)) throw protocolError();
+    return body;
+  } finally { clearTimeout(timer); signal?.removeEventListener('abort',cancel); }
+}
 export function searchEntities(parameters, options = {}) {
   const query = new URLSearchParams(Object.entries(parameters).filter(([, value]) => value !== undefined && value !== null && value !== '').map(([key, value]) => [key, String(value)]));
-  return request(`/search?${query}`, options);
+  return !TECH_DEMO && getDevConfig().vnextEnabled
+    ? conventionalRequest(`/search?${query}`, options) : request(`/search?${query}`, options);
 }
 export function componentsPending(result) {
   return ['pending', 'queued', 'running', 'processing'].includes(result?.status)
