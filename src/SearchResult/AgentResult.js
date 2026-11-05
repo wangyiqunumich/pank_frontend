@@ -1468,16 +1468,14 @@ export function AgentResultLayout({
 
             {inputError && <div role="alert" id="agent-followup-error" style={{ color: "#B91C1C", maxWidth: 1200, margin: "8px auto" }}>{inputError}</div>}
             {/* Floating search bar at bottom */}
+            <div className={`pank-result-footer${hasFloatingInputBar ? ' has-search' : ''}`}>
             {hasFloatingInputBar ? (
                 <div
                     style={{
-                        position: "sticky",
-                        bottom: 0,
                         backgroundColor: "#fff",
                         borderTop: "1px solid #e0e0e0",
                         boxShadow: "0 -2px 12px rgba(0,0,0,0.08)",
                         padding: "16px",
-                        zIndex: 1000,
                         marginTop: 8,
                         overflow: 'visible',
                     }}
@@ -1538,38 +1536,17 @@ export function AgentResultLayout({
                         </button>
                     </div>
 
-                    <button
-                        type="button"
-                        onClick={openFeedbackModal}
-                        data-pank-feedback-launcher
-                        className="pank-floating-action"
-                        style={{
-                            position: 'absolute',
-                            right: isMobile ? 12 : 24,
-                            top: isMobile ? -50 : -60,
-                            zIndex: 1300,
-                            backgroundColor: 'rgb(58, 131, 139)',
-                            color: '#FFFFFF',
-                        }}
-                    >
-                        <ChatBubbleOutlineRoundedIcon sx={{ color: '#FFFFFF', fontSize: isMobile ? 16 : 20 }} />
-                        Give Feedback
-                    </button>
                 </div>
             ) : null}
 
-            {DEV_MODULES && <ModuleGuide />}
-            {!hasFloatingInputBar ? (
+            <div className="pank-result-actions">
+                {DEV_MODULES && <ModuleGuide />}
                 <button
                     type="button"
                     onClick={openFeedbackModal}
                     data-pank-feedback-launcher
                     className="pank-floating-action"
                     style={{
-                        position: 'fixed',
-                        right: isMobile ? 12 : 24,
-                        bottom: isMobile ? 12 : 24,
-                        zIndex: 1300,
                         backgroundColor: 'rgb(58, 131, 139)',
                         color: '#FFFFFF',
                     }}
@@ -1577,7 +1554,8 @@ export function AgentResultLayout({
                     <ChatBubbleOutlineRoundedIcon sx={{ color: '#FFFFFF', fontSize: isMobile ? 16 : 20 }} />
                     Give Feedback
                 </button>
-            ) : null}
+            </div>
+            </div>
 
             {showScrollToPlanConfirmButton ? (
                 <Box

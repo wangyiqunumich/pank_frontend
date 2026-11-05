@@ -1,6 +1,7 @@
 :root {font:12px/1.5 Inter,'Open Sans',system-ui,sans-serif;color:#334155;background:#fff}
 * {box-sizing:border-box} html,body,#app {height:100%;margin:0;overflow:hidden}
 #app {display:flex;flex-direction:column} .module-view {display:flex;flex-direction:column;height:100%;min-height:0;min-width:0}
+.browser-entry-state { margin:0; padding:16px; }
 button,input,select {font:inherit;color:inherit} button {cursor:pointer} button,input,select {border:1px solid #e2e8f0;border-radius:8px;padding:6px 9px;background:#fff;max-width:100%}
 button:hover:not(:disabled){background:#f1f5f9}button:disabled{opacity:.4;cursor:default}button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid #0d9488;outline-offset:2px}
 .tabs{display:flex;flex:none;gap:4px;align-items:center;overflow-x:auto;padding:6px;margin:10px 12px;border:1px solid #e2e8f0cc;border-radius:12px;background:#f1f5f9cc;width:max-content;max-width:calc(100% - 24px)}

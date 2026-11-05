@@ -1,6 +1,6 @@
 <template>
   <main :class="{ 'compact-browser': fullView.compact }">
-    <p v-if="!context" role="status">Select an expression relationship in the graph to explore single cells.</p>
+    <p v-if="!context" class="browser-entry-state" role="status">Select an expression relationship in the graph to explore single cells.</p>
     <template v-else>
       <div class="browser-navigation">
         <nav :aria-label="copy.views_label"><button v-for="item in tabs" :key="item.id" :aria-label="item.label" :aria-pressed="tab === item.id" @click="selectTab(item.id)"><img :src="item.icon" alt="" /><span>{{ item.label }}</span></button></nav>

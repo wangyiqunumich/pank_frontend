@@ -64,11 +64,15 @@ test('welcome examples prepare direct module configuration without automatically
  expect(screen.queryByText('Module help and verified entities · Changes require Apply')).toBeNull();
 });
 
-test('launcher follows replacement feedback anchors when the floating chat bar mounts',async()=>{
- const first=document.createElement('button');first.dataset.pankFeedbackLauncher='';first.getBoundingClientRect=()=>({top:window.innerHeight-50,height:30});document.body.append(first);
- const {unmount}=render(<ModuleGuide/>);
- expect(screen.getByRole('button',{name:'Open module guide'}).style.bottom).toBe('76px');
- const next=document.createElement('button');next.dataset.pankFeedbackLauncher='';next.getBoundingClientRect=()=>({top:window.innerHeight-130,height:35});first.replaceWith(next);
- await waitFor(()=>expect(screen.getByRole('button',{name:'Open module guide'}).style.bottom).toBe('140px'));
- unmount();next.remove();
+test('the open panel fits above its shared action anchor as the page moves',()=>{
+ let bottom=300;
+ jest.spyOn(HTMLButtonElement.prototype,'getBoundingClientRect').mockImplementation(()=>({bottom}));
+ render(<ModuleGuide/>);
+ fireEvent.click(screen.getByRole('button',{name:'Open module guide'}));
+ const panel=screen.getByRole('dialog',{name:'PanKgraph module guide'});
+ expect(panel.style.maxHeight).toBe('284px');
+ bottom=500;fireEvent.scroll(window);
+ expect(panel.style.maxHeight).toBe('484px');
+ bottom=window.innerHeight+200;fireEvent.resize(window);
+ expect(panel.style.maxHeight).toBe(`${window.innerHeight-16}px`);
 });

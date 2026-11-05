@@ -12,8 +12,8 @@ const modules = {
 const app = new Vue({
   data: { component: null, context: null, moduleId: '', error: '', serial: 0 },
   render(h) {
-    if (this.error) return h('p', { attrs: { role: 'alert' } }, this.error);
-    if (!this.component) return h('p', { attrs: { role: 'status' } }, 'Preparing view…');
+    if (this.error) return h('p', { class: 'browser-entry-state', attrs: { role: 'alert' } }, this.error);
+    if (!this.component) return h('p', { class: 'browser-entry-state', attrs: { role: 'status' } }, 'Preparing view…');
     const context = this.context;
     return h('main', { attrs: { id: 'app' } }, [h(this.component, { ref: 'guideTarget', key: JSON.stringify([this.moduleId, context.recordId, context.geneSymbol, context.cellType, context.datasetId, context.locus]), props: {
       context, gene: context.geneSymbol, locus: context.locus, cellType: context.cellType,

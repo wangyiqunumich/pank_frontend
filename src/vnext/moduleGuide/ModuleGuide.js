@@ -1,4 +1,5 @@
-import React,{useEffect,useRef,useState} from 'react';
+import React,{useEffect,useLayoutEffect,useRef,useState} from 'react';
+import {createPortal} from 'react-dom';
 import {IconButton} from '@mui/material';
 import HelpOutlineRoundedIcon from '@mui/icons-material/HelpOutlineRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
@@ -27,29 +28,31 @@ function ActionCard({action,state={},onState}){
 }
 export default function ModuleGuide(){
   const [open,setOpen]=useState(false),[tab,setTab]=useState('Chat');
-  const [messages,setMessages]=useState(readSaved),[input,setInput]=useState(''),[busy,setBusy]=useState(false),[article,setArticle]=useState(null),[search,setSearch]=useState(''),[available,setAvailable]=useState(null),[bottom,setBottom]=useState(88);
+  const [messages,setMessages]=useState(readSaved),[input,setInput]=useState(''),[busy,setBusy]=useState(false),[article,setArticle]=useState(null),[search,setSearch]=useState(''),[available,setAvailable]=useState(null);
   const [actionStates,setActionStates]=useState({});
   const actionCard=(action,id)=><ActionCard key={id} action={action} state={actionStates[id]} onState={patch=>setActionStates(previous=>({...previous,[id]:{...previous[id],...patch}}))}/>;
   const applying=Object.values(actionStates).some(state=>state.busy);
   const launcher=useRef(),panel=useRef(),textarea=useRef(),end=useRef(),abort=useRef(),requestGeneration=useRef(0);
   useEffect(()=>{try{sessionStorage.setItem(storageKey,JSON.stringify(messages.slice(-24)));}catch(_){}},[messages]);
   useEffect(()=>()=>abort.current?.abort(),[]);
-  useEffect(()=>{
-    let element,frame;
+  useLayoutEffect(()=>{
+    if(!open)return undefined;
+    // The shared action container positions both buttons in the same frame.
+    // Only the open panel's available height needs a viewport measurement.
     const measure=()=>{
-      frame=null;
-      const current=document.querySelector('[data-pank-feedback-launcher]');
-      if(current!==element){if(element)observer.unobserve(element);element=current;if(element)observer.observe(element);}
-      const rect=element?.getBoundingClientRect();
-      setBottom(rect?.height>0 && rect.top>=0 && rect.top<window.innerHeight ? Math.max(76,window.innerHeight-rect.top+10) : 88);
+      const rect=launcher.current.getBoundingClientRect();
+      if(panel.current)Object.assign(panel.current.style,{
+        right:`${Math.max(0,window.innerWidth-rect.right)}px`,
+        bottom:`${Math.max(0,window.innerHeight-rect.bottom)}px`,
+        maxHeight:`${Math.max(0,Math.min(window.innerHeight,rect.bottom)-16)}px`,
+      });
     };
-    const schedule=()=>{if(frame==null)frame=requestAnimationFrame(measure);};
-    const observer=new ResizeObserver(schedule);
-    const changes=new MutationObserver(schedule);
-    changes.observe(document.body,{childList:true,subtree:true});
-    measure();window.addEventListener('resize',schedule);window.addEventListener('scroll',schedule,true);
-    return()=>{observer.disconnect();changes.disconnect();if(frame!=null)cancelAnimationFrame(frame);window.removeEventListener('resize',schedule);window.removeEventListener('scroll',schedule,true);};
-  },[]);
+    const footer=launcher.current.closest('.pank-result-footer');
+    const observer=typeof ResizeObserver==='undefined'?null:new ResizeObserver(measure);
+    if(footer)observer?.observe(footer);
+    measure();window.addEventListener('resize',measure);window.addEventListener('scroll',measure,true);
+    return()=>{observer?.disconnect();window.removeEventListener('resize',measure);window.removeEventListener('scroll',measure,true);};
+  },[open]);
   useEffect(()=>{if(open){textarea.current?.focus();const escape=e=>{if(e.key==='Escape'){e.stopPropagation();setOpen(false);launcher.current?.focus();}};const node=panel.current;node?.addEventListener('keydown',escape);return()=>node?.removeEventListener('keydown',escape);}},[open]);
   useEffect(()=>{if(open&&tab==='Chat')end.current?.scrollIntoView({block:'nearest'});},[messages,busy,open,tab]);
   const check=()=>fetch(moduleApiPath('/module-guide/health'),{credentials:'same-origin'}).then(r=>{if(!r.ok)throw new Error();return r.json();}).then(value=>setAvailable(value.status==='ready')).catch(()=>setAvailable(false));
@@ -70,9 +73,9 @@ export default function ModuleGuide(){
   };
   const clear=()=>{requestGeneration.current++;abort.current?.abort();setMessages([]);setActionStates({});setBusy(false);setArticle(null);setInput('');};
   const section=manual.find(d=>d.id===article);
-  return <>
-    <button ref={launcher} className="guide-launcher pank-floating-action" style={{bottom}} aria-label="Open module guide" aria-expanded={open} aria-controls="pank-module-guide" onClick={()=>setOpen(value=>!value)}><HelpOutlineRoundedIcon/><span>Module guide</span></button>
-    {open&&<aside ref={panel} id="pank-module-guide" role="dialog" aria-label="PanKgraph module guide" className="module-guide" style={{bottom,maxHeight:`calc(100dvh - ${bottom+16}px)`}}>
+  return <div className="module-guide-anchor">
+    <button ref={launcher} className="guide-launcher pank-floating-action" aria-label="Open module guide" aria-expanded={open} aria-controls="pank-module-guide" onClick={()=>setOpen(value=>!value)}><HelpOutlineRoundedIcon/><span>Module guide</span></button>
+    {open&&createPortal(<aside ref={panel} id="pank-module-guide" role="dialog" aria-label="PanKgraph module guide" className="module-guide">
       <header><strong>Module guide</strong><IconButton aria-label="Close module guide" onClick={()=>{setOpen(false);launcher.current?.focus();}} size="small"><CloseRoundedIcon/></IconButton></header>
       <nav aria-label="Guide views"><div>{['Chat','Manual'].map(t=><button key={t} aria-pressed={tab===t&&!article} onClick={()=>{setTab(t);setArticle(null);}}>{t}</button>)}</div><button className="guide-new" aria-label="New conversation" onClick={clear} disabled={busy||applying}>New chat</button></nav>
       <div className="guide-scroll">
@@ -84,6 +87,6 @@ export default function ModuleGuide(){
       </div>
       {tab==='Chat'&&!article&&<form onSubmit={e=>{e.preventDefault();send();}} className="guide-composer"><label htmlFor="guide-question" className="guide-sr-only">Ask about module usage</label><textarea ref={textarea} id="guide-question" value={input} maxLength={2000} rows={2} placeholder="Ask about controls or configuration…" onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();send();}}}/><IconButton type="submit" disabled={busy||!input.trim()} aria-label="Send guide question"><SendRoundedIcon/></IconButton></form>}
       {available===false&&<footer><span>Guide unavailable. <button onClick={()=>{setTab('Manual');setArticle(null);}}>Use manual</button> · <button onClick={check}>Check again</button></span></footer>}
-    </aside>}
-  </>;
+    </aside>,document.body)}
+  </div>;
 }

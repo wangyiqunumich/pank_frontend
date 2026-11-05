@@ -1,6 +1,7 @@
 /* Same type, surfaces and controls as the visualization panels. */
-.guide-launcher { position:fixed; right:24px; z-index:1200; border-color:#e2e8f0; background:#fff; color:#0f766e; }
-.module-guide { position:fixed; right:24px; z-index:1201; display:flex; flex-direction:column; width:min(400px,calc(100vw - 24px)); height:600px; overflow:hidden; border:1px solid #e2e8f0; border-radius:12px; background:#fff; box-shadow:0 8px 24px #0f172a26; color:#334155; font:12px/1.6 Inter,'Open Sans',system-ui,sans-serif; }
+.module-guide-anchor { position:relative; flex:none; }
+.guide-launcher { border-color:#e2e8f0; background:#fff; color:#0f766e; }
+.module-guide { position:fixed; z-index:1350; display:flex; flex-direction:column; width:min(400px,calc(100vw - 24px)); height:600px; overflow:hidden; border:1px solid #e2e8f0; border-radius:12px; background:#fff; box-shadow:0 8px 24px #0f172a26; color:#334155; font:12px/1.6 Inter,'Open Sans',system-ui,sans-serif; }
 .module-guide * { box-sizing:border-box; }
 .module-guide button { font:inherit; cursor:pointer; }
 .module-guide button:disabled { cursor:default; opacity:.4; }
@@ -60,7 +61,6 @@
 .guide-entity > div { padding-top:10px; }
 .guide-entity a { color:#0f766e; }
 .guide-sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); }
-@media(max-width:599.95px) { .guide-launcher, .module-guide { right:12px; } }
 @media(max-height:650px) {
   .module-guide header { padding:6px 12px; }
   .module-guide nav { padding:6px 10px; }
