@@ -97,3 +97,8 @@ dd { margin: 0; overflow-wrap: anywhere; }
    a second five-pixel scroll range inside the upstream violin wrapper. */
 .violin svg { display:block; }
 .browser-content:not(.is-map) { padding-right:12px; }
+
+/* The outer content owns vertical scrolling; the violin needs horizontal scrolling only.
+   Let the native chart wrapper expand without becoming another scroll container. */
+.violin-scroll { overflow-x: auto; overflow-y: hidden; }
+.violin > div { overflow: visible !important; }
