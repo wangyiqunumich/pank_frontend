@@ -5,7 +5,7 @@ import * as bridge from './bridge';
 
 beforeEach(()=>{
  sessionStorage.clear();Element.prototype.scrollIntoView=jest.fn();
- global.ResizeObserver=class {observe(){} disconnect(){}};
+ global.ResizeObserver=class {observe(){} unobserve(){} disconnect(){}};
  global.crypto.randomUUID=()=> '11111111-1111-4111-8111-111111111111';
  global.fetch=jest.fn(async (url,options)=>({ok:true,json:async()=>options?.method==='POST'?{answer:'Choose cell types in Tracks, then Apply tracks.',citations:[{id:'genome-tracks',title:'Genome tracks'}],actions:[]}:{status:'ready'}}));
 });
@@ -62,4 +62,13 @@ test('welcome examples prepare direct module configuration without automatically
  expect(screen.getByLabelText('Ask about module usage').value).toBe(prompt);
  expect(fetch.mock.calls.filter(([,o])=>o?.method==='POST')).toHaveLength(0);
  await screen.findByText('Module help and verified entities · Changes require Apply');
+});
+
+test('launcher follows replacement feedback anchors when the floating chat bar mounts',async()=>{
+ const first=document.createElement('button');first.dataset.pankFeedbackLauncher='';first.getBoundingClientRect=()=>({top:window.innerHeight-50,height:30});document.body.append(first);
+ const {unmount}=render(<ModuleGuide/>);
+ expect(screen.getByRole('button',{name:'Open module guide'}).style.bottom).toBe('76px');
+ const next=document.createElement('button');next.dataset.pankFeedbackLauncher='';next.getBoundingClientRect=()=>({top:window.innerHeight-130,height:35});first.replaceWith(next);
+ await waitFor(()=>expect(screen.getByRole('button',{name:'Open module guide'}).style.bottom).toBe('140px'));
+ unmount();next.remove();
 });

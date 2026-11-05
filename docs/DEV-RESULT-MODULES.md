@@ -72,3 +72,26 @@ preservation, answer scope reset, exact QTL identity, guide-created modules and
 Apply/Undo. React tests exercise the real result panel and shared lifecycle;
 Vue tests validate native data/controls. Browser release acceptance is recorded
 with the deployed commit after rollout.
+
+### Deployed acceptance — 2026-11-04
+
+PR437 deployed as `471dc5470c32148114b40b75614881c25c305f6f`, Amplify job
+910 **SUCCEED**. The authenticated `/result-modules-release.json` reports schema
+0.7.0, `first_match_once`, all six extension IDs and the existing EC2 proxy prefix.
+In an existing INS expression chat on the regular root `/result-new2` route:
+
+- Only scBrowser and Genome Browser appeared automatically beside the graph.
+- scBrowser loaded INS/Beta and all 448,935 atlas cells (v3.4).
+- Genome Browser initialized INS at `chr11:2159778-2161209` with 14 tracks.
+- Guide Apply changed to alpha/beta signal, Compact, four tracks; a continuous
+  follow-up added ductal signal, five tracks. Undo restored four tracks without
+  changing the INS interval or adding a duplicate tab.
+- Guide Apply opened the previously absent PCA module as independent exploration,
+  rendered PC2/PC3 with 178 samples, and Undo restored PC1/PC2.
+- Acceptance caught a guide launcher anchor changing when the floating follow-up
+  input mounts. The launcher now rebinds to the current Feedback element.
+
+The focused 66 React tests and 34 native tests passed. An additional 49 API and
+stream-contract tests passed; the four surface tests were updated to the shared
+module chrome and passed. The latest upstream panel merge also passed its 15
+focused checks. Existing CRA/lint warnings remain; production builds succeeded.

@@ -9,25 +9,22 @@ const data = fullBleed => ({ questionId: 'Q1', title: 'Surface color regression'
   visualMaterial: { tabs: [
     { id: 'graph_viewer', label: 'Knowledge Graph', content: <div data-testid="graph-surface" /> },
     { id: 'single_cell_browser', label: 'scBrowser', fullBleed, content: <div data-testid="sc-surface" /> },
-    { id: 'functional_data', label: 'Functional Data', content: <div data-testid="functional-surface" /> },
+    { id: 'functional_browser', label: 'Functional Data', content: <div data-testid="functional-surface" /> },
   ] },
 });
 
-test.each([['answer', QuestionAnswerPage], ['plan', PlanConfirmationPage]])('%s scBrowser shell uses Figma colors and lets the embed own its spacing without changing other panels', (_, Page) => {
+test.each([['answer', QuestionAnswerPage], ['plan', PlanConfirmationPage]])('%s module shells share the new browser surface and leave spacing to each viewer', (_, Page) => {
   render(<Page data={data(false)} />);
   const style = id => getComputedStyle(screen.getByTestId(id).closest('.MuiPaper-root'));
   const sc = style('sc-surface'), graph = style('graph-surface'), functional = style('functional-surface');
-  expect(sc.backgroundColor).toBe('rgb(255, 255, 255)');
-  expect(sc.borderTopColor).toBe('rgba(226, 232, 240, 0.9)');
-  [graph, functional].forEach(panel => {
-    expect(panel.backgroundColor).toBe('rgb(249, 250, 251)');
-    expect(panel.borderTopColor).toBe('#e6eaf2');
+  [sc, graph, functional].forEach(panel => {
+    expect(panel.backgroundColor).toBe('rgb(255, 255, 255)');
+    expect(panel.borderTopColor).toBe('#e2e8f0');
+    expect(panel.padding).toBe('0px');
+    expect(panel.borderRadius).toBe('12px');
+    expect(panel.overflow).toBe('hidden');
   });
   expect(sc.width).toBe(graph.width);
-  expect(sc.padding).toBe('0px');
-  expect(sc.borderRadius).toBe('12px');
-  expect(sc.overflow).toBe('hidden');
-  expect(graph.padding).toBe('16px');
 });
 
 test.each([['answer', QuestionAnswerPage], ['plan', PlanConfirmationPage]])('%s full-bleed scBrowser remains transparent and borderless', (_, Page) => {
