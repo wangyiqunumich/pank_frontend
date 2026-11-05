@@ -807,7 +807,7 @@ function GraphSearch({ inputRef, onSearch }) {
 }
 
 // Main KnowledgeGraph component
-export default function KnowledgeGraph({ overlay, onEvidenceInspect, releaseId, evidenceService, selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, edgeRoutes = null, review = false, containerHeight = "600px", defaultLegendVisible = false }) {
+export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceService, selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, edgeRoutes = null, review = false, containerHeight = "600px", defaultLegendVisible = false }) {
   const cyRef = useRef(null);
   const containerRef = useRef(null);
   const infocardRef = useRef(null);
@@ -1237,7 +1237,6 @@ export default function KnowledgeGraph({ overlay, onEvidenceInspect, releaseId, 
         }}
       >
       </div>
-      {React.isValidElement(overlay) ? React.cloneElement(overlay, { onOpen: id => { setExpanded(false); overlay.props.onOpen?.(id); } }) : overlay}
       <GraphToolbar fullscreen={expanded} onFullscreen={toggleExpand}
         zoomPercent={Math.round(zoomLevel / initZoom * 100)} canZoomIn={zoomLevel < 4} canZoomOut={zoomLevel > minimumZoom}
         onZoomIn={handleZoomOut} onZoomOut={handleZoomIn} onFit={handleRecenter}
