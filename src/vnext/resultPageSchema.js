@@ -130,6 +130,7 @@ export function resolveResultPage({ result, run, state, agentKeywords, resourceT
     downloadable_data_assets: rawLinks.length > 0,
     graph_projection_or_expected: graphExpected,
     qtl_edges: qtlEdges(projection).length > 0,
+    qtl_catalog: result?.source?.component_catalogs?.includes('qtl') === true,
     rna_expression_pair: Boolean(firstAvailableExpression(projection)),
     functional_context_or_measurements: functionalContext,
     // The existing genome component uses a disabled IGV adapter in this demo.

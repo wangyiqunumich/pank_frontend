@@ -1,5 +1,5 @@
-export const MODULE_LABELS = {graph_viewer:'Knowledge Graph',single_cell_browser:'scBrowser',genome_browser:'Genome Browser',differential_expression:'Differential Expression',functional_browser:'Functional Browser',pca_explorer:'PCA Explorer'};
-export const VIEWS = {graph_viewer:[],single_cell_browser:[],genome_browser:['Genome','Tracks','Source'],differential_expression:['Volcano','Heatmap','Gene table','Source'],functional_browser:['Response','Source'],pca_explorer:['PCA map','Contributions','Source']};
+export const MODULE_LABELS = {graph_viewer:'Knowledge Graph',single_cell_browser:'scBrowser',genome_browser:'Genome Browser',differential_expression:'Differential Expression',functional_browser:'Functional Browser',pca_explorer:'PCA Explorer',qtl_browser:'QTL Browser'};
+export const VIEWS = {graph_viewer:[],single_cell_browser:[],genome_browser:['Genome','Tracks','Source'],differential_expression:['Volcano','Heatmap','Gene table','Source'],functional_browser:['Response','Source'],pca_explorer:['PCA map','Contributions','Source'],qtl_browser:['Manhattan','Source']};
 const cells=['a_stellate','acinar','alpha','beta','delta','ductal','endothelial','gamma','immune','muc5b_ductal','q_stellate','schwann'];
 const keys=(p,expected)=>Object.keys(p).sort().join('|')===expected.split(',').sort().join('|');
 export function validAction(a) {

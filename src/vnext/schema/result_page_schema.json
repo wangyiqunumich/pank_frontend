@@ -124,7 +124,8 @@
       "genome_browser",
       "differential_expression",
       "functional_browser",
-      "pca_explorer"
+      "pca_explorer",
+      "qtl_browser"
     ],
     "state_parameter": "main_visual",
     "items": {
@@ -328,34 +329,30 @@
           {
             "key": "gtex_eqtl",
             "label": "Pancreatic eQTL",
-            "aliases": [
-              "GTEx; SusieR"
-            ],
-            "folder": "1_eQTL-gtex-susie"
+            "folder": "1_eQTL-gtex-susie",
+            "dataset_id": "PKBDS6689QROA",
+            "source_url": "https://data.pankbase.org/curated-sets/PKBDS6689QROA/"
           },
           {
             "key": "inspire_eqtl",
             "label": "Islet eQTL",
-            "aliases": [
-              "INSPIRE; SusieR"
-            ],
-            "folder": "1_eQTL-inspire-susie"
+            "folder": "1_eQTL-inspire-susie",
+            "dataset_id": "PKBDS8062GYOQ",
+            "source_url": "https://data.pankbase.org/curated-sets/PKBDS8062GYOQ/"
           },
           {
             "key": "gtex_sqtl",
             "label": "Pancreatic splicing QTL",
-            "aliases": [
-              "splicing; GTEx"
-            ],
-            "folder": "1_sQTL-gtex-susie"
+            "folder": "1_sQTL-gtex-susie",
+            "dataset_id": "PKBDS2105PCON",
+            "source_url": "https://data.pankbase.org/curated-sets/PKBDS2105PCON/"
           },
           {
             "key": "inspire_exonqtl",
             "label": "Islet exon QTL",
-            "aliases": [
-              "exon; INSPIRE"
-            ],
-            "folder": "1_exonQTL-inspire-susie"
+            "folder": "1_exonQTL-inspire-susie",
+            "dataset_id": "PKBDS9837ORWK",
+            "source_url": "https://data.pankbase.org/curated-sets/PKBDS9837ORWK/"
           }
         ],
         "request": {
@@ -644,6 +641,22 @@
           "source_tab": "Source & methods"
         },
         "source_title": "PanKbase pseudobulk PCA \u00b7 v3.3"
+      },
+      "qtl_browser": {
+        "title": "QTL Browser",
+        "enabled": true,
+        "requires": [
+          "qtl_catalog"
+        ],
+        "agent_keywords": [
+          "qtl_browser"
+        ],
+        "state_values": [
+          "qtl_browser"
+        ],
+        "layout": {
+          "min_height": 600
+        }
       }
     },
     "preview_standard": {

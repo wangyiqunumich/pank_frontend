@@ -71,3 +71,8 @@
   overflow-wrap:anywhere; }
 .browser-source-footer > a:hover { text-decoration:underline; }
 .browser-source-footer > a:focus-visible { outline:2px solid #0d9488; outline-offset:2px; border-radius:3px; }
+
+.qtl-set-select { flex-basis:100%!important; }
+.qtl-pagination { display:flex; align-items:center; gap:10px; width:100%; color:#64748b; }
+.qtl-pagination button { border:1px solid #e2e8f0; border-radius:6px; padding:4px 8px; background:white; color:#334155; cursor:pointer; }
+.qtl-pagination button:disabled { opacity:.45; cursor:default; }

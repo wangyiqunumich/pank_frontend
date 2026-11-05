@@ -22,6 +22,7 @@ import FunctionalVisual from './FunctionalVisual';
 import QtlFineMapping from './QtlFineMapping';
 import PanKbaseModule from './PanKbaseModule';
 import PanKgraphFunctionalPlot from './PanKgraphFunctionalPlot';
+import QtlBrowser from './QtlBrowser';
 import { pankbaseContexts } from './pankbaseContext';
 import visualSchema from './schema/result_page_schema.json';
 import SingleCellBrowser from './SingleCellBrowser';
@@ -173,6 +174,7 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
     ...Object.fromEntries(Object.entries(moduleContexts).map(([id, context]) => [id, id === 'functional_browser' ? <PanKgraphFunctionalPlot key={`${runId}-${id}`} /> : <PanKbaseModule key={`${runId}-${id}`} moduleId={id} context={context} />])),
     graph_viewer: null,
     single_cell_browser: <SingleCellBrowser key={runId} graph={graphData} onSelect={selectExpression} context={expression} />,
+    qtl_browser: <QtlBrowser key={runId} contexts={page.qtlContexts} />,
     qtl_fine_mapping: <QtlFineMapping key={runId} contexts={page.qtlContexts} />,
     functional_data: <FunctionalVisual result={result} />,
   };

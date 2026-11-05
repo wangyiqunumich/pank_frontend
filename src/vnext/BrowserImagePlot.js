@@ -6,7 +6,7 @@ export function figureSize(width,height) {
   return {width:Math.max(360,Math.round(width*scale)),height:Math.max(260,Math.round(height*scale))};
 }
 
-export default function BrowserImagePlot({ url, title, fullscreen, onFullscreen }) {
+export default function BrowserImagePlot({ url, title, fullscreen, onFullscreen, downloadName='PanKgraph-functional-response.png', errorLabel='The functional plot could not load.' }) {
   const stage=useRef(null);
   const [size,setSize]=useState({width:800,height:500}), [failed,setFailed]=useState(false), [retry,setRetry]=useState(0);
   useLayoutEffect(()=>{
@@ -17,9 +17,9 @@ export default function BrowserImagePlot({ url, title, fullscreen, onFullscreen 
     return ()=>{clearTimeout(timer);observer?.disconnect();window.removeEventListener('resize',measure);};
   },[]);
   const imageUrl=`${url}&plot_width=${size.width}&plot_height=${size.height}&retry=${retry}`;
-  const download=()=>{const link=document.createElement('a');link.href=imageUrl;link.download='PanKgraph-functional-response.png';link.click();};
+  const download=()=>{const link=document.createElement('a');link.href=imageUrl;link.download=downloadName;link.click();};
   return <div ref={stage} className="browser-image-plot browser-native-figure">
-    {failed?<p role="alert">The functional plot could not load. <button onClick={()=>{setFailed(false);setRetry(value=>value+1);}}>Retry</button></p>:<img src={imageUrl} alt={title} draggable="false" onError={()=>setFailed(true)}/>}
+    {failed?<p role="alert">{errorLabel} <button onClick={()=>{setFailed(false);setRetry(value=>value+1);}}>Retry</button></p>:<img src={imageUrl} alt={title} draggable="false" onError={()=>setFailed(true)}/>}
     <BrowserToolbar visibleActions={['fullscreen','download']} fullscreen={fullscreen} onFullscreen={onFullscreen} onDownload={download} disabled={failed}/>
   </div>;
 }

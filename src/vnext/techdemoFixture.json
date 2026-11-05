@@ -122,6 +122,11 @@
     "answer": "**PanKbase integration navigation fixture.**\n\nGraph nodes, relationships and region here are test inputs, not retrieved biological evidence. Module data is loaded separately from its named public source. A related resource does not establish a matching cohort.",
     "result_page_state": {
       "main_visual": "graph_viewer"
+    },
+    "source": {
+      "component_catalogs": [
+        "qtl"
+      ]
     }
   }
 }

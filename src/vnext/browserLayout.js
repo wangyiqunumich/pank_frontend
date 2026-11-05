@@ -1,7 +1,7 @@
 // Shared host geometry. Embedded browsers own their toolbar and content padding.
 export const BROWSER_VISUAL_IDS = new Set([
   'graph_viewer', 'single_cell_browser', 'genome_browser',
-  'differential_expression', 'functional_browser', 'pca_explorer',
+  'differential_expression', 'functional_browser', 'pca_explorer', 'qtl_browser',
 ]);
 export const BROWSER_PANEL_HEIGHT = 'clamp(600px, 72dvh, 800px)';
 export const BROWSER_SURFACE_SX = {
