@@ -1,6 +1,6 @@
 # Dev chat extension modules
 
-Baseline: `xuteng/react` at `680a5f5`. Module implementation ported from the
+Baseline: `xuteng/react` at `680a5f5`, merged through `c97526c` before release. Module implementation ported from the
 fixed techdemo at `c646acfc50df5419157d865d304aa33a0bb86826` without replacing
 current answer, source-link, session, streaming or graph projection logic.
 
