@@ -1,13 +1,13 @@
 # Graph viewer panel contract
 
-Canonical dev configuration: `PanKgraph_1104.schema.json`.
+Canonical dev configuration: `PanKgraph_1104.graph-viewer.schema.json`.
 The viewer API exposes its `panel_presentation` alongside profiles and exact-object table contracts.
 React consumes the response for the current release. Bundled policy is a generated compatibility fallback, not a second editable design.
 
 After editing the canonical file:
 
 ```sh
-node scripts/sync-viewer-panel.cjs config/graph-viewer/PanKgraph_1104.schema.json
+node scripts/sync-viewer-panel.cjs config/graph-viewer/PanKgraph_1104.graph-viewer.schema.json
 CI=true npm test -- --watchAll=false --runInBand src/vnext/evidence
 ```
 
