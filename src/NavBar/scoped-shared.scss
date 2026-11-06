@@ -238,6 +238,9 @@
 
         .mobile-context-button {
             display: inline-flex;
+            width: 44px;
+            height: 44px;
+            flex: none;
         }
     }
 }
@@ -249,10 +252,11 @@
 }
 
 .pkb-nav-mobile-drawer__content {
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     height: 100%;
-    padding: 18px 16px 28px;
+    padding: max(18px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) calc(28px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
     font-family: "Open Sans", sans-serif;
     color: #153c3f;
     overflow-y: auto;

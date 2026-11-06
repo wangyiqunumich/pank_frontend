@@ -41,19 +41,27 @@ export default function ModuleGuide(){
     // Only the open panel's available height needs a viewport measurement.
     const measure=()=>{
       const rect=launcher.current.getBoundingClientRect();
+      const viewport=window.visualViewport;
+      const top=viewport?.offsetTop||0,left=viewport?.offsetLeft||0;
+      const height=viewport?.height||window.innerHeight,width=viewport?.width||window.innerWidth;
+      const bottom=Math.min(rect.bottom,top+height-12);
+      const maxWidth=Math.max(0,width-24);
+      const right=Math.min(left+width-12,Math.max(rect.right,left+12+Math.min(400,maxWidth)));
       if(panel.current)Object.assign(panel.current.style,{
-        right:`${Math.max(0,window.innerWidth-rect.right)}px`,
-        bottom:`${Math.max(0,window.innerHeight-rect.bottom)}px`,
-        maxHeight:`${Math.max(0,Math.min(window.innerHeight,rect.bottom)-16)}px`,
+        right:`${Math.max(0,window.innerWidth-right)}px`,
+        bottom:`${Math.max(0,window.innerHeight-bottom)}px`,
+        maxHeight:`${Math.max(0,bottom-top-16)}px`,
+        maxWidth:`${maxWidth}px`,
       });
     };
     const footer=launcher.current.closest('.pank-result-footer');
     const observer=typeof ResizeObserver==='undefined'?null:new ResizeObserver(measure);
     if(footer)observer?.observe(footer);
     measure();window.addEventListener('resize',measure);window.addEventListener('scroll',measure,true);
-    return()=>{observer?.disconnect();window.removeEventListener('resize',measure);window.removeEventListener('scroll',measure,true);};
+    window.visualViewport?.addEventListener('resize',measure);window.visualViewport?.addEventListener('scroll',measure);
+    return()=>{observer?.disconnect();window.removeEventListener('resize',measure);window.removeEventListener('scroll',measure,true);window.visualViewport?.removeEventListener('resize',measure);window.visualViewport?.removeEventListener('scroll',measure);};
   },[open]);
-  useEffect(()=>{if(open){textarea.current?.focus();const escape=e=>{if(e.key==='Escape'){e.stopPropagation();setOpen(false);launcher.current?.focus();}};const node=panel.current;node?.addEventListener('keydown',escape);return()=>node?.removeEventListener('keydown',escape);}},[open]);
+  useEffect(()=>{if(open){if(window.matchMedia?.('(pointer:coarse)').matches)panel.current?.focus({preventScroll:true});else textarea.current?.focus();const escape=e=>{if(e.key==='Escape'){e.stopPropagation();setOpen(false);launcher.current?.focus();}};const node=panel.current;node?.addEventListener('keydown',escape);return()=>node?.removeEventListener('keydown',escape);}},[open]);
   useEffect(()=>{if(open&&tab==='Chat')end.current?.scrollIntoView({block:'nearest'});},[messages,busy,open,tab]);
   const check=()=>fetch(moduleApiPath('/module-guide/health'),{credentials:'same-origin'}).then(r=>{if(!r.ok)throw new Error();return r.json();}).then(value=>setAvailable(value.status==='ready')).catch(()=>setAvailable(false));
   useEffect(()=>{if(open)check();},[open]);
@@ -75,7 +83,7 @@ export default function ModuleGuide(){
   const section=manual.find(d=>d.id===article);
   return <div className="module-guide-anchor">
     <button ref={launcher} className="guide-launcher pank-floating-action" aria-label="Open module guide" aria-expanded={open} aria-controls="pank-module-guide" onClick={()=>setOpen(value=>!value)}><HelpOutlineRoundedIcon/><span className="pank-floating-action-label">Module guide</span></button>
-    {open&&createPortal(<aside ref={panel} id="pank-module-guide" role="dialog" aria-label="PanKgraph module guide" className="module-guide">
+    {open&&createPortal(<aside ref={panel} id="pank-module-guide" role="dialog" tabIndex={-1} aria-label="PanKgraph module guide" className="module-guide">
       <header><strong>Module guide</strong><IconButton aria-label="Close module guide" onClick={()=>{setOpen(false);launcher.current?.focus();}} size="small"><CloseRoundedIcon/></IconButton></header>
       <nav aria-label="Guide views"><div>{['Chat','Manual'].map(t=><button key={t} aria-pressed={tab===t&&!article} onClick={()=>{setTab(t);setArticle(null);}}>{t}</button>)}</div><button className="guide-new" aria-label="New conversation" onClick={clear} disabled={busy||applying}>New chat</button></nav>
       <div className="guide-scroll">
@@ -85,7 +93,7 @@ export default function ModuleGuide(){
           {busy&&<p role="status" className="guide-pending">Thinking…</p>}<div ref={end}/>
         </>}
       </div>
-      {tab==='Chat'&&!article&&<form onSubmit={e=>{e.preventDefault();send();}} className="guide-composer"><label htmlFor="guide-question" className="guide-sr-only">Ask about module usage</label><textarea ref={textarea} id="guide-question" value={input} maxLength={2000} rows={2} placeholder="Ask about controls or configuration…" onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();send();}}}/><IconButton type="submit" disabled={busy||!input.trim()} aria-label="Send guide question"><SendRoundedIcon/></IconButton></form>}
+      {tab==='Chat'&&!article&&<form onSubmit={e=>{e.preventDefault();send();}} className="guide-composer"><label htmlFor="guide-question" className="guide-sr-only">Ask about module usage</label><textarea ref={textarea} id="guide-question" value={input} maxLength={2000} rows={2} placeholder="Ask about a module…" onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();send();}}}/><IconButton type="submit" disabled={busy||!input.trim()} aria-label="Send guide question"><SendRoundedIcon/></IconButton></form>}
       {available===false&&<footer><span>Guide unavailable. <button onClick={()=>{setTab('Manual');setArticle(null);}}>Use manual</button> · <button onClick={check}>Check again</button></span></footer>}
     </aside>,document.body)}
   </div>;

@@ -1,5 +1,6 @@
 .pank-result-footer { position:fixed; right:0; bottom:0; z-index:1200; }
 .pank-result-footer.has-search { position:sticky; z-index:1000; }
+.pank-followup-bar { padding:16px; }
 .pank-result-actions { position:absolute; right:24px; bottom:24px; display:flex; flex-direction:column; align-items:flex-end; gap:10px; }
 .pank-result-footer.has-search .pank-result-actions { bottom:calc(100% + 12px); }
 .pank-floating-action {
@@ -34,8 +35,12 @@
   .pank-floating-action:hover .pank-floating-action-label { max-width:160px; opacity:1; }
 }
 .pank-floating-action:focus-visible { outline: 2px solid #0d9488; outline-offset: 2px; }
-@media (max-width: 599.95px) {
-  .pank-result-actions { right:12px; bottom:12px; }
+@media (max-width:599.95px), (max-width:999.95px) and (pointer:coarse) {
+  .pank-result-footer { position:sticky; width:100%; background:#fff; }
+  .pank-result-footer:not(.has-search) { border-top:1px solid #e0e0e0; box-shadow:0 -2px 12px #00000014; }
+  .pank-result-actions { position:static; flex-direction:row; align-items:center; justify-content:flex-end; padding:12px max(12px, env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); }
+  .pank-result-footer.has-search .pank-result-actions { padding-top:0; }
+  .pank-followup-bar { padding:12px max(12px, env(safe-area-inset-right)) 10px max(12px, env(safe-area-inset-left)); }
   .pank-floating-action { --action-size:40px; --action-expanded-width:176px; --action-expanded-padding:9px 19px; --action-expanded-gap:6px; font-size:13px; }
   .pank-floating-action svg { width: 16px; height: 16px; }
 }

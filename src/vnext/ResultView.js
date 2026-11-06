@@ -404,7 +404,7 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     {pendingAdmission.current && !initialLoading && <Box sx={{ display: 'flex', justifyContent: 'center' }}><Button onClick={cancel}>Cancel query</Button></Box>}
     {failedFollowUp && <Box role="alert" sx={{ p: 2 }}><Typography>Could not submit follow-up: {failedFollowUp.message}</Typography><Typography>{failedFollowUp.question}</Typography><Button disabled={busy} onClick={() => followUp(failedFollowUp.question, failedFollowUp.intent)}>Retry follow-up</Button></Box>}
     <AlertMessage type="warning" content={error || resultError} open={!recovery && Boolean(error || resultError)} onClose={() => setError('')} />
-    <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', px: { xs: 2, md: 3 }, py: 3 }}><Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 3 }}>
+    <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', px: { xs: 0, sm: 2, md: 3 }, py: 3 }}><Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 3 }}>
         {historyError && <Box role="status"><Typography>{historyError}</Typography><Button onClick={() => attachRun(readRunId.current)}>Refresh history</Button></Box>}
         {previous.map((item, index) => <ResultSection key={item.run.run_id} guideEnabled={false} {...item} questionNumber={index + 1} anchorPrefix={`${contentAnchorPrefix}-previous-${index}`} />)}
         {initialLoading ? <Box role="status" aria-label="Loading current question" sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px' }}><SearchResultLoading streamProgress={progress} handleClose={cancel} /></Box> :
@@ -426,7 +426,7 @@ export function ConventionalResultView({ contentAnchorPrefix = 'result-1', onCon
     const signature = JSON.stringify(meta);
     if (metaRef.current !== signature) { metaRef.current = signature; onContentMeta?.(meta); }
   }, [onContentMeta, contentAnchorPrefix, result, run, location.pathname, location.search, location.state?.result_page]);
-  return <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', px: { xs: 2, md: 3 }, py: 3 }}><Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 3 }}>
+  return <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', px: { xs: 0, sm: 2, md: 3 }, py: 3 }}><Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 3 }}>
     <ConnectionNotice status={connection.status} onReconnect={connection.reconnect} />
     <ResultSection run={run} result={result} error={error || (!payload && !savedId ? 'This search is unavailable. Return to the tool and choose a supported search.' : '')} anchorPrefix={contentAnchorPrefix} presentationState={location.state?.result_page} />
   </Box></Box>;

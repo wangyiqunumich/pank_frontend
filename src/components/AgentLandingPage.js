@@ -25,6 +25,7 @@ import {
   Paper,
   TextField,
   Typography,
+  useMediaQuery,
 } from '@mui/material';
 
 import landingPageLogo from '../image/landing image cropped.png';
@@ -39,6 +40,7 @@ export const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
 
 function AgentLandingPage() {
     const navigate = useNavigate();
+    const isMobile = useMediaQuery('(max-width:599.95px), (max-width:999.95px) and (pointer:coarse)');
     const [query, setQuery] = useState('');
     const inputError = getDevConfig().vnextEnabled ? questionInputError(query) : '';
     const [showLoading, setShowLoading] = useState(false);
@@ -269,7 +271,9 @@ function AgentLandingPage() {
                         />
                         <Box
                             sx={{
-                                height: '80px',
+                                height: isMobile ? 'auto' : '80px',
+                                minHeight: 80,
+                                py: isMobile ? 1 : 0,
                                 borderRadius: '40px',
                                 bgcolor: '#FFFFFF',
                                 border: '1px solid rgba(189,201,200,0.3)',
@@ -287,6 +291,8 @@ function AgentLandingPage() {
                             <TextField
                                 variant="standard"
                                 fullWidth
+                                multiline={isMobile}
+                                maxRows={isMobile ? 3 : undefined}
                                 inputProps={{ 'aria-label': 'Ask a question' }}
                                 value={query}
                                 error={Boolean(inputError)}
@@ -300,7 +306,7 @@ function AgentLandingPage() {
                                     }
                                 }}
                                 onKeyDown={(event) => {
-                                    if (event.key === 'Enter') {
+                                    if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
                                         event.preventDefault();
                                         setShowLoading(true);
                                         handleSearch(query, 'enter');
@@ -313,7 +319,8 @@ function AgentLandingPage() {
                                     flex: 1,
                                     '& .MuiInputBase-input': {
                                         fontFamily: 'Inter',
-                                        fontSize: { xs: 13, sm: 14 },
+                                        fontSize: isMobile ? 16 : 14,
+                                        lineHeight: isMobile ? '24px' : 'normal',
                                         color: '#181C1D',
                                         p: 0,
                                     },
@@ -421,6 +428,9 @@ function AgentLandingPage() {
                                     right: 0,
                                     zIndex: 30,
                                     borderRadius: '32px',
+                                    maxHeight: { xs: 'min(360px, 50dvh)', sm: 'none' },
+                                    overflowY: { xs: 'auto', sm: 'visible' },
+                                    overscrollBehavior: 'contain',
                                     border: '1px solid #E7EBEF',
                                     boxShadow: '0 10px 20px rgba(0,103,102,0.08)',
                                     p: 2,

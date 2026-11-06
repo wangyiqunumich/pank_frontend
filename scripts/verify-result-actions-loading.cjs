@@ -21,7 +21,7 @@ fs.mkdirSync(output,{recursive:true});
    await page.evaluate(()=>document.fonts.ready);
    const samples=await page.evaluate(()=>{
     const guide=document.querySelector('.guide-launcher'),feedback=document.querySelector('[data-pank-feedback-launcher]');
-    const out=[],sample=label=>{const g=guide.getBoundingClientRect(),f=feedback.getBoundingClientRect();out.push({label,left:g.left-f.left,right:g.right-f.right,width:g.width-f.width,gap:f.top-g.bottom});};
+    const out=[],sample=label=>{const g=guide.getBoundingClientRect(),f=feedback.getBoundingClientRect(),row=getComputedStyle(guide.closest('.pank-result-actions')).flexDirection==='row';out.push({label,row,left:g.left-f.left,right:g.right-f.right,width:g.width-f.width,top:g.top-f.top,gap:row?f.left-g.right:f.top-g.bottom});};
     sample('initial');
     // Measure in the same JS task, before a scroll event or React render can run.
     for(let p=guide.parentElement;p;p=p.parentElement){
@@ -38,7 +38,7 @@ fs.mkdirSync(output,{recursive:true});
     return out;
    });
    assert(samples.length>1,'Exercise a scrolling page');
-   for(const s of samples){assert(Math.abs(s.left)<.5&&Math.abs(s.right)<.5&&Math.abs(s.width)<.5,JSON.stringify(s));assert(Math.abs(s.gap-10)<.5,JSON.stringify(s));}
+   for(const s of samples){assert(Math.abs(s.width)<.5,JSON.stringify(s));if(s.row)assert(Math.abs(s.top)<.5,JSON.stringify(s));else assert(Math.abs(s.left)<.5&&Math.abs(s.right)<.5,JSON.stringify(s));assert(Math.abs(s.gap-10)<.5,JSON.stringify(s));}
    const size=width<600?40:48,expanded=width<600?176:220;
    for(const name of ['Open module guide','Give Feedback']){
     const button=page.getByRole('button',{name,exact:true}),initial=await button.boundingBox();

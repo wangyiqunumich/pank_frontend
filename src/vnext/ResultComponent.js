@@ -29,6 +29,7 @@ import {
   Skeleton,
   Stack,
   Tab,
+  TabScrollButton,
   Tabs,
   TextField,
   ThemeProvider,
@@ -149,6 +150,10 @@ export function ResultComponentSkeleton() {
     );
 }
 
+const VisualTabScrollButton = React.forwardRef(function VisualTabScrollButton({direction, ...props}, ref) {
+    return <TabScrollButton {...props} ref={ref} direction={direction} component="button" type="button" tabIndex={-1} aria-label={direction === 'left' ? 'Previous visualization tabs' : 'More visualization tabs'} />;
+});
+
 function ContentTabs({ tabs, value, onChange, variant = 'default', visual = false }) {
     const isPank1 = variant === 'pank1';
     return (
@@ -158,9 +163,12 @@ function ContentTabs({ tabs, value, onChange, variant = 'default', visual = fals
             variant="scrollable"
             aria-label={visualSchema.main_visuals.tab_switch.accessible_label}
             scrollButtons={visualSchema.main_visuals.tab_switch.scroll_buttons}
+            allowScrollButtonsMobile={visual}
+            ScrollButtonComponent={visual ? VisualTabScrollButton : undefined}
             sx={{
                 minHeight: visual ? 26 : 0,
                 "& .MuiTabs-scrollButtons.Mui-disabled": { display: "none" },
+                ...(visual ? { '& .MuiTabScrollButton-root': { height: 26, '@media(max-width:599.95px)': { width: 32 } } } : {}),
                 "& .MuiTab-root": {
                     minHeight: 0,
                     ...(visual ? { lineHeight: '18px' } : {}),
@@ -1224,7 +1232,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                     direction={{ xs: "column", sm: "row" }}
                     spacing={1.5}
                     alignItems={{ xs: "flex-start", sm: "center" }}
-                    sx={{ mb: '62px', columnGap: '17px' }}
+                    sx={{ mb: { xs: 4, sm: '62px' }, columnGap: '17px' }}
                 >
                     <Chip
                         label={data.questionId || "Q1"}
@@ -1245,6 +1253,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                             letterSpacing: "-0.02em",
                             color: "#1E293B",
                             lineHeight: 1.15,
+                            overflowWrap: 'anywhere',
                             fontFamily: isPank1Style ? '"Open Sans", Inter, sans-serif' : 'inherit',
                         }}
                     >
@@ -1464,7 +1473,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                                 onChange={(event) => data?.followUp?.onChange?.(event.target.value || "")}
                                                 disabled={isFollowUpDisabled}
                                                 onKeyDown={(event) => {
-                                                    if (event.key === "Enter" && !event.shiftKey) {
+                                                    if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
                                                         event.preventDefault();
                                                         handleFollowUpSubmit();
                                                     }
@@ -1482,7 +1491,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                                                 }}
                                                 sx={{
                                                     "& .MuiInputBase-input": {
-                                                        fontSize: 14,
+                                                        fontSize: { xs: 16, sm: 14 },
                                                         color: "#334155",
                                                     },
                                                 }}

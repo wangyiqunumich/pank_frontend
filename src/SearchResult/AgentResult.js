@@ -545,7 +545,7 @@ export function AgentResultLayout({
         && (effectiveAllowMulti || showFloatingSearchBar)
         && !Boolean(activeMeta?.isPlanning)
         && (effectiveAllowMulti || activeQuestionComplete);
-    const isMobile = useMediaQuery("(max-width:599.95px)");
+    const isMobile = useMediaQuery('(max-width:599.95px), (max-width:999.95px) and (pointer:coarse)');
     const isSingleColumn = useMediaQuery("(max-width:1199.95px)");
     const isDesktopSidebarVisible = useMediaQuery("(min-width:1000px)");
     const navigatorMenuVisible = isSingleColumn || menuOpen;
@@ -1012,7 +1012,7 @@ export function AgentResultLayout({
 
     const handleKeyPress = (e) => {
         if (!canSearch) return;
-        if (e.key === "Enter") {
+        if (e.key === "Enter" && !e.nativeEvent.isComposing) {
             trackAgentEvent('agent_result_search_submit_enter', {
                 query_length: String(searchQuery || '').trim().length,
                 active_result_index: activeResultIndex + 1,
@@ -1472,32 +1472,36 @@ export function AgentResultLayout({
             <div className={`pank-result-footer${hasFloatingInputBar ? ' has-search' : ''}`}>
             {hasFloatingInputBar ? (
                 <div
+                    className="pank-followup-bar"
                     style={{
                         backgroundColor: "#fff",
                         borderTop: "1px solid #e0e0e0",
                         boxShadow: "0 -2px 12px rgba(0,0,0,0.08)",
-                        padding: "16px",
                         marginTop: 8,
                         overflow: 'visible',
                     }}
                 >
-                    <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", gap: 12 }}>
+                    <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: 'center', gap: isMobile ? 8 : 12 }}>
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyPress={handleKeyPress}
                             aria-label="Follow-up question"
+                            enterKeyHint="search"
                             aria-invalid={Boolean(inputError)}
                             aria-describedby={inputError ? 'agent-followup-error' : undefined}
                             placeholder="Enter your search query..."
                             disabled={!canSearch}
                             style={{
                                 flex: 1,
-                                padding: "12px 16px",
+                                minWidth: 0,
+                                boxSizing: 'border-box',
+                                height: isMobile ? 44 : undefined,
+                                padding: isMobile ? '10px 12px' : '12px 16px',
                                 borderRadius: 8,
                                 border: canSearch ? "1px solid #ddd" : "1px solid #C7DBDE",
-                                fontSize: 14,
+                                fontSize: isMobile ? 16 : 14,
                                 fontFamily: "inherit",
                                 outline: "none",
                                 transition: "border-color 0.2s ease",
@@ -1516,7 +1520,10 @@ export function AgentResultLayout({
                             onClick={handleSearch}
                             disabled={!canSearch || Boolean(inputError)}
                             style={{
-                                padding: "12px 24px",
+                                flexShrink: 0,
+                                height: isMobile ? 44 : undefined,
+                                padding: isMobile ? '10px 16px' : '12px 24px',
+                                whiteSpace: 'nowrap',
                                 borderRadius: 8,
                                 border: "none",
                                 backgroundColor: canSearch ? "#3A838B" : "#8EAEB3",
@@ -1913,6 +1920,7 @@ export function AgentResultLayout({
                             value={feedbackText}
                             onChange={(event) => setFeedbackText(event.target.value)}
                             placeholder="Share your thoughts..."
+                            aria-label="Feedback comments"
                             rows={4}
                             style={{
                                 width: '100%',
@@ -1920,7 +1928,7 @@ export function AgentResultLayout({
                                 borderRadius: 10,
                                 padding: '10px 12px',
                                 fontFamily: 'Open Sans, sans-serif',
-                                fontSize: 14,
+                                fontSize: isMobile ? 16 : 14,
                                 color: '#111827',
                                 outline: 'none',
                                 resize: 'vertical',
@@ -1935,6 +1943,8 @@ export function AgentResultLayout({
                         </div>
                         <input
                             type="email"
+                            autoComplete="email"
+                            aria-label="Feedback email"
                             placeholder="you@example.com"
                             value={feedbackEmail}
                             onChange={(event) => setFeedbackEmail(event.target.value)}
@@ -1945,7 +1955,7 @@ export function AgentResultLayout({
                                 borderRadius: 10,
                                 padding: '0 12px',
                                 fontFamily: 'Open Sans, sans-serif',
-                                fontSize: 14,
+                                fontSize: isMobile ? 16 : 14,
                                 color: '#111827',
                                 outline: 'none',
                                 boxSizing: 'border-box',

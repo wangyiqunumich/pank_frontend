@@ -74,5 +74,21 @@ test('the open panel fits above its shared action anchor as the page moves',()=>
  bottom=500;fireEvent.scroll(window);
  expect(panel.style.maxHeight).toBe('484px');
  bottom=window.innerHeight+200;fireEvent.resize(window);
- expect(panel.style.maxHeight).toBe(`${window.innerHeight-16}px`);
+ expect(panel.style.maxHeight).toBe(`${window.innerHeight-28}px`);
+});
+
+test('the guide stays inside the visible viewport when a mobile keyboard changes its size',()=>{
+ const previous=Object.getOwnPropertyDescriptor(window,'visualViewport');
+ const viewport=Object.assign(new EventTarget(),{height:300,width:390,offsetTop:100,offsetLeft:0});
+ Object.defineProperty(window,'visualViewport',{configurable:true,value:viewport});
+ jest.spyOn(HTMLButtonElement.prototype,'getBoundingClientRect').mockReturnValue({bottom:700,right:378});
+ const {unmount}=render(<ModuleGuide/>);
+ try{
+  fireEvent.click(screen.getByRole('button',{name:'Open module guide'}));
+  const panel=screen.getByRole('dialog',{name:'PanKgraph module guide'});
+  expect(panel.style.maxHeight).toBe('272px');expect(panel.style.maxWidth).toBe('366px');
+  expect(panel.style.bottom).toBe(`${window.innerHeight-388}px`);
+  viewport.height=240;viewport.offsetTop=180;viewport.dispatchEvent(new Event('resize'));
+  expect(panel.style.maxHeight).toBe('212px');expect(panel.style.bottom).toBe(`${window.innerHeight-408}px`);
+ }finally{unmount();if(previous)Object.defineProperty(window,'visualViewport',previous);else delete window.visualViewport;}
 });
