@@ -178,7 +178,7 @@ function ContentTabs({ tabs, value, onChange, variant = 'default', visual = fals
                     },
                 },
                 "& .Mui-selected": { color: "#3A838B !important" },
-                "& .MuiTabs-indicator": { backgroundColor: "#3A838B !important", height: 2 },
+                "& .MuiTabs-indicator": { backgroundColor: "#3A838B !important", height: 2, bottom: visual ? (isPank1 ? 2.5 : 2) : 0 },
             }}
         >
             {tabs.map((t) => (

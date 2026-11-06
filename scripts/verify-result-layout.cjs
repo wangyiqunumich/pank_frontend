@@ -57,11 +57,13 @@ const near = (actual, expected, label) => assert(Math.abs(actual - expected) < 1
       near(before.text.top, before.visual.top, 'Text and visual content top alignment');
       near(before.text.bottom, before.visual.bottom, 'Text and visual content bottom alignment');
       const underline=await page.getByRole('tab',{name:'Knowledge Graph',exact:true}).evaluate(tab=>{
-        const box=tab.getBoundingClientRect(),indicator=tab.closest('.MuiTabs-root').querySelector('.MuiTabs-indicator').getBoundingClientRect();
-        return {labelBottom:box.bottom-parseFloat(getComputedStyle(tab).paddingBottom),top:indicator.top,bottom:indicator.bottom};
+        const text=[...tab.childNodes].find(node=>node.nodeType===Node.TEXT_NODE),label=document.createElement('span'),marker=document.createElement('span');
+        text.replaceWith(label);label.append(text);Object.assign(marker.style,{display:'inline-block',width:'0',height:'0',verticalAlign:'baseline'});label.append(marker);
+        const baseline=marker.getBoundingClientRect().top,indicator=tab.closest('.MuiTabs-root').querySelector('.MuiTabs-indicator').getBoundingClientRect();
+        label.replaceWith(text);
+        return {baseline,center:(indicator.top+indicator.bottom)/2};
       });
-      near(underline.top-underline.labelBottom,before.visual.top-underline.bottom,'Tab underline centered between label and viewer');
-      near(before.visual.top-underline.bottom,6,'Compact tab-to-viewer spacing');
+      near(underline.center-underline.baseline,before.visual.top-underline.center,'Tab underline visually centered between text baseline and viewer border');
       near(before.right.x - before.left.right, 24, 'Design gutter');
       assert(Math.abs((before.left.width + 24) / (before.right.width + 24) - 1.5) < 0.002, 'Grid tracks must use the 6:4 ratio');
       assert(!before.overflow, 'Desktop must not overflow horizontally');
