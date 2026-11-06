@@ -1,5 +1,6 @@
 import { newIntent } from '../utils/agentIdentity';
 import React, {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -43,6 +44,11 @@ function AgentLandingPage() {
     const [showLoading, setShowLoading] = useState(false);
     const [activeExampleGroup, setActiveExampleGroup] = useState(undefined);
     const examplesPanelRef = useRef(null);
+    const examplesTriggerRef = useRef(null);
+    const closeExamples = useCallback(() => {
+        setActiveExampleGroup(undefined);
+        if (examplesPanelRef.current?.contains(document.activeElement)) examplesTriggerRef.current?.focus({ preventScroll: true });
+    }, []);
 
     const searchExampleGroup = useMemo(() => {
         const group = ExampleQueries?.search_examples;
@@ -182,12 +188,17 @@ function AgentLandingPage() {
                 setActiveExampleGroup(undefined);
             }
         };
+        const handleEscape = (event) => {
+            if (event.key === 'Escape') { event.preventDefault(); closeExamples(); }
+        };
 
         document.addEventListener('mousedown', handleOutsideClick);
+        document.addEventListener('keydown', handleEscape);
         return () => {
             document.removeEventListener('mousedown', handleOutsideClick);
+            document.removeEventListener('keydown', handleEscape);
         };
-    }, [activeExampleGroup]);
+    }, [activeExampleGroup, closeExamples]);
 
     const renderButtonLabel = (card) => (
         <Typography sx={{ color: '#181C1D', fontSize: 13, fontFamily: 'Inter', fontWeight: 600, lineHeight: '18px', textAlign: 'left' }}>
@@ -203,8 +214,8 @@ function AgentLandingPage() {
                 sx={{
                     flex: 1,
                     px: { xs: 2, md: 4 },
-                    pt: { xs: 24, md: 20 },
-                    pb: { xs: 24, md: 20 },
+                    pt: { xs: 8, sm: 12, md: 20 },
+                    pb: { xs: 8, md: 20 },
                     position: 'relative',
                     overflow: 'visible',
                     display: 'flex',
@@ -276,11 +287,14 @@ function AgentLandingPage() {
                             <TextField
                                 variant="standard"
                                 fullWidth
+                                inputProps={{ 'aria-label': 'Ask a question' }}
                                 value={query}
                                 error={Boolean(inputError)}
                                 helperText={inputError}
                                 onChange={(event) => setQuery(event.target.value || '')}
-                                onFocus={() => {
+                                onFocus={(event) => {
+                                    examplesTriggerRef.current = event.target;
+                                    if (examplesPanelRef.current?.contains(event.relatedTarget)) return;
                                     if (searchExampleGroup.entries.length > 0) {
                                         setActiveExampleGroup('search');
                                     }
@@ -295,6 +309,8 @@ function AgentLandingPage() {
                                 placeholder="Ask about GWAS signals, tissue-specific expression, or SNP impacts..."
                                 InputProps={{ disableUnderline: true }}
                                 sx={{
+                                    minWidth: 0,
+                                    flex: 1,
                                     '& .MuiInputBase-input': {
                                         fontFamily: 'Inter',
                                         fontSize: { xs: 13, sm: 14 },
@@ -306,6 +322,7 @@ function AgentLandingPage() {
                             {query.length > 0 && (
                                 <IconButton
                                     size="small"
+                                    aria-label="Clear question"
                                     onMouseDown={(event) => {
                                         event.preventDefault();
                                     }}
@@ -317,6 +334,7 @@ function AgentLandingPage() {
                                         color: '#98A1AE',
                                         width: 28,
                                         height: 28,
+                                        flexShrink: 0,
                                         mr: 0.25,
                                     }}
                                 >
@@ -332,6 +350,7 @@ function AgentLandingPage() {
                                 disabled={!query.trim() || showLoading || Boolean(inputError)}
                                 sx={{
                                     height: 40,
+                                    flexShrink: 0,
                                     borderRadius: '24px',
                                     px: { xs: 2.25, sm: 2.5 },
                                     mr: 0.5,
@@ -344,7 +363,7 @@ function AgentLandingPage() {
                                     '&:hover': { bgcolor: '#1C7E83' },
                                     '&.Mui-disabled': { bgcolor: 'rgba(33,145,151,0.45)', color: '#FFFFFF' },
                                 }}
-                                endIcon={showLoading ? <CircularProgress size={14} sx={{ color: '#FFFFFF' }} /> : <Box component="img" src={landingSendIcon} alt="send" sx={{ width: 18, height: 18 }} />}
+                                endIcon={showLoading ? <CircularProgress size={14} sx={{ color: '#FFFFFF' }} /> : <Box component="img" src={landingSendIcon} alt="" aria-hidden="true" sx={{ width: 18, height: 18 }} />}
                             >
                                 Search
                             </Button>
@@ -356,7 +375,8 @@ function AgentLandingPage() {
                             {quickCards.map((card) => (
                                 <Button
                                     key={card.key}
-                                    onClick={() => {
+                                    onClick={(event) => {
+                                        examplesTriggerRef.current = event.currentTarget;
                                         trackLandingEvent('landing_quick_card_click', {
                                             card: card.key,
                                             will_open: activeExampleGroup !== card.key,
@@ -423,11 +443,12 @@ function AgentLandingPage() {
                                         </Typography>
                                     </Box>
                                     <Button
+                                        aria-label="Close examples"
                                         onClick={() => {
                                             trackLandingEvent('landing_examples_close_click', {
                                                 group: activeExampleGroup || 'unknown',
                                             });
-                                            setActiveExampleGroup(undefined);
+                                            closeExamples();
                                         }}
                                         sx={{ minWidth: 'auto', p: 0.5, color: '#64748B' }}
                                     >

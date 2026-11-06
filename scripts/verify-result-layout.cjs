@@ -56,6 +56,12 @@ const near = (actual, expected, label) => assert(Math.abs(actual - expected) < 1
       near(before.left.y, before.right.y, 'Column top alignment');
       near(before.text.top, before.visual.top, 'Text and visual content top alignment');
       near(before.text.bottom, before.visual.bottom, 'Text and visual content bottom alignment');
+      const underline=await page.getByRole('tab',{name:'Knowledge Graph',exact:true}).evaluate(tab=>{
+        const box=tab.getBoundingClientRect(),indicator=tab.closest('.MuiTabs-root').querySelector('.MuiTabs-indicator').getBoundingClientRect();
+        return {labelBottom:box.bottom-parseFloat(getComputedStyle(tab).paddingBottom),top:indicator.top,bottom:indicator.bottom};
+      });
+      near(underline.top-underline.labelBottom,before.visual.top-underline.bottom,'Tab underline centered between label and viewer');
+      near(before.visual.top-underline.bottom,6,'Compact tab-to-viewer spacing');
       near(before.right.x - before.left.right, 24, 'Design gutter');
       assert(Math.abs((before.left.width + 24) / (before.right.width + 24) - 1.5) < 0.002, 'Grid tracks must use the 6:4 ratio');
       assert(!before.overflow, 'Desktop must not overflow horizontally');
@@ -108,7 +114,7 @@ const near = (actual, expected, label) => assert(Math.abs(actual - expected) < 1
         await page.waitForFunction(() => {
           const overview = document.querySelector('[id$="-ai-overview"]');
           return overview.getBoundingClientRect().width < innerWidth * .7
-            && overview.firstElementChild.firstElementChild.getBoundingClientRect().height >= 32;
+            && overview.firstElementChild.firstElementChild.getBoundingClientRect().height >= 26;
         });
         const layout = await geometry();
         near(layout.text.top, layout.visual.top, 'Aligned text and visualization tops');
@@ -121,7 +127,7 @@ const near = (actual, expected, label) => assert(Math.abs(actual - expected) < 1
       await page.waitForFunction(() => {
         const overview = document.querySelector('[id$="-ai-overview"]');
         return overview.getBoundingClientRect().width > innerWidth * .7
-          && overview.firstElementChild.firstElementChild.getBoundingClientRect().height < 32;
+          && overview.firstElementChild.firstElementChild.getBoundingClientRect().height < 26;
       });
       const narrow = await geometry();
       near(narrow.text.scrollHeight, narrow.text.clientHeight, 'Mobile answer keeps its natural height');

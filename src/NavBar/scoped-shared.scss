@@ -140,6 +140,7 @@
     .menu-trigger {
         background: transparent;
         border: none;
+        border-bottom: 5px solid transparent;
         font-family: inherit;
     }
 
@@ -158,12 +159,19 @@
         border-bottom: 5px solid #219197;
     }
 
-    .menu-item-wrapper:hover .menu-item {
+    .menu-item-wrapper:hover .menu-item,
+    .menu-item-wrapper:focus-within .menu-item {
         color: #219197;
         border-bottom: 5px solid #219197;
     }
 
-    .menu-item-wrapper:hover>.submenu {
+    .menu-item-wrapper:hover .menu-item-main-highlighted,
+    .menu-item-wrapper:focus-within .menu-item-main-highlighted {
+        color: white;
+    }
+
+    .menu-item-wrapper:hover>.submenu,
+    .menu-item-wrapper:focus-within>.submenu {
         display: flex;
     }
 

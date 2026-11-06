@@ -35,9 +35,9 @@ export function CodeCopyBtn({ children }) {
 
     return (
         <div className="code-copy-btn" style={{ width: '20px', height: '20px', zIndex: 1 }}>
-            <i className={`fas ${icon}`} onClick={handleClick} style={{ color: 'black', width: '20px', height: '20px', zIndex: 1 }}>
+            <button type="button" aria-label={copyOk ? 'Code copied' : 'Copy code'} className={`fas ${icon}`} onClick={handleClick} style={{ color: 'black', width: '24px', height: '24px', zIndex: 1, border: 0, padding: 0, background: 'transparent', cursor: 'pointer' }}>
                 <ContentCopyIcon />
-            </i>
+            </button>
         </div>
     )
 }

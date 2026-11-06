@@ -31,9 +31,11 @@ import {
   Autocomplete,
   Box,
   Button,
+  Collapse,
   Container,
   TextField,
   Typography,
+  useMediaQuery,
 } from '@mui/material';
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
@@ -109,7 +111,7 @@ const treeNodes = (() => {
 export function CodeCopyBtn({ children }) {
     const [copyOk, setCopyOk] = React.useState(false);
 
-    const iconColor = copyOk ? '#126130' : '#ddd';
+    const iconColor = copyOk ? '#126130' : '#64748B';
 
     const handleClick = (_) => {
         navigator.clipboard.writeText(children.props.children);
@@ -122,14 +124,14 @@ export function CodeCopyBtn({ children }) {
 
     return (
         <div className="code-copy-btn" style={{ width: '24px', height: '24px', zIndex: 1 }}>
-            <div
+            <button type="button" aria-label={copyOk ? 'Code copied' : 'Copy code'}
                 onClick={handleClick}
-                style={{ color: iconColor, width: '24px', height: '24px', zIndex: 1 }}
+                style={{ color: iconColor, width: '24px', height: '24px', zIndex: 1, border: 0, padding: 0, background: 'transparent', cursor: 'pointer' }}
             >
 
                 {!copyOk && (<ContentCopyIcon />)}
                 {copyOk && (<CheckBoxIcon />)}
-            </div>
+            </button>
         </div>
     )
 }
@@ -894,6 +896,7 @@ function DocPage() {
                     <TextField
                         {...params}
                         placeholder="Search"
+                        inputProps={{ ...params.inputProps, 'aria-label': 'Search documentation' }}
                         InputProps={{
                             ...params.InputProps,
                             startAdornment: (
@@ -984,22 +987,31 @@ function DocPage() {
 
     const isGlobalTreePage = page === 'ontology' && isStyledOntology;
     const isStatisticsPage = page === 'statistics';
+    const isNarrowDocs = useMediaQuery('(max-width:899.95px)');
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
+    const navToggleRef = useRef(null);
+    useEffect(() => {
+        setMobileNavOpen(false);
+        if (isNarrowDocs && document.getElementById('docs-navigation-tree')?.contains(document.activeElement)) navToggleRef.current?.focus({ preventScroll: true });
+    }, [page, isNarrowDocs]);
 
     return (
         <div className="App">
-            <Container maxWidth="100%" className={isStatisticsPage ? 'stats-doc-layout' : undefined}
+            <Container maxWidth={false} className={isStatisticsPage ? 'docs-layout stats-doc-layout' : 'docs-layout'}
                 sx={{
                     mt: 4,
                     mb: 4,
                     display: 'flex',
-                    flexDirection: 'row',
+                    flexDirection: { xs: 'column', md: 'row' },
+                    rowGap: { xs: 3, md: 0 },
+                    alignItems: 'flex-start',
                     position: 'relative',
                     minHeight: 'calc(100vh - 400px)'
                 }}
             >
                 <Box
                     sx={{
-                        display: isStatisticsPage ? 'none' : undefined,
+                        display: { xs: 'none', md: isStatisticsPage ? 'none' : 'block' },
                         width: '370px',
                         textAlign: 'left',
                         height: 'calc(100% + 100px)',
@@ -1013,17 +1025,24 @@ function DocPage() {
                     }}
                 >
                 </Box>
-                <Box className={isStatisticsPage ? 'stats-doc-nav' : undefined}
+                <Box component="nav" aria-label="Documentation navigation" className={isStatisticsPage && !isNarrowDocs ? 'stats-doc-nav' : undefined}
                     sx={{
-                        width: isStatisticsPage ? '230px' : '300px',
+                        width: { xs: '100%', md: isStatisticsPage ? '230px' : '300px' },
+                        flexShrink: 0,
                         textAlign: 'left',
                         height: 'fit-content',
                         overflowY: 'auto',
-                        position: 'sticky',
+                        position: { xs: 'static', md: 'sticky' },
                         top: '30px',
-                        mr: isStatisticsPage ? 0 : 10
+                        mr: { xs: 0, md: isStatisticsPage ? 0 : 10 }
                     }}
                 >
+                    {isNarrowDocs && <Button ref={navToggleRef} fullWidth aria-expanded={mobileNavOpen} aria-controls="docs-navigation-tree" onClick={() => setMobileNavOpen(value => !value)}
+                        endIcon={mobileNavOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                        sx={{ justifyContent: 'space-between', textTransform: 'none', px: 2, py: 1.25, border: '1px solid #CDE3E6', borderRadius: 2, bgcolor: '#E9F4F5', color: '#24767F' }}>
+                        Documentation
+                    </Button>}
+                    <Collapse id="docs-navigation-tree" in={!isNarrowDocs || mobileNavOpen}>
                     <Box sx={{ height: "10px" }} />
                     {SearchDropdown()}
                     <Box sx={{ height: "10px" }} />
@@ -1060,14 +1079,17 @@ function DocPage() {
                         </TreeItem> */}
                         {treeNodes}
                     </SimpleTreeView>
+                    </Collapse>
                 </Box>
                 <Box
                     ref={scrollRef}
                     sx={{
                         textAlign: 'left',
+                        flex: 1,
+                        minWidth: 0,
+                        width: '100%',
                         ...(isGlobalTreePage
                             ? {
-                                width: 'calc(100% - 380px)',
                                 px: 2,
                                 pb: 3,
                             }

@@ -84,7 +84,7 @@ const theme = createTheme({
 });
 
 
-const ALIGNED_PANEL_HEADER_SX = { minHeight: 36, mb: 1.5 };
+const ALIGNED_PANEL_HEADER_SX = { minHeight: 26, mb: 0.75 };
 
 function SectionCard({ title, children, sx, headerSx, showTitleDivider = true, variant = 'default' }) {
     const isPank1 = variant === 'pank1';
@@ -149,7 +149,7 @@ export function ResultComponentSkeleton() {
     );
 }
 
-function ContentTabs({ tabs, value, onChange, variant = 'default' }) {
+function ContentTabs({ tabs, value, onChange, variant = 'default', visual = false }) {
     const isPank1 = variant === 'pank1';
     return (
         <Tabs
@@ -159,10 +159,11 @@ function ContentTabs({ tabs, value, onChange, variant = 'default' }) {
             aria-label={visualSchema.main_visuals.tab_switch.accessible_label}
             scrollButtons={visualSchema.main_visuals.tab_switch.scroll_buttons}
             sx={{
-                minHeight: 0,
+                minHeight: visual ? 26 : 0,
                 "& .MuiTabs-scrollButtons.Mui-disabled": { display: "none" },
                 "& .MuiTab-root": {
                     minHeight: 0,
+                    ...(visual ? { lineHeight: '18px' } : {}),
                     pb: 1,
                     pt: 0,
                     px: 0,
@@ -915,8 +916,9 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                 </Typography>
                             ) : null}
                             {visualTabs.length > 1 ? (
-                                <Box sx={{ mb: 1.2 }}>
+                                <Box sx={ALIGNED_PANEL_HEADER_SX}>
                                     <ContentTabs
+                                        visual
                                         tabs={visualTabs}
                                         value={visualTab}
                                         onChange={(_, v) => setVisualTab(v)}
@@ -1291,8 +1293,9 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
                         <Grid item zeroMinWidth xs={10} md={10} lg={4} order={{ xs: 2, md: 2, lg: preferFollowUpBeforeVisual ? 4 : 2 }} id={buildAnchorId("visual-material")}>
                             <SectionCard title={visualTabs.length > 1 ? null : (data?.visualMaterial?.title || "Visual Material")} sx={{ height: "100%" }} variant={isPank1Style ? 'pank1' : 'default'} headerSx={matchVisualHeight ? ALIGNED_PANEL_HEADER_SX : undefined}>
                                 {visualTabs.length > 1 ? (
-                                    <Box sx={{ mb: 1.2, ...(matchVisualHeight ? ALIGNED_PANEL_HEADER_SX : {}) }}>
+                                    <Box sx={ALIGNED_PANEL_HEADER_SX}>
                                         <ContentTabs
+                                            visual
                                             tabs={visualTabs}
                                             value={visualTab}
                                             onChange={(_, v) => handleVisualTabChange(v)}

@@ -1,14 +1,13 @@
 /* light */
 .markdown-body {
-  width: calc(80% - 380px);
+  width: 100%;
+  min-width: 0;
   color-scheme: light;
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
   margin: 0;
   margin-top: -17px;
   padding-bottom: 30px;
-  padding-left: 10%;
-  padding-right: 10%;
   color: #1f2328;
   background-color: #ffffff;
   font-family: "Open Sans", sans-serif;
@@ -16,14 +15,6 @@
   font-size: 16px;
   line-height: 24px;
   word-wrap: break-word;
-}
-
-@media (max-width: 1200px) {
-  .markdown-body {
-    width: calc(100% - 400px);
-    padding-left: 10px;
-    padding-right: 10px;
-  }
 }
 
 .markdown-body .octicon {

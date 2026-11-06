@@ -935,6 +935,7 @@ export function AgentResultLayout({
         trackAgentEvent('agent_result_feedback_close_click');
         setFeedbackOpen(false);
         setFeedbackError('');
+        document.querySelector('[data-pank-feedback-launcher]')?.focus({ preventScroll: true });
     };
 
     const clearFeedbackPromptTimer = () => {
@@ -1686,6 +1687,9 @@ export function AgentResultLayout({
 
             {feedbackOpen ? (
                 <div
+                    role="dialog"
+                    aria-labelledby="feedback-dialog-title"
+                    onKeyDown={event => { if (event.key === 'Escape') { event.stopPropagation(); closeFeedbackModal(); } }}
                     style={{
                         position: 'fixed',
                         zIndex: 1400,
@@ -1715,6 +1719,7 @@ export function AgentResultLayout({
                     >
                         <button
                             type="button"
+                            autoFocus
                             onClick={closeFeedbackModal}
                             aria-label="Close feedback dialog"
                             style={{
@@ -1752,7 +1757,7 @@ export function AgentResultLayout({
                             <ChatBubbleOutlineRoundedIcon sx={{ color: '#008C8C', fontSize: 48 }} />
                         </div>
 
-                        <div style={{ fontWeight: 700, fontSize: 20, color: '#000000', lineHeight: 1.35 }}>
+                        <div id="feedback-dialog-title" style={{ fontWeight: 700, fontSize: 20, color: '#000000', lineHeight: 1.35 }}>
                             Share your feedback
                         </div>
                         <div style={{ marginTop: 6, fontWeight: 400, fontSize: 15, color: '#6A7282' }}>
