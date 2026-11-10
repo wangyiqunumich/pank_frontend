@@ -23,7 +23,7 @@ import {
 } from 'react-redux';
 import PersistentGraphViewport from '../components/PersistentGraphViewport';
 import GraphToolbar from './GraphToolbar';
-import GraphInfoPanel, { GraphInfoPanelHeader, useGraphInfoPanel } from './GraphInfoPanel';
+import GraphInfoPanel, { GraphInfoPanelBody, GraphInfoPanelHeader, useGraphInfoPanel } from './GraphInfoPanel';
 import GraphLegend from './GraphLegend';
 import ObjectInformationPanel, {exactGraphRef} from './evidence/ObjectInformationPanel';
 
@@ -630,6 +630,7 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
           <GraphInfoPanelHeader canExpand={Boolean(compactCardModel(fullModel)?.omitted)} title={recordedText(hoveredData[titleColumn?.[1]])}>
             <InfocardData value={recordedText(hoveredData[titleColumn?.[1]])} dataKey={titleColumn?.[1]} config={titleDisplayConfig} />
           </GraphInfoPanelHeader>
+          <GraphInfoPanelBody>
           <Box sx={{ display: "grid", gridTemplateColumns: panel?.large ? `repeat(${cardLayout.expanded.columns}, minmax(0, 1fr))` : "1fr", columnGap: panel?.large ? `${cardLayout.expanded.gap_px}px` : 0, alignItems: "start", "@media (max-width: 650px)": {gridTemplateColumns: "1fr"} }}>
           {
             schema.map(([title, content, config]) => {
@@ -762,17 +763,15 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
               )}
             </Typography>
           </Box>}
+          </GraphInfoPanelBody>
         </>
       )
-      : (<div style={{
-        padding: "16px",
-        fontFamily: "Open Sans",
-        fontWeight: "600",
-        alignContent: "center",
-      }}>
+      : (<>
         <GraphInfoPanelHeader title={String(hoveredData?.HGNC_symbol || hoveredData?.id || '')}>
           {hoveredData?.HGNC_symbol || hoveredData?.id}
         </GraphInfoPanelHeader>
+        <GraphInfoPanelBody>
+        <div style={{ padding: 16, fontWeight: 600 }}>
         {Object.entries(hoveredData || {})?.map(
           ([key, value]) =>
             key !== "type" &&
@@ -794,7 +793,9 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
               </div>
             ))
         )}
-      </div>))
+        </div>
+        </GraphInfoPanelBody>
+      </>))
   );
 }
 
@@ -973,27 +974,42 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
     const infocard = infocardRef.current;
     const cy = cyRef.current;
     if (!infocardVisible || !compactPanel || !activeHover || !container || !infocard || !cy) return;
-    let { anchor } = activeHover;
-    if (!anchor) {
-      const position = getSafeElementPosition(activeHover.element);
+    const { element } = activeHover;
+    const pane = container.getBoundingClientRect();
+    const node = element.isNode?.();
+    const bounds = node ? element.renderedBoundingBox?.({ includeLabels: true, includeOverlays: false }) : null;
+    let anchor = activeHover.fullscreen === expanded ? activeHover.anchor : null;
+    if (bounds) {
+      anchor = { left: pane.left + bounds.x1, right: pane.left + bounds.x2, top: pane.top + bounds.y1, bottom: pane.top + bounds.y2 };
+    } else if (anchor) {
+      anchor = { left: anchor.x, right: anchor.x, top: anchor.y, bottom: anchor.y };
+    } else {
+      const position = getSafeElementPosition(element);
       if (!position) return;
-      const { left, top } = container.getBoundingClientRect();
       const pan = cy.pan();
-      anchor = { x: left + position.x * cy.zoom() + pan.x, y: top + position.y * cy.zoom() + pan.y };
+      const zoom = cy.zoom();
+      const x = pane.left + position.x * zoom + pan.x;
+      const y = pane.top + position.y * zoom + pan.y;
+      anchor = { left: x, right: x, top: y, bottom: y };
     }
-    const { x, y } = anchor;
-    const { width, height } = infocard.getBoundingClientRect();
-    const gap = 12;
-    const right = x + gap;
-    const left = x - gap - width;
-    const fitsBeside = right + width <= window.innerWidth - gap || left >= gap;
-    const above = y - gap - height;
-    const top = fitsBeside ? y - 24 : above >= gap ? above : y + gap;
-    // Leave room for the cursor to cross into the card, and keep the anchor
-    // fixed while asynchronously loaded evidence changes the card's height.
+    const { width } = infocard.getBoundingClientRect();
+    const height = [...infocard.children].reduce((sum, child) => sum + Math.max(child.offsetHeight, child.scrollHeight), 0);
+    const inset = 12, gap = 8;
+    const right = anchor.right + gap;
+    const left = anchor.left - gap - width;
+    const maxLeft = window.innerWidth - width - inset;
+    const preferLeft = right + width > Math.min(pane.right, window.innerWidth - inset) && left >= inset;
+    const upper = Math.min(anchor.top - gap, window.innerHeight - inset);
+    const lower = Math.max(inset, anchor.bottom + gap);
+    const roomAbove = upper - inset;
+    const roomBelow = window.innerHeight - inset - lower;
+    const above = roomAbove >= height || roomAbove > roomBelow;
+    // Anchor the nearest corner to the target. Evidence can grow without
+    // shifting that corner, and the body can scroll within the available side.
     setInfocardPosition({
-      x: Math.max(gap, Math.min(right + width <= window.innerWidth - gap ? right : left, window.innerWidth - width - gap)),
-      y: Math.max(gap, Math.min(top, window.innerHeight - (fitsBeside ? height : 0) - gap)),
+      x: Math.max(inset, Math.min(preferLeft ? left : right, maxLeft)),
+      y: above ? upper : lower,
+      above,
       slide: activeHover.slide,
     });
   }, [activeHover, compactPanel, expanded, infocardVisible]);
@@ -1053,11 +1069,11 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
     if (infocardVisible && activeNode === hoverTarget.element) return undefined;
     const timeout = setTimeout(() => {
       if (hoverTargetRef.current !== hoverTarget || hoverTarget.element.removed?.()) return;
-      setActiveHover({ ...hoverTarget, slide: infocardVisible });
+      setActiveHover({ ...hoverTarget, fullscreen: expanded, slide: infocardVisible });
       setInfocardVisible(true);
     }, infocardVisible ? 70 : 160);
     return () => clearTimeout(timeout);
-  }, [activeNode, compactPanel, hoverTarget, infocardEnabled, infocardHovered, infocardVisible]);
+  }, [activeNode, compactPanel, expanded, hoverTarget, infocardEnabled, infocardHovered, infocardVisible]);
 
 
   useLayoutEffect(() => {

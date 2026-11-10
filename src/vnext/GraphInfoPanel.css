@@ -15,7 +15,13 @@
 }
 
 .graph-info-panel.is-sliding {
-  transition: opacity 140ms ease, translate 140ms ease, left 140ms ease-out, top 140ms ease-out;
+  transition: opacity 140ms ease, translate 140ms ease, left 140ms ease-out, top 140ms ease-out, transform 140ms ease-out;
+}
+
+.graph-info-panel-body {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
 }
 
 @media (prefers-reduced-motion: reduce) {

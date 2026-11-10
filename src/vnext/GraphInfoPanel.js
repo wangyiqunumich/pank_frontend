@@ -16,7 +16,7 @@ export const useGraphInfoPanel = () => useContext(PanelContext);
 export function GraphInfoPanelHeader({ children, title, canExpand = false }) {
   const panel = useContext(PanelContext);
   const config=usePanelSchema(); const h=config.header; const controls=h.controls;
-  return <div style={{ position: 'sticky', top: 0, zIndex: 2, display: 'flex', alignItems: 'center', gap: 8,
+  return <div className="graph-info-panel-header" style={{ position: 'relative', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 8,
     minHeight: h.min_height_px, boxSizing: 'border-box', padding: `10px ${panel?.large ? h.expanded_padding_px : canExpand ? h.compact_padding_px : 16}px`, background: h.background, borderBottom: '1px solid #d8e6e8' }}>
     <div title={title} data-testid="graph-info-title" style={{ flex: 1, minWidth: 0, display: '-webkit-box',
       WebkitBoxOrient: 'vertical', WebkitLineClamp: h.title_max_lines, overflow: 'hidden', textAlign: h.title_align,
@@ -33,24 +33,29 @@ export function GraphInfoPanelHeader({ children, title, canExpand = false }) {
   </div>;
 }
 
+export function GraphInfoPanelBody({ children }) {
+  return <div className="graph-info-panel-body">{children}</div>;
+}
+
 // Escape the graph/answer stacking contexts; native fullscreen needs its own host.
 export function GraphInfoPanelSurface({ children, panelRef, visible, mode, position, review, schema,
   onEnter, onLeave, onEnlarge, onMinimize, onClose }) {
   const large = mode === 'expanded';
   const config=panelSchema(schema), cardLayout=config.layout, surface=config.surface;
+  const room = position.above ? `calc(${position.y}px - 12px)` : `calc(100dvh - ${Math.max(12, position.y)}px - 12px)`;
   return <section ref={panelRef} aria-label={large ? 'Expanded graph information' : 'Graph information'}
     aria-hidden={!visible} inert={visible ? undefined : ''}
     className={`graph-info-panel${visible ? ' is-visible' : ''}${!large && visible && position.slide ? ' is-sliding' : ''}`}
     onMouseEnter={onEnter} onMouseLeave={onLeave}
     style={{ position: 'fixed', zIndex: 2147483000, display: 'flex', flexDirection: 'column',
       left: large ? '50%' : position.x, top: large ? surface.expanded_top_px : position.y,
-      transform: large ? 'translateX(-50%)' : undefined,
+      transform: large ? 'translateX(-50%)' : position.above ? 'translateY(-100%)' : undefined,
       width: `min(${large ? surface.expanded_width_px : review ? surface.review_width_px : surface.compact_width_px}px, calc(100vw - ${large ? 32 : 24}px))`,
-      maxHeight: large ? `min(${cardLayout.height_limits.expanded_px}px, ${cardLayout.height_limits.expanded_vh}dvh, calc(100dvh - 100px))` : `min(${cardLayout.height_limits.compact_px}px, ${cardLayout.height_limits.compact_vh}dvh, calc(100dvh - ${Math.max(12, position.y)}px - 12px))`,
+      maxHeight: large ? `min(${cardLayout.height_limits.expanded_px}px, ${cardLayout.height_limits.expanded_vh}dvh, calc(100dvh - 100px))` : `min(${cardLayout.height_limits.compact_px}px, ${cardLayout.height_limits.compact_vh}dvh, ${room})`,
       background: '#fff', color: '#333', borderRadius: surface.border_radius_px, boxShadow: '0 8px 32px #0003',
       fontFamily: 'Open Sans, sans-serif', overflow: 'hidden', overflowWrap: 'anywhere' }}>
     <PanelSchemaContext.Provider value={config}><PanelContext.Provider value={{ large, onEnlarge, onMinimize, onClose }}>
-      <div style={{ overflowY: 'auto', minHeight: 0, overscrollBehavior: 'contain' }}>{children}</div>
+      {children}
     </PanelContext.Provider></PanelSchemaContext.Provider>
   </section>;
 }

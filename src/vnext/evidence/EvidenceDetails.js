@@ -9,7 +9,7 @@ import {usePanelSchema,panelSchema,PanelSchemaContext,bundled} from './panelSche
 import {compactSections} from './compactSections';
 import {recordDesign,objectSections,hasExtraRecord,expandedSections} from './recordDesign';
 import {ProductionValue,RecordFooter,ProductionFrequencies} from './ProductionRecord';
-import {GraphInfoPanelHeader,useGraphInfoPanel} from '../GraphInfoPanel';
+import {GraphInfoPanelBody,GraphInfoPanelHeader,useGraphInfoPanel} from '../GraphInfoPanel';
 import {valueText,EvidenceRequestContext} from './api';
 import {publicId,visibleField,displayValue,displayText,presentCard} from './displayPolicy';
 import {CardValue,cardValueLayout,formatCardNumber} from './CardValue';
@@ -221,6 +221,7 @@ export function InspectedInformationPanel({card,schema,request,releaseId,compact
   if(releaseId!==schema.release_id || card.release_id!==releaseId) return null;
   return <PanelSchemaContext.Provider value={panelPolicy}>
     <GraphInfoPanelHeader canExpand={canExpand} title={shown.title}>{shown.title}</GraphInfoPanelHeader>
+    <GraphInfoPanelBody>
     {panel?.large && !compactOnly ? <EvidenceDetails card={shown} schema={schema} request={request} releaseId={releaseId}/> :
       <DisplayContext.Provider value={{policy:{...schema.display_policy,panel_presentation:panelSchema(schema)},profileKey:`${card.ref.kind}:${card.ref.type_id}`}}>
         <div className="xe-expanded-details xe-compact-details">
@@ -230,5 +231,6 @@ export function InspectedInformationPanel({card,schema,request,releaseId,compact
           <RecordFooter provenance={shown.provenance} schema={schema}/>
         </div>
       </DisplayContext.Provider>}
+    </GraphInfoPanelBody>
   </PanelSchemaContext.Provider>;
 }
