@@ -816,9 +816,9 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
   const containerRef = useRef(null);
   const infocardRef = useRef(null);
   const [activeHover, setActiveHover] = useState(null);
-  const activeNode = activeHover?.element;
+  const [expandedCard, setExpandedCard] = useState(null);
+  const activeNode = expandedCard || activeHover?.element;
   const [hoverTarget, setHoverTarget] = useState(null);
-  const [panelMode, setPanelMode] = useState('hover');
   const hoverTargetRef = useRef(null);
   const dispatch = useDispatch();
   const [infocardPosition, setInfocardPosition] = useState({ x: 0, y: 0, slide: false });
@@ -860,7 +860,7 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
   const [minimumZoom, setMinimumZoom] = useState(0.6);
   const [infocardEnabled, setInfocardEnabled] = useState(true);
   const [expanded, setExpanded] = useState(false);
-  const compactPanel = panelMode === 'hover';
+  const compactPanel = !expandedCard;
   const hoverEnabled = useRef(true);
   useLayoutEffect(() => {
     hoverEnabled.current = compactPanel && infocardEnabled;
@@ -1016,7 +1016,18 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
     });
   }, [activeHover, compactPanel, expanded, infocardVisible]);
 
-  const closePanel = () => { setPanelMode('hover'); dismissHover(); };
+  const closePanel = useCallback(() => {
+    setExpandedCard(null);
+    setActiveHover(null);
+    dismissHover();
+  }, [dismissHover]);
+  const enlargePanel = () => {
+    if (!activeNode) return;
+    dismissHover();
+    setActiveHover(null);
+    setExpandedCard(activeNode);
+    setExpanded(true);
+  };
   const exitGraphFullscreen = () => { closePanel(); setExpanded(false); };
   const toggleExpand = () => { if (expanded) exitGraphFullscreen(); else { dismissHover(); setExpanded(true); } };
 
@@ -1169,9 +1180,9 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
     cy.on("zoom", () => {
       setZoomLevel(cy.zoom());
     });
-    const viewport = observeGraphViewport(cy, container, ({ zoom, minZoom }) => {
+    const viewport = observeGraphViewport(cy, container, ({ zoom, minZoom, fitZoom = zoom }) => {
       setZoomLevel(zoom);
-      setInitZoom(zoom);
+      setInitZoom(fitZoom);
       setMinimumZoom(minZoom);
     });
     viewportRef.current = viewport;
@@ -1194,10 +1205,13 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
   }, [bound, clearHoverTarget, dismissHover, dispatch, selectable]);
 
   useLayoutEffect(() => {
+    viewportRef.current?.setFullscreen(expanded);
+  }, [expanded, bound]);
+
+  useLayoutEffect(() => {
     if (!activeNode?.removed?.()) return;
-    setPanelMode('hover');
-    dismissHover();
-  }, [activeNode, bound, dismissHover]);
+    closePanel();
+  }, [activeNode, bound, closePanel]);
 
   useEffect(() => {
     if(review || !evidenceService?.peek || evidenceService.schema?.release_id!==releaseId) return undefined;
@@ -1274,11 +1288,11 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
         onDownloadMenuOpen={closePanel}
         modeLabel={sourceGraph?.presentation_mode === 'relationship_list' ? 'List mode' : 'KG mode'} />
       <div className="graph-zoom-indicator" aria-label="Graph zoom">{Math.round(zoomLevel / initZoom * 100)}%</div>
-      <GraphInfoPanel schema={evidenceService?.schema} panelRef={infocardRef} host={expanded ? containerRef.current?.closest('dialog') : document.body}
-        visible={infocardVisible} mode={panelMode} position={infocardPosition} review={review}
-        onEnter={() => { clearHoverTarget(); setInfocardHovered(true); }} onLeave={() => setInfocardHovered(false)}
-        onEnlarge={() => { clearHoverTarget(); setPanelMode('expanded'); setInfocardVisible(true); setExpanded(true); }}
-        onMinimize={() => { setPanelMode('hover'); setInfocardHovered(true); }}
+      <GraphInfoPanel key={compactPanel ? 'hover' : 'expanded'} schema={evidenceService?.schema} panelRef={infocardRef} host={expanded ? containerRef.current?.closest('dialog') : document.body}
+        visible={compactPanel ? infocardVisible : true} mode={compactPanel ? 'hover' : 'expanded'} position={infocardPosition} review={review}
+        onEnter={compactPanel ? () => { clearHoverTarget(); setInfocardHovered(true); } : undefined} onLeave={compactPanel ? () => setInfocardHovered(false) : undefined}
+        onEnlarge={enlargePanel}
+        onMinimize={() => { closePanel(); containerRef.current?.closest('dialog')?.focus({ preventScroll: true }); }}
         onClose={closePanel}>
         {activeNode && !activeNode.removed?.() && <ObjectInformationPanel key={activeNode.id()} endpointNodes={activeNode.isEdge?.() ? [activeNode.source().data(), activeNode.target().data()] : []} data={activeNode.data()} releaseId={releaseId} service={review ? null : evidenceService} fallback={<InfocardMenu hoveredData={activeNode.data()} review={review} />} />}
       </GraphInfoPanel>

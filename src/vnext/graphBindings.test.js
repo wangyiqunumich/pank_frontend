@@ -198,6 +198,44 @@ test('resize observer waits for visibility, preserves user zoom on size changes,
   expect(controller.fit()).toBeNull();
 });
 
+test('fullscreen scales a custom camera around the same graph point and restores its zoom on exit', () => {
+  const inline = { width: 608, height: 630 }, full = { width: 1108, height: 760 };
+  let size = inline, frame;
+  const cy = cytoscape({ headless: true, layout: { name: 'preset' }, elements: [
+    { data: { id: 'left' }, position: { x: 0, y: 0 } }, { data: { id: 'right' }, position: { x: 1000, y: 0 } },
+  ] });
+  jest.spyOn(cy, 'width').mockImplementation(() => size.width);
+  jest.spyOn(cy, 'height').mockImplementation(() => size.height);
+  const onFit = jest.fn();
+  const host = { requestAnimationFrame: fn => { frame = fn; return 1; }, cancelAnimationFrame: jest.fn(),
+    addEventListener: jest.fn(), removeEventListener: jest.fn() };
+  const controller = observeGraphViewport(cy, { getBoundingClientRect: () => size }, onFit, host);
+  const center = () => ({ x: (size.width / 2 - cy.pan().x) / cy.zoom(), y: (size.height / 2 - cy.pan().y) / cy.zoom() });
+  const move = (fullscreen) => { size = fullscreen ? full : inline; controller.setFullscreen(fullscreen); frame(); };
+  try {
+    for (const [initial, enlarged] of [[1.2, 2.4], [2.5, 4]]) {
+      cy.viewport({ zoom: initial, pan: { x: 17, y: 29 } });
+      const originalCenter = center();
+      move(true);
+      expect(cy.zoom()).toBeCloseTo(enlarged);
+      expect(center().x).toBeCloseTo(originalCenter.x);
+      expect(center().y).toBeCloseTo(originalCenter.y);
+      expect(onFit).toHaveBeenLastCalledWith(expect.objectContaining({ zoom: enlarged }));
+      move(false);
+      expect(cy.zoom()).toBeCloseTo(initial);
+      expect(cy.pan().x).toBeCloseTo(17);
+      expect(cy.pan().y).toBeCloseTo(29);
+    }
+    move(true);
+    cy.zoom(3); // A new user zoom supersedes the value limited on entry.
+    move(false);
+    expect(cy.zoom()).toBeCloseTo(1.5);
+  } finally {
+    controller.dispose();
+    cy.destroy();
+  }
+});
+
 test('ordered relationship rows preserve full evidence and visible leaf-edge labels', () => {
   const input = { ...graph, nodes: graph.nodes.map(n => ({...n,list_label:'Compact row'})) };
   const listRoutes = { enrichment: {...routes.enrichment,route_type:'polyline',list_leaf_endpoint:'target'} };

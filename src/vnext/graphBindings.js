@@ -54,8 +54,9 @@ export function calculateGraphViewport(bounds, size) {
   const insetScale = Math.min(1, size.width / 320, size.height / 240);
   const left = 24 * insetScale, right = 84 * insetScale, top = 64 * insetScale, bottom = 76 * insetScale;
   const width = size.width - left - right, height = size.height - top - bottom;
-  const zoom = Math.min(4, width / Math.max(1, bounds.x2 - bounds.x1), height / Math.max(1, bounds.y2 - bounds.y1));
-  return { zoom, minZoom: Math.min(0.6, zoom / 2), maxZoom: 4,
+  const fitScale = Math.min(width / Math.max(1, bounds.x2 - bounds.x1), height / Math.max(1, bounds.y2 - bounds.y1));
+  const zoom = Math.min(4, fitScale);
+  return { zoom, fitScale, minZoom: Math.min(0.6, zoom / 2), maxZoom: 4,
     pan: { x: left + width / 2 - zoom * (bounds.x1 + bounds.x2) / 2,
       y: top + height / 2 - zoom * (bounds.y1 + bounds.y2) / 2 } };
 }
@@ -76,12 +77,18 @@ export function fitGraphViewport(cy, listMode = false) {
 
 export function observeGraphViewport(cy, container, onFit = () => {}, host = window, listMode = false) {
   let disposed = false, frame = null, lastSize = null, fittedCamera = null;
+  let fullscreen = false, lastFullscreen = false, limitedZoom = null;
   const fit = () => {
     if (disposed || cy.destroyed()) return null;
     const box = container.getBoundingClientRect();
     if (box.width <= 0 || box.height <= 0) return null;
     const viewport = fitGraphViewport(cy, listMode);
-    if (viewport) { lastSize = { width: box.width, height: box.height }; fittedCamera = { zoom: viewport.zoom, pan: viewport.pan }; onFit(viewport); }
+    if (viewport) {
+      lastSize = { width: box.width, height: box.height };
+      fittedCamera = { zoom: viewport.zoom, pan: viewport.pan };
+      limitedZoom = null;
+      onFit(viewport);
+    }
     return viewport;
   };
   const stillFitted = () => {
@@ -89,27 +96,49 @@ export function observeGraphViewport(cy, container, onFit = () => {}, host = win
     return fittedCamera && Math.abs(cy.zoom() - fittedCamera.zoom) < 1e-6
       && Math.abs(pan.x - fittedCamera.pan.x) < 1e-6 && Math.abs(pan.y - fittedCamera.pan.y) < 1e-6;
   };
+  const resizeCamera = (size) => {
+    const zoom = cy.zoom(), pan = cy.pan();
+    cy.resize();
+    if (fullscreen !== lastFullscreen && cy.nodes().length) {
+      const bounds = cy.elements().boundingBox({ includeLabels: true, includeOverlays: false });
+      const from = calculateGraphViewport(bounds, lastSize), to = calculateGraphViewport(bounds, size);
+      if (from && to) {
+        // Keep the same point centered and the same zoom relative to the canvas.
+        const relative = limitedZoom?.zoom === zoom ? limitedZoom.relative : zoom / from.fitScale;
+        const targetZoom = relative * to.fitScale;
+        const nextZoom = Math.max(to.minZoom, Math.min(to.maxZoom, targetZoom));
+        limitedZoom = nextZoom === targetZoom ? null : { zoom: nextZoom, relative };
+        const scale = nextZoom / zoom;
+        cy.minZoom(to.minZoom);
+        cy.maxZoom(to.maxZoom);
+        cy.viewport({ zoom: nextZoom, pan: {
+          x: size.width / 2 - (lastSize.width / 2 - pan.x) * scale,
+          y: size.height / 2 - (lastSize.height / 2 - pan.y) * scale,
+        } });
+        onFit({ zoom: nextZoom, minZoom: to.minZoom, fitZoom: to.zoom });
+        return;
+      }
+    }
+    limitedZoom = null;
+    cy.panBy({ x: (size.width - lastSize.width) / 2, y: (size.height - lastSize.height) / 2 });
+  };
   const schedule = () => {
     if (disposed || frame !== null) return;
     frame = host.requestAnimationFrame(() => {
       frame = null;
       if (disposed || cy.destroyed()) return;
-      const box = container.getBoundingClientRect();
+      const { width, height } = container.getBoundingClientRect();
       // Hidden visual tabs must not replace the last visible camera geometry.
-      if (box.width <= 0 || box.height <= 0) return;
-      if (box.width !== lastSize?.width || box.height !== lastSize?.height) {
-        // A shorter fullscreen window must not crop the initial fitted graph.
-        // Once the user changes the camera, retain their chosen view instead.
+      if (width <= 0 || height <= 0) return;
+      if (width !== lastSize?.width || height !== lastSize?.height) {
         if (!lastSize || stillFitted()) fit();
         else {
-          cy.resize();
-          // Resize the viewport around its model-space center, not its top-left.
-          // This preserves user zoom/pan through fullscreen and back, without
-          // refitting the graph or resetting dragged nodes and selections.
-          cy.panBy({ x: (box.width - lastSize.width) / 2, y: (box.height - lastSize.height) / 2 });
-          lastSize = { width: box.width, height: box.height };
+          const size = { width, height };
+          resizeCamera(size);
+          lastSize = size;
         }
       }
+      lastFullscreen = fullscreen;
     });
   };
   const observer = host.ResizeObserver ? new host.ResizeObserver(schedule) : null;
@@ -119,7 +148,11 @@ export function observeGraphViewport(cy, container, onFit = () => {}, host = win
 
   fit();
   schedule();
-  return { fit, refreshLayout() { if (!lastSize || stillFitted()) fit(); }, dispose() {
+  return { fit, refreshLayout() { if (!lastSize || stillFitted()) fit(); }, setFullscreen(value) {
+    if (fullscreen === value) return;
+    fullscreen = value;
+    schedule();
+  }, dispose() {
     disposed = true;
     observer?.disconnect();
     host.removeEventListener('resize', schedule);

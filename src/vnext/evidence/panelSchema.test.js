@@ -9,11 +9,13 @@ const schema=()=>({panel_presentation:JSON.parse(JSON.stringify(bundled))});
 test('API policy controls title, actions, surface, footer independently of bundled defaults',()=>{
  const s=schema();s.panel_presentation.header.title_align='left';s.panel_presentation.header.title_max_lines=1;
  s.panel_presentation.header.controls.close.label='Dismiss record';s.panel_presentation.header.controls.close.aria_label='Dismiss record';
+ s.panel_presentation.header.controls.minimize.aria_label='Exit expanded record';
  s.panel_presentation.footer.fields=[{key:'data_source',label:'Study'}];
  render(<GraphInfoPanelSurface schema={s} visible mode="expanded" position={{x:0,y:0}}><GraphInfoPanelHeader title="Gene">Gene</GraphInfoPanelHeader><RecordFooter schema={s} provenance={{data_source:'Example',data_version:'secret-test-version'}}/></GraphInfoPanelSurface>);
  expect(screen.getByTestId('graph-info-title').style.textAlign).toBe('left');
  expect(screen.getByTestId('graph-info-title').style.WebkitLineClamp).toBe('1');
- expect(screen.getByLabelText('Dismiss record')).toBeTruthy();expect(screen.getByText('Study: Example')).toBeTruthy();expect(screen.queryByText(/secret-test-version/)).toBeNull();
+ expect(screen.getByLabelText('Exit expanded record')).toBeTruthy();expect(screen.queryByLabelText('Dismiss record')).toBeNull();
+ expect(screen.getByText('Study: Example')).toBeTruthy();expect(screen.queryByText(/secret-test-version/)).toBeNull();
 });
 test('owned tabs and compact summaries use supplied API declarations',()=>{
  const s=schema();s.panel_presentation.tables.accessions.title='External records';

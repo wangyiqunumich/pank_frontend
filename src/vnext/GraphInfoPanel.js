@@ -27,7 +27,7 @@ export function GraphInfoPanelHeader({ children, title, canExpand = false }) {
         onClick={panel.large ? panel.onMinimize : panel.onEnlarge} sx={{ color: '#37646b', width: 30, height: 30 }}>
         <ControlIcon name={panel.large ? controls.minimize.icon : controls.enlarge.icon}/>
       </IconButton>
-      {(panel.large || h.compact_close) && <IconButton size="small" title={controls.close.label} aria-label={controls.close.aria_label} onClick={panel.onClose}
+      {!panel.large && h.compact_close && <IconButton size="small" title={controls.close.label} aria-label={controls.close.aria_label} onClick={panel.onClose}
         sx={{ color: '#37646b', width: 30, height: 30 }}><ControlIcon name={controls.close.icon}/></IconButton>}
     </div>}
   </div>;
@@ -43,6 +43,7 @@ export function GraphInfoPanelSurface({ children, panelRef, visible, mode, posit
   const large = mode === 'expanded';
   const config=panelSchema(schema), cardLayout=config.layout, surface=config.surface;
   const room = position.above ? `calc(${position.y}px - 12px)` : `calc(100dvh - ${Math.max(12, position.y)}px - 12px)`;
+  const expandedHeight = `min(${cardLayout.height_limits.expanded_px}px, ${cardLayout.height_limits.expanded_vh}dvh, calc(100dvh - ${surface.expanded_top_px}px - 24px))`;
   return <section ref={panelRef} aria-label={large ? 'Expanded graph information' : 'Graph information'}
     aria-hidden={!visible} inert={visible ? undefined : ''}
     className={`graph-info-panel${visible ? ' is-visible' : ''}${!large && visible && position.slide ? ' is-sliding' : ''}`}
@@ -51,7 +52,8 @@ export function GraphInfoPanelSurface({ children, panelRef, visible, mode, posit
       left: large ? '50%' : position.x, top: large ? surface.expanded_top_px : position.y,
       transform: large ? 'translateX(-50%)' : position.above ? 'translateY(-100%)' : undefined,
       width: `min(${large ? surface.expanded_width_px : review ? surface.review_width_px : surface.compact_width_px}px, calc(100vw - ${large ? 32 : 24}px))`,
-      maxHeight: large ? `min(${cardLayout.height_limits.expanded_px}px, ${cardLayout.height_limits.expanded_vh}dvh, calc(100dvh - 100px))` : `min(${cardLayout.height_limits.compact_px}px, ${cardLayout.height_limits.compact_vh}dvh, ${room})`,
+      height: large ? expandedHeight : undefined,
+      maxHeight: large ? undefined : `min(${cardLayout.height_limits.compact_px}px, ${cardLayout.height_limits.compact_vh}dvh, ${room})`,
       background: '#fff', color: '#333', borderRadius: surface.border_radius_px, boxShadow: '0 8px 32px #0003',
       fontFamily: 'Open Sans, sans-serif', overflow: 'hidden', overflowWrap: 'anywhere' }}>
     <PanelSchemaContext.Provider value={config}><PanelContext.Provider value={{ large, onEnlarge, onMinimize, onClose }}>
