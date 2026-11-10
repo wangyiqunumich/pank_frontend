@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {execFileSync} = require('node:child_process');
 const config = require('../config/techdemo.json');
-const resultPageProfile = require('../src/vnext/schema/resultPageProfile.cjs');
+const resultPageProfile = require('../src/vnext/schema/resultPageProfile');
 
 if (process.env.AWS_BRANCH !== config.source_branch && process.env.PANK_BUILD_TECHDEMO !== '1') {
   process.exit(0);

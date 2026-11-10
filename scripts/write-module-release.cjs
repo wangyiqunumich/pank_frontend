@@ -1,6 +1,6 @@
 const fs=require('node:fs');
 const {execFileSync}=require('node:child_process');
-const resultPageProfile = require('../src/vnext/schema/resultPageProfile.cjs');
+const resultPageProfile = require('../src/vnext/schema/resultPageProfile');
 const schema = resultPageProfile('result');
 fs.writeFileSync('build/result-modules-release.json',JSON.stringify({
   source_commit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),
