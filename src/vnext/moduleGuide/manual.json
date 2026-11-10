@@ -3,7 +3,7 @@
     "id": "overview",
     "module": "all",
     "title": "Start here",
-    "body": "Explore Knowledge Graph, scBrowser, Genome Browser, Differential Expression, Functional Browser, PCA Explorer and QTL Browser from the result tabs. Each view has its own filters, source details and plot controls.\nAsk Module guide to open a view or change its settings. Use Apply on a proposed configuration and Undo to restore the previous settings. You can continue with a follow-up question or choose New chat to start again.\nFor example: “Open PCA Explorer and set X to PC2 and Y to PC3.”"
+    "body": "Explore the available result tabs. Each view has its own filters, source details and plot controls.\nAsk Module guide to open a view or change its settings. Use Apply on a proposed configuration and Undo to restore the previous settings."
   },
   {
     "id": "genome-tracks",

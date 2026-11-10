@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import schema from './schema/result_page_schema.json';
+import schema from './schema/activeResultPage';
 import {firstAvailableExpression} from './singleCellContext';
 import {resolveResultPage} from './resultPageSchema';
 import {DEV_MODULES} from './hosting';

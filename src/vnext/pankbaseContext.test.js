@@ -28,3 +28,6 @@ test('donor node enables related functional and PCA resources without inventing 
  const result=pankbaseContexts({nodes:[{'~id':'donor','~labels':['Donor'],'~properties':{}}]});
  expect(result.functional_browser.available).toBe(true);expect(result.pca_explorer.available).toBe(true);expect(result.gene_browser).toBeUndefined();
 });
+
+// Exercise the complete module registry on the dedicated demo page.
+jest.mock('./hosting', () => ({...jest.requireActual('./hosting'), TECH_DEMO: true}));

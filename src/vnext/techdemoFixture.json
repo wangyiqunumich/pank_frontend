@@ -63,6 +63,15 @@
           "~properties": {
             "name": "Navigation fixture donor"
           }
+        },
+        {
+          "~id": "rs2402203",
+          "~labels": [
+            "sequence_variant"
+          ],
+          "~properties": {
+            "name": "rs2402203"
+          }
         }
       ],
       "edges": [
@@ -97,6 +106,18 @@
             "cell_type_label": "Beta",
             "data_source": "Navigation fixture only"
           }
+        },
+        {
+          "~id": "fixture-qtl",
+          "~type": "PART_OF_QTL_SIGNAL",
+          "~start": "rs2402203",
+          "~end": "ENSG00000001626",
+          "~properties": {
+            "source_id": "PKBDS2105PCON",
+            "data_source": "splicing; GTEx",
+            "credible_set_id": "ENSG00000001626__CFTR__chr7:117542108:117559464:clu_25847:ENSG00000001626.14__credibleSet1",
+            "tissue_name": "Pancreas"
+          }
         }
       ]
     },
@@ -115,6 +136,10 @@
       },
       "fixture-donor": {
         "x": 105,
+        "y": 0
+      },
+      "rs2402203": {
+        "x": -105,
         "y": 0
       }
     },

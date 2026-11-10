@@ -1,7 +1,7 @@
 {
   "schema": {
     "id": "pankgraph.result_page",
-    "version": "0.7.0",
+    "version": "0.8.0",
     "description": "Three sections for inserted answer elements, main visuals and supporting materials. Markdown text and native Markdown tables remain owned by AnswerMarkdown.",
     "selector": "src/vnext/resultPageSchema.js",
     "selection_order": [
@@ -651,6 +651,21 @@
       "order": "append_only",
       "updates": "New graph revisions may add unseen modules only. Preserve the first matching context, tab and user configuration until the answer is unmounted.",
       "encounter_order": "Edges in returned order, then nodes in returned order; first eligible context only."
+    },
+    "extension_profiles": {
+      "result": [
+        "single_cell_browser",
+        "functional_browser",
+        "qtl_browser"
+      ],
+      "techdemo": [
+        "single_cell_browser",
+        "genome_browser",
+        "differential_expression",
+        "functional_browser",
+        "pca_explorer",
+        "qtl_browser"
+      ]
     }
   },
   "supporting_materials": {
@@ -726,5 +741,5 @@
       }
     }
   },
-  "version": "0.7.0"
+  "version": "0.8.0"
 }

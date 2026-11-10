@@ -11,8 +11,9 @@ jest.mock('./PanKgraphFunctionalPlot',()=>({__esModule:true,default:()=>null}));
 test('legacy result/follow-up adapter replaces duplicate module tabs while retaining original cohort evidence',()=>{
  const data={moduleScope:'legacy-answer-1',title:'Original answer',graphData:{nodes:[{'~id':'cftr','~labels':['Gene'],'~properties':{name:'CFTR'}}],edges:[]},visualMaterial:{tabs:[{label:'Knowledge Graph',content:<span>Graph</span>},{label:'Genome Browser',content:<span>Retired genome</span>},{label:'Functional Data',content:<span>Recorded selected cohort</span>}]}};
  const view=render(<DevResultPage data={data} contentAnchorPrefix="legacy"/>);
- expect(screen.getAllByRole('region',{name:'Genome Browser'})).toHaveLength(1);
+ expect(screen.queryByRole('region',{name:'Genome Browser'})).toBeNull();
  expect(screen.queryByText('Retired genome')).toBeNull();expect(screen.getByText('Recorded selected cohort')).toBeTruthy();
  view.rerender(<DevResultPage data={{...data,graphData:{nodes:[],edges:[]}}} contentAnchorPrefix="legacy"/>);
- expect(screen.getByText('CFTR')).toBeTruthy();
+ expect(screen.queryByRole('region',{name:'Genome Browser'})).toBeNull();
+ expect(screen.getByText('Graph')).toBeTruthy();
 });

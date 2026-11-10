@@ -18,3 +18,26 @@ describe('isolated techdemo hosting', () => {
     expect(apiPath('/results')).toBe('/pankgraph-vnext/api/results');
   });
 });
+
+test('demo selection requires both the dedicated document and its path', () => {
+  const marker = document.createElement('meta');
+  marker.name = 'pankgraph-page';
+  marker.content = 'techdemo';
+  const originalUrl = window.location.href;
+  try {
+    document.head.append(marker);
+    window.history.replaceState({}, '', '/result-new2?profile=techdemo');
+    jest.resetModules();
+    expect(require('./hosting').TECH_DEMO).toBe(false);
+    window.history.replaceState({}, '', '/techdemo/result-new2');
+    jest.resetModules();
+    expect(require('./hosting').TECH_DEMO).toBe(true);
+    marker.remove();
+    jest.resetModules();
+    expect(require('./hosting').TECH_DEMO).toBe(false);
+  } finally {
+    marker.remove();
+    window.history.replaceState({}, '', originalUrl);
+    jest.resetModules();
+  }
+});

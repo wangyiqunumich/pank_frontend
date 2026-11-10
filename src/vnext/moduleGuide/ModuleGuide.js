@@ -7,16 +7,27 @@ import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import {moduleApiPath} from '../hosting';
 import {applyGuideAction} from './bridge';
 import {MODULE_LABELS,validAction,actionSummary} from './actions.mjs';
-import manual from './manual.json';
+import topics from './manual.json';
+import schema from '../schema/activeResultPage';
+import {TECH_DEMO} from '../hosting';
 import '../../components/floatingAction.css';
 import './guide.css';
-const storageKey='pank-module-guide:v2-en';
-const STARTERS=[{label:'Compare alpha and beta tracks',prompt:'Open Genome Browser with alpha and beta signal tracks at compact height.'},{label:'Explore functional responses',prompt:'Open Functional Browser for female donors with T1D.'},{label:'Plot PC2 against PC3',prompt:'Open PCA Explorer and set X to PC2 and Y to PC3.'}];
+const storageKey = TECH_DEMO ? 'pank-module-guide:techdemo:v2-en' : 'pank-module-guide:v2-en';
+function guideAvailable(id) {
+  const definition = schema.main_visuals.items[id];
+  return definition?.enabled && !definition.hidden && definition.guide_open;
+}
+const manual = topics.filter(topic => topic.module === 'all' || guideAvailable(topic.module));
+const STARTERS = [
+  {module: 'genome_browser', label: 'Compare alpha and beta tracks', prompt: 'Open Genome Browser with alpha and beta signal tracks at compact height.'},
+  {module: 'functional_browser', label: 'Explore functional responses', prompt: 'Open Functional Browser for female donors with T1D.'},
+  {module: 'pca_explorer', label: 'Plot PC2 against PC3', prompt: 'Open PCA Explorer and set X to PC2 and Y to PC3.'},
+].filter(item => guideAvailable(item.module));
 const examples=[{type:'genome_tracks',module:'genome_browser',params:{cell_types:['beta','alpha','ductal'],track_types:['signal','peaks'],height:'auto'}},{type:'genome_tracks',module:'genome_browser',params:{cell_types:['acinar','alpha','beta','delta','ductal','gamma'],track_types:['signal'],height:'80'}}];
 function readSaved(){try{const saved=JSON.parse(sessionStorage.getItem(storageKey));return Array.isArray(saved)?saved.filter(m=>['user','assistant'].includes(m.role)&&typeof m.content==='string').slice(-24):[];}catch(_){return[];}}
 function ActionCard({action,state={},onState}){
   const {status='',busy=false,undo=null,applied=false}=state;
-  if(!validAction(action))return null;
+  if(!validAction(action) || !guideAvailable(action.module))return null;
   const apply=async reverting=>{
     if(busy||(!reverting&&applied))return;
     onState({busy:true,status:'Applying…'});

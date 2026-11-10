@@ -51,3 +51,6 @@ test('the shared schema requirements gate automatic extension activation',()=>{
  finally{definition.requires=previous;}
  expect(firstModuleContexts(result([gene('CFTR')])).genome_browser.geneSymbol).toBe('CFTR');
 });
+
+// Exercise the complete module registry on the dedicated demo page.
+jest.mock('./hosting', () => ({...jest.requireActual('./hosting'), TECH_DEMO: true}));

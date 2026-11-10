@@ -4,6 +4,7 @@ import './styles/designTokens.css';
 import './styles/messageStates.css';
 import AgentPage from './vnext/AgentPage';
 import AgentRoute from './vnext/AgentRoute';
+import AgentResultView from './vnext/ResultView';
 import ConventionalRoute from './vnext/ConventionalRoute';
 import { loadDevConfig, getDevConfig } from './vnext/runtimeConfig';
 import { initializeGtag } from './utils/gtag';
@@ -87,7 +88,10 @@ loadDevConfig().then(() => root.render(
           <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <NavBar />
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-              <Routes>
+              {TECH_DEMO ? <Routes>
+                <Route path="/result-new2" element={<AgentResultLayout ResultView={AgentResultView} allowSearch={false} showFloatingSearchBar={false} />} />
+                <Route path="*" element={<Navigate to="/result-new2" replace />} />
+              </Routes> : <Routes>
                 <Route path="/agent-vnext" element={<AgentPage />} />
                 <Route path="/pipeline" element={<Pipeline />} />
                 <Route path="/qtldatasource" element={<QTLDataSource />} />
@@ -103,7 +107,7 @@ loadDevConfig().then(() => root.render(
                 />
                 <Route
                   path="/result-new2"
-                  element={<AgentRoute><AgentResultLayout ResultView={ResultPageNew2} allowSearch={!TECH_DEMO} showFloatingSearchBar={!TECH_DEMO} /></AgentRoute>}
+                  element={<AgentRoute><AgentResultLayout ResultView={ResultPageNew2} allowSearch showFloatingSearchBar /></AgentRoute>}
                 />
                 <Route path="/usecases" element={<UsecasesPage />} />
                 <Route path="/docs/*" element={<DocPage />} />
@@ -119,14 +123,14 @@ loadDevConfig().then(() => root.render(
                 <Route path="/agent-landing" element={<Navigate to="/" replace />} />
                 <Route path="/old-landing" element={<LandingPage />} />
                 <Route path="/callback" element={<AgentLandingPage />} />
-                <Route path="/" element={TECH_DEMO ? <Navigate to="/result-new2?provider=vnext&run_id=11111111-1111-4111-8111-111111111111" replace /> : <AgentLandingPage />} />
+                <Route path="/" element={<AgentLandingPage />} />
                 <Route
                   path="/debug"
                   element={isDevelopmentStage ? <DebugPage /> : <Navigate to="/" replace />}
                 />
                 <Route path="/igv" element={<IgvPage />} />
                 <Route path="*" element={<AgentLandingPage />} />
-              </Routes>
+              </Routes>}
             </div>
             <PkbFooter />
           </div>
