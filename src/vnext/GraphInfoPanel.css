@@ -24,6 +24,10 @@
   overscroll-behavior-y: contain;
 }
 
+.graph-info-panel-footer {
+  flex-shrink: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .graph-info-panel, .graph-info-panel.is-visible, .graph-info-panel.is-sliding { transition: none; }
 }

@@ -11,10 +11,10 @@ export function ProductionValue({field,children}){
  if(format==='link' && safeSourceUrl(field.value))return <a href={field.value} target="_blank" rel="noreferrer">Open Link ↗</a>;
  return children;
 }
-export function RecordFooter({provenance={},schema={}}){
+export function RecordFooter({provenance={},schema={},className=''}){
  const url=sourcePageUrl({href:provenance.data_source_url},schema);
  const config=panelSchema(schema);
- return <footer className="xe-provenance xe-production-footer">{config.footer.fields.map(field=>{
+ return <footer className={`xe-provenance xe-production-footer ${className}`.trim()}>{config.footer.fields.map(field=>{
   const value=provenance[field.key];
   if(field.kind==='source_link')return url ? <a key={field.key} href={url} target="_blank" rel="noreferrer">{field.label} ↗</a> : null;
   if(value===undefined || value===null || value==='')return null;

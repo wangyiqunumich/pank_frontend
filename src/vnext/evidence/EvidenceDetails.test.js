@@ -1,6 +1,7 @@
 import React from 'react';
 import {render,screen,fireEvent,waitFor} from '@testing-library/react';
-import EvidenceDetails from './EvidenceDetails';
+import EvidenceDetails, { InspectedInformationPanel } from './EvidenceDetails';
+import { GraphInfoPanelSurface } from '../GraphInfoPanel';
 const ref={kind:'node',id:'ENSG00000001626',type_id:'Gene'};
 const table={id:'accessions',title:'Related links',component:'node_alt_id',columns:['source_name','alt_id'],all_fields:['source_name','alt_id'],filters:[],field_specs:{}};
 const card={release_id:'PanKgraph_1024',ref,tables:[table],sections:[],fields:[],provenance:{},component_views:[{id:'node_alt_id',title:'Related links',renderer:'table',table_ids:['accessions']}]};
@@ -22,4 +23,26 @@ test('owned table is requested only on its tab with the exact object ref',async(
 test('registry without owned tables does not fabricate a tab',()=>{
  render(<EvidenceDetails card={{...card,tables:[],component_views:[]}} schema={schema} releaseId={card.release_id} request={jest.fn()}/>);
  expect(screen.queryByRole('button',{name:'Related links'})).toBeNull();expect(screen.getByRole('button',{name:'Complete record'})).toBeTruthy();
+});
+
+test('the record footer sits below the scroll area in compact and expanded cards', async () => {
+ const request=jest.fn().mockResolvedValue({state:'no_records',records:[],has_more:false});
+ const record={...card,title:'CFTR evidence',provenance:{data_source:'Recorded fixture'}};
+ const surface=mode=><GraphInfoPanelSurface visible mode={mode} position={{x:24,y:24}}>
+   <InspectedInformationPanel card={record} schema={schema} releaseId={record.release_id} request={request}/>
+ </GraphInfoPanelSurface>;
+ const {container,rerender}=render(surface('hover'));
+ const checkFooter=()=>{
+   const body=container.querySelector('.graph-info-panel-body');
+   const footer=screen.getByText('Data Source: Recorded fixture').closest('footer');
+   expect(footer).toBe(body.nextElementSibling);
+ };
+ checkFooter();
+ rerender(surface('expanded'));
+ checkFooter();
+ fireEvent.click(screen.getByRole('button',{name:'Related links'}));
+ await screen.findByText('No matching records.');
+ expect(screen.queryByText('Data Source: Recorded fixture')).toBeNull();
+ fireEvent.click(screen.getByRole('button',{name:'Complete record'}));
+ checkFooter();
 });

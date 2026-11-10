@@ -5,7 +5,7 @@
 .xe-expanded-details .xe-card-tabs button {background:transparent;border:0;border-bottom:2px solid transparent;white-space:nowrap;padding:8px;color:#536970;}
 .xe-expanded-details .xe-card-tabs button.active {color:#087d78;border-bottom-color:#087d78;}
 .xe-expanded-details .xe-card-body {padding:16px;min-width:0;}
-.xe-record-view .xe-card-body {display:grid;grid-template-columns:repeat(var(--panel-columns,2),minmax(0,1fr));gap:var(--panel-gap,16px);align-items:start;}
+.xe-record-view .xe-card-body {display:grid;grid-template-columns:repeat(var(--panel-columns,2),minmax(0,1fr));gap:var(--panel-gap,16px);}
 .xe-expanded-details .xe-card-section {min-width:0;border-bottom:1px solid #e6edef;padding:8px 0;}
 .xe-expanded-details h3 {font-size:13px;color:#61767d;margin:0 0 12px;}
 .xe-expanded-details dl {margin:0;}
@@ -29,7 +29,6 @@
 .xe-compact-details .xe-card-section h3 {text-align:center;font-size:11px;letter-spacing:.04em;margin-bottom:6px;}
 .xe-compact-details .kg-card-field {margin:6px 0;line-height:1.4;}
 .xe-compact-details .xe-compact-endpoints {font-size:12px;overflow-wrap:anywhere;padding:6px 0;}
-.xe-compact-details footer {padding-top:8px;border-top:1px solid #e6edef;}
 .xe-compact-details .xe-compact-summary {font-size:11px;margin:8px 0;table-layout:fixed;}
 .xe-compact-details .xe-compact-summary th,.xe-compact-details .xe-compact-summary td {padding:6px 3px;text-align:right;line-height:1.3;}
 .xe-compact-details .xe-compact-summary th:first-child {text-align:left;}
@@ -57,7 +56,9 @@
 .xe-compact-details .kg-card-field[data-layout="prose"],.xe-record-view .kg-card-field[data-layout="prose"] {display:block;}
 .xe-compact-details .kg-card-field[data-layout="prose"] dd,.xe-record-view .kg-card-field[data-layout="prose"] dd {text-align:left;}
 .xe-compact-details .xe-compact-endpoints {padding:12px 16px;border-bottom:1px solid #f0f0f0;}
-.xe-expanded-details .xe-production-footer {padding:10px 14px;margin:0;justify-content:center;text-align:center;gap:4px 12px;background:linear-gradient(360deg,#CACFD5 -73.08%,#F4F6F8 75%);font:600 9px/1.5 'Open Sans',sans-serif;color:#5f7885;}
+.xe-expanded-details .xe-production-footer,.xe-production-footer.graph-info-panel-footer {display:flex;flex-wrap:wrap;padding:10px 14px;margin:0;justify-content:center;text-align:center;gap:4px 12px;background:linear-gradient(360deg,#CACFD5 -73.08%,#F4F6F8 75%);font:600 9px/1.5 'Open Sans',sans-serif;color:#5f7885;}
+.xe-production-footer.graph-info-panel-footer {border-top:1px solid #e6edef;}
+.xe-production-footer.graph-info-panel-footer a {color:#087d78;}
 .xe-production-footer span,.xe-production-footer a {max-width:100%;overflow-wrap:anywhere;}
 .xe-production-pill {display:inline-block;padding:1.5px 4px;border-radius:8.5px;color:white;font:700 12px/14px 'Open Sans',sans-serif;}
 .xe-population {padding:12px 0;}
@@ -66,7 +67,6 @@
 .xe-frequency-bar {height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;margin-top:4px;}
 .xe-frequency-bar i {display:block;height:100%;background:linear-gradient(180deg,#0FB47D 0%,#049D6F 100%);}
 .xe-card-section[data-prose="true"] dt {display:none;}
-.xe-compact-details .xe-production-footer {position:sticky;bottom:0;z-index:1;}
 .xe-compact-details .xe-card-section:last-of-type {border-bottom:0;}
 .xe-record-view .xe-complete>dl {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 24px;}
 @media(max-width:650px){.xe-record-view .xe-complete>dl{grid-template-columns:1fr;}}
@@ -77,7 +77,6 @@
 .xe-record-view .xe-card-body {gap:16px;}
 .xe-record-view .xe-card-section {padding:20px;border:1px solid #e3ecee;border-radius:10px;background:#fff;}
 .xe-record-view .xe-card-section h3 {font-size:12px;}
-.xe-record-view .xe-production-footer {grid-column:1/-1;border-radius:0 0 10px 10px;}
 .xe-expanded-details .xe-table-intro {display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:12px 0;}
 .xe-expanded-details .xe-method-context {margin:16px 0 4px;}
 .xe-expanded-details .xe-table-scroll th:first-child,.xe-expanded-details .xe-table-scroll td:first-child {min-width:80px;width:auto;}

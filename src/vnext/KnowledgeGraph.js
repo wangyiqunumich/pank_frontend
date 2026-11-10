@@ -631,7 +631,7 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
             <InfocardData value={recordedText(hoveredData[titleColumn?.[1]])} dataKey={titleColumn?.[1]} config={titleDisplayConfig} />
           </GraphInfoPanelHeader>
           <GraphInfoPanelBody>
-          <Box sx={{ display: "grid", gridTemplateColumns: panel?.large ? `repeat(${cardLayout.expanded.columns}, minmax(0, 1fr))` : "1fr", columnGap: panel?.large ? `${cardLayout.expanded.gap_px}px` : 0, alignItems: "start", "@media (max-width: 650px)": {gridTemplateColumns: "1fr"} }}>
+          <Box sx={{ display: "grid", gridTemplateColumns: panel?.large ? `repeat(${cardLayout.expanded.columns}, minmax(0, 1fr))` : "1fr", gap: panel?.large ? `${cardLayout.expanded.gap_px}px` : 0, "@media (max-width: 650px)": {gridTemplateColumns: "1fr"} }}>
           {
             schema.map(([title, content, config]) => {
               const setting = config?.match(/\(([^)]+)\)/)?.[1];
@@ -739,10 +739,13 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
           }
           </Box>
           {omitted > 0 && <Typography sx={{padding: "8px 16px", fontSize: 11, color: "#5F7885"}}>Enlarge for complete record</Typography>}
+          </GraphInfoPanelBody>
           {/* Footer */}
-          {footerInfo && <Box sx={{
+          {footerInfo && <Box component="footer" className="graph-info-panel-footer" sx={{
             display: "flex",
-            height: "30px",
+            minHeight: "30px",
+            padding: "4px 10px",
+            boxSizing: "border-box",
             textAlign: "center",
             alignItems: "center",
             justifyContent: "center",
@@ -763,7 +766,6 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
               )}
             </Typography>
           </Box>}
-          </GraphInfoPanelBody>
         </>
       )
       : (<>

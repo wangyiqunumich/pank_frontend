@@ -182,14 +182,15 @@ function ExpandedDetails({ card, schema }) {
   const tabs=panelTabs(card,schema);
   const selected=tabs.find(t=>t.id===tab);
   const active=tab==='record' || !selected ? 'record' : tab;
-  return <div className={`xe-expanded-details ${active === 'record' ? 'xe-record-view' : 'xe-table-view'}`}>
+  return <>
+    <GraphInfoPanelBody>
+    <div className={`xe-expanded-details ${active === 'record' ? 'xe-record-view' : 'xe-table-view'}`}>
     {wide && card && <nav className="xe-card-tabs"><button className={tab === 'record' ? 'active' : ''} onClick={() => setTab('record')}>Complete record</button>{tabs.map(t=><button key={t.id} className={active===t.id ? 'active' : ''} onClick={()=>setTab(t.id)}>{t.title}</button>)}</nav>}
     <div className="xe-card-body" style={{'--panel-columns':panelPolicy.expanded_layout.columns,'--panel-narrow-columns':panelPolicy.expanded_layout.narrow_columns,'--panel-gap':`${panelPolicy.expanded_layout.gap_px}px`}}>
       {card && (!wide || active === 'record') && <>
         <RelationshipContext card={card}/>
         {expandedSections(card,panelPolicy).map((section,i)=><section className="xe-card-section" data-prose={section.prose || undefined} key={i}><h3>{section.title}</h3><dl><RecordFields fields={section.fields} specs={card.field_specs}/></dl></section>)}
         {(card.widget === 'variant' || card.production_design === 'Variant') && <section className="xe-card-section"><h3>Frequency</h3>{card.frequencies?.length ? <><ProductionFrequencies card={card}/><TableDownloads card={card} table={{id:"population_frequencies",...schema.tables?.population_frequencies}} schema={schema} records={card.frequencies}/></> : <p className="xe-empty">Not recorded</p>}{card.consequences?.length>0 && <><h3>Functional annotations</h3><div className="xe-chips muted">{card.consequences.map(c=><span key={c}>{c}</span>)}</div></>}{card.hgvs && <p className="xe-hgvs">{card.hgvs}</p>}</section>}
-        <RecordFooter provenance={card.provenance} schema={schema}/>
       </>}
       {card && active !== 'record' && selected.component?.renderer!=='condition_tables' && <RelationshipContext card={card}/>}
       {card && wide && active !== 'record' && (selected.component ?
@@ -197,7 +198,10 @@ function ExpandedDetails({ card, schema }) {
         ['table','credible_set'].includes(selected.component.renderer) ? selected.component.table_ids.map(tid=><EvidenceTable key={`${card.ref.id}:${tid}`} card={card} table={card.tables.find(t=>t.id===tid)} schema={schema} />) : <p className="xe-small">Unsupported registered component.</p> :
         <EvidenceTable key={`${card.ref.id}:${active}`} card={card} table={selected.table} schema={schema} />)}
     </div>
-  </div>;
+    </div>
+    </GraphInfoPanelBody>
+    {card && active === 'record' && <RecordFooter provenance={card.provenance} schema={schema} className="graph-info-panel-footer"/>}
+  </>;
 }
 
 
@@ -221,16 +225,15 @@ export function InspectedInformationPanel({card,schema,request,releaseId,compact
   if(releaseId!==schema.release_id || card.release_id!==releaseId) return null;
   return <PanelSchemaContext.Provider value={panelPolicy}>
     <GraphInfoPanelHeader canExpand={canExpand} title={shown.title}>{shown.title}</GraphInfoPanelHeader>
-    <GraphInfoPanelBody>
     {panel?.large && !compactOnly ? <EvidenceDetails card={shown} schema={schema} request={request} releaseId={releaseId}/> :
       <DisplayContext.Provider value={{policy:{...schema.display_policy,panel_presentation:panelSchema(schema)},profileKey:`${card.ref.kind}:${card.ref.type_id}`}}>
-        <div className="xe-expanded-details xe-compact-details">
-          <RelationshipContext card={shown} schema={schema} compact/>
-
-          {compact.sections.map((section,i)=><section className="xe-card-section" data-prose={section.prose || undefined} key={i}><h3>{section.title}</h3><dl><RecordFields fields={section.fields} specs={shown.field_specs}/></dl></section>)}
-          <RecordFooter provenance={shown.provenance} schema={schema}/>
-        </div>
+        <GraphInfoPanelBody>
+          <div className="xe-expanded-details xe-compact-details">
+            <RelationshipContext card={shown} schema={schema} compact/>
+            {compact.sections.map((section,i)=><section className="xe-card-section" data-prose={section.prose || undefined} key={i}><h3>{section.title}</h3><dl><RecordFields fields={section.fields} specs={shown.field_specs}/></dl></section>)}
+          </div>
+        </GraphInfoPanelBody>
+        <RecordFooter provenance={shown.provenance} schema={schema} className="graph-info-panel-footer"/>
       </DisplayContext.Provider>}
-    </GraphInfoPanelBody>
   </PanelSchemaContext.Provider>;
 }
