@@ -1,22 +1,23 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import GraphLegend from './GraphLegend';
 import { legendSchema } from '../components/style';
 
-test('legend keeps its target width until collapse ends, including rapid reversals', async () => {
+test('legend keeps the heading and content mounted through rapid reversals', () => {
   render(<GraphLegend />);
-  const legend = screen.getByRole('complementary', { name: 'Graph legend' });
-  expect(legend.className).not.toContain('is-wide');
-  fireEvent.click(screen.getByRole('button', { name: 'Expand legend' }));
-  expect(legend.className).toContain('is-wide');
-  expect(screen.getByRole('button', { name: 'Collapse legend' }).getAttribute('aria-expanded')).toBe('true');
+  const toggle = screen.getByRole('button', { name: 'Expand legend' });
+  const body = document.getElementById(toggle.getAttribute('aria-controls'));
+  expect(body.getAttribute('aria-hidden')).toBe('true');
+  fireEvent.click(toggle);
+  expect(screen.getByRole('button', { name: 'Collapse legend', expanded: true })).toBe(toggle);
+  expect(body.getAttribute('aria-hidden')).toBe('false');
   legendSchema.forEach(({ label }) => expect(screen.getByText(label)).toBeTruthy());
-  fireEvent.click(screen.getByRole('button', { name: 'Collapse legend' }));
-  expect(legend.className).toContain('is-wide');
-  fireEvent.click(screen.getByRole('button', { name: 'Expand legend' }));
-  expect(legend.className).toContain('is-wide');
-  fireEvent.click(screen.getByRole('button', { name: 'Collapse legend' }));
-  await waitFor(() => expect(legend.className).not.toContain('is-wide'));
+  fireEvent.click(toggle);
+  fireEvent.click(toggle);
+  fireEvent.click(toggle);
+  expect(screen.getByRole('button', { name: 'Expand legend', expanded: false })).toBe(toggle);
+  expect(body.isConnected).toBe(true);
+  expect(body.getAttribute('aria-hidden')).toBe('true');
 });
 
 test('legend supports initially expanded graphs and exposes its controlled body', () => {

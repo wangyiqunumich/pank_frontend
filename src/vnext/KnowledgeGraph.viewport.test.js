@@ -55,7 +55,7 @@ test('result polling and changed server coordinates preserve the renderer and us
 
 test('fitted viewport starts at 100%, enables zoom-out below0.6, and recenter refits the current pane', () => {
   const { unmount } = render(view());
-  expect(screen.getByText('100%')).toBeTruthy();
+  expect(screen.getByLabelText('Graph zoom').textContent).toBe('100%');
   // The minus control now uses its correct accessible zoom-out label.
   expect(screen.getByRole('button', { name: 'Zoom out' }).disabled).toBe(false);
   fireEvent.click(screen.getByRole('button', { name: 'Fit to view' }));

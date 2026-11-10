@@ -8,6 +8,16 @@
   isolation: isolate;
 }
 .graph-toolbar {
+  --toolbar-compact-width: 42px;
+  --toolbar-compact-padding: 4px;
+  --toolbar-row-height: 32px;
+  --toolbar-toggle-size: 32px;
+  --toolbar-row-padding: 8px;
+  --toolbar-row-radius: 16px;
+  --toolbar-icon-size: 16px;
+  --toolbar-heading-height: 0px;
+  --toolbar-section-spacing: 4px;
+  --toolbar-motion: 200ms cubic-bezier(.2, .75, .25, 1);
   position: absolute;
   top: 16px;
   bottom: 64px;
@@ -16,60 +26,162 @@
   margin-block: auto;
   z-index: 30;
   box-sizing: border-box;
-  width: 42px;
+  width: var(--toolbar-compact-width);
+  max-width: calc(100% - 24px);
   overflow: visible;
-  padding: 9px 4px;
+  padding: 9px var(--toolbar-compact-padding);
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   gap: 6px;
   border: 1px solid rgba(226, 232, 240, .9);
-  border-radius: 9999px;
+  border-radius: 22px;
   background: rgba(255, 255, 255, .95);
   backdrop-filter: blur(2px);
   box-shadow: 0 0 0 2px #f1f5f9, 0 20px 25px -5px #0000001a, 0 8px 10px -6px #0000001a;
   font-family: Inter, 'Open Sans', sans-serif;
   color: var(--graph-text);
+  transition: width var(--toolbar-motion), padding var(--toolbar-motion), gap var(--toolbar-motion),
+    border-radius var(--toolbar-motion), box-shadow var(--toolbar-motion);
 }
-.graph-toolbar.is-expanded { width: 224px; padding: 11px; border-radius: 12px; align-items: stretch; gap: 10px; box-shadow: 0 20px 25px -5px #0000001a, 0 8px 10px -6px #0000001a; }
-.graph-toolbar .graph-toolbar-toggle { width: 32px; height: 32px; min-height: 32px; flex-shrink: 0; border-radius: 50%; background: #eef6f8; }
-.graph-toolbar.is-expanded .graph-toolbar-toggle { position: absolute; top: 5px; right: 6px; width: 24px; min-height: 24px; height: 24px; }
+.graph-toolbar.is-expanded {
+  --toolbar-row-height: 28px;
+  --toolbar-toggle-size: 24px;
+  --toolbar-row-radius: 5px;
+  --toolbar-icon-size: 14px;
+  --toolbar-heading-height: 18px;
+  --toolbar-section-spacing: 8px;
+  width: 224px;
+  padding: 11px;
+  border-radius: calc(var(--toolbar-toggle-size) / 2 + 6px);
+  gap: 8px;
+  box-shadow: 0 20px 25px -5px #0000001a, 0 8px 10px -6px #0000001a;
+}
+.graph-toolbar-toggle-slot {
+  position: relative;
+  height: var(--toolbar-toggle-size);
+  transition: height var(--toolbar-motion), margin-bottom var(--toolbar-motion);
+}
+.graph-toolbar.is-expanded .graph-toolbar-toggle-slot { height: 0; margin-bottom: -8px; }
+.graph-toolbar .graph-toolbar-toggle {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  width: var(--toolbar-toggle-size);
+  height: var(--toolbar-toggle-size);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 50%;
+  background: #eef6f8;
+  transition: top var(--toolbar-motion), right var(--toolbar-motion), width var(--toolbar-motion), height var(--toolbar-motion);
+}
+.graph-toolbar.is-expanded .graph-toolbar-toggle { top: -6px; right: -6px; }
+.graph-toolbar-toggle img { transform: rotate(180deg); transition: transform var(--toolbar-motion); }
+.graph-toolbar.is-expanded .graph-toolbar-toggle img { transform: rotate(0deg); }
 .graph-toolbar-action-wrapper { display: block; width: 100%; }
-.graph-toolbar .graph-toolbar-action { width: 32px; height: 32px; border-radius: 50%; display: flex; gap: 8px; color: inherit; }
-.graph-toolbar.is-expanded .graph-toolbar-action { width: 100%; height: 28px; padding: 6px 8px; border-radius: 4px; justify-content: flex-start; }
+.graph-toolbar .graph-toolbar-action, .graph-toolbar-mode {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  height: var(--toolbar-row-height);
+  padding: 0 var(--toolbar-row-padding);
+  border-radius: var(--toolbar-row-radius);
+  color: inherit;
+  transition: height var(--toolbar-motion), padding var(--toolbar-motion), border-radius var(--toolbar-motion), background-color 140ms ease;
+}
+.graph-toolbar .graph-toolbar-action { background: transparent; }
 .graph-toolbar .graph-toolbar-action:hover, .graph-toolbar .graph-toolbar-action:focus-visible { background: #f1f5f9; }
 .graph-toolbar .graph-toolbar-action:focus-visible, .graph-toolbar .graph-toolbar-toggle:focus-visible { outline: 2px solid #0d9488; outline-offset: 1px; }
-.graph-toolbar .graph-toolbar-action.Mui-disabled { opacity: .35; }
-.graph-toolbar:not(.is-expanded) .graph-toolbar-action.is-active { background: #f0fdfa; }
-.graph-toolbar-icon { width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.graph-toolbar.is-expanded .graph-toolbar-icon { width: 14px; height: 14px; }
-.graph-toolbar img { display: block; flex-shrink: 0; max-width: none; }
-.graph-toolbar-label { font-size: 12px; font-weight: 500; line-height: 16px; flex: 1; white-space: nowrap; text-align: left; }
-.graph-toolbar-divider { width: 20px; min-height: 1px; background: var(--graph-border); }
-.graph-toolbar-section { display: flex; flex-direction: column; gap: 2px; }
-.graph-toolbar-section + .graph-toolbar-section { border-top: 1px solid #f1f5f9; padding-top: 9px; }
-.graph-toolbar-section h3 { margin: 0 6px 2px; color: #94a3b8; font-size: 10px; font-weight: 700; line-height: 16px; letter-spacing: .5px; text-transform: uppercase; }
+.graph-toolbar .graph-toolbar-action:disabled { opacity: .35; cursor: default; }
+.graph-toolbar .graph-toolbar-action.is-active { background: #ccfbf1; color: #115e59; }
+.graph-toolbar .graph-toolbar-action.is-active:hover { background: #baf3e9; }
+.graph-toolbar.is-expanded .graph-toolbar-action.is-active { background: #f0fdfa; }
+.graph-toolbar.is-expanded .graph-toolbar-action.is-active:hover { background: #e1f8f3; }
+.graph-toolbar-icon { width: var(--toolbar-icon-size); height: var(--toolbar-icon-size); flex: none; transition: width var(--toolbar-motion), height var(--toolbar-motion); }
+.graph-toolbar img { display: block; flex-shrink: 0; }
+.graph-toolbar-icon > :is(img, svg) { display: block; width: 100%; height: 100%; }
+.graph-toolbar-details {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 100ms ease, visibility 0s 100ms;
+}
+.graph-toolbar.is-expanded .graph-toolbar-details { opacity: 1; visibility: visible; transition: opacity 140ms ease 55ms; }
+.graph-toolbar-label { flex: 1; min-width: 0; margin-left: 8px; overflow: hidden; text-overflow: ellipsis; font-size: 12px; font-weight: 500; line-height: 16px; white-space: nowrap; text-align: left; }
+.graph-toolbar-section { position: relative; display: flex; flex-direction: column; }
+.graph-toolbar-section + .graph-toolbar-section { padding-top: var(--toolbar-section-spacing); transition: padding-top var(--toolbar-motion); }
+.graph-toolbar-section + .graph-toolbar-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 20px;
+  height: 1px;
+  transform: translateX(-50%);
+  background: var(--graph-border);
+  transition: width var(--toolbar-motion);
+}
+.graph-toolbar.is-expanded .graph-toolbar-section + .graph-toolbar-section::before { width: 100%; }
+.graph-toolbar-action-wrapper + .graph-toolbar-action-wrapper { margin-top: 2px; }
+.graph-toolbar-section h3 {
+  height: var(--toolbar-heading-height);
+  margin: 0 8px;
+  overflow: hidden;
+  opacity: 0;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: height var(--toolbar-motion), opacity 100ms ease;
+}
+.graph-toolbar.is-expanded .graph-toolbar-section h3 { opacity: 1; transition: height var(--toolbar-motion), opacity 140ms ease 55ms; }
 .graph-toolbar-zoom { font-family: 'JetBrains Mono', monospace; font-size: 10px; line-height: 16px; color: #475569; padding: 0 6px; border: 1px solid var(--graph-border); border-radius: 4px; background: #f1f5f9; }
-.graph-toolbar-switch { width: 28px; height: 16px; padding: 2px; box-sizing: border-box; border-radius: 999px; background: #cbd5e1; display: inline-flex; }
-.graph-toolbar-switch.is-on { background: var(--graph-accent); justify-content: flex-end; }
-.graph-toolbar-switch > span { width: 12px; height: 12px; border-radius: 50%; background: white; }
-.graph-toolbar-mode { display: flex; align-items: center; gap: 8px; padding: 6px 8px; min-height: 28px; box-sizing: border-box; }
-.graph-toolbar-mode-value { font-size: 10px; font-weight: 600; line-height: 16px; color: #0f766e; white-space: nowrap; }
+.graph-toolbar-switch { flex: none; width: 28px; height: 16px; padding: 2px; box-sizing: border-box; border-radius: 999px; background: #cbd5e1; display: inline-flex; transition: background-color 140ms ease; }
+.graph-toolbar-switch.is-on { background: var(--graph-accent); }
+.graph-toolbar-switch > span { width: 12px; height: 12px; border-radius: 50%; background: white; transition: transform 140ms ease; }
+.graph-toolbar-switch.is-on > span { transform: translateX(12px); }
+.graph-toolbar-mode { height: 0; opacity: 0; overflow: hidden; pointer-events: none; transition: height var(--toolbar-motion), opacity 100ms ease; }
+.graph-toolbar.is-expanded .graph-toolbar-mode { height: var(--toolbar-row-height); opacity: 1; pointer-events: auto; transition: height var(--toolbar-motion), opacity 140ms ease 55ms; }
+.graph-toolbar-mode-value { font-size: 11px; font-weight: 600; line-height: 16px; color: #0f766e; white-space: nowrap; }
 /* Use the actual pane height, including short landscape fullscreen viewports.
    Keep every action visible rather than introducing a nested scroll region. */
-.graph-toolbar.is-short { gap: 2px; padding: 6px; }
-.graph-toolbar.is-short .graph-toolbar-toggle { width: 24px; height: 24px; min-height: 24px; }
-.graph-toolbar.is-short .graph-toolbar-action { width: 24px; height: 24px; }
-.graph-toolbar.is-short.is-expanded { gap: 1px; padding: 7px; }
-.graph-toolbar.is-short.is-expanded .graph-toolbar-action { width: 100%; padding: 4px 8px; }
-.graph-toolbar.is-short .graph-toolbar-mode { min-height: 24px; }
-.graph-toolbar.is-short .graph-toolbar-section { gap: 1px; }
-.graph-toolbar.is-short .graph-toolbar-section + .graph-toolbar-section { padding-top: 3px; }
-.graph-toolbar.is-short .graph-toolbar-section h3 { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-.graph-toolbar.is-short.is-expanded .graph-toolbar-section:first-of-type { padding-top: 16px; }
+.graph-toolbar.is-short {
+  --toolbar-row-height: 24px;
+  --toolbar-toggle-size: 24px;
+  --toolbar-compact-padding: calc((var(--toolbar-compact-width) - 26px) / 2);
+  --toolbar-row-padding: 4px;
+  --toolbar-section-spacing: 3px;
+  top: 8px;
+  bottom: 48px;
+  gap: 2px;
+  padding-block: 6px;
+}
+.graph-toolbar.is-short.is-expanded { --toolbar-row-padding: 8px; --toolbar-heading-height: 0px; padding: 7px; }
+.graph-toolbar.is-short .graph-toolbar-action-wrapper + .graph-toolbar-action-wrapper { margin-top: 1px; }
+.graph-toolbar.is-short.is-expanded .graph-toolbar-toggle-slot { height: 22px; margin-bottom: -2px; }
+.graph-toolbar.is-short.is-expanded .graph-toolbar-toggle { top: -2px; right: -2px; }
+.graph-toolbar.is-minimal { --toolbar-row-height: 32px; --toolbar-row-padding: 8px; gap: 6px; padding: 9px 5px; }
 .graph-viewer .graph-zoom-indicator { position: absolute; bottom: 16px; right: 16px; min-width: 55px; height: 32px; box-sizing: border-box; padding: 7px 13px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--graph-border); border-radius: 8px; background: rgba(255,255,255,.95); backdrop-filter: blur(2px); box-shadow: 0 1px 2px #0000000d; font: 500 12px/16px 'JetBrains Mono', monospace; color: #334155; z-index: 15; }
+/* Leave room beside the fullscreen dialog's close button on short screens. */
+@media (max-height: 490px) {
+  dialog[aria-modal="true"] > .graph-viewer > .graph-toolbar { right: 60px; max-width: calc(100% - 76px); }
+}
 @media (max-width: 480px) {
   .graph-toolbar { right: 8px; }
-  .graph-toolbar.is-expanded { max-width: calc(100% - 24px); }
   .graph-viewer .graph-zoom-indicator { right: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .graph-toolbar, .graph-toolbar *, .graph-toolbar *::before { transition: none !important; }
 }

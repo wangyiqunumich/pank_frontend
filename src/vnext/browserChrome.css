@@ -1,13 +1,7 @@
 /* Browser islands reuse the graph viewer's assets, order and geometry. */
-.browser-toolbar.graph-toolbar { --graph-text:#334155; --graph-border:#e2e8f0; --graph-accent:#0d9488; top:12px; bottom:12px; right:12px; }
-.browser-toolbar.graph-toolbar:not(.is-expanded) { width:44px; background:#fffffff2; }
-.browser-toolbar.graph-toolbar button { appearance:none; border:0; margin:0; padding:0; font:inherit; display:flex; align-items:center; justify-content:center; background:transparent; cursor:pointer; box-sizing:border-box; }
-.browser-toolbar.graph-toolbar .graph-toolbar-toggle { background:#eef6f8; }
-.browser-toolbar.graph-toolbar .graph-toolbar-action:disabled { opacity:.35; cursor:default; }
-.browser-toolbar.graph-toolbar .graph-toolbar-icon svg { width:100%; height:100%; }
-.browser-toolbar.graph-toolbar:not(.is-expanded) .graph-toolbar-section { display:contents; }
-.browser-toolbar.graph-toolbar .graph-toolbar-section[hidden] { display:none; }
-.browser-toolbar.graph-toolbar.is-expanded .graph-toolbar-action { padding:6px 8px; justify-content:flex-start; }
+.browser-toolbar.graph-toolbar { --graph-text:#334155; --graph-border:#e2e8f0; --graph-accent:#0d9488; --toolbar-compact-width:44px; top:12px; bottom:12px; right:12px; }
+.browser-toolbar.graph-toolbar:not(.is-short) { --toolbar-compact-padding:5px; }
+.browser-toolbar button { appearance:none; border:0; margin:0; font:inherit; cursor:pointer; }
 .browser-plot-info { position:absolute; left:16px; bottom:16px; max-width:calc(100% - 90px); padding:8px 12px; background:#fffffff2; border:1px solid #e2e8f0; border-radius:8px; color:#475569; font:12px/1.5 Inter,system-ui,sans-serif; z-index:4; }
 .browser-chrome { font:12px/1.5 Inter,'Open Sans',system-ui,sans-serif; color:#0f172a; background:#fff; }
 .browser-chrome button { font-size:12px!important; }
@@ -68,10 +62,6 @@
 .browser-native-figure { position:relative; width:100%; height:100%; min-height:260px; padding:0; display:block; }
 .browser-native-figure > img { display:block; width:100%; height:100%; object-fit:contain; }
 .browser-native-figure > .browser-toolbar { top:12px; bottom:12px; right:12px; margin-block:auto; }
-
-.browser-toolbar.is-minimal { padding:9px 5px; gap:6px; }
-.browser-toolbar.is-minimal .graph-toolbar-action { min-height:32px; height:32px; width:32px; }
-.browser-toolbar.is-minimal .graph-toolbar-action-wrapper { height:32px; }
 
 /* Final provenance row: consistent spacing inside the host's 12px corners.
    Keep wrapping available in narrow panels and leave plots in the flex space. */

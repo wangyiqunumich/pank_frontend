@@ -100,7 +100,10 @@ uiTest('view switching retains the map; zoom and fullscreen call the actual host
   fireEvent.click(ui.getByRole('button', { name: SC_WORDING.fullscreen }));
   expect(post).toHaveBeenCalledWith({ protocol: 'pankgraph.scbrowser.v1', type: 'toggle-fullscreen' }, window.location.origin);
   app.receive({ origin: window.location.origin, source: window.parent, data: { protocol: 'pankgraph.scbrowser.v1', type: 'fullscreen-state', fullscreen: true } }); await tick();
-  expect(ui.getByRole('button', { name: SC_WORDING.exit_fullscreen })).toBeTruthy();
+  const exit = ui.getByRole('button', { name: SC_WORDING.exit_fullscreen, pressed: true });
+  expect(exit.classList.contains('is-active')).toBe(true);
+  fireEvent.click(ui.getByRole('button', { name: 'Expand graph toolbar' })); await tick();
+  expect(exit.classList.contains('is-active')).toBe(false);
   post.mockRestore();
 });
 

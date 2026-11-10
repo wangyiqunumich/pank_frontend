@@ -2,16 +2,22 @@ import React from 'react';
 import { act, render, screen, fireEvent, within } from '@testing-library/react';
 import GraphToolbar from './GraphToolbar';
 
-test('capsule expands to labeled controls, with the reverse collapse arrow and no click menu', () => {
+test('capsule reveals labels while keeping the same buttons in the same groups', () => {
   const onZoomIn = jest.fn(), onZoomOut = jest.fn(), onReset = jest.fn(), onHover = jest.fn();
   render(<GraphToolbar zoomPercent={100} canZoomIn canZoomOut hoverEnabled onZoomIn={onZoomIn} onZoomOut={onZoomOut} onReset={onReset} onHover={onHover} />);
   const toolbar = screen.getByRole('toolbar', { name: 'Graph controls' });
   const expand = within(toolbar).getByRole('button', { name: 'Expand graph toolbar' });
-  expect(expand.querySelector('img').style.transform).toBe('scaleX(-1)');
+  expect(expand.getAttribute('aria-expanded')).toBe('false');
+  const info = within(toolbar).getByRole('button', { name: 'Hover info' });
+  const fit = within(toolbar).getByRole('button', { name: 'Fit to view' });
+  expect(info.closest('.graph-toolbar-section')).not.toBe(fit.closest('.graph-toolbar-section'));
+  expect(within(toolbar).queryByRole('heading', { name: 'View' })).toBeNull();
   fireEvent.click(expand);
   expect(within(toolbar).getByRole('heading', { name: 'View' })).toBeTruthy();
   const collapse = within(toolbar).getByRole('button', { name: 'Collapse graph toolbar' });
-  expect(collapse.querySelector('img').style.transform).toBe('none');
+  expect(collapse).toBe(expand);
+  expect(collapse.getAttribute('aria-expanded')).toBe('true');
+  expect(within(toolbar).getByRole('button', { name: 'Hover info' })).toBe(info);
   expect(within(toolbar).queryByText('Click menu')).toBeNull();
   fireEvent.click(within(toolbar).getByRole('button', { name: 'Zoom in' }));
   fireEvent.click(within(toolbar).getByRole('button', { name: 'Zoom out' }));
@@ -27,8 +33,12 @@ test('zoom bounds and fullscreen state are accessible in either toolbar layout',
   render(<GraphToolbar fullscreen zoomPercent={200} canZoomIn={false} canZoomOut={false} />);
   expect(screen.getByRole('button', { name: 'Zoom in' }).disabled).toBe(true);
   expect(screen.getByRole('button', { name: 'Zoom out' }).disabled).toBe(true);
-  expect(screen.getByRole('button', { name: 'Exit full screen' })).toBeTruthy();
+  const fullscreen = screen.getByRole('button', { name: 'Exit full screen' });
+  expect(fullscreen.getAttribute('aria-pressed')).toBe('true');
+  expect(fullscreen.classList.contains('is-active')).toBe(true);
   fireEvent.click(screen.getByRole('button', { name: 'Expand graph toolbar' }));
+  expect(screen.getByRole('button', { name: 'Exit full screen', pressed: true })).toBe(fullscreen);
+  expect(fullscreen.classList.contains('is-active')).toBe(false);
   expect(screen.getByText('200%')).toBeTruthy();
 });
 
