@@ -166,9 +166,10 @@ export function searchEntities(parameters, options = {}) {
   return !TECH_DEMO && getDevConfig().vnextEnabled
     ? conventionalRequest(`/search?${query}`, options) : request(`/search?${query}`, options);
 }
+export const resultStatusPending = status => ['preparing', 'pending', 'queued', 'running', 'processing'].includes(status);
 export function componentsPending(result) {
-  return ['pending', 'queued', 'running', 'processing'].includes(result?.status)
-    || Object.values(result?.component_status || {}).some((item) => ['pending', 'queued', 'running', 'processing'].includes(typeof item === 'string' ? item : item?.status));
+  return resultStatusPending(result?.status)
+    || Object.values(result?.component_status || {}).some(item => resultStatusPending(typeof item === 'string' ? item : item?.status));
 }
 export async function pollResult(id, onUpdate, { signal, interval = 1000, ...recovery } = {}) {
   while (!signal?.aborted) {

@@ -235,13 +235,36 @@ test('incremental graph updates preserve dragged positions, selection, pan and z
     node.position({ x: 400, y: 300 }); node.select();
     cy.zoom(2); cy.pan({ x: 17, y: 29 });
     const revised = graphElements({ ...graph, nodes: [...graph.nodes, { '~id': 'new', '~properties': { name: 'New' } }], edges: graph.edges.slice(0, 1) }, positions);
-    updateGraphElements(cy, revised.nodes, revised.edges);
+    updateGraphElements(cy, revised, first);
     expect(cy.getElementById('gene')[0]).toBe(node[0]);
     expect(node.position()).toEqual({ x: 400, y: 300 });
     expect(node.selected()).toBe(true);
     expect(cy.zoom()).toBe(2); expect(cy.pan()).toEqual({ x: 17, y: 29 });
     expect(cy.getElementById('new').nonempty()).toBe(true);
     expect(cy.getElementById('detection').empty()).toBe(true);
+  } finally { cy.destroy(); }
+});
+
+test('geometry and routes are committed together and later data-only updates preserve them', () => {
+  const first = graphElements(graph, positions, routes);
+  const cy = cytoscape({ headless: true, styleEnabled: true, elements: { nodes: first.nodes, edges: first.edges }, layout: { name: 'preset', fit: false } });
+  try {
+    applyGraphRoutes(cy, first.edgeStyles);
+    const edge = cy.getElementById('detection');
+    const updatedPositions = { ...positions, cell: { x: 200, y: 0, Level: 'Neighbor' } };
+    const updatedRoutes = { detection: { route_type: 'polyline', waypoints: [[100, -40]] } };
+    const next = graphElements(graph, updatedPositions, updatedRoutes);
+    expect(updateGraphElements(cy, next, first)).toBe(true);
+    expect(cy.getElementById('cell').position()).toEqual({ x: 200, y: 0 });
+    expect(cy.getElementById('cell').data('Level')).toBe('Neighbor');
+    expect(edge.style('curve-style')).toBe('segments');
+    expect(edge.style('segment-distances')).toBe('-40px');
+    expect(edge.style('target-endpoint')).toBe('outside-to-node');
+    cy.getElementById('cell').position({ x: 230, y: 10 });
+    const metadataOnly = graphElements({ ...graph, nodes: graph.nodes.map(node => ({ ...node, '~properties': { name: node['~id'], count: 5 } })) }, updatedPositions, updatedRoutes);
+    expect(updateGraphElements(cy, metadataOnly, next)).toBe(false);
+    expect(cy.getElementById('cell').position()).toEqual({ x: 230, y: 10 });
+    expect(edge.style('segment-distances')).toBe('-40px');
   } finally { cy.destroy(); }
 });
 

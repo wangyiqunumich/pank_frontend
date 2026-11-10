@@ -6,7 +6,10 @@ import cardLayout from '../schema/card_layout_schema.json';
 import { recordedInfocardModel, recordedText } from '../vnext/recordedPresentation';
 
 import React, {
+  useCallback,
   useEffect,
+  useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -48,8 +51,6 @@ import {
   edgeLabels,
   nodeStyle,
 } from '../components/style.js';
-
-const DisableInfocardDisappear = false;
 
 const SUPERSCRIPT_MAP = {
   '0': '⁰',
@@ -811,29 +812,43 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
   const cyRef = useRef(null);
   const containerRef = useRef(null);
   const infocardRef = useRef(null);
-  const activeNodeRef = useRef(null);
-  const [activeNode, setActiveNode] = useState(null);
-
-
-  // hover functions
-  const [hoveredId, setHoveredId] = useState(null);
+  const [activeHover, setActiveHover] = useState(null);
+  const activeNode = activeHover?.element;
+  const [hoverTarget, setHoverTarget] = useState(null);
   const [panelMode, setPanelMode] = useState('hover');
-  // hover id ref
-  const hoveredIdRef = useRef(hoveredId);
+  const hoverTargetRef = useRef(null);
   const dispatch = useDispatch();
-  useEffect(() => {
-    hoveredIdRef.current = hoveredId;
-  }, [hoveredId]);
-  const [infocardPosition, setInfocardPosition] = useState({ x: 0, y: 0 });
+  const [infocardPosition, setInfocardPosition] = useState({ x: 0, y: 0, slide: false });
   const [infocardVisible, setInfocardVisible] = useState(false);
   const [infocardHovered, setInfocardHovered] = useState(false);
-  const [nodeHovered, setNodeHovered] = useState(false);
 
-  const queryResultPage = useSelector((state) => state.queryResultPage.queryResultPage);
+  const clearHoverTarget = useCallback(() => {
+    if (!hoverTargetRef.current) return;
+    hoverTargetRef.current = null;
+    if (containerRef.current) containerRef.current.style.cursor = '';
+    dispatch(setHoverState(false));
+    setHoverTarget(null);
+  }, [dispatch]);
+  const dismissHover = useCallback(() => {
+    clearHoverTarget();
+    setInfocardVisible(false);
+    setInfocardHovered(false);
+  }, [clearHoverTarget]);
+
+  const queryResultPage = useSelector(state => graphData ? null : state.queryResultPage.queryResultPage);
+  const sourceGraph = graphData || queryResultPage?.combined_query_result;
+  const sourceCoords = coordData || queryResultPage?.xy_json;
+  const sourceRoutes = edgeRoutes || queryResultPage?.edge_routes;
   // Answer/resource polling replaces response objects without changing the graph.
   // Rebuild only when graph content changes, preserving the user's pan and zoom.
-  const graphInputKey = JSON.stringify([graphData || queryResultPage?.combined_query_result,
-    coordData || queryResultPage?.xy_json || {}, edgeRoutes || queryResultPage?.edge_routes || {}]);
+  const graphInputKey = useMemo(() => JSON.stringify([sourceGraph, sourceCoords || {}, sourceRoutes || {}]), [sourceGraph, sourceCoords, sourceRoutes]);
+  const bound = useMemo(() => {
+    const [result, positions, routes] = JSON.parse(graphInputKey);
+    return result?.nodes && result?.edges
+      ? graphElements(result, positions, routes, { review, graphInfocard, edgeIsInverted, edgeLabels, spreadCompact: true })
+      : null;
+  }, [graphInputKey, review]);
+  const previousBinding = useRef(null);
   const viewportRef = useRef(null);
 
   // toggle buttons & graph state
@@ -842,6 +857,11 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
   const [minimumZoom, setMinimumZoom] = useState(0.6);
   const [infocardEnabled, setInfocardEnabled] = useState(true);
   const [expanded, setExpanded] = useState(false);
+  const compactPanel = panelMode === 'hover';
+  const hoverEnabled = useRef(true);
+  useLayoutEffect(() => {
+    hoverEnabled.current = compactPanel && infocardEnabled;
+  }, [compactPanel, infocardEnabled]);
 
   const [selectedID, setSelectedID] = useState([]);
   // const [inputValue, setInputValue] = useState("")
@@ -941,82 +961,58 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
   };
 
   const handleDownloadJson = () => {
-    const graph = graphData || queryResultPage?.combined_query_result;
-    if (!graph) throw new Error('The graph is unavailable.');
+    if (!sourceGraph) throw new Error('The graph is unavailable.');
     // Export the source graph, retaining all scientific properties and IDs.
-    saveGraphFile(new Blob([JSON.stringify(graph, null, 2)], { type: 'application/json' }), 'knowledge_graph.json');
+    saveGraphFile(new Blob([JSON.stringify(sourceGraph, null, 2)], { type: 'application/json' }), 'knowledge_graph.json');
   };
 
 
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const container = containerRef.current;
-    if (!container) {
-      return;
-    }
-    const { width: containerWidth, top: containerTop, left: containerLeft } = container.getBoundingClientRect();
-
-    const ele = activeNode;
-    if (!ele || !cyRef.current || !infocardEnabled) {
-      return;
-    }
-    const modelPos = getSafeElementPosition(ele);
-    if (!modelPos) {
-      setInfocardVisible(false);
-      return;
-    }
-    const { x: modelX, y: modelY } = modelPos;
-    const nodeWidth = (typeof ele.isNode === 'function' && ele.isNode()) ? ele.outerWidth() * cyRef.current.zoom() : 20;
-    const nodeHeight = (typeof ele.isNode === 'function' && ele.isNode()) ? ele.outerHeight() * cyRef.current.zoom() : 20;
-    const x = modelX * cyRef.current.zoom() + cyRef.current.pan().x;
-    const y = modelY * cyRef.current.zoom() + cyRef.current.pan().y;
-
     const infocard = infocardRef.current;
-    if (!infocard) {
-      console.log(x);
-      console.log(y);
-      return;
+    const cy = cyRef.current;
+    if (!infocardVisible || !compactPanel || !activeHover || !container || !infocard || !cy) return;
+    let { anchor } = activeHover;
+    if (!anchor) {
+      const position = getSafeElementPosition(activeHover.element);
+      if (!position) return;
+      const { left, top } = container.getBoundingClientRect();
+      const pan = cy.pan();
+      anchor = { x: left + position.x * cy.zoom() + pan.x, y: top + position.y * cy.zoom() + pan.y };
     }
+    const { x, y } = anchor;
+    const { width, height } = infocard.getBoundingClientRect();
+    const gap = 12;
+    const right = x + gap;
+    const left = x - gap - width;
+    const fitsBeside = right + width <= window.innerWidth - gap || left >= gap;
+    const above = y - gap - height;
+    const top = fitsBeside ? y - 24 : above >= gap ? above : y + gap;
+    // Leave room for the cursor to cross into the card, and keep the anchor
+    // fixed while asynchronously loaded evidence changes the card's height.
+    setInfocardPosition({
+      x: Math.max(gap, Math.min(right + width <= window.innerWidth - gap ? right : left, window.innerWidth - width - gap)),
+      y: Math.max(gap, Math.min(top, window.innerHeight - (fitsBeside ? height : 0) - gap)),
+      slide: activeHover.slide,
+    });
+  }, [activeHover, compactPanel, expanded, infocardVisible]);
 
-    // infocard.style.opacity = "1";
-    const { width: infocardWidth, height: infocardHeight } = infocard.getBoundingClientRect();
-
-    let top = y - infocardHeight - nodeHeight / 2 - 2;
-    let left = x + nodeWidth / 2 + 2;
-
-    if (left + infocardWidth > containerWidth && containerLeft + x - infocardWidth - nodeWidth / 2 > 10) {
-      left = x - infocardWidth - nodeWidth / 2 - 2;
-    }
-
-    if (top + containerTop < 90) {
-      top = y + nodeHeight / 2 + 2;
-    }
-
-    // Full edge measurements can be taller than the pane. Keep the existing
-    // popup inside the window so its scrollable content remains reachable.
-    left = Math.max(12 - containerLeft, Math.min(left, window.innerWidth - containerLeft - infocardWidth - 12));
-    top = Math.max(12 - containerTop, Math.min(top, window.innerHeight - containerTop - infocardHeight - 12));
-    setInfocardPosition({ x: left + containerLeft, y: top + containerTop });
-  // Pointer transfer from the graph to its panel must not reposition the
-    // panel using a newly loaded card height underneath the approaching cursor.
-  }, [infocardEnabled, activeNode, expanded, panelMode, infocardVisible]);
-
-  const exitGraphFullscreen = () => { setExpanded(false); if (panelMode === 'expanded') setPanelMode('hover'); };
-  const toggleExpand = () => expanded ? exitGraphFullscreen() : setExpanded(true);
+  const closePanel = () => { setPanelMode('hover'); dismissHover(); };
+  const exitGraphFullscreen = () => { closePanel(); setExpanded(false); };
+  const toggleExpand = () => { if (expanded) exitGraphFullscreen(); else { dismissHover(); setExpanded(true); } };
 
   const handleReset = () => {
     const cy = cyRef.current;
-    if (!cy) return;
-    const [result, positions, routes] = JSON.parse(graphInputKey);
-    const bound = graphElements(result, positions, routes, { review, graphInfocard, edgeIsInverted, edgeLabels, spreadCompact: true });
+    if (!cy || !bound) return;
     cy.batch(() => {
-      bound.nodes.forEach(node => cy.getElementById(node.data.id).position(node.position));
+      bound.modelPositions.forEach((position, id) => cy.getElementById(id).position(position));
       cy.elements().unselect();
       cy.elements().removeClass('highlight');
     });
     applyGraphRoutes(cy, bound.edgeStyles);
     setSelectedID([]);
-    setInfocardVisible(false);
+    closePanel();
     handleRecenter();
   };
 
@@ -1024,71 +1020,60 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
     if (infocardVisible && activeNode?.isEdge?.()) onEvidenceInspect?.(activeNode.id());
   }, [infocardVisible, activeNode, onEvidenceInspect]);
 
-  const appearTimeoutRef = useRef(null);
-  const appearNodeIdRef = useRef(null);
-  const fadeOutTimeoutRef = useRef(null);
   useEffect(() => {
-    if (!infocardVisible || panelMode === 'expanded') return undefined;
+    if (!compactPanel || (!hoverTarget && !infocardVisible)) return undefined;
     const dismissOutside = event => {
-      if (infocardRef.current?.contains(event.target)) return;
-      clearTimeout(appearTimeoutRef.current);
-      clearTimeout(fadeOutTimeoutRef.current);
-      setInfocardVisible(false);
-      setNodeHovered(false);
-      setInfocardHovered(false);
+      if (!(event.target instanceof Node) || !infocardRef.current?.contains(event.target)) dismissHover();
     };
-    document.addEventListener('pointerdown', dismissOutside, true);
-    return () => document.removeEventListener('pointerdown', dismissOutside, true);
-  }, [infocardVisible, panelMode]);
-
-  useEffect(() => {
-    if (panelMode !== 'hover') return undefined;
-    if (!infocardHovered && !nodeHovered) {
-      // console.log("Preparing to hide infocard");
-      clearTimeout(appearTimeoutRef.current);
-      fadeOutTimeoutRef.current = setTimeout(() => {
-        // console.log("Hiding infocard");
-        setInfocardVisible(false);
-      }, 600);
-    } else if (infocardEnabled && nodeHovered) {
-      // console.log("Preparing to show infocard");
-      clearTimeout(fadeOutTimeoutRef.current);
-      if (hoveredId !== appearNodeIdRef.current || !infocardVisible) {
-        // console.log("Showing infocard for node:", hoveredId);
-        appearNodeIdRef.current = hoveredId;
-        appearTimeoutRef.current = setTimeout(() => {
-          // console.log("Infocard shown for node:", hoveredId);
-          const node = cyRef.current?.getElementById(hoveredIdRef.current);
-          setActiveNode(node?.nonempty ? node : null);
-          setInfocardVisible(true);
-        }, 600);
-      }
-    }
-    return () => {
-      clearTimeout(fadeOutTimeoutRef.current);
-      clearTimeout(appearTimeoutRef.current);
-    }
-  }, [infocardHovered, nodeHovered, infocardEnabled, hoveredId, panelMode]);
-
-
-  useEffect(() => {
-    const [result, positionData, routeData] = JSON.parse(graphInputKey);
-
-    if (!result?.nodes || !result?.edges) {
-      return undefined;
-    }
-
-    const { nodes, edges, edgeStyles } = graphElements(result, positionData, routeData,
-      { review, graphInfocard, edgeIsInverted, edgeLabels, spreadCompact: true });
-
     const container = containerRef.current;
-    if (!container) {
-      return undefined;
+    const observer = typeof IntersectionObserver !== 'undefined' && container ? new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) dismissHover();
+    }) : null;
+    observer?.observe(container);
+    window.addEventListener('pointerdown', dismissOutside, true);
+    window.addEventListener('scroll', dismissOutside, true);
+    window.addEventListener('resize', dismissHover);
+    window.addEventListener('blur', dismissHover);
+    return () => {
+      window.removeEventListener('pointerdown', dismissOutside, true);
+      window.removeEventListener('scroll', dismissOutside, true);
+      window.removeEventListener('resize', dismissHover);
+      window.removeEventListener('blur', dismissHover);
+      observer?.disconnect();
+    };
+  }, [compactPanel, dismissHover, hoverTarget, infocardVisible]);
+
+  useEffect(() => {
+    if (!compactPanel || !infocardEnabled || infocardHovered) return undefined;
+    if (!hoverTarget) {
+      if (!infocardVisible) return undefined;
+      const timeout = setTimeout(() => setInfocardVisible(false), 260);
+      return () => clearTimeout(timeout);
     }
+    if (infocardVisible && activeNode === hoverTarget.element) return undefined;
+    const timeout = setTimeout(() => {
+      if (hoverTargetRef.current !== hoverTarget || hoverTarget.element.removed?.()) return;
+      setActiveHover({ ...hoverTarget, slide: infocardVisible });
+      setInfocardVisible(true);
+    }, infocardVisible ? 70 : 160);
+    return () => clearTimeout(timeout);
+  }, [activeNode, compactPanel, hoverTarget, infocardEnabled, infocardHovered, infocardVisible]);
+
+
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+    if (!container || !bound) return;
+    const previous = previousBinding.current;
+    previousBinding.current = bound;
+    const { nodes, edges, edgeStyles } = bound;
     if (cyRef.current) {
-      updateGraphElements(cyRef.current, nodes, edges, edgeStyles);
-      setSelectedID(previous => previous.filter(id => cyRef.current.getElementById(id).nonempty()));
-      return undefined;
+      const cy = cyRef.current;
+      if (updateGraphElements(cy, bound, previous)) {
+        if (hoverEnabled.current) dismissHover();
+        viewportRef.current?.refreshLayout?.();
+      }
+      setSelectedID(ids => ids.filter(id => cy.getElementById(id).nonempty()));
+      return;
     }
 
     cyRef.current = cytoscape({
@@ -1142,45 +1127,27 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
     });
     applyGraphRoutes(cyRef.current, edgeStyles);
 
-    const handleHover = (evt) => {
-      document.body.style.cursor = "pointer";
-      setNodeHovered(true);
-      setHoveredId(evt.target.id());
-      dispatch(setHoverState(true));
-      dispatch(setHoverId(evt.target.id()));
-      // console.log("Hovered ID set to:", evt.target.id());
-    };
-
-    const handleOut = (evt) => {
-      // Only proceed with hiding if we're leaving the active node
-      if (evt.target.id() === hoveredIdRef.current) {
-        document.body.style.cursor = "default";
-        dispatch(setHoverState(false));
-        setNodeHovered(false);
-      }
-    };
-
-    const handleLeave = (_) => {
-      document.body.style.cursor = "default";
-      dispatch(setHoverState(false));
-      setNodeHovered(false);
-    };
-
-    const handleEdge = (handler) => ((evt) => {
-      const ele = evt?.target;
-      if (!ele || ele.nonempty === false || (typeof ele.removed === 'function' && ele.removed())) return;
-      // Cytoscape already hit-tests the edge/visible label. A midpoint-distance
-      // gate excludes long or offset labels, especially after zooming.
-      handler(evt);
-    })
-
     const cy = cyRef.current;
-
-    cy.container().addEventListener("mouseleave", handleLeave);
-    cy.on("mousemove", "node", handleHover);
-    cy.on("mouseout", "node", handleOut);
-    cy.on("mousemove", "edge", handleEdge(handleHover));
-    cy.on("mouseout", "edge", handleOut);
+    container.addEventListener('mouseleave', clearHoverTarget);
+    // Cytoscape emits mousemove for the new hit before mouseout for the old
+    // hit. Use one hit per event so old mouseout events cannot cancel new cards.
+    cy.on('mousemove', ({ target, originalEvent }) => {
+      if (!hoverEnabled.current || originalEvent?.buttons || target === cy || target.removed?.()) {
+        clearHoverTarget();
+        return;
+      }
+      if (hoverTargetRef.current?.element === target) return;
+      const { clientX, clientY } = originalEvent || {};
+      const anchor = Number.isFinite(clientX) && Number.isFinite(clientY) ? { x: clientX, y: clientY } : null;
+      const next = { element: target, anchor };
+      const wasHovering = Boolean(hoverTargetRef.current);
+      hoverTargetRef.current = next;
+      container.style.cursor = 'pointer';
+      dispatch(setHoverId(target.id()));
+      if (!wasHovering) dispatch(setHoverState(true));
+      setHoverTarget(next);
+    });
+    cy.on('viewport grab', () => { if (hoverEnabled.current) dismissHover(); });
     cy.on("zoom", () => {
       setZoomLevel(cy.zoom());
     });
@@ -1188,7 +1155,7 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
       setZoomLevel(zoom);
       setInitZoom(zoom);
       setMinimumZoom(minZoom);
-    }, window, (graphData || queryResultPage?.combined_query_result)?.presentation_mode === "relationship_list");
+    });
     viewportRef.current = viewport;
     if (selectable) {
       cy.on("select", "node, edge", (evt) => {
@@ -1204,9 +1171,15 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
     cy._disposeGraphPane = () => {
       viewport.dispose();
       cy.removeAllListeners();
-      cy.container()?.removeEventListener('mouseleave', handleLeave);
+      container.removeEventListener('mouseleave', clearHoverTarget);
     };
-  }, [graphInputKey, review, selectable]);
+  }, [bound, clearHoverTarget, dismissHover, dispatch, selectable]);
+
+  useLayoutEffect(() => {
+    if (!activeNode?.removed?.()) return;
+    setPanelMode('hover');
+    dismissHover();
+  }, [activeNode, bound, dismissHover]);
 
   useEffect(() => {
     if(review || !evidenceService?.peek || evidenceService.schema?.release_id!==releaseId) return undefined;
@@ -1222,16 +1195,17 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
     };
     for(let i=0;i<3;i++) warm();
     return ()=>{stopped=true;};
-  },[graphInputKey,evidenceService,releaseId,review]);
+  },[bound,evidenceService,releaseId,review]);
 
-  useEffect(() => () => {
+  useLayoutEffect(() => () => {
     const cy = cyRef.current;
     cy?._disposeGraphPane?.();
     cy?.destroy();
     cyRef.current = null;
     viewportRef.current = null;
-    document.body.style.cursor = 'default';
-  }, []);
+    if (hoverTargetRef.current) dispatch(setHoverState(false));
+    hoverTargetRef.current = null;
+  }, [dispatch]);
 
   useEffect(() => {
     // update setSelectedNode() to include all nodes and edges in selectedID, plus all edges connecting 2 selected nodes
@@ -1277,18 +1251,18 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
       <GraphToolbar fullscreen={expanded} onFullscreen={toggleExpand}
         zoomPercent={Math.round(zoomLevel / initZoom * 100)} canZoomIn={zoomLevel < 4} canZoomOut={zoomLevel > minimumZoom}
         onZoomIn={handleZoomOut} onZoomOut={handleZoomIn} onFit={handleRecenter}
-        hoverEnabled={infocardEnabled} onHover={() => { setInfocardEnabled(value => !value); if (infocardEnabled) setInfocardVisible(false); }}
+        hoverEnabled={infocardEnabled} onHover={() => { setInfocardEnabled(value => !value); if (infocardEnabled) closePanel(); }}
         onDownload={handleDownload} onDownloadJson={handleDownloadJson} onReset={handleReset}
-        onDownloadMenuOpen={() => { setInfocardVisible(false); setNodeHovered(false); setInfocardHovered(false); }}
-        modeLabel={(graphData || queryResultPage?.combined_query_result)?.presentation_mode === 'relationship_list' ? 'List mode' : 'KG mode'} />
+        onDownloadMenuOpen={closePanel}
+        modeLabel={sourceGraph?.presentation_mode === 'relationship_list' ? 'List mode' : 'KG mode'} />
       <div className="graph-zoom-indicator" aria-label="Graph zoom">{Math.round(zoomLevel / initZoom * 100)}%</div>
       <GraphInfoPanel schema={evidenceService?.schema} panelRef={infocardRef} host={expanded ? containerRef.current?.closest('dialog') : document.body}
         visible={infocardVisible} mode={panelMode} position={infocardPosition} review={review}
-        onEnter={() => setInfocardHovered(true)} onLeave={() => setInfocardHovered(false)}
-        onEnlarge={() => { setPanelMode('expanded'); setInfocardVisible(true); setExpanded(true); }}
-        onMinimize={() => { setPanelMode('hover'); setNodeHovered(false); setInfocardHovered(true); }}
-        onClose={() => { setPanelMode('hover'); setInfocardVisible(false); setNodeHovered(false); setInfocardHovered(false); }}>
-        <ObjectInformationPanel endpointNodes={activeNode?.isEdge?.() ? [activeNode.source().data(), activeNode.target().data()] : []} data={activeNode?.data()} releaseId={releaseId} service={review ? null : evidenceService} fallback={<InfocardMenu hoveredData={activeNode?.data()} review={review} />} />
+        onEnter={() => { clearHoverTarget(); setInfocardHovered(true); }} onLeave={() => setInfocardHovered(false)}
+        onEnlarge={() => { clearHoverTarget(); setPanelMode('expanded'); setInfocardVisible(true); setExpanded(true); }}
+        onMinimize={() => { setPanelMode('hover'); setInfocardHovered(true); }}
+        onClose={closePanel}>
+        {activeNode && !activeNode.removed?.() && <ObjectInformationPanel key={activeNode.id()} endpointNodes={activeNode.isEdge?.() ? [activeNode.source().data(), activeNode.target().data()] : []} data={activeNode.data()} releaseId={releaseId} service={review ? null : evidenceService} fallback={<InfocardMenu hoveredData={activeNode.data()} review={review} />} />}
       </GraphInfoPanel>
       {!review && <GraphLegend defaultOpen={defaultLegendVisible} />}
     </div>

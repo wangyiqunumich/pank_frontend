@@ -23,6 +23,27 @@ beforeEach(() => {
   api.retryFormatter.mockResolvedValue({ run_id: 'r1', status: 'running' });
 });
 const mount = () => render(<MemoryRouter initialEntries={['/result-new2?run_id=r1']}><AgentResultView contentAnchorPrefix="lifecycle" onContentMeta={jest.fn()} /></MemoryRouter>);
+
+test('graph projection publishes one complete snapshot and holds it through pending updates', async () => {
+  let update;
+  api.pollResult.mockImplementation(async (_, onUpdate) => { update = onUpdate; });
+  mount();
+  await waitFor(() => expect(update).toBeDefined());
+  const frame = (id, graphStatus) => ({ status: 'processing', component_status: { graph: { status: graphStatus } },
+    combined_query_result: { nodes: [{ '~id': id }], edges: [] } });
+  act(() => update(frame('first-partial', 'preparing')));
+  expect(screen.getByRole('status', { name: 'Loading graph' })).toBeTruthy();
+  expect(screen.queryByTestId('graph')).toBeNull();
+  act(() => update(frame('first-complete', 'ready')));
+  const graph = screen.getByTestId('graph');
+  expect(graph.textContent).toBe('first-complete');
+  act(() => update(frame('next-partial', 'processing')));
+  expect(screen.getByTestId('graph')).toBe(graph);
+  expect(graph.textContent).toBe('first-complete');
+  act(() => update(frame('next-complete', 'ready')));
+  expect(screen.getByTestId('graph')).toBe(graph);
+  expect(graph.textContent).toBe('next-complete');
+});
 function RouteProbe() { return <div data-testid="current-route">{useLocation().pathname}</div>; }
 
 test('follow-ups are numbered in conversation order and retain their numbers after reopening', async () => {

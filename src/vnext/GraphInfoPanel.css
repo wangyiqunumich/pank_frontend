@@ -1,0 +1,23 @@
+.graph-info-panel {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  translate: 0 4px;
+  transition: opacity 140ms ease, translate 140ms ease, visibility 0s 140ms;
+}
+
+.graph-info-panel.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  translate: 0 0;
+  transition: opacity 140ms ease, translate 140ms ease;
+}
+
+.graph-info-panel.is-sliding {
+  transition: opacity 140ms ease, translate 140ms ease, left 140ms ease-out, top 140ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .graph-info-panel, .graph-info-panel.is-visible, .graph-info-panel.is-sliding { transition: none; }
+}

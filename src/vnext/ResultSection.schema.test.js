@@ -63,6 +63,7 @@ test('plan graph stays loading from Cypher completion through presentation prepa
     { status: 'queued' },
     { status: 'running', combined_query_result: { nodes: [], edges: [] } },
     { status: 'ready', component_status: { graph: { status: 'processing' } } },
+    { ...result, component_status: { graph: 'ready', layout: { status: 'processing' } } },
   ]) {
     rerender(<ResultSection run={planRun} planning result={pending} anchorPrefix="pending-graph" />);
     expect(screen.getByRole('status', { name: 'Loading graph' })).toBeTruthy();
@@ -87,7 +88,12 @@ test.each(['failed', 'cancelled', 'interrupted'])('a %s graph request is neither
 });
 
 test('an existing graph remains visible during subsequent preparation', () => {
-  render(<ResultSection run={run} result={{ ...result, status: 'preparing', component_status: { graph: 'pending' } }} anchorPrefix="preserved-graph" />);
-  expect(screen.getByTestId('schema-graph').textContent).toBe('INS');
+  const { rerender } = render(<ResultSection run={run} result={result} anchorPrefix="preserved-graph" />);
+  const graph = screen.getByTestId('schema-graph');
+  const pending = { ...result, status: 'preparing', component_status: { graph: 'pending' },
+    combined_query_result: { nodes: [{ '~id': 'GCG' }], edges: [] } };
+  rerender(<ResultSection run={run} result={pending} anchorPrefix="preserved-graph" />);
+  expect(screen.getByTestId('schema-graph')).toBe(graph);
+  expect(graph.textContent).toBe('INS');
   expect(screen.queryByRole('status', { name: 'Loading graph' })).toBeNull();
 });

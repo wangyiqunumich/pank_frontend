@@ -4,7 +4,7 @@ import {useResultModules} from './ResultModules';
 import { newIntent, ensureIntent } from '../utils/agentIdentity';
 import { useStableGraphPane } from './StableGraphPane';
 import '../SearchResult/scoped.css';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, Button, Typography, CircularProgress } from '@mui/material';
 import KnowledgeGraph from './KnowledgeGraph';
@@ -28,7 +28,7 @@ import SummaryInsertions from './SummaryInsertions';
 import { resolveResultPage } from './resultPageSchema';
 import { useResourcePanels } from './Resources';
 import { canFollowUp, applyRunEvent, groundedLiterature, literatureNotice, liveProgress, planMarkdown, projectionForRun, normalizeRun, templateRequest, withLiteratureReferences } from './contracts';
-import { cancelRequest, retryFormatter, cancelRun, confirmPlan, createPlanOnce, createResultOnce, getRun, getResult, pollResult, revisePlan, sitePath, TERMINAL_RUNS, watchRun } from './api';
+import { cancelRequest, retryFormatter, cancelRun, confirmPlan, createPlanOnce, createResultOnce, getRun, getResult, pollResult, resultStatusPending, revisePlan, sitePath, TERMINAL_RUNS, watchRun } from './api';
 
 import { recordInteraction, referenceKey } from './telemetry';
 import { questionInputError } from './questionInput';
@@ -90,7 +90,7 @@ export function useProjectedResult(payload, savedId = '') {
       }
       if (!controller.signal.aborted) return pollResult(created.result_id, (value) => {
         if (controller.signal.aborted) return;
-        if (expectedRevision !== undefined && value.graph_revision !== expectedRevision && !['pending', 'queued', 'running', 'processing'].includes(value.status)) throw new Error('The saved graph revision does not match this investigation. Reconnect to read it again.');
+        if (expectedRevision !== undefined && value.graph_revision !== expectedRevision && !resultStatusPending(value.status)) throw new Error('The saved graph revision does not match this investigation. Reconnect to read it again.');
         setError('');
         setConnection('connected');
         setStoredResult((previous) => {
@@ -109,19 +109,29 @@ export function useProjectedResult(payload, savedId = '') {
 }
 
 function GraphPanel({ result, error, onEvidenceInspect }) {
-  const releaseId=result?.kg_release || result?.release_id || result?.graph_version || result?.evidence?.graph_version;
-  const hasTypedRefs=[...(result?.combined_query_result?.nodes || []),...(result?.combined_query_result?.edges || [])].some(item=>item.ref?.kind && item.ref?.type_id && item.ref?.id);
-  const evidenceService=useViewerService(releaseId,hasTypedRefs || Boolean(releaseId && result?.combined_query_result?.nodes?.length));
-  const graphStatus = typeof result?.component_status?.graph === 'string'
-    ? result.component_status.graph : result?.component_status?.graph?.status;
-  const pending = value => ['preparing', 'pending', 'queued', 'running', 'processing'].includes(value);
+  const statusOf = component => typeof component === 'string' ? component : component?.status;
+  const graphStatus = statusOf(result?.component_status?.graph);
+  const layoutStatus = statusOf(result?.component_status?.layout);
   const failed = value => ['failed', 'unavailable', 'cancelled', 'interrupted'].includes(value);
   const graphError = error || (failed(result?.status) || failed(graphStatus) || failed(result?.completeness)
     ? 'Graph retrieval could not finish. Available answer sections are preserved.' : '');
-  const waiting = !graphError && (!result || pending(result.status) || pending(graphStatus));
+  const graphPending = resultStatusPending(graphStatus || result?.status)
+    || (graphStatus !== 'empty' && resultStatusPending(layoutStatus));
+  const waiting = !graphError && (!result || graphPending);
+  const committed = useRef(null);
+  // Graph data, coordinates and routes are one presentation. Keep the last
+  // published graph while a newer projection is still being assembled.
+  const displayed = graphPending ? committed.current : result;
+  useLayoutEffect(() => {
+    if (!graphPending) committed.current = result;
+  }, [graphPending, result]);
+  const releaseId = displayed?.kg_release || displayed?.release_id || displayed?.graph_version || displayed?.evidence?.graph_version;
+  const graph = displayed?.combined_query_result;
+  const hasTypedRefs = [...(graph?.nodes || []), ...(graph?.edges || [])].some(item => item.ref?.kind && item.ref?.type_id && item.ref?.id);
+  const evidenceService = useViewerService(releaseId, hasTypedRefs || Boolean(releaseId && graph?.nodes?.length));
   const empty = !waiting && (graphStatus === 'empty' || (result?.status === 'ready' && Array.isArray(result?.combined_query_result?.nodes) && !result.combined_query_result.nodes.length));
-  if (result?.combined_query_result?.nodes?.length) return <Box sx={{ width: '100%', height: '100%', position: 'relative' }}>
-    <KnowledgeGraph releaseId={releaseId} evidenceService={evidenceService} onEvidenceInspect={onEvidenceInspect} graphData={result.combined_query_result} coordData={result.xy_json} edgeRoutes={result.edge_routes} sx={{ height: '100%' }} containerHeight="100%" />
+  if (graph?.nodes?.length) return <Box sx={{ width: '100%', height: '100%', position: 'relative' }}>
+    <KnowledgeGraph releaseId={releaseId} evidenceService={evidenceService} onEvidenceInspect={onEvidenceInspect} graphData={graph} coordData={displayed.xy_json} edgeRoutes={displayed.edge_routes} sx={{ height: '100%' }} containerHeight="100%" />
   </Box>;
   return <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
     {waiting ? <Box role="status" aria-label="Loading graph" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}><CircularProgress size={28} /><Typography sx={{ fontSize: 14, color: '#64748B' }}>Loading graph…</Typography></Box> : <Typography sx={{ fontSize: 14, color: '#64748B', textAlign: 'center', px: 2 }}>{graphError || (empty ? 'No matching graph evidence was returned.' : 'The graph presentation is unavailable. Available answer sections are preserved.')}</Typography>}

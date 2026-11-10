@@ -156,7 +156,7 @@ test('hover on a visible offset edge label opens its scientific evidence without
   cy.getElementById = () => edge;
   cy.pan = () => ({ x: 0, y: 0 });
   cy.renderer = () => ({ projectIntoViewport: () => [1000, 1000] });
-  const hover = cy.on.mock.calls.find(([event, selector]) => event === 'mousemove' && selector === 'edge')[2];
+  const hover = cy.on.mock.calls.find(([event]) => event === 'mousemove')[1];
   act(() => hover({ target: edge, originalEvent: { clientX: 1000, clientY: 1000 } }));
   act(() => jest.advanceTimersByTime(600));
   expect(screen.getByText('Additional details')).toBeTruthy();
@@ -179,7 +179,7 @@ test.each(['gene_enriched_in', 'gene_detected_in', 'anatomical_structure'])('%s 
       ...(!node ? { source: 'CFTR', target: 'ductal' } : {}),
       evidence_properties: { name: 'Ductal evidence', data_source: 'Recorded source', count: 0, ...(!node ? Object.fromEntries(Array.from({length:20},(_,i)=>['measurement_'+i,i])) : {}) } }) };
   cy.getElementById = () => element; cy.pan = () => ({ x: 0, y: 0 });
-  const hover = cy.on.mock.calls.find(([event, selector]) => event === 'mousemove' && selector === (node ? 'node' : 'edge'))[2];
+  const hover = cy.on.mock.calls.find(([event]) => event === 'mousemove')[1];
   act(() => hover({ target: element }));
   act(() => jest.advanceTimersByTime(600));
   const compact = screen.getByRole('region', { name: 'Graph information' });

@@ -10,6 +10,7 @@ const finitePoint = (value) => { const p = point(value); return p && Number.isFi
 export function spreadCompactLayout(result, positions = {}, routes = {}) {
   const ids = [...new Set((result?.nodes || []).map((node) => node['~id']))];
   if (ids.length < 2 || ids.length > 8 || ids.some((id) => !finitePoint(positions[id]))) return { positions, routes };
+  positions = Object.fromEntries(ids.map(id => [id, { ...positions[id], ...finitePoint(positions[id]) }]));
   let factor = 1;
   const dimension = (p, key) => Number.isFinite(p[key]) && p[key] > 0 ? p[key] : key === 'width' ? 40 : 16;
   ids.forEach((id, index) => ids.slice(index + 1).forEach((other) => {
@@ -83,6 +84,11 @@ export function observeGraphViewport(cy, container, onFit = () => {}, host = win
     if (viewport) { lastSize = { width: box.width, height: box.height }; fittedCamera = { zoom: viewport.zoom, pan: viewport.pan }; onFit(viewport); }
     return viewport;
   };
+  const stillFitted = () => {
+    const pan = cy.pan();
+    return fittedCamera && Math.abs(cy.zoom() - fittedCamera.zoom) < 1e-6
+      && Math.abs(pan.x - fittedCamera.pan.x) < 1e-6 && Math.abs(pan.y - fittedCamera.pan.y) < 1e-6;
+  };
   const schedule = () => {
     if (disposed || frame !== null) return;
     frame = host.requestAnimationFrame(() => {
@@ -92,12 +98,9 @@ export function observeGraphViewport(cy, container, onFit = () => {}, host = win
       // Hidden visual tabs must not replace the last visible camera geometry.
       if (box.width <= 0 || box.height <= 0) return;
       if (box.width !== lastSize?.width || box.height !== lastSize?.height) {
-        const pan = cy.pan();
-        const stillFitted = fittedCamera && Math.abs(cy.zoom() - fittedCamera.zoom) < 1e-6
-          && Math.abs(pan.x - fittedCamera.pan.x) < 1e-6 && Math.abs(pan.y - fittedCamera.pan.y) < 1e-6;
         // A shorter fullscreen window must not crop the initial fitted graph.
         // Once the user changes the camera, retain their chosen view instead.
-        if (!lastSize || stillFitted) fit();
+        if (!lastSize || stillFitted()) fit();
         else {
           cy.resize();
           // Resize the viewport around its model-space center, not its top-left.
@@ -116,7 +119,7 @@ export function observeGraphViewport(cy, container, onFit = () => {}, host = win
 
   fit();
   schedule();
-  return { fit, dispose() {
+  return { fit, refreshLayout() { if (!lastSize || stillFitted()) fit(); }, dispose() {
     disposed = true;
     observer?.disconnect();
     host.removeEventListener('resize', schedule);
@@ -176,7 +179,7 @@ export function graphElements(result, positions = {}, routes = {}, options = {})
     const position = finitePoint(positions[node['~id']]) || { x: index * 36, y: 0 };
     const sample = review ? {} : samplePresentation(node, result);
     const label = node.list_label || (labels.includes('provenance') ? 'Metadata definition' : sample.sample_display_label || raw.name || node.display_label || raw.id || node['~id']);
-    return { data: { ...raw, ...sample, evidence_properties: { ...raw }, element_kind: 'node', viewer_ref: node.ref ? { ...node.ref } : null, id: node['~id'], label: displayWords(label).length > 55 ? displayWords(label).slice(0, 52) + '…' : displayWords(label), type, raw_labels: labels, Level: positions[node['~id']]?.Level || 'Core' }, position };
+    return { data: { ...raw, ...sample, evidence_properties: { ...raw }, element_kind: 'node', viewer_ref: node.ref ? { ...node.ref } : null, id: node['~id'], label: displayWords(label).length > 55 ? displayWords(label).slice(0, 52) + '…' : displayWords(label), type, raw_labels: labels, Level: positions[node['~id']]?.Level || 'Core' }, position: { ...position } };
   });
   const byId = Object.fromEntries(nodes.map((node) => [node.data.id, node]));
   const edgeStyles = new Map();
@@ -209,38 +212,76 @@ export function graphElements(result, positions = {}, routes = {}, options = {})
       edgeStyles.get(edge.data.id)['text-margin-y'] = (index - (group.length - 1) / 2) * 8;
     });
   });
-  return { nodes, edges, edgeStyles };
+  // Cytoscape mutates the position object in its element definitions on drag.
+  const modelPositions = new Map(nodes.map(({ data, position: { x, y } }) => [data.id, { x, y }]));
+  return { nodes, edges, edgeStyles, modelPositions };
 }
 
-export function applyGraphRoutes(cy, edgeStyles) {
+export function applyGraphRoutes(cy, edgeStyles, previousStyles = new Map(), movedNodes = new Set()) {
   // Curve styles inspect parallel edges. Apply only after Cytoscape has attached
   // every endpoint; element-creation style bypasses run before that attachment.
   cy.batch(() => {
     edgeStyles.forEach((style, id) => {
       const edge = cy.getElementById(id);
-      if (edge.nonempty() && edge.isEdge()) edge.style(style);
+      if (edge.empty() || !edge.isEdge()) return;
+      const previous = previousStyles.get(id) || {};
+      const moved = movedNodes.has(edge.data('source')) || movedNodes.has(edge.data('target'));
+      const next = moved ? Object.fromEntries(Object.entries(style).filter(([key]) => !ROUTE_GEOMETRY.has(key))) : style;
+      const stale = Object.keys(previous).filter(key => !(key in next));
+      if (stale.length) edge.removeStyle(stale.join(' '));
+      edge.style(next);
     });
   });
 }
 
 
-export function updateGraphElements(cy, nodes, edges) {
+const ROUTE_GEOMETRY = new Set(['curve-style', 'control-point-weights', 'control-point-distances',
+  'segment-weights', 'segment-distances', 'source-endpoint', 'target-endpoint', 'edge-distances']);
+const samePosition = (a, b) => a.x === b.x && a.y === b.y;
+
+export function updateGraphElements(cy, next, previous) {
+  const { nodes, edges, edgeStyles, modelPositions } = next;
   const desired = new Set([...nodes, ...edges].map(element => element.data.id));
+  const movedNodes = new Set();
+  const routesChanged = [...edgeStyles].some(([id, style]) => JSON.stringify(previous.edgeStyles.get(id)) !== JSON.stringify(style));
+  let layoutChanged = false;
   cy.batch(() => {
-    cy.elements().filter(element => !desired.has(element.id())).remove();
+    const obsolete = cy.elements().filter(element => !desired.has(element.id()));
+    // Move any retained edges before removing old endpoints.
     nodes.forEach(node => {
       const existing = cy.getElementById(node.data.id);
-      if (existing.nonempty()) existing.data(node.data);
-      else cy.add(node);
+      if (existing.empty()) {
+        cy.add(node);
+        layoutChanged = true;
+        return;
+      }
+      const baseline = previous.modelPositions.get(node.data.id);
+      if (baseline && !samePosition(existing.position(), baseline)) movedNodes.add(node.data.id);
+      else if (!samePosition(existing.position(), modelPositions.get(node.data.id))) {
+        existing.position(modelPositions.get(node.data.id));
+        layoutChanged = true;
+      }
+      existing.data(node.data);
     });
     edges.forEach(edge => {
-      const existing = cy.getElementById(edge.data.id);
-      if (existing.nonempty()) existing.data(edge.data);
-      else cy.add(edge);
+      const { id, source, target } = edge.data;
+      const existing = cy.getElementById(id);
+      if (existing.empty()) {
+        cy.add(edge);
+        layoutChanged = true;
+      } else {
+        if (existing.data('source') !== source || existing.data('target') !== target) {
+          existing.move({ source, target });
+          layoutChanged = true;
+        }
+        existing.data(edge.data);
+      }
     });
+    if (obsolete.nonempty()) {
+      obsolete.remove();
+      layoutChanged = true;
+    }
+    if (layoutChanged || routesChanged) applyGraphRoutes(cy, edgeStyles, previous.edgeStyles, movedNodes);
   });
-  // Server routes were computed for server positions. They must not override a
-  // user's retained positions; preserve native curves on incremental updates.
-  cy.edges().removeStyle('curve-style control-point-weights control-point-distances segment-weights segment-distances source-endpoint target-endpoint');
-  cy.resize();
+  return layoutChanged || routesChanged;
 }

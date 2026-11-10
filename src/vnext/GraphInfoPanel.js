@@ -6,6 +6,7 @@ import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import CloseIcon from '@mui/icons-material/Close';
 
 import {panelSchema,PanelSchemaContext,usePanelSchema} from './evidence/panelSchema';
+import './GraphInfoPanel.css';
 
 const PanelContext = createContext(null);
 const icons={open_in_full:OpenInFullIcon,close_fullscreen:CloseFullscreenIcon,close:CloseIcon};
@@ -38,8 +39,10 @@ export function GraphInfoPanelSurface({ children, panelRef, visible, mode, posit
   const large = mode === 'expanded';
   const config=panelSchema(schema), cardLayout=config.layout, surface=config.surface;
   return <section ref={panelRef} aria-label={large ? 'Expanded graph information' : 'Graph information'}
+    aria-hidden={!visible} inert={visible ? undefined : ''}
+    className={`graph-info-panel${visible ? ' is-visible' : ''}${!large && visible && position.slide ? ' is-sliding' : ''}`}
     onMouseEnter={onEnter} onMouseLeave={onLeave}
-    style={{ position: 'fixed', zIndex: 2147483000, display: visible ? 'flex' : 'none', flexDirection: 'column',
+    style={{ position: 'fixed', zIndex: 2147483000, display: 'flex', flexDirection: 'column',
       left: large ? '50%' : position.x, top: large ? surface.expanded_top_px : position.y,
       transform: large ? 'translateX(-50%)' : undefined,
       width: `min(${large ? surface.expanded_width_px : review ? surface.review_width_px : surface.compact_width_px}px, calc(100vw - ${large ? 32 : 24}px))`,
