@@ -23,7 +23,7 @@ test('continuous conversation sends bounded prior turns and shows manual citatio
  await waitFor(()=>expect(screen.getAllByText('Choose cell types in Tracks, then Apply tracks.')).toHaveLength(2));
  fireEvent.click(screen.getAllByRole('button',{name:'Genome · Choose tracks'})[0]);expect(screen.getByRole('heading',{name:'Genome · Choose tracks'})).toBeTruthy();
  fireEvent.click(screen.getByRole('button',{name:'New conversation'}));
- expect(JSON.parse(sessionStorage.getItem('pank-module-guide:v2-en'))).toEqual([]);
+ expect(JSON.parse(sessionStorage.getItem('pank-module-guide:techdemo:v2-en'))).toEqual([]);
 });
 test('unavailable provider retains manual and does not retry a paid request',async()=>{
  fetch.mockImplementation(async(url,o)=>({ok:!o?.method,json:async()=>o?.method?{detail:'Budget reached'}:{status:'manual-only'}}));
@@ -92,3 +92,6 @@ test('the guide stays inside the visible viewport when a mobile keyboard changes
   expect(panel.style.maxHeight).toBe('212px');expect(panel.style.bottom).toBe(`${window.innerHeight-408}px`);
  }finally{unmount();if(previous)Object.defineProperty(window,'visualViewport',previous);else delete window.visualViewport;}
 });
+
+// Exercise the complete module registry on the dedicated demo page.
+jest.mock('../hosting', () => ({...jest.requireActual('../hosting'), TECH_DEMO: true}));

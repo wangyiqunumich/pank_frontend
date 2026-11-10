@@ -11,6 +11,8 @@ current answer, source-link, session, streaming or graph projection logic.
 `pankbase_trigger` and `guide_open` fields control extensions. `ResultModules.js`
 is the shared adapter/lifecycle implementation; it performs no graph requests.
 
+The `main_visuals.extension_profiles.result` allowlist enables scBrowser, Functional Browser and QTL Browser. The `techdemo` allowlist also enables Genome Browser, Differential Expression and PCA Explorer. Both profiles share the rules below.
+
 1. Read returned edges in their order, then nodes in their order. Context adapters
    require valid identity (for example a valid RNA gene or exact QTL dataset/set).
 2. Capture the first eligible context for each module as an owned snapshot.
@@ -62,7 +64,7 @@ Root dev assets are built under `/scbrowser/` and `/pankbase-browser/`. The main
 agent/results API remains unchanged. Module requests reuse existing approved
 same-origin `/techdemo/api/{pankbase-data/v1,functional,qtl,module-guide}` proxies
 to EC2. No new public endpoint, credentials, permissions or model budget is added.
-The fixed `/techdemo` continues its separately pinned build and fixed results.
+The fixed `/techdemo` uses the same React build and styles as ordinary results. Its dedicated entry document selects the full extension profile. See [Tech Demo](AMPLIFY-TECHDEMO.md).
 
 ## Acceptance
 

@@ -20,3 +20,17 @@ test('guide fixture starts without trigger-selected modules and never calls the 
  expect(result.combined_query_result).toEqual({nodes:[],edges:[]});
  expect(techdemoRequest('/results',{method:'POST',body:JSON.stringify({run_id:guideFixture.run.run_id})})).toEqual({result_id:guideFixture.result.result_id});
 });
+
+test.each([
+  [false, ['graph_viewer', 'single_cell_browser', 'functional_browser', 'qtl_browser']],
+  [true, ['graph_viewer', 'single_cell_browser', 'genome_browser', 'differential_expression', 'functional_browser', 'pca_explorer', 'qtl_browser']],
+])('the same complete fixture obeys the selected page schema (demo: %s)', (demo, expected) => {
+  jest.isolateModules(() => {
+    jest.doMock('./hosting', () => ({...jest.requireActual('./hosting'), TECH_DEMO: demo}));
+    const {resolveResultPage} = require('./resultPageSchema');
+    const page = resolveResultPage({result: fixture.result, state: {main_visual: 'graph_viewer'}, agentKeywords: ['genome_browser', 'pca_explorer']});
+    expect(page.mainVisuals.map(view => view.id)).toEqual(expected);
+    const {firstModuleContexts} = require('./ResultModules');
+    expect(Object.keys(firstModuleContexts(fixture.result))).toEqual(expected.slice(1));
+  });
+});

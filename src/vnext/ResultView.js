@@ -1,4 +1,5 @@
 import { TECH_DEMO } from './hosting';
+import { demoRunId } from './techdemoApi';
 import {useResultModules} from './ResultModules';
 import { newIntent, ensureIntent } from '../utils/agentIdentity';
 import { useStableGraphPane } from './StableGraphPane';
@@ -85,7 +86,7 @@ export function useProjectedResult(payload, savedId = '') {
           params.set('provider', 'vnext'); params.set('result_id', created.result_id);
           window.history.replaceState({}, '', sitePath(`/result-new?${params}`));
         }
-        if (source.run_id) writeLocal(resultKey(source.run_id, source.phase || 'final'), created.result_id);
+        if (source.run_id && !TECH_DEMO) writeLocal(resultKey(source.run_id, source.phase || 'final'), created.result_id);
       }
       if (!controller.signal.aborted) return pollResult(created.result_id, (value) => {
         if (controller.signal.aborted) return;
@@ -232,14 +233,16 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     if (runRef.current?.run_id === runId && runRef.current.event_sequence > snapshot.event_sequence) snapshot = runRef.current;
     setRun(normalizeRun(snapshot)); setError('');
     setConnection('connected');
-    const ids = readLocal(sessionKey(snapshot.session_id)) || [];
-    writeLocal(sessionKey(snapshot.session_id), [...ids.filter((id) => id !== runId), runId].slice(-20));
-    readPriorConversation(ids, runId, { signal: controller.signal }).then(({ items, unavailable }) => {
-      if (controller.signal.aborted || !mounted.current || version !== loadVersion.current) return;
-      setPrevious(items);
-      setHistoryError(unavailable ? 'Some saved conversation turns could not be read. Refresh history to try again.' : '');
-    });
-    upsertRecentChat({ sessionId: snapshot.session_id, firstQuestion: snapshot.question, provider: 'vnext', version: 2 });
+    if (!TECH_DEMO) {
+      const ids = readLocal(sessionKey(snapshot.session_id)) || [];
+      writeLocal(sessionKey(snapshot.session_id), [...ids.filter((id) => id !== runId), runId].slice(-20));
+      readPriorConversation(ids, runId, { signal: controller.signal }).then(({ items, unavailable }) => {
+        if (controller.signal.aborted || !mounted.current || version !== loadVersion.current) return;
+        setPrevious(items);
+        setHistoryError(unavailable ? 'Some saved conversation turns could not be read. Refresh history to try again.' : '');
+      });
+      upsertRecentChat({ sessionId: snapshot.session_id, firstQuestion: snapshot.question, provider: 'vnext', version: 2 });
+    }
     const params = new URLSearchParams({ provider: 'vnext', run_id: runId, session_id: snapshot.session_id });
     window.history.replaceState({}, '', sitePath(`/result-new2?${params}`));
     if (!TERMINAL_RUNS.has(snapshot.status)) streamRef.current = watchRun(runId, snapshot.event_sequence, (event) => {
@@ -252,6 +255,11 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
   useEffect(() => {
     mounted.current = true;
     let stopped = false;
+    const detach = () => { stopped = true; mounted.current = false; loadVersion.current += 1; readController.current?.abort(); streamRef.current?.(); };
+    if (TECH_DEMO) {
+      attachRun(demoRunId(route.get('run_id')));
+      return detach;
+    }
     const intent = intentRef.current || ensureIntent(route);
     intentRef.current = intent;
     const sessionId = route.get('session_id') || intent.session_id;
@@ -265,7 +273,7 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     if (revisionOf || (!runId && question && !savedSession)) pendingAdmission.current = () => revisionOf ? revisePlan(revisionOf,route.get('instruction') || question,true,intent.request_id) : createPlanOnce(question,sessionId,intent.request_id,route.get('parent_run_id'));
     bootstrapRef.current = task;
     task.then(created => { if (!stopped) { pendingAdmission.current = null; return attachRun(created.run_id); } }).catch(err => { if (!stopped) { if (err.outcomeUnknown || !err.status) setConnection('exhausted'); else pendingAdmission.current = null; setError(err.message); } });
-    return () => { stopped = true; mounted.current = false; loadVersion.current += 1; readController.current?.abort(); streamRef.current?.(); };
+    return detach;
   }, [route, attachRun]);
 
   useEffect(() => {

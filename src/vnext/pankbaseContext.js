@@ -1,4 +1,4 @@
-import schema from './schema/result_page_schema.json';
+import schema from './schema/activeResultPage';
 
 const text = value => typeof value === 'string' ? value.trim().slice(0, 500) : '';
 const list = value => Array.isArray(value) ? value : [];

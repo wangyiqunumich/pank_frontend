@@ -19,7 +19,7 @@ test('state then controlled keywords choose among available views', () => {
 test('hints cannot fabricate functional context or a genome-browser context', () => {
   const page = resolveResultPage({ result: graph(), state: { main_visual: 'genome_browser' }, agentKeywords: ['functional_data', 'genome_browser'] });
   expect(page.mainVisuals.map(v => v.id)).toEqual(['graph_viewer']);
-  expect(page.decisions.find(d => d.component === 'genome_browser').reason).toBe('required_data_missing');
+  expect(page.decisions.find(d => d.component === 'genome_browser').reason).toBe('hidden_or_disabled');
 });
 
 test('reads exact keyword arrays without scanning answer prose', () => {

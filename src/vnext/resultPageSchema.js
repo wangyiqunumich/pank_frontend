@@ -1,7 +1,7 @@
 import { qtlContexts, qtlEdges, isQtlEmpirical, QTL_CONFIG } from './qtlContext';
 import { firstAvailableExpression } from './singleCellContext';
 import { normalizeExternalLinks } from './externalLinks';
-import schema from './schema/result_page_schema.json';
+import schema from './schema/activeResultPage';
 import { pankbaseContexts } from './pankbaseContext';
 
 // Pure presentation selection. No requests, model calls, Markdown parsing or DOM work.

@@ -5,6 +5,10 @@ export const guideFixture = {
   run:{...fixture.run,run_id:'33333333-3333-4333-8333-333333333333',session_id:'module-guide-demo',question:'Explore modules with the Module guide',plan:{original_question:'Open modules from chat',steps:[{}]}},
   result:{...fixture.result,result_id:'44444444-4444-4444-8444-444444444444',combined_query_result:{nodes:[],edges:[]},xy_json:{},resources_tabs:{},source:{},answer:'**Module guide exploration demo.**\n\nThis answer starts without biological graph evidence or module tabs. Open Module guide and ask to open or configure a module. Apply adds an independent exploration view; its data are not evidence for this answer.'}
 };
+export function demoRunId(requestedId) {
+  return requestedId === guideFixture.run.run_id ? requestedId : fixture.run.run_id;
+}
+
 // This fixed demonstration never schedules or reads an agent/backend result.
 export function techdemoRequest(path, options = {}) {
   const route = path.split('?')[0];
