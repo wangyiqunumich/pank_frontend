@@ -31,7 +31,7 @@
       "exampleLabel": "Example question",
       "exampleQuestion": "Which SNP serves as the lead QTL for CFTR?",
       "exampleFill": {
-        "gene": "CFTR"
+        "gene": "CFTR(ENSG00000001626)"
       },
       "searchTitle": "Search by Gene",
       "searchHint": "Enter a gene to retrieve potentially related QTL lead SNPs.",
@@ -148,7 +148,7 @@
         "matchQid": 1,
         "modeId": "gene",
         "fill": {
-          "gene": "CFTR"
+          "gene": "CFTR(ENSG00000001626)"
         }
       },
       {
@@ -165,7 +165,7 @@
         "modeId": "pair",
         "fill": {
           "snp": "rs28366213",
-          "gene": "HLA-DRA"
+          "gene": "HLA-DRA(ENSG00000204287)"
         }
       }
     ]

@@ -384,7 +384,7 @@ function Composer({
   const isEmpty = !question.trim();
 
   const handleKeyDown = (event) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
+    if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
       event.preventDefault();
       if (!isStreaming && !isEmpty) onSubmit();
     }

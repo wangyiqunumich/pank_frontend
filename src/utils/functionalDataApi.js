@@ -54,7 +54,7 @@ export async function getSummary() {
  * @param {number} [filters.bmi_max] - Maximum BMI
  * @returns {Promise<{count: number, donors: Array}>}
  */
-export async function getDonors(filters = {}) {
+export async function getDonors(filters = {}, { signal } = {}) {
   const params = new URLSearchParams();
   
   if (filters.disease && filters.disease !== '') params.append('disease', filters.disease);
@@ -69,6 +69,7 @@ export async function getDonors(filters = {}) {
   
   const response = await fetch(url, {
     method: 'GET',
+    signal,
     headers: { 'Content-Type': 'application/json' },
   });
   if (!response.ok) {
@@ -113,7 +114,7 @@ export async function getCohortTraces(trace_type = 'ins_ieq', filters = {}) {
  * @param {Object} filters - Filter parameters
  * @returns {Promise<Blob>}
  */
-export async function getCohortTracesPng(trace_type = 'ins_ieq', filters = {}) {
+export async function getCohortTracesPng(trace_type = 'ins_ieq', filters = {}, { signal } = {}) {
   const params = new URLSearchParams();
   params.append('trace_type', trace_type);
   
@@ -129,6 +130,7 @@ export async function getCohortTracesPng(trace_type = 'ins_ieq', filters = {}) {
   
   const response = await fetch(url, {
     method: 'GET',
+    signal,
   });
   if (!response.ok) {
     throw new Error(`Failed to fetch trace chart image: ${response.statusText}`);
@@ -172,7 +174,7 @@ export async function getTraitSummary(trait = 'INS-IEQ G 16.7 SI', filters = {})
  * @param {Object} filters - Filter parameters
  * @returns {Promise<Blob>}
  */
-export async function getTraitSummaryPng(trait = 'INS-IEQ G 16.7 SI', filters = {}) {
+export async function getTraitSummaryPng(trait = 'INS-IEQ G 16.7 SI', filters = {}, { signal } = {}) {
   const params = new URLSearchParams();
   params.append('trait', trait);
   
@@ -188,6 +190,7 @@ export async function getTraitSummaryPng(trait = 'INS-IEQ G 16.7 SI', filters = 
   
   const response = await fetch(url, {
     method: 'GET',
+    signal,
   });
   if (!response.ok) {
     throw new Error(`Failed to fetch trait chart image: ${response.statusText}`);

@@ -8,6 +8,10 @@ import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import { Drawer, IconButton, Typography } from '@mui/material';
 
 import hirnLogo from '../image/logo-hirn.svg';
+import { TECH_DEMO, uiPath } from '../vnext/hosting';
+
+const graphBase = process.env.REACT_APP_PANKGRAPH_LINK?.replace(/\/+$/, '');
+const graphHref = (path = '/') => graphBase ? `${graphBase}${path}` : TECH_DEMO ? path : uiPath(path);
 
 const fundingLink = process.env.REACT_APP_API_GATEWAY_STAGE_NAME === 'development'
   ? 'https://dev.pankbase.org/funding.html'
@@ -45,17 +49,17 @@ const topMenuItems = [
 const primaryMenuItems = [
   {
     label: 'PanKgraph',
-    href: process.env.REACT_APP_PANKGRAPH_LINK,
+    href: graphHref(),
     highlighted: true,
     subMenuItems: [
-      { label: 'Chat', href: process.env.REACT_APP_PANKGRAPH_LINK },
-      { label: 'Tools', href: `${process.env.REACT_APP_PANKGRAPH_LINK}/skills` },
-      { label: 'KG API Doc', href: `${process.env.REACT_APP_PANKGRAPH_LINK}/docs/KG_API` },
-      { label: 'Literature API Doc', href: `${process.env.REACT_APP_PANKGRAPH_LINK}/docs/Literature_API` },
-      { label: 'Ontology', href: `${process.env.REACT_APP_PANKGRAPH_LINK}/docs/ontology` },
-      { label: 'Use cases', href: `${process.env.REACT_APP_PANKGRAPH_LINK}/docs/usecase` },
-      { label: 'Tutorials', href: `${process.env.REACT_APP_PANKGRAPH_LINK}/docs/tutorial` },
-      { label: 'Statistics', href: `${process.env.REACT_APP_PANKGRAPH_LINK}/docs/statistics` },
+      { label: 'Chat', href: graphHref() },
+      { label: 'Tools', href: graphHref('/skills') },
+      { label: 'KG API Doc', href: graphHref('/docs/KG_API') },
+      { label: 'Literature API Doc', href: graphHref('/docs/Literature_API') },
+      { label: 'Ontology', href: graphHref('/docs/ontology') },
+      { label: 'Use cases', href: graphHref('/docs/usecase') },
+      { label: 'Tutorials', href: graphHref('/docs/tutorial') },
+      { label: 'Statistics', href: graphHref('/docs/statistics') },
     ],
   },
   {

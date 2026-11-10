@@ -863,7 +863,7 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
                                             onChange={(event) => setFeedbackText(event.target.value)}
                                             disabled={isReviseDisabled}
                                             onKeyDown={(event) => {
-                                                if (event.key === 'Enter' && !event.shiftKey) {
+                                                if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
                                                     event.preventDefault();
                                                     handleSendFeedback();
                                                 }

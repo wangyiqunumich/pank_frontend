@@ -112,7 +112,7 @@ test('keeps submission disabled until a plain-language question is entered', () 
   expect(submitButton().disabled).toBe(false);
 });
 
-test('submits with Enter and keeps Shift+Enter available for a new line', () => {
+test('submits with Enter after composition and keeps Shift+Enter for a new line', () => {
   askHirn.mockImplementation(() => new Promise(() => {}));
   renderPage();
 
@@ -120,6 +120,7 @@ test('submits with Enter and keeps Shift+Enter available for a new line', () => 
     target: { value: 'What is the role of ZnT8 in type 1 diabetes?' },
   });
   fireEvent.keyDown(questionInput(), { key: 'Enter', shiftKey: true });
+  fireEvent.keyDown(questionInput(), { key: 'Enter', isComposing: true });
   expect(askHirn).not.toHaveBeenCalled();
 
   fireEvent.keyDown(questionInput(), { key: 'Enter' });

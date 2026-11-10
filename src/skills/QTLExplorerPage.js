@@ -63,12 +63,12 @@ function QtlTermAutocomplete({
 }) {
   const dispatch = useDispatch();
   const [selfOptions, setSelfOptions] = useState(defaultOptions || []);
-  const [simIsLoading, setSimIsLoading] = useState(false);
-  const [valIsLoading, setValIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [validatedValue, setValidatedValue] = useState('');
   const [inputValue, setInputValue] = useState(String(value || ''));
   const inputValueRef = useRef(String(value || ''));
   const inputChangeTimer = useRef(null);
+  const lookupVersion = useRef(0);
 
   useEffect(() => {
     setSelfOptions(defaultOptions || []);
@@ -76,12 +76,18 @@ function QtlTermAutocomplete({
 
   useEffect(() => {
     const next = String(value || '');
+    if (inputValueRef.current === next) return;
+    lookupVersion.current += 1;
+    clearTimeout(inputChangeTimer.current);
     inputValueRef.current = next;
     setInputValue(next);
+    setValidatedValue('');
+    setLoading(false);
   }, [value]);
 
   useEffect(() => {
     return () => {
+      lookupVersion.current += 1;
       if (inputChangeTimer.current) {
         clearTimeout(inputChangeTimer.current);
       }
@@ -101,24 +107,8 @@ function QtlTermAutocomplete({
     onValidated(false, '');
   };
 
-  const updateSource = async (newInputValue) => {
+  const updateSource = async (newInputValue, version) => {
     const keyWord = String(newInputValue || '').split('(')[0].trim();
-
-    if (String(newInputValue || '').length <= 1) {
-      setSelfOptions(defaultOptions || []);
-      if (String(newInputValue || '') === inputValueRef.current) {
-        setSimIsLoading(false);
-      }
-      return;
-    }
-
-    if (type !== 'gene') {
-      setSelfOptions([]);
-      if (String(newInputValue || '') === inputValueRef.current) {
-        setSimIsLoading(false);
-      }
-      return;
-    }
 
     try {
       const response = await dispatch(queryQueryResult(getDevConfig().vnextEnabled ? {
@@ -128,7 +118,7 @@ function QtlTermAutocomplete({
         query: `SELECT id, name FROM gene_name WHERE name % '${keyWord}'ORDER BY similarity(name, '${keyWord}') DESC LIMIT 5;`,
       })).unwrap();
 
-      if (String(newInputValue || '') !== inputValueRef.current) return;
+      if (version !== lookupVersion.current) return;
 
       const results = response?.results?.[0]?.credible_sets || [];
       const parsedResponse = results.map((item) => `${item.name}(${item.id})`);
@@ -139,37 +129,24 @@ function QtlTermAutocomplete({
       }
 
       const exactMatch = results.find(
-        (result) => (result.name || '').toLowerCase() === String(newInputValue || '').toLowerCase()
-          || (result.id || '').toLowerCase() === String(newInputValue || '').toLowerCase()
+        (result) => (result.name || '').toLowerCase() === keyWord.toLowerCase()
+          || (result.id || '').toLowerCase() === keyWord.toLowerCase()
       );
       if (exactMatch) {
         markValidated(true, `${exactMatch.name}(${exactMatch.id})`);
       }
     } catch (error) {
-      if (String(newInputValue || '') === inputValueRef.current) {
+      if (version === lookupVersion.current) {
         setSelfOptions(defaultOptions || []);
       }
     } finally {
-      if (String(newInputValue || '') === inputValueRef.current) {
-        setSimIsLoading(false);
+      if (version === lookupVersion.current) {
+        setLoading(false);
       }
     }
   };
 
-  const updateValidation = async (newInputValue) => {
-    if (type === 'gene') {
-      setValidatedValue('');
-      onValidated(false, '');
-      setValIsLoading(false);
-      return;
-    }
-
-    if (String(newInputValue || '').length <= 1) {
-      markValidated(false, '');
-      setValIsLoading(false);
-      return;
-    }
-
+  const updateValidation = async (newInputValue, version) => {
     const termName = String(newInputValue || '').split('(')[0].trim();
 
     try {
@@ -181,7 +158,8 @@ function QtlTermAutocomplete({
         query: `SELECT snp FROM QTL_DATA WHERE snp = '${termName}' LIMIT 1;`,
       })).unwrap();
 
-      if (String(newInputValue || '') !== inputValueRef.current) return;
+      if (version !== lookupVersion.current) return;
+      if (!Array.isArray(response?.results)) throw new Error('SNP lookup response is unavailable');
       const id = response?.results?.[0]?.snp;
       if (id) {
         // Match found: keep input validated, but do not show dropdown options.
@@ -193,13 +171,13 @@ function QtlTermAutocomplete({
         markValidated(false, '');
       }
     } catch (error) {
-      if (String(newInputValue || '') === inputValueRef.current) {
-        setSelfOptions([{ label: 'SNP not found', disabled: true, notFound: true }]);
+      if (version === lookupVersion.current) {
+        setSelfOptions([{ label: 'Could not check this SNP', disabled: true }]);
         markValidated(false, '');
       }
     } finally {
-      if (String(newInputValue || '') === inputValueRef.current) {
-        setValIsLoading(false);
+      if (version === lookupVersion.current) {
+        setLoading(false);
       }
     }
   };
@@ -208,18 +186,14 @@ function QtlTermAutocomplete({
     const baseOptions = type === 'gene'
       ? [...(validatedValue ? [validatedValue] : []), ...selfOptions]
       : [...selfOptions];
-    const merged = baseOptions;
-    const uniqueOptions = [...new Set(merged.map((option) => option?.label || option))];
-    if (uniqueOptions.length > 0) return uniqueOptions;
-    return type !== 'gene' ? [] : [{ label: `No ${type} found`, disabled: true, notFound: true }];
+    return [...new Map(baseOptions.map(option => [option?.label || option, option])).values()];
   }, [selfOptions, type, validatedValue]);
-
-  const loading = simIsLoading || valIsLoading;
 
   return (
     <Autocomplete
       freeSolo
       value={inputValue}
+      inputValue={inputValue}
       options={options}
       getOptionDisabled={(option) => Boolean(option?.disabled)}
       filterOptions={(x) => x}
@@ -227,40 +201,31 @@ function QtlTermAutocomplete({
       onFocus={() => {
         if (!inputValue && selfOptions.length === 0) {
           setValidatedValue('');
-          updateSource('');
+          setSelfOptions(defaultOptions || []);
         }
       }}
-      onInputChange={(_, nextInputValue, reason) => {
-        const finalValue = String(nextInputValue || '');
-
-        if (inputChangeTimer.current) {
-          clearTimeout(inputChangeTimer.current);
-        }
-
-        if (reason === 'reset') {
-          if (finalValue) {
-            markValidated(true, finalValue);
-          } else {
-            markValidated(false, '');
-            setInputValue('');
-            inputValueRef.current = '';
-            onChange('');
-          }
-          return;
-        }
-
-        setValidatedValue('');
+      onChange={(_, option, reason) => {
+        if (reason !== 'selectOption' || option?.disabled || !option) return;
+        lookupVersion.current += 1;
+        clearTimeout(inputChangeTimer.current);
+        setLoading(false);
+        markValidated(true, String(option));
+      }}
+      onInputChange={(_, finalValue, reason) => {
+        if (reason !== 'input' && reason !== 'clear') return;
+        const version = ++lookupVersion.current;
+        clearTimeout(inputChangeTimer.current);
+        setSelfOptions(finalValue.length <= 1 ? defaultOptions || [] : []);
+        setLoading(false);
         markValidated(false, '');
         setInputValue(finalValue);
         inputValueRef.current = finalValue;
         onChange(finalValue);
-
+        if (finalValue.length <= 1) return;
         inputChangeTimer.current = setTimeout(() => {
-          setSelfOptions([]);
-          setSimIsLoading(true);
-          updateSource(finalValue);
-          setValIsLoading(true);
-          updateValidation(finalValue);
+          setLoading(true);
+          if (type === 'gene') updateSource(finalValue, version);
+          else updateValidation(finalValue, version);
         }, 300);
       }}
       loading={loading}
@@ -330,6 +295,8 @@ export default function QTLExplorerPage() {
 
   const renderModeIcon = (SvgIcon) => (
     <Box
+      component="span"
+      aria-hidden="true"
       sx={{
         width: 24,
         height: 24,
@@ -341,6 +308,7 @@ export default function QTLExplorerPage() {
       }}
     >
       <Box
+        component="span"
         sx={{
           width: 24,
           height: 24,
@@ -598,12 +566,12 @@ export default function QTLExplorerPage() {
                           flexDirection: 'column',
                         }}
                       >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                          <Box sx={{ width: 16, height: 16, borderRadius: '50%', border: selected ? '1px solid #3A838B' : '1px solid #C0CCDD', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {selected ? <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: '#3A838B' }} /> : null}
+                        <Box component="button" type="button" aria-pressed={selected} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, border: 0, p: 0, bgcolor: 'transparent', textAlign: 'left', cursor: 'pointer' }}>
+                          <Box component="span" sx={{ width: 16, height: 16, borderRadius: '50%', border: selected ? '1px solid #3A838B' : '1px solid #C0CCDD', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {selected ? <Box component="span" sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: '#3A838B' }} /> : null}
                           </Box>
                           {modeIcon[item.id]}
-                          <Typography sx={{ color: 'black', fontWeight: '500 !important', fontSize: 14 }}>
+                          <Typography component="span" sx={{ color: 'black', fontWeight: '500 !important', fontSize: 14 }}>
                             {item.title}
                           </Typography>
                         </Box>
@@ -611,6 +579,8 @@ export default function QTLExplorerPage() {
                           {item.description}
                         </Typography>
                         <Box
+                          component="button"
+                          type="button"
                           onClick={(event) => {
                             event.stopPropagation();
                             handleExampleQuestion({
@@ -624,6 +594,9 @@ export default function QTLExplorerPage() {
                             px: 1,
                             py: 0.7,
                             height: 54,
+                            width: '100%',
+                            border: 0,
+                            textAlign: 'left',
                             borderRadius: '10px',
                             bgcolor: '#E9F6F7',
                             color: '#1D6E95',
@@ -634,10 +607,10 @@ export default function QTLExplorerPage() {
                             '&:hover': { bgcolor: '#DCEFF6' },
                           }}
                         >
-                          <Typography sx={{ color: '#6C7E9D', fontWeight: 400, fontSize: 10, mb: 0.3 }}>
+                          <Typography component="span" sx={{ color: '#6C7E9D', fontWeight: 400, fontSize: 10, mb: 0.3 }}>
                             {item.exampleLabel}
                           </Typography>
-                          <Typography sx={{ color: '#007A8D', fontWeight: 400, fontSize: 12 }}>
+                          <Typography component="span" sx={{ color: '#007A8D', fontWeight: 400, fontSize: 12 }}>
                             {item.exampleQuestion}
                           </Typography>
                         </Box>
@@ -666,6 +639,7 @@ export default function QTLExplorerPage() {
                         const primaryType = selectedMode.primaryLabel === 'Gene' ? 'gene' : 'snp';
                         return (
                       <QtlTermAutocomplete
+                        key={primaryType}
                         type={primaryType}
                         label={selectedMode.primaryLabel}
                         placeholder={selectedMode.primaryPlaceholder}
@@ -695,6 +669,7 @@ export default function QTLExplorerPage() {
                           const secondaryType = selectedMode.secondaryLabel === 'Gene' ? 'gene' : 'snp';
                           return (
                         <QtlTermAutocomplete
+                          key={secondaryType}
                           type={secondaryType}
                           label={selectedMode.secondaryLabel}
                           placeholder={selectedMode.secondaryPlaceholder}
@@ -775,8 +750,8 @@ export default function QTLExplorerPage() {
                     endIcon={<ArrowForwardIcon />}
                     sx={{
                       textTransform: 'none',
-                      minWidth: 540,
-                      maxWidth: '100%',
+                      minWidth: 0,
+                      width: 'min(540px, 100%)',
                       borderRadius: '8px',
                       fontWeight: 600,
                       fontSize: 12,
@@ -840,6 +815,8 @@ export default function QTLExplorerPage() {
 
                     return (
                     <Box
+                      component={matchQid ? 'button' : 'div'}
+                      type={matchQid ? 'button' : undefined}
                       key={exampleText}
                       onClick={() => handleExampleQuestion(item)}
                       sx={{
@@ -848,13 +825,16 @@ export default function QTLExplorerPage() {
                         gap: 1,
                         cursor: matchQid ? 'pointer' : 'default',
                         borderRadius: '8px',
+                        border: 0,
+                        bgcolor: 'transparent',
+                        textAlign: 'left',
                         px: 0.4,
                         py: 0.2,
                         '&:hover': matchQid ? { bgcolor: '#F2F8FC' } : undefined,
                       }}
                     >
                       <ContactSupportOutlinedIcon sx={{ color: '#1A9DC0', fontSize: 17, mt: 0.2 }} />
-                      <Typography sx={{ color: '#007A8D', fontSize: 12, lineHeight: 1.4 }}>{exampleText}</Typography>
+                      <Typography component="span" sx={{ color: '#007A8D', fontSize: 12, lineHeight: 1.4 }}>{exampleText}</Typography>
                     </Box>
                   )})}
                 </Box>

@@ -41,12 +41,27 @@ function GwasSnpAutocomplete({ value, onChange, defaultOptions, onValidated }) {
   const [options, setOptions] = useState(defaultOptions || []);
   const [loading, setLoading] = useState(false);
   const timerRef = useRef(null);
+  const inputRef = useRef(value);
+  const lookupVersion = useRef(0);
 
   useEffect(() => {
     setOptions(defaultOptions || []);
   }, [defaultOptions]);
 
-  const validateSnp = async (input) => {
+  useEffect(() => {
+    if (inputRef.current === value) return;
+    inputRef.current = value;
+    lookupVersion.current += 1;
+    clearTimeout(timerRef.current);
+    setLoading(false);
+  }, [value]);
+
+  useEffect(() => () => {
+    lookupVersion.current += 1;
+    clearTimeout(timerRef.current);
+  }, []);
+
+  const validateSnp = async (input, version) => {
     const snp = normalizeSnp(input);
     if (!snp) {
       onValidated(false, '');
@@ -61,6 +76,7 @@ function GwasSnpAutocomplete({ value, onChange, defaultOptions, onValidated }) {
         rawResponse: true,
         query: `SELECT snp FROM GWAS_DATA WHERE snp = '${snp}' LIMIT 1;`,
       })).unwrap();
+      if (version !== lookupVersion.current) return;
       const found = response?.results?.[0]?.snp;
       if (found) {
         onValidated(true, String(found));
@@ -68,11 +84,11 @@ function GwasSnpAutocomplete({ value, onChange, defaultOptions, onValidated }) {
         onValidated(false, '');
       }
     } catch (error) {
-      onValidated(false, '');
+      if (version === lookupVersion.current) onValidated(false, '');
     }
   };
 
-  const runSuggestion = async (rawInput) => {
+  const runSuggestion = async (rawInput, version) => {
     const input = normalizeSnp(rawInput);
     if (!input) {
       setOptions(defaultOptions || []);
@@ -84,36 +100,35 @@ function GwasSnpAutocomplete({ value, onChange, defaultOptions, onValidated }) {
 
     setLoading(true);
     try {
-      await validateSnp(input);
+      await validateSnp(input, version);
     } finally {
-      setLoading(false);
+      if (version === lookupVersion.current) setLoading(false);
     }
+  };
+
+  const changeInput = (nextValue, delay) => {
+    const version = ++lookupVersion.current;
+    clearTimeout(timerRef.current);
+    setLoading(false);
+    inputRef.current = nextValue;
+    onChange(nextValue);
+    onValidated(false, '');
+    timerRef.current = setTimeout(() => runSuggestion(nextValue, version), delay);
   };
 
   return (
     <Autocomplete
       freeSolo
       value={value}
+      inputValue={value}
       options={options}
       filterOptions={(x) => x}
-      onChange={(_, nextValue) => {
-        const finalValue = String(nextValue || '');
-        onChange(finalValue);
-        validateSnp(finalValue);
+      onChange={(_, nextValue, reason) => {
+        if (reason === 'selectOption' || reason === 'createOption') changeInput(String(nextValue || ''), 0);
       }}
-      onInputChange={(_, nextInputValue) => {
-        const finalValue = String(nextInputValue || '');
-        onChange(finalValue);
-        onValidated(false, '');
-
-        if (timerRef.current) {
-          clearTimeout(timerRef.current);
-        }
-        timerRef.current = setTimeout(() => {
-          runSuggestion(finalValue);
-        }, 250);
+      onInputChange={(_, nextInputValue, reason) => {
+        if (reason === 'input' || reason === 'clear') changeInput(nextInputValue, 250);
       }}
-      onBlur={() => validateSnp(value)}
       loading={loading}
       sx={{
         fontFamily: 'Inter',
@@ -382,8 +397,8 @@ export default function GWASExplorerPage() {
                   endIcon={<ArrowForwardIcon />}
                   sx={{
                     textTransform: 'none',
-                    minWidth: 540,
-                    maxWidth: '100%',
+                    minWidth: 0,
+                    width: 'min(540px, 100%)',
                     borderRadius: '8px',
                     fontWeight: 600,
                     fontSize: 12,
@@ -448,6 +463,8 @@ export default function GWASExplorerPage() {
 
                     return (
                       <Box
+                        component={hasFill ? 'button' : 'div'}
+                        type={hasFill ? 'button' : undefined}
                         key={exampleText}
                         onClick={() => {
                           if (typeof item === 'object') {
@@ -460,13 +477,16 @@ export default function GWASExplorerPage() {
                           gap: 1,
                           cursor: hasFill ? 'pointer' : 'default',
                           borderRadius: '8px',
+                          border: 0,
+                          bgcolor: 'transparent',
+                          textAlign: 'left',
                           px: 0.4,
                           py: 0.2,
                           '&:hover': hasFill ? { bgcolor: '#F2F8FC' } : undefined,
                         }}
                       >
                           <ContactSupportOutlinedIcon sx={{ color: '#1A9DC0', fontSize: 17, mt: 0.2 }} />
-                          <Typography sx={{ color: '#007A8D', fontSize: 12, lineHeight: 1.4 }}>{exampleText}</Typography>
+                        <Typography component="span" sx={{ color: '#007A8D', fontSize: 12, lineHeight: 1.4 }}>{exampleText}</Typography>
                       </Box>
                     );
                   })}

@@ -21,11 +21,11 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import SearchIcon from '@mui/icons-material/Search';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import {
-  Backdrop,
   Box,
   Button,
   Chip,
   CircularProgress,
+  Dialog,
   IconButton,
   MenuItem,
   Paper,
@@ -292,7 +292,7 @@ export default function FunctionalDataPage() {
   };
 
   // Filter state
-  const [disease, setDisease] = useState('T1D');
+  const [disease, setDisease] = useState('All');
   const [sex, setSex] = useState('All');
   const [center, setCenter] = useState('All');
   const [ageRange, setAgeRange] = useState([3, 65]);
@@ -310,7 +310,7 @@ export default function FunctionalDataPage() {
   const [traceImageUrl, setTraceImageUrl] = useState(null);
   const [traitImageUrl, setTraitImageUrl] = useState(null);
   const [isLoadingSummary, setIsLoadingSummary] = useState(true);
-  const [isLoadingDonors, setIsLoadingDonors] = useState(false);
+  const [isLoadingDonors, setIsLoadingDonors] = useState(true);
   const [isLoadingTraceChart, setIsLoadingTraceChart] = useState(false);
   const [isLoadingTraitChart, setIsLoadingTraitChart] = useState(false);
   const [isBuildingStep2Prompt, setIsBuildingStep2Prompt] = useState(false);
@@ -360,7 +360,7 @@ export default function FunctionalDataPage() {
   };
 
   // Helper to build filter object
-  const getFilters = () => ({
+  const filters = useMemo(() => ({
     disease: disease !== 'All' ? disease : null,
     sex: sex !== 'All' ? sex : null,
     center: center !== 'All' ? center : null,
@@ -368,7 +368,7 @@ export default function FunctionalDataPage() {
     age_max: debouncedAgeRange[1],
     bmi_min: debouncedBmiRange[0],
     bmi_max: debouncedBmiRange[1],
-  });
+  }), [disease, sex, center, debouncedAgeRange, debouncedBmiRange]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -420,59 +420,74 @@ export default function FunctionalDataPage() {
 
   // Fetch donors when filters change
   useEffect(() => {
+    const controller = new AbortController();
+    const { signal } = controller;
     const fetchDonors = async () => {
       setIsLoadingDonors(true);
+      setDonorData(null);
+      setErrors(prev => ({ ...prev, donors: null }));
       try {
-        const data = await functionalDataApi.getDonors(getFilters());
-        setDonorData(data);
-        setErrors(prev => ({ ...prev, donors: null }));
+        const data = await functionalDataApi.getDonors(filters, { signal });
+        if (!signal.aborted) setDonorData(data);
       } catch (err) {
-        console.error('Error fetching donors:', err);
-        setErrors(prev => ({ ...prev, donors: err.message }));
+        if (!signal.aborted) setErrors(prev => ({ ...prev, donors: err.message }));
       } finally {
-        setIsLoadingDonors(false);
+        if (!signal.aborted) setIsLoadingDonors(false);
       }
     };
     fetchDonors();
-  }, [disease, sex, center, debouncedAgeRange, debouncedBmiRange]);
+    return () => controller.abort();
+  }, [filters]);
 
   // Fetch trace chart when filters or response type change
   useEffect(() => {
+    const controller = new AbortController();
+    let url;
     const fetchTraceChart = async () => {
       setIsLoadingTraceChart(true);
       try {
-        const blob = await functionalDataApi.getCohortTracesPng(responseType, getFilters());
-        const url = URL.createObjectURL(blob);
+        const blob = await functionalDataApi.getCohortTracesPng(responseType, filters, { signal: controller.signal });
+        if (controller.signal.aborted) return;
+        url = URL.createObjectURL(blob);
         setTraceImageUrl(url);
         setErrors(prev => ({ ...prev, traceChart: null }));
       } catch (err) {
-        console.error('Error fetching trace chart:', err);
-        setErrors(prev => ({ ...prev, traceChart: err.message }));
+        if (!controller.signal.aborted) setErrors(prev => ({ ...prev, traceChart: err.message }));
       } finally {
-        setIsLoadingTraceChart(false);
+        if (!controller.signal.aborted) setIsLoadingTraceChart(false);
       }
     };
     fetchTraceChart();
-  }, [disease, sex, center, debouncedAgeRange, debouncedBmiRange, responseType]);
+    return () => {
+      controller.abort();
+      if (url) URL.revokeObjectURL(url);
+    };
+  }, [filters, responseType]);
 
   // Fetch trait summary chart when filters or trait change
   useEffect(() => {
+    const controller = new AbortController();
+    let url;
     const fetchTraitChart = async () => {
       setIsLoadingTraitChart(true);
       try {
-        const blob = await functionalDataApi.getTraitSummaryPng(trait, getFilters());
-        const url = URL.createObjectURL(blob);
+        const blob = await functionalDataApi.getTraitSummaryPng(trait, filters, { signal: controller.signal });
+        if (controller.signal.aborted) return;
+        url = URL.createObjectURL(blob);
         setTraitImageUrl(url);
         setErrors(prev => ({ ...prev, traitChart: null }));
       } catch (err) {
-        console.error('Error fetching trait chart:', err);
-        setErrors(prev => ({ ...prev, traitChart: err.message }));
+        if (!controller.signal.aborted) setErrors(prev => ({ ...prev, traitChart: err.message }));
       } finally {
-        setIsLoadingTraitChart(false);
+        if (!controller.signal.aborted) setIsLoadingTraitChart(false);
       }
     };
     fetchTraitChart();
-  }, [disease, sex, center, debouncedAgeRange, debouncedBmiRange, trait]);
+    return () => {
+      controller.abort();
+      if (url) URL.revokeObjectURL(url);
+    };
+  }, [filters, trait]);
 
   const getNumericValue = (value) => {
     if (value === null || value === undefined || value === '') return null;
@@ -542,6 +557,7 @@ export default function FunctionalDataPage() {
 
   const tableHeaders = ['ID', 'RRID', 'Center ID', 'Disease', 'Age', 'Genetic sex', 'BMI (kg/m²)', 'Center'];
   const tableGridTemplate = '1.4fr 1.4fr 1.1fr 1fr 0.7fr 0.8fr 1fr 0.9fr';
+  const donorGridSx = { display: 'grid', gridTemplateColumns: tableGridTemplate, minWidth: 600, gap: 1, overflowWrap: 'anywhere' };
   const getDonorDetailsUrl = (id) => `https://data.pankbase.org/human-donors/${encodeURIComponent(String(id || '').trim())}/`;
 
   const renderDonorIdCell = (idValue) => {
@@ -637,17 +653,17 @@ export default function FunctionalDataPage() {
   const handleStep2AgentSearch = async () => {
     try {
       setIsBuildingStep2Prompt(true);
-      const filters = {
-        ...getFilters(),
+      const promptFilters = {
+        ...filters,
         trace_type: responseType,
       };
       if (getDevConfig().vnextEnabled) {
-        navigate(`/result-new?functional_filters=${encodeURIComponent(JSON.stringify(filters))}`);
+        navigate(`/result-new?functional_filters=${encodeURIComponent(JSON.stringify(promptFilters))}`);
         return;
       }
-      const currentData = await functionalDataApi.getCohortTraces(responseType, getFilters());
+      const currentData = await functionalDataApi.getCohortTraces(responseType, filters);
       const prompt = buildFunctionalPlotPrompt({
-        filters,
+        filters: promptFilters,
         currentData,
       });
       const encodedQuery = encodeURIComponent(utf8ToBase64(prompt));
@@ -679,8 +695,8 @@ export default function FunctionalDataPage() {
               {captions.backToLibrary}
             </Button>
 
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '9fr 3fr' }, gap: 2.5, alignItems: 'start' }}>
-              <Box>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'minmax(0, 9fr) minmax(0, 3fr)' }, gap: 2.5, alignItems: 'start' }}>
+              <Box sx={{ minWidth: 0 }}>
                 {/* Page header */}
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2 }}>
                   <Box>
@@ -741,11 +757,11 @@ export default function FunctionalDataPage() {
                         </Box>
                         <Box>
                           <Typography sx={{ color: '#0F172A', fontWeight: '700 !important', fontSize: 14 }}>
-                            {donorCount} Donors Selected
+                            {isLoadingDonors ? 'Loading selected donors…' : errors.donors ? 'Donor metadata unavailable' : `${donorCount} Donors Selected`}
                           </Typography>
-                          <Typography sx={{ color: '#6B7280', fontSize: 10 }}>
+                          {!isLoadingDonors && !errors.donors && <Typography sx={{ color: '#6B7280', fontSize: 10 }}>
                             Showing filtered functional data from {donorCount} / {totalDonors} total donors
-                          </Typography>
+                          </Typography>}
                         </Box>
                       </Box>
 
@@ -931,7 +947,7 @@ export default function FunctionalDataPage() {
                     <StepCard step={3} title={steps.step3.title} titleInfo={steps.step3.titleInfo} showAgent agentDisabled>
                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 0.5, mb: 1.5 }}>
                       <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#64748B' }}>{captions.trait}</Typography>
-                      <Select autoWidth size="small" value={trait} onChange={(e) => setTrait(e.target.value)} sx={{ ...SEL_SX, minWidth: 220 }}>
+                      <Select autoWidth size="small" value={trait} onChange={(e) => setTrait(e.target.value)} sx={{ ...SEL_SX, minWidth: 'min(220px, 100%)', maxWidth: '100%' }}>
                         {traitOptions.map((o) => (
                           <MenuItem key={o} value={o} sx={{ fontFamily: 'Inter', fontSize: 12 }}>{o}</MenuItem>
                         ))}
@@ -963,7 +979,7 @@ export default function FunctionalDataPage() {
                     <Button
                       size="small"
                       onClick={downloadDonorsCsv}
-                      disabled={!fullTableRows.length}
+                      disabled={isLoadingDonors || !fullTableRows.length}
                       startIcon={<DownloadOutlinedIcon sx={{ fontSize: 14 }} />}
                       sx={{ textTransform: 'none', fontFamily: 'Inter', fontSize: 12, color: '#475569', border: '1px solid #E2E8F0', borderRadius: '7px' }}
                     >
@@ -971,8 +987,8 @@ export default function FunctionalDataPage() {
                     </Button>
                   }
                 >
-                  <Box sx={{ border: '1px solid #E2E8F0', borderRadius: '8px', overflow: 'hidden' }}>
-                    <Box sx={{ display: 'grid', gridTemplateColumns: tableGridTemplate, px: 1.5, py: 1, bgcolor: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+                  <Box role="region" aria-label="Donor metadata preview" tabIndex={0} sx={{ border: '1px solid #E2E8F0', borderRadius: '8px', overflowX: 'auto' }}>
+                    <Box sx={{ ...donorGridSx, px: 1.5, py: 1, bgcolor: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
                       {tableHeaders.map((h) => (
                         <Typography key={h} sx={{ fontFamily: 'Inter', fontSize: 11, fontWeight: 700, color: '#334155' }}>{h}</Typography>
                       ))}
@@ -981,11 +997,13 @@ export default function FunctionalDataPage() {
                       <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
                         <CircularProgress size={30} sx={{ color: '#0F766E' }} />
                       </Box>
+                    ) : errors.donors ? (
+                      <Typography role="alert" sx={{ px: 1.5, py: 2, fontSize: 12, color: '#B91C1C' }}>{errors.donors}</Typography>
                     ) : tableRows.length > 0 ? (
                       tableRows.map((row) => (
                         <Box
                           key={row.donorId}
-                          sx={{ display: 'grid', gridTemplateColumns: tableGridTemplate, px: 1.5, py: 0.9, borderBottom: '1px solid #F1F5F9', '&:hover': { bgcolor: '#FAFAFA' } }}
+                          sx={{ ...donorGridSx, px: 1.5, py: 0.9, borderBottom: '1px solid #F1F5F9', '&:hover': { bgcolor: '#FAFAFA' } }}
                         >
                           {renderDonorIdCell(row.id)}
                           <Typography sx={{ fontFamily: 'Inter', fontSize: 12, color: '#334155', fontWeight: 500 }}>{row.donorId}</Typography>
@@ -1003,7 +1021,7 @@ export default function FunctionalDataPage() {
                       </Box>
                     )}
                     {!isLoadingDonors && donorCount > tableRows.length && (
-                      <Box sx={{ display: 'grid', gridTemplateColumns: tableGridTemplate, px: 1.5, py: 0.9 }}>
+                      <Box sx={{ ...donorGridSx, px: 1.5, py: 0.9 }}>
                         {['...', '...', '...', '...', '...', '...', '...', '...'].map((d, i) => (
                           <Typography key={i} sx={{ fontFamily: 'Inter', fontSize: 12, color: '#94A3B8' }}>{d}</Typography>
                         ))}
@@ -1109,23 +1127,17 @@ export default function FunctionalDataPage() {
 
       </Box>
 
-      <Backdrop
+      <Dialog
         open={isTableOverlayOpen}
-        sx={{ zIndex: 1300, bgcolor: 'rgba(15, 23, 42, 0.45)', backdropFilter: 'blur(2px)' }}
+        onClose={() => setIsTableOverlayOpen(false)}
+        aria-labelledby="donor-metadata-title"
+        maxWidth={false}
+        slotProps={{ backdrop: { sx: { bgcolor: 'rgba(15, 23, 42, 0.45)', backdropFilter: 'blur(2px)' } } }}
+        PaperProps={{ elevation: 0, sx: {
+          m: 0, width: 'min(1200px, 96vw)', height: 'min(860px, 92dvh)', maxHeight: 'none',
+          borderRadius: '10px', border: '1px solid #E2E8F0', overflow: 'hidden',
+        } }}
       >
-        <Paper
-          elevation={0}
-          sx={{
-            width: 'min(1200px, 96vw)',
-            height: 'min(860px, 92vh)',
-            borderRadius: '10px',
-            border: '1px solid #E2E8F0',
-            bgcolor: '#FFFFFF',
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
           <Box
             sx={{
               px: 2,
@@ -1135,6 +1147,8 @@ export default function FunctionalDataPage() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
+              gap: 1,
+              flexWrap: 'wrap',
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -1143,7 +1157,7 @@ export default function FunctionalDataPage() {
               </Box>
               <Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.25 }}>
-                  <Typography sx={{ fontFamily: 'Inter', fontSize: 15, fontWeight: 700, color: '#0F172A' }}>
+                  <Typography id="donor-metadata-title" sx={{ fontFamily: 'Inter', fontSize: 15, fontWeight: 700, color: '#0F172A' }}>
                     Donor Metadata
                   </Typography>
                   <Chip
@@ -1169,7 +1183,7 @@ export default function FunctionalDataPage() {
               <Button
                 size="small"
                 onClick={downloadDonorsCsv}
-                disabled={!fullTableRows.length}
+                disabled={isLoadingDonors || !fullTableRows.length}
                 startIcon={<DownloadOutlinedIcon sx={{ fontSize: 14 }} />}
                 sx={{
                   textTransform: 'none',
@@ -1185,6 +1199,7 @@ export default function FunctionalDataPage() {
                 {captions.downloadCsv}
               </Button>
               <IconButton
+                aria-label="Close donor metadata"
                 onClick={() => setIsTableOverlayOpen(false)}
                 sx={{ color: '#64748B', border: '1px solid #E2E8F0', borderRadius: '8px' }}
               >
@@ -1193,17 +1208,14 @@ export default function FunctionalDataPage() {
             </Box>
           </Box>
 
-          <Box sx={{ borderBottom: '1px solid #E2E8F0', px: 2, py: 1, bgcolor: '#F8FAFC' }}>
-            <Box sx={{ display: 'grid', gridTemplateColumns: tableGridTemplate, columnGap: 1 }}>
+          <Box role="region" aria-label="Full donor metadata" tabIndex={0} sx={{ flex: 1, minHeight: 0, overflow: 'auto', bgcolor: '#FFFFFF' }}>
+            <Box sx={{ ...donorGridSx, position: 'sticky', top: 0, zIndex: 1, borderBottom: '1px solid #E2E8F0', px: 2, py: 1, bgcolor: '#F8FAFC' }}>
               {tableHeaders.map((h) => (
                 <Typography key={h} sx={{ fontFamily: 'Inter', fontSize: 11, fontWeight: 700, color: '#334155' }}>
                   {h}
                 </Typography>
               ))}
             </Box>
-          </Box>
-
-          <Box sx={{ flex: 1, overflowY: 'auto', px: 2, py: 1, bgcolor: '#FFFFFF' }}>
             {isLoadingDonors ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
                 <CircularProgress size={30} sx={{ color: '#0F766E' }} />
@@ -1213,9 +1225,8 @@ export default function FunctionalDataPage() {
                 <Box
                   key={row.donorId}
                   sx={{
-                    display: 'grid',
-                    gridTemplateColumns: tableGridTemplate,
-                    columnGap: 1,
+                    ...donorGridSx,
+                    px: 2,
                     py: 0.95,
                     borderBottom: '1px solid #F1F5F9',
                     '&:hover': { bgcolor: '#FAFAFA' },
@@ -1237,8 +1248,7 @@ export default function FunctionalDataPage() {
               </Box>
             )}
           </Box>
-        </Paper>
-      </Backdrop>
+      </Dialog>
     </Box>
   );
 }

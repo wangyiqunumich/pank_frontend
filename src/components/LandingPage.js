@@ -13,6 +13,7 @@ import {
 import apiIcon from '../image/apiIcon.png';
 import landingPageLogo from '../image/landing image cropped.png';
 import Question from './Question';
+import { uiPath } from '../vnext/hosting';
 
 function LandingPage() {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -119,7 +120,7 @@ function LandingPage() {
               <img src={apiIcon} alt="API Icon" style={{ width: '24px' }} />
               <Typography sx={{ marginLeft: '10px', fontSize: '16px', fontFamily: 'Open Sans', fontWeight: '600' }}>
                 Access PanKgraph with <Link
-                  href={process.env.REACT_APP_PANKGRAPH_LINK + '/docs/API'}
+                  href={uiPath('/docs/KG_API')}
                   sx={{ textDecoration: 'underline', color: 'black', textAlign: 'right' }}>API</Link>
               </Typography>
             </Box>
