@@ -17,6 +17,7 @@
   --toolbar-icon-size: 16px;
   --toolbar-heading-height: 0px;
   --toolbar-section-spacing: 4px;
+  --toolbar-expanded-active-hover: #e1f8f3;
   --toolbar-motion: 200ms cubic-bezier(.2, .75, .25, 1);
   position: absolute;
   top: 16px;
@@ -99,8 +100,9 @@
 .graph-toolbar .graph-toolbar-action:disabled { opacity: .35; cursor: default; }
 .graph-toolbar .graph-toolbar-action.is-active { background: #ccfbf1; color: #115e59; }
 .graph-toolbar .graph-toolbar-action.is-active:hover { background: #baf3e9; }
+.graph-toolbar:not(.is-expanded) .graph-toolbar-info.is-active { background: var(--toolbar-expanded-active-hover); }
 .graph-toolbar.is-expanded .graph-toolbar-action.is-active { background: #f0fdfa; }
-.graph-toolbar.is-expanded .graph-toolbar-action.is-active:hover { background: #e1f8f3; }
+.graph-toolbar.is-expanded .graph-toolbar-action.is-active:hover { background: var(--toolbar-expanded-active-hover); }
 .graph-toolbar-icon { width: var(--toolbar-icon-size); height: var(--toolbar-icon-size); flex: none; transition: width var(--toolbar-motion), height var(--toolbar-motion); }
 .graph-toolbar img { display: block; flex-shrink: 0; }
 .graph-toolbar-icon > :is(img, svg) { display: block; width: 100%; height: 100%; }
@@ -154,7 +156,7 @@
 .graph-toolbar-switch.is-on > span { transform: translateX(12px); }
 .graph-toolbar-mode { height: 0; opacity: 0; overflow: hidden; pointer-events: none; transition: height var(--toolbar-motion), opacity 100ms ease; }
 .graph-toolbar.is-expanded .graph-toolbar-mode { height: var(--toolbar-row-height); opacity: 1; pointer-events: auto; transition: height var(--toolbar-motion), opacity 140ms ease 55ms; }
-.graph-toolbar-mode-value { font-size: 11px; font-weight: 600; line-height: 16px; color: #0f766e; white-space: nowrap; }
+.graph-toolbar-mode-value { font-size: 11px; font-weight: 600; line-height: 16px; white-space: nowrap; }
 /* Use the actual pane height, including short landscape fullscreen viewports.
    Keep every action visible rather than introducing a nested scroll region. */
 .graph-toolbar.is-short {

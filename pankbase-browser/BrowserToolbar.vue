@@ -7,7 +7,7 @@
   <div v-for="group in groups" :key="group.title" class="graph-toolbar-section">
     <h3 :aria-hidden="!expanded">{{group.title}}</h3>
     <span v-for="action in group.actions" :key="action.id" class="graph-toolbar-action-wrapper">
-      <button class="graph-toolbar-action" :class="{'is-active':action.pressed && (action.id !== 'fullscreen' || !expanded)}" type="button" :aria-label="action.label" :title="expanded?'':action.label"
+      <button class="graph-toolbar-action" :class="{'graph-toolbar-info':action.id === 'info', 'is-active':action.pressed && (action.id !== 'fullscreen' || !expanded)}" type="button" :aria-label="action.label" :title="expanded?'':action.label"
         :aria-pressed="action.pressed === undefined ? undefined : String(action.pressed)" :disabled="inactive(action)" @click="$emit(action.id)">
         <span class="graph-toolbar-icon">
           <svg v-if="action.id==='fullscreen'&&fullscreen" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path :d="icons.fullscreenExitPath"/></svg>

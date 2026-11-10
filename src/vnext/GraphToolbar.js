@@ -59,7 +59,7 @@ export default function GraphToolbar({ fullscreen, onFullscreen, zoomPercent, ca
     const item = actions[key];
     const highlighted = item.pressed && (key !== 'fullscreen' || !expanded);
     return <Tooltip key={key} title={expanded ? '' : item.label} {...tooltipProps}><span className="graph-toolbar-action-wrapper">
-      <ButtonBase className={`graph-toolbar-action${highlighted ? ' is-active' : ''}`} aria-label={item.label} aria-pressed={item.pressed}
+      <ButtonBase className={`graph-toolbar-action${key === 'hover' ? ' graph-toolbar-info' : ''}${highlighted ? ' is-active' : ''}`} aria-label={item.label} aria-pressed={item.pressed}
         aria-haspopup={key === 'download' && hasDownloadMenu ? 'menu' : undefined}
         aria-expanded={key === 'download' && hasDownloadMenu ? Boolean(downloadAnchor) : undefined}
         aria-controls={key === 'download' && downloadAnchor ? downloadMenuId : undefined}
