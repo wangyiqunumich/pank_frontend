@@ -825,19 +825,26 @@ function DocPage() {
 
     function getResult(query) {
         if (isLoading) return [];
-        if (cache[query]) {
+        if (Object.prototype.hasOwnProperty.call(cache, query)) {
             return cache[query];
         }
         if (Object.keys(cache).length > 100) {
             setCache({});
         }
-        let result = idx.search(query)
-            .map(res => {
+        let matches;
+        try {
+            matches = idx.search(query);
+        } catch (error) {
+            if (!(error instanceof lunr.QueryParseError)) throw error;
+            const terms = lunr.tokenizer(query.replace(/[:^~*+]/g, ' ')).map(token => token.toString()).filter(Boolean);
+            matches = terms.length ? idx.query(builder => builder.term(terms)) : [];
+        }
+        const result = matches.map(res => {
                 const content = pages[res.ref] || '';
                 const [snippet, section, querykey] =
                     content ? findRelevantSnippet(query, res.ref, 50) : ["", null, ""];
 
-                return { page: Pages[res.ref], snippet: snippet, section: section, querykey: querykey };
+                return { pageId: res.ref, page: Pages[res.ref], snippet: snippet, section: section, querykey: querykey };
             });
         setCache({ ...cache, [query]: result });
         return result;
@@ -850,7 +857,7 @@ function DocPage() {
         if (inputValue) {
             const result = getResult(inputValue);
             setGetResultResult(result.map(res => {
-                return { title: res.page, content: res.snippet, section: res.section, querykey: res.querykey };
+                return { pageId: res.pageId, title: res.page, content: res.snippet, section: res.section, querykey: res.querykey };
             }));
         } else {
             setGetResultResult([]);
@@ -863,22 +870,27 @@ function DocPage() {
             <Autocomplete
                 id="search"
                 freeSolo
-                autoSelect
+                blurOnSelect
+                inputValue={inputValue}
                 options={isLoading ? [] : getResultResult}
-                getOptionLabel={() => inputValue}
+                getOptionLabel={option => typeof option === 'string' ? option : option.title}
                 filterOptions={(options => options)}
-                renderOption={(props, option) => (
-                    <Box {...props} key={option.title} sx=
+                onChange={(_, option, reason) => {
+                    if (reason !== 'selectOption' || !option?.pageId) return;
+                    setInputValue('');
+                    setHighlightKey(option.querykey);
+                    if (isNarrowDocs) {
+                        setMobileNavOpen(false);
+                        navToggleRef.current?.focus({ preventScroll: true });
+                    }
+                    const hash = option.section ? `#${encodeURIComponent(option.section)}` : '';
+                    navigate(`/docs/${option.pageId}${hash}`);
+                }}
+                renderOption={({ key, ...props }, option) => (
+                    <Box component="li" {...props} key={key} sx=
                         {{
                             display: 'flex',
                             flexDirection: 'column'
-                        }} onClick={() => {
-                            document.getElementById('search').blur();
-                            setInputValue("");
-                            setHighlightKey(option.querykey);
-                            let pg = Object.entries(Pages)
-                                .find(([_, value]) => value === option.title)?.[0];
-                            navigate(`/docs/${pg}${option.section ? `#${option.section}` : ''}`);
                         }}>
                         <Typography variant="body2" color="text.secondary"></Typography>
                         <Typography variant="body1" fontWeight="bold" align='left' sx={{ alignSelf: 'flex-start' }}>
@@ -890,7 +902,9 @@ function DocPage() {
                     </Box>
                 )}
                 onInputChange={(_, v, r) => {
-                    if (r === "input") { setHighlightKey(v); } setInputValue(v);
+                    if (r !== 'input' && r !== 'clear') return;
+                    setHighlightKey(v);
+                    setInputValue(v);
                 }}
                 renderInput={(params) => (
                     <TextField
@@ -929,7 +943,9 @@ function DocPage() {
     useEffect(() => {
         if (location.pathname.match(/^\/docs\/([^/]+)?$/)) {
             const newpage = location.pathname.split('/')[2] || defaultPage;
-            const newfrag = decodeURIComponent(location.hash.slice(1)) || '';
+            const hash = location.hash.slice(1);
+            let newfrag = hash;
+            try { newfrag = decodeURIComponent(hash); } catch (_) { /* Keep a literal fragment. */ }
             setFrag(newfrag);
             if (Pages[newpage]) {
                 setSelectedPage(newpage);
@@ -951,16 +967,13 @@ function DocPage() {
     }, [page]);
 
     useEffect(() => {
-        if (frag) {
+        if (!isLoading && frag) {
             const element = document.getElementById(frag);
-            if (element) {
+            if (contentRef.current?.contains(element)) {
                 element.scrollIntoView({ behavior: 'smooth' });
             }
-            else {
-                // console.log('no such element', frag);
-            }
         }
-    }, [page, frag]);
+    }, [page, frag, isLoading]);
 
     useEffect(() => {
         if (contentRef.current) {

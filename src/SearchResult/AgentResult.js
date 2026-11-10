@@ -31,6 +31,7 @@ import starFilledIcon from '../image/star-filled.svg';
 import starIcon from '../image/star.svg';
 import { readConversationHistory } from '../utils/chatSessionStorage';
 import { trackGtagEvent } from '../utils/gtag';
+import { safeLocalStorage } from '../utils/safeStorage';
 import SearchResult from './result';
 
 const FEEDBACK_AUTO_PROMPT_DISABLED_KEY = 'pank_feedback_auto_prompt_disabled_v1';
@@ -505,10 +506,7 @@ export function AgentResultLayout({
     const [feedbackError, setFeedbackError] = useState('');
     const [feedbackSuccessOpen, setFeedbackSuccessOpen] = useState(false);
     const [feedbackPromptOpen, setFeedbackPromptOpen] = useState(false);
-    const [feedbackAutoPromptDisabled, setFeedbackAutoPromptDisabled] = useState(() => {
-        if (typeof window === 'undefined') return false;
-        return window.localStorage.getItem(FEEDBACK_AUTO_PROMPT_DISABLED_KEY) === '1';
-    });
+    const [feedbackAutoPromptDisabled, setFeedbackAutoPromptDisabled] = useState(() => safeLocalStorage.getItem(FEEDBACK_AUTO_PROMPT_DISABLED_KEY) === '1');
     const [showScrollToPlanConfirmButton, setShowScrollToPlanConfirmButton] = useState(false);
     const menuTimersRef = useRef({ open: null, close: null });
     const feedbackPromptTimerRef = useRef(null);
@@ -520,11 +518,15 @@ export function AgentResultLayout({
     const scrollRafRef = useRef(null);
     const routeScrollResetRef = useRef({ frameIds: [], timeoutIds: [] });
     const scrollLockRef = useRef({ active: false, until: 0, index: null });
-    const activeMeta = contentMetaByIndex[activeResultIndex];
+    const currentLocationRef = useRef(location);
+    currentLocationRef.current = location;
+    const routeMetaKey = `${location.pathname}${location.search}`;
+    const resultMeta = contentMetaByIndex[activeResultIndex];
+    const activeMeta = !resultMeta?.metaRouteKey || resultMeta.metaRouteKey === routeMetaKey ? resultMeta : undefined;
     const routeQuestionKey = useMemo(() => {
         const params = new URLSearchParams(location.search || '');
         const decodedQuestion = decodeQuestionFromQueryParam(params.get('question'));
-        return `${location.pathname}::${decodedQuestion}`;
+        return JSON.stringify([location.pathname, decodedQuestion, params.get('session_id'), params.get('run_id'), params.get('result_id')]);
     }, [location.pathname, location.search]);
     const urlSessionId = useMemo(() => {
         const urlSessionId = new URLSearchParams(location.search).get('session_id') || '';
@@ -889,13 +891,14 @@ export function AgentResultLayout({
         // so /chat/message is called on the existing session instead of mounting a new component.
         const followUpHandler = activeMeta?.followUpHandler;
         if (followUpHandler) {
+            const submittedLocation = location;
             setFollowUpSubmitPending(true);
             try {
                 const submitted = await followUpHandler(trimmed);
-                if (submitted !== false) setSearchQuery(value => value.trim() === trimmed ? "" : value);
-                setFollowUpSubmitPending(false);
-            } catch (_) {
-                setFollowUpSubmitPending(false);
+                if (currentLocationRef.current === submittedLocation && submitted !== false) setSearchQuery(value => value.trim() === trimmed ? "" : value);
+            } catch (_) { /* Preserve the draft on submission failure. */ }
+            finally {
+                if (currentLocationRef.current === submittedLocation) setFollowUpSubmitPending(false);
             }
             return;
         }
@@ -947,9 +950,7 @@ export function AgentResultLayout({
     const disableAutoFeedbackPrompt = () => {
         trackAgentEvent('agent_result_feedback_prompt_dismiss_click');
         setFeedbackAutoPromptDisabled(true);
-        if (typeof window !== 'undefined') {
-            window.localStorage.setItem(FEEDBACK_AUTO_PROMPT_DISABLED_KEY, '1');
-        }
+        safeLocalStorage.setItem(FEEDBACK_AUTO_PROMPT_DISABLED_KEY, '1');
         clearFeedbackPromptTimer();
     };
 
@@ -1123,6 +1124,8 @@ export function AgentResultLayout({
         });
 
         setContentMetaByIndex({});
+        setSearchQuery('');
+        setFollowUpSubmitPending(false);
         setActiveResultIndex(0);
         setActiveQuestionIndex(0);
         setFeedbackQuestionIndex(0);

@@ -1,6 +1,6 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { MemoryRouter, useLocation, useNavigate } from 'react-router-dom';
 import AgentResultView, { ConventionalResultView, useProjectedResult, readPriorConversation } from './ResultView';
 import ConnectionNotice from './ConnectionNotice';
 import * as api from './api';
@@ -61,10 +61,38 @@ test('follow-ups are numbered in conversation order and retain their numbers aft
   await screen.findByText('Answer r3');
   expect(screen.getAllByText(/^Q\d+$/).map(chip => chip.textContent)).toEqual(['Q1', 'Q2', 'Q3']);
   first.unmount();
-  render(<MemoryRouter initialEntries={['/result-new2?run_id=r3&session_id=s1']}><AgentResultView contentAnchorPrefix="reopened" /></MemoryRouter>);
+  const earlier = render(<MemoryRouter initialEntries={['/result-new2?run_id=r2&session_id=s1']}><AgentResultView contentAnchorPrefix="earlier" /></MemoryRouter>);
+  await screen.findByText('Answer r1');
+  expect(await screen.findByText('Answer r2')).toBeTruthy();
+  expect(screen.queryByText('Answer r3')).toBeNull();
+  expect(JSON.parse(localStorage.getItem('pank-vnext:session:s1'))).toEqual(['r1', 'r2', 'r3']);
+  earlier.unmount();
+  render(<MemoryRouter initialEntries={['/result-new2?provider=vnext&session_id=s1']}><AgentResultView contentAnchorPrefix="reopened" /></MemoryRouter>);
   await screen.findByText('Answer r1');
   await screen.findByText('Answer r3');
   expect(screen.getAllByText(/^Q\d+$/).map(chip => chip.textContent)).toEqual(['Q1', 'Q2', 'Q3']);
+});
+
+test('switching saved conversations removes the previous answer while the new read is pending or fails', async () => {
+  let rejectRead;
+  api.getRun.mockImplementation(id => id === 'r1'
+    ? Promise.resolve({ ...snapshot(id), status: 'completed', graph_answer: 'First conversation answer' })
+    : new Promise((_, reject) => { rejectRead = reject; }));
+  function SwitchConversation() {
+    const navigate = useNavigate();
+    return <button onClick={() => navigate('/result-new2?run_id=other')}>Switch conversation</button>;
+  }
+  const meta = jest.fn();
+  render(<MemoryRouter initialEntries={['/result-new2?run_id=r1']}><SwitchConversation /><AgentResultView onContentMeta={meta} /></MemoryRouter>);
+  await screen.findByText('First conversation answer');
+  fireEvent.click(screen.getByRole('button', { name: 'Switch conversation' }));
+  await waitFor(() => expect(rejectRead).toBeDefined());
+  expect(screen.queryByText('First conversation answer')).toBeNull();
+  expect(meta.mock.calls.at(-1)[0].isQuestionComplete).toBe(false);
+  await act(async () => rejectRead(new Error('Saved read failed')));
+  expect(screen.getByRole('button', { name: 'Retry', exact: true })).toBeTruthy();
+  expect(screen.queryByText('First conversation answer')).toBeNull();
+  expect(api.createPlanOnce).not.toHaveBeenCalled();
 });
 
 test('saved run hydrates preview, resumes cursor, and does not create a model call', async () => {

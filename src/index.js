@@ -8,10 +8,12 @@ import AgentResultView from './vnext/ResultView';
 import ConventionalRoute from './vnext/ConventionalRoute';
 import { loadDevConfig, getDevConfig } from './vnext/runtimeConfig';
 import { initializeGtag } from './utils/gtag';
+import { safeLocalStorage, safeSessionStorage } from './utils/safeStorage';
 
 import React from 'react';
 
 import ReactDOM from 'react-dom/client';
+import { WebStorageStateStore } from 'oidc-client-ts';
 import { AuthProvider } from 'react-oidc-context';
 import { Provider } from 'react-redux';
 import {
@@ -62,6 +64,8 @@ const cognitoAuthConfig = {
   redirect_uri: process.env.REACT_APP_COGNITO_REDIRECT_URI || `${runtimeOrigin}/callback`,
   response_type: 'code',
   scope: process.env.REACT_APP_COGNITO_SCOPE || 'email openid phone',
+  stateStore: new WebStorageStateStore({ store: safeLocalStorage }),
+  userStore: new WebStorageStateStore({ store: safeSessionStorage }),
   onSigninCallback: (user) => {
     const nextPath =
       typeof user?.state === 'object'

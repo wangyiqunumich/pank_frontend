@@ -41,7 +41,9 @@ const sessionKey = (id) => `pank-vnext:session:${id}`;
 const resultKey = (id, phase) => `pank-vnext:presentation:${id}:${phase}`;
 export async function readPriorConversation(ids, currentId, options = {}) {
   let unavailable = 0;
-  const saved = await Promise.all(ids.filter(id => id !== currentId).slice(-19).map(async (id) => {
+  const currentIndex = ids.indexOf(currentId);
+  const earlierIds = currentIndex === -1 ? ids : ids.slice(0, currentIndex);
+  const saved = await Promise.all(earlierIds.slice(-19).map(async (id) => {
     try {
       const run = await getRun(id, options);
       if (!['completed', 'complete', 'partial'].includes(run.status) && !run.followup_ready) return null;
@@ -201,7 +203,14 @@ export function ResultSection({ run, result, error, planning, busy, onRevise, on
   return <>{resources.popup}{stableGraph.portal}<Box ref={sectionRef} onClickCapture={onResourceAccess} id={`${anchorPrefix}-question-1`}>{planning ? <PlanConfirmationPage data={planData} contentAnchorPrefix={anchorPrefix} /> : <QuestionAnswerPage data={data} contentAnchorPrefix={anchorPrefix} />}</Box></>;
 }
 
-export default function AgentResultView({ contentAnchorPrefix = 'result-1', onContentMeta } = {}) {
+export default function AgentResultView(props) {
+  const { pathname, search } = useLocation();
+  // Router navigation selects a different investigation. URL updates during
+  // an active investigation use replaceState and keep its conversation mounted.
+  return <AgentConversation key={`${pathname}${search}`} {...props} />;
+}
+
+function AgentConversation({ contentAnchorPrefix = 'result-1', onContentMeta }) {
   const location = useLocation();
   const navigate = useNavigate();
   const route = useMemo(() => new URLSearchParams(location.search), [location.search]);
@@ -245,7 +254,7 @@ export default function AgentResultView({ contentAnchorPrefix = 'result-1', onCo
     setConnection('connected');
     if (!TECH_DEMO) {
       const ids = readLocal(sessionKey(snapshot.session_id)) || [];
-      writeLocal(sessionKey(snapshot.session_id), [...ids.filter((id) => id !== runId), runId].slice(-20));
+      if (!ids.includes(runId)) writeLocal(sessionKey(snapshot.session_id), [...ids, runId].slice(-20));
       readPriorConversation(ids, runId, { signal: controller.signal }).then(({ items, unavailable }) => {
         if (controller.signal.aborted || !mounted.current || version !== loadVersion.current) return;
         setPrevious(items);
