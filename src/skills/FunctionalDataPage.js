@@ -36,6 +36,7 @@ import {
 } from '@mui/material';
 
 import AgentSidebar from '../components/AgentSidebar';
+import FunctionalCohortPlot from '../components/FunctionalCohortPlot';
 import BoxSvg from '../image/Box.svg';
 import functionalDataApi from '../utils/functionalDataApi';
 import { getDevConfig } from '../vnext/runtimeConfig';
@@ -307,7 +308,7 @@ export default function FunctionalDataPage() {
   // API state
   const [summaryData, setSummaryData] = useState(null);
   const [donorData, setDonorData] = useState(null);
-  const [traceImageUrl, setTraceImageUrl] = useState(null);
+  const [traceChart, setTraceChart] = useState(null);
   const [traitImageUrl, setTraitImageUrl] = useState(null);
   const [isLoadingSummary, setIsLoadingSummary] = useState(true);
   const [isLoadingDonors, setIsLoadingDonors] = useState(true);
@@ -360,15 +361,19 @@ export default function FunctionalDataPage() {
   };
 
   // Helper to build filter object
+  const [ageMin, ageMax] = debouncedAgeRange;
+  const [bmiMin, bmiMax] = debouncedBmiRange;
   const filters = useMemo(() => ({
     disease: disease !== 'All' ? disease : null,
     sex: sex !== 'All' ? sex : null,
     center: center !== 'All' ? center : null,
-    age_min: debouncedAgeRange[0],
-    age_max: debouncedAgeRange[1],
-    bmi_min: debouncedBmiRange[0],
-    bmi_max: debouncedBmiRange[1],
-  }), [disease, sex, center, debouncedAgeRange, debouncedBmiRange]);
+    age_min: ageMin,
+    age_max: ageMax,
+    bmi_min: bmiMin,
+    bmi_max: bmiMax,
+  }), [disease, sex, center, ageMin, ageMax, bmiMin, bmiMax]);
+  const activeTraceData = traceChart?.filters === filters && traceChart.responseType === responseType ? traceChart.data : null;
+  const filtersReady = !isLoadingSummary && (!summaryData || hasInitializedFilters);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -420,6 +425,7 @@ export default function FunctionalDataPage() {
 
   // Fetch donors when filters change
   useEffect(() => {
+    if (!filtersReady) return undefined;
     const controller = new AbortController();
     const { signal } = controller;
     const fetchDonors = async () => {
@@ -437,20 +443,23 @@ export default function FunctionalDataPage() {
     };
     fetchDonors();
     return () => controller.abort();
-  }, [filters]);
+  }, [filters, filtersReady]);
 
   // Fetch trace chart when filters or response type change
   useEffect(() => {
+    if (!filtersReady) return undefined;
     const controller = new AbortController();
-    let url;
     const fetchTraceChart = async () => {
       setIsLoadingTraceChart(true);
+      setTraceChart(null);
+      setErrors(prev => ({ ...prev, traceChart: null }));
       try {
-        const blob = await functionalDataApi.getCohortTracesPng(responseType, filters, { signal: controller.signal });
+        const data = await functionalDataApi.getCohortTraces(responseType, filters, { signal: controller.signal });
         if (controller.signal.aborted) return;
-        url = URL.createObjectURL(blob);
-        setTraceImageUrl(url);
-        setErrors(prev => ({ ...prev, traceChart: null }));
+        if (!Array.isArray(data.series) || !Array.isArray(data.times) || !Array.isArray(data.mean) || !Array.isArray(data.stimuli)) {
+          throw new Error('The service returned invalid trace data.');
+        }
+        setTraceChart({ filters, responseType, data });
       } catch (err) {
         if (!controller.signal.aborted) setErrors(prev => ({ ...prev, traceChart: err.message }));
       } finally {
@@ -458,11 +467,8 @@ export default function FunctionalDataPage() {
       }
     };
     fetchTraceChart();
-    return () => {
-      controller.abort();
-      if (url) URL.revokeObjectURL(url);
-    };
-  }, [filters, responseType]);
+    return () => controller.abort();
+  }, [filters, responseType, filtersReady]);
 
   // Fetch trait summary chart when filters or trait change
   useEffect(() => {
@@ -661,7 +667,7 @@ export default function FunctionalDataPage() {
         navigate(`/result-new?functional_filters=${encodeURIComponent(JSON.stringify(promptFilters))}`);
         return;
       }
-      const currentData = await functionalDataApi.getCohortTraces(responseType, filters);
+      const currentData = activeTraceData || await functionalDataApi.getCohortTraces(responseType, filters);
       const prompt = buildFunctionalPlotPrompt({
         filters: promptFilters,
         currentData,
@@ -919,13 +925,13 @@ export default function FunctionalDataPage() {
                         <ShowChartIcon sx={{ fontSize: 15, color: '#475569' }} />
                       </Box>
                     </Box>
-                    <ChartPlaceholder 
+                    {activeTraceData ? <FunctionalCohortPlot data={activeTraceData} donors={donorData?.donors}
+                      metadataLoading={isLoadingDonors} metadataError={errors.donors} /> : <ChartPlaceholder
                       aspectRatio={2}
                       icon={ShowChartIcon}
-                      loading={isLoadingTraceChart}
+                      loading={isLoadingTraceChart || !errors.traceChart}
                       error={errors.traceChart}
-                      imageUrl={traceImageUrl}
-                    />
+                    />}
                     <Box sx={{ display: 'flex', gap: 2, mt: 1, flexWrap: 'wrap' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                         <Box sx={{ width: 22, height: 2, bgcolor: '#94A3B8' }} />

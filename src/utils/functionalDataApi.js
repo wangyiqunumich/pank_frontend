@@ -84,7 +84,7 @@ export async function getDonors(filters = {}, { signal } = {}) {
  * @param {Object} filters - Filter parameters
  * @returns {Promise<Object>}
  */
-export async function getCohortTraces(trace_type = 'ins_ieq', filters = {}) {
+export async function getCohortTraces(trace_type = 'ins_ieq', filters = {}, { signal } = {}) {
   const params = new URLSearchParams();
   params.append('trace_type', trace_type);
   
@@ -100,6 +100,7 @@ export async function getCohortTraces(trace_type = 'ins_ieq', filters = {}) {
   
   const response = await fetch(url, {
     method: 'GET',
+    signal,
     headers: { 'Content-Type': 'application/json' },
   });
   if (!response.ok) {

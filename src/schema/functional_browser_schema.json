@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "cohort_traces": {
+    "x_label": "Time (min)",
+    "empty_message": "No recorded traces match these filters.",
+    "hover_panel": {
+      "title_fields": ["id", "donor_id"],
+      "width_px": 320,
+      "missing_value": "Not recorded",
+      "columns": [
+        { "key": "age", "label": "Age", "unit": "years" },
+        { "key": "sex", "label": "Genetic sex" },
+        { "key": "bmi", "label": "BMI", "unit": "kg/m²" },
+        { "key": "disease", "label": "Diabetes status" },
+        { "key": "center", "label": "Center" },
+        { "key": "hpap_id", "label": "Center ID" },
+        { "key": "donor_id", "label": "RRID" },
+        { "key": "time_minutes", "label": "Time", "unit": "min" },
+        { "key": "response_value", "label_key": "response_label" }
+      ]
+    }
+  }
+}

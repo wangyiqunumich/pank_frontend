@@ -39,12 +39,12 @@ export function GraphInfoPanelBody({ children }) {
 
 // Escape the graph/answer stacking contexts; native fullscreen needs its own host.
 export function GraphInfoPanelSurface({ children, panelRef, visible, mode, position, review, schema,
-  onEnter, onLeave, onEnlarge, onMinimize, onClose }) {
+  onEnter, onLeave, onEnlarge, onMinimize, onClose, label }) {
   const large = mode === 'expanded';
   const config=panelSchema(schema), cardLayout=config.layout, surface=config.surface;
   const room = position.above ? `calc(${position.y}px - 12px)` : `calc(100dvh - ${Math.max(12, position.y)}px - 12px)`;
   const expandedHeight = `min(${cardLayout.height_limits.expanded_px}px, ${cardLayout.height_limits.expanded_vh}dvh, calc(100dvh - ${surface.expanded_top_px}px - 24px))`;
-  return <section ref={panelRef} aria-label={large ? 'Expanded graph information' : 'Graph information'}
+  return <section ref={panelRef} aria-label={label || (large ? 'Expanded graph information' : 'Graph information')}
     aria-hidden={!visible} inert={visible ? undefined : ''}
     className={`graph-info-panel${visible ? ' is-visible' : ''}${!large && visible && position.slide ? ' is-sliding' : ''}`}
     onMouseEnter={onEnter} onMouseLeave={onLeave}
