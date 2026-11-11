@@ -154,6 +154,31 @@ const VisualTabScrollButton = React.forwardRef(function VisualTabScrollButton({d
     return <TabScrollButton {...props} ref={ref} direction={direction} component="button" type="button" tabIndex={-1} aria-label={direction === 'left' ? 'Previous visualization tabs' : 'More visualization tabs'} />;
 });
 
+function tabKey(tab) {
+    return String(tab?.id ?? tab?.label ?? '');
+}
+
+function useContentTab(tabs, scope, requestedTab) {
+    const [selection, setSelection] = React.useState(() => ({ scope, key: tabKey(tabs[0]) }));
+    const selectedIndex = selection.scope === scope ? tabs.findIndex(tab => tabKey(tab) === selection.key) : -1;
+    const index = Math.max(0, selectedIndex);
+    const currentKey = tabKey(tabs[index]);
+    if (selection.scope !== scope || selection.key !== currentKey) {
+        setSelection({ scope, key: currentKey });
+    }
+    const appliedRequest = React.useRef(null);
+    const keys = JSON.stringify(tabs.map(tabKey));
+    React.useEffect(() => {
+        if (!requestedTab || appliedRequest.current === requestedTab || !JSON.parse(keys).includes(requestedTab.id)) return;
+        appliedRequest.current = requestedTab;
+        setSelection({ scope, key: requestedTab.id });
+    }, [requestedTab, keys, scope]);
+    const selectTab = React.useCallback(nextIndex => {
+        setSelection({ scope, key: JSON.parse(keys)[nextIndex] });
+    }, [keys, scope]);
+    return [index, selectTab];
+}
+
 function ContentTabs({ tabs, value, onChange, variant = 'default', visual = false }) {
     const isPank1 = variant === 'pank1';
     return (
@@ -161,7 +186,7 @@ function ContentTabs({ tabs, value, onChange, variant = 'default', visual = fals
             value={value}
             onChange={onChange}
             variant="scrollable"
-            aria-label={visualSchema.main_visuals.tab_switch.accessible_label}
+            aria-label={visual ? visualSchema.main_visuals.tab_switch.accessible_label : 'Supporting materials'}
             scrollButtons={visualSchema.main_visuals.tab_switch.scroll_buttons}
             allowScrollButtonsMobile={visual}
             ScrollButtonComponent={visual ? VisualTabScrollButton : undefined}
@@ -542,19 +567,12 @@ function EvidenceItem({ item, onSelect, isActive, isHovered = false, variant = '
 }
 
 export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
-    const [visualTab, setVisualTab] = React.useState(0);
     const [feedbackText, setFeedbackText] = React.useState('');
     React.useEffect(() => { setFeedbackText(''); }, [data?.revisionQuestion, data?.revisionKey]);
     const isSingleColumn = useMediaQuery("(max-width:1199.95px)");
     const visualTabs = data?.visualMaterial?.tabs ?? [];
-    React.useEffect(() => { setVisualTab(0); }, [data?.visualMaterial?.scopeKey]);
-    const requestedVisualTab = data?.visualMaterial?.requestedTab;
+    const [visualTab, setVisualTab] = useContentTab(visualTabs, data?.visualMaterial?.scopeKey, data?.visualMaterial?.requestedTab);
     const visualTabIds = visualTabs.map(tab => tab.id).join('|');
-    React.useEffect(() => {
-        if (!requestedVisualTab) return;
-        const index = visualTabIds.split('|').indexOf(requestedVisualTab.id);
-        if (index >= 0) setVisualTab(index);
-    }, [requestedVisualTab, visualTabIds]);
 
     const normalizedVisualIndex = visualTab < visualTabs.length ? visualTab : 0;
     React.useEffect(()=>{if(DEV_MODULES)setGuideActiveModule(visualTabIds.split('|')[normalizedVisualIndex]);},[visualTabIds,normalizedVisualIndex]);
@@ -576,12 +594,6 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
         : "520px";
     const visualPanelHeight = isSingleColumn ? singleColumnHeight : desktopHeight;
     const confirmationColumnsHeight = isSingleColumn ? 'auto' : visualPanelHeight;
-
-    React.useEffect(() => {
-        if (visualTab > 0 && visualTab >= visualTabs.length) {
-            setVisualTab(0);
-        }
-    }, [visualTab, visualTabs.length]);
 
     const originalQuestion = data?.originalQuestion || "";
     const hideOriginalQueryBox = Boolean(data?.hideOriginalQueryBox);
@@ -1032,22 +1044,17 @@ export function PlanConfirmationPage({ data, contentAnchorPrefix }) {
 }
 
 export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
-    const [visualTab, setVisualTab] = React.useState(0);
-    const [evidenceTab, setEvidenceTab] = React.useState(0);
     const [activeReference, setActiveReference] = React.useState(null);
     const [hoveredReference, setHoveredReference] = React.useState(null);
     const aiOverviewRef = React.useRef(null);
     const pageRootRef = React.useRef(null);
     const isSingleColumn = useMediaQuery("(max-width:1199.95px)");
     const visualTabs = data?.visualMaterial?.tabs ?? [];
-    React.useEffect(() => { setVisualTab(0); }, [data?.visualMaterial?.scopeKey]);
-    const requestedVisualTab = data?.visualMaterial?.requestedTab;
+    const evidenceTabs = data?.evidences?.tabs ?? [];
+    const tabScope = data?.visualMaterial?.scopeKey ?? contentAnchorPrefix ?? data?.questionId;
+    const [visualTab, setVisualTab] = useContentTab(visualTabs, tabScope, data?.visualMaterial?.requestedTab);
+    const [evidenceTab, setEvidenceTab] = useContentTab(evidenceTabs, tabScope);
     const visualTabIds = visualTabs.map(tab => tab.id).join('|');
-    React.useEffect(() => {
-        if (!requestedVisualTab) return;
-        const index = visualTabIds.split('|').indexOf(requestedVisualTab.id);
-        if (index >= 0) setVisualTab(index);
-    }, [requestedVisualTab, visualTabIds]);
 
     const normalizedVisualIndex = visualTab < visualTabs.length ? visualTab : 0;
     React.useEffect(()=>{if(DEV_MODULES)setGuideActiveModule(visualTabIds.split('|')[normalizedVisualIndex]);},[visualTabIds,normalizedVisualIndex]);
@@ -1083,7 +1090,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
         if (referencesTabIndex >= 0) {
             setEvidenceTab(referencesTabIndex);
         }
-    }, [referencesTabIndex]);
+    }, [referencesTabIndex, setEvidenceTab]);
 
     const isPmidEventForCurrentPage = React.useCallback((detail) => {
         if (!detail || !pageRootRef.current) return false;
@@ -1130,7 +1137,7 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
             window.removeEventListener(PMID_HOVER_CLEAR_EVENT, handleHoverClear);
             window.removeEventListener(PMID_CLICK_EVENT, handleClick);
         };
-    }, [isPmidEventForCurrentPage, referencesTabIndex]);
+    }, [isPmidEventForCurrentPage, referencesTabIndex, setEvidenceTab]);
 
     const referenceTimeoutRef = React.useRef(null);
     React.useEffect(() => {
@@ -1158,7 +1165,6 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
         };
     }, [activeReference, evidenceTab, referencesTabIndex]);
 
-    const evidenceTabs = data?.evidences?.tabs ?? [];
     const showVisualSection = Boolean(data?.visualMaterial);
     const showEvidenceSection = Boolean(data?.evidences);
     const showFollowUpSection = Boolean(data?.followUp);
@@ -1182,18 +1188,6 @@ export default function QuestionAnswerPage({ data, contentAnchorPrefix }) {
         (suffix) => `${anchorPrefix}-${suffix}`,
         [anchorPrefix]
     );
-
-    React.useEffect(() => {
-        if (visualTab > 0 && visualTab >= visualTabs.length) {
-            setVisualTab(0);
-        }
-    }, [visualTab, visualTabs.length]);
-
-    React.useEffect(() => {
-        if (evidenceTab > 0 && evidenceTab >= evidenceTabs.length) {
-            setEvidenceTab(0);
-        }
-    }, [evidenceTab, evidenceTabs.length]);
 
     // Handle scroll to top signal from parent
     React.useEffect(() => {

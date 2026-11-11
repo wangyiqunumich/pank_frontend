@@ -43,12 +43,12 @@ export function useResourcePanels(referenceData = {}, resourceStatus, options) {
                     <CircularProgress size={28} />
                 </Box>
             ) : (
-                <Box sx={{ position: 'relative', width: '100%', maxWidth: { xs: '100%', md: 520 }, minHeight: 200, maxHeight: 260 }}>
+                <Box sx={{ position: 'relative', width: '100%', minWidth: 0, maxWidth: { xs: '100%', md: 520 }, minHeight: 200, height: 260 }}>
                     <Box
                         component={imageUrl ? "img" : "div"}
                         src={imageUrl}
                         alt="Empirical Evidence"
-                        sx={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: 2, cursor: 'pointer' }}
+                        sx={{ display: 'block', width: '100%', height: '100%', objectFit: 'contain', borderRadius: 2, cursor: 'pointer' }}
                         onClick={() => {
                             trackResultNewEvent('agent_result_image_popup_open_click', { source: 'empirical_evidence' });
                             setImagePopupUrl(imageUrl);
@@ -132,8 +132,8 @@ export function useResourcePanels(referenceData = {}, resourceStatus, options) {
         external_links: externalGroups.length ? { label: 'External Links', content: <ExternalLinksPanel key={externalGroups.map(group => group.entries.map(entry => entry.url).join('|')).join(';')} groups={externalGroups} /> } : null,
     };
     const evidenceTabs = Array.isArray(options?.tabs)
-        ? options.tabs.map(({ id, label }) => registeredTabs[id] ? { ...registeredTabs[id], label: label || registeredTabs[id].label } : null).filter(Boolean)
-        : Object.values(registeredTabs).filter(Boolean);
+        ? options.tabs.map(({ id, label }) => registeredTabs[id] ? { ...registeredTabs[id], id, label: label || registeredTabs[id].label } : null).filter(Boolean)
+        : Object.entries(registeredTabs).filter(([, tab]) => tab).map(([id, tab]) => ({ ...tab, id }));
 
     const popupIsCurrent = imagePopupUrl && empiricalGroups.some((entry) => imageUrlFor(entry) === imagePopupUrl);
     const popup = popupIsCurrent ? <Backdrop sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })} open onClick={() => setImagePopupUrl('')}><Box component="img" src={imagePopupUrl} alt="Empirical Evidence" sx={{ maxWidth: '100%', maxHeight: '100%' }} /></Backdrop> : null;

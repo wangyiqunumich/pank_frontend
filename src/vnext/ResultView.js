@@ -434,7 +434,7 @@ function AgentConversation({ contentAnchorPrefix = 'result-1', onContentMeta }) 
     <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', px: { xs: 0, sm: 2, md: 3 }, py: 3 }}><Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 3 }}>
         {historyError && <Box role="status"><Typography>{historyError}</Typography><Button onClick={() => attachRun(readRunId.current)}>Refresh history</Button></Box>}
         {previous.map((item, index) => <ResultSection key={item.run.run_id} guideEnabled={false} {...item} questionNumber={index + 1} anchorPrefix={`${contentAnchorPrefix}-previous-${index}`} />)}
-        {initialLoading ? <Box role="status" aria-label="Loading current question" sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: '200px' }}><SearchResultLoading streamProgress={progress} handleClose={cancel} /></Box> :
+        {initialLoading ? <Box role="status" aria-label="Loading current question" sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', py: { xs: 4, sm: 8, md: '200px' } }}><SearchResultLoading streamProgress={progress} handleClose={cancel} /></Box> :
           <ResultSection run={run} result={result} error={resultError} planning={isPlanning} busy={busy || connection !== 'connected'} onRevise={onRevise} onConfirm={onConfirm} onFollowUp={TECH_DEMO ? undefined : followUp} questionNumber={previous.length + 1} anchorPrefix={contentAnchorPrefix} presentationState={location.state?.result_page} />}
       </Box></Box>
   </>;

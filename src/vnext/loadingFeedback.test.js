@@ -56,3 +56,16 @@ test.each(['reconnecting','exhausted'])('lost updates show reconnection instead 
   expect(progress.shortTitle).toMatch(/Reconnecting/);
   expect(progress.waitingTips).toEqual([]);
 });
+
+test('a step that finishes during its fade remains visible with the completed text', () => {
+  const entries = [{ title: 'Checking Graph Evidence', steps: ['Retrieving records.', 'Graph evidence is available.'] }];
+  const progress = step => ({ title: 'Loading', entries, entryStates: [{ step, isFinished: step === 2 }], progress: 25 });
+  const { rerender } = render(<SearchResultLoading streamProgress={progress(0)} />);
+  rerender(<SearchResultLoading streamProgress={progress(1)} />);
+  act(() => jest.advanceTimersByTime(50));
+  rerender(<SearchResultLoading streamProgress={progress(2)} />);
+  act(() => jest.advanceTimersByTime(300));
+  const text = screen.getByText('Graph evidence is available.');
+  expect(getComputedStyle(text).opacity).toBe('1');
+  expect(text.style.transform || getComputedStyle(text).transform).toBe('translateY(0px)');
+});

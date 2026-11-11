@@ -27,12 +27,12 @@ function LoadingEntry({ step, entry }) {
     const steps = entry?.steps || [];
     const currentIndex = step;
     const currentText = steps[currentIndex] || '';
+    const completedText = steps[steps.length - 1] || '';
     const lastTextRef = useRef(currentText);
 
     const lastStepRef = useRef(currentIndex);
     const didMountRef = useRef(false);
 
-    const [prevStepIndex, setPrevStepIndex] = useState(null);
     const [yPos, setYPos] = useState(0);
     const [opacity, setOpacity] = useState(1);
     const [transition, setTransition] = useState(true);
@@ -46,10 +46,16 @@ function LoadingEntry({ step, entry }) {
             return;
         }
 
-        if (currentIndex === steps.length) return;
+        if (currentIndex >= steps.length) {
+            setCurrText(completedText);
+            setOpacity(1);
+            setYPos(0);
+            setTransition(false);
+            lastStepRef.current = currentIndex;
+            lastTextRef.current = currentText;
+            return;
+        }
         if (currentIndex === lastStepRef.current && currentText === lastTextRef.current) return;
-
-        setPrevStepIndex(lastStepRef.current);
 
         setOpacity(0);
         setYPos(-20);
@@ -73,14 +79,13 @@ function LoadingEntry({ step, entry }) {
             clearTimeout(t1);
             clearTimeout(t2);
         };
-    }, [currentIndex, currentText, steps.length]);
+    }, [currentIndex, currentText, completedText, steps.length]);
 
     // Determine current visual state
     const isIdle = step < 0;
     const isFinished = step >= steps.length;
     const isInProgress = !isIdle && !isFinished;
 
-    const prevText = prevStepIndex != null ? steps[prevStepIndex] : null;
     const stepText = isFinished ? steps[steps.length - 1] : steps[currentIndex] ?? '';
     const visibleText = isFinished
         ? (steps[steps.length - 1] || currText || '')
@@ -92,7 +97,7 @@ function LoadingEntry({ step, entry }) {
     return (
         <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, width: '100%' }}>
             {/* ICON */}
-            <Box sx={{ width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Box sx={{ width: 24, height: 24, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {isIdle && (
                     <Box
                         sx={{
@@ -129,7 +134,7 @@ function LoadingEntry({ step, entry }) {
             </Box>
 
             {/* TEXT */}
-            <Box sx={{ position: 'relative', display: 'flex', flexDirection: 'column', flex: 1 }}>
+            <Box sx={{ position: 'relative', display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, overflowWrap: 'anywhere' }}>
                 <Typography sx={{ fontWeight: '700', fontSize: '18px', fontFamily: 'Open Sans', color: titleColor }}>
                     {entry.title}
                 </Typography>
@@ -137,13 +142,9 @@ function LoadingEntry({ step, entry }) {
 
                 {!isIdle && (
                     <Box sx={{ position: 'relative', minHeight: 24, display: 'inline-block', flex: 1 }} ref={containerRef}>
-                        <Box sx={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} >
                             <Typography
                                 sx={{
                                     fontWeight: '300', fontSize: '15px', fontFamily: 'Open Sans',
-                                    position: 'absolute',
-                                    left: 0,
-                                    right: 0,
                                     transform: `translateY(${yPos}px)`,
                                     opacity,
                                     transition: transition ? 'transform 0.2s, opacity 0.2s' : 'none',
@@ -152,7 +153,6 @@ function LoadingEntry({ step, entry }) {
                             >
                                 {visibleText}
                             </Typography>
-                        </Box>
                     </Box>
                 )}
             </Box>
@@ -506,7 +506,7 @@ export default function SearchResultLoading({ open, handleClose, streamProgress,
     return <Box sx={{
         width: '768px',
         maxWidth: '100%',
-        padding: '32px',
+        padding: { xs: '20px', sm: '32px' },
         borderRadius: '20px',
         gap: '32px',
         display: 'flex',
@@ -519,14 +519,18 @@ export default function SearchResultLoading({ open, handleClose, streamProgress,
         boxShadow: '0px 4px 6px -4px #0000001A, 0px 10px 15px -3px #0000001A',
         boxSizing: 'border-box',
     }}>
-        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
-            <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: '24px', color: '#263824' }}>{resolvedTitle}</Typography>
+        <Box sx={{ width: '100%', display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, flexWrap: 'wrap', alignItems: { xs: 'flex-start', sm: 'center' }, justifyContent: 'space-between', gap: '16px' }}>
+            <Typography sx={{ fontFamily: 'Open Sans', fontWeight: 600, fontSize: { xs: '20px', sm: '24px' }, color: '#263824', minWidth: 0, overflowWrap: 'anywhere' }}>{resolvedTitle}</Typography>
             <Box sx={{
                 color: 'black',
                 border: '0.63px solid #E0F0F3',
                 backgroundColor: '#F2FAFB',
                 px: '16px',
-                height: '38px',
+                minHeight: '38px',
+                maxWidth: '100%',
+                boxSizing: 'border-box',
+                flexWrap: 'wrap',
+                py: 0.75,
                 borderRadius: '19px',
                 display: 'flex',
                 alignItems: 'center',
