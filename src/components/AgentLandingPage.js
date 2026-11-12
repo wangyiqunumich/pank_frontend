@@ -2,6 +2,7 @@ import { newIntent } from '../utils/agentIdentity';
 import React, {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -47,10 +48,86 @@ function AgentLandingPage() {
     const [activeExampleGroup, setActiveExampleGroup] = useState(undefined);
     const examplesPanelRef = useRef(null);
     const examplesTriggerRef = useRef(null);
-    const closeExamples = useCallback(() => {
-        setActiveExampleGroup(undefined);
-        if (examplesPanelRef.current?.contains(document.activeElement)) examplesTriggerRef.current?.focus({ preventScroll: true });
+    const exampleButtonsRef = useRef(new Map());
+    const exampleOriginRef = useRef(null);
+    const exampleAnimationsRef = useRef([]);
+    const exampleTransitionRef = useRef(0);
+    const activeExampleRef = useRef(activeExampleGroup);
+    activeExampleRef.current = activeExampleGroup;
+
+    const cancelExampleAnimations = useCallback(() => {
+        exampleTransitionRef.current += 1;
+        exampleAnimationsRef.current.forEach(animation => animation.cancel());
+        exampleAnimationsRef.current = [];
     }, []);
+
+    const closeExamples = useCallback((restoreFocus = true) => {
+        const panel = examplesPanelRef.current;
+        const trigger = examplesTriggerRef.current;
+        const button = exampleButtonsRef.current.get(activeExampleRef.current);
+        const focusTrigger = restoreFocus && panel?.contains(document.activeElement);
+        const current = panel && getComputedStyle(panel);
+        const from = current && { transform: current.transform, opacity: current.opacity, borderRadius: current.borderRadius };
+        cancelExampleAnimations();
+        const finish = () => {
+            setActiveExampleGroup(undefined);
+            if (focusTrigger) trigger?.focus({ preventScroll: true });
+        };
+        if (!panel?.animate || !button || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            finish();
+            return;
+        }
+        const target = button.getBoundingClientRect();
+        const bounds = panel.getBoundingClientRect();
+        const scaleX = target.width / bounds.width, scaleY = target.height / bounds.height;
+        const radius = parseFloat(getComputedStyle(button).borderTopLeftRadius);
+        const sequence = exampleTransitionRef.current;
+        const animation = panel.animate([from, {
+            transform: `translate(${target.left - bounds.left}px, ${target.top - bounds.top}px) scale(${scaleX}, ${scaleY})`,
+            borderRadius: `${radius / scaleX}px / ${radius / scaleY}px`,
+            opacity: 0,
+        }], { duration: 240, easing: 'cubic-bezier(.4, 0, .2, 1)', fill: 'forwards' });
+        const contents = [...panel.children].map(element => element.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 90, fill: 'forwards' }));
+        exampleAnimationsRef.current = [animation, ...contents];
+        animation.finished.then(() => {
+            if (exampleTransitionRef.current !== sequence) return;
+            finish();
+        }).catch(() => {});
+    }, [cancelExampleAnimations]);
+
+    const openExamples = (group, button) => {
+        cancelExampleAnimations();
+        exampleOriginRef.current = button ? {
+            group,
+            bounds: button.getBoundingClientRect(),
+            radius: parseFloat(getComputedStyle(button).borderTopLeftRadius),
+        } : null;
+        setActiveExampleGroup(group);
+    };
+
+    useLayoutEffect(() => {
+        const origin = exampleOriginRef.current;
+        exampleOriginRef.current = null;
+        const panel = examplesPanelRef.current;
+        if (!panel?.animate || !origin || origin.group !== activeExampleGroup
+            || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const bounds = panel.getBoundingClientRect();
+        const scaleX = origin.bounds.width / bounds.width, scaleY = origin.bounds.height / bounds.height;
+        const animation = panel.animate([{
+            transform: `translate(${origin.bounds.left - bounds.left}px, ${origin.bounds.top - bounds.top}px) scale(${scaleX}, ${scaleY})`,
+            borderRadius: `${origin.radius / scaleX}px / ${origin.radius / scaleY}px`,
+            opacity: 0,
+        }, { transform: 'none', borderRadius: getComputedStyle(panel).borderRadius, opacity: 1 }], {
+            duration: 300,
+            easing: 'cubic-bezier(.22, 1, .36, 1)',
+        });
+        const contents = [...panel.children].map(element => element.animate([
+            { opacity: 0 }, { opacity: 0, offset: 0.25 }, { opacity: 1 },
+        ], { duration: 300, easing: 'ease-out' }));
+        exampleAnimationsRef.current = [animation, ...contents];
+    }, [activeExampleGroup]);
+
+    useEffect(() => cancelExampleAnimations, [cancelExampleAnimations]);
 
     const searchExampleGroup = useMemo(() => {
         const group = ExampleQueries?.search_examples;
@@ -161,7 +238,7 @@ function AgentLandingPage() {
         if (nextQuery) {
             setQuery(nextQuery);
         }
-        setActiveExampleGroup(undefined);
+        closeExamples(false);
 
         const nextLink = (example?.link || '').trim();
         trackLandingEvent('landing_example_item_click', {
@@ -187,7 +264,7 @@ function AgentLandingPage() {
 
         const handleOutsideClick = (event) => {
             if (examplesPanelRef.current && !examplesPanelRef.current.contains(event.target)) {
-                setActiveExampleGroup(undefined);
+                closeExamples(false);
             }
         };
         const handleEscape = (event) => {
@@ -302,7 +379,7 @@ function AgentLandingPage() {
                                     examplesTriggerRef.current = event.target;
                                     if (examplesPanelRef.current?.contains(event.relatedTarget)) return;
                                     if (searchExampleGroup.entries.length > 0) {
-                                        setActiveExampleGroup('search');
+                                        openExamples('search');
                                     }
                                 }}
                                 onKeyDown={(event) => {
@@ -382,13 +459,18 @@ function AgentLandingPage() {
                             {quickCards.map((card) => (
                                 <Button
                                     key={card.key}
+                                    ref={element => {
+                                        if (element) exampleButtonsRef.current.set(card.key, element);
+                                        else exampleButtonsRef.current.delete(card.key);
+                                    }}
                                     onClick={(event) => {
                                         examplesTriggerRef.current = event.currentTarget;
                                         trackLandingEvent('landing_quick_card_click', {
                                             card: card.key,
                                             will_open: activeExampleGroup !== card.key,
                                         });
-                                        setActiveExampleGroup((prev) => (prev === card.key ? undefined : card.key));
+                                        if (activeExampleGroup === card.key) closeExamples();
+                                        else openExamples(card.key, event.currentTarget);
                                     }}
                                     sx={{
                                         borderRadius: { xs: '16px', md: '32px' },
@@ -422,6 +504,7 @@ function AgentLandingPage() {
                             <Paper
                                 ref={examplesPanelRef}
                                 sx={{
+                                    transformOrigin: 'top left',
                                     position: 'absolute',
                                     top: 0,
                                     left: 0,
