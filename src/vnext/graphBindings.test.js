@@ -1,5 +1,5 @@
 import cytoscape from 'cytoscape';
-import { applyGraphRoutes, calculateGraphViewport, graphElements, observeGraphViewport, spreadCompactLayout, updateGraphElements } from './graphBindings';
+import { applyGraphRoutes, calculateGraphViewport, graphElements, observeGraphViewport, routeStyle, spreadCompactLayout, updateGraphElements } from './graphBindings';
 
 const graph = {
   nodes: ['gene', 'cell'].map((id) => ({ '~id': id, '~labels': [id], '~properties': { name: id } })),
@@ -313,3 +313,13 @@ test('geometry and routes are committed together and later data-only updates pre
   expect(result.nodes[0].data.viewer_ref).toEqual(ref);
   expect(result.nodes[0].data.label).toBe('beta cell');
  });
+
+test('native quadratic joins preserve the planned label anchor in either direction', () => {
+  const native = { ...routes.detection, route_type: 'unbundled-bezier', control_points: [[25, 10], [65, 20]], label_anchor: [50, 25] };
+  const a = { x: 0, y: 0 }, b = { x: 100, y: 0 };
+  expect(routeStyle(native, a, b)).toMatchObject({
+    'curve-style': 'unbundled-bezier', 'control-point-weights': [0.25, 0.65],
+    'control-point-distances': [10, 20], 'text-margin-x': 5, 'text-margin-y': 10,
+  });
+  expect(routeStyle(native, a, b, true)['control-point-distances']).toEqual([-20, -10]);
+});

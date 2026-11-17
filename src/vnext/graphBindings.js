@@ -40,6 +40,7 @@ export function spreadCompactLayout(result, positions = {}, routes = {}) {
     if (!edge || !route) return [id, route];
     return [id, { ...route,
       source_port: anchor(route.source_port, edge['~start']), target_port: anchor(route.target_port, edge['~end']),
+      ...(route.label_anchor ? { label_anchor: transform(route.label_anchor) } : {}),
       ...(route.control_points ? { control_points: route.control_points.map(transform) } : {}),
       ...(route.waypoints ? { waypoints: route.waypoints.map(transform) } : {}),
     }];
@@ -167,6 +168,7 @@ export function routeStyle(route, source, target, inverted = false) {
   const dx = end.x - start.x, dy = end.y - start.y;
   const squared = dx * dx + dy * dy, length = Math.sqrt(squared);
   if (!length) return undefined;
+  const nativeCurve = route.route_type === 'unbundled-bezier';
   let points = (route.control_points || route.waypoints || []).map(finitePoint).filter(Boolean);
   if (inverted) points = points.slice().reverse();
   const weights = points.map((p) => ((p.x - start.x) * dx + (p.y - start.y) * dy) / squared);
@@ -186,6 +188,24 @@ export function routeStyle(route, source, target, inverted = false) {
   const offset = (value) => Math.round(value * 1e6) / 1e6;
   if (sourcePort) style['source-endpoint'] = `${offset(sourcePort.x - start.x)}px ${offset(sourcePort.y - start.y)}px`;
   if (targetPort) style['target-endpoint'] = `${offset(targetPort.x - end.x)}px ${offset(targetPort.y - end.y)}px`;
+  // Cytoscape centres edge text at the middle quadratic (odd count) or
+  // middle join (even count). Retain the layout's separate label anchor.
+  const anchor = finitePoint(route.label_anchor);
+  if (nativeCurve && anchor && sourcePort && targetPort && points.length && !route.list_leaf_endpoint) {
+    const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+    const i = Math.floor(points.length / 2);
+    let centre;
+    if (points.length % 2) {
+      const cp = points[i];
+      const left = i ? mid(points[i - 1], cp) : sourcePort;
+      const right = i + 1 < points.length ? mid(cp, points[i + 1]) : targetPort;
+      centre = mid(mid(left, cp), mid(cp, right));
+    } else {
+      centre = mid(points[i - 1], points[i]);
+    }
+    style['text-margin-x'] = anchor.x - centre.x;
+    style['text-margin-y'] = anchor.y - centre.y;
+  }
   if (route.list_leaf_endpoint) {
     let endpoint = route.list_leaf_endpoint;
     if (inverted) endpoint = endpoint === 'source' ? 'target' : 'source';
@@ -242,7 +262,9 @@ export function graphElements(result, positions = {}, routes = {}, options = {})
     if (group.length < 2) return;
     group.sort((a, b) => String(a.data.id).localeCompare(String(b.data.id)));
     group.forEach((edge, index) => {
-      edgeStyles.get(edge.data.id)['text-margin-y'] = (index - (group.length - 1) / 2) * 8;
+      const style = edgeStyles.get(edge.data.id);
+      if (style['text-margin-y'] !== undefined) return;
+      style['text-margin-y'] = (index - (group.length - 1) / 2) * 8;
     });
   });
   // Cytoscape mutates the position object in its element definitions on drag.
