@@ -1,3 +1,4 @@
+import { placeCurveLabels } from './curveLabels';
 import { displayWords } from './recordedPresentation';
 import { samplePresentation } from './samplePresentation';
 const point = (value) => Array.isArray(value) ? { x: value[0], y: value[1] } : value;
@@ -188,6 +189,10 @@ export function routeStyle(route, source, target, inverted = false) {
   const offset = (value) => Math.round(value * 1e6) / 1e6;
   if (sourcePort) style['source-endpoint'] = `${offset(sourcePort.x - start.x)}px ${offset(sourcePort.y - start.y)}px`;
   if (targetPort) style['target-endpoint'] = `${offset(targetPort.x - end.x)}px ${offset(targetPort.y - end.y)}px`;
+  if (nativeCurve) {
+    style['source-endpoint'] = 'outside-to-node';
+    style['target-endpoint'] = 'outside-to-node';
+  }
   // Cytoscape centres edge text at the middle quadratic (odd count) or
   // middle join (even count). Retain the layout's separate label anchor.
   const anchor = finitePoint(route.label_anchor);
@@ -287,6 +292,7 @@ export function applyGraphRoutes(cy, edgeStyles, previousStyles = new Map(), mov
       edge.style(next);
     });
   });
+  placeCurveLabels(cy);
 }
 
 
@@ -336,7 +342,7 @@ export function updateGraphElements(cy, next, previous) {
       obsolete.remove();
       layoutChanged = true;
     }
-    if (layoutChanged || routesChanged) applyGraphRoutes(cy, edgeStyles, previous.edgeStyles, movedNodes);
   });
+  if (layoutChanged || routesChanged) applyGraphRoutes(cy, edgeStyles, previous.edgeStyles, movedNodes);
   return layoutChanged || routesChanged;
 }
