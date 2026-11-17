@@ -292,7 +292,13 @@ export function applyGraphRoutes(cy, edgeStyles, previousStyles = new Map(), mov
       edge.style(next);
     });
   });
-  placeCurveLabels(cy);
+  if (!cy.headless() && cy.container()) {
+    // Canvas has resolved text widths and quadratic control points after paint.
+    // Register once per route update so label style changes cannot retrigger it.
+    cy.one('render', () => requestAnimationFrame(() => {
+      if (!cy.destroyed()) placeCurveLabels(cy);
+    }));
+  }
 }
 
 
