@@ -46,3 +46,30 @@ test('the record footer sits below the scroll area in compact and expanded cards
  fireEvent.click(screen.getByRole('button',{name:'Complete record'}));
  checkFooter();
 });
+
+test('CCC summary uses only supporting contexts and the matrix includes every owned page', async () => {
+ const ref={kind:'edge',type_id:'LIGAND_RECEPTOR__Gene__Gene',id:'timp3-kdr'};
+ const base={source:'Active Stellate',target:'Endothelial',map_id:'M5',condition:'ND',treatment:'no_treatment',
+  ligand_complex:'TIMP3',receptor_complex:'KDR',specificity_rank:1.4e-7,lr_means:1.5863626,selection_status:'supporting',
+  n_donors_sig:6,n_donors_celltypes_ok:6};
+ const other={...base,source:'Quiescent Stellate',selection_status:'below_threshold',n_donors_sig:2,n_donors_celltypes_ok:3};
+ const table={id:'ccc_contexts',title:'CCC contexts',columns:Object.keys(base),all_fields:Object.keys(base),filters:[],field_specs:{}};
+ const schema={release_id:'PanKgraph_1104',tables:{ccc_contexts:table}};
+ const record={...card,release_id:schema.release_id,ref,tables:[table],component_views:[],
+   endpoints:['TIMP3','KDR'].map(id=>({ref:{kind:'node',type_id:'Gene',id},display_name:id}))};
+ const request=jest.fn(async (_,query) => {
+   expect(query.ref).toEqual(ref);
+   return query.limit===100 && !query.cursor
+     ? {state:'available',records:[base],has_more:true,next_cursor:'second'}
+     : {state:'available',records:query.cursor ? [other] : [base,other],has_more:false};
+ });
+ render(<EvidenceDetails card={record} schema={schema} releaseId={record.release_id} request={request}/>);
+ expect(await screen.findByText('Active Stellate → Endothelial',{exact:false,selector:'li'})).toBeTruthy();
+ expect(screen.queryByText('Quiescent Stellate → Endothelial',{exact:false,selector:'li'})).toBeNull();
+ expect(screen.getAllByRole('img').filter(dot=>dot.classList.contains('xe-ccc-mark'))).toHaveLength(2);
+ expect(screen.getByRole('img',{name:/Quiescent Stellate → Endothelial.*2 \/ 3/})).toBeTruthy();
+ expect(await screen.findByRole('button',{name:'Download table (CSV)'})).toBeTruthy();
+ fireEvent.click(screen.getByRole('button',{name:'Complete record'}));
+ expect(screen.getByText('Overall description')).toBeTruthy();
+ expect(screen.queryByRole('table')).toBeNull();
+});

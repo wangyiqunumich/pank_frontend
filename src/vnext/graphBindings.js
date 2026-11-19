@@ -1,6 +1,7 @@
 import { placeCurveLabels } from './curveLabels';
 import { displayWords } from './recordedPresentation';
 import { samplePresentation } from './samplePresentation';
+import panelPresentation from '../schema/graph_viewer_panel_schema.json';
 const point = (value) => Array.isArray(value) ? { x: value[0], y: value[1] } : value;
 const finitePoint = (value) => { const p = point(value); return p && Number.isFinite(p.x) && Number.isFinite(p.y) ? p : null; };
 
@@ -243,7 +244,7 @@ export function graphElements(result, positions = {}, routes = {}, options = {})
   const edgeStyles = new Map();
   const edges = [...new Map((result?.edges || []).map((edge) => [edge['~id'], edge])).values()].filter((edge) => byId[edge['~start']] && byId[edge['~end']]).map((edge) => {
     const displayType = edge.display_type || edge['~type'];
-    const label = [edge.display_label, edgeLabels[displayType], displayType, edge['~type']]
+    const label = [panelPresentation.relationship_labels?.[edge['~type']], edge.display_label, edgeLabels[displayType], displayType, edge['~type']]
       .find((value) => typeof value === 'string' && value.trim()) || 'Relationship';
     const inverted = Boolean(edgeIsInverted[displayType]);
     const start = edge['~start'], end = edge['~end'];

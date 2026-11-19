@@ -1,5 +1,8 @@
 {
   "version": 3,
+  "relationship_labels": {
+    "LIGAND_RECEPTOR": "CCC ligand-receptor"
+  },
   "complete_record": {
     "title": "Complete record",
     "omit_fields": [
@@ -36,7 +39,8 @@
       "title": "Related links"
     },
     "ccc_contexts": {
-      "title": "Cell–cell context summary"
+      "title": "Cell–cell contexts",
+      "visualization": "ccc_dot_matrix"
     },
     "metadata_donor": {
       "title": "Source annotations"
@@ -92,6 +96,11 @@
     "type_2_diabetes_ocr_gene_activity_score_median": "Median",
     "source": "Sender cell",
     "target": "Receiver cell",
+    "ligand_complex": "Ligand",
+    "receptor_complex": "Receptor",
+    "n_donors_detected": "Donors with detection",
+    "passes_specificity_cutoff": "Passes specificity cutoff",
+    "confidence": "Source confidence",
     "lr_means": "Ligand–receptor mean",
     "cellphone_pvals": "CellPhoneDB P value",
     "expr_prod": "Expression product",
@@ -503,9 +512,12 @@
       "lrscore",
       "specificity_rank",
       "magnitude_rank",
+      "n_donors_detected",
       "n_donors_sig",
       "n_donors_celltypes_ok",
-      "frac_sig_of_eligible"
+      "frac_sig_of_eligible",
+      "passes_specificity_cutoff",
+      "confidence"
     ],
     "metadata_donor": [
       "source_records"

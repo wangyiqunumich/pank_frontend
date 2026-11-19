@@ -16,6 +16,7 @@ import {CardValue,cardValueLayout,formatCardNumber} from './CardValue';
 import {resourceLink} from './resourceLinks';
 import TableDownloads from './TableDownloadControls';
 import {safeSourceUrl} from './tableDownloads';
+import {CccDotMatrix,CccSummary,useCccContexts} from './CccContexts';
 const DisplayContext=createContext({policy:{},profileKey:null});
 function Datum({ value, format, field = '', layout = 'auto', quantity = false }) {
   const panelPolicy=usePanelSchema();
@@ -177,9 +178,11 @@ function ConditionEvidenceSummary({card,schema,component}) {
 
 function ExpandedDetails({ card, schema }) {
   const panelPolicy=usePanelSchema();
-  const [tab, setTab] = useState('record');
-  const wide = true;
   const tabs=panelTabs(card,schema);
+  const cccTab=tabs.find(t=>t.table && panelPolicy.tables[t.id]?.visualization==='ccc_dot_matrix');
+  const cccState=useCccContexts(card,cccTab?.table,schema);
+  const [tab, setTab] = useState(cccTab?.id || 'record');
+  const wide = true;
   const selected=tabs.find(t=>t.id===tab);
   const active=tab==='record' || !selected ? 'record' : tab;
   return <>
@@ -187,12 +190,18 @@ function ExpandedDetails({ card, schema }) {
     <div className={`xe-expanded-details ${active === 'record' ? 'xe-record-view' : 'xe-table-view'}`}>
     {wide && card && <nav className="xe-card-tabs"><button className={tab === 'record' ? 'active' : ''} onClick={() => setTab('record')}>Complete record</button>{tabs.map(t=><button key={t.id} className={active===t.id ? 'active' : ''} onClick={()=>setTab(t.id)}>{t.title}</button>)}</nav>}
     <div className="xe-card-body" style={{'--panel-columns':panelPolicy.expanded_layout.columns,'--panel-narrow-columns':panelPolicy.expanded_layout.narrow_columns,'--panel-gap':`${panelPolicy.expanded_layout.gap_px}px`}}>
+      {cccTab && <section className="xe-card-section xe-ccc-overview">
+        <h3>Overall description</h3>
+        <CccSummary state={cccState} ligand={card.endpoints?.[0] && endpointName(card,card.endpoints[0])}
+          receptor={card.endpoints?.[1] && endpointName(card,card.endpoints[1])}/>
+      </section>}
       {card && (!wide || active === 'record') && <>
         <RelationshipContext card={card}/>
         {expandedSections(card,panelPolicy).map((section,i)=><section className="xe-card-section" data-prose={section.prose || undefined} key={i}><h3>{section.title}</h3><dl><RecordFields fields={section.fields} specs={card.field_specs}/></dl></section>)}
         {(card.widget === 'variant' || card.production_design === 'Variant') && <section className="xe-card-section"><h3>Frequency</h3>{card.frequencies?.length ? <><ProductionFrequencies card={card}/><TableDownloads card={card} table={{id:"population_frequencies",...schema.tables?.population_frequencies}} schema={schema} records={card.frequencies}/></> : <p className="xe-empty">Not recorded</p>}{card.consequences?.length>0 && <><h3>Functional annotations</h3><div className="xe-chips muted">{card.consequences.map(c=><span key={c}>{c}</span>)}</div></>}{card.hgvs && <p className="xe-hgvs">{card.hgvs}</p>}</section>}
       </>}
       {card && active !== 'record' && selected.component?.renderer!=='condition_tables' && <RelationshipContext card={card}/>}
+      {cccTab && active === cccTab.id && <CccDotMatrix state={cccState}/>}
       {card && wide && active !== 'record' && (selected.component ?
         selected.component.renderer==='condition_tables' ? <ConditionEvidenceSummary card={card} schema={schema} component={selected.component} /> :
         ['table','credible_set'].includes(selected.component.renderer) ? selected.component.table_ids.map(tid=><EvidenceTable key={`${card.ref.id}:${tid}`} card={card} table={card.tables.find(t=>t.id===tid)} schema={schema} />) : <p className="xe-small">Unsupported registered component.</p> :

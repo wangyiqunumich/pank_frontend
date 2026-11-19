@@ -93,3 +93,16 @@
 .xe-evidence-record-group h3 {font-size:14px;margin:14px 0 8px;}
 .xe-source-annotations {min-width:320px;max-width:100%;}
 .xe-expanded-details td:has(.xe-source-annotations) {max-width:none;}
+
+.xe-ccc-overview {grid-column:1 / -1;}
+.xe-ccc-overview p,.xe-ccc-overview ul {margin:0.45rem 0;}
+.xe-ccc-overview ul {padding-left:1.15rem;}
+.xe-ccc-matrix {margin:1rem 0 1.5rem;min-width:0;}
+.xe-ccc-matrix h3,.xe-ccc-matrix h4 {margin:0.55rem 0;}
+.xe-expanded-details .xe-ccc-matrix table {width:auto;}
+.xe-expanded-details .xe-ccc-matrix th,.xe-expanded-details .xe-ccc-matrix td {text-align:center;min-width:9rem;white-space:normal;}
+.xe-ccc-matrix th span {display:block;font-weight:normal;}
+.xe-ccc-mark {width:var(--dot-size);height:var(--dot-size);display:inline-block;border-radius:50%;background:var(--md-sys-color-primary,#219197);background:color-mix(in srgb,var(--md-sys-color-primary,#219197) var(--dot-color-weight),var(--md-sys-color-primary-container,#f0f7f8));vertical-align:middle;}
+.xe-ccc-mark[data-support=true] {outline:2px solid var(--md-comp-recovery-primary-hover,#086660);outline-offset:3px;}
+.xe-ccc-mark[data-missing=true] {background:#d6dee0;}
+.xe-ccc-mark:focus-visible {outline:2px dashed var(--md-comp-recovery-primary-hover,#086660);outline-offset:4px;}
