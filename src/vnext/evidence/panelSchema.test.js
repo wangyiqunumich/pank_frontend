@@ -25,6 +25,19 @@ test('owned tabs and compact summaries use supplied API declarations',()=>{
  expect(panelSchema(s)).toBe(s.panel_presentation);
 });
 
+test('older API schemas retain their own display settings and receive the new record declarations',()=>{
+ const s=schema();
+ delete s.panel_presentation.record_view;
+ delete s.panel_presentation.value_labels.treatment;
+ s.panel_presentation.header.title_align='left';
+ const policy=panelSchema(s);
+ expect(policy).toBe(panelSchema(s));
+ expect(policy.header.title_align).toBe('left');
+ expect(policy.record_view).toEqual(bundled.record_view);
+ expect(policy.value_labels.treatment.no_treatment).toBe('Untreated');
+ expect(s.panel_presentation.record_view).toBeUndefined();
+});
+
 test('compact panel keeps asynchronously loaded content within the remaining viewport',()=>{
  const {container}=render(<GraphInfoPanelSurface visible mode="hover" position={{x:100,y:194}}>Loaded evidence</GraphInfoPanelSurface>);
  expect(container.querySelector('section').style.maxHeight).toContain('calc(100dvh - 194px - 12px)');

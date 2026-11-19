@@ -25,7 +25,15 @@ export function recordDesign(card,source=card,policy=defaultPolicy) {
   }
   if(selected.length)sections.push({title,fields:selected,prose:!Array.isArray(content)});
  }
- for(const s of card.sections){const rest=s.fields.filter(f=>!consumed.has(f.key)&&nonempty(f.value));if(rest.length)sections.push({...s,fields:rest});}
+ for(const section of card.sections){
+  const remaining=section.fields.filter(f=>!consumed.has(f.key)&&nonempty(f.value));
+  if(!remaining.length)continue;
+  const title=policy.record_view?.section_aliases?.[design]?.[section.title] || section.title;
+  const existing=sections.find(item=>item.title===title);
+  if(existing) existing.fields.push(...remaining);
+  else sections.push({...section,title,fields:remaining});
+  remaining.forEach(field=>consumed.add(field.key));
+ }
  let frequencies=card.frequencies;
  const raw=(source.fields||[]).find(f=>f.key==='freq')?.value ?? fields.get('freq')?.value;
  if(design==='Variant' && typeof raw==='string'){
@@ -69,15 +77,23 @@ export function expandedSections(card,policy=defaultPolicy) {
  }
  const excluded=f=>(policy.complete_record.omit_value_patterns||[]).some(pattern=>typeof f.value==='string' && new RegExp(pattern,'i').test(f.value));
  const sections=[];
+ const addSection=section=>{
+  const fields=section.fields.filter(f=>{if(consumed.has(f.key)||excluded(f)||!nonempty(f.value))return false;consumed.add(f.key);return true;});
+  if(!fields.length)return;
+  const existing=sections.find(item=>item.title===section.title);
+  if(existing) existing.fields.push(...fields);
+  else sections.push({...section,fields});
+ };
  if(summary)for(const row of summary.rows){
   const values=row[summary.spec.values]||{};
   sections.push({title:row[summary.spec.label],fields:Object.entries(values).map(([key,value])=>({key:`${row[summary.spec.label]}:${key}`,label:summary.spec.columns.find(c=>c.key===key)?.label || policy.field_labels[key] || key,value,kind:'quantity'}))});
  }
- for(const section of card.sections||[]){
-  const fields=section.fields.filter(f=>{if(consumed.has(f.key)||excluded(f)||!nonempty(f.value))return false;consumed.add(f.key);return true;});
-  if(fields.length)sections.push({...section,fields});
+ (card.sections || []).forEach(addSection);
+ const fieldsByKey=new Map((card.fields || []).map(field=>[field.key,field]));
+ const profileKey=card.ref && `${card.ref.kind}:${card.ref.type_id}`;
+ for(const group of policy.record_view?.profile_sections?.[profileKey] || []){
+  addSection({title:group.title,fields:group.fields.map(key=>fieldsByKey.get(key)).filter(Boolean)});
  }
- const remaining=(card.fields||[]).filter(f=>{if(consumed.has(f.key)||excluded(f)||!nonempty(f.value))return false;consumed.add(f.key);return true;});
- if(remaining.length)sections.push({title:'Additional details',fields:remaining});
+ addSection({title:'Additional details',fields:card.fields || []});
  return sections;
 }

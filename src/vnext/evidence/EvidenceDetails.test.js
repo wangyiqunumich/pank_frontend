@@ -96,15 +96,30 @@ test('a multi-table tab omits empty sections and keeps paging, download and one 
  expect(container.querySelectorAll('.xe-evidence-list > .xe-evidence')).toHaveLength(2);
 });
 
+test('a visible table column still hides each non-public value', async () => {
+ const placements={id:'placements',title:'Positions',columns:['chr'],all_fields:['chr'],filters:[]};
+ const record={...card,tables:[placements],component_views:[]};
+ const viewerSchema={...schema,tables:{placements},display_policy:{version:1,internal_value_patterns:['^/private/']}};
+ const request=jest.fn().mockResolvedValue({state:'available',records:[{chr:'11'},{chr:'/private/test'}],has_more:false});
+ render(<EvidenceDetails card={record} schema={viewerSchema} releaseId={record.release_id} request={request}/>);
+ fireEvent.click(screen.getByRole('button',{name:'Genomic coordinates'}));
+ expect(await screen.findByRole('cell',{name:'11'})).toBeTruthy();
+ expect(screen.getByRole('cell',{name:'Not recorded'})).toBeTruthy();
+ expect(screen.queryByText('/private/test')).toBeNull();
+});
+
 test('CCC summary uses only supporting contexts and the matrix includes every owned page', async () => {
  const ref={kind:'edge',type_id:'LIGAND_RECEPTOR__Gene__Gene',id:'timp3-kdr'};
  const base={source:'Active Stellate',target:'Endothelial',map_id:'M5',condition:'ND',treatment:'no_treatment',
+  data_version:'JP_CCC_2026-11-03_0123456789ab',
   ligand_complex:'TIMP3',receptor_complex:'KDR',specificity_rank:1.4e-7,lr_means:1.5863626,selection_status:'supporting',
   n_donors_sig:6,n_donors_celltypes_ok:6};
  const other={...base,source:'Quiescent Stellate',selection_status:'below_threshold',n_donors_sig:2,n_donors_celltypes_ok:3};
  const table={id:'ccc_contexts',title:'CCC contexts',columns:Object.keys(base),all_fields:Object.keys(base),filters:[],field_specs:{}};
- const schema={release_id:'PanKgraph_1104',tables:{ccc_contexts:table}};
+ const schema={release_id:'PanKgraph_1104',tables:{ccc_contexts:table},
+   display_policy:{version:1,public_id_patterns:['^M[0-9]+$'],unknown_internal_version:'Source version not specified'}};
  const record={...card,release_id:schema.release_id,ref,tables:[table],component_views:[],
+   provenance:{data_version:base.data_version},
    endpoints:['TIMP3','KDR'].map(id=>({ref:{kind:'node',type_id:'Gene',id},display_name:id}))};
  const request=jest.fn(async (_,query) => {
    expect(query.ref).toEqual(ref);
@@ -127,7 +142,11 @@ test('CCC summary uses only supporting contexts and the matrix includes every ow
  expect(screen.getByRole('rowheader',{name:'TIMP3 (Active Stellate) → KDR (Endothelial)'})).toBeTruthy();
  expect(screen.getAllByRole('img').filter(dot=>dot.classList.contains('xe-ccc-mark'))).toHaveLength(2);
  expect(await screen.findByRole('button',{name:'Download 2 records'})).toBeTruthy();
+ expect(within(screen.getByRole('region',{name:'Cell–cell context dot matrix'})).getByText('M5 · ND · Untreated')).toBeTruthy();
+ expect(within(screen.getByRole('table',{name:'CCC contexts'})).getAllByRole('cell',{name:'Untreated'})).toHaveLength(2);
+ expect(screen.getByText('Data Version: Source version not specified')).toBeTruthy();
  fireEvent.click(screen.getByRole('button',{name:'Complete record'}));
  expect(screen.getByText('Overall description')).toBeTruthy();
  expect(screen.queryByRole('table')).toBeNull();
+ expect(screen.getByText('Data Version: Source version not specified')).toBeTruthy();
 });

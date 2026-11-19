@@ -6,13 +6,13 @@ import {RecordFooter} from './ProductionRecord';
 import {useTableDownload} from './TableDownloadControls';
 import {sourcePageUrl} from './tableDownloads';
 
-export default function EvidenceTableCard({card, table, schema, filters, records, recordCount, sets, pageIndex, onPrevious,
+export default function EvidenceTableCard({card, table, schema, display, filters, records, recordCount, sets, pageIndex, onPrevious,
   onNext, hasNext, busy, error, controls, children}) {
   const {state, sources, start, cancel} = useTableDownload({card, table, schema, filters, records, sets});
   const links = new Map(sources.map(source => [source.href, `${source.kind === 'library' ? 'Data Library' : 'Source'}: ${source.title}`]));
   for (const row of [...records, ...Object.values(sets || {})]) {
     const href = sourcePageUrl({href: row.data_source_url}, schema);
-    if (href && !links.has(href)) links.set(href, row.data_source || 'Source page');
+    if (href && !links.has(href)) links.set(href, display.value('data_source',row.data_source) || 'Source page');
   }
   for (const link of table.pipeline_links || []) {
     const href = sourcePageUrl(link, schema);
@@ -21,7 +21,7 @@ export default function EvidenceTableCard({card, table, schema, filters, records
   const provenance = new Map();
   for (const {data_source, data_version, license, license_url} of records) {
     if (data_source || data_version || license) {
-      const item = {data_source, data_version, license, license_url};
+      const item = display.provenance({data_source, data_version, license, license_url});
       provenance.set(JSON.stringify(item), item);
     }
   }

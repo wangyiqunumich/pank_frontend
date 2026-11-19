@@ -6,8 +6,8 @@ const matrixFields = [
   'map_id', 'condition', 'treatment', 'source', 'target', 'ligand_complex', 'receptor_complex', 'specificity_rank', 'lr_means', 'selection_status',
   'n_donors_sig', 'n_donors_celltypes_ok',
 ];
-const pair = row => `${row.source} → ${row.target}`;
-const stratum = row => [row.map_id, row.condition, row.treatment === 'no_treatment' ? 'Untreated' : row.treatment].filter(Boolean).join(' · ');
+const names = (row, display) => ['source','target'].map(key => display.value(key,row[key]) || 'Not recorded');
+const stratum = (row, display) => ['map_id','condition','treatment'].map(key => display.value(key,row[key])).filter(Boolean).join(' · ');
 const number = value => value == null || value === '' ? NaN : Number(value);
 const format = value => Number.isFinite(value) ? Number(value.toPrecision(4)).toString() : 'Unavailable';
 
@@ -32,15 +32,15 @@ export function useCccContexts(card, table, schema, {request, supportingOnly = f
   return state && state.table === table ? state : null;
 }
 
-export function CccSummary({state, interaction, compact = false}) {
+export function CccSummary({state, display, interaction, compact = false}) {
   if (!state) return <p role="status">Loading sender → receiver contexts…</p>;
   if (state.error) return <p role="alert">Cell–cell contexts unavailable. {state.error}</p>;
   const supported = new Map();
   for (const row of state.records) {
     if (row.selection_status !== 'supporting') continue;
-    const group = stratum(row);
+    const group = stratum(row, display);
     if (!supported.has(group)) supported.set(group, new Set());
-    supported.get(group).add(pair(row));
+    supported.get(group).add(names(row, display).join(' → '));
   }
   if (!supported.size) return <p>No supporting sender → receiver context returned.</p>;
   return <div>
@@ -51,16 +51,16 @@ export function CccSummary({state, interaction, compact = false}) {
   </div>;
 }
 
-export function CccDotMatrix({state, endpoints}) {
+export function CccDotMatrix({state, display, endpoints}) {
   const groups = useMemo(() => {
     const groups = new Map();
     for (const row of state?.records || []) {
-      const key = stratum(row);
+      const key = stratum(row, display);
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key).push(row);
     }
     return groups;
-  }, [state]);
+  }, [state, display]);
   if (!groups.size) return null;
   const means = state.records.map(row => number(row.lr_means)).filter(Number.isFinite);
   const min = Math.min(...means), max = Math.max(...means);
@@ -73,9 +73,10 @@ export function CccDotMatrix({state, endpoints}) {
         <table aria-label={`Sender and receiver pairs ${group}`}>
           <thead><tr><th scope="col">Ligand (sender cell) → Receptor (receiver cell)</th><th scope="col">Evidence</th></tr></thead>
           <tbody>{rows.map((row, i) => {
-            const ligand = row.ligand_complex || endpoints[0] || 'Ligand';
-            const receptor = row.receptor_complex || endpoints[1] || 'Receptor';
-            const interaction = `${ligand} (${row.source}) → ${receptor} (${row.target})`;
+            const ligand = display.value('ligand_complex',row.ligand_complex) || endpoints[0] || 'Ligand';
+            const receptor = display.value('receptor_complex',row.receptor_complex) || endpoints[1] || 'Receptor';
+            const [sender, receiver] = names(row, display);
+            const interaction = `${ligand} (${sender}) → ${receptor} (${receiver})`;
             const rank = number(row.specificity_rank), mean = number(row.lr_means);
             const diameter = rank >= 0 && rank <= 1 ? 9 + 19 * Math.sqrt(-Math.log10(Math.max(1e-12, rank)) / 12) : 9;
             const intensity = !Number.isFinite(mean) || min === max ? 0.5 : (mean - min) / (max - min);

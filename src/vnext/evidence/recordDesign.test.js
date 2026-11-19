@@ -1,4 +1,4 @@
-import {recordDesign,objectSections,hasExtraRecord} from './recordDesign';
+import {recordDesign,objectSections,hasExtraRecord,expandedSections} from './recordDesign';
 import {compactSections} from './compactSections';
 const field=(key,value)=>({key,label:key,value});
 test('short cell with only provenance extras cannot expand',()=>{
@@ -13,6 +13,20 @@ test('production Gene order and pills retain source values without inventing GC'
  expect(styled.sections.map(s=>s.title)).toEqual(['Gene Identity','Description','Chromosomal Location']);
  expect(styled.sections[2].fields[0].design_format).toBe('label_chr(#0FB47D)');
  expect(styled.sections.flatMap(s=>s.fields).some(f=>f.key==='GC_percentage')).toBe(false);
+});
+
+test('declared section groups merge matching fields and keep unused fields once',()=>{
+ const positions=[field('chr','X'),field('genome_assembly','GRCh38')];
+ const gene={ref:{kind:'node',type_id:'Gene',id:'ENSG1'},sections:[{title:'Position',fields:positions}],fields:positions};
+ const coords=expandedSections(recordDesign(gene));
+ expect(coords.map(section=>section.title)).toEqual(['Gene Identity','Chromosomal Location']);
+ expect(coords[1].fields.map(f=>f.key)).toEqual(['chr','genome_assembly']);
+ const donorFields=[field('id','HPAP-123'),field('gender','female'),field('bmi',0),field('other','preserved')];
+ const donor={ref:{kind:'node',type_id:'donor'},sections:[{title:'Donor',fields:donorFields.slice(0,1)}],fields:donorFields};
+ const sections=expandedSections(donor);
+ expect(sections.map(section=>[section.title, section.fields.map(f=>f.value)])).toEqual([
+   ['Donor',['HPAP-123']], ['Demographics',['female']], ['Clinical measurements',[0]], ['Additional details',['preserved']],
+ ]);
 });
 test('compact expression uses condition-labelled rows and preserves zero',()=>{
  const card={widget:'expression',sections:[],condition_statistics:[{condition:'ND',statistics:{cpm:0,pct_expr:0}}]};

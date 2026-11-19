@@ -4965,6 +4965,29 @@
         "source-native mean / median"
       ]
     },
+    "record_view": {
+      "preferred_evidence_visualization": "ccc_dot_matrix",
+      "relationship_roles": {
+        "LIGAND_RECEPTOR": ["Ligand", "Receptor"]
+      },
+      "detail_blocks": {
+        "widgets": { "variant": "variant_details" },
+        "designs": { "Variant": "variant_details" }
+      },
+      "section_aliases": {
+        "Gene": { "Position": "Chromosomal Location" },
+        "Variant": { "Position": "Chromosomal Location" }
+      },
+      "profile_sections": {
+        "node:donor": [
+          { "title": "Donor", "fields": ["pankbase_id", "pancdb_id", "center_donor_id"] },
+          { "title": "Demographics", "fields": ["age", "sex_at_birth", "gender", "race", "predicted_genetic_ancestry"] },
+          { "title": "Recorded status", "fields": ["derived_diabetes_status", "diabetes_type", "diabetes_duration", "aab_state", "aab_count", "aab_panel_complete", "source_t1d_stage", "staging_basis"] },
+          { "title": "Clinical measurements", "fields": ["bmi", "c_peptide_ng_ml", "hba1c_percentage", "family_history_of_diabetes", "other_disease_records", "other_therapy"] },
+          { "title": "Donation and coverage", "fields": ["donation_type", "cause_of_death", "hospital_stay_hours", "metadata_coverage", "rna_v3_4_included"] }
+        ]
+      }
+    },
     "components": {
       "chr_index": {
         "title": "Genomic coordinates"
@@ -5490,6 +5513,8 @@
     },
     "literal_value_fields": [
       "treatment",
+      "ligand_complex",
+      "receptor_complex",
       "sample_id",
       "donor_id",
       "source_sample_id",
@@ -5498,6 +5523,9 @@
       "alt_id"
     ],
     "value_labels": {
+      "treatment": {
+        "no_treatment": "Untreated"
+      },
       "rrid_scope": {
         "donor_RRID_explicitly_recorded_on_assay_row": "Donor"
       }

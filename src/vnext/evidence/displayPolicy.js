@@ -51,6 +51,37 @@ export function displayValue(key,value,policy={},profileKey=null,spec={}) {
   if ((policy.public_id_patterns || []).some(pattern=>matches(pattern,value))) return value;
   return displayText(value,policy);
 }
+
+// Apply the same visibility rule to each value, even when other values in
+// a section or table column are displayable. Leave the API payload intact.
+export function displayFieldValue(key, value, policy = {}, profileKey = null, spec = {}) {
+  if (!visibleField(key, value, policy, spec)) return undefined;
+  if (Array.isArray(value)) {
+    const items = value.map(item => displayFieldValue(key, item, policy, profileKey, spec)).filter(item => item !== undefined);
+    return items.length || !value.length ? items : undefined;
+  }
+  return displayValue(key, value, policy, profileKey, spec);
+}
+
+export function displayProvenance(provenance, policy, profileKey) {
+  return Object.fromEntries(Object.entries(provenance || {}).map(([key, value]) => [key,
+    /(^|_)version$/.test(key) ? displayVersion(value, policy, profileKey) : displayFieldValue(key, value, policy, profileKey),
+  ]).filter(([, value]) => value !== undefined));
+}
+
+export function evidenceDisplay(schema, panelPolicy, ref) {
+  const policy = {...schema.display_policy, panel_presentation: panelPolicy};
+  for (const key of ['field_labels', 'unit_labels', 'field_descriptions']) {
+    policy[key] = {...schema.display_policy?.[key], ...panelPolicy[key]};
+  }
+  const profileKey = `${ref.kind}:${ref.type_id}`;
+  return {
+    schema, policy,
+    value: (key, raw, spec) => displayFieldValue(key, raw, policy, profileKey, spec),
+    provenance: raw => displayProvenance(raw, policy, profileKey),
+  };
+}
+
 export function presentCard(card,policy={}) {
   const panelPolicy=policy.panel_presentation || defaultPolicy;
   if (!card) return card;
@@ -64,21 +95,23 @@ export function presentCard(card,policy={}) {
       description:override.description || policy.field_descriptions?.[key] || f.description ||
         (/unspecified/.test(f.unit || '') ? 'Source units were not provided; this does not establish a dimensionless measurement.' : undefined)};
   };
-  const field = f => ({...spec(f,f.key),value:displayValue(f.key,f.value,policy,profileKey,f)});
-  const visible = f => visibleField(f.key,f.value,policy,{...card.field_specs?.[f.key],...f});
+  const fields = list => (list || []).map(f => {
+    const config = spec({...card.field_specs?.[f.key], ...f}, f.key);
+    return {...config, displayReady: true, value: displayFieldValue(f.key,f.value,policy,profileKey,config)};
+  }).filter(f => f.value !== undefined);
   const relationshipType=card.ref.kind==='edge' ? card.ref.type_id.split('__')[0] : null;
   const recordTitle = card.title && card.title !== card.ref.id ? String(card.title) : publicId(card.ref.id,policy) || card.subtitle || card.ref.type_id;
   const ownTitle = (panelPolicy.relationship_labels || defaultPolicy.relationship_labels)?.[relationshipType] || recordTitle;
   return {...card,title:displayText(ownTitle,policy),note:displayText(card.note,policy),
     field_specs:Object.fromEntries(Object.entries(card.field_specs || {}).map(([key,f])=>[key,spec(f,key)])),
     public_relationship_id:card.ref.kind === 'edge' ? publicId(card.ref.id,policy) : undefined,
-    sections:(card.sections || []).map(s=>({...s,title:displayText(s.title,policy),fields:(s.fields || []).filter(visible).map(field)})).filter(s=>s.fields.length),
-    fields:card.fields?.filter(visible).map(field),
+    sections:(card.sections || []).map(s=>({...s,title:displayText(s.title,policy),fields:fields(s.fields)})).filter(s=>s.fields.length),
+    fields:fields(card.fields),
     // Keep exact lookup context even when an endpoint has no public display ID.
     endpoint_refs:card.endpoints?.map(e=>e.ref),
-    endpoints:card.endpoints?.map((e,i)=>({...e,role:i ? 'Target' : 'Source',display_id:publicId(e.ref.id,policy)})).filter(e=>e.display_id!==undefined),
+    endpoints:card.endpoints?.map(e=>({...e,display_id:publicId(e.ref.id,policy)})).filter(e=>e.display_id!==undefined),
     raw_provenance:card.provenance,
-    provenance:Object.fromEntries(Object.entries(card.provenance || {}).map(([key,value])=>[key,displayValue(key,value,policy,profileKey)])),
+    provenance:displayProvenance(card.provenance,policy,profileKey),
     tables:(card.tables || []).map(t=>({...t,field_specs:Object.fromEntries(Object.entries(t.field_specs || {}).map(([key,f])=>[key,spec(f,key)])),columns:(t.columns || []).filter(k=>!(policy.hidden_fields || []).includes(k)),filters:(t.filters || []).filter(k=>!panelPolicy.hidden_internal_fields.includes(k) && !(policy.hidden_fields || []).includes(k))})),
   };
 }

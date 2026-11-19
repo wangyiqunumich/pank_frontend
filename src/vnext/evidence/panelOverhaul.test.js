@@ -31,10 +31,12 @@ test('disease contrast uses both source groups without flipping the sign',async(
  await waitFor(()=>expect(request.mock.calls[0][1]).toMatchObject({ref,filters:{method:'DESeq2_RUVg_disease_contrast',record_kind:'disease_deg'}}));
 });
 
-test('sample and treatment labels retain their literal source spelling',()=>{
+test('configured treatment labels are readable and literal identifiers retain their source spelling',()=>{
  const {displayValue}=require('./displayPolicy');
- expect(displayValue('treatment','no_treatment',{replace_underscores:true})).toBe('no_treatment');
+ expect(displayValue('treatment','no_treatment',{replace_underscores:true})).toBe('Untreated');
+ expect(displayValue('treatment','drug_a',{replace_underscores:true})).toBe('drug_a');
  expect(displayValue('sample_id','HPAP_01_A',{replace_underscores:true})).toBe('HPAP_01_A');
+ expect(displayValue('receptor_complex','NRP2_PLXNA2',{replace_underscores:true})).toBe('NRP2_PLXNA2');
 });
 test('structured annotations are decoded as data, never executable literals',()=>{
  const {annotationValue}=require('./sourceAnnotations');

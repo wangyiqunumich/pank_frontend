@@ -47,7 +47,7 @@ export default function ObjectInformationPanel({data, endpointNodes=[], releaseI
   const card=inspected || (eligible && recordedCard(data,ref,schema));
   const loading = service?.loading || (eligible && !inspected && !selected?.error);
   const notice = selected?.error ? 'Detailed evidence is temporarily unavailable.' : null;
-  if(card) return <InspectedInformationPanel compactOnly={!inspected} loading={loading} notice={notice} card={{...card,endpoints:card.endpoints?.map(e=>{const node=endpointNodes.find(n=>n.id===e.ref.id);return {...e,display_name:node?.HGNC_symbol || node?.name || node?.label};})}} schema={schema} request={request} releaseId={releaseId}/>;
+  if(card) return <InspectedInformationPanel compactOnly={!inspected} loading={loading} notice={notice} card={{...card,endpoints:card.endpoints?.map(e=>{const node=endpointNodes.find(n=>n.id===e.ref.id);return {...e,display_name:node?.HGNC_symbol || node?.name || node?.label || e.display_name};})}} schema={schema} request={request} releaseId={releaseId}/>;
   if (loading) {
     const title = recordedText(data?.HGNC_symbol || data?.name || data?.label || data?.id);
     return <>
