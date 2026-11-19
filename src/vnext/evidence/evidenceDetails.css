@@ -1,9 +1,12 @@
 /* Panel-scoped styles: leave graph controls and the surrounding page untouched. */
 .xe-expanded-details { color:#263238;font:14px/1.5 'Open Sans',sans-serif;min-width:0; }
 .xe-expanded-details .xe-card-tabs {display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid #dbe6e8;padding:8px 16px;}
+.graph-info-panel .xe-expanded-details .xe-card-tabs {position:sticky;top:0;z-index:1;background:#fff;scrollbar-width:thin;}
 .xe-expanded-details button {font:inherit;cursor:pointer;}
 .xe-expanded-details .xe-card-tabs button {background:transparent;border:0;border-bottom:2px solid transparent;white-space:nowrap;padding:8px;color:#536970;}
 .xe-expanded-details .xe-card-tabs button.active {color:#087d78;border-bottom-color:#087d78;}
+.graph-info-panel.is-height-constrained .xe-expanded-details .xe-card-tabs {position:static;padding-block:4px;}
+.graph-info-panel.is-height-constrained .xe-card-tabs button {padding-block:4px;}
 .xe-expanded-details .xe-card-body {padding:16px;min-width:0;}
 .xe-record-view .xe-card-body {display:grid;grid-template-columns:repeat(var(--panel-columns,2),minmax(0,1fr));gap:var(--panel-gap,16px);}
 .xe-expanded-details .xe-card-section {min-width:0;border-bottom:1px solid #e6edef;padding:8px 0;}
@@ -16,6 +19,7 @@
 .xe-expanded-details .xe-endpoints,.xe-expanded-details .xe-provenance {display:flex;flex-wrap:wrap;gap:12px;}
 .xe-expanded-details .xe-endpoint-record small {display:block;}
 .xe-expanded-details .xe-table-scroll {overflow:auto;max-height:50vh;}
+.graph-info-panel .xe-expanded-details .xe-table-scroll {max-height:none;overscroll-behavior-x:contain;scrollbar-width:thin;}
 .xe-expanded-details table {width:100%;border-collapse:collapse;text-align:left;}
 .xe-expanded-details th,.xe-expanded-details td {padding:8px;border-bottom:1px solid #e0e8eb;overflow-wrap:anywhere;}
 .xe-expanded-details th {background:#f1f6f7;}

@@ -4,7 +4,7 @@ import CloseIcon from '@mui/icons-material/Close';
 // A native modal dialog enters the browser's top layer without moving its DOM.
 // Unlike reparenting a portal, this also preserves the iframe browsing context.
 // Its closed state remains an ordinary inline graph, with identical children.
-export default function PersistentGraphViewport({ children, fullscreen, onExit, label = 'Fullscreen graph viewer' }) {
+export default function PersistentGraphViewport({ children, fullscreen, onExit, onEscape = onExit, label = 'Fullscreen graph viewer' }) {
   const dialog = useRef(null);
   const previousFullscreen = useRef(false);
   useLayoutEffect(() => {
@@ -68,8 +68,8 @@ export default function PersistentGraphViewport({ children, fullscreen, onExit, 
     return ()=>{observer?.disconnect();cancelAnimationFrame(frame);};
   }, []);
   return <dialog ref={dialog} role={fullscreen ? 'dialog' : 'presentation'} aria-modal={fullscreen || undefined} aria-label={fullscreen ? label : undefined} tabIndex={-1}
-    onCancel={event => { event.preventDefault(); onExit(); }}
-    onKeyDown={event => { if (fullscreen && event.key === 'Escape') { event.preventDefault(); onExit(); } }}
+    onCancel={event => { event.preventDefault(); onEscape(); }}
+    onKeyDown={event => { if (fullscreen && event.key === 'Escape' && !event.defaultPrevented) { event.preventDefault(); onEscape(); } }}
     style={{ display: 'block', boxSizing: 'border-box', position: fullscreen ? 'fixed' : 'relative', inset: fullscreen ? 0 : 'auto', width: fullscreen ? '100vw' : '100%', height: fullscreen ? '100dvh' : '100%', minHeight: 0, maxWidth: 'none', maxHeight: 'none', margin: 0, padding: 0, border: 0, overflow: 'hidden', background: 'transparent', color: 'inherit', outline: 0 }}>
     {children}
     {fullscreen && <button type="button" aria-label="Exit fullscreen graph" title="Exit full screen" onClick={onExit}

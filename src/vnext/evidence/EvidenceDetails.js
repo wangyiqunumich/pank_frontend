@@ -1,5 +1,5 @@
 // Reused from the source-pinned 1024 demo; network access is supplied by the host.
-import React,{createContext,useContext,useEffect,useMemo,useRef,useState} from 'react';
+import React,{createContext,useContext,useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react';
 import {annotationValue} from './sourceAnnotations';
 import {conditionGroups,contextFilters} from './evidenceComponents';
 import {fieldLabel} from './presentation';
@@ -102,8 +102,8 @@ function EvidenceTable({ card, table: sourceTable, schema }) {
     {page?.credible_sets && Object.keys(page.credible_sets).length>1 && <label className="xe-set-selector">Credible set <select aria-label="Credible set" value={filters.credible_set_id || ''} onChange={e=>setFilters(f=>{const next={...f}; if(e.target.value) next.credible_set_id=e.target.value; else delete next.credible_set_id; return next;})}><option value="">All linked sets</option>{Object.entries(page.credible_sets).map(([id,data],i)=><option key={id} value={id}>{setLabel(data,i)}</option>)}</select></label>}
     {page?.credible_sets && <div className="xe-set-descriptions">{Object.entries(page.credible_sets).filter(([id])=>!filters.credible_set_id || filters.credible_set_id===id).map(([id,data],i)=><section key={id}><strong>{setLabel(data,i)}</strong><dl>{['tissue_name','qtl_type','method','n_members','purity'].filter(k=>data[k]!==undefined && data[k]!==null).map(k=><div className="kg-card-field" key={k}><dt>{k==='qtl_type'?'Signal type':fieldLabel(k,table.field_specs)}</dt><dd><Datum value={data[k]} field={k}/></dd></div>)}</dl></section>)}</div>}
     {error && <p role="alert" className="xe-warning">{error}</p>}
-    {page?.state === 'temporarily_unavailable' && <p className="xe-warning">{page.message}</p>}
-    {page?.state === 'no_records' && <div className="xe-no-records">No matching records.</div>}
+    {page?.state === 'temporarily_unavailable' && <p role="status" className="xe-warning">{page.message || 'These records are temporarily unavailable.'}</p>}
+    {page && page.state !== 'temporarily_unavailable' && !page.records?.length && <div className="xe-no-records">No matching records.</div>}
     {page?.records?.length > 0 && <TableDownloads card={card} table={table} schema={schema} filters={scopedFilters} records={page.records} sets={page?.credible_sets} />}
     {page?.records?.length > 0 && rowGroups.map(group=>{const groupColumns=columns.filter(k=>group.rows.some(row=>visibleField(k,row[k],policy,table.field_specs?.[k]))); return <section key={group.key} className="xe-evidence-record-group">{group.role && <h3>{String(group.role).toUpperCase()} · {setLabel(page.credible_sets?.[group.set] || {},Object.keys(page.credible_sets || {}).indexOf(group.set))}</h3>}<div className="xe-table-scroll"><table><thead><tr>{!table.simple_list && <th aria-label="Record details" />}{groupColumns.map(k => <th key={k} title={table.field_specs?.[k]?.description}>{table.comparison==='disease' && k==='condition' ? 'Comparison' : relatedLinks ? ({source_name:'Database',alt_id:'Open record'}[k] || fieldLabel(k,table.field_specs)) : fieldLabel(k,table.field_specs)}</th>)}</tr></thead><tbody>
       {group.rows.map((row, i) => <React.Fragment key={row.record_id || row.relationship_id || `${index}-${i}`}><tr>
@@ -179,38 +179,42 @@ function ConditionEvidenceSummary({card,schema,component}) {
 
 function ExpandedDetails({ card, schema }) {
   const panelPolicy=usePanelSchema();
+  const bodyRef = useRef(null);
   const tabs=panelTabs(card,schema);
   const cccTab=tabs.find(t=>t.table && panelPolicy.tables[t.id]?.visualization==='ccc_dot_matrix');
   const cccState=useCccContexts(card,cccTab?.table,schema);
   const [tab, setTab] = useState(cccTab?.id || 'record');
-  const wide = true;
   const selected=tabs.find(t=>t.id===tab);
-  const active=tab==='record' || !selected ? 'record' : tab;
+  const active = selected?.id || 'record';
+  useLayoutEffect(() => { bodyRef.current.scrollTop = 0; }, [active]);
+  const sections = active === 'record' ? expandedSections(card, panelPolicy) : [];
+  const hasVariantDetails = card.widget === 'variant' || card.production_design === 'Variant';
   return <>
-    <GraphInfoPanelBody>
+    <GraphInfoPanelBody bodyRef={bodyRef}>
     <div className={`xe-expanded-details ${active === 'record' ? 'xe-record-view' : 'xe-table-view'}`}>
-    {wide && card && <nav className="xe-card-tabs"><button className={tab === 'record' ? 'active' : ''} onClick={() => setTab('record')}>Complete record</button>{tabs.map(t=><button key={t.id} className={active===t.id ? 'active' : ''} onClick={()=>setTab(t.id)}>{t.title}</button>)}</nav>}
+    <nav className="xe-card-tabs"><button className={active === 'record' ? 'active' : ''} onClick={() => setTab('record')}>Complete record</button>{tabs.map(t=><button key={t.id} className={active===t.id ? 'active' : ''} onClick={()=>setTab(t.id)}>{t.title}</button>)}</nav>
     <div className="xe-card-body" style={{'--panel-columns':panelPolicy.expanded_layout.columns,'--panel-narrow-columns':panelPolicy.expanded_layout.narrow_columns,'--panel-gap':`${panelPolicy.expanded_layout.gap_px}px`}}>
       {cccTab && <section className="xe-card-section xe-ccc-overview">
         <h3>Overall description</h3>
         <CccSummary state={cccState} interaction={card.object_title ||
           (card.endpoints || []).map(endpoint=>endpointName(card,endpoint)).join(' → ') || 'This ligand–receptor pair'}/>
       </section>}
-      {card && (!wide || active === 'record') && <>
+      {active === 'record' && <>
         <RelationshipContext card={card}/>
-        {expandedSections(card,panelPolicy).map((section,i)=><section className="xe-card-section" data-prose={section.prose || undefined} key={i}><h3>{section.title}</h3><dl><RecordFields fields={section.fields} specs={card.field_specs}/></dl></section>)}
-        {(card.widget === 'variant' || card.production_design === 'Variant') && <section className="xe-card-section"><h3>Frequency</h3>{card.frequencies?.length ? <><ProductionFrequencies card={card}/><TableDownloads card={card} table={{id:"population_frequencies",...schema.tables?.population_frequencies}} schema={schema} records={card.frequencies}/></> : <p className="xe-empty">Not recorded</p>}{card.consequences?.length>0 && <><h3>Functional annotations</h3><div className="xe-chips muted">{card.consequences.map(c=><span key={c}>{c}</span>)}</div></>}{card.hgvs && <p className="xe-hgvs">{card.hgvs}</p>}</section>}
+        {sections.map((section,i)=><section className="xe-card-section" data-prose={section.prose || undefined} key={i}><h3>{section.title}</h3><dl><RecordFields fields={section.fields} specs={card.field_specs}/></dl></section>)}
+        {hasVariantDetails && <section className="xe-card-section"><h3>Frequency</h3>{card.frequencies?.length ? <><ProductionFrequencies card={card}/><TableDownloads card={card} table={{id:"population_frequencies",...schema.tables?.population_frequencies}} schema={schema} records={card.frequencies}/></> : <p className="xe-empty">Not recorded</p>}{card.consequences?.length>0 && <><h3>Functional annotations</h3><div className="xe-chips muted">{card.consequences.map(c=><span key={c}>{c}</span>)}</div></>}{card.hgvs && <p className="xe-hgvs">{card.hgvs}</p>}</section>}
+        {!sections.length && !card.endpoints?.length && !hasVariantDetails && !cccTab && <p className="xe-small">No details recorded.</p>}
       </>}
-      {card && active !== 'record' && selected.component?.renderer!=='condition_tables' && <RelationshipContext card={card}/>}
+      {selected && selected.component?.renderer!=='condition_tables' && <RelationshipContext card={card}/>}
       {cccTab && active === cccTab.id && <CccDotMatrix state={cccState} endpoints={(card.endpoints || []).map(endpoint=>endpointName(card,endpoint))}/>}
-      {card && wide && active !== 'record' && (selected.component ?
+      {selected && (selected.component ?
         selected.component.renderer==='condition_tables' ? <ConditionEvidenceSummary card={card} schema={schema} component={selected.component} /> :
         ['table','credible_set'].includes(selected.component.renderer) ? selected.component.table_ids.map(tid=><EvidenceTable key={`${card.ref.id}:${tid}`} card={card} table={card.tables.find(t=>t.id===tid)} schema={schema} />) : <p className="xe-small">Unsupported registered component.</p> :
         <EvidenceTable key={`${card.ref.id}:${active}`} card={card} table={selected.table} schema={schema} />)}
     </div>
     </div>
     </GraphInfoPanelBody>
-    {card && active === 'record' && <RecordFooter provenance={card.provenance} schema={schema} className="graph-info-panel-footer"/>}
+    {active === 'record' && <RecordFooter provenance={card.provenance} schema={schema} className="graph-info-panel-footer"/>}
   </>;
 }
 
@@ -226,7 +230,7 @@ export default function EvidenceDetails({card,schema,request,releaseId}) {
   </EvidenceRequestContext.Provider></PanelSchemaContext.Provider>;
 }
 
-export function InspectedInformationPanel({card,schema,request,releaseId,compactOnly=false}) {
+export function InspectedInformationPanel({card,schema,request,releaseId,compactOnly=false,loading=false,notice}) {
   const panel=useGraphInfoPanel();
   const panelPolicy=panelSchema(schema);
   const shown=useMemo(()=>recordDesign(presentCard(card,{...schema.display_policy,panel_presentation:panelPolicy,field_labels:{...schema.display_policy?.field_labels,...panelPolicy.field_labels},unit_labels:{...schema.display_policy?.unit_labels,...panelPolicy.unit_labels},field_descriptions:{...schema.display_policy?.field_descriptions,...panelPolicy.field_descriptions}}),card,panelPolicy),[card,schema,panelPolicy]);
@@ -234,18 +238,21 @@ export function InspectedInformationPanel({card,schema,request,releaseId,compact
   const cccTable=!compactOnly && !panel?.large && shown.tables.find(table=>panelPolicy.tables[table.id]?.visualization==='ccc_dot_matrix');
   const cccState=useCccContexts(shown,cccTable,schema,{request,supportingOnly:true});
   const canExpand=!compactOnly && hasExtraRecord(shown,compact,panelTabs(shown,schema),panelPolicy);
+  const empty = !compact.sections.length && !shown.endpoints?.length && !cccTable;
+  const message = notice || (empty ? loading ? 'Loading details…' : canExpand ? 'Enlarge for complete record' : 'No details recorded.' : null);
   if(releaseId!==schema.release_id || card.release_id!==releaseId) return null;
   return <PanelSchemaContext.Provider value={panelPolicy}>
     <GraphInfoPanelHeader canExpand={canExpand} title={shown.title}>{shown.title}</GraphInfoPanelHeader>
     {panel?.large && !compactOnly ? <EvidenceDetails card={shown} schema={schema} request={request} releaseId={releaseId}/> :
       <DisplayContext.Provider value={{policy:{...schema.display_policy,panel_presentation:panelSchema(schema)},profileKey:`${card.ref.kind}:${card.ref.type_id}`}}>
-        <GraphInfoPanelBody>
+        <GraphInfoPanelBody loading={loading}>
           <div className="xe-expanded-details xe-compact-details">
             {cccTable && <section className="xe-card-section xe-ccc-hover">
               <h3>Supporting cell pairs</h3><CccSummary state={cccState} compact/>
             </section>}
             <RelationshipContext card={shown} schema={schema} compact/>
             {compact.sections.map((section,i)=><section className="xe-card-section" data-prose={section.prose || undefined} key={i}><h3>{section.title}</h3><dl><RecordFields fields={section.fields} specs={shown.field_specs}/></dl></section>)}
+            {message && <p className="graph-info-panel-message" role={loading || notice ? 'status' : undefined}>{message}</p>}
           </div>
         </GraphInfoPanelBody>
         <RecordFooter provenance={shown.provenance} schema={schema} className="graph-info-panel-footer"/>

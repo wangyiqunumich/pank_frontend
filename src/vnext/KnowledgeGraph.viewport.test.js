@@ -21,7 +21,7 @@ beforeEach(() => {
   jest.clearAllMocks(); mockState = { queryResultPage: { queryResultPage: null } };
   cytoscape.mockImplementation(({ container }) => {
     let zoom = 0.4;
-    return { container: () => container, batch: (callback) => callback(), on: jest.fn(),
+    return { container: () => container, headless: () => false, batch: (callback) => callback(), on: jest.fn(), one: jest.fn(),
       width: () => 600, height: () => 630, zoom: (value) => { if (typeof value === 'number') zoom = value; return zoom; },
       removeAllListeners: jest.fn(), destroy: jest.fn() };
   });
@@ -196,8 +196,11 @@ test.each(['gene_enriched_in', 'gene_detected_in', 'anatomical_structure'])('%s 
   fireEvent.mouseLeave(large);
   act(() => jest.advanceTimersByTime(1000));
   expect(screen.getByRole('region', { name: 'Expanded graph information' })).toBe(large);
-  fireEvent.click(screen.getByRole('button', { name: 'Minimize information panel' }));
+  expect(document.activeElement).toBe(large);
+  if (type === 'gene_enriched_in') fireEvent.keyDown(large, { key: 'Escape' });
+  else fireEvent.click(screen.getByRole('button', { name: 'Minimize information panel' }));
   expect(screen.getByRole('dialog', { name: 'Fullscreen graph viewer' })).toBe(dialog);
+  expect(document.activeElement).toBe(dialog);
   expect(screen.queryByRole('region', { name: 'Expanded graph information' })).toBeNull();
   expect(screen.queryByRole('region', { name: 'Graph information' })).toBeNull();
   act(() => jest.advanceTimersByTime(600));

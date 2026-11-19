@@ -23,7 +23,8 @@ import {
 } from 'react-redux';
 import PersistentGraphViewport from '../components/PersistentGraphViewport';
 import GraphToolbar from './GraphToolbar';
-import GraphInfoPanel, { GraphInfoPanelBody, GraphInfoPanelHeader, useGraphInfoPanel } from './GraphInfoPanel';
+import GraphInfoPanel, { graphPanelViewport, GraphInfoPanelBody, GraphInfoPanelHeader, useGraphInfoPanel } from './GraphInfoPanel';
+import { panelSchema } from './evidence/panelSchema';
 import GraphLegend from './GraphLegend';
 import ObjectInformationPanel, {exactGraphRef} from './evidence/ObjectInformationPanel';
 
@@ -599,7 +600,7 @@ export function edgeInfocardModel(data, baseSchema) {
   return { data: values, schema, rawProperties };
 }
 
-export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
+export const InfocardMenu = ({ hoveredData: incomingData, review, notice }) => {
   const panel = useGraphInfoPanel();
   const [openSections, setOpenSections] = useState({});
   useEffect(() => { setOpenSections({}); }, [incomingData?.id]);
@@ -611,15 +612,11 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
     : { data: incomingData, schema: baseSchema, rawProperties: {} };
   const { data: hoveredData, schema, rawProperties, omitted } = panel && !panel.large && !review ? compactCardModel(fullModel) : fullModel;
   const titleColumn = schema?.find(([label, _]) => label === "Title");
-  const footerInfo = schema?.find(([label, _]) => label === "Footer")?.[1];
+  const footerInfo = schema?.find(([label, _]) => label === "Footer")?.[1]?.filter(([, key]) => hoveredData?.[key] != null && hoveredData[key] !== '');
 
-  // GO 节点：按 name 长度决定标题展示 GO id 还是 GO term（name 即 ~properties.name，id 即 ~id）
-  const rawId = hoveredData?.id;
-  const goTerm = hoveredData?.name;
-  const isGoNode = typeof rawId === "string" && rawId.startsWith("GO_");
-  const titleDisplayValue = isGoNode
-    ? (goTerm && goTerm.length > 15 ? rawId : (goTerm ?? rawId))
-    : hoveredData?.[titleColumn?.[1]]?.replace(/_/g, " ");
+  const isGoNode = typeof hoveredData?.id === 'string' && hoveredData.id.startsWith('GO_');
+  const titleValue = hoveredData?.[titleColumn?.[1]] ?? hoveredData?.label ?? hoveredData?.id;
+  const title = recordedText(titleValue);
   const titleDisplayConfig = isGoNode ? undefined : titleColumn?.[2];
 
   return (
@@ -627,8 +624,8 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
       ? (
         <>
           {/* Title Bar */}
-          <GraphInfoPanelHeader canExpand={Boolean(compactCardModel(fullModel)?.omitted)} title={recordedText(hoveredData[titleColumn?.[1]])}>
-            <InfocardData value={recordedText(hoveredData[titleColumn?.[1]])} dataKey={titleColumn?.[1]} config={titleDisplayConfig} />
+          <GraphInfoPanelHeader canExpand={Boolean(compactCardModel(fullModel)?.omitted)} title={title}>
+            <InfocardData value={title} dataKey={titleColumn?.[1]} config={titleDisplayConfig} />
           </GraphInfoPanelHeader>
           <GraphInfoPanelBody>
           <Box sx={{ display: "grid", gridTemplateColumns: panel?.large ? `repeat(${cardLayout.expanded.columns}, minmax(0, 1fr))` : "1fr", gap: panel?.large ? `${cardLayout.expanded.gap_px}px` : 0, "@media (max-width: 650px)": {gridTemplateColumns: "1fr"} }}>
@@ -739,9 +736,10 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
           }
           </Box>
           {omitted > 0 && <Typography sx={{padding: "8px 16px", fontSize: 11, color: "#5F7885"}}>Enlarge for complete record</Typography>}
+          {notice && <p className="graph-info-panel-message" role="status">{notice}</p>}
           </GraphInfoPanelBody>
           {/* Footer */}
-          {footerInfo && <Box component="footer" className="graph-info-panel-footer" sx={{
+          {Boolean(footerInfo?.length) && <Box component="footer" className="graph-info-panel-footer" sx={{
             display: "flex",
             minHeight: "30px",
             padding: "4px 10px",
@@ -769,8 +767,8 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
         </>
       )
       : (<>
-        <GraphInfoPanelHeader title={String(hoveredData?.HGNC_symbol || hoveredData?.id || '')}>
-          {hoveredData?.HGNC_symbol || hoveredData?.id}
+        <GraphInfoPanelHeader title={recordedText(hoveredData?.HGNC_symbol ?? titleValue)}>
+          {recordedText(hoveredData?.HGNC_symbol ?? titleValue)}
         </GraphInfoPanelHeader>
         <GraphInfoPanelBody>
         <div style={{ padding: 16, fontWeight: 600 }}>
@@ -796,6 +794,7 @@ export const InfocardMenu = ({ hoveredData: incomingData, review }) => {
             ))
         )}
         </div>
+        {notice && <p className="graph-info-panel-message" role="status">{notice}</p>}
         </GraphInfoPanelBody>
       </>))
   );
@@ -824,6 +823,7 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
   const [infocardPosition, setInfocardPosition] = useState({ x: 0, y: 0, slide: false });
   const [infocardVisible, setInfocardVisible] = useState(false);
   const [infocardHovered, setInfocardHovered] = useState(false);
+  const panelPolicy = panelSchema(evidenceService?.schema);
 
   const clearHoverTarget = useCallback(() => {
     if (!hoverTargetRef.current) return;
@@ -981,7 +981,7 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
     const node = element.isNode?.();
     const bounds = node ? element.renderedBoundingBox?.({ includeLabels: true, includeOverlays: false }) : null;
     let anchor = activeHover.fullscreen === expanded ? activeHover.anchor : null;
-    if (bounds) {
+    if (bounds && [bounds.x1, bounds.x2, bounds.y1, bounds.y2].every(Number.isFinite)) {
       anchor = { left: pane.left + bounds.x1, right: pane.left + bounds.x2, top: pane.top + bounds.y1, bottom: pane.top + bounds.y2 };
     } else if (anchor) {
       anchor = { left: anchor.x, right: anchor.x, top: anchor.y, bottom: anchor.y };
@@ -994,33 +994,57 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
       const y = pane.top + position.y * zoom + pan.y;
       anchor = { left: x, right: x, top: y, bottom: y };
     }
-    const { width } = infocard.getBoundingClientRect();
-    const height = [...infocard.children].reduce((sum, child) => sum + Math.max(child.offsetHeight, child.scrollHeight), 0);
+    const viewport = graphPanelViewport();
     const inset = 12, gap = 8;
+    const viewLeft = viewport.left + inset;
+    const viewRight = viewport.left + viewport.width - inset;
+    const viewTop = viewport.top + inset;
+    const viewBottom = viewport.top + viewport.height - inset;
+    const width = Math.max(0, Math.min(review ? panelPolicy.surface.review_width_px : panelPolicy.surface.compact_width_px, viewRight - viewLeft));
+    const height = [...infocard.children].reduce((sum, child) => sum + Math.max(child.offsetHeight, child.scrollHeight), 0);
     const right = anchor.right + gap;
     const left = anchor.left - gap - width;
-    const maxLeft = window.innerWidth - width - inset;
-    const preferLeft = right + width > Math.min(pane.right, window.innerWidth - inset) && left >= inset;
-    const upper = Math.min(anchor.top - gap, window.innerHeight - inset);
-    const lower = Math.max(inset, anchor.bottom + gap);
-    const roomAbove = upper - inset;
-    const roomBelow = window.innerHeight - inset - lower;
-    const above = roomAbove >= height || roomAbove > roomBelow;
+    const preferLeft = right + width > Math.min(pane.right, viewRight) && left >= viewLeft;
+    const x = Math.max(viewLeft, Math.min(preferLeft ? left : right, viewRight - width));
+    const upper = Math.min(anchor.top - gap, viewBottom);
+    const lower = Math.max(viewTop, anchor.bottom + gap);
+    const roomAbove = upper - viewTop;
+    const roomBelow = viewBottom - lower;
+    const { compact_px: maxPixels, compact_vh: maxViewportPercent } = panelPolicy.layout.height_limits;
+    const heightLimit = Math.min(maxPixels, viewport.height * maxViewportPercent / 100);
+    const preferredHeight = infocard.querySelector('.graph-info-panel-body[data-loading]') ? heightLimit : Math.min(height, heightLimit);
+    const above = roomAbove >= preferredHeight || roomAbove > roomBelow;
+    const room = above ? roomAbove : roomBelow;
+    // If the anchor splits a short viewport, try the target's side before
+    // constraining both the card and its scroll area to half the screen.
+    const beside = room < Math.min(preferredHeight, 200) && (x >= anchor.right + gap || x + width <= anchor.left - gap);
+    const maxHeight = Math.max(0, Math.min(heightLimit, beside ? viewBottom - viewTop : room));
     // Anchor the nearest corner to the target. Evidence can grow without
     // shifting that corner, and the body can scroll within the available side.
-    setInfocardPosition({
-      x: Math.max(inset, Math.min(preferLeft ? left : right, maxLeft)),
-      y: above ? upper : lower,
-      above,
-      slide: activeHover.slide,
-    });
-  }, [activeHover, compactPanel, expanded, infocardVisible]);
+    setInfocardPosition(previous => ({
+      x,
+      y: beside ? Math.max(viewTop, Math.min(anchor.top, viewBottom - maxHeight)) : above ? upper : lower,
+      above: !beside && above,
+      maxHeight,
+      viewportWidth: viewport.width,
+      slide: activeHover.slide && previous.above === (!beside && above) && height <= Math.min(previous.maxHeight, maxHeight),
+    }));
+  }, [activeHover, compactPanel, expanded, infocardVisible, panelPolicy, review]);
 
   const closePanel = useCallback(() => {
     setExpandedCard(null);
     setActiveHover(null);
     dismissHover();
   }, [dismissHover]);
+  const closeExpandedCard = () => {
+    closePanel();
+    containerRef.current?.closest('dialog')?.focus({ preventScroll: true });
+  };
+  useLayoutEffect(() => {
+    if (!expandedCard) return undefined;
+    const frame = requestAnimationFrame(() => infocardRef.current?.focus({ preventScroll: true }));
+    return () => cancelAnimationFrame(frame);
+  }, [expandedCard]);
   const enlargePanel = () => {
     if (!activeNode) return;
     dismissHover();
@@ -1058,16 +1082,21 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
     const observer = typeof IntersectionObserver !== 'undefined' && container ? new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) dismissHover();
     }) : null;
+    const visual = window.visualViewport;
     observer?.observe(container);
     window.addEventListener('pointerdown', dismissOutside, true);
     window.addEventListener('scroll', dismissOutside, true);
     window.addEventListener('resize', dismissHover);
     window.addEventListener('blur', dismissHover);
+    visual?.addEventListener('resize', dismissHover);
+    visual?.addEventListener('scroll', dismissHover);
     return () => {
       window.removeEventListener('pointerdown', dismissOutside, true);
       window.removeEventListener('scroll', dismissOutside, true);
       window.removeEventListener('resize', dismissHover);
       window.removeEventListener('blur', dismissHover);
+      visual?.removeEventListener('resize', dismissHover);
+      visual?.removeEventListener('scroll', dismissHover);
       observer?.disconnect();
     };
   }, [compactPanel, dismissHover, hoverTarget, infocardVisible]);
@@ -1256,7 +1285,7 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
   }, [selectedID]);
 
   return (
-    <PersistentGraphViewport fullscreen={expanded} onExit={exitGraphFullscreen}>
+    <PersistentGraphViewport fullscreen={expanded} onExit={exitGraphFullscreen} onEscape={expandedCard ? closeExpandedCard : exitGraphFullscreen}>
     <div className="graph-viewer" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', ...sx, userSelect: 'none', WebkitUserSelect: 'none', position: 'relative', width: '100%', height: '100%', minHeight: 0, borderRadius: expanded ? 0 : 16, background: expanded ? '#f8fafc' : undefined }}>
       {expanded && <Box sx={{ position: 'absolute', top: 16, left: '50%', transform: 'translateX(-50%)', width: 'min(360px, calc(100% - 210px))', zIndex: 15 }}><GraphSearch inputRef={inputRef} onSearch={focusElementByKey} /></Box>}
       <div
@@ -1292,9 +1321,9 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
         visible={compactPanel ? infocardVisible : true} mode={compactPanel ? 'hover' : 'expanded'} position={infocardPosition} review={review}
         onEnter={compactPanel ? () => { clearHoverTarget(); setInfocardHovered(true); } : undefined} onLeave={compactPanel ? () => setInfocardHovered(false) : undefined}
         onEnlarge={enlargePanel}
-        onMinimize={() => { closePanel(); containerRef.current?.closest('dialog')?.focus({ preventScroll: true }); }}
+        onMinimize={closeExpandedCard}
         onClose={closePanel}>
-        {activeNode && !activeNode.removed?.() && <ObjectInformationPanel key={activeNode.id()} endpointNodes={activeNode.isEdge?.() ? [activeNode.source().data(), activeNode.target().data()] : []} data={activeNode.data()} releaseId={releaseId} service={review ? null : evidenceService} fallback={<InfocardMenu hoveredData={activeNode.data()} review={review} />} />}
+        {activeNode && !activeNode.removed?.() && <ObjectInformationPanel key={activeNode.id()} endpointNodes={activeNode.isEdge?.() ? [activeNode.source().data(), activeNode.target().data()] : []} data={activeNode.data()} releaseId={releaseId} service={review ? null : evidenceService} renderFallback={notice => <InfocardMenu hoveredData={activeNode.data()} review={review} notice={notice} />} />}
       </GraphInfoPanel>
       {!review && <GraphLegend defaultOpen={defaultLegendVisible} />}
     </div>

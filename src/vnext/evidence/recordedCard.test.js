@@ -8,7 +8,7 @@ const raw={id:ref.id,name:'HLA-DRA',chr:'6',start_loc:32439869,end_loc:32445181,
 const data={id:ref.id,viewer_ref:ref,element_kind:'node',evidence_properties:raw};
 test('first paint has actual saved Gene measurements in the regular compact design without awaiting the API',()=>{
  const service={schema,request:jest.fn(()=>new Promise(()=>{}))};
- render(<ObjectInformationPanel data={data} releaseId={schema.release_id} service={service} fallback={<div>Legacy fallback</div>}/>);
+ render(<ObjectInformationPanel data={data} releaseId={schema.release_id} service={service} renderFallback={()=><div>Legacy fallback</div>}/>);
  expect(screen.getByTestId('graph-info-title').textContent).toBe('HLA-DRA');
  expect(screen.getByText('Gene Identity')).toBeTruthy();
  expect(screen.getByText('32,439,869')).toBeTruthy();

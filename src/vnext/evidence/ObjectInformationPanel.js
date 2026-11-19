@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import {GraphInfoPanelHeader} from '../GraphInfoPanel';
+import {GraphInfoPanelBody,GraphInfoPanelHeader} from '../GraphInfoPanel';
+import {recordedText} from '../recordedPresentation';
 import {recordedCard} from './recordedCard';
 import {InspectedInformationPanel} from './EvidenceDetails';
 
@@ -21,7 +22,7 @@ export function exactGraphRef(data,schema) {
   return candidates.length===1 ? {kind:data.element_kind,type_id:candidates[0].id,id:data.id} : null;
 }
 
-export default function ObjectInformationPanel({data, endpointNodes=[], releaseId, service, fallback}) {
+export default function ObjectInformationPanel({data, endpointNodes=[], releaseId, service, renderFallback}) {
   const ref=exactGraphRef(data,service?.schema && service.schema.release_id===releaseId ? service.schema : null);
   const key=JSON.stringify([releaseId,ref]);
   const [state,setState]=useState(null);
@@ -44,9 +45,15 @@ export default function ObjectInformationPanel({data, endpointNodes=[], releaseI
   const selected=eligible && state?.key===key ? state : null;
   const inspected=eligible && (service.peek?.(ref) || selected?.card);
   const card=inspected || (eligible && recordedCard(data,ref,schema));
-  if(card) return <InspectedInformationPanel compactOnly={!inspected} card={{...card,endpoints:card.endpoints?.map(e=>{const node=endpointNodes.find(n=>n.id===e.ref.id);return {...e,display_name:node?.HGNC_symbol || node?.name || node?.label};})}} schema={schema} request={request} releaseId={releaseId}/>;
-  // The first frame uses the same panel header even if the release schema is
-  // still arriving. Never substitute the legacy layout during a successful read.
-  if(service?.loading || (eligible && !selected?.error)) return <GraphInfoPanelHeader title={data?.HGNC_symbol || data?.name || data?.label || data?.id}>{data?.HGNC_symbol || data?.name || data?.label || data?.id}</GraphInfoPanelHeader>;
-  return <>{fallback}{eligible && <p role="status" style={{padding:'0 14px',fontSize:12}}>{selected?.error ? 'Detailed evidence is temporarily unavailable. Recorded graph evidence is preserved.' : 'Loading detailed evidence…'}</p>}</>;
+  const loading = service?.loading || (eligible && !inspected && !selected?.error);
+  const notice = selected?.error ? 'Detailed evidence is temporarily unavailable.' : null;
+  if(card) return <InspectedInformationPanel compactOnly={!inspected} loading={loading} notice={notice} card={{...card,endpoints:card.endpoints?.map(e=>{const node=endpointNodes.find(n=>n.id===e.ref.id);return {...e,display_name:node?.HGNC_symbol || node?.name || node?.label};})}} schema={schema} request={request} releaseId={releaseId}/>;
+  if (loading) {
+    const title = recordedText(data?.HGNC_symbol || data?.name || data?.label || data?.id);
+    return <>
+      <GraphInfoPanelHeader title={title}>{title}</GraphInfoPanelHeader>
+      <GraphInfoPanelBody loading><p className="graph-info-panel-message" role="status">Loading details…</p></GraphInfoPanelBody>
+    </>;
+  }
+  return renderFallback(notice);
 }

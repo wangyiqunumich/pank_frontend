@@ -67,18 +67,18 @@ export function presentCard(card,policy={}) {
   const field = f => ({...spec(f,f.key),value:displayValue(f.key,f.value,policy,profileKey,f)});
   const visible = f => visibleField(f.key,f.value,policy,{...card.field_specs?.[f.key],...f});
   const relationshipType=card.ref.kind==='edge' ? card.ref.type_id.split('__')[0] : null;
-  const ownTitle=(panelPolicy.relationship_labels || defaultPolicy.relationship_labels)?.[relationshipType] ||
-    (card.title === card.ref.id ? publicId(card.ref.id,policy) || card.subtitle || card.ref.type_id : card.title);
+  const recordTitle = card.title && card.title !== card.ref.id ? String(card.title) : publicId(card.ref.id,policy) || card.subtitle || card.ref.type_id;
+  const ownTitle = (panelPolicy.relationship_labels || defaultPolicy.relationship_labels)?.[relationshipType] || recordTitle;
   return {...card,title:displayText(ownTitle,policy),note:displayText(card.note,policy),
     field_specs:Object.fromEntries(Object.entries(card.field_specs || {}).map(([key,f])=>[key,spec(f,key)])),
     public_relationship_id:card.ref.kind === 'edge' ? publicId(card.ref.id,policy) : undefined,
-    sections:card.sections.map(s=>({...s,title:displayText(s.title,policy),fields:s.fields.filter(visible).map(field)})).filter(s=>s.fields.length),
+    sections:(card.sections || []).map(s=>({...s,title:displayText(s.title,policy),fields:(s.fields || []).filter(visible).map(field)})).filter(s=>s.fields.length),
     fields:card.fields?.filter(visible).map(field),
     // Keep exact lookup context even when an endpoint has no public display ID.
     endpoint_refs:card.endpoints?.map(e=>e.ref),
     endpoints:card.endpoints?.map((e,i)=>({...e,role:i ? 'Target' : 'Source',display_id:publicId(e.ref.id,policy)})).filter(e=>e.display_id!==undefined),
     raw_provenance:card.provenance,
-    provenance:Object.fromEntries(Object.entries(card.provenance).map(([key,value])=>[key,displayValue(key,value,policy,profileKey)])),
-    tables:card.tables.map(t=>({...t,field_specs:Object.fromEntries(Object.entries(t.field_specs || {}).map(([key,f])=>[key,spec(f,key)])),columns:t.columns.filter(k=>!(policy.hidden_fields || []).includes(k)),filters:t.filters.filter(k=>!panelPolicy.hidden_internal_fields.includes(k) && !(policy.hidden_fields || []).includes(k))})),
+    provenance:Object.fromEntries(Object.entries(card.provenance || {}).map(([key,value])=>[key,displayValue(key,value,policy,profileKey)])),
+    tables:(card.tables || []).map(t=>({...t,field_specs:Object.fromEntries(Object.entries(t.field_specs || {}).map(([key,f])=>[key,spec(f,key)])),columns:(t.columns || []).filter(k=>!(policy.hidden_fields || []).includes(k)),filters:(t.filters || []).filter(k=>!panelPolicy.hidden_internal_fields.includes(k) && !(policy.hidden_fields || []).includes(k))})),
   };
 }

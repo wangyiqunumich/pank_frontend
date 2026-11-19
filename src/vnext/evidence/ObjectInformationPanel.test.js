@@ -4,17 +4,17 @@ import ObjectInformationPanel from './ObjectInformationPanel';
 jest.mock('./EvidenceDetails',()=>({InspectedInformationPanel:({card})=><div>Inspected {card.ref.id}</div>}));
 const releaseId='release-a';
 const data=id=>({id,element_kind:'node',viewer_ref:{kind:'node',type_id:'Gene',id}});
-const fallback=<div>Saved graph evidence</div>;
+const renderFallback=notice=><div>Saved graph evidence{notice && <p role="status">{notice}</p>}</div>;
 test('legacy aliases and mismatched releases cannot request owned evidence',()=>{
  const request=jest.fn(),service={schema:{release_id:releaseId},request};
- const {rerender}=render(<ObjectInformationPanel data={{id:'A',element_kind:'node',type:'Gene'}} releaseId={releaseId} service={service} fallback={fallback}/>);
- rerender(<ObjectInformationPanel data={data('A')} releaseId="older" service={service} fallback={fallback}/>);
+ const {rerender}=render(<ObjectInformationPanel data={{id:'A',element_kind:'node',type:'Gene'}} releaseId={releaseId} service={service} renderFallback={renderFallback}/>);
+ rerender(<ObjectInformationPanel data={data('A')} releaseId="older" service={service} renderFallback={renderFallback}/>);
  expect(request).not.toHaveBeenCalled();expect(screen.getByText('Saved graph evidence')).toBeTruthy();
 });
 test('switch aborts old request and rejects its late response',async()=>{
  const resolve={};const request=jest.fn((path,body)=>new Promise(done=>{resolve[body.ref.id]=done;}));
  const service={schema:{release_id:releaseId},request};
- const props={releaseId,service,fallback};
+ const props={releaseId,service,renderFallback};
  const {rerender}=render(<ObjectInformationPanel {...props} data={data('A')}/>);
  await waitFor(()=>expect(request).toHaveBeenCalledTimes(1));
  rerender(<ObjectInformationPanel {...props} data={data('B')}/>);
@@ -28,7 +28,7 @@ test('switch aborts old request and rejects its late response',async()=>{
 });
 test('incorrect response identity preserves original evidence and shows unavailable',async()=>{
  const request=jest.fn().mockResolvedValue({ref:data('wrong').viewer_ref});
- render(<ObjectInformationPanel data={data('A')} releaseId={releaseId} service={{schema:{release_id:releaseId},request}} fallback={fallback}/>);
+ render(<ObjectInformationPanel data={data('A')} releaseId={releaseId} service={{schema:{release_id:releaseId},request}} renderFallback={renderFallback}/>);
  expect(await screen.findByText(/temporarily unavailable/)).toBeTruthy();
  expect(screen.getByText('Saved graph evidence')).toBeTruthy();
 });
@@ -45,18 +45,19 @@ test('recovers an exact stored object only from an unambiguous current schema pr
 });
 
 test('fixed demo without a release or viewer service renders its recorded fallback',()=>{
- const {rerender}=render(<ObjectInformationPanel data={null} service={null} fallback={fallback}/>);
+ const {rerender}=render(<ObjectInformationPanel data={null} service={null} renderFallback={renderFallback}/>);
  expect(screen.getByText('Saved graph evidence')).toBeTruthy();
- rerender(<ObjectInformationPanel data={{id:'CFTR',element_kind:'node'}} fallback={fallback}/>);
+ rerender(<ObjectInformationPanel data={{id:'CFTR',element_kind:'node'}} renderFallback={renderFallback}/>);
  expect(screen.getByText('Saved graph evidence')).toBeTruthy();
  expect(screen.queryByRole('status')).toBeNull();
 });
 
  test('pending schema and inspections never flash the legacy card or previous object',async()=>{
  const resolve={};const request=jest.fn((path,body)=>new Promise(done=>{resolve[body.ref.id]=done;}));
- const props={releaseId,fallback};
+ const props={releaseId,renderFallback};
  const {rerender}=render(<ObjectInformationPanel {...props} data={data('A')} service={{loading:true}}/>);
  expect(screen.getByTestId('graph-info-title').textContent).toBe('A');
+ expect(screen.getByRole('status').textContent).toContain('Loading details');
  expect(screen.queryByText('Saved graph evidence')).toBeNull();
  const service={schema:{release_id:releaseId},request};
  rerender(<ObjectInformationPanel {...props} data={data('A')} service={service}/>);
@@ -68,6 +69,7 @@ test('fixed demo without a release or viewer service renders its recorded fallba
  expect(screen.queryByText('Inspected A')).toBeNull();
  expect(screen.queryByText('Saved graph evidence')).toBeNull();
  expect(screen.getByTestId('graph-info-title').textContent).toBe('B');
+ expect(screen.getByRole('status').textContent).toContain('Loading details');
  await waitFor(()=>expect(request).toHaveBeenCalledTimes(2));
  await act(async()=>resolve.B({ref:data('B').viewer_ref}));
  expect(screen.getByText('Inspected B')).toBeTruthy();
