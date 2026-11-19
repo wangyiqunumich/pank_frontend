@@ -44,7 +44,10 @@ export default function HoverDev() {
       </select>
     </Box>
     {!service?.schema && <p role="status">{service?.loading ? 'Loading evidence schema…' : 'Evidence service unavailable. Reload to retry.'}</p>}
-    <KnowledgeGraph graphData={graph} coordData={positions} releaseId={fixture.release}
-      evidenceService={service} inspectSelection={selection} prefetchEvidence={false} containerHeight="68vh" />
+    {/* The inline viewport needs a definite height independent of Cytoscape's canvases. */}
+    <Box sx={{height:'68vh'}}>
+      <KnowledgeGraph graphData={graph} coordData={positions} releaseId={fixture.release}
+        evidenceService={service} inspectSelection={selection} prefetchEvidence={false} containerHeight="100%" />
+    </Box>
   </Container>;
 }
