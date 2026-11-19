@@ -53,7 +53,7 @@ export function GraphInfoPanelBody({ children, loading = false, ...props }) {
 }
 
 // Escape the graph/answer stacking contexts; native fullscreen needs its own host.
-export function GraphInfoPanelSurface({ children, panelRef, visible, mode, position, review, schema,
+export function GraphInfoPanelSurface({ children, panelRef, visible, staging = false, mode, position, review, schema,
   onEnter, onLeave, onEnlarge, onMinimize, onClose, label }) {
   const large = mode === 'expanded';
   const config=panelSchema(schema), cardLayout=config.layout, surface=config.surface;
@@ -92,7 +92,7 @@ export function GraphInfoPanelSurface({ children, panelRef, visible, mode, posit
   const panelWidth = `min(${large ? maxWidth : review ? surface.review_width_px : surface.compact_width_px}px, calc(${widthLimit === undefined ? '100vw' : `${widthLimit}px`} - ${large ? margin * 2 : 24}px))`;
   return <section ref={panelRef} aria-label={label || (large ? 'Expanded graph information' : 'Graph information')} tabIndex={large ? -1 : undefined}
     aria-hidden={!visible} inert={visible ? undefined : ''}
-    className={`graph-info-panel${large ? ' graph-info-panel--expanded' : ''}${visible ? ' is-visible' : ''}${!large && visible && position.slide ? ' is-sliding' : ''}${short ? ' is-height-constrained' : ''}`}
+    className={`graph-info-panel${large ? ' graph-info-panel--expanded' : ''}${visible ? ' is-visible' : ''}${staging ? ' is-staging' : ''}${!large && visible && position.slide ? ' is-sliding' : ''}${short ? ' is-height-constrained' : ''}`}
     onMouseEnter={onEnter} onMouseLeave={onLeave}
     style={{ position: 'fixed', zIndex: 2147483000, display: 'flex', flexDirection: 'column',
       left: large ? viewport ? viewport.left + viewport.width / 2 : '50%' : position.x,

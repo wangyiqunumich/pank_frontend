@@ -49,7 +49,8 @@ export function recordDesign(card,source=card,policy=defaultPolicy) {
   });
   if(parsed.length)frequencies=parsed;
  }
- return {...card,sections,frequencies,production_design:design};
+ const hgvs=design==='Variant' && typeof card.hgvs==='string' && card.hgvs.trim()==='.' ? undefined : card.hgvs;
+ return {...card,sections,frequencies,hgvs,production_design:design};
 }
 export function objectSections(card,policy=defaultPolicy){
  const summary=compactSummary(card,policy);

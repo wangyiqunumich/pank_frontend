@@ -22,4 +22,6 @@ test('source navigation replaces raw artifacts with source pages and deduplicate
  expect(sourcePageUrl({href:'https://pankbase-data-v1.s3.us-west-2.amazonaws.com/raw.rds',library_url:'https://doi.org/10.123/foo'})).toBe('https://data.pankbase.org/');
  expect(sourcePageUrl({href:'https://example.org/raw.tsv.gz'})).toBeNull();
  expect(sourcePageUrl({href:'https://example.org/raw.tsv.gz',source_page_url:'https://example.org/study/123'})).toBe('https://example.org/study/123');
+ expect(sourcePageUrl({href:'https://hpap.pmacs.upenn.edu/api/get-all-metadata'})).toBe('https://hpap.pmacs.upenn.edu/explore/news?datarelease');
+ expect(sourcePageUrl({href:'https://mail.google.com/mail/u/0/#all/example'})).toBeNull();
 });

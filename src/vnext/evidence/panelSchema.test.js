@@ -17,6 +17,17 @@ test('API policy controls title, actions, surface, footer independently of bundl
  expect(screen.getByLabelText('Exit expanded record')).toBeTruthy();expect(screen.queryByLabelText('Dismiss record')).toBeNull();
  expect(screen.getByText('Study: Example')).toBeTruthy();expect(screen.queryByText(/secret-test-version/)).toBeNull();
 });
+test('shared source and license are shown once without losing distinct versions or duplicating a link',()=>{
+ const url='https://example.org/source';
+ const info={data_source:'Example publisher',data_source_url:url,license:'unknown',license_url:url};
+ const {container}=render(<RecordFooter provenance={[{...info,data_version:'Release A'},{...info,data_version:'Release B'}]}/>);
+ const footer=container.querySelector('footer');
+ expect(footer.textContent.match(/Data Source: Example publisher/g)).toHaveLength(1);
+ expect(footer.textContent.match(/License: unknown/g)).toHaveLength(1);
+ expect(footer.textContent).toContain('Release A, Release B');
+ expect(footer.querySelectorAll('a')).toHaveLength(1);
+ expect(footer.querySelector('a').href).toBe(url);
+});
 test('owned tabs and compact summaries use supplied API declarations',()=>{
  const s=schema();s.panel_presentation.tables.accessions.title='External records';
  expect(panelTabs({tables:[{id:'accessions'}]},s)[0].title).toBe('External records');

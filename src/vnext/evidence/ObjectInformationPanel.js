@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useLayoutEffect, useMemo, useState} from 'react';
 import {GraphInfoPanelBody,GraphInfoPanelHeader} from '../GraphInfoPanel';
 import {recordedText} from '../recordedPresentation';
 import {recordedCard} from './recordedCard';
@@ -22,11 +22,11 @@ export function exactGraphRef(data,schema) {
   return candidates.length===1 ? {kind:data.element_kind,type_id:candidates[0].id,id:data.id} : null;
 }
 
-export default function ObjectInformationPanel({data, endpointNodes=[], releaseId, service, renderFallback}) {
-  const ref=exactGraphRef(data,service?.schema && service.schema.release_id===releaseId ? service.schema : null);
+export default function ObjectInformationPanel({data, endpointNodes=[], releaseId, service, renderFallback, onReady}) {
+  const request=service?.request, schema=service?.schema;
+  const ref=useMemo(() => exactGraphRef(data,schema?.release_id===releaseId ? schema : null), [data,schema,releaseId]);
   const key=JSON.stringify([releaseId,ref]);
   const [state,setState]=useState(null);
-  const request=service?.request, schema=service?.schema;
   const eligible=Boolean(ref && releaseId && schema?.release_id===releaseId && request);
   useEffect(()=>{
     if(!eligible) return undefined;
@@ -44,10 +44,22 @@ export default function ObjectInformationPanel({data, endpointNodes=[], releaseI
   },[eligible,key,releaseId,request]);
   const selected=eligible && state?.key===key ? state : null;
   const inspected=eligible && (service.peek?.(ref) || selected?.card);
-  const card=inspected || (eligible && recordedCard(data,ref,schema));
+  const recorded=useMemo(() => eligible && recordedCard(data,ref,schema), [data,eligible,ref,schema]);
+  const source=inspected || recorded;
+  const [first, second]=endpointNodes;
+  const card=useMemo(() => source && ({
+    ...source,
+    endpoints: source.endpoints?.map(endpoint => {
+      const node = first?.id===endpoint.ref.id ? first : second?.id===endpoint.ref.id ? second : null;
+      return {...endpoint,display_name:node?.HGNC_symbol || node?.name || node?.label || endpoint.display_name};
+    }),
+  }), [source,first,second]);
   const loading = service?.loading || (eligible && !inspected && !selected?.error);
   const notice = selected?.error ? 'Detailed evidence is temporarily unavailable.' : null;
-  if(card) return <InspectedInformationPanel compactOnly={!inspected} loading={loading} notice={notice} card={{...card,endpoints:card.endpoints?.map(e=>{const node=endpointNodes.find(n=>n.id===e.ref.id);return {...e,display_name:node?.HGNC_symbol || node?.name || node?.label || e.display_name};})}} schema={schema} request={request} releaseId={releaseId}/>;
+  useLayoutEffect(() => {
+    if (!card && !loading) onReady?.();
+  }, [card,loading,onReady]);
+  if(card) return <InspectedInformationPanel compactOnly={!inspected} loading={loading} notice={notice} card={card} schema={schema} request={request} releaseId={releaseId} onReady={onReady}/>;
   if (loading) {
     const title = recordedText(data?.HGNC_symbol || data?.name || data?.label || data?.id);
     return <>

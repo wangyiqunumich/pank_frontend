@@ -18,6 +18,10 @@
   transition: opacity 140ms ease, translate 140ms ease, left 140ms ease-out, top 140ms ease-out, transform 140ms ease-out;
 }
 
+.graph-info-panel.is-staging {
+  transition: none;
+}
+
 .graph-info-panel-body {
   flex: 1 1 auto;
   min-height: 0;

@@ -5541,6 +5541,9 @@
       "Molecular_complex": "Complex"
     },
     "source_navigation": {
+      "url_pages": {
+        "https://hpap.pmacs.upenn.edu/api/get-all-metadata": "https://hpap.pmacs.upenn.edu/explore/news?datarelease"
+      },
       "host_pages": {
         "ftp.ebi.ac.uk": "https://www.ensembl.org/Homo_sapiens/Info/Index",
         "ftp.ensembl.org": "https://www.ensembl.org/Homo_sapiens/Info/Index",

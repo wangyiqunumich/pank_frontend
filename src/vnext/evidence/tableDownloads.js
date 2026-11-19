@@ -1,4 +1,4 @@
-import {panelSchema} from './panelSchema';
+import {bundled,panelSchema} from './panelSchema';
 import {resourceLink} from './resourceLinks';
 
 export function safeSourceUrl(value) {
@@ -12,6 +12,7 @@ export function sourcePageUrl(source,schema={}) {
   const registered=(schema.table_downloads?.sources || []).find(s=>s.href===source.href || s.match_urls?.includes(source.href));
   source={...registered,...source,library_url:source.library_url || registered?.library_url,source_page_url:source.source_page_url || registered?.source_page_url};
   const pages={...panelPolicy.source_navigation.host_pages,...schema.source_navigation?.host_pages};
+  const urlPages={...bundled.source_navigation.url_pages,...panelPolicy.source_navigation.url_pages,...schema.source_navigation?.url_pages};
   const isArtifact=url=>/\.(?:gz|zip|bz2|xz|rds|h5ad|h5|loom|csv|tsv|txt|vcf|parquet|tar)$/i.test(url.pathname) || /(?:^|\.)s3[.-].*amazonaws\.com$/.test(url.hostname) || url.hostname.startsWith('ftp.');
   const original=safeSourceUrl(source.href);
   const library=safeSourceUrl(source.library_url);
@@ -21,8 +22,9 @@ export function sourcePageUrl(source,schema={}) {
   for(const value of [source.source_page_url,source.library_url,source.href]){
     const href=safeSourceUrl(value);if(!href)continue;
     const url=new URL(href);
+    if(urlPages[href])return safeSourceUrl(urlPages[href]);
     if(pages[url.hostname])return pages[url.hostname];
-    if(!isArtifact(url))return href;
+    if(url.hostname!=='mail.google.com' && !isArtifact(url))return href;
   }
   return null;
 }

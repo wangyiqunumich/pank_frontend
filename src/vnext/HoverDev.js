@@ -43,11 +43,14 @@ export default function HoverDev() {
         </optgroup>)}
       </select>
     </Box>
-    {!service?.schema && <p role="status">{service?.loading ? 'Loading evidence schema…' : 'Evidence service unavailable. Reload to retry.'}</p>}
     {/* The inline viewport needs a definite height independent of Cytoscape's canvases. */}
-    <Box sx={{height:'68vh'}}>
+    <Box sx={{height:'68vh',position:'relative'}}>
       <KnowledgeGraph graphData={graph} coordData={positions} releaseId={fixture.release}
         evidenceService={service} inspectSelection={selection} prefetchEvidence={false} containerHeight="100%" />
+      {/* Schema status must not move the canvas and invalidate its pointer coordinates. */}
+      {!service?.schema && <Typography role="status" variant="body2" sx={{position:'absolute',top:12,left:16,right:16,color:'text.secondary',pointerEvents:'none'}}>
+        {service?.loading ? 'Loading evidence schema…' : 'Evidence service unavailable. Reload to retry.'}
+      </Typography>}
     </Box>
   </Container>;
 }

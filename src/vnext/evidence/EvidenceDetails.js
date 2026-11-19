@@ -18,12 +18,38 @@ import {CccDotMatrix,CccSummary,useCccContexts} from './CccContexts';
 export {currentPresets} from './panelModel';
 
 const DisplayContext=createContext(null);
+const isSourceAnnotation = value => value && typeof value === 'object' && value.row;
+
+function SourceAnnotations({values, field}) {
+  const display = useContext(DisplayContext);
+  const entries = new Map();
+  values.forEach((item,index) => {
+    if (!isSourceAnnotation(item)) {
+      entries.set(index,{rows:[item]});
+      return;
+    }
+    const {data_source,data_version,data_source_url,license,license_url} = item;
+    const provenance = display.provenance({data_source,data_version,data_source_url,license,license_url});
+    const key = JSON.stringify(provenance);
+    if (!entries.has(key)) entries.set(key,{provenance,rows:[]});
+    entries.get(key).rows.push(item.row);
+  });
+  return <div className="xe-source-annotations">{[...entries].map(([key,{provenance,rows}]) => <section key={key} className="xe-source-annotation">
+    {provenance && <h4>{provenance.data_source || 'Source annotations'}</h4>}
+    {rows.map((row,index) => <div className="xe-source-annotation-record" key={index}><Datum value={row} field={field}/></div>)}
+    {provenance && <RecordFooter provenance={{...provenance,data_source:undefined}} schema={display.schema}/>}
+  </section>)}</div>;
+}
+
 function Datum({value, format, field = '', spec, layout = 'auto', quantity = false, displayReady = false}) {
   const panelPolicy=usePanelSchema();
   const display = useContext(DisplayContext);
   value=annotationValue(displayReady ? value : display.value(field,value,spec));
-  if (Array.isArray(value) && value.some(item=>item && typeof item==='object')) return <div className="xe-source-annotations">{value.map((item,i)=><section key={i}><Datum value={item} field={field}/></section>)}</div>;
-  if (value && typeof value==='object' && value.row) return <section className="xe-source-annotation"><strong>{display.value('data_source',value.data_source) || 'Source annotations'}</strong><Datum value={value.row}/><RecordFooter provenance={display.provenance(value)} schema={display.schema}/></section>;
+  if (Array.isArray(value) && value.some(isSourceAnnotation)) return <SourceAnnotations values={value} field={field}/>;
+  if (Array.isArray(value) && value.some(item=>item && typeof item==='object')) return <div className="xe-source-annotations">
+    {value.map((item,index) => <section key={index}><Datum value={item} field={field}/></section>)}
+  </div>;
+  if (isSourceAnnotation(value)) return <SourceAnnotations values={[value]} field={field}/>;
   if (value && typeof value === 'object' && !Array.isArray(value)) return <dl className="xe-nested-fields"><RecordFields fields={Object.entries(value)
     .filter(([key])=>!(panelPolicy.source_annotation_hidden_fields || []).includes(key))
     .map(([key,raw])=>({key,label:fieldLabel(key),value:display.value(key,raw),displayReady:true})).filter(item=>item.value!==undefined)} /></dl>;
@@ -88,11 +114,15 @@ function EvidenceTable({card, schema, table, tableKey, onState}) {
 
   const busy = result?.position !== position;
   const page = result?.position.filters === filters ? result.page : null;
-  const records = page?.records || [];
-  const error = busy ? null : result.error || (page?.state === 'temporarily_unavailable'
-    ? page.message || 'These records are temporarily unavailable.' : null);
+  const resultPage = result?.page;
+  const resultError = result?.error || (resultPage?.state && !['available','no_records'].includes(resultPage.state)
+    ? resultPage.message || 'These records are temporarily unavailable.' : null);
+  const error = busy ? null : resultError;
+  const records = !resultError && Array.isArray(page?.records) ? page.records : [];
   const relatedLinks = table.component === 'node_alt_id' || table.id === 'accessions';
-  const columns = table.columns.filter(key => !(table.comparison === 'disease' && key === 'reference_condition')
+  // Membership rows can share every other field while referring to different files.
+  const requestedColumns = table.id === 'metadata_sample_source' ? new Set([...table.columns,'data_version']) : table.columns;
+  const columns = [...requestedColumns].filter(key => !(table.comparison === 'disease' && key === 'reference_condition')
     && key !== 'data_source_url' && !panelPolicy.table_hidden_fields?.includes(key) && !panelPolicy.hidden_internal_fields.includes(key)
     && !policy.hidden_fields?.includes(key));
   const groups = new Map();
@@ -108,10 +138,9 @@ function EvidenceTable({card, schema, table, tableKey, onState}) {
   }))})).filter(group => group.columns.length);
   const sets = knownSets || page?.credible_sets || {};
   const hasSetPicker = Object.keys(sets).length > 1;
-  const canReset = index > 0 || (hasSetPicker && Boolean(filters.credible_set_id)) ||
-    Boolean(table.presets?.length > 1 && filters !== defaultFilters.current);
+  const canChangeSelection = index > 0 || hasSetPicker || table.presets?.length > 1;
   const hasRows = visibleGroups.length > 0;
-  const status = hasRows || error || canReset ? 'visible' : busy ? 'loading' : 'empty';
+  const status = hasRows || resultError || canChangeSelection ? 'visible' : busy ? 'loading' : 'empty';
   useLayoutEffect(() => { onState(tableKey, status); }, [tableKey, status, onState]);
   if (status !== 'visible') return null;
 
@@ -185,16 +214,18 @@ function EvidenceTable({card, schema, table, tableKey, onState}) {
     sets={page?.credible_sets} pageIndex={index} hasNext={Boolean(page?.has_more && page.next_cursor && !cursors.slice(0, index + 1).includes(page.next_cursor))}
     onPrevious={() => setPosition(previous => ({...previous, index: previous.index - 1}))}
     onNext={() => setPosition(previous => ({...previous, cursors: [...previous.cursors.slice(0, index + 1), page.next_cursor], index: index + 1}))}
+    onRetry={() => setPosition(previous => ({...previous}))}
+    versionsInRows={visibleGroups.some(group => group.columns.includes('data_version'))}
     busy={busy} error={error} controls={controls}>
     {visibleGroups.map(group => <section key={group.key} className="xe-evidence-record-group">
       {group.role && describedGroups.get(group.set)?.length !== 1 && <h4>
         {setName(group.set,sets[group.set])} <span className="xe-small">{groupType(group)}</span>
       </h4>}
       <EvidenceTableViewport label={table.title}>
-        <table aria-label={table.title}>
+        <table aria-label={table.title} className={group.columns.length === 1 && group.columns[0] === 'source_records' ? 'xe-annotation-table' : undefined}>
           <thead><tr>{group.columns.map(key => <th key={key} scope="col" title={table.field_specs[key]?.description}
             data-quantity={table.field_specs[key]?.kind === 'quantity' || undefined}>
-            {table.comparison === 'disease' && key === 'condition' ? 'Comparison' : (relatedLinks ? {source_name:'Database',alt_id:'Open record'}[key] : null) || fieldLabel(key,table.field_specs)}
+            {key === 'data_version' ? 'Source version' : table.comparison === 'disease' && key === 'condition' ? 'Comparison' : (relatedLinks ? {source_name:'Database',alt_id:'Open record'}[key] : null) || fieldLabel(key,table.field_specs)}
           </th>)}</tr></thead>
           <tbody>{group.rows.map((row,i) => <tr key={row.record_id || row.relationship_id || i}>
             {group.columns.map(key => <td key={key} data-quantity={table.field_specs[key]?.kind === 'quantity' || undefined}>{renderCell(row,key)}</td>)}
@@ -344,7 +375,7 @@ export default function EvidenceDetails({card, schema, request, releaseId}) {
   </EvidencePanelProvider>;
 }
 
-export function InspectedInformationPanel({card, schema, request, releaseId, compactOnly = false, loading = false, notice}) {
+export function InspectedInformationPanel({card, schema, request, releaseId, compactOnly = false, loading = false, notice, onReady}) {
   const surface = useGraphInfoPanel();
   const model = useMemo(() => evidencePanelModel(card,schema), [card,schema]);
   const {card:shown, panel, compact, context, display} = model;
@@ -354,6 +385,10 @@ export function InspectedInformationPanel({card, schema, request, releaseId, com
   const canExpand = !compactOnly && model.canExpand;
   const empty = !compact.sections.length && !context.endpoints.length && !cccTable;
   const message = notice || (empty ? loading ? 'Loading details…' : canExpand ? 'Enlarge for complete record' : 'No details recorded.' : null);
+  const ready = releaseId === schema.release_id && card.release_id === releaseId && !loading && (!cccTable || !!cccState);
+  useLayoutEffect(() => {
+    if (ready) onReady?.();
+  }, [ready,onReady]);
   if (releaseId !== schema.release_id || card.release_id !== releaseId) return null;
   return <EvidencePanelProvider model={model} request={request}>
     <GraphInfoPanelHeader canExpand={canExpand} title={shown.title}>{shown.title}</GraphInfoPanelHeader>

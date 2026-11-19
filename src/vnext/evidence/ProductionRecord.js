@@ -13,22 +13,50 @@ export function ProductionValue({field,children}){
  return children;
 }
 export function RecordFooter({provenance={},schema={},className='',sourceLinks}){
- const config=panelSchema(schema);
- const records=Array.isArray(provenance) ? provenance : [provenance];
- const items=records.flatMap((record,index)=>config.footer.fields.map(field=>{
-   const key=`${index}:${field.key}`;
-   const value=record[field.key];
-   if(field.kind==='source_link'){
-     if(sourceLinks) return null;
-     const url=sourcePageUrl({href:record.data_source_url},schema);
-     return url ? <a key={key} href={url} target="_blank" rel="noreferrer">{field.label} ↗</a> : null;
-   }
-   if(value===undefined || value===null || value==='')return null;
-   return <span key={key}>{field.label}: {field.key==='license' && safeSourceUrl(record.license_url)?<a href={record.license_url} target="_blank" rel="noreferrer">{value}</a>:value}</span>;
- })).filter(Boolean);
- for(const [href,label] of sourceLinks || []) items.push(<a key={href} href={href} target="_blank" rel="noopener noreferrer">{label} ↗</a>);
- if(!items.length)return null;
- return <footer className={`xe-provenance xe-production-footer ${className}`.trim()}>{items}</footer>;
+ const fields=panelSchema(schema).footer.fields;
+ const records=(Array.isArray(provenance) ? provenance : [provenance]).filter(Boolean);
+ const commonFields=fields.filter(field=>field.kind!=='source_link' && field.key!=='data_version');
+ const groups=new Map();
+ for(const record of records) {
+   const key=JSON.stringify([...commonFields.map(field=>record[field.key]),safeSourceUrl(record.license_url)]);
+   if(!groups.has(key))groups.set(key,[]);
+   groups.get(key).push(record);
+ }
+ const suppliedLinks=new Map();
+ for(const [url,label] of sourceLinks || []) {
+   const href=safeSourceUrl(url);
+   if(href && !suppliedLinks.has(href))suppliedLinks.set(href,label);
+ }
+ const pageLinks=sourceLinks ? new Set(suppliedLinks.keys()) : new Set(
+   fields.some(field=>field.kind==='source_link') ? records.map(record=>sourcePageUrl({href:record.data_source_url},schema)).filter(Boolean) : [],
+ );
+ const shownLinks=new Set();
+ const link=(href,label,key)=>{
+   if(shownLinks.has(href))return null;
+   shownLinks.add(href);
+   return <a key={key} href={href} target="_blank" rel="noopener noreferrer">{label}</a>;
+ };
+ const sections=[...groups].map(([key,group])=>{
+   const items=fields.flatMap(field=>{
+     if(field.kind==='source_link') {
+       return sourceLinks ? [] : group.map(record=>sourcePageUrl({href:record.data_source_url},schema)).filter(Boolean)
+         .map(href=>link(href,`${field.label} ↗`,href)).filter(Boolean);
+     }
+     const values=[...new Set(group.map(record=>record[field.key]).filter(value=>value!=null && value!==''))];
+     if(!values.length)return [];
+     const value=values.join(', ');
+     const licenseUrl=field.key==='license' && safeSourceUrl(group[0].license_url);
+     const anchor=licenseUrl && !pageLinks.has(licenseUrl) && link(licenseUrl,value,licenseUrl);
+     return [<span key={field.key}>{field.label}: {anchor || value}</span>];
+   });
+   return {key,items};
+ }).filter(section=>section.items.length>0);
+ const links=[...suppliedLinks].map(([href,label])=>link(href,`${label} ↗`,href)).filter(Boolean);
+ if(!sections.length && !links.length)return null;
+ return <footer className={`xe-provenance xe-production-footer ${className}`.trim()}>
+   {sections.length===1 ? sections[0].items : sections.map(({key,items})=><div key={key} className="xe-footer-group">{items}</div>)}
+   {links}
+ </footer>;
 }
 export function ProductionFrequencies({card}){
  const populations=new Map();

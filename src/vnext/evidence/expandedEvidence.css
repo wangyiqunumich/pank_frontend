@@ -334,6 +334,36 @@
   font-variant-numeric: tabular-nums;
 }
 
+.graph-info-panel--expanded .xe-table-scroll .xe-annotation-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.graph-info-panel--expanded .xe-annotation-table .xe-source-annotations {
+  min-width: 0;
+}
+
+.graph-info-panel--expanded .xe-source-annotation-record + .xe-source-annotation-record {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--panel-border);
+}
+
+.graph-info-panel--expanded .xe-source-annotation-record > .xe-nested-fields {
+  display: grid;
+  gap: 0 20px;
+}
+
+.graph-info-panel--expanded .xe-source-annotation-record .kg-card-field:not([data-layout='prose']) {
+  grid-template-columns: minmax(0, min(42%, 170px)) minmax(0, 1fr);
+}
+
+@media (min-width: 761px) {
+  .graph-info-panel--expanded .xe-source-annotation-record > .xe-nested-fields {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+}
+
 .graph-info-panel--expanded :is(.xe-evidence-card, .xe-ccc-matrix) tbody tr:hover {
   background: #f3f8f8;
 }

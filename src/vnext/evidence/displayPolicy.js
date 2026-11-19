@@ -55,6 +55,7 @@ export function displayValue(key,value,policy={},profileKey=null,spec={}) {
 // Apply the same visibility rule to each value, even when other values in
 // a section or table column are displayable. Leave the API payload intact.
 export function displayFieldValue(key, value, policy = {}, profileKey = null, spec = {}) {
+  if (typeof value === 'string' && value.trim() === '.' && /^hgvs(?:_name)?$/i.test(key)) return undefined;
   if (!visibleField(key, value, policy, spec)) return undefined;
   if (Array.isArray(value)) {
     const items = value.map(item => displayFieldValue(key, item, policy, profileKey, spec)).filter(item => item !== undefined);

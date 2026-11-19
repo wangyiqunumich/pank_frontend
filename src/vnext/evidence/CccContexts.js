@@ -10,6 +10,7 @@ const names = (row, display) => ['source','target'].map(key => display.value(key
 const stratum = (row, display, separator = ', ') => ['map_id','condition','treatment'].map(key => display.value(key,row[key])).filter(Boolean).join(separator);
 const number = value => value == null || value === '' ? NaN : Number(value);
 const format = value => Number.isFinite(value) ? Number(value.toPrecision(4)).toString() : 'Unavailable';
+const missingContextFields = {error:'The evidence schema does not list context fields.'};
 
 export function useCccContexts(card, table, schema, {request, supportingOnly = false} = {}) {
   const contextRequest = useContext(EvidenceRequestContext);
@@ -29,6 +30,7 @@ export function useCccContexts(card, table, schema, {request, supportingOnly = f
     });
     return () => controller.abort();
   }, [viewer, card.ref, table, fields, supportingOnly]);
+  if (table && !fields) return missingContextFields;
   return state && state.table === table ? state : null;
 }
 

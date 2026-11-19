@@ -824,7 +824,14 @@ export default function KnowledgeGraph({ inspectSelection, prefetchEvidence = tr
   const [infocardPosition, setInfocardPosition] = useState({ x: 0, y: 0, slide: false });
   const [infocardVisible, setInfocardVisible] = useState(false);
   const [infocardHovered, setInfocardHovered] = useState(false);
+  const [readyHover, setReadyHover] = useState(null);
+  const showHover = infocardVisible && readyHover === activeHover;
   const panelPolicy = panelSchema(evidenceService?.schema);
+  const markHoverReady = useCallback(() => {
+    if (hoverTarget && hoverTargetRef.current === hoverTarget && hoverTarget.element === activeHover?.element) {
+      setReadyHover(activeHover);
+    }
+  }, [activeHover, hoverTarget]);
 
   const clearHoverTarget = useCallback(() => {
     if (!hoverTargetRef.current) return;
@@ -976,7 +983,7 @@ export default function KnowledgeGraph({ inspectSelection, prefetchEvidence = tr
     const container = containerRef.current;
     const infocard = infocardRef.current;
     const cy = cyRef.current;
-    if (!infocardVisible || !compactPanel || !activeHover || !container || !infocard || !cy) return;
+    if (!showHover || !compactPanel || !activeHover || !container || !infocard || !cy) return;
     const { element } = activeHover;
     const pane = container.getBoundingClientRect();
     const node = element.isNode?.();
@@ -1013,7 +1020,7 @@ export default function KnowledgeGraph({ inspectSelection, prefetchEvidence = tr
     const roomBelow = viewBottom - lower;
     const { compact_px: maxPixels, compact_vh: maxViewportPercent } = panelPolicy.layout.height_limits;
     const heightLimit = Math.min(maxPixels, viewport.height * maxViewportPercent / 100);
-    const preferredHeight = infocard.querySelector('.graph-info-panel-body[data-loading]') ? heightLimit : Math.min(height, heightLimit);
+    const preferredHeight = Math.min(height, heightLimit);
     const above = roomAbove >= preferredHeight || roomAbove > roomBelow;
     const room = above ? roomAbove : roomBelow;
     // If the anchor splits a short viewport, try the target's side before
@@ -1030,7 +1037,7 @@ export default function KnowledgeGraph({ inspectSelection, prefetchEvidence = tr
       viewportWidth: viewport.width,
       slide: activeHover.slide && previous.above === (!beside && above) && height <= Math.min(previous.maxHeight, maxHeight),
     }));
-  }, [activeHover, compactPanel, expanded, infocardVisible, panelPolicy, review]);
+  }, [activeHover, compactPanel, expanded, showHover, panelPolicy, review]);
 
   const closePanel = useCallback(() => {
     setExpandedCard(null);
@@ -1089,8 +1096,8 @@ export default function KnowledgeGraph({ inspectSelection, prefetchEvidence = tr
   };
 
   useEffect(() => {
-    if (infocardVisible && activeNode?.isEdge?.()) onEvidenceInspect?.(activeNode.id());
-  }, [infocardVisible, activeNode, onEvidenceInspect]);
+    if (showHover && activeNode?.isEdge?.()) onEvidenceInspect?.(activeNode.id());
+  }, [showHover, activeNode, onEvidenceInspect]);
 
   useEffect(() => {
     if (!compactPanel || (!hoverTarget && !infocardVisible)) return undefined;
@@ -1124,17 +1131,22 @@ export default function KnowledgeGraph({ inspectSelection, prefetchEvidence = tr
     if (!compactPanel || !infocardEnabled || infocardHovered) return undefined;
     if (!hoverTarget) {
       if (!infocardVisible) return undefined;
+      if (!showHover) {
+        setActiveHover(null);
+        setInfocardVisible(false);
+        return undefined;
+      }
       const timeout = setTimeout(() => setInfocardVisible(false), 260);
       return () => clearTimeout(timeout);
     }
     if (infocardVisible && activeNode === hoverTarget.element) return undefined;
     const timeout = setTimeout(() => {
       if (hoverTargetRef.current !== hoverTarget || hoverTarget.element.removed?.()) return;
-      setActiveHover({ ...hoverTarget, fullscreen: expanded, slide: infocardVisible });
+      setActiveHover({ ...hoverTarget, fullscreen: expanded, slide: showHover });
       setInfocardVisible(true);
-    }, infocardVisible ? 70 : 160);
+    }, showHover ? 70 : 160);
     return () => clearTimeout(timeout);
-  }, [activeNode, compactPanel, expanded, hoverTarget, infocardEnabled, infocardHovered, infocardVisible]);
+  }, [activeNode, compactPanel, expanded, hoverTarget, infocardEnabled, infocardHovered, infocardVisible, showHover]);
 
 
   useLayoutEffect(() => {
@@ -1337,12 +1349,13 @@ export default function KnowledgeGraph({ inspectSelection, prefetchEvidence = tr
         modeLabel={sourceGraph?.presentation_mode === 'relationship_list' ? 'List mode' : 'KG mode'} />
       <div className="graph-zoom-indicator" aria-label="Graph zoom">{Math.round(zoomLevel / initZoom * 100)}%</div>
       <GraphInfoPanel key={compactPanel ? 'hover' : 'expanded'} schema={evidenceService?.schema} panelRef={infocardRef} host={expanded ? containerRef.current?.closest('dialog') : document.body}
-        visible={compactPanel ? infocardVisible : true} mode={compactPanel ? 'hover' : 'expanded'} position={infocardPosition} review={review}
+        visible={compactPanel ? showHover : true} staging={compactPanel && infocardVisible && !showHover}
+        mode={compactPanel ? 'hover' : 'expanded'} position={infocardPosition} review={review}
         onEnter={compactPanel ? () => { clearHoverTarget(); setInfocardHovered(true); } : undefined} onLeave={compactPanel ? () => setInfocardHovered(false) : undefined}
         onEnlarge={enlargePanel}
         onMinimize={closeExpandedCard}
         onClose={closePanel}>
-        {activeNode && !activeNode.removed?.() && <ObjectInformationPanel key={activeNode.id()} endpointNodes={activeNode.isEdge?.() ? [activeNode.source().data(), activeNode.target().data()] : []} data={activeNode.data()} releaseId={releaseId} service={review ? null : evidenceService} renderFallback={notice => <InfocardMenu hoveredData={activeNode.data()} review={review} notice={notice} />} />}
+        {activeNode && !activeNode.removed?.() && <ObjectInformationPanel key={activeNode.id()} endpointNodes={activeNode.isEdge?.() ? [activeNode.source().data(), activeNode.target().data()] : []} data={activeNode.data()} releaseId={releaseId} service={review ? null : evidenceService} onReady={compactPanel ? markHoverReady : undefined} renderFallback={notice => <InfocardMenu hoveredData={activeNode.data()} review={review} notice={notice} />} />}
       </GraphInfoPanel>
       {!review && <GraphLegend defaultOpen={defaultLegendVisible} />}
     </div>
