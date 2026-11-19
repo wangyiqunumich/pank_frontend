@@ -810,10 +810,11 @@ function GraphSearch({ inputRef, onSearch }) {
 }
 
 // Main KnowledgeGraph component
-export default function KnowledgeGraph({ inspectSelection, onEvidenceInspect, releaseId, evidenceService, selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, edgeRoutes = null, review = false, containerHeight = "600px", defaultLegendVisible = false }) {
+export default function KnowledgeGraph({ inspectSelection, prefetchEvidence = true, onEvidenceInspect, releaseId, evidenceService, selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, edgeRoutes = null, review = false, containerHeight = "600px", defaultLegendVisible = false }) {
   const cyRef = useRef(null);
   const containerRef = useRef(null);
   const infocardRef = useRef(null);
+  const dismissSelectionRef = useRef(null);
   const [activeHover, setActiveHover] = useState(null);
   const [expandedCard, setExpandedCard] = useState(null);
   const activeNode = expandedCard || activeHover?.element;
@@ -1035,10 +1036,17 @@ export default function KnowledgeGraph({ inspectSelection, onEvidenceInspect, re
     setExpandedCard(null);
     setActiveHover(null);
     dismissHover();
+    const dismissSelection = dismissSelectionRef.current;
+    dismissSelectionRef.current = null;
+    if (dismissSelection) {
+      setExpanded(false);
+      dismissSelection();
+    }
   }, [dismissHover]);
   const closeExpandedCard = () => {
+    const fromPicker = Boolean(dismissSelectionRef.current);
     closePanel();
-    containerRef.current?.closest('dialog')?.focus({ preventScroll: true });
+    if (!fromPicker) containerRef.current?.closest('dialog')?.focus({ preventScroll: true });
   };
   useLayoutEffect(() => {
     if (!expandedCard) return undefined;
@@ -1056,6 +1064,7 @@ export default function KnowledgeGraph({ inspectSelection, onEvidenceInspect, re
     if (!inspectSelection) return;
     const element = cyRef.current?.getElementById(inspectSelection.id);
     if (!element?.nonempty()) return;
+    dismissSelectionRef.current = inspectSelection.onClose;
     dismissHover();
     setActiveHover(null);
     setExpandedCard(element);
@@ -1253,7 +1262,7 @@ export default function KnowledgeGraph({ inspectSelection, onEvidenceInspect, re
   }, [activeNode, bound, closePanel]);
 
   useEffect(() => {
-    if(review || !evidenceService?.peek || evidenceService.schema?.release_id!==releaseId) return undefined;
+    if(!prefetchEvidence || review || !evidenceService?.peek || evidenceService.schema?.release_id!==releaseId) return undefined;
     // Bound background reads to the displayed graph; never prefetch evidence tables.
     const refs=(cyRef.current?.elements().map(ele=>exactGraphRef(ele.data(),evidenceService.schema)) || []).filter(Boolean).slice(0,100);
     let stopped=false, next=0;
@@ -1266,7 +1275,7 @@ export default function KnowledgeGraph({ inspectSelection, onEvidenceInspect, re
     };
     for(let i=0;i<3;i++) warm();
     return ()=>{stopped=true;};
-  },[bound,evidenceService,releaseId,review]);
+  },[bound,evidenceService,prefetchEvidence,releaseId,review]);
 
   useLayoutEffect(() => () => {
     const cy = cyRef.current;
