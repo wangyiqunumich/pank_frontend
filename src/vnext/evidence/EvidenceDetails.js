@@ -1,8 +1,9 @@
 // Reused from the source-pinned 1024 demo; network access is supplied by the host.
-import React,{createContext,useCallback,useContext,useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react';
+import React,{createContext,useCallback,useContext,useEffect,useId,useLayoutEffect,useMemo,useRef,useState} from 'react';
 import {annotationValue} from './sourceAnnotations';
 import {fieldLabel} from './presentation';
 import './evidenceDetails.css';
+import './expandedEvidence.css';
 import {usePanelSchema,PanelSchemaContext} from './panelSchema';
 import {evidencePanelModel} from './panelModel';
 import {ProductionValue,RecordFooter,ProductionFrequencies} from './ProductionRecord';
@@ -35,6 +36,29 @@ function RecordFields({ fields, specs = {} }) {
   return fields.map(f => <div key={f.key} className="kg-card-field" data-layout={cardValueLayout(f.value,f.layout || specs[f.key]?.layout)}>
     <dt title={f.description || specs[f.key]?.description}>{fieldLabel(f,specs)}</dt><dd><ProductionValue field={f}><Datum value={f.value} format={f.format} field={f.key} spec={specs[f.key]} displayReady={f.displayReady} quantity={(f.kind || specs[f.key]?.kind)==='quantity' && !Number.isInteger(f.value)} layout={f.layout || specs[f.key]?.layout} /></ProductionValue></dd>
   </div>);
+}
+
+function EvidenceTableViewport({label, children}) {
+  const ref = useRef(null);
+  useLayoutEffect(() => {
+    const scroller = ref.current;
+    const update = () => {
+      const moreColumns = scroller.scrollWidth - scroller.clientWidth - scroller.scrollLeft > 1;
+      scroller.parentElement.toggleAttribute('data-more-columns', moreColumns);
+    };
+    update();
+    scroller.addEventListener('scroll', update, {passive:true});
+    const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(update) : null;
+    observer?.observe(scroller);
+    observer?.observe(scroller.firstElementChild);
+    return () => {
+      scroller.removeEventListener('scroll', update);
+      observer?.disconnect();
+    };
+  }, []);
+  return <div className="xe-evidence-table-frame">
+    <div ref={ref} className="xe-table-scroll" tabIndex={0} role="region" aria-label={label}>{children}</div>
+  </div>;
 }
 
 function EvidenceTable({card, schema, table, tableKey, onState}) {
@@ -92,8 +116,21 @@ function EvidenceTable({card, schema, table, tableKey, onState}) {
   if (status !== 'visible') return null;
 
   const selectFilters = next => setPosition({filters: next, cursors: [null], index: 0});
-  const setLabel = (set, i) => [displayText(set.signal_role || set.qtl_type || 'Credible set',policy),
-    publicId(set.gene_id,policy), `Set ${i + 1}`].filter(Boolean).join(' · ');
+  const setIds = Object.keys(sets);
+  const setName = (id, set = {}) => {
+    const index = setIds.indexOf(id);
+    const name = index < 0 ? 'Credible set' : `Set ${index + 1}`;
+    const gene = publicId(set.gene_id,policy);
+    return gene ? `${name} (${gene})` : name;
+  };
+  const groupType = group => {
+    const role = String(group.role).toUpperCase();
+    const type = displayText(sets[group.set]?.qtl_type || sets[group.set]?.signal_role,policy);
+    return type && String(type).toLowerCase() !== role.toLowerCase() ? `${type} (${role})` : role;
+  };
+  const describedSets = Object.entries(page?.credible_sets || {})
+    .filter(([id]) => !filters.credible_set_id || filters.credible_set_id === id);
+  const describedGroups = new Map(describedSets.map(([id]) => [id, visibleGroups.filter(group => group.set === id)]));
   const renderCell = (row, key) => {
     const value = shownValue(row,key);
     if (value === undefined) return <Datum displayReady />;
@@ -121,13 +158,27 @@ function EvidenceTable({card, schema, table, tableKey, onState}) {
       else delete next.credible_set_id;
       selectFilters(next);
     }}>
-      <option value="">All linked sets</option>{Object.entries(sets).map(([id, data], i) => <option key={id} value={id}>{setLabel(data, i)}</option>)}
+      <option value="">All linked sets</option>{Object.entries(sets).map(([id, data]) => <option key={id} value={id}>
+        {[setName(id,data), displayText(data.signal_role || data.qtl_type,policy)].filter(Boolean).join(', ')}
+      </option>)}
     </select></label>}
-    {page?.credible_sets && <div className="xe-set-descriptions">{Object.entries(page.credible_sets)
-      .filter(([id]) => !filters.credible_set_id || filters.credible_set_id === id).map(([id, data], i) => <section key={id}>
-        <strong>{setLabel(data, i)}</strong><dl>{['tissue_name','qtl_type','method','n_members','purity'].filter(key => data[key] != null).map(key =>
-          <div className="kg-card-field" key={key}><dt>{key === 'qtl_type' ? 'Signal type' : fieldLabel(key, table.field_specs)}</dt><dd><Datum value={data[key]} field={key}/></dd></div>)}</dl>
-      </section>)}</div>}
+    {describedSets.length > 0 && <div className="xe-set-descriptions">{describedSets.map(([id, data]) => {
+      const matching = describedGroups.get(id);
+      const groupRole = matching.length === 1 ? String(matching[0].role || '').toUpperCase() : '';
+      const sourceRole = String(displayText(data.signal_role,policy) || '');
+      const signalType = String(displayText(data.qtl_type,policy) || '');
+      const roles = [groupRole, sourceRole].filter((role,index) => role
+        && role.toLowerCase() !== signalType.toLowerCase()
+        && (index === 0 || role.toLowerCase() !== groupRole.toLowerCase()));
+      return <section key={id}>
+        <h4>{setName(id,data)}</h4>
+        <dl>
+          {['tissue_name','qtl_type','method','n_members','purity'].filter(key => data[key] != null).map(key =>
+            <div className="kg-card-field" key={key}><dt>{key === 'qtl_type' ? 'Signal type' : fieldLabel(key, table.field_specs)}</dt><dd><Datum value={data[key]} field={key}/></dd></div>)}
+          {roles.length > 0 && <div className="kg-card-field"><dt>Role</dt><dd>{roles.join(', ')}</dd></div>}
+        </dl>
+      </section>;
+    })}</div>}
   </>;
   return <EvidenceTableCard card={card} table={table} schema={schema} display={display} filters={scopedFilters} records={hasRows ? records : []}
     recordCount={index === 0 && page?.has_more === false ? records.length : undefined}
@@ -136,17 +187,20 @@ function EvidenceTable({card, schema, table, tableKey, onState}) {
     onNext={() => setPosition(previous => ({...previous, cursors: [...previous.cursors.slice(0, index + 1), page.next_cursor], index: index + 1}))}
     busy={busy} error={error} controls={controls}>
     {visibleGroups.map(group => <section key={group.key} className="xe-evidence-record-group">
-      {group.role && <h4>{String(group.role).toUpperCase()} · {setLabel(sets[group.set] || {}, Object.keys(sets).indexOf(group.set))}</h4>}
-      <div className="xe-table-scroll" tabIndex={0} aria-label={table.title}>
+      {group.role && describedGroups.get(group.set)?.length !== 1 && <h4>
+        {setName(group.set,sets[group.set])} <span className="xe-small">{groupType(group)}</span>
+      </h4>}
+      <EvidenceTableViewport label={table.title}>
         <table aria-label={table.title}>
-          <thead><tr>{group.columns.map(key => <th key={key} scope="col" title={table.field_specs[key]?.description}>
+          <thead><tr>{group.columns.map(key => <th key={key} scope="col" title={table.field_specs[key]?.description}
+            data-quantity={table.field_specs[key]?.kind === 'quantity' || undefined}>
             {table.comparison === 'disease' && key === 'condition' ? 'Comparison' : (relatedLinks ? {source_name:'Database',alt_id:'Open record'}[key] : null) || fieldLabel(key,table.field_specs)}
           </th>)}</tr></thead>
           <tbody>{group.rows.map((row,i) => <tr key={row.record_id || row.relationship_id || i}>
-            {group.columns.map(key => <td key={key}>{renderCell(row,key)}</td>)}
+            {group.columns.map(key => <td key={key} data-quantity={table.field_specs[key]?.kind === 'quantity' || undefined}>{renderCell(row,key)}</td>)}
           </tr>)}</tbody>
         </table>
-      </div>
+      </EvidenceTableViewport>
     </section>)}
     {!hasRows && !busy && !error && <p role="status" className="xe-evidence-message">No matching records.</p>}
   </EvidenceTableCard>;
@@ -193,11 +247,11 @@ function RelationshipSection({context, panel, compact = false}) {
 function VariantDetails({card, schema}) {
   const table = {id:'population_frequencies', title:'Population frequencies', columns:['population','allele','frequency'],
     ...schema.tables?.population_frequencies};
-  return <PanelSection title="Frequency">
-    {card.frequencies?.length ? <>
+  const hasFrequencies = Boolean(card.frequencies?.length);
+  return <PanelSection title={hasFrequencies ? undefined : 'Frequency'} className="xe-variant-details">
+    {hasFrequencies ? <TableDownloads title="Frequency" card={card} table={table} schema={schema} records={card.frequencies} localRecords={card.frequencies}>
       <ProductionFrequencies card={card}/>
-      <TableDownloads card={card} table={table} schema={schema} records={card.frequencies} localRecords={card.frequencies}/>
-    </> : <p className="xe-empty">Not recorded</p>}
+    </TableDownloads> : <p className="xe-empty">Not recorded</p>}
     {card.consequences?.length > 0 && <>
       <h3>Functional annotations</h3><div className="xe-chips muted">{card.consequences.map(value => <span key={value}>{value}</span>)}</div>
     </>}
@@ -224,25 +278,52 @@ function ExpandedDetails({model, schema}) {
   const {card, panel, views, defaultView, cccTable} = model;
   const cccState = useCccContexts(card, cccTable, schema);
   const [selected, setSelected] = useState(defaultView);
+  const [focused, setFocused] = useState(null);
+  const id = useId();
+  const singleView = views.length === 1;
   const view = views.find(entry => entry.id === selected) || views[0];
+  const viewIndex = views.indexOf(view);
   const layout = panel.expanded_layout;
   const hasContent = view.blocks.some(block => block.kind !== 'fields' || block.sections.length);
+  const dense = view.blocks.some(block => block.kind === 'fields' && block.sections.some(section => section.fields.length >= 9));
+  const moveTabFocus = event => {
+    const tabs = [...event.currentTarget.querySelectorAll('[role="tab"]')];
+    const index = tabs.indexOf(event.target);
+    if (index === -1) return;
+    const next = {
+      ArrowLeft: (index - 1 + tabs.length) % tabs.length,
+      ArrowRight: (index + 1) % tabs.length,
+      Home: 0,
+      End: tabs.length - 1,
+    }[event.key];
+    if (next === undefined) return;
+    event.preventDefault();
+    // Keep focus navigation separate from activation, which may request data.
+    tabs[next].focus();
+  };
   return <>
-    <nav className="xe-card-tabs" aria-label="Record views">
-      <div className="xe-tab-list">
-        {views.map(entry => <button type="button" key={entry.id}
-          aria-current={view.id === entry.id ? 'page' : undefined} onClick={() => setSelected(entry.id)}>{entry.title}</button>)}
+    {!singleView && <nav className="xe-card-tabs" aria-label="Record views">
+      <div className="xe-tab-list" role="tablist" aria-label="Record views" onKeyDown={moveTabFocus}
+        onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(null); }}>
+        {views.map((entry,index) => <button type="button" role="tab" key={entry.id} id={`${id}-tab-${index}`}
+          aria-controls={`${id}-view-${index}`} aria-selected={view.id === entry.id}
+          tabIndex={(focused || view.id) === entry.id ? 0 : -1}
+          onFocus={() => setFocused(entry.id)} onClick={() => setSelected(entry.id)}>{entry.title}</button>)}
       </div>
-    </nav>
-    <GraphInfoPanelBody key={view.id}>
-      <div className={`xe-expanded-details xe-${view.layout}-view`}>
+    </nav>}
+    <GraphInfoPanelBody key={view.id} role={singleView ? 'region' : 'tabpanel'} tabIndex={0}
+      data-single-view={singleView || undefined} aria-label={singleView ? view.title : undefined}
+      id={`${id}-view-${viewIndex}`} aria-labelledby={singleView ? undefined : `${id}-tab-${viewIndex}`}>
+      <div className={`xe-expanded-details xe-${view.layout}-view`} data-dense={dense || undefined}>
         <div className="xe-card-body" style={{'--panel-columns':layout.columns,'--panel-narrow-columns':layout.narrow_columns,'--panel-gap':`${layout.gap_px}px`}}>
           {view.blocks.map(block => <PanelBlock key={block.kind} block={block} model={model} schema={schema} cccState={cccState}/>)}
-          {!hasContent && <p className="xe-small">No details recorded.</p>}
+          {!hasContent && <p className="xe-evidence-placeholder">No details recorded.</p>}
         </div>
       </div>
     </GraphInfoPanelBody>
     {view.layout === 'record' && <RecordFooter provenance={card.provenance} schema={schema} className="graph-info-panel-footer"/>}
+    {views.map((entry,index) => entry !== view && <div key={entry.id} hidden role="tabpanel"
+      id={`${id}-view-${index}`} aria-labelledby={`${id}-tab-${index}`}/>)}
   </>;
 }
 

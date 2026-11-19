@@ -755,6 +755,10 @@
     "compact_width_px": 280,
     "review_width_px": 550,
     "expanded_width_px": 900,
+    "expanded_frame": {
+      "max_width_px": 1120,
+      "max_height_px": 860
+    },
     "expanded_top_px": 76,
     "border_radius_px": 12
   },

@@ -27,8 +27,8 @@
   padding: 12px 10px;
   white-space: nowrap;
 }
-.xe-tab-list button[aria-current='page'] { color: #087d78; }
-.xe-tab-list button[aria-current='page']::after {
+.xe-tab-list button[aria-selected='true'] { color: #087d78; }
+.xe-tab-list button[aria-selected='true']::after {
   position: absolute;
   inset-inline: 0;
   bottom: 0;
@@ -54,7 +54,6 @@
 .xe-expanded-details table {width:100%;border-collapse:collapse;text-align:left;}
 .xe-expanded-details th,.xe-expanded-details td {padding:8px;border-bottom:1px solid #e0e8eb;overflow-wrap:anywhere;}
 .xe-expanded-details th {background:#f1f6f7;}
-.xe-expanded-details .xe-download-actions {display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;}
 .xe-expanded-details .xe-small,.xe-expanded-details .xe-provenance {font-size:12px;color:#61767d;}
 .xe-expanded-details .xe-warning {background:#fff4e4;padding:12px;}
 .xe-expanded-details a {color:#087d78;overflow-wrap:anywhere;}
@@ -100,7 +99,7 @@
 .xe-production-footer.graph-info-panel-footer {border-top:1px solid #e6edef;}
 .xe-production-footer.graph-info-panel-footer a {color:#087d78;}
 .xe-production-footer span,.xe-production-footer a {max-width:100%;overflow-wrap:anywhere;}
-.xe-production-pill {display:inline-block;padding:1.5px 4px;border-radius:8.5px;color:white;font:700 12px/14px 'Open Sans',sans-serif;}
+.xe-production-pill {display:inline-block;padding:1.5px 4px;border-radius:8.5px;color:white;background-color:var(--production-pill-color);font:700 12px/14px 'Open Sans',sans-serif;}
 .xe-population {padding:12px 0;}
 .xe-population>div:first-child {display:flex;justify-content:space-between;gap:8px;font-size:12px;color:#6b7880;}
 .xe-population small {font-size:9px;margin-left:8px;}
@@ -122,12 +121,6 @@
 .xe-expanded-details .xe-source-annotations section + section {border-top:1px solid #e3ecee;margin-top:12px;padding-top:12px;}
 @media(max-width:760px){.xe-record-view .xe-card-body{grid-template-columns:repeat(var(--panel-narrow-columns,1),minmax(0,1fr));}}
 
-/* Credible-set context stays compact above the source member tables. */
-.xe-expanded-details .xe-set-descriptions {display:block;}
-.xe-expanded-details .xe-set-descriptions section {padding:10px 0;border:0;border-bottom:1px solid #e3ecee;border-radius:0;}
-.xe-set-descriptions dl {display:flex;flex-wrap:wrap;gap:8px 20px;margin:8px 0;}
-.xe-set-descriptions .kg-card-field {display:flex;gap:6px;margin:0;}
-.xe-set-descriptions dt {color:#61767d;}
 .xe-evidence-heading { flex: 1 1 12rem; min-width: 0; }
 .xe-evidence-heading h3 { margin: 0; font-size: 14px; color: #263238; }
 .xe-evidence-heading p { margin: 4px 0 0; }
@@ -170,7 +163,6 @@
   font-size: 12px;
   font-weight: 600;
 }
-.xe-expanded-details .xe-evidence-pager button { width: 30px; padding: 0; }
 .xe-evidence .xe-set-selector select { min-width: 0; max-width: 100%; text-overflow: ellipsis; }
 .xe-evidence-sources { border-top: 1px solid #e6edef; }
 .xe-evidence-message, .xe-evidence-placeholder { margin: 0; padding: 12px; color: #526a73; font-size: 13px; }

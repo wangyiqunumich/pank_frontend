@@ -11,7 +11,7 @@ test('expression records are direct lists without row-open controls or view sele
  const schema={release_id:card.release_id,display_policy:{},tables:{expression:table}};
  const request=jest.fn().mockResolvedValue({records:[{condition:'ND',cpm:0}],has_more:false});
  render(<EvidenceDetails card={card} schema={schema} releaseId={card.release_id} request={request}/>);
- fireEvent.click(screen.getByRole('button',{name:'Expression evidence summary',exact:true}));
+ fireEvent.click(screen.getByRole('tab',{name:'Expression evidence summary',exact:true}));
  expect(await screen.findByText('ND')).toBeTruthy();
  expect(screen.queryByRole('button',{name:/Read row/})).toBeNull();
  expect(screen.queryByRole('combobox')).toBeNull();

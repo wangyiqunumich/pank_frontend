@@ -1,5 +1,5 @@
 import React from 'react';
-import {render,screen,fireEvent,waitFor,within} from '@testing-library/react';
+import {act,render,screen,fireEvent,waitFor,within} from '@testing-library/react';
 import EvidenceDetails, { InspectedInformationPanel } from './EvidenceDetails';
 import { GraphInfoPanelSurface } from '../GraphInfoPanel';
 const ref={kind:'node',id:'ENSG00000001626',type_id:'Gene'};
@@ -9,7 +9,7 @@ const schema={release_id:'PanKgraph_1024',tables:{accessions:table}};
 test('version mismatch never requests or shows SQL tabs',()=>{
  const request=jest.fn();render(<EvidenceDetails card={card} schema={schema} releaseId="PanKgraph_08_04" request={request}/>);
  expect(screen.getByRole('status').textContent).toMatch(/graph version/);
- expect(screen.queryByRole('button',{name:'Related links'})).toBeNull();expect(request).not.toHaveBeenCalled();
+ expect(screen.queryByRole('tab',{name:'Related links'})).toBeNull();expect(request).not.toHaveBeenCalled();
 });
 test.each([
  ['no_records', 'No matching records.'],
@@ -17,7 +17,7 @@ test.each([
 ])('owned table with state %s is requested only on its tab and has a readable status',async(state,message)=>{
  const request=jest.fn().mockResolvedValue({state,records:[],has_more:false});
  render(<EvidenceDetails card={card} schema={schema} releaseId={card.release_id} request={request}/>);
- expect(request).not.toHaveBeenCalled();fireEvent.click(screen.getByRole('button',{name:'Related links'}));
+ expect(request).not.toHaveBeenCalled();fireEvent.click(screen.getByRole('tab',{name:'Related links'}));
  await waitFor(()=>expect(request).toHaveBeenCalled());
  expect(request.mock.calls[0][1]).toMatchObject({ref,table_id:'accessions',filters:{}});
  expect(await screen.findByText(message)).toBeTruthy();
@@ -25,7 +25,26 @@ test.each([
 });
 test('registry without owned tables does not fabricate a tab',()=>{
  render(<EvidenceDetails card={{...card,tables:[],component_views:[]}} schema={schema} releaseId={card.release_id} request={jest.fn()}/>);
- expect(screen.queryByRole('button',{name:'Related links'})).toBeNull();expect(screen.getByRole('button',{name:'Complete record'})).toBeTruthy();
+ expect(screen.queryByRole('tablist')).toBeNull();
+ expect(screen.getByRole('region',{name:'Complete record'})).toBeTruthy();
+});
+
+test('arrow keys move tab focus without loading evidence until it is activated', async () => {
+ const request=jest.fn().mockResolvedValue({state:'no_records',records:[],has_more:false});
+ render(<EvidenceDetails card={card} schema={schema} releaseId={card.release_id} request={request}/>);
+ const record=screen.getByRole('tab',{name:'Complete record'});
+ const links=screen.getByRole('tab',{name:'Related links'});
+ act(() => record.focus());
+ fireEvent.keyDown(record,{key:'ArrowRight'});
+ expect(document.activeElement).toBe(links);
+ expect(links.tabIndex).toBe(0);
+ expect(record.getAttribute('aria-selected')).toBe('true');
+ expect(request).not.toHaveBeenCalled();
+ fireEvent.click(links);
+ expect(await screen.findByText('No matching records.')).toBeTruthy();
+ expect(screen.getByRole('tabpanel',{name:'Related links'}).id).toBe(links.getAttribute('aria-controls'));
+ fireEvent.keyDown(links,{key:'Home'});
+ expect(document.activeElement).toBe(record);
 });
 
 test('a sparse inspection leaves an explicit empty state and no empty provenance footer', () => {
@@ -53,12 +72,12 @@ test('the record footer sits below the scroll area in compact and expanded cards
  const navigation=screen.getByRole('navigation',{name:'Record views'});
  const firstBody=container.querySelector('.graph-info-panel-body');
  expect(navigation.nextElementSibling).toBe(firstBody);
- fireEvent.click(screen.getByRole('button',{name:'Related links'}));
+ fireEvent.click(screen.getByRole('tab',{name:'Related links'}));
  await screen.findByText('No matching records.');
  expect(screen.queryByText('Data Source: Recorded fixture')).toBeNull();
  expect(navigation.nextElementSibling).not.toBe(firstBody);
- expect(screen.getByRole('button',{name:'Related links'}).getAttribute('aria-current')).toBe('page');
- fireEvent.click(screen.getByRole('button',{name:'Complete record'}));
+ expect(screen.getByRole('tab',{name:'Related links'}).getAttribute('aria-selected')).toBe('true');
+ fireEvent.click(screen.getByRole('tab',{name:'Complete record'}));
  checkFooter();
 });
 
@@ -74,7 +93,7 @@ test('a multi-table tab omits empty sections and keeps paging, download and one 
    return {state:'available',records:[{chr:query.cursor ? '12' : '11',data_source:'Fixture',data_source_url:source}],has_more:!query.cursor,next_cursor:'second'};
  });
  const {container}=render(<EvidenceDetails card={record} schema={{...schema,tables:Object.fromEntries(tables.map(t=>[t.id,t]))}} releaseId={card.release_id} request={request}/>);
- fireEvent.click(screen.getByRole('button',{name:'Related links'}));
+ fireEvent.click(screen.getByRole('tab',{name:'Related links'}));
  expect(await screen.findByRole('table',{name:'Placements'})).toBeTruthy();
  expect(await screen.findByRole('table',{name:'Related links'})).toBeTruthy();
  expect(screen.queryByText('Empty section')).toBeNull();
@@ -86,7 +105,9 @@ test('a multi-table tab omits empty sections and keeps paging, download and one 
  const toolbar=pager.getByRole('button',{name:'Download all records'}).closest('.xe-evidence-toolbar');
  expect(placementCard.firstElementChild).toBe(toolbar);
  expect(within(toolbar).getByRole('heading',{name:'Placements'})).toBeTruthy();
- expect(within(toolbar).getByRole('button',{name:'Next page'})).toBeTruthy();
+ const navigation=pager.getByRole('navigation',{name:'Placements pages'});
+ expect(navigation.nextElementSibling.classList.contains('xe-evidence-record-group')).toBe(true);
+ expect(within(navigation).getByRole('button',{name:'Next page'})).toBeTruthy();
  expect(screen.getByRole('table',{name:'Related links'}).closest('.xe-evidence-card').querySelector('button').textContent).toBe('Download 1 record');
  fireEvent.click(pager.getByRole('button',{name:'Next page'}));
  expect(await pager.findByText('12')).toBeTruthy();
@@ -96,13 +117,32 @@ test('a multi-table tab omits empty sections and keeps paging, download and one 
  expect(container.querySelectorAll('.xe-evidence-list > .xe-evidence')).toHaveLength(2);
 });
 
+test('credible-set metadata labels a single group once and retains the group role', async () => {
+ const credible={id:'credible_members',title:'Credible-set SNPs',columns:['variant_id'],all_fields:['variant_id','signal_role','credible_set_id'],filters:[]};
+ const record={...card,tables:[credible],component_views:[{id:'credible_set',renderer:'credible_set',table_ids:[credible.id]}]};
+ const request=jest.fn().mockResolvedValue({
+   state:'available',
+   records:[{variant_id:'rs123',signal_role:'qtl',credible_set_id:'id-set'}],
+   credible_sets:{'id-set':{qtl_type:'eQTL',method:'SuSiE',tissue_name:'Islet',n_members:1,purity:.8}},
+   has_more:false,
+ });
+ render(<EvidenceDetails card={record} schema={{...schema,tables:{credible_members:credible}}} releaseId={card.release_id} request={request}/>);
+ fireEvent.click(screen.getByRole('tab',{name:'Credible-set summary'}));
+ expect(await screen.findByRole('cell',{name:'rs123'})).toBeTruthy();
+ expect(screen.getAllByRole('heading',{name:/Set 1/})).toHaveLength(1);
+ expect(screen.getByText('eQTL')).toBeTruthy();
+ expect(screen.getByText('QTL')).toBeTruthy();
+ expect(screen.getByText('SuSiE')).toBeTruthy();
+ expect(screen.getByRole('button',{name:'Download 1 record'})).toBeTruthy();
+});
+
 test('a visible table column still hides each non-public value', async () => {
  const placements={id:'placements',title:'Positions',columns:['chr'],all_fields:['chr'],filters:[]};
  const record={...card,tables:[placements],component_views:[]};
  const viewerSchema={...schema,tables:{placements},display_policy:{version:1,internal_value_patterns:['^/private/']}};
  const request=jest.fn().mockResolvedValue({state:'available',records:[{chr:'11'},{chr:'/private/test'}],has_more:false});
  render(<EvidenceDetails card={record} schema={viewerSchema} releaseId={record.release_id} request={request}/>);
- fireEvent.click(screen.getByRole('button',{name:'Genomic coordinates'}));
+ fireEvent.click(screen.getByRole('tab',{name:'Genomic coordinates'}));
  expect(await screen.findByRole('cell',{name:'11'})).toBeTruthy();
  expect(screen.getByRole('cell',{name:'Not recorded'})).toBeTruthy();
  expect(screen.queryByText('/private/test')).toBeNull();
@@ -142,10 +182,10 @@ test('CCC summary uses only supporting contexts and the matrix includes every ow
  expect(screen.getByRole('rowheader',{name:'TIMP3 (Active Stellate) → KDR (Endothelial)'})).toBeTruthy();
  expect(screen.getAllByRole('img').filter(dot=>dot.classList.contains('xe-ccc-mark'))).toHaveLength(2);
  expect(await screen.findByRole('button',{name:'Download 2 records'})).toBeTruthy();
- expect(within(screen.getByRole('region',{name:'Cell–cell context dot matrix'})).getByText('M5 · ND · Untreated')).toBeTruthy();
+ expect(within(screen.getByRole('region',{name:'Cell–cell context dot matrix'})).getByText('M5, ND, Untreated')).toBeTruthy();
  expect(within(screen.getByRole('table',{name:'CCC contexts'})).getAllByRole('cell',{name:'Untreated'})).toHaveLength(2);
  expect(screen.getByText('Data Version: Source version not specified')).toBeTruthy();
- fireEvent.click(screen.getByRole('button',{name:'Complete record'}));
+ fireEvent.click(screen.getByRole('tab',{name:'Complete record'}));
  expect(screen.getByText('Overall description')).toBeTruthy();
  expect(screen.queryByRole('table')).toBeNull();
  expect(screen.getByText('Data Version: Source version not specified')).toBeTruthy();

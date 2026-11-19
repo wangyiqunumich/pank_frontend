@@ -1,4 +1,5 @@
 import React,{useContext,useEffect,useRef,useState} from 'react';
+import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
 import {EvidenceRequestContext} from './api';
 import {collectTable,downloadCsv,tableCsv,tableSources} from './tableDownloads';
 import {publicId} from './displayPolicy';
@@ -29,17 +30,25 @@ export function useTableDownload({card,table,schema,filters={},records=[],sets={
 }
 
 export default function TableDownloads(props) {
-  const {table,localRecords}=props;
+  const {table,localRecords,title,children}=props;
   const {state,sources,start,cancel,wording}=useTableDownload(props);
   return <div className="xe-table-downloads">
-    <div className="xe-download-actions"><button type="button" onClick={start} disabled={state.busy}>{state.busy ? `Preparing ${state.rows || 0} rows…` : wording.table || 'Download table (CSV)'}</button>
-      {state.busy && <button type="button" onClick={cancel}>Cancel</button>}
-      {!table.simple_list && <span className="xe-small">{localRecords ? 'All rows in this table' : wording.scope || 'All matching rows · current filters'}</span>}
-    </div>
+    <header className="xe-evidence-toolbar">
+      <div className="xe-evidence-heading">
+        <h3>{title}</h3>
+        {!table.simple_list && <p className="xe-small">{localRecords ? 'All rows in this table' : wording.scope || 'All matching rows for the current filters'}</p>}
+      </div>
+      <div className="xe-evidence-actions">
+        <button className="xe-evidence-download" type="button" onClick={start} disabled={state.busy}>
+          <DownloadOutlinedIcon fontSize="small" />{state.busy ? `Preparing ${state.rows || 0} rows…` : wording.table || 'Download table (CSV)'}</button>
+        {state.busy && <button type="button" onClick={cancel}>Cancel</button>}
+      </div>
+    </header>
+    {children}
     <div className="xe-full-sources">{sources.map(source=><span key={source.id}>
       <a href={source.href} target="_blank" rel="noopener noreferrer">{source.kind==='library' ? 'Data Library' : 'Source'}: {source.title} ↗</a>
     </span>)}</div>
 
-    {state.ready && <span className="xe-small" role="status">CSV ready · {state.rows} rows</span>}{state.error && <p role="alert" className="xe-warning">{state.error}</p>}
+    {state.ready && <span className="xe-small" role="status">CSV ready ({state.rows} rows)</span>}{state.error && <p role="alert" className="xe-warning">{state.error}</p>}
   </div>;
 }

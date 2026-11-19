@@ -25,7 +25,7 @@ test('disease contrast uses both source groups without flipping the sign',async(
  const card={ref,release_id:'PanKgraph_1104',sections:[],fields:[],provenance:{},tables:[table],component_views:[{id:'expression',renderer:'condition_tables',table_ids:['expression'],view:{groups:[{id:'deg',presets:[{id:'disease',table_id:'expression',fixed_filters:{method:'DESeq2_RUVg_disease_contrast',record_kind:'disease_deg'}}]}]}}]};
  const request=jest.fn().mockResolvedValue({state:'available',records:[{condition:'T1D',reference_condition:'ND',log2fc:-2,p_adj:0}],has_more:false});
  render(<EvidenceDetails card={card} schema={{release_id:card.release_id,tables:{expression:table}}} request={request} releaseId={card.release_id}/>);
- fireEvent.click(screen.getByRole('button',{name:'Expression evidence summary'}));
+ fireEvent.click(screen.getByRole('tab',{name:'Expression evidence summary'}));
  expect(await screen.findByText('T1D vs ND')).toBeTruthy();expect(screen.getByText('-2')).toBeTruthy();
  expect(screen.queryByText('Edge role')).toBeNull();expect(screen.queryByRole('button',{name:/Read row/})).toBeNull();
  await waitFor(()=>expect(request.mock.calls[0][1]).toMatchObject({ref,filters:{method:'DESeq2_RUVg_disease_contrast',record_kind:'disease_deg'}}));

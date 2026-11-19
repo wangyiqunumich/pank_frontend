@@ -1,0 +1,403 @@
+/* Full-size evidence inspector. Compact cards keep their own type and spacing. */
+.graph-info-panel--expanded .xe-card-tabs {
+  color: var(--panel-muted);
+  font-size: 13px;
+  font-weight: 600;
+  scrollbar-color: #a8bfc3 transparent;
+  overscroll-behavior-x: contain;
+}
+
+.graph-info-panel--expanded .xe-tab-list {
+  gap: 16px;
+  padding-inline: var(--panel-gutter);
+  background-image: linear-gradient(var(--panel-border), var(--panel-border));
+}
+
+.graph-info-panel--expanded .xe-tab-list button {
+  padding-inline: 4px;
+  color: var(--panel-muted);
+}
+
+.graph-info-panel--expanded .xe-tab-list button:is(:hover, [aria-selected='true']) {
+  color: var(--panel-accent);
+}
+
+.graph-info-panel--expanded .xe-tab-list button[aria-selected='true']::after {
+  border-radius: 2px 2px 0 0;
+}
+
+.graph-info-panel--expanded .xe-expanded-details {
+  color: var(--panel-ink);
+}
+
+.graph-info-panel--expanded .xe-card-body {
+  padding: var(--panel-gutter);
+}
+
+.graph-info-panel--expanded .xe-record-view .xe-card-body {
+  align-items: start;
+  gap: 20px 28px;
+}
+
+.graph-info-panel--expanded .xe-record-view[data-dense] .xe-card-body,
+.graph-info-panel--expanded .xe-record-view .xe-card-body:has(> .xe-card-section:only-child) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 761px) {
+  .graph-info-panel--expanded .xe-record-view[data-dense] .xe-card-section:not(.xe-relationship-context) > dl {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 28px;
+  }
+}
+
+.graph-info-panel--expanded .xe-card-section {
+  padding: 12px 0 0;
+  border: 0;
+  border-top: 1px solid var(--panel-border);
+  border-radius: 0;
+  background: transparent;
+}
+
+.graph-info-panel--expanded :is(.xe-card-section, .xe-evidence-heading, .xe-ccc-matrix) h3 {
+  margin: 0 0 6px;
+  color: var(--panel-ink);
+  text-align: left;
+  text-transform: none;
+  font-size: var(--panel-head-size);
+  font-weight: 700;
+}
+
+.graph-info-panel--expanded .xe-card-body > .xe-card-section:only-child,
+.graph-info-panel--expanded :is(.xe-table-view, .xe-record-view[data-dense]) .xe-card-body > .xe-card-section:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.graph-info-panel--expanded .xe-record-view .kg-card-field {
+  grid-template-columns: minmax(0, min(52%, 180px)) minmax(0, 1fr);
+  align-items: start;
+  margin: 0;
+  padding-block: 8px;
+  border-bottom: 1px solid #edf2f3;
+  font-size: 13px;
+}
+
+.graph-info-panel--expanded .xe-record-view .kg-card-field[data-layout='tokens']:has(> dd > span > .kg-value-tokens > .kg-value-token:only-child) {
+  display: grid;
+  grid-column: auto;
+}
+
+.graph-info-panel--expanded .xe-record-view [data-layout='tokens']:has(> dd > span > .kg-value-tokens > .kg-value-token:only-child) dt {
+  margin-bottom: 0;
+}
+
+.graph-info-panel--expanded .xe-record-view .kg-card-field[data-layout='prose'] dd {
+  max-width: 74ch;
+}
+
+.graph-info-panel--expanded .xe-record-view .kg-card-field:last-child {
+  border-bottom: 0;
+}
+
+.graph-info-panel--expanded .xe-production-pill[data-chromosome] {
+  color: #3a545c;
+  background-color: #eef4f5;
+}
+
+.graph-info-panel--expanded .xe-record-view .kg-card-field[data-layout='prose'] dt:not(:empty) {
+  margin-bottom: 4px;
+}
+
+.graph-info-panel--expanded .xe-record-view dt {
+  color: var(--panel-muted);
+  font-weight: 600;
+}
+
+.graph-info-panel--expanded .xe-record-view dt::first-letter {
+  text-transform: uppercase;
+}
+
+.graph-info-panel--expanded .xe-record-view dd {
+  text-align: left;
+  font-weight: 400;
+}
+
+.graph-info-panel--expanded .xe-relationship-context {
+  grid-column: 1 / -1;
+}
+
+.graph-info-panel--expanded .xe-relationship-context > dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 24px;
+}
+
+.graph-info-panel--expanded .xe-relationship-context .kg-card-field {
+  display: block;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.graph-info-panel--expanded .xe-relationship-context .kg-card-field + .kg-card-field {
+  border-inline-start: 1px solid var(--panel-border);
+  padding-inline-start: 24px;
+}
+
+.graph-info-panel--expanded .xe-relationship-context dt {
+  color: var(--panel-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.graph-info-panel--expanded .xe-relationship-context dd {
+  margin-top: 3px;
+  color: var(--panel-ink);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.graph-info-panel--expanded .xe-ccc-overview p {
+  max-width: 74ch;
+  margin-block: 0;
+  line-height: 1.6;
+}
+
+.graph-info-panel--expanded .xe-ccc-overview ul {
+  margin: 12px 0 0;
+  padding-inline-start: 18px;
+  color: var(--panel-muted);
+  font-size: 13px;
+}
+
+.graph-info-panel--expanded .xe-ccc-overview li + li {
+  margin-top: 6px;
+}
+
+.graph-info-panel--expanded .xe-table-view .xe-card-section + :is(.xe-card-section, .xe-evidence-list) {
+  margin-top: 20px;
+}
+
+.graph-info-panel--expanded .xe-variant-details {
+  grid-column: 1 / -1;
+}
+
+.graph-info-panel--expanded .xe-production-frequencies {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  gap: 0 24px;
+}
+
+.graph-info-panel--expanded .xe-frequency-bar {
+  background: #e4f0f1;
+}
+
+.graph-info-panel--expanded .xe-frequency-bar i {
+  background: #248789;
+}
+
+.graph-info-panel--expanded .xe-population small {
+  color: var(--panel-muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.graph-info-panel--expanded .xe-population small:first-child {
+  color: var(--panel-accent);
+  font-weight: 600;
+}
+
+.graph-info-panel--expanded .xe-evidence-card {
+  border: 0;
+  border-radius: 0;
+}
+
+.graph-info-panel--expanded .xe-evidence-toolbar {
+  gap: 12px;
+  padding: 0 0 10px;
+  background: #fff;
+}
+
+.graph-info-panel--expanded .xe-evidence-heading h3 {
+  margin: 0;
+}
+
+.graph-info-panel--expanded .xe-evidence-controls {
+  padding-inline: 0;
+}
+
+.graph-info-panel--expanded .xe-set-descriptions section {
+  padding-block: 10px;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.graph-info-panel--expanded .xe-set-descriptions h4 {
+  margin: 0 0 8px;
+  color: var(--panel-ink);
+  font-size: 13px;
+}
+
+.graph-info-panel--expanded .xe-set-descriptions dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 92px), 1fr));
+  gap: 8px 12px;
+  font-size: 12px;
+}
+
+.graph-info-panel--expanded .xe-set-descriptions .kg-card-field {
+  display: block;
+  margin: 0;
+}
+
+.graph-info-panel--expanded .xe-set-descriptions dt {
+  font-size: 11px;
+  color: var(--panel-muted);
+}
+
+.graph-info-panel--expanded .xe-evidence-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: var(--panel-control-size);
+  border: 1px solid;
+  border-color: var(--panel-border);
+  border-radius: 6px;
+  color: var(--panel-accent);
+  background: #fff;
+  padding-inline: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.graph-info-panel--expanded .xe-evidence-actions .xe-evidence-download {
+  padding-inline: 10px;
+  border-color: #c5d8da;
+}
+
+.graph-info-panel--expanded .xe-evidence-actions button:hover:not(:disabled) {
+  background: #edf6f5;
+  border-color: #699b9b;
+}
+
+.graph-info-panel--expanded .xe-evidence-pager {
+  justify-content: flex-end;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.graph-info-panel--expanded .xe-evidence-pager button {
+  display: grid;
+  place-items: center;
+  width: var(--panel-control-size);
+  min-height: var(--panel-control-size);
+  padding: 0;
+  color: var(--panel-accent);
+  border-color: transparent;
+  background: transparent;
+}
+
+.graph-info-panel--expanded .xe-evidence-pager button:hover:not(:disabled) {
+  border-color: transparent;
+}
+
+.graph-info-panel--expanded .xe-evidence-table-frame {
+  position: relative;
+}
+
+.graph-info-panel--expanded :is(.xe-evidence-record-group, .xe-ccc-matrix) .xe-table-scroll {
+  scrollbar-color: #a8bfc3 #f5f8f9;
+}
+
+.graph-info-panel--expanded :is(.xe-evidence-card, .xe-ccc-matrix) thead th {
+  color: #3a545c;
+  background: #f1f6f7;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.graph-info-panel--expanded :is(.xe-evidence-card, .xe-ccc-matrix) :is(th, td) {
+  padding: 8px 10px;
+  border-color: #e6eef0;
+}
+
+.graph-info-panel--expanded .xe-evidence-card td {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.graph-info-panel--expanded .xe-evidence-card [data-quantity] {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.graph-info-panel--expanded :is(.xe-evidence-card, .xe-ccc-matrix) tbody tr:hover {
+  background: #f3f8f8;
+}
+
+.graph-info-panel--expanded .xe-ccc-matrix {
+  margin-block: 20px 0;
+  border-top: 1px solid var(--panel-border);
+  padding-top: 12px;
+}
+
+.graph-info-panel--expanded .xe-ccc-matrix > section {
+  padding: 0;
+}
+
+.graph-info-panel--expanded .xe-ccc-matrix > section + section {
+  margin-top: 16px;
+  padding-top: 12px;
+}
+
+.graph-info-panel--expanded :is(.xe-ccc-matrix, .xe-evidence-record-group) h4 {
+  margin: 0;
+  padding: 0 0 8px;
+  color: var(--panel-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.graph-info-panel--expanded .xe-ccc-matrix .xe-table-scroll table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.graph-info-panel--expanded .xe-ccc-matrix th {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.graph-info-panel--expanded .xe-ccc-matrix thead th:last-child {
+  width: 18%;
+  min-width: 70px;
+}
+
+.graph-info-panel--expanded .xe-evidence-placeholder {
+  grid-column: 1 / -1;
+  margin-top: 0;
+  padding: 12px 0;
+  background: transparent;
+}
+
+@media (max-width: 600px) {
+  .graph-info-panel--expanded .xe-tab-list { gap: 10px; }
+  .graph-info-panel--expanded .xe-record-view .kg-card-field { grid-template-columns: minmax(0, 42%) minmax(0, 1fr); }
+  .graph-info-panel--expanded .xe-relationship-context > dl { column-gap: 12px; }
+  .graph-info-panel--expanded .xe-relationship-context .kg-card-field + .kg-card-field { padding-inline-start: 12px; }
+  .graph-info-panel--expanded .xe-evidence-actions { margin-inline-start: 0; }
+  .graph-info-panel--expanded .xe-evidence-table-toolbar .xe-evidence-heading { flex-basis: 115px; }
+  .graph-info-panel--expanded .xe-evidence-table-frame[data-more-columns]::after {
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: 10px;
+    background: linear-gradient(to left, rgb(38 56 64 / 14%), transparent);
+    pointer-events: none;
+    content: '';
+  }
+  .graph-info-panel--expanded .xe-ccc-matrix thead th:last-child { width: 72px; }
+  .graph-info-panel--expanded .xe-ccc-matrix :is(th, td) { padding-inline: 8px; }
+}

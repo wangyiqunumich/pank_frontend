@@ -7,7 +7,7 @@ const matrixFields = [
   'n_donors_sig', 'n_donors_celltypes_ok',
 ];
 const names = (row, display) => ['source','target'].map(key => display.value(key,row[key]) || 'Not recorded');
-const stratum = (row, display) => ['map_id','condition','treatment'].map(key => display.value(key,row[key])).filter(Boolean).join(' · ');
+const stratum = (row, display, separator = ', ') => ['map_id','condition','treatment'].map(key => display.value(key,row[key])).filter(Boolean).join(separator);
 const number = value => value == null || value === '' ? NaN : Number(value);
 const format = value => Number.isFinite(value) ? Number(value.toPrecision(4)).toString() : 'Unavailable';
 
@@ -38,7 +38,7 @@ export function CccSummary({state, display, interaction, compact = false}) {
   const supported = new Map();
   for (const row of state.records) {
     if (row.selection_status !== 'supporting') continue;
-    const group = stratum(row, display);
+    const group = stratum(row, display, compact ? ' · ' : ', ');
     if (!supported.has(group)) supported.set(group, new Set());
     supported.get(group).add(names(row, display).join(' → '));
   }
@@ -46,7 +46,7 @@ export function CccSummary({state, display, interaction, compact = false}) {
   return <div>
     {!compact && <p><strong>{interaction}</strong> is a computationally inferred CCC interaction supported in these sender → receiver contexts.</p>}
     <ul>{[...supported].map(([group, pairs]) => <li key={group}>
-      {group && <strong>{group} </strong>}{[...pairs].join(', ')}
+      {group && <><strong>{group}</strong>{compact ? ' ' : ': '}</>}{[...pairs].join(', ')}
     </li>)}</ul>
   </div>;
 }
@@ -81,7 +81,7 @@ export function CccDotMatrix({state, display, endpoints}) {
             const diameter = rank >= 0 && rank <= 1 ? 9 + 19 * Math.sqrt(-Math.log10(Math.max(1e-12, rank)) / 12) : 9;
             const intensity = !Number.isFinite(mean) || min === max ? 0.5 : (mean - min) / (max - min);
             const supported = row.selection_status === 'supporting';
-            const label = `${interaction} · specificity rank ${row.specificity_rank ?? 'unavailable'} · ligand–receptor mean ${row.lr_means ?? 'unavailable'} · ${row.n_donors_sig ?? '?'} / ${row.n_donors_celltypes_ok ?? '?'} significant / eligible donors${supported ? ' · supports the edge' : ''}`;
+            const label = `${interaction}. Specificity rank: ${row.specificity_rank ?? 'unavailable'}. Ligand–receptor mean: ${row.lr_means ?? 'unavailable'}. ${row.n_donors_sig ?? '?'} / ${row.n_donors_celltypes_ok ?? '?'} significant / eligible donors.${supported ? ' Supports the edge.' : ''}`;
             return <tr key={i}><th scope="row">{interaction}</th><td><span className="xe-ccc-mark" tabIndex={0} title={label} aria-label={label}
               role="img" data-support={supported} data-missing={!Number.isFinite(mean)}
               style={{'--dot-size':`${diameter}px`, '--dot-color-weight':`${28 + 72 * intensity}%`}} /></td></tr>;
