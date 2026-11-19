@@ -31,7 +31,7 @@ export function useCccContexts(card, table, schema) {
   return state && state.table === table ? state : null;
 }
 
-export function CccSummary({state, ligand, receptor}) {
+export function CccSummary({state, interaction}) {
   if (!state) return <p role="status">Loading sender → receiver contexts…</p>;
   if (state.error) return <p role="alert">Cell–cell contexts unavailable. {state.error}</p>;
   const supported = new Map();
@@ -43,7 +43,7 @@ export function CccSummary({state, ligand, receptor}) {
   }
   if (!supported.size) return <p>No supporting sender → receiver context returned.</p>;
   return <div>
-    <p><strong>{ligand} → {receptor}</strong> is a computationally inferred CCC interaction supported in these sender → receiver contexts.</p>
+    <p><strong>{interaction}</strong> is a computationally inferred CCC interaction supported in these sender → receiver contexts.</p>
     <ul>{[...supported].map(([group, pairs]) => <li key={group}>
       {group && <strong>{group} </strong>}{[...pairs].join(', ')}
     </li>)}</ul>

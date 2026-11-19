@@ -134,10 +134,11 @@ function RelationshipContext({card,compact=false}) {
   const panelPolicy=usePanelSchema();
   if(!card.endpoints?.length)return null;
   const context=panelPolicy.expression_display.compact_context?.[card.ref.type_id];
+  const cccRoles=panelPolicy.relationship_labels?.[card.ref.type_id.split('__')[0]] ? ['Ligand','Receptor'] : [];
   const method=(card.fields || []).find(f=>f.key==='method')?.value || context?.method;
   const description=(card.fields || []).find(f=>f.key==='description')?.value;
   return <section className="xe-card-section xe-relationship-context"><dl>
-    {card.endpoints.map((e,i)=><div className="kg-card-field" key={e.ref.id}><dt>{panelPolicy.endpoint_labels?.[e.ref.type_id] || e.role || panelPolicy.context.endpoint_fallback_labels[i]}</dt><dd>{endpointName(card,e)}{panelPolicy.context.show_public_accessions && endpointName(card,e)!==(e.display_id || e.ref.id) && <small>{e.display_id || e.ref.id}</small>}</dd></div>)}
+    {card.endpoints.map((e,i)=><div className="kg-card-field" key={e.ref.id}><dt>{cccRoles[i] || panelPolicy.endpoint_labels?.[e.ref.type_id] || e.role || panelPolicy.context.endpoint_fallback_labels[i]}</dt><dd>{endpointName(card,e)}{panelPolicy.context.show_public_accessions && endpointName(card,e)!==(e.display_id || e.ref.id) && <small>{e.display_id || e.ref.id}</small>}</dd></div>)}
     {compact && method && <div className="kg-card-field"><dt>{panelPolicy.context.method_label}</dt><dd>{method}</dd></div>}
     {compact && (context?.data || description) && <div className="kg-card-field"><dt>Data</dt><dd>{context?.data || description}</dd></div>}
   </dl></section>;
@@ -192,8 +193,8 @@ function ExpandedDetails({ card, schema }) {
     <div className="xe-card-body" style={{'--panel-columns':panelPolicy.expanded_layout.columns,'--panel-narrow-columns':panelPolicy.expanded_layout.narrow_columns,'--panel-gap':`${panelPolicy.expanded_layout.gap_px}px`}}>
       {cccTab && <section className="xe-card-section xe-ccc-overview">
         <h3>Overall description</h3>
-        <CccSummary state={cccState} ligand={card.endpoints?.[0] && endpointName(card,card.endpoints[0])}
-          receptor={card.endpoints?.[1] && endpointName(card,card.endpoints[1])}/>
+        <CccSummary state={cccState} interaction={card.object_title ||
+          (card.endpoints || []).map(endpoint=>endpointName(card,endpoint)).join(' → ') || 'This ligand–receptor pair'}/>
       </section>}
       {card && (!wide || active === 'record') && <>
         <RelationshipContext card={card}/>
