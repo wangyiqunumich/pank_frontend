@@ -1,5 +1,5 @@
 import React from 'react';
-import {render,screen,fireEvent,waitFor} from '@testing-library/react';
+import {render,screen,fireEvent,waitFor,within} from '@testing-library/react';
 import EvidenceDetails, { InspectedInformationPanel } from './EvidenceDetails';
 import { GraphInfoPanelSurface } from '../GraphInfoPanel';
 const ref={kind:'node',id:'ENSG00000001626',type_id:'Gene'};
@@ -50,11 +50,46 @@ test('the record footer sits below the scroll area in compact and expanded cards
  checkFooter();
  rerender(surface('expanded'));
  checkFooter();
+ const navigation=screen.getByRole('navigation',{name:'Record views'});
+ const firstBody=container.querySelector('.graph-info-panel-body');
+ expect(navigation.nextElementSibling).toBe(firstBody);
  fireEvent.click(screen.getByRole('button',{name:'Related links'}));
  await screen.findByText('No matching records.');
  expect(screen.queryByText('Data Source: Recorded fixture')).toBeNull();
+ expect(navigation.nextElementSibling).not.toBe(firstBody);
+ expect(screen.getByRole('button',{name:'Related links'}).getAttribute('aria-current')).toBe('page');
  fireEvent.click(screen.getByRole('button',{name:'Complete record'}));
  checkFooter();
+});
+
+test('a multi-table tab omits empty sections and keeps paging, download and one source together', async () => {
+ const source='https://example.org/data/placements';
+ const placements={id:'placements',title:'Placements',columns:['chr','data_source_url'],all_fields:['chr','data_source','data_source_url'],filters:[],pipeline_links:[{href:source,label:'Pipeline'}]};
+ const empty={...placements,id:'empty',title:'Empty section'};
+ const tables=[placements,empty,table];
+ const record={...card,tables,component_views:[{...card.component_views[0],table_ids:tables.map(t=>t.id)}]};
+ const request=jest.fn(async (_,query) => {
+   if (query.table_id==='empty') return {state:'no_records',records:[],has_more:false};
+   if (query.table_id==='accessions') return {state:'available',records:[{source_name:'Registry',alt_id:'ABC'}],has_more:false};
+   return {state:'available',records:[{chr:query.cursor ? '12' : '11',data_source:'Fixture',data_source_url:source}],has_more:!query.cursor,next_cursor:'second'};
+ });
+ const {container}=render(<EvidenceDetails card={record} schema={{...schema,tables:Object.fromEntries(tables.map(t=>[t.id,t]))}} releaseId={card.release_id} request={request}/>);
+ fireEvent.click(screen.getByRole('button',{name:'Related links'}));
+ expect(await screen.findByRole('table',{name:'Placements'})).toBeTruthy();
+ expect(await screen.findByRole('table',{name:'Related links'})).toBeTruthy();
+ expect(screen.queryByText('Empty section')).toBeNull();
+ expect(screen.queryByText('No matching records.')).toBeNull();
+ const placementCard=screen.getByRole('table',{name:'Placements'}).closest('.xe-evidence-card');
+ const pager=within(placementCard);
+ expect(placementCard.querySelectorAll(`a[href="${source}"]`)).toHaveLength(1);
+ expect(placementCard.querySelector('.xe-evidence-sources a').href).toBe(source);
+ expect(pager.getByRole('button',{name:'Download table (CSV)'}).closest('.xe-evidence-toolbar')).toBe(pager.getByRole('button',{name:'Next page'}).closest('.xe-evidence-toolbar'));
+ fireEvent.click(pager.getByRole('button',{name:'Next page'}));
+ expect(await pager.findByText('12')).toBeTruthy();
+ expect(pager.getByText('Page 2')).toBeTruthy();
+ fireEvent.click(pager.getByRole('button',{name:'Previous page'}));
+ expect(await pager.findByText('11')).toBeTruthy();
+ expect(container.querySelectorAll('.xe-evidence-list > .xe-evidence')).toHaveLength(2);
 });
 
 test('CCC summary uses only supporting contexts and the matrix includes every owned page', async () => {

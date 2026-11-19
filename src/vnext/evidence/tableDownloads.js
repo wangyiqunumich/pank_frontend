@@ -79,8 +79,8 @@ export function tableCsv(records,table,card,schema={},sets={}) {
   return '\uFEFF'+[columns,...rows].map(row=>row.map(csvCell).join(',')).join('\r\n')+'\r\n';
 }
 
-export function downloadCsv(csv,filename) {
+export function downloadCsv(csv,filename,host=document.body) {
   const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
-  const anchor=document.createElement('a');anchor.href=url;anchor.download=filename;document.body.appendChild(anchor);anchor.click();anchor.remove();
+  const anchor=document.createElement('a');anchor.href=url;anchor.download=filename;host.appendChild(anchor);anchor.click();anchor.remove();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
 }

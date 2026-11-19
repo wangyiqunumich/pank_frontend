@@ -11,12 +11,12 @@ export function ProductionValue({field,children}){
  if(format==='link' && safeSourceUrl(field.value))return <a href={field.value} target="_blank" rel="noreferrer">Open Link ↗</a>;
  return children;
 }
-export function RecordFooter({provenance={},schema={},className=''}){
+export function RecordFooter({provenance={},schema={},className='',showSourceLink=true}){
  const url=sourcePageUrl({href:provenance.data_source_url},schema);
  const config=panelSchema(schema);
  const items=config.footer.fields.map(field=>{
   const value=provenance[field.key];
-  if(field.kind==='source_link')return url ? <a key={field.key} href={url} target="_blank" rel="noreferrer">{field.label} ↗</a> : null;
+  if(field.kind==='source_link')return showSourceLink && url ? <a key={field.key} href={url} target="_blank" rel="noreferrer">{field.label} ↗</a> : null;
   if(value===undefined || value===null || value==='')return null;
   return <span key={field.key}>{field.label}: {field.key==='license' && safeSourceUrl(provenance.license_url)?<a href={provenance.license_url} target="_blank" rel="noreferrer">{value}</a>:value}</span>;
  }).filter(Boolean);

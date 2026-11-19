@@ -43,8 +43,8 @@ export function GraphInfoPanelHeader({ children, title, canExpand = false }) {
   </div>;
 }
 
-export function GraphInfoPanelBody({ children, bodyRef, loading = false }) {
-  return <div className="graph-info-panel-body" ref={bodyRef} data-loading={loading || undefined}>{children}</div>;
+export function GraphInfoPanelBody({ children, loading = false }) {
+  return <div className="graph-info-panel-body" data-loading={loading || undefined}>{children}</div>;
 }
 
 // Escape the graph/answer stacking contexts; native fullscreen needs its own host.
