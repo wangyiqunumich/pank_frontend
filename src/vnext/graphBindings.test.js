@@ -323,3 +323,16 @@ test('native quadratic joins preserve the planned label anchor in either directi
   });
   expect(routeStyle(native, a, b, true)['control-point-distances']).toEqual([-20, -10]);
 });
+
+test('CCC layouts reserve the label width along the edge before viewport fitting', () => {
+  const result = {
+    nodes: ['TIMP3', 'KDR'].map(id => ({'~id': id})),
+    edges: [{'~id': 'ccc', '~type': 'LIGAND_RECEPTOR', '~start': 'TIMP3', '~end': 'KDR'}],
+  };
+  const positions = {TIMP3: {x: 0, y: 20, width: 28, height: 16}, KDR: {x: 40, y: 20, width: 22, height: 16}};
+  const {nodes, edges, edgeStyles} = graphElements(result, positions, {}, {spreadCompact:true});
+  const freeSpan = nodes[1].position.x - nodes[0].position.x - (28 + 22) / 2;
+  expect(freeSpan).toBeGreaterThanOrEqual(65);
+  expect(edges[0].data.label).toBe('CCC ligand-receptor');
+  expect(edgeStyles.get('ccc')).toMatchObject({'text-margin-x': 0, 'text-margin-y': 0});
+});

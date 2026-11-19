@@ -2,6 +2,7 @@ import { placeCurveLabels } from './curveLabels';
 import { displayWords } from './recordedPresentation';
 import { samplePresentation } from './samplePresentation';
 import panelPresentation from '../schema/graph_viewer_panel_schema.json';
+const cccType = 'LIGAND_RECEPTOR';
 const point = (value) => Array.isArray(value) ? { x: value[0], y: value[1] } : value;
 const finitePoint = (value) => { const p = point(value); return p && Number.isFinite(p.x) && Number.isFinite(p.y) ? p : null; };
 
@@ -11,11 +12,13 @@ const finitePoint = (value) => { const p = point(value); return p && Number.isFi
 // their original offset from their node; scaling that offset would detach them.
 export function spreadCompactLayout(result, positions = {}, routes = {}) {
   const ids = [...new Set((result?.nodes || []).map((node) => node['~id']))];
-  if (ids.length < 2 || ids.length > 8 || ids.some((id) => !finitePoint(positions[id]))) return { positions, routes };
+  const cccEdges = (result.edges || []).filter(edge => edge['~type'] === cccType && edge['~start'] !== edge['~end']);
+  const compact = ids.length <= 8;
+  if (ids.length < 2 || (!compact && !cccEdges.length) || ids.some(id => !finitePoint(positions[id]))) return { positions, routes };
   positions = Object.fromEntries(ids.map(id => [id, { ...positions[id], ...finitePoint(positions[id]) }]));
   let factor = 1;
   const dimension = (p, key) => Number.isFinite(p[key]) && p[key] > 0 ? p[key] : key === 'width' ? 40 : 16;
-  ids.forEach((id, index) => ids.slice(index + 1).forEach((other) => {
+  if (compact) ids.forEach((id, index) => ids.slice(index + 1).forEach((other) => {
     const a = positions[id], b = positions[other];
     const dx = Math.abs(a.x - b.x), dy = Math.abs(a.y - b.y);
     if (dx + dy === 0) return;
@@ -24,6 +27,19 @@ export function spreadCompactLayout(result, positions = {}, routes = {}) {
     factor = Math.max(factor, Math.min(sx, sy));
   }));
   factor = Math.min(factor, 2.5);
+  // Reserve the 4px edge text, clear space at both ends and the arrow before fitting.
+  const labelWidth = 3 * panelPresentation.relationship_labels[cccType].length + 12;
+  for (const edge of cccEdges) {
+    const a = positions[edge['~start']], b = positions[edge['~end']];
+    if (!a || !b) continue;
+    const dx = Math.abs(a.x - b.x), dy = Math.abs(a.y - b.y);
+    const distance = Math.hypot(dx, dy);
+    if (distance < 1) continue;
+    const width = (dimension(a, 'width') + dimension(b, 'width')) / 2;
+    const height = (dimension(a, 'height') + dimension(b, 'height')) / 2;
+    const projectedWidth = (dx * (width + labelWidth) + dy * (height + 16)) / distance;
+    factor = Math.max(factor, projectedWidth / distance);
+  }
   if (factor === 1) return { positions, routes };
   const center = { x: ids.reduce((sum, id) => sum + positions[id].x, 0) / ids.length,
     y: ids.reduce((sum, id) => sum + positions[id].y, 0) / ids.length };
@@ -249,7 +265,8 @@ export function graphElements(result, positions = {}, routes = {}, options = {})
     const inverted = Boolean(edgeIsInverted[displayType]);
     const start = edge['~start'], end = edge['~end'];
     const style = routeStyle(routes[edge['~id']], byId[start].position, byId[end].position, inverted);
-    edgeStyles.set(edge['~id'], { ...style, 'text-opacity': 1, 'text-events': 'yes' });
+    edgeStyles.set(edge['~id'], { ...style, 'text-opacity': 1, 'text-events': 'yes',
+      ...(edge['~type'] === cccType && { 'text-margin-x': 0, 'text-margin-y': 0 }) });
     return { data: { ...(edge[propertyKey] || {}), element_kind: 'edge', viewer_ref: edge.ref ? { ...edge.ref } : null, id: edge['~id'], source: inverted ? end : start, target: inverted ? start : end,
       source_name: byId[start].data.label, target_name: byId[end].data.label, type: displayType, raw_type: edge['~type'],
       label: label.replace(/_/g, ' ').trim(),

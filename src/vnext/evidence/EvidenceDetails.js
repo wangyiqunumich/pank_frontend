@@ -140,7 +140,7 @@ function RelationshipContext({card,compact=false}) {
   return <section className="xe-card-section xe-relationship-context"><dl>
     {card.endpoints.map((e,i)=><div className="kg-card-field" key={e.ref.id}><dt>{cccRoles[i] || panelPolicy.endpoint_labels?.[e.ref.type_id] || e.role || panelPolicy.context.endpoint_fallback_labels[i]}</dt><dd>{endpointName(card,e)}{panelPolicy.context.show_public_accessions && endpointName(card,e)!==(e.display_id || e.ref.id) && <small>{e.display_id || e.ref.id}</small>}</dd></div>)}
     {compact && method && <div className="kg-card-field"><dt>{panelPolicy.context.method_label}</dt><dd>{method}</dd></div>}
-    {compact && (context?.data || description) && <div className="kg-card-field"><dt>Data</dt><dd>{context?.data || description}</dd></div>}
+    {compact && !cccRoles.length && (context?.data || description) && <div className="kg-card-field"><dt>Data</dt><dd>{context?.data || description}</dd></div>}
   </dl></section>;
 }
 
@@ -202,7 +202,7 @@ function ExpandedDetails({ card, schema }) {
         {(card.widget === 'variant' || card.production_design === 'Variant') && <section className="xe-card-section"><h3>Frequency</h3>{card.frequencies?.length ? <><ProductionFrequencies card={card}/><TableDownloads card={card} table={{id:"population_frequencies",...schema.tables?.population_frequencies}} schema={schema} records={card.frequencies}/></> : <p className="xe-empty">Not recorded</p>}{card.consequences?.length>0 && <><h3>Functional annotations</h3><div className="xe-chips muted">{card.consequences.map(c=><span key={c}>{c}</span>)}</div></>}{card.hgvs && <p className="xe-hgvs">{card.hgvs}</p>}</section>}
       </>}
       {card && active !== 'record' && selected.component?.renderer!=='condition_tables' && <RelationshipContext card={card}/>}
-      {cccTab && active === cccTab.id && <CccDotMatrix state={cccState}/>}
+      {cccTab && active === cccTab.id && <CccDotMatrix state={cccState} endpoints={(card.endpoints || []).map(endpoint=>endpointName(card,endpoint))}/>}
       {card && wide && active !== 'record' && (selected.component ?
         selected.component.renderer==='condition_tables' ? <ConditionEvidenceSummary card={card} schema={schema} component={selected.component} /> :
         ['table','credible_set'].includes(selected.component.renderer) ? selected.component.table_ids.map(tid=><EvidenceTable key={`${card.ref.id}:${tid}`} card={card} table={card.tables.find(t=>t.id===tid)} schema={schema} />) : <p className="xe-small">Unsupported registered component.</p> :
@@ -231,6 +231,8 @@ export function InspectedInformationPanel({card,schema,request,releaseId,compact
   const panelPolicy=panelSchema(schema);
   const shown=useMemo(()=>recordDesign(presentCard(card,{...schema.display_policy,panel_presentation:panelPolicy,field_labels:{...schema.display_policy?.field_labels,...panelPolicy.field_labels},unit_labels:{...schema.display_policy?.unit_labels,...panelPolicy.unit_labels},field_descriptions:{...schema.display_policy?.field_descriptions,...panelPolicy.field_descriptions}}),card,panelPolicy),[card,schema,panelPolicy]);
   const compact=useMemo(()=>compactSections(shown,objectSections(shown,panelPolicy),panelPolicy),[shown,panelPolicy]);
+  const cccTable=!compactOnly && !panel?.large && shown.tables.find(table=>panelPolicy.tables[table.id]?.visualization==='ccc_dot_matrix');
+  const cccState=useCccContexts(shown,cccTable,schema,{request,supportingOnly:true});
   const canExpand=!compactOnly && hasExtraRecord(shown,compact,panelTabs(shown,schema),panelPolicy);
   if(releaseId!==schema.release_id || card.release_id!==releaseId) return null;
   return <PanelSchemaContext.Provider value={panelPolicy}>
@@ -239,6 +241,9 @@ export function InspectedInformationPanel({card,schema,request,releaseId,compact
       <DisplayContext.Provider value={{policy:{...schema.display_policy,panel_presentation:panelSchema(schema)},profileKey:`${card.ref.kind}:${card.ref.type_id}`}}>
         <GraphInfoPanelBody>
           <div className="xe-expanded-details xe-compact-details">
+            {cccTable && <section className="xe-card-section xe-ccc-hover">
+              <h3>Supporting cell pairs</h3><CccSummary state={cccState} compact/>
+            </section>}
             <RelationshipContext card={shown} schema={schema} compact/>
             {compact.sections.map((section,i)=><section className="xe-card-section" data-prose={section.prose || undefined} key={i}><h3>{section.title}</h3><dl><RecordFields fields={section.fields} specs={shown.field_specs}/></dl></section>)}
           </div>

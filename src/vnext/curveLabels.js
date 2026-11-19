@@ -1,5 +1,3 @@
-import panelPresentation from '../schema/graph_viewer_panel_schema.json';
-
 // Place edge text using the live renderer's node outlines and measured label sizes.
 const labelOnly = { includeEdges: false, includeNodes: false, includeOverlays: false,
   includeUnderlays: false, includeSourceLabels: false, includeTargetLabels: false };
@@ -17,11 +15,12 @@ function curvePoint(start, controls, end, fraction) {
 export function placeCurveLabels(cy) {
   if (cy.headless() || !cy.container()) return;
   const occupied = cy.nodes().map(n => n.boundingBox({ includeOverlays: false }));
-  const labels = cy.edges().filter(e => e.style('label') && (e.style('curve-style') === 'unbundled-bezier' ||
-    panelPresentation.relationship_labels?.[e.data('raw_type')]));
+  const labels = cy.edges().filter(e => e.style('label') && e.style('curve-style') === 'unbundled-bezier' &&
+    e.data('raw_type') !== 'LIGAND_RECEPTOR');
   const placements = [];
   for (const edge of labels.sort((a,b) => a.id().localeCompare(b.id()))) {
     const controls = edge.controlPoints();
+    if (!controls?.length) continue;
     const size = edge.boundingBox(labelOnly), mid = edge.midpoint();
     const start = edge.sourceEndpoint(), end = edge.targetEndpoint();
     const w = size.w / 2 + .5, h = size.h / 2 + .5;
@@ -29,7 +28,7 @@ export function placeCurveLabels(cy) {
     // Stay on the edge whenever possible, then try nearby label rows.
     for (const row of [0, -1, 1, -2, 2, -3, 3]) {
       for (const fraction of [.5, .62, .38, .72, .28, .8, .2]) {
-        const p = controls?.length ? curvePoint(start, controls, end, fraction) : { ...mid };
+        const p = curvePoint(start, controls, end, fraction);
         p.y += row * (2*h + 1);
         const box = { x1:p.x-w, y1:p.y-h, x2:p.x+w, y2:p.y+h };
         if (!occupied.some(b => b.x1 < box.x2 && b.x2 > box.x1 && b.y1 < box.y2 && b.y2 > box.y1)) {
