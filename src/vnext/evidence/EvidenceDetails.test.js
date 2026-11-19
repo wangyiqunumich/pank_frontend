@@ -83,7 +83,11 @@ test('a multi-table tab omits empty sections and keeps paging, download and one 
  const pager=within(placementCard);
  expect(placementCard.querySelectorAll(`a[href="${source}"]`)).toHaveLength(1);
  expect(placementCard.querySelector('.xe-evidence-sources a').href).toBe(source);
- expect(pager.getByRole('button',{name:'Download table (CSV)'}).closest('.xe-evidence-toolbar')).toBe(pager.getByRole('button',{name:'Next page'}).closest('.xe-evidence-toolbar'));
+ const toolbar=pager.getByRole('button',{name:'Download all records'}).closest('.xe-evidence-toolbar');
+ expect(placementCard.firstElementChild).toBe(toolbar);
+ expect(within(toolbar).getByRole('heading',{name:'Placements'})).toBeTruthy();
+ expect(within(toolbar).getByRole('button',{name:'Next page'})).toBeTruthy();
+ expect(screen.getByRole('table',{name:'Related links'}).closest('.xe-evidence-card').querySelector('button').textContent).toBe('Download 1 record');
  fireEvent.click(pager.getByRole('button',{name:'Next page'}));
  expect(await pager.findByText('12')).toBeTruthy();
  expect(pager.getByText('Page 2')).toBeTruthy();
@@ -122,7 +126,7 @@ test('CCC summary uses only supporting contexts and the matrix includes every ow
  expect(await screen.findByRole('img',{name:/TIMP3 \(Quiescent Stellate\) → KDR \(Endothelial\).*2 \/ 3/})).toBeTruthy();
  expect(screen.getByRole('rowheader',{name:'TIMP3 (Active Stellate) → KDR (Endothelial)'})).toBeTruthy();
  expect(screen.getAllByRole('img').filter(dot=>dot.classList.contains('xe-ccc-mark'))).toHaveLength(2);
- expect(await screen.findByRole('button',{name:'Download table (CSV)'})).toBeTruthy();
+ expect(await screen.findByRole('button',{name:'Download 2 records'})).toBeTruthy();
  fireEvent.click(screen.getByRole('button',{name:'Complete record'}));
  expect(screen.getByText('Overall description')).toBeTruthy();
  expect(screen.queryByRole('table')).toBeNull();

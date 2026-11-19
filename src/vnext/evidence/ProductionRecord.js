@@ -11,15 +11,21 @@ export function ProductionValue({field,children}){
  if(format==='link' && safeSourceUrl(field.value))return <a href={field.value} target="_blank" rel="noreferrer">Open Link ↗</a>;
  return children;
 }
-export function RecordFooter({provenance={},schema={},className='',showSourceLink=true}){
- const url=sourcePageUrl({href:provenance.data_source_url},schema);
+export function RecordFooter({provenance={},schema={},className='',sourceLinks}){
  const config=panelSchema(schema);
- const items=config.footer.fields.map(field=>{
-  const value=provenance[field.key];
-  if(field.kind==='source_link')return showSourceLink && url ? <a key={field.key} href={url} target="_blank" rel="noreferrer">{field.label} ↗</a> : null;
-  if(value===undefined || value===null || value==='')return null;
-  return <span key={field.key}>{field.label}: {field.key==='license' && safeSourceUrl(provenance.license_url)?<a href={provenance.license_url} target="_blank" rel="noreferrer">{value}</a>:value}</span>;
- }).filter(Boolean);
+ const records=Array.isArray(provenance) ? provenance : [provenance];
+ const items=records.flatMap((record,index)=>config.footer.fields.map(field=>{
+   const key=`${index}:${field.key}`;
+   const value=record[field.key];
+   if(field.kind==='source_link'){
+     if(sourceLinks) return null;
+     const url=sourcePageUrl({href:record.data_source_url},schema);
+     return url ? <a key={key} href={url} target="_blank" rel="noreferrer">{field.label} ↗</a> : null;
+   }
+   if(value===undefined || value===null || value==='')return null;
+   return <span key={key}>{field.label}: {field.key==='license' && safeSourceUrl(record.license_url)?<a href={record.license_url} target="_blank" rel="noreferrer">{value}</a>:value}</span>;
+ })).filter(Boolean);
+ for(const [href,label] of sourceLinks || []) items.push(<a key={href} href={href} target="_blank" rel="noopener noreferrer">{label} ↗</a>);
  if(!items.length)return null;
  return <footer className={`xe-provenance xe-production-footer ${className}`.trim()}>{items}</footer>;
 }

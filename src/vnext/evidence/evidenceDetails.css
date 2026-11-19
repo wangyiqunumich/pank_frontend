@@ -128,9 +128,10 @@
 .xe-set-descriptions dl {display:flex;flex-wrap:wrap;gap:8px 20px;margin:8px 0;}
 .xe-set-descriptions .kg-card-field {display:flex;gap:6px;margin:0;}
 .xe-set-descriptions dt {color:#61767d;}
-.xe-evidence-heading { margin: 0 0 8px; }
+.xe-evidence-heading { flex: 1 1 12rem; min-width: 0; }
 .xe-evidence-heading h3 { margin: 0; font-size: 14px; color: #263238; }
 .xe-evidence-heading p { margin: 4px 0 0; }
+.xe-evidence-heading p:first-child { margin: 0 0 4px; }
 .xe-evidence-card {
   min-width: 0;
   overflow: hidden;
@@ -143,7 +144,7 @@
 .xe-evidence-record-group h4 { margin: 0; padding: 8px 10px; color: #315b62; font-size: 12px; }
 .xe-evidence-card th { background: #f5f8fa; }
 .xe-evidence-card tbody tr:last-child td { border-bottom: 0; }
-.xe-evidence-toolbar, .xe-evidence-actions, .xe-evidence-pager, .xe-evidence-source-links {
+.xe-evidence-toolbar, .xe-evidence-actions, .xe-evidence-pager {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -152,10 +153,12 @@
 .xe-evidence-toolbar {
   justify-content: space-between;
   padding: 7px 10px;
-  border-top: 1px solid #e1ebed;
+  border-bottom: 1px solid #e1ebed;
   background: #f8fafb;
 }
 .xe-evidence-actions { margin-inline-start: auto; }
+.xe-evidence-actions:empty, .xe-evidence-controls:empty { display: none; }
+.xe-evidence-controls { padding-inline: 10px; }
 .xe-evidence-pager { gap: 5px; color: #50666e; font-size: 12px; }
 .xe-expanded-details .xe-evidence-actions button {
   display: inline-flex;
@@ -169,9 +172,7 @@
 }
 .xe-expanded-details .xe-evidence-pager button { width: 30px; padding: 0; }
 .xe-evidence .xe-set-selector select { min-width: 0; max-width: 100%; text-overflow: ellipsis; }
-.xe-evidence-sources { border-top: 1px solid #e1ebed; }
-.xe-evidence-card .xe-evidence-sources .xe-production-footer { justify-content: flex-start; padding: 6px 10px; background: transparent; text-align: start; }
-.xe-evidence-source-links { padding: 6px 10px; font-size: 12px; }
+.xe-evidence-sources { border-top: 1px solid #e6edef; }
 .xe-evidence-message, .xe-evidence-placeholder { margin: 0; padding: 12px; color: #526a73; font-size: 13px; }
 .xe-evidence-placeholder { margin-top: 8px; background: #f5f8fa; border-radius: 8px; }
 .xe-source-annotations {min-width:320px;max-width:100%;}

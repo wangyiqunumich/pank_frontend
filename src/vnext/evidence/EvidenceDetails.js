@@ -133,6 +133,7 @@ function EvidenceTable({card, schema, table: sourceTable, tableKey, onState}) {
       </section>)}</div>}
   </>;
   return <EvidenceTableCard card={card} table={table} schema={schema} filters={scopedFilters} records={hasRows ? records : []}
+    recordCount={index === 0 && page?.has_more === false ? records.length : undefined}
     sets={page?.credible_sets} pageIndex={index} hasNext={Boolean(page?.has_more && page.next_cursor && !cursors.slice(0, index + 1).includes(page.next_cursor))}
     onPrevious={() => setPosition(previous => ({...previous, index: previous.index - 1}))}
     onNext={() => setPosition(previous => ({...previous, cursors: [...previous.cursors.slice(0, index + 1), page.next_cursor], index: index + 1}))}

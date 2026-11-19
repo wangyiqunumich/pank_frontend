@@ -6,9 +6,9 @@ import {RecordFooter} from './ProductionRecord';
 import {useTableDownload} from './TableDownloadControls';
 import {sourcePageUrl} from './tableDownloads';
 
-export default function EvidenceTableCard({card, table, schema, filters, records, sets, pageIndex, onPrevious,
+export default function EvidenceTableCard({card, table, schema, filters, records, recordCount, sets, pageIndex, onPrevious,
   onNext, hasNext, busy, error, controls, children}) {
-  const {state, sources, start, cancel, wording} = useTableDownload({card, table, schema, filters, records, sets});
+  const {state, sources, start, cancel} = useTableDownload({card, table, schema, filters, records, sets});
   const links = new Map(sources.map(source => [source.href, `${source.kind === 'library' ? 'Data Library' : 'Source'}: ${source.title}`]));
   for (const row of [...records, ...Object.values(sets || {})]) {
     const href = sourcePageUrl({href: row.data_source_url}, schema);
@@ -26,40 +26,38 @@ export default function EvidenceTableCard({card, table, schema, filters, records
     }
   }
   const paginated = pageIndex > 0 || hasNext;
+  const count = state.ready ? state.rows : recordCount;
+  const downloadLabel = count === undefined ? 'Download all records'
+    : `Download ${count.toLocaleString('en-US')} ${count === 1 ? 'record' : 'records'}`;
 
   return <section className="xe-evidence">
-    <header className="xe-evidence-heading">
-      {table.methodLabel && <p className="xe-small">{table.methodLabel}</p>}
-      <h3>{table.title}</h3>
-      {table.comparison === 'cell_type' && <p className="xe-small">Within each condition · positive log₂ FC means higher in the selected cell type.</p>}
-      {table.comparison === 'disease' && <p className="xe-small">Positive log₂ FC means higher in the first condition than its reference.</p>}
-    </header>
-    {controls}
     <div className="xe-evidence-card" aria-busy={busy || undefined}>
-      {children}
-      {(records.length > 0 || paginated || busy || error) && <div className="xe-evidence-toolbar">
-        <span className="xe-small">{busy ? 'Loading…' : records.length > 0 ? `${records.length} ${records.length === 1 ? 'row' : 'rows'}` : ''}</span>
+      <header className="xe-evidence-toolbar">
+        <div className="xe-evidence-heading">
+          {table.methodLabel && <p className="xe-small">{table.methodLabel}</p>}
+          <h3>{table.title}</h3>
+          {table.comparison === 'cell_type' && <p className="xe-small">Within each condition · positive log₂ FC means higher in the selected cell type.</p>}
+          {table.comparison === 'disease' && <p className="xe-small">Positive log₂ FC means higher in the first condition than its reference.</p>}
+        </div>
         <div className="xe-evidence-actions">
+          {busy && <span className="xe-small" role="status">Loading…</span>}
           {paginated && <div className="xe-evidence-pager" aria-label="Table pages">
             <button type="button" aria-label="Previous page" onClick={onPrevious} disabled={pageIndex === 0 || busy}><ChevronLeftIcon fontSize="small" /></button>
             <span>Page {pageIndex + 1}</span>
             <button type="button" aria-label="Next page" onClick={onNext} disabled={!hasNext || busy}><ChevronRightIcon fontSize="small" /></button>
           </div>}
-          {records.length > 0 && <button type="button" aria-label={wording.table || 'Download table (CSV)'} onClick={start} disabled={busy || state.busy}>
-            <DownloadOutlinedIcon fontSize="small" />{state.busy ? 'Preparing…' : 'Download CSV'}
+          {records.length > 0 && <button type="button" title="Download CSV" onClick={start} disabled={busy || state.busy}>
+            <DownloadOutlinedIcon fontSize="small" />{state.busy ? 'Preparing…' : downloadLabel}
           </button>}
           {state.busy && <button type="button" onClick={cancel}>Cancel</button>}
         </div>
-      </div>}
+      </header>
+      <div className="xe-evidence-controls">{controls}</div>
+      {children}
       {error && <p className="xe-evidence-message" role="alert">{error}</p>}
-      {state.ready && <p className="xe-evidence-message" role="status">CSV ready · {state.rows} rows</p>}
+      {state.ready && <p className="xe-evidence-message" role="status">CSV ready</p>}
       {state.error && <p className="xe-evidence-message" role="alert">{state.error}</p>}
-      {(links.size > 0 || provenance.size > 0) && records.length > 0 && <div className="xe-evidence-sources">
-        {[...provenance].map(([key, item]) => <RecordFooter key={key} provenance={item} schema={schema} showSourceLink={false} />)}
-        {links.size > 0 && <div className="xe-evidence-source-links">
-          {[...links].map(([href, label]) => <a key={href} href={href} target="_blank" rel="noopener noreferrer">{label} ↗</a>)}
-        </div>}
-      </div>}
+      {records.length > 0 && <RecordFooter className="xe-evidence-sources" provenance={[...provenance.values()]} schema={schema} sourceLinks={links} />}
     </div>
   </section>;
 }
