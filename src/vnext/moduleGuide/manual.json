@@ -15,7 +15,7 @@
     "id": "genome-navigation",
     "module": "genome_browser",
     "title": "Genome · Region, zoom & height",
-    "body": "Enter a GRCh38 interval such as chr7:117480025-117668665 and choose View. Coordinates are zero-based, half-open. Drag to pan; the horizontal zoom buttons change the genomic span. Reset returns to the starting region.\nTrack height offers Fit panel, Compact (80 px), Medium (160 px) and Large (260 px). More tools opens the genome browser’s additional controls. Fullscreen gives tracks more space; Download exports SVG.\nYou can also ask the guide to locate a gene, Ensembl ID or rsID. Variant navigation includes 500 bp on each side of the source interval."
+    "body": "Enter a GRCh38 interval such as chr7:117480025-117668665 and choose View. Coordinates are zero-based, half-open. Drag to pan; the horizontal zoom buttons change the genomic span. Reset returns to the starting region.\nATAC signal tracks share a log₂(1 + signal) y-axis with ticks and hover values in original signal units across the selected cell types in the current interval. Signal height offers Fit panel, Dense (32 px), Compact (80 px), Medium (160 px) and Large (260 px). More tools opens the genome browser’s additional controls. Download exports SVG.\nYou can also ask the guide to locate a gene, Ensembl ID or rsID. Variant navigation includes 500 bp on each side of the source interval."
   },
   {
     "id": "scbrowser",

@@ -7,7 +7,7 @@ export function exportGenome(root,locus) {
   const width=root.clientWidth,height=tracks.reduce((sum,t)=>sum+t.getBoundingClientRect().height,0)+30;
   svg.setAttribute('xmlns',ns);svg.setAttribute('width',width);svg.setAttribute('height',height);
   const el=(name,attrs,parent=svg)=>{const n=document.createElementNS(ns,name);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,v));parent.appendChild(n);return n;};
-  el('rect',{width,height,fill:'white'});el('text',{x:4,y:17,'font-size':12,'font-family':'sans-serif'}).textContent='GRCh38 · '+locus;
+  el('rect',{width,height,fill:'white'});el('text',{x:4,y:17,'font-size':12,'font-family':'sans-serif'}).textContent='GRCh38 · '+locus+' · ATAC: shared log₂(1 + signal), ticks in original units';
   let y=28;
   tracks.forEach((track,i)=>{
     const box=track.getBoundingClientRect(),g=el('g',{'clip-path':`url(#track-${i})`});

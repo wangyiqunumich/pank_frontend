@@ -17,7 +17,7 @@ test('previews and unopened modules perform no fetch; opening loads one entry an
  toggle(null);
  expect(screen.queryByRole('dialog',{name:'Genome Browser'})).toBeNull();
  toggle(frame.contentWindow);
- expect(screen.getByRole('dialog',{name:'Genome Browser'})).toBeTruthy();
+ expect(screen.queryByRole('dialog',{name:'Genome Browser'})).toBeNull();
  expect(screen.getByTitle('Genome Browser')).toBe(frame);
  toggle(frame.contentWindow);
  expect(screen.getByTitle('Genome Browser')).toBe(frame);

@@ -1,4 +1,5 @@
 import { assetUrl, dataBase } from "../../source.mjs";
+import { atacLogScales } from './logSignalScale.mjs';
 const STYLESHEETS = [
     {
         href: "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css",
@@ -153,7 +154,8 @@ export function loadWashUAssets() {
     }
 
     window.PANKBASE_DATA_BASE = dataBase();
-    const hosted = value => assetUrl("runtime-source/runtime/" + value.split("/").pop().replace("epgg.js", "epgg-local.js"));
+    window.pankAtacLogScales = atacLogScales;
+    const hosted = value => value.endsWith('/epgg.js') ? new URL('epgg-atac-log.js', document.baseURI).href : assetUrl("runtime-source/runtime/" + value.split("/").pop());
     const stylesLoaded = Promise.all(STYLESHEETS.map(definition => ensureStylesheetLoaded({...definition, href: hosted(definition.href)})));
     const scriptsLoaded = SCRIPTS.reduce((chain, definition) => {
         return chain.then(() => ensureScriptLoaded({...definition, src: hosted(definition.src)}));

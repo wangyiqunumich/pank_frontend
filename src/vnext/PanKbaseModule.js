@@ -39,13 +39,13 @@ export default function PanKbaseModule({ moduleId, context, preview = false, isV
   useEffect(() => {
     const receive = event => {
       if (event.origin !== window.location.origin || event.source !== frame.current?.contentWindow || event.data?.protocol !== PROTOCOL) return;
-      if (event.data.type === 'fullscreen-toggle') setExpanded(value => !value);
+      if (moduleId !== 'genome_browser' && event.data.type === 'fullscreen-toggle') setExpanded(value => !value);
       if (event.data.type === 'ready') { setReady(true); setError(''); send(); }
       if (event.data.type === 'error') setError(String(event.data.message || 'Unable to load this view.').slice(0, 300));
     };
     window.addEventListener('message', receive);
     return () => window.removeEventListener('message', receive);
-  }, [send]);
+  }, [moduleId, send]);
   useEffect(() => { if (ready) send(); }, [context, ready, moduleId, send]);
   useEffect(() => {
     if (!html || ready) return undefined;
