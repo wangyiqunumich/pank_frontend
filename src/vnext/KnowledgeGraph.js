@@ -810,7 +810,7 @@ function GraphSearch({ inputRef, onSearch }) {
 }
 
 // Main KnowledgeGraph component
-export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceService, selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, edgeRoutes = null, review = false, containerHeight = "600px", defaultLegendVisible = false }) {
+export default function KnowledgeGraph({ inspectSelection, onEvidenceInspect, releaseId, evidenceService, selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, edgeRoutes = null, review = false, containerHeight = "600px", defaultLegendVisible = false }) {
   const cyRef = useRef(null);
   const containerRef = useRef(null);
   const infocardRef = useRef(null);
@@ -1052,6 +1052,16 @@ export default function KnowledgeGraph({ onEvidenceInspect, releaseId, evidenceS
     setExpandedCard(activeNode);
     setExpanded(true);
   };
+  useEffect(() => {
+    if (!inspectSelection) return;
+    const element = cyRef.current?.getElementById(inspectSelection.id);
+    if (!element?.nonempty()) return;
+    dismissHover();
+    setActiveHover(null);
+    setExpandedCard(element);
+    setExpanded(true);
+  }, [inspectSelection, dismissHover]);
+
   const exitGraphFullscreen = () => { closePanel(); setExpanded(false); };
   const toggleExpand = () => { if (expanded) exitGraphFullscreen(); else { dismissHover(); setExpanded(true); } };
 

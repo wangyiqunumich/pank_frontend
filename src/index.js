@@ -2,11 +2,12 @@ import './index.css';
 import { UI_BASE_PATH, TECH_DEMO } from './vnext/hosting';
 import './styles/designTokens.css';
 import './styles/messageStates.css';
+import HoverDev from './vnext/HoverDev';
 import AgentPage from './vnext/AgentPage';
 import AgentRoute from './vnext/AgentRoute';
 import AgentResultView from './vnext/ResultView';
 import ConventionalRoute from './vnext/ConventionalRoute';
-import { loadDevConfig, getDevConfig } from './vnext/runtimeConfig';
+import { loadDevConfig, getDevConfig, isDevHost } from './vnext/runtimeConfig';
 import { initializeGtag } from './utils/gtag';
 import { safeLocalStorage, safeSessionStorage } from './utils/safeStorage';
 
@@ -96,6 +97,7 @@ loadDevConfig().then(() => root.render(
                 <Route path="/result-new2" element={<AgentResultLayout ResultView={AgentResultView} allowSearch={false} showFloatingSearchBar={false} />} />
                 <Route path="*" element={<Navigate to="/result-new2" replace />} />
               </Routes> : <Routes>
+                {isDevHost(window.location.hostname) && <Route path="/hoverdev" element={<HoverDev />} />}
                 <Route path="/agent-vnext" element={<AgentPage />} />
                 <Route path="/pipeline" element={<Pipeline />} />
                 <Route path="/qtldatasource" element={<QTLDataSource />} />
