@@ -53,7 +53,12 @@
   --panel-muted: #526a73;
   --panel-accent: #086660;
   --panel-border: #dce8ea;
-  --panel-gutter: clamp(20px, 2.8vw, 30px);
+  --panel-gutter: 24px;
+  --panel-section-gap: 20px;
+  --panel-section-inset: 12px;
+  --panel-column-gap: 28px;
+  --panel-row-rule: #e6eef0;
+  --panel-cell-inset: 10px;
   --panel-control-size: 36px;
   --panel-head-size: 14px;
   box-sizing: border-box;
@@ -106,9 +111,17 @@
   background: rgb(55 100 107 / 9%);
 }
 
+.graph-info-panel--expanded :is(.graph-info-panel-header, .graph-info-panel-body, .xe-card-tabs, .graph-info-panel-footer) {
+  scrollbar-gutter: stable both-edges;
+  scrollbar-width: thin;
+}
+
+.graph-info-panel--expanded :is(.graph-info-panel-header, .xe-card-tabs) {
+  overflow-y: hidden;
+}
+
 .graph-info-panel--expanded .graph-info-panel-body {
   scrollbar-color: #a8bfc3 transparent;
-  scrollbar-gutter: stable;
 }
 
 .graph-info-panel--expanded .graph-info-panel-body:focus-visible,
@@ -121,6 +134,10 @@
 .graph-info-panel--expanded :is(.graph-info-panel-footer, .xe-evidence-sources).xe-production-footer {
   padding: 9px var(--panel-gutter);
   font-size: 11px;
+}
+
+.graph-info-panel--expanded .xe-evidence-sources.xe-production-footer {
+  padding-inline: var(--panel-cell-inset);
 }
 
 .graph-info-panel--expanded.is-height-constrained .graph-info-panel-header {
@@ -141,7 +158,13 @@
 }
 
 @media (max-width: 600px) {
-  .graph-info-panel--expanded { --panel-gutter: 16px; --panel-control-size: 40px; }
+  .graph-info-panel--expanded {
+    --panel-gutter: 16px;
+    --panel-section-gap: 16px;
+    --panel-column-gap: 16px;
+    --panel-cell-inset: 8px;
+    --panel-control-size: 40px;
+  }
 }
 
 .graph-info-panel-message {

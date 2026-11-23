@@ -8,13 +8,14 @@
 }
 
 .graph-info-panel--expanded .xe-tab-list {
-  gap: 16px;
-  padding-inline: var(--panel-gutter);
+  --panel-tab-inset: 4px;
+  gap: calc(var(--panel-section-gap) - 2 * var(--panel-tab-inset));
+  padding-inline: calc(var(--panel-gutter) - var(--panel-tab-inset));
   background-image: linear-gradient(var(--panel-border), var(--panel-border));
 }
 
 .graph-info-panel--expanded .xe-tab-list button {
-  padding-inline: 4px;
+  padding-inline: var(--panel-tab-inset);
   color: var(--panel-muted);
 }
 
@@ -36,7 +37,7 @@
 
 .graph-info-panel--expanded .xe-record-view .xe-card-body {
   align-items: start;
-  gap: 20px 28px;
+  gap: var(--panel-section-gap) var(--panel-column-gap);
 }
 
 .graph-info-panel--expanded .xe-record-view[data-dense] .xe-card-body,
@@ -44,18 +45,9 @@
   grid-template-columns: minmax(0, 1fr);
 }
 
-@media (min-width: 761px) {
-  .graph-info-panel--expanded .xe-record-view[data-dense] .xe-card-section:not(.xe-relationship-context) > dl {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0 28px;
-  }
-}
-
 .graph-info-panel--expanded .xe-card-section {
-  padding: 12px 0 0;
+  padding: 0;
   border: 0;
-  border-top: 1px solid var(--panel-border);
   border-radius: 0;
   background: transparent;
 }
@@ -69,10 +61,16 @@
   font-weight: 700;
 }
 
-.graph-info-panel--expanded .xe-card-body > .xe-card-section:only-child,
-.graph-info-panel--expanded :is(.xe-table-view, .xe-record-view[data-dense]) .xe-card-body > .xe-card-section:first-child {
-  border-top: 0;
-  padding-top: 0;
+.graph-info-panel--expanded .xe-record-view[data-dense] .xe-card-section + .xe-card-section {
+  padding-block-start: var(--panel-section-inset);
+  border-block-start: 1px solid var(--panel-border);
+}
+
+@media (max-width: 760px) {
+  .graph-info-panel--expanded .xe-record-view:not([data-dense]) .xe-card-section + .xe-card-section {
+    padding-block-start: var(--panel-section-inset);
+    border-block-start: 1px solid var(--panel-border);
+  }
 }
 
 .graph-info-panel--expanded .xe-record-view .kg-card-field {
@@ -80,8 +78,29 @@
   align-items: start;
   margin: 0;
   padding-block: 8px;
-  border-bottom: 1px solid #edf2f3;
   font-size: 13px;
+}
+
+.graph-info-panel--expanded .xe-field-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: var(--panel-column-gap);
+}
+
+/* Separate visual rows, including an unpaired last field, rather than grid cells. */
+.graph-info-panel--expanded .xe-field-row + .xe-field-row,
+.graph-info-panel--expanded :is(.xe-field-list, .xe-field-row) > .kg-card-field + .kg-card-field {
+  border-block-start: 1px solid var(--panel-row-rule);
+}
+
+@media (min-width: 761px) {
+  .graph-info-panel--expanded .xe-field-row[data-paired] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .graph-info-panel--expanded .xe-field-row[data-paired] > .kg-card-field + .kg-card-field {
+    border-block-start: 0;
+  }
 }
 
 .graph-info-panel--expanded .xe-record-view .kg-card-field[data-layout='tokens']:has(> dd > span > .kg-value-tokens > .kg-value-token:only-child) {
@@ -95,10 +114,6 @@
 
 .graph-info-panel--expanded .xe-record-view .kg-card-field[data-layout='prose'] dd {
   max-width: 74ch;
-}
-
-.graph-info-panel--expanded .xe-record-view .kg-card-field:last-child {
-  border-bottom: 0;
 }
 
 .graph-info-panel--expanded .xe-production-pill[data-chromosome] {
@@ -131,7 +146,7 @@
 .graph-info-panel--expanded .xe-relationship-context > dl {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px 24px;
+  gap: 0 var(--panel-column-gap);
 }
 
 .graph-info-panel--expanded .xe-relationship-context .kg-card-field {
@@ -142,8 +157,15 @@
 }
 
 .graph-info-panel--expanded .xe-relationship-context .kg-card-field + .kg-card-field {
+  position: relative;
+}
+
+.graph-info-panel--expanded .xe-relationship-context .kg-card-field + .kg-card-field::before {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: calc(var(--panel-column-gap) / -2);
   border-inline-start: 1px solid var(--panel-border);
-  padding-inline-start: 24px;
+  content: '';
 }
 
 .graph-info-panel--expanded .xe-relationship-context dt {
@@ -176,8 +198,13 @@
   margin-top: 6px;
 }
 
-.graph-info-panel--expanded .xe-table-view .xe-card-section + :is(.xe-card-section, .xe-evidence-list) {
-  margin-top: 20px;
+.graph-info-panel--expanded .xe-table-view .xe-card-section + :is(.xe-card-section, .xe-ccc-matrix, .xe-evidence-list:not(:empty)),
+.graph-info-panel--expanded .xe-ccc-matrix + .xe-evidence-list:not(:empty),
+.graph-info-panel--expanded .xe-evidence-list > .xe-evidence + .xe-evidence,
+.graph-info-panel--expanded .xe-ccc-matrix > section + section {
+  margin-block-start: var(--panel-section-gap);
+  padding-block-start: var(--panel-section-inset);
+  border-block-start: 1px solid var(--panel-border);
 }
 
 .graph-info-panel--expanded .xe-variant-details {
@@ -217,7 +244,8 @@
 
 .graph-info-panel--expanded .xe-evidence-toolbar {
   gap: 12px;
-  padding: 0 0 10px;
+  padding: 0 0 var(--panel-section-inset);
+  border-block-end-color: var(--panel-border);
   background: #fff;
 }
 
@@ -320,13 +348,27 @@
 }
 
 .graph-info-panel--expanded :is(.xe-evidence-card, .xe-ccc-matrix) :is(th, td) {
-  padding: 8px 10px;
-  border-color: #e6eef0;
+  padding: 8px var(--panel-cell-inset);
+  border-block-end: 0;
+}
+
+.graph-info-panel--expanded :is(.xe-evidence-card, .xe-ccc-matrix) tbody :is(th, td) {
+  border-block-start: 1px solid var(--panel-row-rule);
+}
+
+.graph-info-panel--expanded .xe-evidence-sources {
+  border-block-start-color: var(--panel-border);
 }
 
 .graph-info-panel--expanded .xe-evidence-card td {
   font-size: 13px;
   font-variant-numeric: tabular-nums;
+}
+
+.graph-info-panel--expanded .xe-resource-category {
+  display: block;
+  margin-block-start: 2px;
+  color: var(--panel-muted);
 }
 
 .graph-info-panel--expanded .xe-evidence-card [data-quantity] {
@@ -369,18 +411,11 @@
 }
 
 .graph-info-panel--expanded .xe-ccc-matrix {
-  margin-block: 20px 0;
-  border-top: 1px solid var(--panel-border);
-  padding-top: 12px;
+  margin: 0;
 }
 
 .graph-info-panel--expanded .xe-ccc-matrix > section {
   padding: 0;
-}
-
-.graph-info-panel--expanded .xe-ccc-matrix > section + section {
-  margin-top: 16px;
-  padding-top: 12px;
 }
 
 .graph-info-panel--expanded :is(.xe-ccc-matrix, .xe-evidence-record-group) h4 {
@@ -414,10 +449,7 @@
 }
 
 @media (max-width: 600px) {
-  .graph-info-panel--expanded .xe-tab-list { gap: 10px; }
   .graph-info-panel--expanded .xe-record-view .kg-card-field { grid-template-columns: minmax(0, 42%) minmax(0, 1fr); }
-  .graph-info-panel--expanded .xe-relationship-context > dl { column-gap: 12px; }
-  .graph-info-panel--expanded .xe-relationship-context .kg-card-field + .kg-card-field { padding-inline-start: 12px; }
   .graph-info-panel--expanded .xe-evidence-actions { margin-inline-start: 0; }
   .graph-info-panel--expanded .xe-evidence-table-toolbar .xe-evidence-heading { flex-basis: 115px; }
   .graph-info-panel--expanded .xe-evidence-table-frame[data-more-columns]::after {
@@ -429,5 +461,4 @@
     content: '';
   }
   .graph-info-panel--expanded .xe-ccc-matrix thead th:last-child { width: 72px; }
-  .graph-info-panel--expanded .xe-ccc-matrix :is(th, td) { padding-inline: 8px; }
 }

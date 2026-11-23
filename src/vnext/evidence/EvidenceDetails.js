@@ -258,10 +258,28 @@ function PanelSection({title, prose, className = '', children}) {
   </section>;
 }
 
-function FieldSections({sections, specs}) {
+function FieldSections({sections, specs, paired = false}) {
   return sections.map((section,index) => <PanelSection key={`${section.title}:${index}`} title={section.title} prose={section.prose}>
-    <dl><RecordFields fields={section.fields} specs={specs} /></dl>
+    {paired ? <PairedFieldRows fields={section.fields} specs={specs}/> :
+      <dl className="xe-field-list"><RecordFields fields={section.fields} specs={specs}/></dl>}
   </PanelSection>);
+}
+
+function PairedFieldRows({fields, specs = {}}) {
+  const rows = [];
+  for (const field of fields) {
+    const layout = cardValueLayout(field.value, field.layout || specs[field.key]?.layout);
+    const singleToken = Array.isArray(field.value) && field.value.length === 1 && typeof field.value[0] !== 'object';
+    const wide = layout === 'prose' || (layout === 'tokens' && !singleToken);
+    const previous = rows[rows.length - 1];
+    if (!wide && previous && !previous.wide && previous.fields.length === 1) previous.fields.push(field);
+    else rows.push({wide, fields:[field]});
+  }
+  return <div className="xe-field-rows">
+    {rows.map(row => <dl className="xe-field-row" data-paired={!row.wide || undefined} key={row.fields[0].key}>
+      <RecordFields fields={row.fields} specs={specs}/>
+    </dl>)}
+  </div>;
 }
 
 function RelationshipSection({context, panel, compact = false}) {
@@ -290,11 +308,11 @@ function VariantDetails({card, schema}) {
   </PanelSection>;
 }
 
-function PanelBlock({block, model, schema, cccState}) {
+function PanelBlock({block, model, schema, cccState, dense}) {
   const {card, panel, context, display} = model;
   switch (block.kind) {
     case 'relationship': return <RelationshipSection context={context} panel={panel}/>;
-    case 'fields': return <FieldSections sections={block.sections} specs={card.field_specs}/>;
+    case 'fields': return <FieldSections sections={block.sections} specs={card.field_specs} paired={dense}/>;
     case 'tables': return <EvidenceTables card={card} schema={schema} tables={block.entries} emptyMessage={block.emptyMessage}/>;
     case 'variant_details': return <VariantDetails card={card} schema={schema}/>;
     case 'ccc_summary': return <PanelSection title="Overall description" className="xe-ccc-overview">
@@ -347,7 +365,7 @@ function ExpandedDetails({model, schema}) {
       id={`${id}-view-${viewIndex}`} aria-labelledby={singleView ? undefined : `${id}-tab-${viewIndex}`}>
       <div className={`xe-expanded-details xe-${view.layout}-view`} data-dense={dense || undefined}>
         <div className="xe-card-body" style={{'--panel-columns':layout.columns,'--panel-narrow-columns':layout.narrow_columns,'--panel-gap':`${layout.gap_px}px`}}>
-          {view.blocks.map(block => <PanelBlock key={block.kind} block={block} model={model} schema={schema} cccState={cccState}/>)}
+          {view.blocks.map(block => <PanelBlock key={block.kind} block={block} model={model} schema={schema} cccState={cccState} dense={dense}/>)}
           {!hasContent && <p className="xe-evidence-placeholder">No details recorded.</p>}
         </div>
       </div>
