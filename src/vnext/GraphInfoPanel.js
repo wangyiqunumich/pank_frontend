@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useLayoutEffect, useState } from 'react';
+import React, { createContext, useContext, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { IconButton } from '@mui/material';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
@@ -49,7 +49,50 @@ export function GraphInfoPanelHeader({ children, title, canExpand = false }) {
 }
 
 export function GraphInfoPanelBody({ children, loading = false, ...props }) {
-  return <div {...props} className="graph-info-panel-body" data-loading={loading || undefined}>{children}</div>;
+  const panel = useGraphInfoPanel();
+  return <div {...props} className="graph-info-panel-body" data-loading={loading || undefined}>
+    {panel?.large ? <div className="graph-info-panel-content">{children}</div> : children}
+  </div>;
+}
+
+function useExpandedPanelHeight(panelRef, enabled) {
+  useLayoutEffect(() => {
+    const panel = panelRef.current;
+    if (!enabled || !panel || typeof ResizeObserver === 'undefined') return undefined;
+    const property = '--graph-info-panel-content-height';
+    let parts = [];
+
+    const measure = () => {
+      const previous = panel.style.getPropertyValue(property);
+      // Hold the current height while a newly selected tab loads its records.
+      if (!parts.length || (previous && panel.querySelector('[data-loading]'))) return;
+      const borders = panel.offsetHeight - panel.clientHeight;
+      const height = parts.reduce((sum, part) => sum + part.getBoundingClientRect().height, borders);
+      const next = `${Math.ceil(height)}px`;
+      if (next !== previous) panel.style.setProperty(property, next);
+    };
+
+    const sizes = new ResizeObserver(measure);
+    const updateParts = () => {
+      // Observe the natural content, not the scrolling body's animated height.
+      const next = Array.from(panel.children).filter(child => !child.hidden).map(child =>
+        child.classList.contains('graph-info-panel-body') ? child.firstElementChild : child).filter(Boolean);
+      if (next.length !== parts.length || next.some((part, index) => part !== parts[index])) {
+        sizes.disconnect();
+        for (const part of next) sizes.observe(part);
+        parts = next;
+      }
+      measure();
+    };
+    const content = new MutationObserver(updateParts);
+    content.observe(panel, {childList: true, subtree: true, attributes: true, attributeFilter: ['data-loading']});
+    updateParts();
+    return () => {
+      content.disconnect();
+      sizes.disconnect();
+      panel.style.removeProperty(property);
+    };
+  }, [panelRef, enabled]);
 }
 
 // Escape the graph/answer stacking contexts; native fullscreen needs its own host.
@@ -57,6 +100,8 @@ export function GraphInfoPanelSurface({ children, panelRef, visible, staging = f
   onEnter, onLeave, onEnlarge, onMinimize, onClose, label }) {
   const large = mode === 'expanded';
   const config=panelSchema(schema), cardLayout=config.layout, surface=config.surface;
+  const surfaceRef = useRef(null);
+  useImperativeHandle(panelRef, () => surfaceRef.current, []);
   const [viewport, setViewport] = useState(null);
   useLayoutEffect(() => {
     if (!large || !visible) return undefined;
@@ -72,6 +117,7 @@ export function GraphInfoPanelSurface({ children, panelRef, visible, staging = f
       window.removeEventListener('resize', update);
     };
   }, [large, visible]);
+  useExpandedPanelHeight(surfaceRef, large && visible);
   const room = position.above ? `calc(${position.y}px - 12px)` : `calc(100dvh - ${Math.max(12, position.y)}px - 12px)`;
   const limits = cardLayout.height_limits;
   const frame = surface.expanded_frame || bundled.surface.expanded_frame;
@@ -79,10 +125,10 @@ export function GraphInfoPanelSurface({ children, panelRef, visible, staging = f
   const maxHeight = frame?.max_height_px ?? limits.expanded_px;
   const margin = viewport && viewport.width <= 600 ? 10 : 24;
   const bottomGap = viewport && viewport.height <= 400 ? 8 : margin;
-  const expandedTop = viewport ? Math.min(surface.expanded_top_px, Math.max(56, viewport.height * .2)) : surface.expanded_top_px;
-  const availableHeight = viewport ? Math.max(0, Math.min(maxHeight, viewport.height * limits.expanded_vh / 100, viewport.height - expandedTop - bottomGap)) : null;
+  const topGap = viewport ? Math.min(surface.expanded_top_px, Math.max(56, viewport.height * .2)) : surface.expanded_top_px;
+  const availableHeight = viewport ? Math.max(0, Math.min(maxHeight, viewport.height * limits.expanded_vh / 100, viewport.height - topGap - bottomGap)) : null;
   const expandedHeight = availableHeight === null
-    ? `min(${maxHeight}px, ${limits.expanded_vh}dvh, calc(100dvh - ${expandedTop}px - ${bottomGap}px))`
+    ? `min(${maxHeight}px, ${limits.expanded_vh}dvh, calc(100dvh - ${topGap}px - ${bottomGap}px))`
     : `${availableHeight}px`;
   const short = large && availableHeight !== null && availableHeight < 260;
   const compactHeight = position.maxHeight === undefined
@@ -90,14 +136,14 @@ export function GraphInfoPanelSurface({ children, panelRef, visible, staging = f
     : `${position.maxHeight}px`;
   const widthLimit = large ? viewport?.width : position.viewportWidth;
   const panelWidth = `min(${large ? maxWidth : review ? surface.review_width_px : surface.compact_width_px}px, calc(${widthLimit === undefined ? '100vw' : `${widthLimit}px`} - ${large ? margin * 2 : 24}px))`;
-  return <section ref={panelRef} aria-label={label || (large ? 'Expanded graph information' : 'Graph information')} tabIndex={large ? -1 : undefined}
+  return <section ref={surfaceRef} aria-label={label || (large ? 'Expanded graph information' : 'Graph information')} tabIndex={large ? -1 : undefined}
     aria-hidden={!visible} inert={visible ? undefined : ''}
     className={`graph-info-panel${large ? ' graph-info-panel--expanded' : ''}${visible ? ' is-visible' : ''}${staging ? ' is-staging' : ''}${!large && visible && position.slide ? ' is-sliding' : ''}${short ? ' is-height-constrained' : ''}`}
     onMouseEnter={onEnter} onMouseLeave={onLeave}
     style={{ position: 'fixed', zIndex: 2147483000, display: 'flex', flexDirection: 'column',
       left: large ? viewport ? viewport.left + viewport.width / 2 : '50%' : position.x,
-      top: large ? (viewport?.top || 0) + expandedTop : position.y,
-      transform: large ? 'translateX(-50%)' : position.above ? 'translateY(-100%)' : undefined,
+      top: large ? viewport ? viewport.top + viewport.height / 2 : '50%' : position.y,
+      transform: large ? 'translate(-50%, -50%)' : position.above ? 'translateY(-100%)' : undefined,
       width: large ? undefined : panelWidth,
       '--graph-info-panel-width': large ? panelWidth : undefined,
       maxHeight: large ? undefined : compactHeight,

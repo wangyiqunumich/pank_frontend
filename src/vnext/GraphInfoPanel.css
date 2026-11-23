@@ -31,6 +31,10 @@
   scrollbar-width: thin;
 }
 
+.graph-info-panel-content {
+  display: flow-root;
+}
+
 .graph-info-panel-footer {
   flex-shrink: 0;
   box-sizing: border-box;
@@ -63,7 +67,8 @@
   --panel-head-size: 14px;
   box-sizing: border-box;
   width: var(--graph-info-panel-width);
-  height: var(--graph-info-panel-height-limit);
+  height: min(var(--graph-info-panel-content-height), var(--graph-info-panel-height-limit));
+  max-height: var(--graph-info-panel-height-limit);
   border: 1px solid #cadadc;
   box-shadow: 0 12px 40px rgb(38 56 64 / 18%);
   translate: none;
@@ -72,13 +77,11 @@
 
 .graph-info-panel--expanded.is-visible {
   translate: none;
-  transition: opacity 140ms ease;
+  transition: opacity 140ms ease, height 240ms cubic-bezier(.2, .65, .3, 1);
 }
 
 .graph-info-panel--expanded:has(.graph-info-panel-body[data-single-view]) {
   width: min(var(--graph-info-panel-width), 800px);
-  height: auto;
-  max-height: var(--graph-info-panel-height-limit);
 }
 
 .graph-info-panel--expanded:has(.graph-info-panel-body[data-single-view] .xe-card-body > .xe-card-section:only-child) {

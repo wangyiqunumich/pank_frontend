@@ -248,7 +248,7 @@ function EvidenceTables({card, schema, tables, emptyMessage = 'No matching recor
     <div className="xe-evidence-list">
       {tables.map(({key, table}) => <EvidenceTable key={key} tableKey={key} card={card} table={table} schema={schema} onState={reportState}/>)}
     </div>
-    {!visible && <p role="status" className="xe-evidence-placeholder">{loading ? 'Loading records…' : emptyMessage}</p>}
+    {!visible && <p role="status" className="xe-evidence-placeholder" data-loading={loading || undefined}>{loading ? 'Loading records…' : emptyMessage}</p>}
   </>;
 }
 
