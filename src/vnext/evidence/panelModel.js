@@ -112,10 +112,12 @@ export function evidencePanelModel(source, schema) {
   const contextBlocks = context.endpoints.length ? [{kind:'relationship'}] : [];
   const cccTab = tabs.find(tab => tab.visualization === 'ccc_dot_matrix');
   const overview = cccTab ? [{kind:'ccc_summary'}] : [];
+  const sections = expandedSections(card,panel);
+  const afterFrequency = detailBlock === 'variant_details' ? sections.filter(section => section.title === 'Additional details') : [];
   const record = {
     id:'record', title:panel.complete_record.title, layout:'record',
-    blocks:[...overview, ...contextBlocks, {kind:'fields', sections:expandedSections(card,panel)},
-      ...(detailBlock ? [{kind:detailBlock}] : [])],
+    blocks:[...overview, ...contextBlocks, {kind:'fields', sections:sections.filter(section => !afterFrequency.includes(section))},
+      ...(detailBlock ? [{kind:detailBlock, sections:afterFrequency}] : [])],
   };
   const evidence = tabs.map(tab => ({id:tab.id, title:tab.title, layout:'table', blocks:[...overview, ...contextBlocks,
     ...(tab.visualization ? [{kind:tab.visualization}] : []), {kind:'tables', ...evidenceTables(tab,card,schema,panel)},

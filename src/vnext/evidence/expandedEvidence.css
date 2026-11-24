@@ -1,4 +1,156 @@
-/* Full-size evidence inspector. Compact cards keep their own type and spacing. */
+/* Graph records and evidence views share the frame, with separate body styles. */
+.graph-info-panel .xe-compact-details {
+  padding: 8px var(--graph-record-gutter, 24px) 0;
+  font: 400 14px/20px Inter, 'Open Sans', sans-serif;
+}
+
+.graph-info-panel .xe-compact-details .xe-card-section {
+  padding: 0;
+  border: 0;
+}
+
+.graph-info-panel .xe-compact-details .xe-card-section + .xe-card-section {
+  border-block-start: 1px solid #e6eef0;
+  padding-block-start: 12px;
+}
+
+.graph-info-panel .xe-compact-details .xe-card-section h3 {
+  margin: 0 0 4px;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: normal;
+  text-align: start;
+  text-transform: none;
+}
+
+.graph-info-panel .xe-compact-details .kg-card-field {
+  margin: 0;
+  padding-block: 12px;
+  line-height: 20px;
+}
+
+.graph-info-panel .xe-compact-details .xe-field-list > .kg-card-field + .kg-card-field {
+  border-block-start: 1px solid #f1f5f9;
+}
+
+.graph-info-panel .xe-compact-details .kg-card-field[data-layout='prose'] {
+  padding-block: 16px 24px;
+}
+
+.graph-info-panel .xe-compact-details dt {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.graph-info-panel .xe-compact-details dd {
+  color: #0f172a;
+  text-align: end;
+}
+
+.graph-info-panel .xe-compact-details .kg-card-field[data-layout='prose'] dt {
+  margin-block-end: 8px;
+}
+
+.graph-info-panel .xe-compact-details .kg-card-field[data-layout='prose'] dd {
+  color: #334155;
+  font-weight: 400;
+}
+
+.graph-info-panel .xe-compact-details .xe-relationship-context dd {
+  text-align: start;
+}
+
+.graph-info-panel .xe-compact-details .graph-info-panel-message {
+  padding-inline: 0;
+}
+
+.graph-info-panel :is(.graph-info-panel-footer, .xe-evidence-sources).xe-production-footer.xe-record-footer {
+  justify-content: flex-start;
+  align-items: center;
+  gap: 4px 8px;
+  padding: 12px var(--record-footer-inset, var(--graph-record-gutter, 24px));
+  background: #f8fbfc;
+  border-color: #e6eef0;
+  color: #64748b;
+  font: 600 11px/16px Inter, 'Open Sans', sans-serif;
+  text-align: start;
+}
+
+.xe-evidence-sources.xe-record-footer {
+  --record-footer-inset: var(--panel-cell-inset, 10px);
+}
+
+.graph-info-panel.is-height-constrained .graph-info-panel-footer.xe-production-footer.xe-record-footer {
+  padding-block: 4px;
+}
+
+.xe-record-footer .xe-footer-group {
+  justify-content: flex-start;
+  gap: 4px 8px;
+}
+
+.xe-record-footer :is(.xe-footer-source, .xe-footer-license) {
+  box-sizing: border-box;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 4px;
+  min-height: 24px;
+  border-radius: 999px;
+  padding: 3px 12px;
+}
+
+.xe-record-footer .xe-footer-source {
+  padding-inline-start: 8px;
+  background: #e3f0f1;
+  color: #4e7b7f;
+  font-weight: 500;
+}
+
+.xe-record-footer .xe-footer-source strong {
+  color: #0f5f5b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.xe-record-footer .xe-footer-source .graph-panel-symbol {
+  color: #0f5f5b;
+  font-size: 14px;
+}
+
+.xe-record-footer .xe-footer-license {
+  border: 1px solid #cbd5e1;
+}
+
+.xe-record-footer .xe-footer-open {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px 12px;
+  margin-inline-start: auto;
+}
+
+.xe-record-footer .xe-footer-open a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 24px;
+  color: #0f766e;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.xe-record-footer .xe-footer-open a:hover {
+  text-decoration: underline;
+}
+
+.xe-record-footer .xe-footer-open .graph-panel-symbol {
+  font-size: 16px;
+}
+
 .graph-info-panel--expanded .xe-card-tabs {
   color: var(--panel-muted);
   font-size: 13px;
@@ -36,8 +188,15 @@
 }
 
 .graph-info-panel--expanded .xe-record-view .xe-card-body {
+  --panel-section-gap: 24px;
+  --panel-column-gap: 48px;
+  --panel-row-rule: #edf2f4;
+  --panel-ink: #0f172a;
+  --panel-muted: #64748b;
   align-items: start;
   gap: var(--panel-section-gap) var(--panel-column-gap);
+  color: var(--panel-ink);
+  font-family: Inter, 'Open Sans', sans-serif;
 }
 
 .graph-info-panel--expanded .xe-record-view[data-dense] .xe-card-body,
@@ -67,6 +226,11 @@
 }
 
 @media (max-width: 760px) {
+  .graph-info-panel--expanded .xe-record-view .xe-card-body {
+    --panel-section-gap: 16px;
+    --panel-column-gap: 16px;
+  }
+
   .graph-info-panel--expanded .xe-record-view:not([data-dense]) .xe-card-section + .xe-card-section {
     padding-block-start: var(--panel-section-inset);
     border-block-start: 1px solid var(--panel-border);
@@ -77,8 +241,9 @@
   grid-template-columns: minmax(0, min(52%, 180px)) minmax(0, 1fr);
   align-items: start;
   margin: 0;
-  padding-block: 8px;
+  padding-block: 12px;
   font-size: 13px;
+  line-height: 20px;
 }
 
 .graph-info-panel--expanded .xe-field-row {
@@ -117,8 +282,11 @@
 }
 
 .graph-info-panel--expanded .xe-production-pill[data-chromosome] {
-  color: #3a545c;
-  background-color: #eef4f5;
+  padding: 2px 8px;
+  border-radius: 6px;
+  color: #0f5f5b;
+  background-color: #e3f0f1;
+  font: 700 12px/16px Inter, 'Open Sans', sans-serif;
 }
 
 .graph-info-panel--expanded .xe-record-view .kg-card-field[data-layout='prose'] dt:not(:empty) {
@@ -127,7 +295,7 @@
 
 .graph-info-panel--expanded .xe-record-view dt {
   color: var(--panel-muted);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .graph-info-panel--expanded .xe-record-view dt::first-letter {
@@ -137,6 +305,13 @@
 .graph-info-panel--expanded .xe-record-view dd {
   text-align: left;
   font-weight: 400;
+}
+
+.graph-info-panel--expanded .xe-record-view:not([data-dense]) .xe-field-list > .kg-card-field[data-layout='inline'] dd {
+  color: var(--panel-ink);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: end;
 }
 
 .graph-info-panel--expanded .xe-relationship-context {
@@ -207,34 +382,78 @@
   border-block-start: 1px solid var(--panel-border);
 }
 
-.graph-info-panel--expanded .xe-variant-details {
+.graph-info-panel--expanded :is(.xe-variant-details, .xe-variant-details ~ .xe-card-section) {
   grid-column: 1 / -1;
+}
+
+.graph-info-panel--expanded .xe-variant-details .xe-evidence-toolbar {
+  align-items: flex-start;
+  gap: 8px 16px;
+  border-block-end: 0;
+  padding-block-end: 16px;
+}
+
+.graph-info-panel--expanded .xe-variant-details .xe-evidence-actions .xe-evidence-download {
+  box-sizing: border-box;
+  min-height: 40px;
+  gap: 8px;
+  border: 1px solid #219197;
+  border-radius: 24px;
+  padding: 8px 24px;
+  color: #0f766e;
+  font-size: 13px;
+}
+
+.graph-info-panel--expanded .xe-variant-details .xe-evidence-download .graph-panel-symbol {
+  font-size: 18px;
 }
 
 .graph-info-panel--expanded .xe-production-frequencies {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
-  gap: 0 24px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px var(--panel-column-gap);
+  margin-block-end: 16px;
+}
+
+.graph-info-panel--expanded .xe-population {
+  min-width: 0;
+  padding: 0;
+}
+
+.graph-info-panel--expanded .xe-population > div:first-child {
+  flex-wrap: wrap;
+  gap: 0 8px;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 20px;
 }
 
 .graph-info-panel--expanded .xe-frequency-bar {
-  background: #e4f0f1;
+  margin-block-start: 8px;
+  background: #e3f0f1;
 }
 
 .graph-info-panel--expanded .xe-frequency-bar i {
-  background: #248789;
+  background: #219197;
 }
 
 .graph-info-panel--expanded .xe-population small {
-  color: var(--panel-muted);
-  font-size: 11px;
+  color: #334155;
+  font-size: 13px;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
 .graph-info-panel--expanded .xe-population small:first-child {
-  color: var(--panel-accent);
-  font-weight: 600;
+  margin-inline-start: 0;
+  color: #0f5f5b;
+  font-weight: 700;
+}
+
+@media (max-width: 760px) {
+  .graph-info-panel--expanded .xe-production-frequencies {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .graph-info-panel--expanded .xe-evidence-card {

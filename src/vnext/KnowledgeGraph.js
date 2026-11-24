@@ -1009,8 +1009,9 @@ export default function KnowledgeGraph({ inspectSelection, prefetchEvidence = tr
     const viewRight = viewport.left + viewport.width - inset;
     const viewTop = viewport.top + inset;
     const viewBottom = viewport.top + viewport.height - inset;
-    const width = Math.max(0, Math.min(review ? panelPolicy.surface.review_width_px : panelPolicy.surface.compact_width_px, viewRight - viewLeft));
-    const height = [...infocard.children].reduce((sum, child) => sum + Math.max(child.offsetHeight, child.scrollHeight), 0);
+    const width = Math.max(0, Math.min(infocard.getBoundingClientRect().width, viewRight - viewLeft));
+    const borders = infocard.offsetHeight - infocard.clientHeight;
+    const height = [...infocard.children].reduce((sum, child) => sum + Math.max(child.offsetHeight, child.scrollHeight), borders);
     const right = anchor.right + gap;
     const left = anchor.left - gap - width;
     const preferLeft = right + width > Math.min(pane.right, viewRight) && left >= viewLeft;
@@ -1038,7 +1039,7 @@ export default function KnowledgeGraph({ inspectSelection, prefetchEvidence = tr
       viewportWidth: viewport.width,
       slide: activeHover.slide && previous.above === (!beside && above) && height <= Math.min(previous.maxHeight, maxHeight),
     }));
-  }, [activeHover, compactPanel, expanded, showHover, panelPolicy, review]);
+  }, [activeHover, compactPanel, expanded, showHover, panelPolicy]);
 
   const closePanel = useCallback(() => {
     setExpandedCard(null);

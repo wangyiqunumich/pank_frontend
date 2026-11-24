@@ -38,3 +38,16 @@ test('SNP keeps all source populations and zero frequency beyond compact API pre
  const card={ref:{kind:'node',type_id:'Variant',id:'rs1'},sections:[{title:'Alleles',fields:[field('ref','A'),field('alt','G')]}],fields:[field('freq','P1:1,0|P2:0.5,0.5|P3:0.2,0.8|P4:0.3,0.7|P5:0.4,0.6')],frequencies:[]};
  const shown=recordDesign(card);expect(shown.frequencies).toHaveLength(10);expect(shown.frequencies[1].frequency).toBe(0);
 });
+
+test('variant complete record puts the common SNP flag with alleles and preserves the suspect reason',()=>{
+ const ref={kind:'node',type_id:'Variant',id:'rs1'};
+ const fields=[field('id',ref.id),field('ref','T'),field('alt','C'),field('common_snp',false),field('variant_suspect_reason',0)];
+ const sections=[{title:'Interpretation',fields:[{...fields[3],label:'Common SNP'},{...fields[4],label:'Variant suspect reason'}]}];
+ const record={ref,title:ref.id,sections,fields};
+ const details=expandedSections(recordDesign(record));
+ expect(details.map(section=>[section.title,section.fields.map(f=>[f.key,f.value])])).toEqual([
+  ['Variant Alleles',[['ref','T'],['alt','C'],['common_snp',false]]],
+  ['Additional details',[['variant_suspect_reason',0]]],
+ ]);
+ expect(details[1].fields[0].label).toBe('Variant suspect reason');
+});

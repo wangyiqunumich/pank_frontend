@@ -69,32 +69,47 @@ export function hasExtraRecord(card,compact,tabs,policy=defaultPolicy){
 export function expandedSections(card,policy=defaultPolicy) {
  const summary=compactSummary(card,policy);
  const consumed=new Set([...policy.provenance_fields,...(policy.complete_record.omit_fields||[]),...(summary?.spec.replaces||[])]);
- if(card.production_design==='Variant')for(const key of ['freq','consequence','hgvs'])consumed.add(key);
+ const variant=card.production_design==='Variant';
+ const fieldsByKey=new Map((card.fields || []).map(field=>[field.key,field]));
+ const excluded=f=>(policy.complete_record.omit_value_patterns||[]).some(pattern=>typeof f.value==='string' && new RegExp(pattern,'i').test(f.value));
+ const availableField=key=>{
+  const field=card.sections?.flatMap(section=>section.fields).find(field=>field.key===key) || fieldsByKey.get(key);
+  return field && !consumed.has(key) && !excluded(field) && nonempty(field.value) ? field : null;
+ };
+ const commonSnp=variant && availableField('common_snp');
+ const suspectReason=variant && availableField('variant_suspect_reason');
+ if(variant){
+  for(const key of ['freq','consequence','hgvs','common_snp','variant_suspect_reason'])consumed.add(key);
+  if(availableField('id')?.value===card.title && card.title)consumed.add('id');
+ }
  const genes=card.endpoints?.filter(e=>e.ref.type_id==='Gene') || [];
  if(genes.length===1){
   const names=(card.fields||[]).filter(f=>['HGNC_symbol','gene_name','gene_symbol'].includes(f.key));
   const shown=genes[0].display_name || ['HGNC_symbol','gene_name','gene_symbol'].map(k=>names.find(f=>f.key===k)?.value).find(Boolean);
   for(const f of names)if(f.value===shown)consumed.add(f.key);
  }
- const excluded=f=>(policy.complete_record.omit_value_patterns||[]).some(pattern=>typeof f.value==='string' && new RegExp(pattern,'i').test(f.value));
  const sections=[];
- const addSection=section=>{
-  const fields=section.fields.filter(f=>{if(consumed.has(f.key)||excluded(f)||!nonempty(f.value))return false;consumed.add(f.key);return true;});
-  if(!fields.length)return;
+ const append=section=>{
+  if(!section.fields.length)return;
   const existing=sections.find(item=>item.title===section.title);
-  if(existing) existing.fields.push(...fields);
-  else sections.push({...section,fields});
+  if(existing) existing.fields.push(...section.fields);
+  else sections.push(section);
  };
+ const addSection=section=>append({...section,fields:section.fields.filter(f=>{
+  if(consumed.has(f.key)||excluded(f)||!nonempty(f.value))return false;
+  consumed.add(f.key);return true;
+ })});
  if(summary)for(const row of summary.rows){
   const values=row[summary.spec.values]||{};
   sections.push({title:row[summary.spec.label],fields:Object.entries(values).map(([key,value])=>({key:`${row[summary.spec.label]}:${key}`,label:summary.spec.columns.find(c=>c.key===key)?.label || policy.field_labels[key] || key,value,kind:'quantity'}))});
  }
  (card.sections || []).forEach(addSection);
- const fieldsByKey=new Map((card.fields || []).map(field=>[field.key,field]));
  const profileKey=card.ref && `${card.ref.kind}:${card.ref.type_id}`;
  for(const group of policy.record_view?.profile_sections?.[profileKey] || []){
   addSection({title:group.title,fields:group.fields.map(key=>fieldsByKey.get(key)).filter(Boolean)});
  }
  addSection({title:'Additional details',fields:card.fields || []});
+ if(commonSnp)append({title:'Variant Alleles',fields:[commonSnp]});
+ if(suspectReason)append({title:'Additional details',fields:[suspectReason]});
  return sections;
 }

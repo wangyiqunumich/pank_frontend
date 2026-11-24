@@ -58,7 +58,7 @@ export default function EvidenceTableCard({card, table, schema, display, filters
       </div>}
       {state.ready && <p className="xe-evidence-message" role="status">CSV ready</p>}
       {state.error && <p className="xe-evidence-message" role="alert">{state.error}</p>}
-      {records.length > 0 && <RecordFooter className="xe-evidence-sources" provenance={provenance} schema={schema} sourceLinks={links} />}
+      {records.length > 0 && <RecordFooter className="xe-evidence-sources" provenance={provenance} schema={schema} sourceLinks={links} chips />}
     </div>
   </section>;
 }

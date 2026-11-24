@@ -13,6 +13,7 @@ import {publicId,displayText} from './displayPolicy';
 import {CardValue,cardValueLayout,formatCardNumber} from './CardValue';
 import {resourceLink} from './resourceLinks';
 import TableDownloads from './TableDownloadControls';
+import {sourcePageUrl} from './tableDownloads';
 import EvidenceTableCard from './EvidenceTableCard';
 import {CccDotMatrix,CccSummary,useCccContexts} from './CccContexts';
 export {currentPresets} from './panelModel';
@@ -258,8 +259,8 @@ function PanelSection({title, prose, className = '', children}) {
   </section>;
 }
 
-function FieldSections({sections, specs, paired = false}) {
-  return sections.map((section,index) => <PanelSection key={`${section.title}:${index}`} title={section.title} prose={section.prose}>
+function FieldSections({sections, specs, paired = false, hideTitle = false}) {
+  return sections.map((section,index) => <PanelSection key={`${section.title}:${index}`} title={hideTitle ? undefined : section.title} prose={section.prose}>
     {paired ? <PairedFieldRows fields={section.fields} specs={specs}/> :
       <dl className="xe-field-list"><RecordFields fields={section.fields} specs={specs}/></dl>}
   </PanelSection>);
@@ -299,12 +300,15 @@ function RelationshipSection({context, panel, compact = false, cccRows = []}) {
   </dl></PanelSection>;
 }
 
-function VariantDetails({card, schema}) {
+function VariantDetails({card, schema, panel}) {
   const table = {id:'population_frequencies', title:'Population frequencies', columns:['population','allele','frequency'],
     ...schema.tables?.population_frequencies};
   const hasFrequencies = Boolean(card.frequencies?.length);
+  const footerSourceHref = panel.footer.fields.some(field => field.kind === 'source_link')
+    ? sourcePageUrl({href:card.provenance?.data_source_url},schema) : undefined;
   return <PanelSection title={hasFrequencies ? undefined : 'Frequency'} className="xe-variant-details">
-    {hasFrequencies ? <TableDownloads title="Frequency" card={card} table={table} schema={schema} records={card.frequencies} localRecords={card.frequencies}>
+    {hasFrequencies ? <TableDownloads title="Frequency" card={card} table={table} schema={schema} records={card.frequencies} localRecords={card.frequencies}
+      footerSourceHref={footerSourceHref}>
       <ProductionFrequencies card={card}/>
     </TableDownloads> : <p className="xe-empty">Not recorded</p>}
     {card.consequences?.length > 0 && <>
@@ -325,7 +329,10 @@ function PanelBlock({block, model, schema, cccState, dense}) {
     case 'relationship': return <RelationshipSection context={context} panel={panel} cccRows={supportedCellRows(card,cccState)}/>;
     case 'fields': return <FieldSections sections={block.sections} specs={card.field_specs} paired={dense}/>;
     case 'tables': return <EvidenceTables card={card} schema={schema} tables={block.entries} emptyMessage={block.emptyMessage}/>;
-    case 'variant_details': return <VariantDetails card={card} schema={schema}/>;
+    case 'variant_details': return <>
+      <VariantDetails card={card} schema={schema} panel={panel}/>
+      <FieldSections sections={block.sections} specs={card.field_specs} paired={dense}/>
+    </>;
     case 'ccc_summary': return <PanelSection title="Overall description" className="xe-ccc-overview">
       <CccSummary state={cccState} display={display} interaction={card.object_title || context.endpoints.map(endpoint => endpoint.name).join(' → ') || 'This ligand–receptor pair'}/>
     </PanelSection>;
@@ -381,7 +388,7 @@ function ExpandedDetails({model, schema}) {
         </div>
       </div>
     </GraphInfoPanelBody>
-    {view.layout === 'record' && <RecordFooter provenance={card.provenance} schema={schema} className="graph-info-panel-footer"/>}
+    {view.layout === 'record' && <RecordFooter provenance={card.provenance} schema={schema} className="graph-info-panel-footer" chips/>}
     {views.map((entry,index) => entry !== view && <div key={entry.id} hidden role="tabpanel"
       id={`${id}-view-${index}`} aria-labelledby={`${id}-tab-${index}`}/>)}
   </>;
@@ -415,22 +422,26 @@ export function InspectedInformationPanel({card, schema, request, releaseId, com
   const empty = !compact.sections.length && !context.endpoints.length && !cccTable;
   const message = notice || (empty ? loading ? 'Loading details…' : canExpand ? 'Enlarge for complete record' : 'No details recorded.' : null);
   const ready = releaseId === schema.release_id && card.release_id === releaseId && !loading && (!cccTable || !!cccState);
+  const type = shown.production_design === 'Variant' ? 'Sequence variant'
+    : shown.subtitle || schema.profiles?.[`${shown.ref.kind}:${shown.ref.type_id}`]?.title;
+  const recordType = type?.toLowerCase() === shown.title?.toLowerCase() ? undefined : type;
+  const hideCompactTitle = compact.sections.length === 1 && compact.sections[0].title === type;
   useLayoutEffect(() => {
     if (ready) onReady?.();
   }, [ready,onReady]);
   if (releaseId !== schema.release_id || card.release_id !== releaseId) return null;
   return <EvidencePanelProvider model={model} request={request}>
-    <GraphInfoPanelHeader canExpand={canExpand} title={shown.title}>{shown.title}</GraphInfoPanelHeader>
+    <GraphInfoPanelHeader canExpand={canExpand} title={shown.title} record recordType={recordType}>{shown.title}</GraphInfoPanelHeader>
     {expanded ? <ExpandedDetails key={JSON.stringify([releaseId,card.ref])} model={model} schema={schema}/> : <>
       <GraphInfoPanelBody loading={loading}>
         <div className="xe-expanded-details xe-compact-details">
           {cccTable && <PanelSection title="Supporting cell pairs" className="xe-ccc-hover"><CccSummary state={cccState} display={display} compact/></PanelSection>}
           <RelationshipSection context={context} panel={panel} compact cccRows={supportedCellRows(shown,cccState)}/>
-          <FieldSections sections={compact.sections} specs={shown.field_specs}/>
+          <FieldSections sections={compact.sections} specs={shown.field_specs} hideTitle={hideCompactTitle}/>
           {message && <p className="graph-info-panel-message" role={loading || notice ? 'status' : undefined}>{message}</p>}
         </div>
       </GraphInfoPanelBody>
-      <RecordFooter provenance={shown.provenance} schema={schema} className="graph-info-panel-footer"/>
+      <RecordFooter provenance={shown.provenance} schema={schema} className="graph-info-panel-footer" chips/>
     </>}
   </EvidencePanelProvider>;
 }

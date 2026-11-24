@@ -70,7 +70,9 @@ test('sample memberships distinguish the source versions in their rows', async (
  expect(await screen.findByRole('columnheader',{name:'Source version'})).toBeTruthy();
  expect(screen.getByRole('cell',{name:'Source file A'})).toBeTruthy();
  expect(screen.getByRole('cell',{name:'Source file B'})).toBeTruthy();
- expect(container.querySelector('.xe-evidence-sources').textContent).toBe('Data Source: Example study');
+ const footer=container.querySelector('.xe-evidence-sources.xe-record-footer');
+ expect(within(footer).getByText('Example study')).toBeTruthy();
+ expect(within(footer).queryByText(/Source file/)).toBeNull();
 });
 
 test('variant views hide a missing HGVS sentinel and retain an actual notation', () => {
@@ -164,7 +166,7 @@ test('the record footer sits below the scroll area in compact and expanded cards
  const {container,rerender}=render(surface('hover'));
  const checkFooter=()=>{
    const body=container.querySelector('.graph-info-panel-body');
-   const footer=screen.getByText('Data Source: Recorded fixture').closest('footer');
+   const footer=screen.getByText('Recorded fixture').closest('footer');
    expect(footer).toBe(body.nextElementSibling);
  };
  checkFooter();
@@ -175,7 +177,7 @@ test('the record footer sits below the scroll area in compact and expanded cards
  expect(navigation.nextElementSibling).toBe(firstBody);
  fireEvent.click(screen.getByRole('tab',{name:'Related links'}));
  await screen.findByText('No matching records.');
- expect(screen.queryByText('Data Source: Recorded fixture')).toBeNull();
+ expect(screen.queryByText('Recorded fixture')).toBeNull();
  expect(navigation.nextElementSibling).not.toBe(firstBody);
  expect(screen.getByRole('tab',{name:'Related links'}).getAttribute('aria-selected')).toBe('true');
  fireEvent.click(screen.getByRole('tab',{name:'Complete record'}));
@@ -184,14 +186,19 @@ test('the record footer sits below the scroll area in compact and expanded cards
 
 test('a multi-table tab omits empty sections and keeps paging, download and one source together', async () => {
  const source='https://example.org/data/placements';
- const placements={id:'placements',title:'Placements',columns:['chr','data_source_url'],all_fields:['chr','data_source','data_source_url'],filters:[],pipeline_links:[{href:source,label:'Pipeline'}]};
+ const pipeline='https://example.org/analysis';
+ const placements={id:'placements',title:'Placements',columns:['chr','data_source_url'],all_fields:['chr','data_source','data_source_url','data_version','license'],filters:[],
+   pipeline_links:[{href:source,label:'Duplicate link'},{href:pipeline,label:'Analysis pipeline'}]};
  const empty={...placements,id:'empty',title:'Empty section'};
  const tables=[placements,empty,table];
  const record={...card,tables,component_views:[{...card.component_views[0],table_ids:tables.map(t=>t.id)}]};
  const request=jest.fn(async (_,query) => {
    if (query.table_id==='empty') return {state:'no_records',records:[],has_more:false};
    if (query.table_id==='accessions') return {state:'available',records:[{source_name:'Registry',alt_id:'ABC'}],has_more:false};
-   return {state:'available',records:[{chr:query.cursor ? '12' : '11',data_source:'Fixture',data_source_url:source}],has_more:!query.cursor,next_cursor:'second'};
+   return {state:'available',records:[
+     {chr:query.cursor ? '12' : '11',data_source:'Fixture',data_source_url:source,data_version:'Release A',license:'CC-BY-4.0'},
+     {chr:'13',data_source:'Fixture',data_source_url:source,data_version:'Release B',license:'CC-BY-4.0'},
+   ],has_more:!query.cursor,next_cursor:'second'};
  });
  const {container}=render(<EvidenceDetails card={record} schema={{...schema,tables:Object.fromEntries(tables.map(t=>[t.id,t]))}} releaseId={card.release_id} request={request}/>);
  fireEvent.click(screen.getByRole('tab',{name:'Related links'}));
@@ -202,7 +209,12 @@ test('a multi-table tab omits empty sections and keeps paging, download and one 
  const placementCard=screen.getByRole('table',{name:'Placements'}).closest('.xe-evidence-card');
  const pager=within(placementCard);
  expect(placementCard.querySelectorAll(`a[href="${source}"]`)).toHaveLength(1);
- expect(placementCard.querySelector('.xe-evidence-sources a').href).toBe(source);
+ const footer=placementCard.querySelector('.xe-evidence-sources.xe-record-footer');
+ expect(within(footer).getByText('Fixture')).toBeTruthy();
+ expect(within(footer).getByText('Release A, Release B')).toBeTruthy();
+ expect(within(footer).getByText('CC BY 4.0').title).toBe('CC-BY-4.0');
+ expect(within(footer).getByRole('link',{name:'Analysis pipeline'}).href).toBe(pipeline);
+ expect(within(footer).getAllByRole('link')).toHaveLength(2);
  const toolbar=pager.getByRole('button',{name:'Download all records'}).closest('.xe-evidence-toolbar');
  expect(placementCard.firstElementChild).toBe(toolbar);
  expect(within(toolbar).getByRole('heading',{name:'Placements'})).toBeTruthy();
@@ -276,7 +288,7 @@ test('CCC summary uses only supporting contexts and the matrix includes every ow
  const {rerender}=render(surface('hover'));
  expect(screen.getByText('Sender · pancreatic stellate cell active state')).toBeTruthy();
  expect(screen.getByText('Receiver · endothelial cell')).toBeTruthy();
- expect(screen.getByText('Data Source: PanKbase')).toBeTruthy();
+ expect(screen.getByText('PanKbase',{selector:'.xe-footer-source strong'})).toBeTruthy();
  expect(await screen.findByText('Active Stellate → Endothelial',{exact:false,selector:'li'})).toBeTruthy();
  expect(screen.getByText('ND · Untreated')).toBeTruthy();
  expect(screen.queryByText(/M5/)).toBeNull();
@@ -291,7 +303,8 @@ test('CCC summary uses only supporting contexts and the matrix includes every ow
  expect(await screen.findByRole('button',{name:'Download 2 records'})).toBeTruthy();
  expect(within(screen.getByRole('region',{name:'Cell–cell context dot matrix'})).getByText('ND · Untreated')).toBeTruthy();
  expect(within(screen.getByRole('table',{name:'CCC contexts'})).getAllByRole('cell',{name:'Untreated'})).toHaveLength(2);
- expect(screen.getByText('Data Version: Source version not specified')).toBeTruthy();
+ const footer=screen.getByRole('table',{name:'CCC contexts'}).closest('.xe-evidence-card').querySelector('.xe-record-footer');
+ expect(within(footer).getByText('Source version not specified')).toBeTruthy();
  expect(screen.queryByText(/M5/)).toBeNull();
  expect(screen.queryByRole('columnheader',{name:'map_id'})).toBeNull();
  fireEvent.click(screen.getByRole('tab',{name:'Complete record'}));
@@ -299,5 +312,5 @@ test('CCC summary uses only supporting contexts and the matrix includes every ow
  expect(screen.queryByRole('table')).toBeNull();
  expect(screen.getByText('ND · Untreated')).toBeTruthy();
  expect(screen.queryByText(/M5/)).toBeNull();
- expect(screen.getByText('Data Version: Source version not specified')).toBeTruthy();
+ expect(screen.getByText('Source version not specified')).toBeTruthy();
 });
