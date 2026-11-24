@@ -282,12 +282,18 @@ function PairedFieldRows({fields, specs = {}}) {
   </div>;
 }
 
-function RelationshipSection({context, panel, compact = false}) {
+function RelationshipSection({context, panel, compact = false, cccRows = []}) {
   if (!context.endpoints.length) return null;
   return <PanelSection className="xe-relationship-context"><dl>
-    {context.endpoints.map(({id,name,label,accession},index) => <div className="kg-card-field" key={`${index}:${id}`}>
-      <dt>{label}</dt><dd>{name}{accession && <small>{accession}</small>}</dd>
-    </div>)}
+    {context.endpoints.map(({id,name,label,accession},index) => {
+      const cellNames = [...new Set(cccRows.map(row => index === 0
+        ? row.sender_cell_name || row.source : row.receiver_cell_name || row.target).filter(Boolean))];
+      return <div className="kg-card-field" key={`${index}:${id}`}>
+        <dt>{label}</dt><dd>{name}{accession && <small>{accession}</small>}
+          {cellNames.length > 0 && <small>{index === 0 ? 'Sender' : 'Receiver'} · {cellNames.join(', ')}</small>}
+        </dd>
+      </div>;
+    })}
     {compact && context.method && <div className="kg-card-field"><dt>{panel.context.method_label}</dt><dd>{context.method}</dd></div>}
     {compact && context.data && <div className="kg-card-field"><dt>Data</dt><dd>{context.data}</dd></div>}
   </dl></PanelSection>;
@@ -308,10 +314,15 @@ function VariantDetails({card, schema}) {
   </PanelSection>;
 }
 
+function supportedCellRows(card, state) {
+  return card.ccc_context ? [card.ccc_context]
+    : (state?.records || []).filter(row => row.selection_status === 'supporting');
+}
+
 function PanelBlock({block, model, schema, cccState, dense}) {
   const {card, panel, context, display} = model;
   switch (block.kind) {
-    case 'relationship': return <RelationshipSection context={context} panel={panel}/>;
+    case 'relationship': return <RelationshipSection context={context} panel={panel} cccRows={supportedCellRows(card,cccState)}/>;
     case 'fields': return <FieldSections sections={block.sections} specs={card.field_specs} paired={dense}/>;
     case 'tables': return <EvidenceTables card={card} schema={schema} tables={block.entries} emptyMessage={block.emptyMessage}/>;
     case 'variant_details': return <VariantDetails card={card} schema={schema}/>;
@@ -414,7 +425,7 @@ export function InspectedInformationPanel({card, schema, request, releaseId, com
       <GraphInfoPanelBody loading={loading}>
         <div className="xe-expanded-details xe-compact-details">
           {cccTable && <PanelSection title="Supporting cell pairs" className="xe-ccc-hover"><CccSummary state={cccState} display={display} compact/></PanelSection>}
-          <RelationshipSection context={context} panel={panel} compact/>
+          <RelationshipSection context={context} panel={panel} compact cccRows={supportedCellRows(shown,cccState)}/>
           <FieldSections sections={compact.sections} specs={shown.field_specs}/>
           {message && <p className="graph-info-panel-message" role={loading || notice ? 'status' : undefined}>{message}</p>}
         </div>

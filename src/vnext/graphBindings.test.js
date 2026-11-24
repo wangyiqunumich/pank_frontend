@@ -1,3 +1,5 @@
+import { cccCellLayout } from './cccCellLayout';
+
 import cytoscape from 'cytoscape';
 import { applyGraphRoutes, calculateGraphViewport, graphElements, observeGraphViewport, routeStyle, spreadCompactLayout, updateGraphElements } from './graphBindings';
 
@@ -332,7 +334,37 @@ test('CCC layouts reserve the label width along the edge before viewport fitting
   const positions = {TIMP3: {x: 0, y: 20, width: 28, height: 16}, KDR: {x: 40, y: 20, width: 22, height: 16}};
   const {nodes, edges, edgeStyles} = graphElements(result, positions, {}, {spreadCompact:true});
   const freeSpan = nodes[1].position.x - nodes[0].position.x - (28 + 22) / 2;
-  expect(freeSpan).toBeGreaterThanOrEqual(65);
-  expect(edges[0].data.label).toBe('CCC ligand-receptor');
+  expect(freeSpan).toBeGreaterThanOrEqual(21);
+  expect(edges[0].data.label).toBe('CCC');
   expect(edgeStyles.get('ccc')).toMatchObject({'text-margin-x': 0, 'text-margin-y': 0});
+});
+
+test('mixed expression and CCC reuse the exact Cell and reserve one region per ontology ID', () => {
+  const ids = ['TIMP3', 'KDR', 'CL_0000115', 'CL_0000169', 'other'];
+  const nodes = ids.map(id => ({'~id': id}));
+  const expression = ['GENE_DETECTED_IN', 'GENE_ENRICHED_IN', 'MARKER_GENE_OF'].map((type, index) => ({
+    '~id': type, '~type': type, '~start': 'KDR', '~end': index === 2 ? 'CL_0000169' : 'CL_0000115',
+  }));
+  const ccc = {'~id': 'ccc', '~type': 'LIGAND_RECEPTOR', '~start': 'TIMP3', '~end': 'KDR', ccc_context: {
+    sender_cell_id: 'CL_0002410_active', sender_cell_name: 'Active stellate cell',
+    receiver_cell_id: 'CL_0000115', receiver_cell_name: 'Endothelial cell',
+  }};
+  expect(cccCellLayout({nodes, edges: expression})).toBeNull();
+  const graph = {nodes, edges: [ccc, ...expression]};
+  const {xy, layout} = cccCellLayout(graph, {other: {x: 14, y: -70}});
+  expect(layout.cell_regions.map(region => region.id)).toEqual(['CL_0002410_active', 'CL_0000115', 'CL_0000169']);
+  const receiver = layout.cell_regions[1];
+  expect(receiver.label).toBe('');
+  expect(xy.KDR.x).toBe(receiver.x);
+  expect(xy.CL_0000115.x).toBe(receiver.x);
+  expect(xy.CL_0000115.y).toBeGreaterThan(xy.KDR.y);
+  expect(xy.other.y).toBeGreaterThan(receiver.y + receiver.height / 2);
+  const bound = graphElements(graph, xy, {}, {cellRegions: layout.cell_regions});
+  expect(bound.nodes.filter(node => !node.data.cellRegion).map(node => node.data.id)).toEqual(ids);
+  expect(bound.edges.map(edge => edge.data.id)).toEqual(graph.edges.map(edge => edge['~id']));
+  expect(bound.edges[0].data.ccc_context).toEqual(ccc.ccc_context);
+  const ambiguous = cccCellLayout({nodes, edges: [ccc, {...ccc, '~id': 'conflict', ccc_context: {
+    ...ccc.ccc_context, receiver_cell_id: 'CL_0000169', receiver_cell_name: 'Another cell',
+  }}, ...expression]});
+  expect(ambiguous.xy.KDR.y).toBeGreaterThan(ambiguous.xy.CL_0000115.y);
 });

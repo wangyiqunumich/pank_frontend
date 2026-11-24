@@ -2811,7 +2811,7 @@
       }
     },
     "edge:LIGAND_RECEPTOR__Gene__Gene": {
-      "title": "CCC ligand-receptor",
+      "title": "CCC",
       "group": "Cell communication",
       "color": "#168b84",
       "title_field": "id",
@@ -2878,7 +2878,7 @@
       "note": "M5 ND untreated computational prediction; complete ligand/receptor entities, with separate sender/receiver cell contexts in SQL."
     },
     "edge:LIGAND_RECEPTOR__Gene__Molecular_complex": {
-      "title": "CCC ligand-receptor",
+      "title": "CCC",
       "group": "Cell communication",
       "color": "#168b84",
       "title_field": "id",
@@ -4949,7 +4949,7 @@
   "panel_presentation": {
     "version": 3,
     "relationship_labels": {
-      "LIGAND_RECEPTOR": "CCC ligand-receptor"
+      "LIGAND_RECEPTOR": "CCC"
     },
     "complete_record": {
       "title": "Complete record",
@@ -5523,6 +5523,9 @@
       "alt_id"
     ],
     "value_labels": {
+      "data_source": {
+        "JP Cartailler / PanKbase CCC": "PanKbase"
+      },
       "treatment": {
         "no_treatment": "Untreated"
       },

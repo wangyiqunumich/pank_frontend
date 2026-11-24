@@ -12,13 +12,11 @@ const finitePoint = (value) => { const p = point(value); return p && Number.isFi
 // their original offset from their node; scaling that offset would detach them.
 export function spreadCompactLayout(result, positions = {}, routes = {}) {
   const ids = [...new Set((result?.nodes || []).map((node) => node['~id']))];
-  const cccEdges = (result.edges || []).filter(edge => edge['~type'] === cccType && edge['~start'] !== edge['~end']);
-  const compact = ids.length <= 8;
-  if (ids.length < 2 || (!compact && !cccEdges.length) || ids.some(id => !finitePoint(positions[id]))) return { positions, routes };
+  if (ids.length < 2 || ids.length > 8 || ids.some(id => !finitePoint(positions[id]))) return { positions, routes };
   positions = Object.fromEntries(ids.map(id => [id, { ...positions[id], ...finitePoint(positions[id]) }]));
   let factor = 1;
   const dimension = (p, key) => Number.isFinite(p[key]) && p[key] > 0 ? p[key] : key === 'width' ? 40 : 16;
-  if (compact) ids.forEach((id, index) => ids.slice(index + 1).forEach((other) => {
+  ids.forEach((id, index) => ids.slice(index + 1).forEach((other) => {
     const a = positions[id], b = positions[other];
     const dx = Math.abs(a.x - b.x), dy = Math.abs(a.y - b.y);
     if (dx + dy === 0) return;
@@ -27,19 +25,6 @@ export function spreadCompactLayout(result, positions = {}, routes = {}) {
     factor = Math.max(factor, Math.min(sx, sy));
   }));
   factor = Math.min(factor, 2.5);
-  // Reserve the 4px edge text, clear space at both ends and the arrow before fitting.
-  const labelWidth = 3 * panelPresentation.relationship_labels[cccType].length + 12;
-  for (const edge of cccEdges) {
-    const a = positions[edge['~start']], b = positions[edge['~end']];
-    if (!a || !b) continue;
-    const dx = Math.abs(a.x - b.x), dy = Math.abs(a.y - b.y);
-    const distance = Math.hypot(dx, dy);
-    if (distance < 1) continue;
-    const width = (dimension(a, 'width') + dimension(b, 'width')) / 2;
-    const height = (dimension(a, 'height') + dimension(b, 'height')) / 2;
-    const projectedWidth = (dx * (width + labelWidth) + dy * (height + 16)) / distance;
-    factor = Math.max(factor, projectedWidth / distance);
-  }
   if (factor === 1) return { positions, routes };
   const center = { x: ids.reduce((sum, id) => sum + positions[id].x, 0) / ids.length,
     y: ids.reduce((sum, id) => sum + positions[id].y, 0) / ids.length };
@@ -97,6 +82,7 @@ export function fitGraphViewport(cy, listMode = false) {
 export function observeGraphViewport(cy, container, onFit = () => {}, host = window, listMode = false) {
   let disposed = false, frame = null, lastSize = null, fittedCamera = null;
   let fullscreen = false, lastFullscreen = false, limitedZoom = null;
+  let initialFrame = true;
   const fit = () => {
     if (disposed || cy.destroyed()) return null;
     const box = container.getBoundingClientRect();
@@ -149,7 +135,10 @@ export function observeGraphViewport(cy, container, onFit = () => {}, host = win
       const { width, height } = container.getBoundingClientRect();
       // Hidden visual tabs must not replace the last visible camera geometry.
       if (width <= 0 || height <= 0) return;
-      if (width !== lastSize?.width || height !== lastSize?.height) {
+      const settleInitialFit = initialFrame && (!lastSize || stillFitted());
+      initialFrame = false;
+      if (settleInitialFit) fit();
+      else if (width !== lastSize?.width || height !== lastSize?.height) {
         if (!lastSize || stillFitted()) fit();
         else {
           const size = { width, height };
@@ -240,7 +229,7 @@ export function routeStyle(route, source, target, inverted = false) {
 }
 
 export function graphElements(result, positions = {}, routes = {}, options = {}) {
-  const { review = false, graphInfocard = {}, edgeIsInverted = {}, edgeLabels = {}, spreadCompact = false } = options;
+  const { review = false, graphInfocard = {}, edgeIsInverted = {}, edgeLabels = {}, spreadCompact = false, cellRegions = null } = options;
   if (spreadCompact && !review) ({ positions, routes } = spreadCompactLayout(result, positions, routes));
   const propertyKey = review ? 'properties' : '~properties';
   const unique = new Map((result?.nodes || []).map((node) => [node['~id'], node]));
@@ -268,7 +257,7 @@ export function graphElements(result, positions = {}, routes = {}, options = {})
     edgeStyles.set(edge['~id'], { ...style, 'text-opacity': 1, 'text-events': 'yes',
       ...(edge['~type'] === cccType && { 'text-margin-x': 0, 'text-margin-y': 0 }) });
     return { data: { ...(edge[propertyKey] || {}), element_kind: 'edge', viewer_ref: edge.ref ? { ...edge.ref } : null, id: edge['~id'], source: inverted ? end : start, target: inverted ? start : end,
-      source_name: byId[start].data.label, target_name: byId[end].data.label, type: displayType, raw_type: edge['~type'],
+      source_name: byId[start].data.label, target_name: byId[end].data.label, type: displayType, raw_type: edge['~type'], ccc_context: edge.ccc_context,
       label: label.replace(/_/g, ' ').trim(),
       evidence_properties: { ...(edge[propertyKey] || {}) } } };
   });
@@ -290,6 +279,16 @@ export function graphElements(result, positions = {}, routes = {}, options = {})
       style['text-margin-y'] = (index - (group.length - 1) / 2) * 8;
     });
   });
+  // Regions are canvas backgrounds. Keep them outside the semantic result graph.
+  for (const region of cellRegions || []) {
+    if (!region?.id || ![region.x, region.y, region.width, region.height].every(Number.isFinite)
+        || region.width <= 0 || region.height <= 0) continue;
+    const id = `__cell_background__:${region.id}`;
+    nodes.push({data: {id, label: region.label, cellRegion: true, regionWidth: region.width,
+      regionHeight: region.height, regionBorder: region.border,
+      cellTypeRef: region.cell_type_ref},
+      position: {x: region.x, y: region.y}, selectable: false, grabbable: false, locked: true});
+  }
   // Cytoscape mutates the position object in its element definitions on drag.
   const modelPositions = new Map(nodes.map(({ data, position: { x, y } }) => [data.id, { x, y }]));
   return { nodes, edges, edgeStyles, modelPositions };
@@ -341,7 +340,14 @@ export function updateGraphElements(cy, next, previous) {
         return;
       }
       const baseline = previous.modelPositions.get(node.data.id);
-      if (baseline && !samePosition(existing.position(), baseline)) movedNodes.add(node.data.id);
+      if (node.data.cellRegion) {
+        if (!samePosition(existing.position(), modelPositions.get(node.data.id))) {
+          existing.unlock();
+          existing.position(modelPositions.get(node.data.id));
+          existing.lock();
+          layoutChanged = true;
+        }
+      } else if (baseline && !samePosition(existing.position(), baseline)) movedNodes.add(node.data.id);
       else if (!samePosition(existing.position(), modelPositions.get(node.data.id))) {
         existing.position(modelPositions.get(node.data.id));
         layoutChanged = true;

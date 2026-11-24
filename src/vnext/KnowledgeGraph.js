@@ -810,7 +810,7 @@ function GraphSearch({ inputRef, onSearch }) {
 }
 
 // Main KnowledgeGraph component
-export default function KnowledgeGraph({ inspectSelection, prefetchEvidence = true, onEvidenceInspect, releaseId, evidenceService, selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, edgeRoutes = null, review = false, containerHeight = "600px", defaultLegendVisible = false }) {
+export default function KnowledgeGraph({ inspectSelection, prefetchEvidence = true, onEvidenceInspect, releaseId, evidenceService, selectable = false, setSelectedNode = () => { }, sx = {}, graphData = null, coordData = null, edgeRoutes = null, layoutMetadata = null, review = false, containerHeight = "600px", defaultLegendVisible = false }) {
   const cyRef = useRef(null);
   const containerRef = useRef(null);
   const infocardRef = useRef(null);
@@ -852,11 +852,12 @@ export default function KnowledgeGraph({ inspectSelection, prefetchEvidence = tr
   const sourceRoutes = edgeRoutes || queryResultPage?.edge_routes;
   // Answer/resource polling replaces response objects without changing the graph.
   // Rebuild only when graph content changes, preserving the user's pan and zoom.
-  const graphInputKey = useMemo(() => JSON.stringify([sourceGraph, sourceCoords || {}, sourceRoutes || {}]), [sourceGraph, sourceCoords, sourceRoutes]);
+  const cellRegions = layoutMetadata?.mode === 'cell_type_mode' ? layoutMetadata.cell_regions : null;
+  const graphInputKey = useMemo(() => JSON.stringify([sourceGraph, sourceCoords || {}, sourceRoutes || {}, cellRegions]), [sourceGraph, sourceCoords, sourceRoutes, cellRegions]);
   const bound = useMemo(() => {
-    const [result, positions, routes] = JSON.parse(graphInputKey);
+    const [result, positions, routes, regions] = JSON.parse(graphInputKey);
     return result?.nodes && result?.edges
-      ? graphElements(result, positions, routes, { review, graphInfocard, edgeIsInverted, edgeLabels, spreadCompact: true })
+      ? graphElements(result, positions, routes, { review, graphInfocard, edgeIsInverted, edgeLabels, spreadCompact: !regions?.length, cellRegions: regions })
       : null;
   }, [graphInputKey, review]);
   const previousBinding = useRef(null);
@@ -1169,6 +1170,19 @@ export default function KnowledgeGraph({ inspectSelection, prefetchEvidence = tr
       container,
       elements: { nodes, edges },
       style: nodeStyle.concat([
+        {
+          selector: 'node[cellRegion]',
+          style: {
+            'shape': 'ellipse', 'width': 'data(regionWidth)', 'height': 'data(regionHeight)',
+            'background-opacity': 0,
+            'border-color': 'data(regionBorder)', 'border-width': 0.9,
+            'label': 'data(label)', 'color': 'data(regionBorder)', 'font-size': '5.5px',
+            'text-wrap': 'wrap', 'text-max-width': 'data(regionWidth)',
+            'font-weight': 700, 'text-valign': 'top', 'text-halign': 'center', 'text-margin-y': -2,
+            'text-background-opacity': 0, 'events': 'no',
+            'z-index-compare': 'manual', 'z-index': -1,
+          },
+        },
         ...(selectable ? [{
           selector: "node:selected",
           style: {
@@ -1346,7 +1360,7 @@ export default function KnowledgeGraph({ inspectSelection, prefetchEvidence = tr
         hoverEnabled={infocardEnabled} onHover={() => { setInfocardEnabled(value => !value); if (infocardEnabled) closePanel(); }}
         onDownload={handleDownload} onDownloadJson={handleDownloadJson} onReset={handleReset}
         onDownloadMenuOpen={closePanel}
-        modeLabel={sourceGraph?.presentation_mode === 'relationship_list' ? 'List mode' : 'KG mode'} />
+        modeLabel={cellRegions?.length ? 'Cell type mode' : sourceGraph?.presentation_mode === 'relationship_list' ? 'List mode' : 'KG mode'} />
       <div className="graph-zoom-indicator" aria-label="Graph zoom">{Math.round(zoomLevel / initZoom * 100)}%</div>
       <GraphInfoPanel key={compactPanel ? 'hover' : 'expanded'} schema={evidenceService?.schema} panelRef={infocardRef} host={expanded ? containerRef.current?.closest('dialog') : document.body}
         visible={compactPanel ? showHover : true} staging={compactPanel && infocardVisible && !showHover}

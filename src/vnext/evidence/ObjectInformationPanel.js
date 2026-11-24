@@ -49,11 +49,12 @@ export default function ObjectInformationPanel({data, endpointNodes=[], releaseI
   const [first, second]=endpointNodes;
   const card=useMemo(() => source && ({
     ...source,
+    ccc_context: data.ccc_context,
     endpoints: source.endpoints?.map(endpoint => {
       const node = first?.id===endpoint.ref.id ? first : second?.id===endpoint.ref.id ? second : null;
       return {...endpoint,display_name:node?.HGNC_symbol || node?.name || node?.label || endpoint.display_name};
     }),
-  }), [source,first,second]);
+  }), [source,first,second,data.ccc_context]);
   const loading = service?.loading || (eligible && !inspected && !selected?.error);
   const notice = selected?.error ? 'Detailed evidence is temporarily unavailable.' : null;
   useLayoutEffect(() => {

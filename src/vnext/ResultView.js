@@ -8,6 +8,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSta
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, Button, Typography, CircularProgress } from '@mui/material';
 import KnowledgeGraph from './KnowledgeGraph';
+import { cccCellLayout } from './cccCellLayout';
 import {useViewerService} from './evidence/viewerService';
 import QuestionAnswerPage, { PlanConfirmationPage } from './ResultComponent';
 import { ErrorComponent } from './ErrorComponent';
@@ -129,11 +130,13 @@ function GraphPanel({ result, error, onEvidenceInspect }) {
   }, [graphPending, result]);
   const releaseId = displayed?.kg_release || displayed?.release_id || displayed?.graph_version || displayed?.evidence?.graph_version;
   const graph = displayed?.combined_query_result;
+  const coords = displayed?.xy_json;
+  const ccc = useMemo(() => cccCellLayout(graph, coords), [graph, coords]);
   const hasTypedRefs = [...(graph?.nodes || []), ...(graph?.edges || [])].some(item => item.ref?.kind && item.ref?.type_id && item.ref?.id);
   const evidenceService = useViewerService(releaseId, hasTypedRefs || Boolean(releaseId && graph?.nodes?.length));
   const empty = !waiting && (graphStatus === 'empty' || (result?.status === 'ready' && Array.isArray(result?.combined_query_result?.nodes) && !result.combined_query_result.nodes.length));
   if (graph?.nodes?.length) return <Box sx={{ width: '100%', height: '100%', position: 'relative' }}>
-    <KnowledgeGraph releaseId={releaseId} evidenceService={evidenceService} onEvidenceInspect={onEvidenceInspect} graphData={graph} coordData={displayed.xy_json} edgeRoutes={displayed.edge_routes} sx={{ height: '100%' }} containerHeight="100%" />
+    <KnowledgeGraph releaseId={releaseId} evidenceService={evidenceService} onEvidenceInspect={onEvidenceInspect} graphData={graph} coordData={ccc?.xy || displayed.xy_json} edgeRoutes={ccc ? {} : displayed.edge_routes} layoutMetadata={ccc?.layout || displayed.metadata?.layout} sx={{ height: '100%' }} containerHeight="100%" />
   </Box>;
   return <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
     {waiting ? <Box role="status" aria-label="Loading graph" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}><CircularProgress size={28} /><Typography sx={{ fontSize: 14, color: '#64748B' }}>Loading graph…</Typography></Box> : <Typography sx={{ fontSize: 14, color: '#64748B', textAlign: 'center', px: 2 }}>{graphError || (empty ? 'No matching graph evidence was returned.' : 'The graph presentation is unavailable. Available answer sections are preserved.')}</Typography>}

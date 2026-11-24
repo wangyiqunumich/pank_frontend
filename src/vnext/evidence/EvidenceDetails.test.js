@@ -258,10 +258,11 @@ test('CCC summary uses only supporting contexts and the matrix includes every ow
  const other={...base,source:'Quiescent Stellate',selection_status:'below_threshold',n_donors_sig:2,n_donors_celltypes_ok:3};
  const table={id:'ccc_contexts',title:'CCC contexts',columns:Object.keys(base),all_fields:Object.keys(base),filters:[],field_specs:{}};
  const schema={release_id:'PanKgraph_1104',tables:{ccc_contexts:table},
-   display_policy:{version:1,public_id_patterns:['^M[0-9]+$'],unknown_internal_version:'Source version not specified'}};
+   display_policy:{version:1,public_id_patterns:['^M[0-9]+$','^ENSG[0-9]+$'],unknown_internal_version:'Source version not specified'}};
  const record={...card,release_id:schema.release_id,ref,tables:[table],component_views:[],
-   provenance:{data_version:base.data_version},
-   endpoints:['TIMP3','KDR'].map(id=>({ref:{kind:'node',type_id:'Gene',id},display_name:id}))};
+   provenance:{data_version:base.data_version,data_source:'JP Cartailler / PanKbase CCC'},
+   ccc_context:{sender_cell_name:'pancreatic stellate cell active state',receiver_cell_name:'endothelial cell'},
+   endpoints:[['ENSG00000100234','TIMP3'],['ENSG00000128052','KDR']].map(([id,name])=>({ref:{kind:'node',type_id:'Gene',id},display_name:name}))};
  const request=jest.fn(async (_,query) => {
    expect(query.ref).toEqual(ref);
    if (query.filters.selection_status === 'supporting') return {state:'available',records:[base],has_more:false};
@@ -273,6 +274,9 @@ test('CCC summary uses only supporting contexts and the matrix includes every ow
    <InspectedInformationPanel card={record} schema={schema} releaseId={record.release_id} request={request}/>
  </GraphInfoPanelSurface>;
  const {rerender}=render(surface('hover'));
+ expect(screen.getByText('Sender · pancreatic stellate cell active state')).toBeTruthy();
+ expect(screen.getByText('Receiver · endothelial cell')).toBeTruthy();
+ expect(screen.getByText('Data Source: PanKbase')).toBeTruthy();
  expect(await screen.findByText('Active Stellate → Endothelial',{exact:false,selector:'li'})).toBeTruthy();
  expect(request.mock.calls[0][1]).toMatchObject({ref,table_id:'ccc_contexts',filters:{selection_status:'supporting'}});
  expect(screen.queryByText('Quiescent Stellate → Endothelial',{exact:false,selector:'li'})).toBeNull();

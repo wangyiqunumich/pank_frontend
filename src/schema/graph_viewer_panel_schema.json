@@ -1,7 +1,7 @@
 {
   "version": 3,
   "relationship_labels": {
-    "LIGAND_RECEPTOR": "CCC ligand-receptor"
+    "LIGAND_RECEPTOR": "CCC"
   },
   "complete_record": {
     "title": "Complete record",
@@ -633,6 +633,9 @@
     "alt_id"
   ],
   "value_labels": {
+    "data_source": {
+      "JP Cartailler / PanKbase CCC": "PanKbase"
+    },
     "treatment": {
       "no_treatment": "Untreated"
     },
