@@ -3,11 +3,11 @@ import {EvidenceRequestContext} from './api';
 import {collectTable} from './tableDownloads';
 
 const matrixFields = [
-  'map_id', 'condition', 'treatment', 'source', 'target', 'ligand_complex', 'receptor_complex', 'specificity_rank', 'lr_means', 'selection_status',
+  'condition', 'treatment', 'source', 'target', 'ligand_complex', 'receptor_complex', 'specificity_rank', 'lr_means', 'selection_status',
   'n_donors_sig', 'n_donors_celltypes_ok',
 ];
 const names = (row, display) => ['source','target'].map(key => display.value(key,row[key]) || 'Not recorded');
-const stratum = (row, display, separator = ', ') => ['map_id','condition','treatment'].map(key => display.value(key,row[key])).filter(Boolean).join(separator);
+const stratum = (row, display) => ['condition','treatment'].map(key => display.value(key,row[key])).filter(Boolean).join(' · ');
 const number = value => value == null || value === '' ? NaN : Number(value);
 const format = value => Number.isFinite(value) ? Number(value.toPrecision(4)).toString() : 'Unavailable';
 const missingContextFields = {error:'The evidence schema does not list context fields.'};
@@ -40,7 +40,7 @@ export function CccSummary({state, display, interaction, compact = false}) {
   const supported = new Map();
   for (const row of state.records) {
     if (row.selection_status !== 'supporting') continue;
-    const group = stratum(row, display, compact ? ' · ' : ', ');
+    const group = stratum(row, display);
     if (!supported.has(group)) supported.set(group, new Set());
     supported.get(group).add(names(row, display).join(' → '));
   }

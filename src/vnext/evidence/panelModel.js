@@ -47,7 +47,7 @@ function relationship(card, panel) {
 
 function tableDescriptor(source, schema, panel, overrides = {}) {
   const allFields = source.all_fields || schema.tables?.[source.id]?.all_fields || source.columns;
-  const columns = (overrides.columns || panel.table_columns[source.id] || source.columns).filter(key => allFields.includes(key));
+  const columns = (overrides.columns || panel.table_columns[source.id] || source.columns).filter(key => allFields.includes(key) && !(source.id === 'ccc_contexts' && key === 'map_id'));
   const fieldSpecs = {...source.field_specs};
   for (const [key, label] of Object.entries({...panel.field_labels, ...overrides.labels})) {
     fieldSpecs[key] = {...fieldSpecs[key], label, short_label: label, show_unit: false};

@@ -260,7 +260,7 @@ test('CCC summary uses only supporting contexts and the matrix includes every ow
  const schema={release_id:'PanKgraph_1104',tables:{ccc_contexts:table},
    display_policy:{version:1,public_id_patterns:['^M[0-9]+$','^ENSG[0-9]+$'],unknown_internal_version:'Source version not specified'}};
  const record={...card,release_id:schema.release_id,ref,tables:[table],component_views:[],
-   provenance:{data_version:base.data_version,data_source:'JP Cartailler / PanKbase CCC'},
+   provenance:{data_version:base.data_version,data_source:'JP Cartailler / PanKbase CCC',snapshot_id:'ccc_M5_20261103_v1'},
    ccc_context:{sender_cell_name:'pancreatic stellate cell active state',receiver_cell_name:'endothelial cell'},
    endpoints:[['ENSG00000100234','TIMP3'],['ENSG00000128052','KDR']].map(([id,name])=>({ref:{kind:'node',type_id:'Gene',id},display_name:name}))};
  const request=jest.fn(async (_,query) => {
@@ -278,6 +278,8 @@ test('CCC summary uses only supporting contexts and the matrix includes every ow
  expect(screen.getByText('Receiver · endothelial cell')).toBeTruthy();
  expect(screen.getByText('Data Source: PanKbase')).toBeTruthy();
  expect(await screen.findByText('Active Stellate → Endothelial',{exact:false,selector:'li'})).toBeTruthy();
+ expect(screen.getByText('ND · Untreated')).toBeTruthy();
+ expect(screen.queryByText(/M5/)).toBeNull();
  expect(request.mock.calls[0][1]).toMatchObject({ref,table_id:'ccc_contexts',filters:{selection_status:'supporting'}});
  expect(screen.queryByText('Quiescent Stellate → Endothelial',{exact:false,selector:'li'})).toBeNull();
  rerender(surface('expanded'));
@@ -287,11 +289,15 @@ test('CCC summary uses only supporting contexts and the matrix includes every ow
  expect(screen.getByRole('rowheader',{name:'TIMP3 (Active Stellate) → KDR (Endothelial)'})).toBeTruthy();
  expect(screen.getAllByRole('img').filter(dot=>dot.classList.contains('xe-ccc-mark'))).toHaveLength(2);
  expect(await screen.findByRole('button',{name:'Download 2 records'})).toBeTruthy();
- expect(within(screen.getByRole('region',{name:'Cell–cell context dot matrix'})).getByText('M5, ND, Untreated')).toBeTruthy();
+ expect(within(screen.getByRole('region',{name:'Cell–cell context dot matrix'})).getByText('ND · Untreated')).toBeTruthy();
  expect(within(screen.getByRole('table',{name:'CCC contexts'})).getAllByRole('cell',{name:'Untreated'})).toHaveLength(2);
  expect(screen.getByText('Data Version: Source version not specified')).toBeTruthy();
+ expect(screen.queryByText(/M5/)).toBeNull();
+ expect(screen.queryByRole('columnheader',{name:'map_id'})).toBeNull();
  fireEvent.click(screen.getByRole('tab',{name:'Complete record'}));
  expect(screen.getByText('Overall description')).toBeTruthy();
  expect(screen.queryByRole('table')).toBeNull();
+ expect(screen.getByText('ND · Untreated')).toBeTruthy();
+ expect(screen.queryByText(/M5/)).toBeNull();
  expect(screen.getByText('Data Version: Source version not specified')).toBeTruthy();
 });

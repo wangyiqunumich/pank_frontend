@@ -2875,7 +2875,7 @@
         "start_type": "Gene",
         "end_type": "Gene"
       },
-      "note": "M5 ND untreated computational prediction; complete ligand/receptor entities, with separate sender/receiver cell contexts in SQL."
+      "note": "ND untreated computational prediction; complete ligand/receptor entities, with separate sender/receiver cell contexts in SQL."
     },
     "edge:LIGAND_RECEPTOR__Gene__Molecular_complex": {
       "title": "CCC",
@@ -2942,7 +2942,7 @@
         "start_type": "Gene",
         "end_type": "Molecular_complex"
       },
-      "note": "M5 ND untreated computational prediction; complete ligand/receptor entities, with separate sender/receiver cell contexts in SQL."
+      "note": "ND untreated computational prediction; complete ligand/receptor entities, with separate sender/receiver cell contexts in SQL."
     },
     "edge:HAS_SUBUNIT__Molecular_complex__Gene": {
       "title": "Complex subunit",
@@ -3576,7 +3576,7 @@
         "selection_status"
       ],
       "presentation": "tab",
-      "note": "Read records explicitly owned by this LR edge. Each row is one M5 ND untreated sender/receiver context. Rank is not P/FDR; donor counts are aggregate, not donor identities.",
+      "note": "Read records explicitly owned by this LR edge. Each row is one ND untreated sender/receiver context. Rank is not P/FDR; donor counts are aggregate, not donor identities.",
       "download": {
         "enabled": true,
         "scope": "all exact-owner matching rows"
