@@ -47,14 +47,15 @@ export default function ObjectInformationPanel({data, endpointNodes=[], releaseI
   const recorded=useMemo(() => eligible && recordedCard(data,ref,schema), [data,eligible,ref,schema]);
   const source=inspected || recorded;
   const [first, second]=endpointNodes;
+  const cccContext=data?.ccc_context;
   const card=useMemo(() => source && ({
     ...source,
-    ccc_context: data.ccc_context,
+    ccc_context: cccContext,
     endpoints: source.endpoints?.map(endpoint => {
       const node = first?.id===endpoint.ref.id ? first : second?.id===endpoint.ref.id ? second : null;
       return {...endpoint,display_name:node?.HGNC_symbol || node?.name || node?.label || endpoint.display_name};
     }),
-  }), [source,first,second,data.ccc_context]);
+  }), [source,first,second,cccContext]);
   const loading = service?.loading || (eligible && !inspected && !selected?.error);
   const notice = selected?.error ? 'Detailed evidence is temporarily unavailable.' : null;
   useLayoutEffect(() => {
