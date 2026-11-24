@@ -1,9 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,500,0,0&icon_names=close,close_fullscreen,database,download,open_in_full,open_in_new&display=block');
+
 .graph-info-panel {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
   translate: 0 4px;
   transition: opacity 140ms ease, translate 140ms ease, visibility 0s 140ms;
+}
+
+.graph-panel-symbol {
+  display: inline-block;
+  flex: none;
+  width: 1em;
+  height: 1em;
+  overflow: hidden;
+  font: 500 20px/1 'Material Symbols Rounded';
+  font-feature-settings: 'liga';
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  direction: ltr;
+}
+
+.graph-info-panel-heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.graph-info-panel:has(> .graph-info-panel-header[data-record]) {
+  --graph-info-panel-radius: 20px;
+  --graph-record-gutter: 24px;
+}
+
+.graph-info-panel:not(.graph-info-panel--expanded):has(> .graph-info-panel-header[data-record]) {
+  --graph-info-panel-compact-width: min(386px, var(--graph-info-panel-available-width));
+  --graph-info-panel-compact-shadow: 0 24px 48px -12px rgb(15 23 42 / 24%), 0 8px 16px -8px rgb(15 23 42 / 16%);
+  box-sizing: border-box;
+  border: 1px solid #e2e8f0;
 }
 
 .graph-info-panel.is-visible {
@@ -88,6 +121,10 @@
   width: min(var(--graph-info-panel-width), 620px);
 }
 
+.graph-info-panel--expanded:has(.graph-info-panel-body[data-single-view] .xe-variant-details) {
+  width: min(var(--graph-info-panel-width), 1106px);
+}
+
 .graph-info-panel--expanded .graph-info-panel-header {
   display: flex;
   flex-shrink: 0;
@@ -160,6 +197,64 @@
   padding-block: 4px;
 }
 
+.graph-info-panel-header[data-record] {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  padding: 16px var(--graph-record-gutter, 24px);
+  padding-inline-end: 16px;
+  border-block-end: 1px solid rgb(15 23 42 / 6%);
+  font-family: Inter, 'Open Sans', sans-serif;
+}
+
+.graph-info-panel-header[data-record] .graph-info-panel-title {
+  color: #0f172a;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 28px;
+}
+
+.graph-info-panel--expanded .graph-info-panel-header[data-record] .graph-info-panel-title {
+  font-size: 22px;
+}
+
+.graph-info-panel-record-type {
+  margin-block-end: 4px;
+  overflow-wrap: anywhere;
+  color: #44686d;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.graph-info-panel-header[data-record] .graph-info-panel-actions {
+  display: flex;
+  flex: none;
+  gap: 4px;
+}
+
+.graph-info-panel-header[data-record] .graph-info-panel-actions .MuiIconButton-root {
+  width: 40px;
+  height: 40px;
+  color: #0f5f5b;
+}
+
+.graph-info-panel.is-height-constrained .graph-info-panel-header[data-record] {
+  padding-block: 4px;
+}
+
+.graph-info-panel.is-height-constrained .graph-info-panel-header[data-record] .graph-info-panel-title {
+  font-size: 16px;
+  line-height: 22px;
+}
+
+.graph-info-panel.is-height-constrained .graph-info-panel-record-type {
+  margin-block-end: 0;
+}
+
 @media (max-width: 600px) {
   .graph-info-panel--expanded {
     --panel-gutter: 16px;
@@ -167,6 +262,16 @@
     --panel-column-gap: 16px;
     --panel-cell-inset: 8px;
     --panel-control-size: 40px;
+  }
+
+  .graph-info-panel--expanded:has(> .graph-info-panel-header[data-record]) {
+    --graph-record-gutter: 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .graph-info-panel:has(> .graph-info-panel-header[data-record]) {
+    --graph-record-gutter: 16px;
   }
 }
 

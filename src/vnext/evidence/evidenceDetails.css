@@ -81,8 +81,6 @@
 .xe-expanded-details .xe-evidence button,.xe-expanded-details select,.xe-expanded-details input {font:inherit;color:inherit;background:#fff;border:1px solid #c9dadd;border-radius:6px;padding:6px 10px;min-height:32px;box-sizing:border-box;}
 .xe-expanded-details .xe-evidence button:hover:not(:disabled) {background:#edf6f5;border-color:#699b9b;}
 .xe-expanded-details button:disabled {opacity:.45;cursor:default;}
-.xe-expanded-details .xe-full-sources>span {display:flex;flex-wrap:wrap;align-items:baseline;column-gap:10px;row-gap:4px;margin:6px 0;}
-.xe-expanded-details .xe-full-sources small {flex-basis:100%;color:#61767d;}
 .xe-expanded-details .xe-set-selector {display:flex;gap:8px;align-items:center;margin:8px 0;}
 /* Production card grammar: centered section headings, label/value columns,
    white sections with quiet dividers, and a source/version/link footer. */
