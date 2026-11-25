@@ -38,7 +38,24 @@ export function normalizeExternalLinks(tabs = {}, evidence = {}, projection = {}
       { kind: 'edge', id: String(edge.id || edge['~id'] || ''), field: 'data_source_url', relation });
   });
   const groups = new Map();
+  const cccTitle = 'PanKbase Data Library';
   function add(group, item) {
+    const ccc = group.source_key === 'pankbase-ccc' || group.display_name === 'JP Cartailler / PanKbase CCC'
+      || list(item?.provenance).some(p => p.relation === 'LIGAND_RECEPTOR' && p.field === 'data_source_url');
+    if (ccc) {
+      const key = 'pankbase-ccc';
+      if (!groups.has(key)) groups.set(key, {source_key:key, display_name:cccTitle, entries:new Map()});
+      const entries = groups.get(key).entries;
+      const url = safe(item?.url) ? new URL(item.url) : null;
+      const record = url?.origin === 'https://data.pankbase.org' && /^\/[^/]+\/PKB[A-Z0-9]+\/?$/.test(url.pathname);
+      if (record) {
+        entries.delete('');
+        entries.set(url.href, {...item, label:'Islet cell–cell communication dataset', entities:list(item.entities), provenance:list(item.provenance)});
+      } else if (!entries.size) {
+        entries.set('', {url:null, label:'Islet cell–cell communication dataset. The Data Library record link will be added when published.', entities:[], provenance:[]});
+      }
+      return;
+    }
     if (!item || !safe(item.url)) return;
     const identity = source(group.display_name, item.url);
     const key = identity.source_key;
@@ -56,13 +73,13 @@ export function normalizeExternalLinks(tabs = {}, evidence = {}, projection = {}
   }
   const structuredUrls = new Set();
   list(tabs.external_link_groups).forEach(group => list(group?.entries).forEach(item => {
-    if (item && safe(item.url)) { add(group, item); structuredUrls.add(item.url); }
+    if (item) { add(group, item); if (safe(item.url)) structuredUrls.add(item.url); }
   }));
   list(tabs.external_links).forEach(link => {
     if (!Array.isArray(link) || !safe(link[2]) || structuredUrls.has(link[2])) return;
     const [name, description, url] = link;
     const matches = contexts.get(url) || [];
-    add(source(name, url), { url,
+    add({display_name:name}, { url,
       label: [...new Set(matches.map(match => match.label).filter(Boolean))].join('; ') || description || url,
       entities: matches.flatMap(match => match.entities), provenance: matches.map(match => match.provenance) });
   });

@@ -21,9 +21,13 @@ export default function ExternalLinksPanel({ groups = [] }) {
         <Typography sx={{ fontSize: 12, fontWeight: 700, color: '#1E293B', mb: 0.35 }}>Other ontology</Typography>
         <Typography variant="body2" sx={{ fontSize: 9.5, fontWeight: 700, color: '#94A3B8', letterSpacing: '0.05em', overflowWrap: 'anywhere' }}>Where suitable public ontology terms are unavailable, we use locally adapted terms. The PanKgraph team is working to refine these terms for inclusion in public ontologies.</Typography>
       </Box>;
+      if (group.source_key === 'pankbase-ccc' && !group.entries[0]?.url) return <Box key={key} sx={{ background:'#fff', border:'1px solid #E7EBEF', borderRadius:'10px', p:1.25 }}>
+        <Typography sx={{fontSize:12,fontWeight:700,color:'#1E293B'}}>{group.display_name}</Typography>
+        <Typography variant="body2" sx={{fontSize:11,color:'text.secondary'}}>{group.entries[0].label}</Typography>
+      </Box>;
       const open = search ? searchExpanded[key] !== false : Boolean(expanded[key]);
       const names = [...new Set(group.matches.flatMap(entry => entry.entities.length ? entry.entities.map(e => e.name || e.id) : [entry.label]).filter(Boolean))];
-      const preview = names.slice(0, 3).join(', ') + (names.length > 3 ? ', …' : '');
+      const preview = group.source_key === 'pankbase-ccc' ? group.matches[0].label : names.slice(0, 3).join(', ') + (names.length > 3 ? ', …' : '');
       const rows = showAll[key] ? group.matches : group.matches.slice(0, 10);
       return <Box key={key} sx={{ background: '#fff', border: '1px solid #E7EBEF', borderRadius: '10px', overflow: 'hidden' }}>
         <ButtonBase aria-expanded={open} onClick={() => search ? setSearchExpanded(old => ({ ...old, [key]: !open })) : setExpanded(old => ({ ...old, [key]: !old[key] }))} sx={{ width: '100%', p: 1.25, textAlign: 'left', justifyContent: 'flex-start', alignItems: 'flex-start', gap: 3, transition: 'all 0.2s ease', '&:hover': { background: '#F0F4F4' }, '&.Mui-focusVisible': { outline: '2px solid #008C8C', outlineOffset: '-3px' } }}>

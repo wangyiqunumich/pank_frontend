@@ -60,3 +60,16 @@ test('missing context uses supplied description or URL; portals have descriptive
   const groups = normalizeExternalLinks({ external_links: [['Portal', 'Browse records', 'https://example.org'], ['Other', '', 'https://other.org'], ['Ensembl', 'old description', 'https://www.ensembl.org/Homo_sapiens/Gene/Summary?g=ENSG00000000001']] }, { nodes: [{ id: 'ENSG00000000001', properties: { name: 'ADCY3' }, labels: ['Gene'] }] });
   expect(groups.flatMap(group => group.entries.map(entry => entry.label))).toEqual(['ADCY3', 'https://other.org', 'Browse records']);
 });
+
+test('CCC shows a publication notice until a Data Library record is supplied', () => {
+  const name = 'JP Cartailler / PanKbase CCC';
+  const legacy = {external_links:[[name,'old description','https://mail.google.com/mail/']]};
+  const groups = normalizeExternalLinks({external_link_groups:normalizeExternalLinks(legacy)});
+  render(<ExternalLinksPanel groups={groups}/>);
+  expect(screen.getByText('PanKbase Data Library')).toBeTruthy();
+  expect(screen.getByText(/record link will be added when published/)).toBeTruthy();
+  expect(screen.queryByRole('link')).toBeNull();
+  const url = 'https://data.pankbase.org/analysis-sets/PKBTEST123/';
+  const updated = normalizeExternalLinks({external_links:[...legacy.external_links,[name,'CCC',url]]});
+  expect(updated[0].entries.map(entry=>entry.url)).toEqual([url]);
+});
