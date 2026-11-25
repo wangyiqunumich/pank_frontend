@@ -632,6 +632,9 @@
     "alt_id"
   ],
   "value_labels": {
+    "cellphone_pvals": {
+      "0": "<0.001"
+    },
     "data_source": {
       "JP Cartailler / PanKbase CCC": "PanKbase"
     },
