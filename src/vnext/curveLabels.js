@@ -15,8 +15,7 @@ function curvePoint(start, controls, end, fraction) {
 export function placeCurveLabels(cy) {
   if (cy.headless() || !cy.container()) return;
   const occupied = cy.nodes().map(n => n.boundingBox({ includeOverlays: false }));
-  const labels = cy.edges().filter(e => e.style('label') && e.style('curve-style') === 'unbundled-bezier' &&
-    e.data('raw_type') !== 'LIGAND_RECEPTOR');
+  const labels = cy.edges().filter(e => e.style('label') && e.style('curve-style') === 'unbundled-bezier');
   const placements = [];
   for (const edge of labels.sort((a,b) => a.id().localeCompare(b.id()))) {
     const controls = edge.controlPoints();

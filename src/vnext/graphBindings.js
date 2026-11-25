@@ -2,7 +2,6 @@ import { placeCurveLabels } from './curveLabels';
 import { displayWords } from './recordedPresentation';
 import { samplePresentation } from './samplePresentation';
 import panelPresentation from '../schema/graph_viewer_panel_schema.json';
-const cccType = 'LIGAND_RECEPTOR';
 const point = (value) => Array.isArray(value) ? { x: value[0], y: value[1] } : value;
 const finitePoint = (value) => { const p = point(value); return p && Number.isFinite(p.x) && Number.isFinite(p.y) ? p : null; };
 
@@ -254,8 +253,7 @@ export function graphElements(result, positions = {}, routes = {}, options = {})
     const inverted = Boolean(edgeIsInverted[displayType]);
     const start = edge['~start'], end = edge['~end'];
     const style = routeStyle(routes[edge['~id']], byId[start].position, byId[end].position, inverted);
-    edgeStyles.set(edge['~id'], { ...style, 'text-opacity': 1, 'text-events': 'yes',
-      ...(edge['~type'] === cccType && { 'text-margin-x': 0, 'text-margin-y': 0 }) });
+    edgeStyles.set(edge['~id'], { ...style, 'text-opacity': 1, 'text-events': 'yes', 'text-background-padding': 1.5 });
     return { data: { ...(edge[propertyKey] || {}), element_kind: 'edge', viewer_ref: edge.ref ? { ...edge.ref } : null, id: edge['~id'], source: inverted ? end : start, target: inverted ? start : end,
       source_name: byId[start].data.label, target_name: byId[end].data.label, type: displayType, raw_type: edge['~type'], ccc_context: edge.ccc_context,
       label: label.replace(/_/g, ' ').trim(),

@@ -115,7 +115,7 @@ test('a sparse inspection leaves an explicit empty state and no empty provenance
  expect(container.querySelector('footer')).toBeNull();
 });
 
-test('compact CCC readiness waits for supporting contexts and a parent rerender does not reload them', async () => {
+test('compact CCC is ready while supporting contexts load and a parent rerender does not reload them', async () => {
  const ref={kind:'edge',id:'ccc',type_id:'LIGAND_RECEPTOR__Gene__Gene'};
  const data={id:ref.id,element_kind:ref.kind,viewer_ref:ref};
  const row={source:'Alpha',target:'Beta',condition:'ND',selection_status:'supporting'};
@@ -131,7 +131,7 @@ test('compact CCC readiness waits for supporting contexts and a parent rerender 
  const panel=()=> <ObjectInformationPanel data={data} endpointNodes={[endpoint]} service={service} releaseId={schema.release_id} onReady={onReady}/>;
  const {rerender}=render(panel());
  await screen.findByText('Loading sender → receiver contexts…');
- expect(onReady).not.toHaveBeenCalled();
+ expect(onReady).toHaveBeenCalledTimes(1);
  await act(async()=>finishContexts({state:'available',records:[row],has_more:false}));
  expect(screen.getByText(/Alpha → Beta/)).toBeTruthy();
  expect(onReady).toHaveBeenCalledTimes(1);
@@ -295,6 +295,8 @@ test('CCC summary uses only supporting contexts and the matrix includes every ow
  expect(request.mock.calls[0][1]).toMatchObject({ref,table_id:'ccc_contexts',filters:{selection_status:'supporting'}});
  expect(screen.queryByText('Quiescent Stellate → Endothelial',{exact:false,selector:'li'})).toBeNull();
  rerender(surface('expanded'));
+ expect(screen.getByRole('tab',{name:'Complete record',selected:true})).toBeTruthy();
+ fireEvent.click(screen.getByRole('tab',{name:'Cell–cell contexts'}));
  expect(await screen.findByText('Active Stellate → Endothelial',{exact:false,selector:'li'})).toBeTruthy();
  expect(screen.queryByText('Quiescent Stellate → Endothelial',{exact:false,selector:'li'})).toBeNull();
  expect(await screen.findByRole('img',{name:/TIMP3 \(Quiescent Stellate\) → KDR \(Endothelial\).*2 \/ 3/})).toBeTruthy();

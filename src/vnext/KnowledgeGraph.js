@@ -1171,6 +1171,7 @@ export default function KnowledgeGraph({ inspectSelection, prefetchEvidence = tr
       container,
       elements: { nodes, edges },
       style: nodeStyle.concat([
+        { selector: 'edge', style: { 'text-margin-y': -5 } },
         {
           selector: 'node[cellRegion]',
           style: {

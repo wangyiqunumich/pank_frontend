@@ -421,7 +421,7 @@ export function InspectedInformationPanel({card, schema, request, releaseId, com
   const canExpand = !compactOnly && model.canExpand;
   const empty = !compact.sections.length && !context.endpoints.length && !cccTable;
   const message = notice || (empty ? loading ? 'Loading details…' : canExpand ? 'Enlarge for complete record' : 'No details recorded.' : null);
-  const ready = releaseId === schema.release_id && card.release_id === releaseId && !loading && (!cccTable || !!cccState);
+  const ready = releaseId === schema.release_id && card.release_id === releaseId && !loading;
   const type = shown.production_design === 'Variant' ? 'Sequence variant'
     : shown.subtitle || schema.profiles?.[`${shown.ref.kind}:${shown.ref.type_id}`]?.title;
   const recordType = type?.toLowerCase() === shown.title?.toLowerCase() ? undefined : type;

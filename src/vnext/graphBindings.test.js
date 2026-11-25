@@ -336,7 +336,8 @@ test('CCC layouts reserve the label width along the edge before viewport fitting
   const freeSpan = nodes[1].position.x - nodes[0].position.x - (28 + 22) / 2;
   expect(freeSpan).toBeGreaterThanOrEqual(21);
   expect(edges[0].data.label).toBe('CCC');
-  expect(edgeStyles.get('ccc')).toMatchObject({'text-margin-x': 0, 'text-margin-y': 0});
+  expect(edgeStyles.get('ccc')).toMatchObject({'text-events': 'yes'});
+  expect(edgeStyles.get('ccc')).not.toHaveProperty('text-margin-y');
 });
 
 test('mixed expression and CCC reuse the exact Cell and reserve one region per ontology ID', () => {

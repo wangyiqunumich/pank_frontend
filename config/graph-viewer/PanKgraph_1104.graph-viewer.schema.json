@@ -4966,7 +4966,6 @@
       ]
     },
     "record_view": {
-      "preferred_evidence_visualization": "ccc_dot_matrix",
       "relationship_roles": {
         "LIGAND_RECEPTOR": ["Ligand", "Receptor"]
       },

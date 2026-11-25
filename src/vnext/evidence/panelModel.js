@@ -122,7 +122,6 @@ export function evidencePanelModel(source, schema) {
   const evidence = tabs.map(tab => ({id:tab.id, title:tab.title, layout:'table', blocks:[...overview, ...contextBlocks,
     ...(tab.visualization ? [{kind:tab.visualization}] : []), {kind:'tables', ...evidenceTables(tab,card,schema,panel)},
   ]}));
-  const preferred = tabs.find(tab => tab.visualization && tab.visualization === panel.record_view.preferred_evidence_visualization);
   return {card, panel, display, compact, context, cccTable:cccTab?.table, views:[record,...evidence],
-    defaultView:preferred?.id || record.id, canExpand:hasExtraRecord(card,compact,tabs,panel)};
+    defaultView:record.id, canExpand:hasExtraRecord(card,compact,tabs,panel)};
 }
